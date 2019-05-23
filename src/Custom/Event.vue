@@ -130,7 +130,7 @@
 
                 <!-- Notifications -->
 
-                <Notification :details="details"/>
+                <Notification :details="details" v-on:updatedNotification="(n) => {details.notifications = n}"/>
 
 
 

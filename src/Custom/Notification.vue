@@ -33,10 +33,10 @@
         v-model="notification.end"
       ></v-text-field>
 
-      <v-btn color="secondary" @click="add(index)" fab small>
+      <v-btn depressed color="secondary" @click="add(index)" fab small>
         <v-icon dark>add</v-icon>
       </v-btn>
-      <v-btn color="secondary" @click="remove(index)" fab small v-if="index">
+      <v-btn depressed color="secondary" @click="remove(index)" fab small v-if="index">
          <v-icon dark>remove</v-icon>
       </v-btn>
     </div>
@@ -65,6 +65,16 @@ export default {
       }
     };
   },
+
+  watch: {
+    notificationTimes: {
+      deep: true,
+      handler() {
+        this.$emit('updatedNotification', this.notificationTimes);
+      }
+    }
+  },
+
   created() {
     if (!this.notificationTimes.length) {
       this.notificationTimes.push(_.clone(this.notificationItem));
@@ -77,10 +87,16 @@ export default {
   },
   methods: {
     add(index) {
-      this.notificationTimes.splice(index+1,0,_.clone(this.notificationItem));
+      const n = _.clone(this.notificationTimes);
+      n.splice(index+1,0,_.clone(this.notificationItem));
+      this.notificationTimes = n;
+      this.$emit('updatedNotification', this.notificationTimes);
     },
     remove(i) {
-      this.notificationTimes.splice(i, 1);
+      const n = _.clone(this.notificationTimes);
+      n.splice(i, 1);
+      this.notificationTimes = n;
+      this.$emit('updatedNotification', this.notificationTimes);
     }
   },
 }
