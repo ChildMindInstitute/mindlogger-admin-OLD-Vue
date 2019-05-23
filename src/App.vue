@@ -28,14 +28,14 @@
       </template>
 
       <template slot="eventCreatePopover" slot-scope="{placeholder, calendar, close}">
-        <ds-calendar-event-create-popover
+        <calendar-event-create-popover
           :calendar-event="placeholder"
           :calendar="calendar"
           :close="$refs.app.$refs.calendar.clearPlaceholder"
           :activities="activities"
           @create-edit="$refs.app.editPlaceholder"
           @create-popover-closed="saveState"
-        ></ds-calendar-event-create-popover>
+        ></calendar-event-create-popover>
       </template>
 
       <template slot="eventTimeTitle" slot-scope="{calendarEvent, details}">
@@ -74,6 +74,7 @@ import { Calendar, Weekday, Month } from 'dayspan';
 import Vue from 'vue';
 
 import CalendarApp from './Custom/CalendarApp';
+import CalendarEventCreatePopover from './Custom/CalendarEventCreatePopover';
 
 
 export default {
@@ -82,6 +83,7 @@ export default {
 
   components: {
     CalendarApp,
+    CalendarEventCreatePopover,
   },
 
   data: () => ({

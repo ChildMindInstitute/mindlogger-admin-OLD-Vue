@@ -160,14 +160,14 @@
 
       <slot name="calendarAppEventDialog" v-bind="{$scopedSlots, $listeners, calendar, eventFinish}">
 
-        <ds-event-dialog ref="eventDialog"
+        <event-dialog ref="eventDialog"
           v-bind="{$scopedSlots}"
           v-on="$listeners"
           :calendar="calendar"
           :read-only="readOnly"
           @saved="eventFinish"
           @actioned="eventFinish"
-        ></ds-event-dialog>
+        ></event-dialog>
 
       </slot>
 
@@ -234,9 +234,15 @@
 <script>
 import { Constants, Sorts, Calendar, Day, Units, Weekday, Month, DaySpan, PatternMap, Time, Op } from 'dayspan';
 
+import EventDialog from './EventDialog';
+
 export default {
 
   name: 'dsCalendarApp',
+
+  components: {
+    EventDialog,
+  },
 
   props:
   {
