@@ -20,11 +20,11 @@
       </template>
 
       <template slot="eventPopover" slot-scope="slotData">
-         <ds-calendar-event-popover
+         <calendar-event-popover
           v-bind="slotData"
           :read-only="readOnly"
           @finish="saveState"
-        ></ds-calendar-event-popover>
+        ></calendar-event-popover>
       </template>
 
       <template slot="eventCreatePopover" slot-scope="{placeholder, calendar, close}">
@@ -75,6 +75,7 @@ import Vue from 'vue';
 
 import CalendarApp from './Custom/CalendarApp';
 import CalendarEventCreatePopover from './Custom/CalendarEventCreatePopover';
+import CalendarEventPopover from './Custom/CalendarEventPopover';
 
 
 export default {
@@ -84,6 +85,7 @@ export default {
   components: {
     CalendarApp,
     CalendarEventCreatePopover,
+    CalendarEventPopover,
   },
 
   data: () => ({

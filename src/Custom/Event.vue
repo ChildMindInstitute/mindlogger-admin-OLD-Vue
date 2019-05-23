@@ -41,7 +41,6 @@
 
         <!-- More Actions -->
         <slot name="scheduleActions" v-bind="{calendarEvent, schedule, calendar, actioned, readOnly}">
-
           <ds-schedule-actions
             v-if="calendarEvent && !isReadOnly"
             v-bind="{$scopedSlots}"
@@ -77,13 +76,11 @@
     <div class="ds-event-body ds-event-area">
 
       <slot name="schedule" v-bind="slotData">
-
         <ds-schedule
           :schedule="schedule"
           :day="day"
           :read-only="readOnly"
         ></ds-schedule>
-
       </slot>
 
     </div>
@@ -119,88 +116,23 @@
           <v-tab-item value="details" v-if="hasDetails">
             <v-card flat>
               <v-card-text>
+                {{details}}
+                <br>
+                <br>
+                <!-- Max number of responses -->
+                max # of responses
+                <v-text-field
+                  single-line hide-details solo flat
+                  type="number"
+                  :value="1"
+                  v-model="details.maxResponses"
+                ></v-text-field>
 
-                <!-- Location -->
-                <slot name="eventDetailsLocation" v-bind="slotData">
-                  <v-text-field v-if="$dayspan.supports.location"
-                    single-line hide-details solo flat
-                    prepend-icon="location_on"
-                    :label="labels.location"
-                    :readonly="isReadOnly"
-                    v-model="details.location"
-                  ></v-text-field>
-                </slot>
+                <!-- Notifications -->
 
-                <!-- Description -->
-                <slot name="eventDetailsDescription" v-bind="slotData">
-                  <v-textarea v-if="$dayspan.supports.description"
-                    hide-details single-line solo flat
-                    prepend-icon="subject"
-                    :label="labels.description"
-                    :readonly="isReadOnly"
-                    v-model="details.description"
-                  ></v-textarea>
-                </slot>
+                <Notification :details="details"/>
 
-                <!-- Calendar -->
-                <slot name="eventDetailsCalendar" v-bind="slotData">
-                  <v-text-field v-if="$dayspan.supports.calendar"
-                    single-line hide-details solo flat readonly
-                    prepend-icon="event"
-                    :label="labels.calendar"
-                    :readonly="isReadOnly"
-                    v-model="details.calendar"
-                  ></v-text-field>
-                </slot>
 
-                <!-- Color -->
-                <slot name="eventDetailsColor" v-bind="slotData">
-                  <v-select v-if="$dayspan.supports.color"
-                    single-line hide-details solo flat
-                    prepend-icon="invert_colors"
-                    :items="$dayspan.colors"
-                    :color="details.color"
-                    :disabled="isReadOnly"
-                    v-model="details.color">
-                    <template slot="item" slot-scope="{ item }">
-                      <v-list-tile-content>
-                        <div class="ds-color-option" :style="{backgroundColor: item.value}" v-text="item.text"></div>
-                      </v-list-tile-content>
-                    </template>
-                  </v-select>
-                </slot>
-
-                <!-- Icon -->
-                <slot name="eventDetailsIcon" v-bind="slotData">
-                  <v-select v-if="$dayspan.supports.icon"
-                    single-line hide-details solo flat
-                    :prepend-icon="details.icon || 'help'"
-                    :items="$dayspan.icons"
-                    :disabled="isReadOnly"
-                    v-model="details.icon">
-                    <template slot="item" slot-scope="{ item }">
-                      <v-list-tile-avatar>
-                        <v-icon>{{ item.value }}</v-icon>
-                      </v-list-tile-avatar>
-                      <v-list-tile-content>
-                        {{ item.text }}
-                      </v-list-tile-content>
-                    </template>
-                  </v-select>
-                </slot>
-
-                <!-- Busy -->
-                <slot name="eventDetailsBusy" v-bind="slotData">
-                  <v-select v-if="$dayspan.supports.busy"
-                    single-line hide-details solo flat
-                    prepend-icon="work"
-                    :items="busyOptions"
-                    :disabled="isReadOnly"
-                    v-model="details.busy"
-                  ></v-select>
-                </slot>
-
-                <slot name="eventDetailsExtra" v-bind="slotData"></slot>
 
               </v-card-text>
             </v-card>
@@ -285,11 +217,15 @@
 
 <script>
 import { Day, Calendar, CalendarEvent, Schedule, Functions as fn } from 'dayspan';
-
+import Notification from './Notification';
 
 export default {
 
   name: 'dsEvent',
+
+  components: {
+    Notification,
+  },
 
   props:
   {

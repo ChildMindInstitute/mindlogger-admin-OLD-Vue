@@ -13,7 +13,9 @@
          v-model="details.title"
        ></v-text-field> -->
 
-       <v-select :items="activityNames"  v-model="details.title"></v-select>
+       <v-select :items="activityNames" 
+        placeholder="Select Activity"
+        v-model="details.title"></v-select>
 
      </v-toolbar-title>
 

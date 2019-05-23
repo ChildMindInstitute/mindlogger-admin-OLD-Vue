@@ -22,7 +22,11 @@
           @event-create="eventCreate"
           @event-update="eventUpdate"
           @event-remove="eventRemove"
-        ></event>
+        >
+          <template name="eventDetailsLocation">
+            Notifications
+          </template>
+        </event>
 
       </v-card-text>
 
