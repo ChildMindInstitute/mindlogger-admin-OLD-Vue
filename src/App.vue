@@ -1,9 +1,10 @@
 <template>
   <v-app id="dayspan" v-cloak>
 
-    <ds-calendar-app ref="app"
+    <calendar-app ref="app"
       :calendar="calendar"
       :read-only="readOnly"
+      :activities="activities"
       @change="saveState">
 
       <template slot="title">
@@ -31,6 +32,7 @@
           :calendar-event="placeholder"
           :calendar="calendar"
           :close="$refs.app.$refs.calendar.clearPlaceholder"
+          :activities="activities"
           @create-edit="$refs.app.editPlaceholder"
           @create-popover-closed="saveState"
         ></ds-calendar-event-create-popover>
@@ -51,14 +53,18 @@
 
       <template slot="drawerBottom">
         <div class="pa-3">
-          <v-checkbox
+          <v-subheader>Activities</v-subheader>
+          <v-checkbox v-for="act in activities" :key="act.name" :label="act.name" v-model="act.visible" :color="act.color">
+
+          </v-checkbox>
+          <!-- <v-checkbox
             label="Read Only?"
             v-model="readOnly"
-          ></v-checkbox>
+          ></v-checkbox> -->
         </div>
       </template>
 
-    </ds-calendar-app>
+    </calendar-app>
 
   </v-app>
 </template>
@@ -67,191 +73,34 @@
 import { Calendar, Weekday, Month } from 'dayspan';
 import Vue from 'vue';
 
+import CalendarApp from './Custom/CalendarApp';
+
 
 export default {
 
   name: 'app',
 
+  components: {
+    CalendarApp,
+  },
+
   data: () => ({
+    activities: [
+      {
+        name: 'Morning',
+        color: 'blue',
+        visible: true,
+      },
+      {
+        name: 'Evening',
+        color: 'red',
+        visible: true,
+      }
+    ],
     storeKey: 'dayspanState',
     calendar: Calendar.months(),
     readOnly: false,
-    defaultEvents: [
-      {
-        data: {
-          title: 'Weekly Meeting',
-          color: '#3F51B5'
-        },
-        schedule: {
-          dayOfWeek: [Weekday.MONDAY],
-          times: [9],
-          duration: 30,
-          durationUnit: 'minutes'
-        }
-      },
-      {
-        data: {
-          title: 'First Weekend',
-          color: '#4CAF50'
-        },
-        schedule: {
-          weekspanOfMonth: [0],
-          dayOfWeek: [Weekday.FRIDAY],
-          duration: 3,
-          durationUnit: 'days'
-        }
-      },
-      {
-        data: {
-          title: 'End of Month',
-          color: '#000000'
-        },
-        schedule: {
-          lastDayOfMonth: [1],
-          duration: 1,
-          durationUnit: 'hours'
-        }
-      },
-      {
-        data: {
-          title: 'Mother\'s Day',
-          color: '#2196F3',
-          calendar: 'US Holidays'
-        },
-        schedule: {
-          month: [Month.MAY],
-          dayOfWeek: [Weekday.SUNDAY],
-          weekspanOfMonth: [1]
-        }
-      },
-      {
-        data: {
-          title: 'New Year\'s Day',
-          color: '#2196F3',
-          calendar: 'US Holidays'
-        },
-        schedule: {
-          month: [Month.JANUARY],
-          dayOfMonth: [1]
-        }
-      },
-      {
-        data: {
-          title: 'Inauguration Day',
-          color: '#2196F3',
-          calendar: 'US Holidays'
-        },
-        schedule: {
-          month: [Month.JANUARY],
-          dayOfMonth: [20]
-        }
-      },
-      {
-        data: {
-          title: 'Martin Luther King, Jr. Day',
-          color: '#2196F3',
-          calendar: 'US Holidays'
-        },
-        schedule: {
-          month: [Month.JANUARY],
-          dayOfWeek: [Weekday.MONDAY],
-          weekspanOfMonth: [2]
-        }
-      },
-      {
-        data: {
-          title: 'George Washington\'s Birthday',
-          color: '#2196F3',
-          calendar: 'US Holidays'
-        },
-        schedule: {
-          month: [Month.FEBRUARY],
-          dayOfWeek: [Weekday.MONDAY],
-          weekspanOfMonth: [2]
-        }
-      },
-      {
-        data: {
-          title: 'Memorial Day',
-          color: '#2196F3',
-          calendar: 'US Holidays'
-        },
-        schedule: {
-          month: [Month.MAY],
-          dayOfWeek: [Weekday.MONDAY],
-          lastWeekspanOfMonth: [0]
-        }
-      },
-      {
-        data: {
-          title: 'Independence Day',
-          color: '#2196F3',
-          calendar: 'US Holidays'
-        },
-        schedule: {
-          month: [Month.JULY],
-          dayOfMonth: [4]
-        }
-      },
-      {
-        data: {
-          title: 'Labor Day',
-          color: '#2196F3',
-          calendar: 'US Holidays'
-        },
-        schedule: {
-          month: [Month.SEPTEMBER],
-          dayOfWeek: [Weekday.MONDAY],
-          lastWeekspanOfMonth: [0]
-        }
-      },
-      {
-        data: {
-          title: 'Columbus Day',
-          color: '#2196F3',
-          calendar: 'US Holidays'
-        },
-        schedule: {
-          month: [Month.OCTOBER],
-          dayOfWeek: [Weekday.MONDAY],
-          weekspanOfMonth: [1]
-        }
-      },
-      {
-        data: {
-          title: 'Veterans Day',
-          color: '#2196F3',
-          calendar: 'US Holidays'
-        },
-        schedule: {
-          month: [Month.NOVEMBER],
-          dayOfMonth: [11]
-        }
-      },
-      {
-        data: {
-          title: 'Thanksgiving Day',
-          color: '#2196F3',
-          calendar: 'US Holidays'
-        },
-        schedule: {
-          month: [Month.NOVEMBER],
-          dayOfWeek: [Weekday.THURSDAY],
-          weekspanOfMonth: [3]
-        }
-      },
-      {
-        data: {
-          title: 'Christmas Day',
-          color: '#2196F3',
-          calendar: 'US Holidays'
-        },
-        schedule: {
-          month: [Month.DECEMBER],
-          dayOfMonth: [25]
-        }
-      }
-    ]
+    defaultEvents: [],
   }),
 
   mounted()
