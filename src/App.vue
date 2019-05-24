@@ -1,183 +1,108 @@
 <template>
-  <v-app id="dayspan" v-cloak>
+  <v-app>
+  <v-stepper v-model="e1" style="overflow: scroll;">
+    <v-stepper-header>
+      <v-stepper-step 
+      v-for="(step, index) in steps"
+      :key="`step_tab_${index}`"
+      :complete="e1 > index" :step="index+1">
+      {{step.name}}
+      </v-stepper-step>
+      
+    </v-stepper-header>
 
-    <calendar-app ref="app"
-      :calendar="calendar"
-      :read-only="readOnly"
-      :activities="activities"
-      @change="saveState">
+    <v-stepper-items>
 
-      <template slot="title">
-        DaySpan
-      </template>
+      <v-stepper-content v-for="(step, index) in steps" :step="index+1"
+       :key="`step_content_${index}`">
+        <component v-bind:is="step.component" />
+      </v-stepper-content>
 
-      <template slot="menuRight">
-        <v-btn icon large href="https://github.com/ClickerMonkey/dayspan-vuetify" target="_blank">
-          <v-avatar size="32px" tile>
-            <img src="https://simpleicons.org/icons/github.svg" alt="Github">
-          </v-avatar>
-        </v-btn>
-      </template>
+    </v-stepper-items>
 
-      <template slot="eventPopover" slot-scope="slotData">
-         <calendar-event-popover
-          v-bind="slotData"
-          :read-only="readOnly"
-          @finish="saveState"
-        ></calendar-event-popover>
-      </template>
+  </v-stepper>
 
-      <template slot="eventCreatePopover" slot-scope="{placeholder, calendar, close}">
-        <calendar-event-create-popover
-          :calendar-event="placeholder"
-          :calendar="calendar"
-          :close="$refs.app.$refs.calendar.clearPlaceholder"
-          :activities="activities"
-          @create-edit="$refs.app.editPlaceholder"
-          @create-popover-closed="saveState"
-        ></calendar-event-create-popover>
-      </template>
+  <v-layout row wrap>
+    <v-btn flat v-if="e1 > 1" @click="e1 -= 1">Prev</v-btn>
+    <v-flex></v-flex>
+    <v-flex></v-flex>
+    <v-flex>
 
-      <template slot="eventTimeTitle" slot-scope="{calendarEvent, details}">
-        <div>
-          <v-icon class="ds-ev-icon"
-            v-if="details.icon"
-            size="14"
-            :style="{color: details.forecolor}">
-            {{ details.icon }}
-          </v-icon>
-          <strong class="ds-ev-title">{{ details.title }}</strong>
-        </div>
-        <div class="ds-ev-description">{{ getCalendarTime( calendarEvent ) }}</div>
-      </template>
+    <v-flex style="text-align: right;">
+      <v-btn
+      color="primary"
+      @click="e1 += 1"
+      v-if="e1 < steps.length"
+      >
+      Continue
+      </v-btn>
+    </v-flex>
+    </v-flex>
+  </v-layout>
 
-      <template slot="drawerBottom">
-        <div class="pa-3">
-          <v-subheader>Activities</v-subheader>
-          <v-checkbox v-for="act in activities" :key="act.name" :label="act.name" v-model="act.visible" :color="act.color">
-
-          </v-checkbox>
-          <!-- <v-checkbox
-            label="Read Only?"
-            v-model="readOnly"
-          ></v-checkbox> -->
-        </div>
-      </template>
-
-    </calendar-app>
+       
 
   </v-app>
 </template>
 
 <script>
-import { Calendar, Weekday, Month } from 'dayspan';
-import Vue from 'vue';
-
-import CalendarApp from './Custom/CalendarApp';
-import CalendarEventCreatePopover from './Custom/CalendarEventCreatePopover';
-import CalendarEventPopover from './Custom/CalendarEventPopover';
-
+import SetBackend from './Steps/SetBackend';
+import Login from './Steps/Login';
+import SetApplet from './Steps/SetApplet';
+import SetGroups from './Steps/SetGroups';
+import SetUsers from './Steps/SetReviewers';
+import SetReviewers from './Steps/SetReviewers';
+import SetSchedule from './Steps/SetSchedule';
 
 export default {
 
   name: 'app',
 
   components: {
-    CalendarApp,
-    CalendarEventCreatePopover,
-    CalendarEventPopover,
+
   },
 
   data: () => ({
-    activities: [
+    e1: 0,
+    steps: [
       {
-        name: 'Morning',
-        color: 'blue',
-        visible: true,
+        name: 'backend',
+        component: SetBackend,
+      },
+       {
+        name: 'login',
+        component: Login,
+      },     
+      {
+        name: 'applet',
+        component: SetApplet,
+      },     
+      {
+        name: 'schedule',
+        component: SetSchedule,
       },
       {
-        name: 'Evening',
-        color: 'red',
-        visible: true,
+        name: 'groups',
+        component: SetGroups
+      },
+      {
+        name: 'users',
+        component: SetUsers,
+      },
+      {
+        name: 'reviewers',
+        component: SetReviewers,
       }
     ],
-    storeKey: 'dayspanState',
-    calendar: Calendar.months(),
-    readOnly: false,
-    defaultEvents: [],
   }),
 
   mounted()
   {
-    window.app = this.$refs.app;
 
-    this.loadState();
   },
 
-  methods:
-  {
-    getCalendarTime(calendarEvent)
-    {
-      let sa = calendarEvent.start.format('a');
-      let ea = calendarEvent.end.format('a');
-      let sh = calendarEvent.start.format('h');
-      let eh = calendarEvent.end.format('h');
+  methods: {
 
-      if (calendarEvent.start.minute !== 0)
-      {
-        sh += calendarEvent.start.format(':mm');
-      }
-
-      if (calendarEvent.end.minute !== 0)
-      {
-        eh += calendarEvent.end.format(':mm');
-      }
-
-      return (sa === ea) ? (sh + ' - ' + eh + ea) : (sh + sa + ' - ' + eh + ea);
-    },
-
-    saveState()
-    {
-      let state = this.calendar.toInput(true);
-      let json = JSON.stringify(state);
-
-      localStorage.setItem(this.storeKey, json);
-    },
-
-    loadState()
-    {
-      let state = {};
-
-      try
-      {
-        let savedState = JSON.parse(localStorage.getItem(this.storeKey));
-
-        if (savedState)
-        {
-          state = savedState;
-          state.preferToday = false;
-        }
-      }
-      catch (e)
-      {
-        // eslint-disable-next-line
-        console.log( e );
-      }
-
-      if (!state.events || !state.events.length)
-      {
-        state.events = this.defaultEvents;
-      }
-
-      state.events.forEach(ev =>
-      {
-        let defaults = this.$dayspan.getDefaultEventDetails();
-
-        ev.data = Vue.util.extend( defaults, ev.data );
-      });
-
-      this.$refs.app.setState( state );
-    }
   }
 }
 </script>

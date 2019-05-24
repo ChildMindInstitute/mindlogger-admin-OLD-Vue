@@ -74,7 +74,6 @@
     </div>
 
     <div class="ds-event-body ds-event-area">
-
       <slot name="schedule" v-bind="slotData">
         <ds-schedule
           :schedule="schedule"

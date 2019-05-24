@@ -1,9 +1,10 @@
 <template>
 <div class="ds-expand ds-calendar-app">
 
-  <v-navigation-drawer fixed app
+  <!-- <v-navigation-drawer 
+    clipped
     v-model="drawer"
-    :clipped="$vuetify.breakpoint.lgAndUp">
+    >
 
     <slot name="drawerTop"></slot>
 
@@ -15,12 +16,14 @@
 
     <slot name="drawerBottom"></slot>
 
-  </v-navigation-drawer>
+  </v-navigation-drawer> -->
 
-  <v-toolbar app flat fixed
+  <!-- <v-toolbar flat app absolute
     class="ds-app-calendar-toolbar"
     color="white"
     :clipped-left="$vuetify.breakpoint.lgAndUp">
+  
+
 
     <v-toolbar-title class="ml-0" :style="toolbarStyle">
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
@@ -109,10 +112,71 @@
 
     <slot name="menuRight"></slot>
 
-  </v-toolbar>
-  <v-content class="ds-expand">
-    <v-container fluid fill-height class="ds-calendar-container">
+  </v-toolbar> -->
 
+  <v-content class="ds-expand">
+    <v-container fluid class="ds-calendar-container" style="height: 100%;">
+
+      <!-- top controls -->
+      <div>
+        <v-tooltip bottom>
+          <v-btn slot="activator"
+            class="ds-skinny-button"
+            depressed
+            :icon="$vuetify.breakpoint.smAndDown"
+            @click="setToday">
+
+            <span v-if="$vuetify.breakpoint.mdAndUp">{{ labels.today }}</span>
+            <v-icon v-else>{{ labels.todayIcon }}</v-icon>
+
+          </v-btn>
+          <span>{{ todayDate }}</span>
+        </v-tooltip>
+
+        <v-tooltip bottom>
+          <v-btn slot="activator"
+            icon depressed class="ds-light-forecolor ds-skinny-button"
+            @click="prev" >
+            <v-icon>keyboard_arrow_left</v-icon>
+          </v-btn>
+          <span>{{ prevLabel }}</span>
+        </v-tooltip>
+
+        <v-tooltip bottom>
+          <v-btn slot="activator"
+            icon depressed
+            class="ds-light-forecolor ds-skinny-button"
+            @click="next">
+            <v-icon>keyboard_arrow_right</v-icon>
+          </v-btn>
+          <span>{{ nextLabel }}</span>
+        </v-tooltip>
+
+        <h1 class="title ds-light-forecolor" style="display: inline;">
+          {{ summary }}
+        </h1>
+
+        <span style="text-align: right">
+          <v-menu>
+            <v-btn flat slot="activator">
+              {{ currentType.label }}
+              <v-icon>arrow_drop_down</v-icon>
+            </v-btn>
+            <v-list>
+              <v-list-tile v-for="type in types"
+                :key="type.id"
+                @click="currentType = type">
+                <v-list-tile-content>
+                  <v-list-tile-title>{{ type.label }}</v-list-tile-title>
+                </v-list-tile-content>
+                <v-list-tile-action>{{ type.shortcut }}</v-list-tile-action>
+              </v-list-tile>
+            </v-list>
+          </v-menu>
+        </span>
+      </div>
+
+      <!-- The calendar -->
       <ds-gestures
         @swipeleft="next"
         @swiperight="prev">
@@ -158,6 +222,7 @@
 
       </ds-gestures>
 
+      <!-- dialogs and popups -->
       <slot name="calendarAppEventDialog" v-bind="{$scopedSlots, $listeners, calendar, eventFinish}">
 
         <event-dialog ref="eventDialog"
@@ -216,6 +281,7 @@
             class="ds-add-event-today"
             color="primary"
             fixed bottom right fab
+            style="bottom: 70px;"
             v-model="allowsAddToday"
             @click="addToday">
             <v-icon>add</v-icon>
