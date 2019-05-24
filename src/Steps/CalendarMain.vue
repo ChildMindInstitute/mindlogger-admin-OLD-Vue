@@ -104,7 +104,7 @@ export default {
   {
     window.app = this.$refs.app;
 
-    this.loadState();
+    // this.loadState();
   },
 
   methods:
@@ -131,10 +131,12 @@ export default {
 
     saveState()
     {
-      let state = this.calendar.toInput(true);
-      let json = JSON.stringify(state);
+      const state = this.calendar.toInput(true);
+      // let json = JSON.stringify(state);
 
-      localStorage.setItem(this.storeKey, json);
+      console.log('state', state);
+
+      // localStorage.setItem(this.storeKey, json);
     },
 
     loadState()

@@ -1,6 +1,6 @@
 <template>
   <v-app>
-  <v-stepper v-model="e1" style="overflow: scroll;">
+  <v-stepper v-model="e1" style="overflow: scroll; min-height: calc(100% - 48px);">
     <v-stepper-header>
       <v-stepper-step 
       v-for="(step, index) in steps"
@@ -15,7 +15,7 @@
 
       <v-stepper-content v-for="(step, index) in steps" :step="index+1"
        :key="`step_content_${index}`">
-        <component v-bind:is="step.component" />
+        <component v-bind:is="step.component" :ref="step.name"/>
       </v-stepper-content>
 
     </v-stepper-items>
@@ -31,8 +31,9 @@
     <v-flex style="text-align: right;">
       <v-btn
       color="primary"
-      @click="e1 += 1"
+      @click="next"
       v-if="e1 < steps.length"
+      :disabled="!readyToContinue"
       >
       Continue
       </v-btn>
@@ -46,6 +47,7 @@
 </template>
 
 <script>
+import store from './State/state';
 import SetBackend from './Steps/SetBackend';
 import Login from './Steps/Login';
 import SetApplet from './Steps/SetApplet';
@@ -58,12 +60,15 @@ export default {
 
   name: 'app',
 
+  store,
+
   components: {
 
   },
 
   data: () => ({
-    e1: 0,
+    e1: 1,
+    ready: false,
     steps: [
       {
         name: 'backend',
@@ -96,13 +101,28 @@ export default {
     ],
   }),
 
+  computed: {
+    readyToContinue() {
+      if (this.ready) {
+        console.log('running here', this.steps[this.e1 - 1].name, this.$refs[this.steps[this.e1 - 1].name][0].readyToContinue);
+        return this.steps[this.e1 - 1].name, this.$refs[this.steps[this.e1 - 1].name][0].readyToContinue;
+      }
+      return true;
+    },
+  },
+
   mounted()
   {
-
+    this.ready = true;
   },
 
   methods: {
-
+    next() {
+      this.e1 += 1;
+      if (this.$refs.component.continueAction) {
+        this.$refs.component.continueAction();
+      }
+    }
   }
 }
 </script>
