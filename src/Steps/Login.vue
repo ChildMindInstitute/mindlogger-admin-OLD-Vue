@@ -1,10 +1,10 @@
 <template>
   <div>
     <v-layout row wrap>
-        <v-flex>
+        <v-flex v-if="notLoggedIn">
           <h1>Login</h1>
           <p>
-            Log into your Mindlogger account
+            Log into your Mindlogger account hosted at {{$store.state.backend}}
           </p>
           <v-text-field
             label="username"
@@ -17,41 +17,77 @@
             type="password"
           ></v-text-field>
 
+
+          <div v-if="this.error.message" class="error">
+            {{error.message}}
+          </div>
+
           <v-btn @click="login" color="primary">Login</v-btn>
 
+        </v-flex>
+        <v-flex v-else>
+          <h1>Hello, {{auth.user.login}}</h1>
+          <p>Click "continue" or <v-btn @click="logout" color="primary">Logout</v-btn></p>
         </v-flex>
     </v-layout>
   </div>
 </template>
 
+<style>
+  .error {
+    color: 'red';
+  }
+</style>
+
 <script>
+import api from '@bit/akeshavan.mindlogger-web.api';
+import _ from 'lodash';
+
 export default {
   name: 'Login',
 
   data: () => ({
     username: '',
     password: '',
-    auth: {},
+    error: {},
   }),
 
   computed: {
     readyToContinue() {
+      if (!_.isEmpty(this.auth)) {
+        return true;
+      }
       return false;
+    },
+    notLoggedIn() {
+      return _.isEmpty(this.auth);
+    },
+    auth() {
+      return this.$store.state.auth;
     }
   },
 
   mounted() {
-    if (this.$store.state.auth) {
-      this.auth = this.$store.state.auth;
-    }
   },
 
   methods: {
     continueAction() {
-      // this.$store.commit('setBackend', this.backendServer);
+
     },
     login() {
-
+      this.error = {};
+      api.signIn({
+        apiHost: this.$store.state.backend,
+        user: this.username,
+        password: this.password
+      }).then((resp) => {
+        this.$store.commit('setAuth', resp.data);
+      }).catch((e) => {
+        this.error = e;
+      });
+    },
+    logout() {
+      this.$store.commit('setAuth', {});
     }
   },
 

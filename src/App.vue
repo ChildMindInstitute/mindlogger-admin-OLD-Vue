@@ -46,6 +46,8 @@
   </v-app>
 </template>
 
+
+
 <script>
 import store from './State/state';
 import SetBackend from './Steps/SetBackend';
@@ -71,7 +73,7 @@ export default {
     ready: false,
     steps: [
       {
-        name: 'backend',
+        name: 'server',
         component: SetBackend,
       },
        {
@@ -102,10 +104,14 @@ export default {
   }),
 
   computed: {
+    currentComponent() {
+      if (this.ready) {
+        return this.steps[this.e1 - 1].name, this.$refs[this.steps[this.e1 - 1].name][0];
+      }
+    },
     readyToContinue() {
       if (this.ready) {
-        console.log('running here', this.steps[this.e1 - 1].name, this.$refs[this.steps[this.e1 - 1].name][0].readyToContinue);
-        return this.steps[this.e1 - 1].name, this.$refs[this.steps[this.e1 - 1].name][0].readyToContinue;
+        return this.currentComponent.readyToContinue;
       }
       return true;
     },
@@ -118,19 +124,21 @@ export default {
 
   methods: {
     next() {
+      this.currentComponent.continueAction();
       this.e1 += 1;
-      if (this.$refs.component.continueAction) {
-        this.$refs.component.continueAction();
-      }
     }
   }
 }
 </script>
 
+<style lang="scss">
+  @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans:300,400');
+</style>
+
 <style>
 
 body, html, #app, #dayspan {
-  font-family: Roboto, sans-serif !important;
+  font-family: 'IBM Plex Sans', sans-serif !important;
   width: 100%;
   height: 100%;
 }

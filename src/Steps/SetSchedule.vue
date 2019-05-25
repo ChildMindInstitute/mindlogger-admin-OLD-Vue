@@ -3,6 +3,13 @@
     <div v-if="scheduleType === 'absolute'">
       <Calendar />
     </div>
+    <div v-else-if="scheduleType === 'relative'">
+      relative schedule here.
+    </div>
+    <div v-else>
+      {{scheduleType}}
+      {{$store.state.currentApplet.schedule.scheduleType}}
+    </div>
   </div>
 </template>
 
@@ -15,7 +22,15 @@ export default {
     Calendar,
   },
   data: () => ({
-    scheduleType: 'absolute',
-  })
+
+  }),
+  computed: {
+    scheduleType() {
+      if (this.$store.state.currentApplet) {
+        return this.$store.state.currentApplet.schedule.scheduleType;
+      }
+      return 'none';
+    }
+  }
 }
 </script>

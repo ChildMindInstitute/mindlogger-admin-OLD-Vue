@@ -66,9 +66,9 @@
 import { Calendar } from 'dayspan';
 import Vue from 'vue';
 
-import CalendarApp from '../Custom/CalendarApp';
-import CalendarEventCreatePopover from '../Custom/CalendarEventCreatePopover';
-import CalendarEventPopover from '../Custom/CalendarEventPopover';
+import CalendarApp from '../Custom/CalendarComponents/CalendarApp';
+import CalendarEventCreatePopover from '../Custom/CalendarComponents/CalendarEventCreatePopover';
+import CalendarEventPopover from '../Custom/CalendarComponents/CalendarEventPopover';
 
 
 export default {
@@ -134,7 +134,8 @@ export default {
       const state = this.calendar.toInput(true);
       // let json = JSON.stringify(state);
 
-      console.log('state', state);
+      // console.log('state', state);
+      // this.$store.commit('setSchedule', { applet: , schedule: state });
 
       // localStorage.setItem(this.storeKey, json);
     },
@@ -145,7 +146,7 @@ export default {
 
       try
       {
-        let savedState = JSON.parse(localStorage.getItem(this.storeKey));
+        let savedState = this.$store.state.schedule; // JSON.parse(localStorage.getItem(this.storeKey));
 
         if (savedState)
         {

@@ -2,12 +2,13 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 Vue.use(Vuex);
 import { Store } from "vuex";
+import createPersistedState from 'vuex-persistedstate';
 
 const state = {
-  backend: '',
-  activitySet: '',
+  backend: 'https://mindlogger-dev.vasegurt.com/api/v1',
+  allApplets: [],
+  currentApplet: {},
   auth: {},
-  schedule: {},
   groups: [],
   users: [],
   reviewers: [],
@@ -16,16 +17,22 @@ const state = {
 
 const mutations = {
   setBackend(state, backend) {
+    if (backend !== state.backend) {
+      state.auth = {};
+    }
     state.backend = backend;
   },
-  setActivitySet(state, activitySet) {
-    state.activitySet = activitySet;
+  setCurrentApplet(state, activitySet) {
+    state.currentApplet = activitySet;
+  },
+  setAllApplets(state, activitySets) {
+    state.allApplets = activitySets;
   },
   setAuth(state, auth) {
     state.auth = auth;
   },
   setSchedule(state, schedule) {
-    state.schedule = schedule;
+    state.currentApplet.schedule = schedule;
   },
   setGroups(state, groups) {
     state.groups = groups;
@@ -44,6 +51,7 @@ const mutations = {
 const store = new Store({
   state,
   mutations,
+  plugins: [createPersistedState()],
 })
 
 export default store;

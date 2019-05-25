@@ -11,7 +11,6 @@
             label="Server URL"
             v-model="backendServer"
           ></v-text-field>
-          {{readyToContinue}}
         </v-flex>
     </v-layout>
   </div>
@@ -35,14 +34,15 @@ export default {
   },
 
   mounted() {
-    if (this.$store.state.backendServer) {
-      this.backendServer = this.$store.state.backendServer;
+    if (this.$store.state.backend) {
+      this.backendServer = this.$store.state.backend;
     }
   },
 
   methods: {
     continueAction() {
       this.$store.commit('setBackend', this.backendServer);
+      return this.$store.state.backend;
     }
   },
 
