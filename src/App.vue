@@ -54,7 +54,7 @@ import SetBackend from './Steps/SetBackend';
 import Login from './Steps/Login';
 import SetApplet from './Steps/SetApplet';
 import SetGroups from './Steps/SetGroups';
-import SetUsers from './Steps/SetReviewers';
+import SetUsers from './Steps/SetUsers';
 import SetReviewers from './Steps/SetReviewers';
 import SetSchedule from './Steps/SetSchedule';
 

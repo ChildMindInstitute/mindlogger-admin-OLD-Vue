@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container>
     <v-layout row wrap>
         <v-flex v-if="notLoggedIn">
           <h1>Login</h1>
@@ -30,7 +30,7 @@
           <p>Click "continue" or <v-btn @click="logout" color="primary">Logout</v-btn></p>
         </v-flex>
     </v-layout>
-  </div>
+  </v-container>
 </template>
 
 <style>

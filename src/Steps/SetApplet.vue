@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container>
     <div v-if="isLoggedIn">
       <h1>Your Applets</h1>
       <div v-if="status === 'loading'">
@@ -21,7 +21,7 @@
         <AllApplets :applets="allApplets" v-on:selected_applet="setSelectedApplet"/>
       </div>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script>

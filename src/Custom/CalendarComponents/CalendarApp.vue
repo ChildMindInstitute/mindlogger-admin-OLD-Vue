@@ -70,7 +70,7 @@
             <div class="px-3">
               <h3 class="mb-3 mt-3 pb-3">Activities</h3>
               <div v-for="act in activities" :key="act.name" class="mt-3 mb-3">
-                {{act.name}}
+                <ActivitySidebar :activity="act" />
               </div>
             </div>
           </div>
@@ -204,6 +204,7 @@
 import { Constants, Sorts, Calendar, Day, Units, Weekday, Month, DaySpan, PatternMap, Time, Op } from 'dayspan';
 
 import EventDialog from './EventDialog';
+import ActivitySidebar from './ActivitySidebar';
 
 export default {
 
@@ -211,6 +212,7 @@ export default {
 
   components: {
     EventDialog,
+    ActivitySidebar,
   },
 
   props:

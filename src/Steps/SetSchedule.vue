@@ -27,6 +27,7 @@ export default {
     "Light Blue", "Cyan", "Teal", "Green", "Light Green", "Lime",
     "Yellow", "Amber", "Orange", "Deep Orange", "Brown", "Blue Gray",
     "Gray", "Black"],
+    readyToContinue: true,
   }),
   computed: {
     activities() {
@@ -42,6 +43,11 @@ export default {
         };
       });
     }
+  },
+  methods: {
+    continueAction() {
+
+    },
   }
 }
 </script>

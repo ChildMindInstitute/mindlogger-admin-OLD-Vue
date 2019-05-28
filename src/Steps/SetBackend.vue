@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container>
     <v-layout row wrap>
         <v-flex>
           <h1>Select your Server</h1>
@@ -13,7 +13,7 @@
           ></v-text-field>
         </v-flex>
     </v-layout>
-  </div>
+  </v-container>
 </template>
 
 <script>
