@@ -28,7 +28,7 @@
 
         <label>randomize ends at</label>
         <v-text-field
-          :disabled="!details.randomNotifications"
+          :disabled="!notification.random"
           single-line hide-details solo flat
           type="time"
           v-model="notification.end"
