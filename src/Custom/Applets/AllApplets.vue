@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-expansion-panel>
+    <v-expansion-panel v-model="panel">
       <v-expansion-panel-content
         v-for="(applet,i) in applets"
         :key="`i${i}`"
@@ -36,8 +36,13 @@ export default {
   components: {
     Applet,
   },
+  watch: {
+    panel() {
+      this.$emit('selected_applet', this.panel);
+    }
+  },
   data: () => ({
-
+    panel: [],
   }),
   computed: {
 

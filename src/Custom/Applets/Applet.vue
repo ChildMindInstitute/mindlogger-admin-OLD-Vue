@@ -27,19 +27,21 @@
                 <div> {{ applet.applet["schema:description"] }} </div>
               </div>
             </v-card-title>
-            <v-card-text>
+            <!-- <v-card-text>
+              omg the below doesn't make any sense because this is set per activity, not per applet.
+              so delete this.
               <v-radio-group v-model="scheduleType" :mandatory="false" :disabled="!currentApplet">
                 <v-radio label="No Schedule" value="none"></v-radio>
                 <v-radio label="Calendar Dates" value="absolute"></v-radio>
                 <v-radio label="Relative to first response" value="relative"></v-radio>
               </v-radio-group>
-            </v-card-text>
+            </v-card-text> -->
           </v-flex>
         </v-layout>
         
 
         <v-card-actions class="pa-3 pt-3">
-          <v-btn flat color="orange" @click="select">Select</v-btn>
+          <!-- <v-btn flat color="orange" @click="select">Select</v-btn> -->
         </v-card-actions>
     </v-card>
 </template>
@@ -71,23 +73,23 @@ export default {
     }
   },
   data: () => ({
-    scheduleType: 'none',
+
   }),
   watch: {
-    scheduleType() {
-      if (this.currentApplet) {
-        this.$store.commit('setSchedule', { scheduleType: this.scheduleType });
-      }
-    }
+    // scheduleType() {
+    //   if (this.currentApplet) {
+    //     // this.$store.commit('setSchedule', { scheduleType: this.scheduleType });
+    //   }
+    // }
   },
   methods: {
-    select() {
-      this.$store.commit('setCurrentApplet', this.applet);
-      if (!this.applet.schedule) {
-        this.applet.schedule = { scheduleType: 'none' };
-        this.$store.commit('setSchedule', this.applet.schedule);
-      }
-    }
+    // select() {
+    //   // this.$store.commit('setCurrentApplet', this.applet);
+    //   if (!this.applet.schedule) {
+    //     // this.applet.schedule = { scheduleType: 'none' };
+    //     // this.$store.commit('setSchedule', this.applet.schedule);
+    //   }
+    // }
   },
   created() {
 

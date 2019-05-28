@@ -18,7 +18,7 @@
       </div>
       <div style="margin-top: 3em;">
         <h3 style="margin-bottom: 1.5em;">Or select an existing applet:</h3>
-        <AllApplets :applets="allApplets" />
+        <AllApplets :applets="allApplets" v-on:selected_applet="setSelectedApplet"/>
       </div>
     </div>
   </div>
@@ -79,6 +79,9 @@ export default {
     continueAction() {
 
     },
+    setSelectedApplet(appletIdx) {
+      this.$store.commit('setCurrentApplet', this.$store.state.allApplets[appletIdx]);
+    }
   },
   mounted() {
     if (this.isLoggedIn) {

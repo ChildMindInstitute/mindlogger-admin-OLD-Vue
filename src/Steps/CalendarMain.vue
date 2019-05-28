@@ -81,19 +81,26 @@ export default {
     CalendarEventPopover,
   },
 
+  props: {
+    activities: {
+      type: Array,
+      required: true,
+    },
+  },
+
   data: () => ({
-    activities: [
-      {
-        name: 'Morning',
-        color: 'blue',
-        visible: true,
-      },
-      {
-        name: 'Evening',
-        color: 'red',
-        visible: true,
-      }
-    ],
+    // activities: [
+    //   {
+    //     name: 'Morning',
+    //     color: 'blue',
+    //     visible: true,
+    //   },
+    //   {
+    //     name: 'Evening',
+    //     color: 'red',
+    //     visible: true,
+    //   }
+    // ],
     storeKey: 'dayspanState',
     calendar: Calendar.months(),
     readOnly: false,

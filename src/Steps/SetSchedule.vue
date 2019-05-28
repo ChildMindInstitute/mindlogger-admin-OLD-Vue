@@ -1,19 +1,19 @@
 <template>
   <div>
     <div v-if="scheduleType === 'absolute'">
-      <Calendar />
+      <Calendar :activities="activities"/>
     </div>
     <div v-else-if="scheduleType === 'relative'">
       relative schedule here.
     </div>
     <div v-else>
       {{scheduleType}}
-      {{$store.state.currentApplet.schedule.scheduleType}}
     </div>
   </div>
 </template>
 
 <script>
+import _ from 'lodash';
 import Calendar from './CalendarMain';
 
 export default {
@@ -22,14 +22,25 @@ export default {
     Calendar,
   },
   data: () => ({
-
+    scheduleType: 'absolute',
+    colors: ["Red", "Pink", "Purple", "Deep Purple", "Indigo", "Blue", "Glue",
+    "Light Blue", "Cyan", "Teal", "Green", "Light Green", "Lime",
+    "Yellow", "Amber", "Orange", "Deep Orange", "Brown", "Blue Gray",
+    "Gray", "Black"],
   }),
   computed: {
-    scheduleType() {
-      if (this.$store.state.currentApplet) {
-        return this.$store.state.currentApplet.schedule.scheduleType;
-      }
-      return 'none';
+    activities() {
+      let index = 0;
+      return _.map(this.$store.state.currentApplet.activities, (a) => { 
+        const name = a['http://www.w3.org/2004/02/skos/core#prefLabel'][0]['@value'];
+        const color = this.colors[index]
+        index += 1;
+        return {
+          name,
+          color,
+          visibility: 1,
+        };
+      });
     }
   }
 }
