@@ -15,6 +15,7 @@
           :calendar="calendar"
           :calendar-event="calendarEvent"
           :day="day"
+          :activities="activities"
           :read-only="readOnly"
           @saved="saved"
           @cancel="cancel"
@@ -50,6 +51,10 @@ export default {
 
   props:
   {
+    activities: {
+      type: Object,
+      required: true,
+    },
     calendar:
     {
       type: Calendar

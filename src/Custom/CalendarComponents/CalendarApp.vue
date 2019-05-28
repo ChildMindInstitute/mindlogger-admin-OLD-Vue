@@ -133,6 +133,7 @@
           v-on="$listeners"
           :calendar="calendar"
           :read-only="readOnly"
+          :activities="activities"
           @saved="eventFinish"
           @actioned="eventFinish"
         ></event-dialog>

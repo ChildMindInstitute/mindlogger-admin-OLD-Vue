@@ -96,10 +96,10 @@ export default {
         name: 'users',
         component: SetUsers,
       },
-      {
-        name: 'reviewers',
-        component: SetReviewers,
-      }
+      // {
+      //   name: 'reviewers',
+      //   component: SetReviewers,
+      // }
     ],
   }),
 

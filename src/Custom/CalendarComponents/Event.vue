@@ -62,12 +62,15 @@
       <slot name="scheduleTitle" v-bind="{schedule, schedule, calendarEvent, details}">
 
         <!-- class="ds-textfield ds-calendar-event-title" -->
-        <v-text-field single-line hide-details solo flat
+        <!-- <v-text-field single-line hide-details solo flat
           class="ds-event-title"
           :label="labels.title"
           :readonly="isReadOnly"
           v-model="details.title"
-        ></v-text-field>
+        ></v-text-field> -->
+        <v-select :items="activityNames" 
+        placeholder="Select Activity"
+        v-model="details.title"></v-select>
 
       </slot>
 
@@ -216,6 +219,7 @@
 
 <script>
 import { Day, Calendar, CalendarEvent, Schedule, Functions as fn } from 'dayspan';
+import _ from 'lodash';
 import Notification from './Notification';
 
 export default {
@@ -228,6 +232,10 @@ export default {
 
   props:
   {
+    activities: {
+      type: Array,
+      required: true,
+    },
     targetSchedule:
     {
       required: true,
@@ -375,6 +383,9 @@ export default {
 
   computed:
   {
+    activityNames() {
+      return _.map(this.activities, a => a.name);
+    },
     slotData()
     {
       return {
