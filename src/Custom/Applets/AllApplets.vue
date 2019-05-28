@@ -23,6 +23,7 @@
 </style>
 
 <script>
+import _ from 'lodash';
 import Applet from './Applet';
 
 export default {
@@ -39,7 +40,10 @@ export default {
   watch: {
     panel() {
       this.$emit('selected_applet', this.panel);
-    }
+    },
+    currentApplet() {
+      return this.$store.state.currentApplet;
+    },
   },
   data: () => ({
     panel: [],
@@ -48,10 +52,17 @@ export default {
 
   },
   methods: {
-
+    setInitialPanel() {
+      const idx = _.findIndex(this.$store.state.allApplets, (a) => {
+        return a.applet['schema:description'] == this.$store.state.currentApplet.applet['schema:description'];
+      });
+      if (idx > -1) {
+        this.panel = idx;
+      }
+    },
   },
   mounted() {
-
+    this.setInitialPanel();
   },
 }
 </script>

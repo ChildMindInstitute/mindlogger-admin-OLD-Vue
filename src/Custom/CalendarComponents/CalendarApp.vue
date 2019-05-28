@@ -64,10 +64,16 @@
       </div>
 
       <v-layout row wrap style="height: calc(100% - 200px);">
+        <!-- The activities in the applet -->
         <v-flex xs2>
-          <v-card dark color="secondary">
-            <v-card-text class="px-0">6</v-card-text>
-          </v-card>
+          <div>
+            <div class="px-3">
+              <h3 class="mb-3 mt-3 pb-3">Activities</h3>
+              <div v-for="act in activities" :key="act.name" class="mt-3 mb-3">
+                {{act.name}}
+              </div>
+            </div>
+          </div>
         </v-flex>
 
         <v-flex xs10>
@@ -209,6 +215,9 @@ export default {
 
   props:
   {
+    activities: {
+      type: Array,
+    },
     events:
     {
       type: Array
