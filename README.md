@@ -1,4 +1,4 @@
-# dayspan-vuetify-example
+# mindlogger-admin setup panel
 
 ## Project setup
 ```
