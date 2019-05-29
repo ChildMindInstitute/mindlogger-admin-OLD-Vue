@@ -41,6 +41,7 @@
 
         <!-- More Actions -->
         <slot name="scheduleActions" v-bind="{calendarEvent, schedule, calendar, actioned, readOnly}">
+
           <ds-schedule-actions
             v-if="calendarEvent && !isReadOnly"
             v-bind="{$scopedSlots}"
@@ -78,11 +79,14 @@
 
     <div class="ds-event-body ds-event-area">
       <slot name="schedule" v-bind="slotData">
-        <ds-schedule
+
+        <!-- absolute scheduling options below -->
+        <my-schedule
           :schedule="schedule"
           :day="day"
           :read-only="readOnly"
-        ></ds-schedule>
+        ></my-schedule>
+
       </slot>
 
     </div>
@@ -221,6 +225,7 @@
 import { Day, Calendar, CalendarEvent, Schedule, Functions as fn } from 'dayspan';
 import _ from 'lodash';
 import Notification from './Notification';
+import mySchedule from './Schedule';
 
 export default {
 
@@ -228,6 +233,7 @@ export default {
 
   components: {
     Notification,
+    mySchedule,
   },
 
   props:
