@@ -2,6 +2,7 @@
   <v-app id="dayspan" v-cloak>
 
     <calendar-app ref="app"
+      :events="events"
       :calendar="calendar"
       :read-only="readOnly"
       :activities="activities"
@@ -86,6 +87,26 @@ export default {
       type: Array,
       required: true,
     },
+    events: {
+      type: Array,
+    }
+  },
+
+  computed: {
+    currentAppletName() {
+      return this.$store.state.currentApplet.applet['skos:prefLabel'];
+    },
+  
+    currentSchedule() {
+      return this.$store.state.currentApplet.schedule ? JSON.parse(this.$store.state.currentApplet.schedule) : null;
+    }
+  },
+
+  watch: {
+    currentAppletName() {
+      console.log(this.currentAppletName);
+      this.loadState();
+    },
   },
 
   data: () => ({
@@ -111,7 +132,7 @@ export default {
   {
     window.app = this.$refs.app;
 
-    // this.loadState();
+    this.loadState();
   },
 
   methods:
@@ -139,10 +160,10 @@ export default {
     saveState()
     {
       const state = this.calendar.toInput(true);
-      // let json = JSON.stringify(state);
+      let json = JSON.stringify(state);
 
       // console.log('state', state);
-      // this.$store.commit('setSchedule', { applet: , schedule: state });
+      this.$store.commit('setSchedule', json );
 
       // localStorage.setItem(this.storeKey, json);
     },
@@ -153,7 +174,7 @@ export default {
 
       try
       {
-        let savedState = this.$store.state.schedule; // JSON.parse(localStorage.getItem(this.storeKey));
+        let savedState = this.$store.state.currentApplet.schedule ? JSON.parse(this.$store.state.currentApplet.schedule) : null; // this.$store.state.schedule; // JSON.parse(localStorage.getItem(this.storeKey));
 
         if (savedState)
         {

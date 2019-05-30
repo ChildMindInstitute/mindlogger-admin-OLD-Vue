@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="scheduleType === 'absolute'">
-      <Calendar :activities="activities"/>
+      <Calendar :activities="activities" ref="calendar"/>
     </div>
     <div v-else-if="scheduleType === 'relative'">
       relative schedule here.
@@ -23,10 +23,10 @@ export default {
   },
   data: () => ({
     scheduleType: 'absolute',
-    colors: ["Red", "Pink", "Purple", "Deep Purple", "Indigo", "Blue", "Glue",
-    "Light Blue", "Cyan", "Teal", "Green", "Light Green", "Lime",
-    "Yellow", "Amber", "Orange", "Deep Orange", "Brown", "Blue Gray",
-    "Gray", "Black"],
+    colors: ["Orange",  "Deep Purple", "Red",
+    "Light Blue","Pink","Glue", "Light Green",
+    "Blue Gray", "Green", "Yellow", "Teal", "Brown", "Indigo",
+    "Amber", "Cyan", "Gray", "Blue", "Purple", "Lime", "Deep Orange"],
     readyToContinue: true,
   }),
   computed: {
@@ -42,11 +42,18 @@ export default {
           visibility: 1,
         };
       });
-    }
+    },
+    schedule() {
+      if (this.$store.state.currentApplet.schedule) {
+        return JSON.parse(this.$store.state.currentApplet.schedule);
+      }
+    },
   },
   methods: {
     continueAction() {
-
+      console.log('calendar', this.$refs.calendar.calendar.events);
+      // const str = JSON.stringify(this.$refs.calendar.calendar.events);
+      // this.$store.commit('setSchedule', str);
     },
   }
 }

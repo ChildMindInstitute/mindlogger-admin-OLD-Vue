@@ -52,7 +52,7 @@ export default {
   props:
   {
     activities: {
-      type: Object,
+      type: Array,
       required: true,
     },
     calendar:

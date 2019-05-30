@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 Vue.use(Vuex);
 import { Store } from "vuex";
 import createPersistedState from 'vuex-persistedstate';
+import _ from 'lodash';
 
 const state = {
   backend: 'https://mindlogger-dev.vasegurt.com/api/v1',
@@ -32,6 +33,13 @@ const mutations = {
     state.auth = auth;
   },
   setSchedule(state, schedule) {
+    // TODO: this sucks.
+    const idx = _.findIndex(state.allApplets,
+      a => a.applet['skos:prefLabel'] == state.currentApplet.applet['skos:prefLabel']);
+    if (idx > -1) {
+      state.allApplets[idx].schedule = schedule;
+    }
+    // update this in the copy too.
     state.currentApplet.schedule = schedule;
   },
   setGroups(state, groups) {
