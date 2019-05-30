@@ -88,15 +88,16 @@
     </div>
     <v-layout class="mt-3">
       <v-flex xs6 mr-3 pr-3>
-        <v-text-field label="add new user by email"></v-text-field>
+        <v-text-field label="add new user by email" v-model="newUserEmail"></v-text-field>
       </v-flex>
       <v-flex xs4 mr-3 pr-3>
           <v-select label="group"
+          v-model="newUserGroup"
          :items="groups">
          </v-select>
       </v-flex>
       <v-flex xs2>
-        <v-btn large color="success">
+        <v-btn large color="success" @click="addUser">
           Invite
         </v-btn>
       </v-flex>
@@ -121,6 +122,8 @@ export default {
       sortBy: 'email',
       descending: false,
     },
+    newUserGroup: '',
+    newUserEmail: '',
     selected: [],
     headers: [{
       text: 'user',
@@ -148,6 +151,9 @@ export default {
         this.pagination.sortBy = column
         this.pagination.descending = false
       }
+    },
+    addUser() {
+      this.$emit('addUser', this.newUserEmail, this.newUserGroup);
     },
   }
 }

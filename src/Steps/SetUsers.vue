@@ -1,6 +1,7 @@
 <template>
   <div>
-    <user-table :groups="groups" :items="items">
+    <user-table :groups="groups" :items="items"
+     v-on:addUser="addUser">
       <template slot="header" v-slot:header>
         <h1>Users</h1>
         <p>
@@ -16,6 +17,7 @@
 </template>
 
 <script>
+import _ from 'lodash';
 import UserTable from '../Custom/UserTable';
 
 export default {
@@ -23,17 +25,22 @@ export default {
   components: {
     UserTable,
   },
+  computed: {
+    groups() {
+      return _.map(this.$store.state.currentApplet.groups, (g) => ({text: g.name}));
+    }
+  },
   data: () => ({
 
-    groups: [{
-      text: 'all',
-    },
-    {
-      text: 'anisha',
-    },
-    {
-      text: 'testers'
-    }],
+    // groups: [{
+    //   text: 'all',
+    // },
+    // {
+    //   text: 'anisha',
+    // },
+    // {
+    //   text: 'testers'
+    // }],
     items: [
       {
         email: 'anishakeshavan@gmail.com',
@@ -47,5 +54,14 @@ export default {
       }
     ],
   }),
+  methods: {
+    addUser(email, group) {
+      this.items.push({
+        email,
+        groups: [{name: group, active: true}],
+        status: 'pending',
+      });
+    },
+  }
 }
 </script>
