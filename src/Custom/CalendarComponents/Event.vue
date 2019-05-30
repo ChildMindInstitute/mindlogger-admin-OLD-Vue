@@ -384,11 +384,18 @@ export default {
     {
       handler: 'updateDetails',
       immediate: true
+    },
+    title() {
+      const res = _.filter(this.activities, a => a.name === this.title);
+      this.details.URI = res[0].URI;
     }
   },
 
   computed:
   {
+    title() {
+      return this.details.title;
+    },
     activityNames() {
       return _.map(this.activities, a => a.name);
     },

@@ -15,6 +15,7 @@
 <script>
 import _ from 'lodash';
 import Calendar from './CalendarMain';
+import adminApi from '../Custom/Utils/api';
 
 export default {
   name: 'schedule',
@@ -32,7 +33,7 @@ export default {
   computed: {
     activities() {
       let index = 0;
-      return _.map(this.$store.state.currentApplet.activities, (a) => { 
+      return _.map(this.$store.state.currentApplet.activities, (a, URI) => { 
         const name = a['http://www.w3.org/2004/02/skos/core#prefLabel'][0]['@value'];
         const color = this.colors[index]
         index += 1;
@@ -40,6 +41,7 @@ export default {
           name,
           color,
           visibility: 1,
+          URI,
         };
       });
     },
@@ -51,9 +53,17 @@ export default {
   },
   methods: {
     continueAction() {
-      console.log('calendar', this.$refs.calendar.calendar.events);
-      // const str = JSON.stringify(this.$refs.calendar.calendar.events);
-      // this.$store.commit('setSchedule', str);
+
+      const schedule = this.$store.state.currentApplet.schedule;
+
+      adminApi.setSchedule({
+        apiHost: this.$store.state.backend,
+        id: this.$store.state.currentApplet.applet._id,
+        token: this.$store.state.auth.authToken.token,
+        data: { schedule },
+      }).then((resp) => {
+        console.log('success', resp);
+      });
     },
   }
 }

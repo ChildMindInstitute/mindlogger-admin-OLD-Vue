@@ -179,6 +179,7 @@ export default {
       const color = res[0].color;
       const hexColor = _.filter(this.$dayspan.colors, c => c.text === color)[0].value;
       this.details.color = hexColor;
+      this.details.URI = res[0].URI;
     },
   },
 
