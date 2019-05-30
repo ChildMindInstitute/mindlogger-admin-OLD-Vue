@@ -1,7 +1,9 @@
 <template>
   <div>
     <user-table :groups="groups" :items="items"
-     v-on:addUser="addUser">
+     v-on:addUser="addUser"
+     v-on:addGroupToSelected="addGroupToSelected"
+     >
       <template slot="header" v-slot:header>
         <h1>Users</h1>
         <p>
@@ -32,15 +34,6 @@ export default {
   },
   data: () => ({
 
-    // groups: [{
-    //   text: 'all',
-    // },
-    // {
-    //   text: 'anisha',
-    // },
-    // {
-    //   text: 'testers'
-    // }],
     items: [
       {
         email: 'anishakeshavan@gmail.com',
@@ -62,6 +55,24 @@ export default {
         status: 'pending',
       });
     },
+    addGroupToSelected(group, selected) {
+      const emails = _.map(selected, s => s.email);
+      _.map(this.items, (item) => {
+        if (emails.indexOf(item.email) > -1) {
+          // remove any inactive groups
+          item.groups = _.filter(item.groups, i => i.active);
+          // its selected, append to this item's group
+          // if its not already there
+          const existingGroups = _.map(item.groups, ii => ii.name);
+          if (existingGroups.indexOf(group) < 0) {
+            item.groups.push({
+              name: group,
+              active: true,
+            });
+          }
+        }
+      });
+    }
   }
 }
 </script>

@@ -5,11 +5,12 @@
       <v-flex>
         <v-select label="add to selected to group"
          :disabled="!selected.length"
+         v-model="selectedGroup"
          :items="groups">
          </v-select>
       </v-flex>
       <v-flex>
-        <v-btn small fab :disabled="!selected.length" color="secondary">
+        <v-btn small fab :disabled="!selected.length" color="secondary" @click="addGroupToSelected">
           <v-icon>add</v-icon>
         </v-btn>
       </v-flex>
@@ -97,7 +98,7 @@
          </v-select>
       </v-flex>
       <v-flex xs2>
-        <v-btn large color="success" @click="addUser">
+        <v-btn large color="success" @click="addUser" :disabled="!validAdd">
           Invite
         </v-btn>
       </v-flex>
@@ -125,6 +126,7 @@ export default {
     newUserGroup: '',
     newUserEmail: '',
     selected: [],
+    selectedGroup: '',
     headers: [{
       text: 'user',
       value: 'email',
@@ -139,6 +141,14 @@ export default {
       sortable: false,
     }]
   }),
+  computed: {
+    validAdd() {
+      if (this.newUserEmail.indexOf('@') > 0 && this.newUserGroup) {
+        return true;
+      }
+      return false;
+    }
+  },
   methods: {
     toggleAll () {
       if (this.selected.length) this.selected = []
@@ -154,7 +164,12 @@ export default {
     },
     addUser() {
       this.$emit('addUser', this.newUserEmail, this.newUserGroup);
+      this.newUserGroup = '';
+      this.newUserEmail = '';
     },
+    addGroupToSelected() {
+      this.$emit('addGroupToSelected', this.selectedGroup, this.selected);
+    }
   }
 }
 </script>
