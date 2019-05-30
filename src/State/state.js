@@ -10,9 +10,6 @@ const state = {
   allApplets: [],
   currentApplet: {},
   auth: {},
-  groups: [],
-  users: [],
-  reviewers: [],
   continue: {},
 };
 
@@ -43,7 +40,14 @@ const mutations = {
     state.currentApplet.schedule = schedule;
   },
   setGroups(state, groups) {
-    state.groups = groups;
+    // TODO: this sucks.
+    const idx = _.findIndex(state.allApplets,
+      a => a.applet['skos:prefLabel'] == state.currentApplet.applet['skos:prefLabel']);
+    if (idx > -1) {
+      state.allApplets[idx].groups = groups;
+    }
+    // update this in the copy too.
+    state.currentApplet.groups = groups;
   },
   setUsers(state, users) {
     state.users = users;
