@@ -9,13 +9,13 @@
       <v-container>
         <v-layout>
           <v-flex class="mr-2" xs4>
-            <v-text-field label="new group name"></v-text-field>
+            <v-text-field label="new group name" v-model="newGroupName"></v-text-field>
           </v-flex>
           <v-flex class="mr-2">
-            <v-text-field label="description"></v-text-field>
+            <v-text-field label="description" v-model="newGroupDescription"></v-text-field>
           </v-flex>
           <v-flex xs1>
-            <v-btn color="primary" fab depressed small>
+            <v-btn color="primary" fab depressed small @click="addGroup">
               <v-icon dark>add</v-icon>
             </v-btn>
           </v-flex>
@@ -32,7 +32,7 @@
         <td>{{ props.item.name }}</td>
         <td>{{ props.item.description }}</td>
         <td>
-          <v-btn color="secondary" fab small depressed>
+          <v-btn color="secondary" fab small depressed @click="removeGroup(props.index)">
             <v-icon dark>remove</v-icon>
           </v-btn>
         </td>
@@ -47,6 +47,8 @@
 export default {
   name: 'groups',
   data: () => ({
+    newGroupName: '',
+    newGroupDescription: '',
     headers: [
       {
         text: 'Name',
@@ -85,6 +87,15 @@ export default {
   methods: {
     continueAction() {
 
+    },
+    addGroup() {
+      this.groupItems.push({
+        name: this.newGroupName,
+        description: this.newGroupDescription,
+      })
+    },
+    removeGroup(idx) {
+      this.groupItems.splice(idx, 1);
     }
   }
 }
