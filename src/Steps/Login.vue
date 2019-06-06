@@ -40,6 +40,7 @@
 </style>
 
 <script>
+// load our api bit component from mindlogger-web
 import api from '@bit/akeshavan.mindlogger-web.api';
 import _ from 'lodash';
 
@@ -53,15 +54,24 @@ export default {
   }),
 
   computed: {
+    /**
+     * only let the user continue if they are authenticated
+     */
     readyToContinue() {
       if (!_.isEmpty(this.auth)) {
         return true;
       }
       return false;
     },
+    /**
+     * a boolean value for whether or not the user is logged in
+     */
     notLoggedIn() {
       return _.isEmpty(this.auth);
     },
+    /**
+     * return the auth value from the store.
+     */
     auth() {
       return this.$store.state.auth;
     }
@@ -71,9 +81,16 @@ export default {
   },
 
   methods: {
+    /**
+     * nothing to do when continue is pressed
+     */
     continueAction() {
 
     },
+    /**
+     * the login method: sign in and then
+     * save the response to the store
+     */
     login() {
       this.error = {};
       api.signIn({
@@ -86,6 +103,9 @@ export default {
         this.error = e;
       });
     },
+    /**
+     * clear the store on logout.
+     */
     logout() {
       this.$store.commit('setAuth', {});
     }

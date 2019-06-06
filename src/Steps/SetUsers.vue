@@ -20,6 +20,7 @@
 
 <script>
 import _ from 'lodash';
+// this is a table that renders users and groups.
 import UserTable from '../Custom/UserTable';
 
 export default {
@@ -28,12 +29,22 @@ export default {
     UserTable,
   },
   computed: {
+    /**
+     * shortcut to currentApplet in the store
+     */
     currentApplet( ) {
       return this.$store.state.currentApplet;
     },
+    /**
+     * make sure the currentApplet isn't empty
+     */
     currentAppletReady() {
       return !_.isEmpty(this.currentApplet);
     },
+    /**
+     * parse the groups and get it in the format for 
+     * the component.
+     */
     groups() {
       if (this.currentApplet) {
         return _.map(this.currentApplet.groups, (g) => ({text: g.name}));
@@ -42,7 +53,9 @@ export default {
     }
   },
   data: () => ({
-
+    /**
+     * TODO: read the table items from the store
+     */
     items: [
       {
         email: 'anishakeshavan@gmail.com',
@@ -57,6 +70,10 @@ export default {
     ],
   }),
   methods: {
+    /**
+     * add a user to the table
+     * TODO: push to the store
+     */
     addUser(email, group) {
       this.items.push({
         email,
@@ -64,6 +81,10 @@ export default {
         status: 'pending',
       });
     },
+    /**
+     * add groups to the selected users
+     * TODO: save to store!
+     */
     addGroupToSelected(group, selected) {
       const emails = _.map(selected, s => s.email);
       _.map(this.items, (item) => {

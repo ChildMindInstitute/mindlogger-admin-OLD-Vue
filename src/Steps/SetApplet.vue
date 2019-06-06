@@ -25,6 +25,7 @@
 </template>
 
 <script>
+// grab the api component we wrote in mindlogger-web
 import api from '@bit/akeshavan.mindlogger-web.api';
 import _ from 'lodash';
 import AllApplets from '../Custom/Applets/AllApplets';
@@ -40,15 +41,28 @@ export default {
     AllApplets,
   },
   computed: {
+    /**
+     * a list of all the applets
+     */
     allApplets() {
       return this.$store.state.allApplets;
     },
+    /**
+     * the currently selected applet
+     */
     currentApplet() {
       return this.$store.state.currentApplet;
     },
+    /**
+     * boolean for whether or not the user is logged in
+     */
     isLoggedIn() {
       return !_.isEmpty(this.$store.state.auth);
     },
+    /**
+     * only allow the user to continue if they have selected
+     * a current applet
+     */
     readyToContinue() {
       return !_.isEmpty(this.currentApplet);
     },
@@ -61,6 +75,9 @@ export default {
     },
   },
   methods: {
+    /**
+     * call getAppletsForUser and commit the response to the store.
+     */
     getApplets() {
       this.status = 'loading';
       api.getAppletsForUser({
@@ -76,13 +93,22 @@ export default {
         this.status = 'error';
       });
     },
+    /**
+     * nothing to do when the user hits 'continue'
+     */
     continueAction() {
 
     },
+    /**
+     * commit the current applet to the store
+     */
     setSelectedApplet(appletIdx) {
       this.$store.commit('setCurrentApplet', this.$store.state.allApplets[appletIdx]);
     }
   },
+  /**
+   * get the user's applets if they are logged in
+   */
   mounted() {
     if (this.isLoggedIn) {
       this.getApplets();

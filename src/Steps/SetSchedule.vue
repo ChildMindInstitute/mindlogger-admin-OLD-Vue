@@ -1,20 +1,14 @@
 <template>
   <div>
-    <div v-if="scheduleType === 'absolute'">
+    <div>
       <Calendar :activities="activities" ref="calendar"/>
-    </div>
-    <div v-else-if="scheduleType === 'relative'">
-      relative schedule here.
-    </div>
-    <div v-else>
-      {{scheduleType}}
     </div>
   </div>
 </template>
 
 <script>
 import _ from 'lodash';
-import Calendar from './CalendarMain';
+import Calendar from '../Custom/CalendarComponents/CalendarMain';
 import adminApi from '../Custom/Utils/api';
 
 export default {
@@ -23,17 +17,28 @@ export default {
     Calendar,
   },
   data: () => ({
-    scheduleType: 'absolute',
+    /**
+     * colors for the activities, to show on the left hand bar
+     */
     colors: ["Orange",  "Deep Purple", "Red",
     "Light Blue","Pink","Glue", "Light Green",
     "Blue Gray", "Green", "Yellow", "Teal", "Brown", "Indigo",
     "Amber", "Cyan", "Gray", "Blue", "Purple", "Lime", "Deep Orange"],
+    /**
+     * you can always skip scheduling
+     */
     readyToContinue: true,
   }),
   computed: {
+    /**
+     * shortcut to current applet in store
+     */
     currentApplet() {
       return this.$store.state.currentApplet;
     },
+    /**
+     * format the activities in a way that's needed to render the calendar
+     */
     activities() {
       if (this.currentApplet) {
         let index = 0;
@@ -51,6 +56,9 @@ export default {
       }
       return [];
     },
+    /**
+     * if there is a selected applet, grab its schedule from the store
+     */
     schedule() {
       if (this.currentApplet) {
         if (this.$store.state.currentApplet.applet.schedule) {
@@ -60,6 +68,10 @@ export default {
     },
   },
   methods: {
+    /**
+     * on continue, save the schedule.
+     * TODO: probably we should save when you hit 'back' as well?
+     */
     continueAction() {
       const scheduleForm = new FormData();
       const schedule = this.currentApplet.applet.schedule;

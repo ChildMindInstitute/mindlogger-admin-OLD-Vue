@@ -55,7 +55,7 @@ import Login from './Steps/Login';
 import SetApplet from './Steps/SetApplet';
 import SetGroups from './Steps/SetGroups';
 import SetUsers from './Steps/SetUsers';
-import SetReviewers from './Steps/SetReviewers';
+// import SetReviewers from './Steps/SetReviewers';
 import SetSchedule from './Steps/SetSchedule';
 
 export default {
@@ -69,8 +69,18 @@ export default {
   },
 
   data: () => ({
+    /**
+     * e1 is the variable for our step counter
+     */
     e1: 1,
+    /**
+     * flag for when the component is mounted.
+     */
     ready: false,
+    /**
+     * the set of components to render in order
+     * for the stepper component.
+     */
     steps: [
       {
         name: 'server',
@@ -104,11 +114,20 @@ export default {
   }),
 
   computed: {
+    /**
+     * Select the component to display based on the step
+     * value of the stepper component
+     */
     currentComponent() {
       if (this.ready) {
         return this.steps[this.e1 - 1].name, this.$refs[this.steps[this.e1 - 1].name][0];
       }
     },
+    /**
+     * return the current component's `readyToContinue` function.
+     * each component has its own logic for determining whether
+     * the user can move out of that screen.
+     */
     readyToContinue() {
       if (this.ready) {
         return this.currentComponent.readyToContinue;
@@ -116,13 +135,19 @@ export default {
       return true;
     },
   },
-
+  /**
+   * set a flag when the componentis mounted
+   */
   mounted()
   {
     this.ready = true;
   },
 
   methods: {
+    /**
+     * method to increment the step counter.
+     * it runs the component's continueAction before incrementing.
+     */
     next() {
       this.currentComponent.continueAction();
       this.e1 += 1;

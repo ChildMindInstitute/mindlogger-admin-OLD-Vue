@@ -68,9 +68,9 @@ import { Calendar } from 'dayspan';
 import Vue from 'vue';
 import _ from 'lodash';
 
-import CalendarApp from '../Custom/CalendarComponents/CalendarApp';
-import CalendarEventCreatePopover from '../Custom/CalendarComponents/CalendarEventCreatePopover';
-import CalendarEventPopover from '../Custom/CalendarComponents/CalendarEventPopover';
+import CalendarApp from './CalendarApp';
+import CalendarEventCreatePopover from './CalendarEventCreatePopover';
+import CalendarEventPopover from './CalendarEventPopover';
 
 
 export default {

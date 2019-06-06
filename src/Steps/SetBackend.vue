@@ -21,10 +21,15 @@ export default {
   name: 'BackendServer',
 
   data: () => ({
+    // default to mindlogger-dev
     backendServer: 'https://mindlogger-dev.vasegurt.com/api/v1',
   }),
 
   computed: {
+    /**
+     * only let the user continue
+     * if backendServer is not empty
+     */
     readyToContinue() {
       if (this.backendServer) {
         return true;
@@ -32,7 +37,10 @@ export default {
       return false;
     }
   },
-
+  /**
+   * when the component is mounted,
+   * load the backend from the store.
+   */
   mounted() {
     if (this.$store.state.backend) {
       this.backendServer = this.$store.state.backend;
@@ -40,6 +48,9 @@ export default {
   },
 
   methods: {
+    /**
+     * save the backend to the store
+     */
     continueAction() {
       this.$store.commit('setBackend', this.backendServer);
       return this.$store.state.backend;

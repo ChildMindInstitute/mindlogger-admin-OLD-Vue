@@ -56,8 +56,17 @@ import _ from 'lodash';
 export default {
   name: 'groups',
   data: () => ({
+    /**
+     * placeholder variable for group name
+     */
     newGroupName: '',
+    /**
+     * placeholder variable for group description
+     */
     newGroupDescription: '',
+    /**
+     * headers for the table component
+     */
     headers: [
       {
         text: 'Name',
@@ -73,21 +82,39 @@ export default {
       },
       {text: 'remove'}
     ],
+    /**
+     * placeholder for items in the table
+     * e.g. group names and group description
+     */
     groupItems: [],
   }),
   computed: {
+    /**
+     * shortcut for current applet
+     */
     currentApplet() {
       return this.$store.state.currentApplet;
     }, 
+    /**
+     * there needs to be at least 1 group to continue
+     */
     readyToContinue() {
       return this.groupItems.length > 0;
     },
+    /**
+     * grab the groups from the store
+     */
     groups() {
       if (this.currentApplet) {
         return this.$store.state.currentApplet.groups || [];
       }
       return [];
     },
+    /**
+     * only let people add to a group if
+     * 1. it has a name
+     * 2. it is a unique name
+     */
     validGroup() {
       if (!this.newGroupName) {
         return {valid: false, message: ''};
@@ -100,17 +127,29 @@ export default {
     },
   },
   watch: {
+    /**
+     * if the groups value in the store changes, update the items in the table.
+     */
     groups() {
       this.groupItems = this.groups;
     },
   },
+  /**
+   * set the table's items from the groups in the store
+   */
   mounted() {
     this.groupItems = this.groups;
   },
   methods: {
+    /**
+    * TODO: save the groups when the user continues
+    */
     continueAction() {
 
     },
+    /**
+     * add a new group to the table and update the store.
+     */
     addGroup() {
       const newGroups = this.groupItems;
 
@@ -123,6 +162,9 @@ export default {
       this.newGroupDescription = '';
       // this.$forceUpdate();
     },
+    /**
+     * remove a group by its index and update the store.
+     */
     removeGroup(idx) {
       const newGroups = this.groupItems;
       newGroups.splice(idx, 1);
