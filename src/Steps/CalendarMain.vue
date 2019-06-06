@@ -160,10 +160,10 @@ export default {
     saveState()
     {
       const state = this.calendar.toInput(true);
-      let json = JSON.stringify(state);
+      // let json = JSON.stringify(state);
 
       // console.log('state', state);
-      this.$store.commit('setSchedule', json );
+      this.$store.commit('setSchedule', state );
 
       // localStorage.setItem(this.storeKey, json);
     },
@@ -174,7 +174,7 @@ export default {
 
       try
       {
-        let savedState = this.$store.state.currentApplet.schedule ? JSON.parse(this.$store.state.currentApplet.schedule) : null; // this.$store.state.schedule; // JSON.parse(localStorage.getItem(this.storeKey));
+        let savedState = this.$store.state.currentApplet.schedule || null; // this.$store.state.schedule; // JSON.parse(localStorage.getItem(this.storeKey));
 
         if (savedState)
         {
