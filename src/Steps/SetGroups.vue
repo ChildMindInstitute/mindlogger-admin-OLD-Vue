@@ -76,11 +76,17 @@ export default {
     groupItems: [],
   }),
   computed: {
+    currentApplet() {
+      return this.$store.state.currentApplet;
+    }, 
     readyToContinue() {
       return this.groupItems.length > 0;
     },
     groups() {
-      return this.$store.state.currentApplet.groups || [];
+      if (this.currentApplet) {
+        return this.$store.state.currentApplet.groups || [];
+      }
+      return [];
     },
     validGroup() {
       if (!this.newGroupName) {

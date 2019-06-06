@@ -31,34 +31,42 @@ export default {
     readyToContinue: true,
   }),
   computed: {
+    currentApplet() {
+      return this.$store.state.currentApplet;
+    },
     activities() {
-      let index = 0;
-      return _.map(this.$store.state.currentApplet.activities, (a, URI) => { 
-        const name = a['http://www.w3.org/2004/02/skos/core#prefLabel'][0]['@value'];
-        const color = this.colors[index]
-        index += 1;
-        return {
-          name,
-          color,
-          visibility: 1,
-          URI,
-        };
-      });
+      if (this.currentApplet) {
+        let index = 0;
+        return _.map(this.currentApplet.activities, (a, URI) => { 
+          const name = a['http://www.w3.org/2004/02/skos/core#prefLabel'][0]['@value'];
+          const color = this.colors[index]
+          index += 1;
+          return {
+            name,
+            color,
+            visibility: 1,
+            URI,
+          };
+        });
+      }
+      return [];
     },
     schedule() {
-      if (this.$store.state.currentApplet.schedule) {
-        return JSON.parse(this.$store.state.currentApplet.schedule);
+      if (this.currentApplet)
+      console.log('schedule', this.currentApplet.applet)
+      if (this.$store.state.currentApplet.applet.schedule) {
+        return this.$store.state.currentApplet.applet.schedule;
       }
     },
   },
   methods: {
     continueAction() {
       const scheduleForm = new FormData();
-      const schedule = this.$store.state.currentApplet.schedule;
+      const schedule = this.currentApplet.applet.schedule;
       scheduleForm.set('schedule', JSON.stringify(schedule));
       adminApi.setSchedule({
         apiHost: this.$store.state.backend,
-        id: this.$store.state.currentApplet.applet._id,
+        id: this.currentApplet.applet._id,
         token: this.$store.state.auth.authToken.token,
         data: scheduleForm,
       }).then((resp) => {

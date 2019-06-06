@@ -93,12 +93,20 @@ export default {
   },
 
   computed: {
+    currentApplet() {
+      return this.$store.state.currentApplet;
+    },
+
     currentAppletName() {
-      return this.$store.state.currentApplet.applet['skos:prefLabel'];
+      if (this.currentApplet) {
+        return this.$store.state.currentApplet.applet['skos:prefLabel'];
+      }
     },
   
     currentSchedule() {
-      return this.$store.state.currentApplet.schedule ? JSON.parse(this.$store.state.currentApplet.schedule) : null;
+      if (this.currentApplet) {
+        return this.$store.state.currentApplet.applet.schedule || null;
+      }
     }
   },
 
@@ -174,7 +182,10 @@ export default {
 
       try
       {
-        let savedState = this.$store.state.currentApplet.schedule || null; // this.$store.state.schedule; // JSON.parse(localStorage.getItem(this.storeKey));
+        let savedState = null;
+        if (this.$store.state.currentApplet) {
+          savedState = this.$store.state.currentApplet.applet.schedule || null;
+        }
 
         if (savedState)
         {
