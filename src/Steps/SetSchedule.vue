@@ -53,14 +53,14 @@ export default {
   },
   methods: {
     continueAction() {
-
+      const scheduleForm = new FormData();
       const schedule = this.$store.state.currentApplet.schedule;
-
+      scheduleForm.set('schedule', JSON.stringify(schedule));
       adminApi.setSchedule({
         apiHost: this.$store.state.backend,
         id: this.$store.state.currentApplet.applet._id,
         token: this.$store.state.auth.authToken.token,
-        data: { schedule },
+        data: scheduleForm,
       }).then((resp) => {
         console.log('success', resp);
       });
