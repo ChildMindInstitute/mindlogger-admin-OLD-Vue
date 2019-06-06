@@ -8,7 +8,7 @@
         <h1>Users</h1>
         <p>
           Send invitations to your users to participate in 
-          <b>{{$store.state.currentApplet.applet['skos:prefLabel']}}</b>
+          <b v-if="currentAppletReady">{{$store.state.currentApplet.applet['skos:prefLabel']}}</b>
         </p>
       </template>
       <template slot="add">
@@ -28,8 +28,17 @@ export default {
     UserTable,
   },
   computed: {
+    currentApplet( ) {
+      return this.$store.state.currentApplet;
+    },
+    currentAppletReady() {
+      return !_.isEmpty(this.currentApplet);
+    },
     groups() {
-      return _.map(this.$store.state.currentApplet.groups, (g) => ({text: g.name}));
+      if (this.currentApplet) {
+        return _.map(this.currentApplet.groups, (g) => ({text: g.name}));
+      }
+      
     }
   },
   data: () => ({

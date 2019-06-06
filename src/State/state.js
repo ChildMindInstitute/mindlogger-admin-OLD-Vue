@@ -30,14 +30,16 @@ const mutations = {
     state.auth = auth;
   },
   setSchedule(state, schedule) {
-    // TODO: this sucks.
-    const idx = _.findIndex(state.allApplets,
-      a => a.applet['skos:prefLabel'] == state.currentApplet.applet['skos:prefLabel']);
-    if (idx > -1) {
-      state.allApplets[idx].applet.schedule = schedule;
+    if (!_.isEmpty(state.currentApplet)) {
+      // TODO: this sucks.
+      const idx = _.findIndex(state.allApplets,
+        a => a.applet['skos:prefLabel'] == state.currentApplet.applet['skos:prefLabel']);
+      if (idx > -1) {
+        state.allApplets[idx].applet.schedule = schedule;
+      }
+      // update this in the copy too.
+      state.currentApplet.applet.schedule = schedule;
     }
-    // update this in the copy too.
-    state.currentApplet.applet.schedule = schedule;
   },
   setGroups(state, groups) {
     // TODO: this sucks.

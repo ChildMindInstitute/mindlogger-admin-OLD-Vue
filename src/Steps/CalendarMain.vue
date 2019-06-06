@@ -66,6 +66,7 @@
 <script>
 import { Calendar } from 'dayspan';
 import Vue from 'vue';
+import _ from 'lodash';
 
 import CalendarApp from '../Custom/CalendarComponents/CalendarApp';
 import CalendarEventCreatePopover from '../Custom/CalendarComponents/CalendarEventCreatePopover';
@@ -98,7 +99,7 @@ export default {
     },
 
     currentAppletName() {
-      if (this.currentApplet) {
+      if (!_.isEmpty(this.currentApplet)) {
         return this.$store.state.currentApplet.applet['skos:prefLabel'];
       }
     },
@@ -112,7 +113,6 @@ export default {
 
   watch: {
     currentAppletName() {
-      console.log(this.currentAppletName);
       this.loadState();
     },
   },
@@ -171,7 +171,9 @@ export default {
       // let json = JSON.stringify(state);
 
       // console.log('state', state);
-      this.$store.commit('setSchedule', state );
+      if (this.currentApplet) {
+        this.$store.commit('setSchedule', state );
+      }
 
       // localStorage.setItem(this.storeKey, json);
     },
@@ -183,7 +185,7 @@ export default {
       try
       {
         let savedState = null;
-        if (this.$store.state.currentApplet) {
+        if (!_.isEmpty(this.currentApplet)) {
           savedState = this.$store.state.currentApplet.applet.schedule || null;
         }
 

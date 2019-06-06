@@ -52,10 +52,10 @@ export default {
       return [];
     },
     schedule() {
-      if (this.currentApplet)
-      console.log('schedule', this.currentApplet.applet)
-      if (this.$store.state.currentApplet.applet.schedule) {
-        return this.$store.state.currentApplet.applet.schedule;
+      if (this.currentApplet) {
+        if (this.$store.state.currentApplet.applet.schedule) {
+          return this.$store.state.currentApplet.applet.schedule;
+        }
       }
     },
   },
@@ -69,8 +69,7 @@ export default {
         id: this.currentApplet.applet._id,
         token: this.$store.state.auth.authToken.token,
         data: scheduleForm,
-      }).then((resp) => {
-        console.log('success', resp);
+      }).then(() => {
       });
     },
   }
