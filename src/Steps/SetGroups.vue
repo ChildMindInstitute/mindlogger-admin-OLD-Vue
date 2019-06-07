@@ -105,7 +105,7 @@ export default {
      * grab the groups from the store
      */
     groups() {
-      if (this.currentApplet) {
+      if (!_.isEmpty(this.currentApplet)) {
         return this.$store.state.currentApplet.groups || [];
       }
       return [];

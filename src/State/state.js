@@ -8,7 +8,8 @@ import _ from 'lodash';
 const state = {
   backend: 'https://mindlogger-dev.vasegurt.com/api/v1',
   allApplets: [],
-  currentApplet: {},
+  currentApplet: {
+  },
   auth: {},
   continue: {},
 };
@@ -38,7 +39,7 @@ const mutations = {
         state.allApplets[idx].applet.schedule = schedule;
       }
       // update this in the copy too.
-      state.currentApplet.applet.schedule = schedule;
+      state.currentApplet.applet = {...state.currentApplet, schedule };
     }
   },
   setGroups(state, groups) {
@@ -49,7 +50,7 @@ const mutations = {
       state.allApplets[idx].groups = groups;
     }
     // update this in the copy too.
-    state.currentApplet.groups = groups;
+    state.currentApplet = {...state.currentApplet, groups };
   },
   setUsers(state, users) {
     state.users = users;
