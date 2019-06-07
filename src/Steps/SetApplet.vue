@@ -103,7 +103,6 @@ export default {
      * commit the current applet to the store
      */
     setSelectedApplet(appletIdx) {
-      console.log('setting', appletIdx, this.$store.state.allApplets[appletIdx]);
       this.$store.commit('setCurrentApplet', this.$store.state.allApplets[appletIdx]);
     }
   },

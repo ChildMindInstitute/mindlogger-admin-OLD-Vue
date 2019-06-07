@@ -69,7 +69,7 @@
               </span>
               <span v-else>
                 {{ props.item.status }}
-                <v-btn small color="secondary" outline>resend</v-btn>
+                <v-btn small color="secondary" outline @click="resendClicked(props.item.email)">resend</v-btn>
               </span>
             </td>
             <td>
@@ -107,6 +107,11 @@
 </template>
 
 <script>
+/**
+ * this is a stateless component that renders a table with sorting and search
+ * and the ability to add tags (e.g. groups) to users in the table
+ * it will be used by the SetUsers component and the future SetReviewers component
+ */
 export default {
   name: 'UserTable',
   props: {
@@ -118,15 +123,36 @@ export default {
     },
   },
   data: () => ({
+    /**
+     * placeholder for the search text field that filters the table
+     */
     search: '',
+    /**
+     * set the sorting parameters
+     */
     pagination: {
       sortBy: 'email',
       descending: false,
     },
+    /**
+     * placeholder for a new user's group
+     */
     newUserGroup: '',
+    /**
+     * placeholder for a new user's email
+     */
     newUserEmail: '',
+    /**
+     * users that are selected in the table
+     */
     selected: [],
+    /**
+     * placeholder for the group to add to the selected users
+     */
     selectedGroup: '',
+    /**
+     * headers for the table
+     */
     headers: [{
       text: 'user',
       value: 'email',
@@ -142,6 +168,12 @@ export default {
     }]
   }),
   computed: {
+    /**
+     * only allow adding to the table if
+     * there is a valid email address and a group defined.
+     * TODO: be a bit smarter on how you determine if an email address is valid
+     * TODO: add a check for repeats: only allow unique email addresses to be added.
+     */
     validAdd() {
       if (this.newUserEmail.indexOf('@') > 0 && this.newUserGroup) {
         return true;
@@ -150,10 +182,18 @@ export default {
     }
   },
   methods: {
+    /**
+     * the select all checkbox
+     * TODO: add in the search filter so that we only select
+     * users that match the search term (if it has been defined)
+     */
     toggleAll () {
       if (this.selected.length) this.selected = []
       else this.selected = this.items.slice()
     },
+    /**
+     * method to change the direction of sorting
+     */
     changeSort (column) {
       if (this.pagination.sortBy === column) {
         this.pagination.descending = !this.pagination.descending
@@ -162,13 +202,34 @@ export default {
         this.pagination.descending = false
       }
     },
+    /**
+     * method to add a new user, clearing the form fields
+     * after submitted.
+     * This component emits an 'addUser' event, which the parent component
+     * needs to handle appropriately.
+     */
     addUser() {
       this.$emit('addUser', this.newUserEmail, this.newUserGroup);
       this.newUserGroup = '';
       this.newUserEmail = '';
     },
+    /**
+     * method to add a group to the selected set of users.
+     * all it does is tell the parent component to handle it
+     * by emitting an 'addGroupToSelected' event.
+     */
     addGroupToSelected() {
       this.$emit('addGroupToSelected', this.selectedGroup, this.selected);
+    },
+    /**
+     * method to resend an email when the 'resend' button is clicked for
+     * a pending user.
+     * 
+     * this component emits the sendInvitationEmail event that needs to be handled
+     * by the parent
+     */
+    resendClicked(email) {
+      this.$emit('sendInvitationEmail', email);
     }
   }
 }

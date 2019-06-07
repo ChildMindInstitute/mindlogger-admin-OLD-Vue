@@ -3,6 +3,7 @@
     <user-table :groups="groups" :items="items"
      v-on:addUser="addUser"
      v-on:addGroupToSelected="addGroupToSelected"
+     v-on:sendInvitationEmail="sendInvitationEmail"
      >
       <template slot="header" v-slot:header>
         <h1>Users</h1>
@@ -62,26 +63,11 @@ export default {
     }
   },
   data: () => ({
-    /**
-     * TODO: read the table items from the store
-     */
-    // items: [
-    //   {
-    //     email: 'anishakeshavan@gmail.com',
-    //     groups: [{name: 'all', active: true}],
-    //     status: 'accepted',
-    //   },
-    //   {
-    //     email: 'someuser@test.com',
-    //     groups: [{name: 'all', active: true}, {name: 'anisha', active: true}],
-    //     status: 'pending',
-    //   }
-    // ],
+
   }),
   methods: {
     /**
      * add a user to the table
-     * TODO: push to the store
      */
     addUser(email, group) {
       const itemsCopy = [...this.items];
@@ -90,11 +76,17 @@ export default {
         groups: [{name: group, active: true}],
         status: 'pending',
       });
+
       this.$store.commit('setUsers', itemsCopy);
+      /**
+       * TODO: tell the server the new users, and in the response
+       * we should get the new user list that we should then set
+       * in the store (take the above line and put it in the 'then' of
+       * the axios call)
+       */
     },
     /**
      * add groups to the selected users
-     * TODO: save to store!
      */
     addGroupToSelected(group, selected) {
       const itemsCopy = [...this.items];
@@ -116,6 +108,17 @@ export default {
       });
       // commit to the store
       this.$store.commit('setUsers', itemsCopy);
+
+      // TODO: tell the server the new user groups
+      // and then commit to the store only after
+      // a successful axios call.
+    },
+    /**
+     * send an invitation email to a user
+     */
+    sendInvitationEmail(email) {
+      // TODO: fill this in!
+      console.log('send an email to:', email);
     }
   }
 }
