@@ -49,25 +49,34 @@ export default {
       if (this.currentApplet) {
         return _.map(this.currentApplet.groups, (g) => ({text: g.name}));
       }
-      
+    },
+    /**
+     * items for the user table. Get it from the store
+     * or initialize it to empty.
+     */
+    items() {
+       if (this.currentApplet) {
+         return this.currentApplet.users || [];
+       }
+       return [];
     }
   },
   data: () => ({
     /**
      * TODO: read the table items from the store
      */
-    items: [
-      {
-        email: 'anishakeshavan@gmail.com',
-        groups: [{name: 'all', active: true}],
-        status: 'accepted',
-      },
-      {
-        email: 'someuser@test.com',
-        groups: [{name: 'all', active: true}, {name: 'anisha', active: true}],
-        status: 'pending',
-      }
-    ],
+    // items: [
+    //   {
+    //     email: 'anishakeshavan@gmail.com',
+    //     groups: [{name: 'all', active: true}],
+    //     status: 'accepted',
+    //   },
+    //   {
+    //     email: 'someuser@test.com',
+    //     groups: [{name: 'all', active: true}, {name: 'anisha', active: true}],
+    //     status: 'pending',
+    //   }
+    // ],
   }),
   methods: {
     /**
@@ -75,19 +84,22 @@ export default {
      * TODO: push to the store
      */
     addUser(email, group) {
-      this.items.push({
+      const itemsCopy = [...this.items];
+      itemsCopy.push({
         email,
         groups: [{name: group, active: true}],
         status: 'pending',
       });
+      this.$store.commit('setUsers', itemsCopy);
     },
     /**
      * add groups to the selected users
      * TODO: save to store!
      */
     addGroupToSelected(group, selected) {
+      const itemsCopy = [...this.items];
       const emails = _.map(selected, s => s.email);
-      _.map(this.items, (item) => {
+      _.map(itemsCopy, (item) => {
         if (emails.indexOf(item.email) > -1) {
           // remove any inactive groups
           item.groups = _.filter(item.groups, i => i.active);
@@ -102,6 +114,8 @@ export default {
           }
         }
       });
+      // commit to the store
+      this.$store.commit('setUsers', itemsCopy);
     }
   }
 }

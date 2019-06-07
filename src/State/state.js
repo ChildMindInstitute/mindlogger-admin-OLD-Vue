@@ -22,7 +22,9 @@ const mutations = {
     state.backend = backend;
   },
   setCurrentApplet(state, activitySet) {
-    state.currentApplet = activitySet;
+    if (activitySet) {
+      state.currentApplet = activitySet;
+    }
   },
   setAllApplets(state, activitySets) {
     state.allApplets = activitySets;
@@ -39,7 +41,7 @@ const mutations = {
         state.allApplets[idx].applet.schedule = schedule;
       }
       // update this in the copy too.
-      state.currentApplet.applet = {...state.currentApplet, schedule };
+      state.currentApplet = {...state.currentApplet, schedule };
     }
   },
   setGroups(state, groups) {
@@ -53,7 +55,14 @@ const mutations = {
     state.currentApplet = {...state.currentApplet, groups };
   },
   setUsers(state, users) {
-    state.users = users;
+    // TODO: this sucks.
+    const idx = _.findIndex(state.allApplets,
+      a => a.applet['skos:prefLabel'] == state.currentApplet.applet['skos:prefLabel']);
+    if (idx > -1) {
+      state.allApplets[idx].users = users;
+    }
+    // update this in the copy too.
+    state.currentApplet = {...state.currentApplet, users };
   },
   setReviewers(state, reviewers) {
     state.reviewers = reviewers;
