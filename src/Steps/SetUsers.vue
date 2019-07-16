@@ -23,6 +23,8 @@
 import _ from 'lodash';
 // this is a table that renders users and groups.
 import UserTable from '../Custom/UserTable';
+import adminApi from '../Custom/Utils/api';
+
 
 export default {
   name: 'users',
@@ -65,6 +67,14 @@ export default {
   data: () => ({
 
   }),
+  watch: {
+    currentApplet() {
+
+    },
+  },
+  mounted() {
+
+  },
   methods: {
     /**
      * add a user to the table
@@ -84,6 +94,26 @@ export default {
        * in the store (take the above line and put it in the 'then' of
        * the axios call)
        */
+
+      this.sendServerInvite(email, group);
+
+    },
+    /**
+     * send an invite to the server
+     */
+    sendServerInvite(email, group) {
+      console.log(email, group, this.$store.state.currentApplet);
+      const groupObj = _.filter(this.$store.state.currentApplet.groups, g => g.name === group)[0];
+      const groupId = groupObj.id;
+      console.log(groupId);
+      adminApi.inviteToRoleByEmail({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        email: email,
+        groupId,
+      }).then((resp) => {
+        console.log('response from inviteToRole', resp);
+      });
     },
     /**
      * add groups to the selected users
@@ -116,9 +146,9 @@ export default {
     /**
      * send an invitation email to a user
      */
-    sendInvitationEmail(email) {
+    sendInvitationEmail(email, groups) {
       // TODO: fill this in!
-      console.log('send an email to:', email);
+      _.map(groups, group => this.sendServerInvite(email, group.name));
     }
   }
 }

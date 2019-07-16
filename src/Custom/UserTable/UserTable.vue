@@ -69,7 +69,7 @@
               </span>
               <span v-else>
                 {{ props.item.status }}
-                <v-btn small color="secondary" outline @click="resendClicked(props.item.email)">resend</v-btn>
+                <v-btn small color="secondary" outline @click="resendClicked(props.item.email, props.item.groups)">resend</v-btn>
               </span>
             </td>
             <td>
@@ -228,8 +228,8 @@ export default {
      * this component emits the sendInvitationEmail event that needs to be handled
      * by the parent
      */
-    resendClicked(email) {
-      this.$emit('sendInvitationEmail', email);
+    resendClicked(email, groups) {
+      this.$emit('sendInvitationEmail', email, groups);
     }
   }
 }

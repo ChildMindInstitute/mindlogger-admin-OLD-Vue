@@ -33,16 +33,28 @@ method: 'POST',
 
 const getGroupMemberships = ({ apiHost, token, appletId }) => axios({
   method: 'GET',
-  url: `${apiHost}/${appletId}/roles`,
+  url: `${apiHost}/applet/${appletId}/roles`,
   headers: {
     'Girder-Token': token,
   },
-})
+});
+
+const inviteToRoleByEmail = ({ apiHost, token, groupId, email }) => axios({
+  method: 'POST',
+  url: `${apiHost}/group/${groupId}/invitation`,
+  headers: {
+    'Girder-Token': token,
+  },
+  params: {
+    email,
+  }
+});
 
 export default {
   setSchedule,
   addNewApplet,
   getGroupMemberships,
+  inviteToRoleByEmail,
 }
 </script>
  
