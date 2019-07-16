@@ -12,9 +12,11 @@
         <h3>Create a new applet:</h3>
         <v-text-field
           label="activity set url"
-          v-model="newAppletURL"
+          v-model="newActivitySetURL"
         ></v-text-field>
-        <v-btn color="success" :disabled="!newAppletURL">Add</v-btn>
+        <v-btn color="success" :disabled="!newActivitySetURL" @click="addNewApplet">
+          Add
+        </v-btn>
       </div>
       <div style="margin-top: 3em;">
         <h3 style="margin-bottom: 1.5em;">Or select an existing applet:</h3>
@@ -29,13 +31,29 @@
 import api from '@bit/akeshavan.mindlogger-web.api';
 import _ from 'lodash';
 import AllApplets from '../Custom/Applets/AllApplets';
+import adminApi from '../Custom/Utils/api';
+import { Parse, Day } from 'dayspan';
+
+window.Parse = Parse;
+window.Day = Day;
 
 export default {
   name: 'Applet',
   data: () => ({
+    /**
+     * placeholder for any error messages from axios
+     */
     error: {},
+    /**
+     * status of the get applets route
+     */
     status: 'loading',
-    newAppletURL: '',
+    /**
+     * placeholder for the new applet URL
+     * this will likely be a github link to an activity set
+     * from the ReproNim
+     */
+    newActivitySetURL: '',
   }),
   components: {
     AllApplets,
@@ -86,6 +104,7 @@ export default {
         user: this.$store.state.auth.user._id,
         role: 'manager',
       }).then((resp) => {
+        console.log(resp.data);
         this.$store.commit('setAllApplets', resp.data);
         this.status = 'ready';
       }).catch((e) => {
@@ -104,6 +123,29 @@ export default {
      */
     setSelectedApplet(appletIdx) {
       this.$store.commit('setCurrentApplet', this.$store.state.allApplets[appletIdx]);
+    },
+    /**
+     * add a new applet
+     */
+    addNewApplet() {
+      /**
+       * TODO: add a route in ../Custom/Utils/api.vue
+       * and call it with this.newAppletURL
+       */
+
+      this.status = 'loading';
+      adminApi.addNewApplet({ 
+        activitySetUrl: this.newActivitySetURL,
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        // user: this.$store.state.auth.user._id,
+        name: 'Mood',
+      }).then(() => {
+        // response should have the updated applet list
+        // this.$store.commit('setAllApplets', resp.data);
+        this.status = 'ready';
+        this.getApplets();
+      });
     }
   },
   /**

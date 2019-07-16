@@ -75,7 +75,7 @@ export default {
     continueAction() {
       const scheduleForm = new FormData();
       const schedule = this.currentApplet.applet.schedule;
-      scheduleForm.set('schedule', JSON.stringify(schedule));
+      scheduleForm.set('schedule', JSON.stringify(schedule || {}));
       adminApi.setSchedule({
         apiHost: this.$store.state.backend,
         id: this.currentApplet.applet._id,

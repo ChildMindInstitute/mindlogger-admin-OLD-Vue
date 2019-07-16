@@ -98,10 +98,10 @@ export default {
         name: 'schedule',
         component: SetSchedule,
       },
-      {
-        name: 'groups',
-        component: SetGroups
-      },
+      // {
+      //   name: 'groups',
+      //   component: SetGroups
+      // },
       {
         name: 'users',
         component: SetUsers,
