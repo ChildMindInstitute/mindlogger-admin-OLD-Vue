@@ -91,14 +91,14 @@ export default {
      * add a user to the table
      */
     addUser(email, group) {
-      const itemsCopy = [...this.items];
-      itemsCopy.push({
-        email,
-        groups: [{name: group, active: true}],
-        status: 'pending',
-      });
+      // const itemsCopy = [...this.items];
+      // itemsCopy.push({
+      //   email,
+      //   groups: [{name: group, active: true}],
+      //   status: 'pending',
+      // });
 
-      this.$store.commit('setUsers', itemsCopy);
+      // this.$store.commit('setUsers', itemsCopy);
       /**
        * TODO: tell the server the new users, and in the response
        * we should get the new user list that we should then set
@@ -124,6 +124,7 @@ export default {
         groupId,
       }).then((resp) => {
         console.log('response from inviteToRole', resp);
+        this.getGroupTable();
       });
     },
     /**
@@ -157,8 +158,6 @@ export default {
       _.map(selected, user => {
         const email = user.email;
         this.sendServerInvite(email, group).then(() => {
-          // TODO: get the updated user table and setUsers
-          this.getGroupTable();
         });
       });
     },
@@ -172,11 +171,13 @@ export default {
      * update the group table
      */
     getGroupTable() {
+      console.log('getting group table');
       adminApi.getGroupTable({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         appletId: this.currentApplet.applet._id.split('applet/')[1],
       }).then((resp) => {
+        console.log('got group table', resp.data);
         this.$store.commit('setUsers', resp.data);
       });
     },

@@ -71,6 +71,14 @@ const deleteUserFromRole = ({ apiHost, token, groupId, userId }) => {
   })
 };
 
+const deleteApplet = ({ apiHost, token, appletId }) => axios({
+  method: 'DELETE',
+  url: `${apiHost}/applet/${appletId}`,
+  headers: {
+    'Girder-Token': token,
+  },
+})
+
 export default {
   setSchedule,
   addNewApplet,
@@ -78,6 +86,7 @@ export default {
   inviteToRoleByEmail,
   deleteUserFromRole,
   getGroupTable,
+  deleteApplet,
 }
 </script>
  

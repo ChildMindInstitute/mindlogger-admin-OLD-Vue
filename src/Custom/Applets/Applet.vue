@@ -40,6 +40,9 @@
               <span v-if="status === 'ready'">Refresh</span>
               <span v-else> Refreshing.. </span>
             </v-btn>
+            <v-btn @click="deleteApplet">
+              Delete
+            </v-btn>
           </v-flex>
         </v-layout>
         
@@ -95,8 +98,11 @@ export default {
     //   }
     // }
     refreshApplet() {
-      console.log('this.applet', this.applet);
+      this.$emit('refreshApplet', this.applet);
     },
+    deleteApplet() {
+      this.$emit('deleteApplet', this.applet);
+    }
   },
   created() {
 
