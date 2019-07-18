@@ -123,35 +123,35 @@ export default {
      */
     setSelectedApplet(appletIdx) {
       this.$store.commit('setCurrentApplet', this.$store.state.allApplets[appletIdx]);
-      this.getGroupMemberships();
+      // this.getGroupMemberships();
     },
     /**
      * get group memberships for the current applet
      */
-    getGroupMemberships() {
-      adminApi.getGroupMemberships({
-        apiHost: this.$store.state.backend,
-        token: this.$store.state.auth.authToken.token,
-        appletId: this.currentApplet.applet._id.split('applet/')[1],
-      }).then((resp) => {
-        console.log('response from group memberships', resp);
-        const groups = [
-          {
-            name: 'user',
-            id: resp.data.user.groups[0]._id,
-          },
-          {
-            name: 'reviewer',
-            id: resp.data.user.groups[0]._id,
-          },
-          {
-            name: 'manager',
-            id: resp.data.user.groups[0]._id,
-          },        
-        ]
-        this.$store.commit('setGroups', groups);
-      });
-    },
+    // getGroupMemberships() {
+    //   adminApi.getGroupMemberships({
+    //     apiHost: this.$store.state.backend,
+    //     token: this.$store.state.auth.authToken.token,
+    //     appletId: this.currentApplet.applet._id.split('applet/')[1],
+    //   }).then((resp) => {
+    //     console.log('response from group memberships', resp);
+    //     const groups = [
+    //       {
+    //         name: 'user',
+    //         id: resp.data.user.groups[0]._id,
+    //       },
+    //       {
+    //         name: 'reviewer',
+    //         id: resp.data.user.groups[0]._id,
+    //       },
+    //       {
+    //         name: 'manager',
+    //         id: resp.data.user.groups[0]._id,
+    //       },        
+    //     ]
+    //     this.$store.commit('setGroups', groups);
+    //   });
+    // },
     /**
      * add a new applet
      */

@@ -4,6 +4,7 @@
      v-on:addUser="addUser"
      v-on:addGroupToSelected="addGroupToSelected"
      v-on:sendInvitationEmail="sendInvitationEmail"
+     v-on:removeFromGroup="removeFromGroup"
      >
       <template slot="header" v-slot:header>
         <h1>Users</h1>
@@ -59,7 +60,17 @@ export default {
      */
     items() {
        if (this.currentApplet) {
-         return this.currentApplet.users || [];
+         const groupedUsers = _.groupBy(this.currentApplet.users, 'email');
+         const newUsers = [];
+         _.map(groupedUsers, (val, key) => {
+           const groups = [];
+           _.map(val, v => {
+             groups.push(v.groups[0]);
+           });
+           const entry = { email: key, id: val[0]._id, groups }
+           newUsers.push(entry);
+         });
+         return newUsers; // this.currentApplet.users || [];
        }
        return [];
     }
@@ -106,7 +117,7 @@ export default {
       const groupObj = _.filter(this.$store.state.currentApplet.groups, g => g.name === group)[0];
       const groupId = groupObj.id;
       console.log(groupId);
-      adminApi.inviteToRoleByEmail({
+      return adminApi.inviteToRoleByEmail({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         email: email,
@@ -119,37 +130,72 @@ export default {
      * add groups to the selected users
      */
     addGroupToSelected(group, selected) {
-      const itemsCopy = [...this.items];
-      const emails = _.map(selected, s => s.email);
-      _.map(itemsCopy, (item) => {
-        if (emails.indexOf(item.email) > -1) {
-          // remove any inactive groups
-          item.groups = _.filter(item.groups, i => i.active);
-          // its selected, append to this item's group
-          // if its not already there
-          const existingGroups = _.map(item.groups, ii => ii.name);
-          if (existingGroups.indexOf(group) < 0) {
-            item.groups.push({
-              name: group,
-              active: true,
-            });
-          }
-        }
-      });
+      // console.log(group, selected);
+      // const itemsCopy = [...this.items];
+      // const emails = _.map(selected, s => s.email);
+      // _.map(itemsCopy, (item) => {
+      //   if (emails.indexOf(item.email) > -1) {
+      //     // remove any inactive groups
+      //     // item.groups = _.filter(item.groups, i => i.active);
+      //     // its selected, append to this item's group
+      //     // if its not already there
+      //     const existingGroups = _.map(item.groups, ii => ii.name);
+      //     if (existingGroups.indexOf(group) < 0) {
+      //       item.groups.push({
+      //         role: group,
+      //         // active: true,
+      //       });
+      //     }
+      //   }
+      // });
       // commit to the store
-      this.$store.commit('setUsers', itemsCopy);
+      // this.$store.commit('setUsers', itemsCopy);
 
       // TODO: tell the server the new user groups
       // and then commit to the store only after
       // a successful axios call.
+      _.map(selected, user => {
+        const email = user.email;
+        this.sendServerInvite(email, group).then(() => {
+          // TODO: get the updated user table and setUsers
+          this.getGroupTable();
+        });
+      });
     },
     /**
      * send an invitation email to a user
      */
-    sendInvitationEmail(email, groups) {
-      // TODO: fill this in!
-      _.map(groups, group => this.sendServerInvite(email, group.name));
-    }
+    sendInvitationEmail(email, group) {
+      this.sendServerInvite(email, group);
+    },
+    /**
+     * update the group table
+     */
+    getGroupTable() {
+      adminApi.getGroupTable({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        appletId: this.currentApplet.applet._id.split('applet/')[1],
+      }).then((resp) => {
+        this.$store.commit('setUsers', resp.data);
+      });
+    },
+    /**
+     * remove a user from a group
+     */
+    removeFromGroup(groupInfo, userInfo) {
+      console.log('need to remove', groupInfo, 'from', userInfo);
+      // TODO: connect to this function
+      adminApi.deleteUserFromRole({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        groupId: groupInfo._id,
+        userId: userInfo.id,
+      }).then((resp) => {
+        console.log('resp', resp);
+        this.getGroupTable();
+      });
+    },
   }
 }
 </script>
