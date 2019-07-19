@@ -6,7 +6,7 @@
       :calendar="calendar"
       :read-only="readOnly"
       :activities="activities"
-      @change="saveState">
+      v-on:change="saveState">
 
 
       <template slot="menuRight">
@@ -170,7 +170,7 @@ export default {
       const state = this.calendar.toInput(true);
       // let json = JSON.stringify(state);
 
-      // console.log('state', state);
+      console.log('state', state.events);
       if (this.currentApplet) {
         this.$store.commit('setSchedule', state );
       }
