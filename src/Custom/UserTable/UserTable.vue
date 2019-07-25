@@ -64,19 +64,25 @@
             </td>
             <td>{{ props.item.email }}</td>
             <td>
-              <span v-if="props.item.status === 'accepted'">
-                {{ props.item.status }}
-              </span>
-              <span v-else>
-                {{ props.item.status }}
-                <v-btn small color="secondary" outline @click="resendClicked(props.item.email)">resend</v-btn>
-              </span>
+              <ul class="nobullets">
+                <li v-for="group in props.item.groups" :key="group.name">
+                  <span v-if="group.status === 'active'">
+                    {{group.role}} &#8212; {{ group.status }}
+                  </span>
+                  <span v-else>
+                    {{group.role}} &#8212; {{ group.status }}
+                    <v-btn small color="secondary" outline @click="resendClicked(props.item.email, group.role)">resend</v-btn>
+                  </span>
+                </li>
+              </ul>
+              <!-- {{ props.item.groups[0].status }} -->
+
             </td>
             <td>
               <span v-for="(chip, index) in props.item.groups" :key="`chip${index}`">
-                <v-chip close
+                <v-chip close @input="deleteGroup(chip, props.item)"
                  v-model="chip.active">
-                  {{chip.name}}
+                  {{chip.role}}
                 </v-chip>
               </span>
             </td>
@@ -105,7 +111,13 @@
     </v-layout>
   </v-container>
 </template>
-
+<style>
+  ul.nobullets {
+    list-style: none;
+    text-align: center;
+    list-style-position: inside;
+  }
+</style>
 <script>
 /**
  * this is a stateless component that renders a table with sorting and search
@@ -219,6 +231,7 @@ export default {
      * by emitting an 'addGroupToSelected' event.
      */
     addGroupToSelected() {
+      console.log(this.selectedGroup, this.selected);
       this.$emit('addGroupToSelected', this.selectedGroup, this.selected);
     },
     /**
@@ -228,9 +241,16 @@ export default {
      * this component emits the sendInvitationEmail event that needs to be handled
      * by the parent
      */
-    resendClicked(email) {
-      this.$emit('sendInvitationEmail', email);
-    }
+    resendClicked(email, group) {
+      this.$emit('sendInvitationEmail', email, group);
+    },
+    /**
+     * delete group membership
+     */
+    deleteGroup(groupInfo, userInfo) {
+      //console.log('you want to delete', val, item);
+      this.$emit('removeFromGroup', groupInfo, userInfo);
+    },
   }
 }
 </script>

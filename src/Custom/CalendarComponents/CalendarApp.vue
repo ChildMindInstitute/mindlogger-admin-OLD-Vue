@@ -720,7 +720,7 @@ export default {
     },
 
     triggerChange()
-    {
+    { console.log('triggering change', this.calendar);
       this.$emit('change', {
         calendar: this.calendar
       });

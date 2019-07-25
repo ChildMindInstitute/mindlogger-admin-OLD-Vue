@@ -36,6 +36,13 @@
                 <v-radio label="Relative to first response" value="relative"></v-radio>
               </v-radio-group>
             </v-card-text> -->
+            <v-btn :disabled="status !== 'ready'" @click="refreshApplet">
+              <span v-if="status === 'ready'">Refresh</span>
+              <span v-else> Refreshing.. </span>
+            </v-btn>
+            <v-btn @click="deleteApplet">
+              Delete
+            </v-btn>
           </v-flex>
         </v-layout>
         
@@ -73,7 +80,7 @@ export default {
     }
   },
   data: () => ({
-
+    status: 'ready',
   }),
   watch: {
     // scheduleType() {
@@ -90,6 +97,12 @@ export default {
     //     // this.$store.commit('setSchedule', this.applet.schedule);
     //   }
     // }
+    refreshApplet() {
+      this.$emit('refreshApplet', this.applet);
+    },
+    deleteApplet() {
+      this.$emit('deleteApplet', this.applet);
+    }
   },
   created() {
 

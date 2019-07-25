@@ -39,9 +39,10 @@ const mutations = {
         a => a.applet['skos:prefLabel'] == state.currentApplet.applet['skos:prefLabel']);
       if (idx > -1) {
         state.allApplets[idx].applet.schedule = schedule;
+        state.currentApplet = state.allApplets[idx];
       }
       // update this in the copy too.
-      state.currentApplet = {...state.currentApplet, schedule };
+      //state.currentApplet = {...state.currentApplet, schedule };
     }
   },
   setGroups(state, groups) {
