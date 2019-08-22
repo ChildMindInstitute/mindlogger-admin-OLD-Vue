@@ -6,7 +6,7 @@ import createPersistedState from 'vuex-persistedstate';
 import _ from 'lodash';
 
 const state = {
-  backend: 'https://mindlogger-dev.vasegurt.com/api/v1',
+  backend: 'https://api.mindlogger.org/api/v1',
   allApplets: [],
   currentApplet: {
   },
