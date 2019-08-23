@@ -80,7 +80,14 @@ export default {
      * refresh an applet's activity set
      */
     refreshApplet(applet) {
-      console.log('going to refresh', applet);
+      adminApi.refreshApplet({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        appletId: applet.applet._id.split('applet/')[1],
+      }).then((resp) => {
+        console.log(resp);
+        this.$emit('refreshAppletList');
+      });
     },
   },
   mounted() {

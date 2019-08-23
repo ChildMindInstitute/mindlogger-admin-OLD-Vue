@@ -80,7 +80,7 @@
             </td>
             <td>
               <span v-for="(chip, index) in props.item.groups" :key="`chip${index}`">
-                <v-chip close @input="deleteGroup(chip, props.item)"
+                <v-chip :close="chip.role !== 'user'" @input="deleteGroup(chip, props.item)"
                  v-model="chip.active">
                   {{chip.role}}
                 </v-chip>

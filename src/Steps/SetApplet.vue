@@ -18,6 +18,17 @@
           Add
         </v-btn>
       </div>
+      <div>
+        <h3> Quick Add </h3>
+        <p> Below are a list of activity sets you can add. 
+          These are JSON-LD files that describe the questions of your
+          applet. Eventually, there will be a library of questions
+          and you will be able to create your own.
+        </p>
+        <p v-for="activityInfo in sampleActivitySets" :key="activityInfo.name">
+          <a @click="newActivitySetURL=activityInfo.url">{{activityInfo.name}}</a>
+        </p>
+      </div>
       <div style="margin-top: 3em;">
         <h3 style="margin-bottom: 1.5em;">Or select an existing applet:</h3>
         <AllApplets :applets="allApplets" v-on:selected_applet="setSelectedApplet"
@@ -34,6 +45,7 @@ import _ from 'lodash';
 import AllApplets from '../Custom/Applets/AllApplets';
 import adminApi from '../Custom/Utils/api';
 import { Parse, Day } from 'dayspan';
+import config from '../config';
 
 window.Parse = Parse;
 window.Day = Day;
@@ -41,6 +53,7 @@ window.Day = Day;
 export default {
   name: 'Applet',
   data: () => ({
+    sampleActivitySets: config.activitySets,
     /**
      * placeholder for any error messages from axios
      */
@@ -172,6 +185,7 @@ export default {
       }).then(() => {
         // response should have the updated applet list
         // this.$store.commit('setAllApplets', resp.data);
+        this.newActivitySetURL = '';
         this.status = 'ready';
         this.getApplets();
       });

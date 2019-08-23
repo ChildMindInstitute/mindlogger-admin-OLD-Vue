@@ -31,6 +31,14 @@ method: 'POST',
   },
 })
 
+const refreshApplet = ({ apiHost, token, appletId }) => axios({
+  method: 'GET',
+  url: `${apiHost}/applet/${appletId}?refreshCache=true`,
+  headers: {
+    'Girder-Token': token,
+  },
+})
+
 const getGroupMemberships = ({ apiHost, token, appletId }) => axios({
   method: 'GET',
   url: `${apiHost}/applet/${appletId}/roles`,
@@ -87,6 +95,7 @@ export default {
   deleteUserFromRole,
   getGroupTable,
   deleteApplet,
+  refreshApplet,
 }
 </script>
  
