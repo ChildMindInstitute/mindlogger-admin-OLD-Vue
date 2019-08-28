@@ -2,7 +2,10 @@
   <v-container>
     <v-layout row wrap>
         <v-flex v-if="notLoggedIn">
-          <h1>Login</h1>
+          <h1 style="text-align: center">Login</h1>
+                    <v-card>
+            <v-card-text>
+
           <p>
             Log into your Mindlogger account hosted at {{$store.state.backend}}
           </p>
@@ -23,11 +26,15 @@
           </div>
 
           <v-btn @click="login" color="primary">Login</v-btn>
-
+            </v-card-text>
+                    </v-card>
         </v-flex>
         <v-flex v-else>
-          <h1>Hello, {{auth.user.login}}</h1>
+                    <v-card>
+            <v-card-text>
+          <h1 style="text-align: center">Hello, {{auth.user.login}}</h1>
           <p>Click "continue" or <v-btn @click="logout" color="primary">Logout</v-btn></p>
+            </v-card-text></v-card>
         </v-flex>
     </v-layout>
   </v-container>

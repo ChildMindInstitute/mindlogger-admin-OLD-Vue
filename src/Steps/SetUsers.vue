@@ -7,8 +7,8 @@
      v-on:removeFromGroup="removeFromGroup"
      >
       <template slot="header" v-slot:header>
-        <h1>Users</h1>
-        <p>
+        <h1 style="text-align: center">Users</h1>
+        <p style="text-align: center">
           Send invitations to your users to participate in 
           <b v-if="currentAppletReady">{{$store.state.currentApplet.applet['skos:prefLabel']}}</b>
         </p>
@@ -33,6 +33,12 @@ export default {
     UserTable,
   },
   computed: {
+    /**
+     * ready to continue
+     */
+    readyToContinue() {
+      return true;
+    },
     /**
      * shortcut to currentApplet in the store
      */
@@ -196,6 +202,9 @@ export default {
         console.log('resp', resp);
         this.getGroupTable();
       });
+    },
+    continueAction() {
+      return true;
     },
   }
 }

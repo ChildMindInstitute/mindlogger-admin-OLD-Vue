@@ -1,20 +1,23 @@
 <template>
   <v-container>
     <div v-if="isLoggedIn">
-      <h1>Your Applets</h1>
+      <h1 style="text-align: center;">Your Applets</h1>
       <div v-if="status === 'loading'">
-        refreshing...
+        <Loader />
       </div>
       <div v-else-if="status === 'error'" class="error">
         {{error.message}}
       </div>
+      <v-card>
+        <v-card-text>
       <div style="margin-top: 2em;">
+
         <h3>Create a new applet:</h3>
         <v-text-field
           label="activity set url"
           v-model="newActivitySetURL"
         ></v-text-field>
-        <v-btn color="success" :disabled="!newActivitySetURL" @click="addNewApplet">
+        <v-btn color="success" :disabled="!newActivitySetURL || status === 'loading'" @click="addNewApplet">
           Add
         </v-btn>
       </div>
@@ -29,6 +32,7 @@
           <a @click="newActivitySetURL=activityInfo.url">{{activityInfo.name}}</a>
         </p>
       </div>
+        </v-card-text></v-card>
       <div style="margin-top: 3em;">
         <h3 style="margin-bottom: 1.5em;">Or select an existing applet:</h3>
         <AllApplets :applets="allApplets" v-on:selected_applet="setSelectedApplet"
@@ -45,6 +49,7 @@ import _ from 'lodash';
 import AllApplets from '../Custom/Applets/AllApplets';
 import adminApi from '../Custom/Utils/api';
 import { Parse, Day } from 'dayspan';
+import Loader from '@bit/akeshavan.mindlogger-web.loader';
 import config from '../config';
 
 window.Parse = Parse;
@@ -71,6 +76,7 @@ export default {
   }),
   components: {
     AllApplets,
+    Loader,
   },
   computed: {
     /**

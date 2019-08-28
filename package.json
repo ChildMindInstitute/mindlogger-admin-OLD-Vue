@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@bit/akeshavan.mindlogger-web.api": "0.0.9",
+    "@bit/akeshavan.mindlogger-web.loader": "0.0.3",
     "babel-loader": "^7.1.5",
     "dayspan-vuetify": "0.4.0",
     "lodash": "^4.17.11",

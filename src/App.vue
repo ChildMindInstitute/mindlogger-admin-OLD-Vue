@@ -11,7 +11,7 @@
       
     </v-stepper-header>
 
-    <v-stepper-items>
+    <v-stepper-items class="bg bog">
 
       <v-stepper-content v-for="(step, index) in steps" :step="index+1"
        :key="`step_content_${index}`">
@@ -46,6 +46,33 @@
   </v-app>
 </template>
 
+<style>
+
+.primary {
+    background-color: #005fa3 !important;
+    border-color: #005fa3 !important;
+}
+
+.bg {
+    z-index: 0;
+    min-height: calc(100% - 72px);
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-top-color: #e1e1e1;
+}
+
+.bog {
+    background-color: #ffffff;
+    background-image: url(https://images.unsplash.com/photo-1517483000871-1dbf64a6e1c6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80), -moz-linear-gradient(0deg, rgba(255, 255, 255, 0.5) 5%, rgba(255, 255, 255, 1)), url(https://images.unsplash.com/photo-1517483000871-1dbf64a6e1c6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80);
+    background-image: url(https://images.unsplash.com/photo-1517483000871-1dbf64a6e1c6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80), -webkit-linear-gradient(0deg, rgba(255, 255, 255, 0.5) 5%, rgba(255, 255, 255, 1)), url(https://images.unsplash.com/photo-1517483000871-1dbf64a6e1c6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80);
+    background-image: url(https://images.unsplash.com/photo-1517483000871-1dbf64a6e1c6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80), -ms-linear-gradient(0deg, rgba(255, 255, 255, 0.5) 5%, rgba(255, 255, 255, 1)), url(https://images.unsplash.com/photo-1517483000871-1dbf64a6e1c6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80);
+    background-image: url(https://images.unsplash.com/photo-1517483000871-1dbf64a6e1c6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80), linear-gradient(0deg, rgba(255, 255, 255, 0.5) 5%, rgba(255, 255, 255, 1)), url(https://images.unsplash.com/photo-1517483000871-1dbf64a6e1c6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80);
+    background-repeat: no-repeat,	no-repeat,	no-repeat, no-repeat;
+    background-size: 0px 0px, cover,	cover;
+    background-position: top left,	center center, bottom center;
+    background-attachment: fixed,	fixed,	fixed;
+}
+</style>
 
 
 <script>
@@ -94,10 +121,7 @@ export default {
         name: 'applet',
         component: SetApplet,
       },     
-      {
-        name: 'schedule',
-        component: SetSchedule,
-      },
+
       // {
       //   name: 'groups',
       //   component: SetGroups
@@ -105,6 +129,10 @@ export default {
       {
         name: 'users',
         component: SetUsers,
+      },
+      {
+        name: 'schedule',
+        component: SetSchedule,
       },
       // {
       //   name: 'reviewers',

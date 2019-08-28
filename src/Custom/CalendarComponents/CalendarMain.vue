@@ -169,10 +169,14 @@ export default {
     {
       const state = this.calendar.toInput(true);
       // let json = JSON.stringify(state);
-
+      const oldStateEvents = this.$store.state.currentApplet.applet.schedule.events;
+      const newStateEvents = state.events;
       console.log('state', state.events);
       if (this.currentApplet) {
         this.$store.commit('setSchedule', state );
+        if (_.difference(oldStateEvents, newStateEvents)) {
+          this.$emit('change');
+        }
       }
 
       // localStorage.setItem(this.storeKey, json);

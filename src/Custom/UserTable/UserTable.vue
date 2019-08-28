@@ -90,6 +90,8 @@
         </v-data-table>
       </v-flex>
     </v-layout>
+              <v-card class="mt-3">
+            <v-card-text>
     <div class="mt-3 pt-3">
       <slot name="add"></slot>
     </div>
@@ -109,6 +111,7 @@
         </v-btn>
       </v-flex>
     </v-layout>
+            </v-card-text></v-card>
   </v-container>
 </template>
 <style>

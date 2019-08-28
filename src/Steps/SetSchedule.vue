@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <Calendar :activities="activities" ref="calendar"/>
+      <Calendar :activities="activities" v-on:change="continueAction" ref="calendar"/>
     </div>
   </div>
 </template>
@@ -73,6 +73,7 @@ export default {
      * TODO: probably we should save when you hit 'back' as well?
      */
     continueAction() {
+      console.log('saving the schedule');
       const scheduleForm = new FormData();
       const schedule = this.currentApplet.applet.schedule;
       scheduleForm.set('schedule', JSON.stringify(schedule || {}));

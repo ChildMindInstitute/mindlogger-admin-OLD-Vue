@@ -2,7 +2,22 @@
   <v-container>
     <v-layout row wrap>
         <v-flex>
-          <h1>Select your Server</h1>
+          <h1 style="text-align: center;">MindLogger Admin</h1>
+          <p style="text-align: center;">
+            The MindLogger admin panel enables you to add an
+            applet
+            to your mobile app, and invite others to your protocol.
+
+                        For more information, check out the 
+            <a href="https://github.com/ChildMindInstitute/mindlogger-app/wiki/Quickstart">Quickstart Guide</a>
+            .
+          </p>
+
+          <br>
+
+          <v-card>
+            <v-card-text>
+          <h2>Select your Server</h2>
           <p>
             This server will hold your applet configuration settings
             and all the data you collect.
@@ -24,10 +39,13 @@
             ></v-text-field>
           </div>
           <span class="underline"></span>
+            </v-card-text>
+          </v-card>
         </v-flex>
     </v-layout>
   </v-container>
 </template>
+
 
 <script>
 export default {
