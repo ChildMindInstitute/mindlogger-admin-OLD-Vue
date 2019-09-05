@@ -9,9 +9,12 @@
       <template slot="header" v-slot:header>
         <h1 style="text-align: center">Users</h1>
         <p style="text-align: center">
-          Send invitations to your users to participate in 
+          Send invitations to your users to participate in
           <b v-if="currentAppletReady">{{$store.state.currentApplet.applet['skos:prefLabel']}}</b>
         </p>
+        <div style="text-align: center;margin: auto;width:13em;">
+          <v-switch style="text-align: center;" v-model="openReg" label="Open registration" color="primary" hint="Users can join without an invitation" :persistent-hint="true"/>
+        </div>
       </template>
       <template slot="add">
         <p>Add a new user by their email address</p>
@@ -52,7 +55,7 @@ export default {
       return !_.isEmpty(this.currentApplet);
     },
     /**
-     * parse the groups and get it in the format for 
+     * parse the groups and get it in the format for
      * the component.
      */
     groups() {
@@ -82,11 +85,16 @@ export default {
     }
   },
   data: () => ({
-
+    openReg: false,
   }),
   watch: {
     currentApplet() {
 
+    },
+    openReg() {
+      const groupObj = _.filter(this.$store.state.currentApplet.groups, g => g.name === 'user')[0];
+      const groupId = groupObj.id;
+      this.openRegistration(groupId, this.openReg);
     },
   },
   mounted() {
@@ -172,6 +180,19 @@ export default {
      */
     sendInvitationEmail(email, group) {
       this.sendServerInvite(email, group);
+    },
+    /**
+     * update open/closed registration
+     */
+    openRegistration(groupId, open) {
+      adminApi.updateRegistration({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        groupId,
+        open
+      }).then((rest) => {
+        console.log(rest);
+      });
     },
     /**
      * update the group table

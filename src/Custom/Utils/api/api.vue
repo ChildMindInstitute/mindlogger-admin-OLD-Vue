@@ -87,6 +87,14 @@ const deleteApplet = ({ apiHost, token, appletId }) => axios({
   },
 })
 
+const updateRegistration = ({ apiHost, token, groupId, open }) => axios({
+  method: 'PUT',
+  url: `${apiHost}/group/${groupId}?openRegistration=${open}`,
+  headers: {
+    'Girder-Token': token,
+  },
+})
+
 export default {
   setSchedule,
   addNewApplet,
@@ -96,6 +104,6 @@ export default {
   getGroupTable,
   deleteApplet,
   refreshApplet,
+  updateRegistration,
 }
 </script>
- 
