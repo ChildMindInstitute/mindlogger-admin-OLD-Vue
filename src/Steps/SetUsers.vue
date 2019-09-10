@@ -60,6 +60,10 @@ export default {
      */
     groups() {
       if (this.currentApplet) {
+        const groupObj = _.filter(this.currentApplet.groups, g => g.name === 'user')[0]
+        // eslint-disable-next-line
+        console.log(groupObj || false);
+        this.openReg = groupObj.openRegistration || false;
         return _.map(this.currentApplet.groups, (g) => ({text: g.name}));
       }
     },
@@ -92,13 +96,12 @@ export default {
 
     },
     openReg() {
-      const groupObj = _.filter(this.$store.state.currentApplet.groups, g => g.name === 'user')[0];
+      const groupObj = _.filter(this.currentApplet.groups, g => g.name === 'user')[0];
       const groupId = groupObj.id;
       this.openRegistration(groupId, this.openReg);
     },
   },
   mounted() {
-
   },
   methods: {
     /**
@@ -127,16 +130,15 @@ export default {
      * send an invite to the server
      */
     sendServerInvite(email, group) {
-      console.log(email, group, this.$store.state.currentApplet);
-      const groupObj = _.filter(this.$store.state.currentApplet.groups, g => g.name === group)[0];
+      const groupObj = _.filter(this.currentApplet.groups, g => g.name === group)[0];
       const groupId = groupObj.id;
-      console.log(groupId);
       return adminApi.inviteToRoleByEmail({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         email: email,
         groupId,
       }).then((resp) => {
+        // eslint-disable-next-line
         console.log('response from inviteToRole', resp);
         this.getGroupTable();
       });
@@ -191,6 +193,7 @@ export default {
         groupId,
         open
       }).then((rest) => {
+        // eslint-disable-next-line
         console.log(rest);
       });
     },
@@ -198,12 +201,14 @@ export default {
      * update the group table
      */
     getGroupTable() {
+      // eslint-disable-next-line
       console.log('getting group table');
       adminApi.getGroupTable({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         appletId: this.currentApplet.applet._id.split('applet/')[1],
       }).then((resp) => {
+        // eslint-disable-next-line
         console.log('got group table', resp.data);
         this.$store.commit('setUsers', resp.data);
       });
@@ -212,6 +217,7 @@ export default {
      * remove a user from a group
      */
     removeFromGroup(groupInfo, userInfo) {
+      // eslint-disable-next-line
       console.log('need to remove', groupInfo, 'from', userInfo);
       // TODO: connect to this function
       adminApi.deleteUserFromRole({
@@ -220,7 +226,6 @@ export default {
         groupId: groupInfo._id,
         userId: userInfo.id,
       }).then((resp) => {
-        console.log('resp', resp);
         this.getGroupTable();
       });
     },
