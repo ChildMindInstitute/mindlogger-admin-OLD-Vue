@@ -114,7 +114,7 @@ export default {
      * clear the store on logout.
      */
     logout() {
-      this.$store.commit('setAuth', {});
+      this.$store.commit('reset');
     }
   },
 

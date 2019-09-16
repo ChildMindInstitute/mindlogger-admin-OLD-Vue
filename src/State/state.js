@@ -5,11 +5,10 @@ import { Store } from "vuex";
 import createPersistedState from 'vuex-persistedstate';
 import _ from 'lodash';
 
-const state = {
+const initialState = {
   backend: 'https://api.mindlogger.org/api/v1',
   allApplets: [],
-  currentApplet: {
-  },
+  currentApplet: {},
   auth: {},
   continue: {},
 };
@@ -70,11 +69,16 @@ const mutations = {
   },
   continue(state, params) {
     state.continue[params.component] = params.continue;
+  },
+  reset(state) {
+    Object.keys(initialState).forEach(key => {
+      state[key] = initialState[key]
+    })
   }
 };
 
 const store = new Store({
-  state,
+  initialState,
   mutations,
   plugins: [createPersistedState()],
 })
