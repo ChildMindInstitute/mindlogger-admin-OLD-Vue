@@ -172,8 +172,13 @@ export default {
       let oldStateEvents = [];
       let newStateEvents = [];
       // let json = JSON.stringify(state);
-      if (state && storeState && this.$store.state.currentApplet.applet.schedule) {
-        oldStateEvents = this.$store.state.currentApplet.applet.schedule.events;
+      if (state && storeState && this.$store.state.currentApplet) {
+        try {
+          oldStateEvents = this.$store.state.currentApplet.applet.schedule.events;
+        } catch (error) {
+          console.log('state does not have anything');
+        }
+        
         newStateEvents = state.events;
       }
 

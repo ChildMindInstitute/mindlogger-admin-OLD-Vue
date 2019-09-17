@@ -73,17 +73,23 @@ export default {
      * TODO: probably we should save when you hit 'back' as well?
      */
     continueAction() {
-      console.log('saving the schedule');
       const scheduleForm = new FormData();
-      const schedule = this.currentApplet.applet.schedule;
-      scheduleForm.set('schedule', JSON.stringify(schedule || {}));
-      adminApi.setSchedule({
-        apiHost: this.$store.state.backend,
-        id: this.currentApplet.applet._id,
-        token: this.$store.state.auth.authToken.token,
-        data: scheduleForm,
-      }).then(() => {
-      });
+      if (this.currentApplet) {
+        if (this.currentApplet.schedule) {
+          console.log('saving the schedule');
+          const schedule = this.currentApplet.applet.schedule;
+          scheduleForm.set('schedule', JSON.stringify(schedule || {}));
+          adminApi.setSchedule({
+            apiHost: this.$store.state.backend,
+            id: this.currentApplet.applet._id,
+            token: this.$store.state.auth.authToken.token,
+            data: scheduleForm,
+          }).then(() => {
+          });
+        }
+
+      }
+      
     },
   }
 }

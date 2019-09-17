@@ -223,11 +223,16 @@ export default {
       this.openRegistration(groupId, regVal);
     },
     getOpenRegValue() {
-      const groupObj = _.filter(this.currentApplet.groups, g => g.name === 'user')[0]
-      // eslint-disable-next-line
-      console.log(groupObj || false);
-      console.log('setting the openReg value babsed on the current applet', groupObj.openRegistration);
-      return groupObj.openRegistration || false;
+      if (this.currentApplet) {
+        const groupObj = _.filter(this.currentApplet.groups, g => g.name === 'user')[0]
+        // eslint-disable-next-line
+        if (groupObj) {
+          console.log(groupObj || false);
+          console.log('setting the openReg value babsed on the current applet', groupObj.openRegistration);
+          return groupObj.openRegistration || false;
+        }
+      }
+      return false;
     },
     setOpenRegValue(val) {
       const groupObjIdx = _.findIndex(this.currentApplet.groups, g => g.name === 'user')
