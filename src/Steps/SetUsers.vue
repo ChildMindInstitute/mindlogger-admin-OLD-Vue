@@ -13,7 +13,10 @@
           <b v-if="currentAppletReady">{{$store.state.currentApplet.applet['skos:prefLabel']}}</b>
         </p>
         <div style="text-align: center;margin: auto;width:13em;">
-          <v-switch style="text-align: center;" v-model="openReg" label="Open registration" color="primary" hint="Users can join without an invitation" :persistent-hint="true"/>
+          <v-switch style="text-align: center;"
+            v-model="openRegValue" label="Open registration"
+            color="primary" hint="Users can join without an invitation"
+            :persistent-hint="true"/>
         </div>
       </template>
       <template slot="add">
@@ -60,10 +63,10 @@ export default {
      */
     groups() {
       if (this.currentApplet) {
-        const groupObj = _.filter(this.currentApplet.groups, g => g.name === 'user')[0]
+        // const groupObj = _.filter(this.currentApplet.groups, g => g.name === 'user')[0]
         // eslint-disable-next-line
-        console.log(groupObj || false);
-        this.openReg = groupObj.openRegistration || false;
+        // console.log(groupObj || false);
+        // this.openReg = groupObj.openRegistration || false;
         return _.map(this.currentApplet.groups, (g) => ({text: g.name}));
       }
     },
@@ -86,20 +89,33 @@ export default {
          return newUsers; // this.currentApplet.users || [];
        }
        return [];
+    },
+    openRegValue: {
+      get() {
+        if (this.regstatus === 'loading') {
+          return this.openReg
+        }
+        return this.getOpenRegValue();
+      },
+      set(newValue) {
+        this.openReg = newValue;
+        this.sendOpenReg(newValue);
+      }
     }
   },
   data: () => ({
     openReg: false,
+    regstatus: 'ready',
   }),
   watch: {
     currentApplet() {
 
     },
-    openReg() {
-      const groupObj = _.filter(this.currentApplet.groups, g => g.name === 'user')[0];
-      const groupId = groupObj.id;
-      this.openRegistration(groupId, this.openReg);
-    },
+    currentAppletReady() {
+      if (this.currentAppletReady) {
+        this.getOpenRegValue();
+      }
+    }
   },
   mounted() {
   },
@@ -187,15 +203,35 @@ export default {
      * update open/closed registration
      */
     openRegistration(groupId, open) {
+      this.regstatus = 'loading'
       adminApi.updateRegistration({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         groupId,
         open
-      }).then((rest) => {
+      }).then((resp) => {
         // eslint-disable-next-line
-        console.log(rest);
+        this.regstatus = 'ready';
+        this.openReg = resp.data.openRegistration;
+        this.setOpenRegValue(resp.data.openRegistration);
       });
+    },
+    sendOpenReg(regVal) {
+      console.log('sending the openReg parameter.');
+      const groupObj = _.filter(this.currentApplet.groups, g => g.name === 'user')[0];
+      const groupId = groupObj.id;
+      this.openRegistration(groupId, regVal);
+    },
+    getOpenRegValue() {
+      const groupObj = _.filter(this.currentApplet.groups, g => g.name === 'user')[0]
+      // eslint-disable-next-line
+      console.log(groupObj || false);
+      console.log('setting the openReg value babsed on the current applet', groupObj.openRegistration);
+      return groupObj.openRegistration || false;
+    },
+    setOpenRegValue(val) {
+      const groupObjIdx = _.findIndex(this.currentApplet.groups, g => g.name === 'user')
+      this.currentApplet.groups[groupObjIdx].openRegistration = val;
     },
     /**
      * update the group table
