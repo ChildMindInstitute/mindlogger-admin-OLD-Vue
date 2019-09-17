@@ -168,10 +168,15 @@ export default {
     saveState()
     {
       const state = this.calendar.toInput(true);
+      const storeState = this.$store.state;
+      let oldStateEvents = [];
+      let newStateEvents = [];
       // let json = JSON.stringify(state);
-      const oldStateEvents = this.$store.state.currentApplet.applet.schedule.events;
-      const newStateEvents = state.events;
-      console.log('state', state.events);
+      if (state && storeState && this.$store.state.currentApplet.applet.schedule) {
+        oldStateEvents = this.$store.state.currentApplet.applet.schedule.events;
+        newStateEvents = state.events;
+      }
+
       if (this.currentApplet) {
         this.$store.commit('setSchedule', state );
         if (_.difference(oldStateEvents, newStateEvents)) {
