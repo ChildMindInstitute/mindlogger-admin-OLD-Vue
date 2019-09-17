@@ -76,7 +76,7 @@ const mutations = {
 const store = new Store({
   state,
   mutations,
-  plugins: [createPersistedState()],
+  // plugins: [createPersistedState()],
 })
 
 export default store;
