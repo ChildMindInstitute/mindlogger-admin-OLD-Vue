@@ -2,6 +2,12 @@
   <v-container>
     <div v-if="isLoggedIn">
       <h1 style="text-align: center;">Your Applets</h1>
+      <p style="text-align: center;" class="mb-3">
+        An applet is a collection of
+        <a href="https://github.com/ReproNim/schema-standardization">reusable surveys</a>
+        along with
+        study-specific settings, like your users and schedule.
+      </p>
       <div v-if="status === 'loading'">
         <Loader />
       </div>
@@ -21,7 +27,7 @@
           Add
         </v-btn>
       </div>
-      <div>
+      <div class="mt-3">
         <h3> Quick Add </h3>
         <p> Below are a list of activity sets you can add. 
           These are JSON-LD files that describe the questions of your

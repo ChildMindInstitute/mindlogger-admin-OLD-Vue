@@ -4,9 +4,9 @@
         <v-flex>
           <h1 style="text-align: center;">MindLogger Admin</h1>
           <p style="text-align: center;">
-            The MindLogger admin panel enables you to add an
-            applet
-            to your mobile app, and invite others to your protocol.
+            The MindLogger admin panel enables you to add
+            set of surveys (called an applet)
+            to your mobile app, and invite others to take them.
 
                         For more information, check out the 
             <a href="https://github.com/ChildMindInstitute/mindlogger-app/wiki/Quickstart">Quickstart Guide</a>
