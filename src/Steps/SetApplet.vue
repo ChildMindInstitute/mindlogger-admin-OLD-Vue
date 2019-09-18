@@ -147,10 +147,6 @@ export default {
     /**
      * commit the current applet to the store
      */
-    setSelectedApplet(appletIdx) {
-      this.$store.commit('setCurrentApplet', this.$store.state.allApplets[appletIdx]);
-      // this.getGroupMemberships();
-    },
     /**
      * get group memberships for the current applet
      */

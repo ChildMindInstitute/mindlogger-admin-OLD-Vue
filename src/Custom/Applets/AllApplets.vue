@@ -1,18 +1,8 @@
 <template>
   <div>
-    <v-expansion-panel v-model="panel">
-      <v-expansion-panel-content
-        v-for="(applet,i) in applets"
-        :key="`i${i}`"
-      >
-        <template slot="header">
-          <h3>{{applet.applet["skos:prefLabel"]}}</h3>
-        </template>
-        <Applet :applet="applet" v-on:deleteApplet="deleteApplet"
-         v-on:refreshApplet="refreshApplet"/>
-      </v-expansion-panel-content>
-    </v-expansion-panel>
-
+    <Applet v-for="(applet,i) in applets"
+    :key="`i${i}`" :applet="applet" v-on:deleteApplet="deleteApplet"
+      v-on:refreshApplet="refreshApplet"/>
   </div>
 </template>
 
@@ -41,6 +31,7 @@ export default {
   },
   watch: {
     panel() {
+      console.log(this.panel)
       this.$emit('selected_applet', this.panel);
     },
     currentApplet() {

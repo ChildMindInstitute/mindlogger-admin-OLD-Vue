@@ -1,5 +1,5 @@
 <template>
-    <v-card>
+    <v-card style="margin: 18px">
        <v-layout>
         <!-- <v-img
           :src="applet.applet['schema:image'] || 'https://picsum.photos/id/83/200/200'"
@@ -42,6 +42,9 @@
             </v-btn>
             <v-btn @click="deleteApplet">
               Delete
+            </v-btn>
+            <v-btn @click="setSelectedApplet">
+              Select
             </v-btn>
           </v-flex>
         </v-layout>
@@ -102,6 +105,10 @@ export default {
     },
     deleteApplet() {
       this.$emit('deleteApplet', this.applet);
+    },
+    setSelectedApplet() {
+      console.log(this.applet);
+      this.$store.commit('setCurrentApplet', this.applet);
     }
   },
   created() {
