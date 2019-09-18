@@ -1,6 +1,6 @@
 <template>
   <v-app>
-  <v-stepper v-model="e1" style="overflow: scroll; min-height: calc(100% - 48px);">
+  <v-stepper v-model="e1" style="overflow: auto; min-height: calc(100% - 48px);">
     <v-stepper-header>
       <v-stepper-step 
       v-for="(step, index) in steps"
