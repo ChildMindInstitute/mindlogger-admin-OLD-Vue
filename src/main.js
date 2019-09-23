@@ -9,11 +9,7 @@ import 'dayspan-vuetify/dist/lib/dayspan-vuetify.min.css'
 
 Vue.config.productionTip = false
 
-Vue.use(Vuetify, {
-  options: {
-    customProperties: true
-  }
-});
+Vue.use(Vuetify);
 
 Vue.use(DaySpanVuetify, {
   methods: {
