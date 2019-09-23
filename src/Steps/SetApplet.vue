@@ -15,7 +15,7 @@
         {{error.message}}
       </div>
       
-      <AllApplets :applets="allApplets" v-on:selected_applet="setSelectedApplet"
+      <AllApplets :applets="allApplets"
         v-on:refreshAppletList="getApplets"/>
     </div>
   </v-container>
@@ -29,6 +29,7 @@ import AllApplets from '../Custom/Applets/AllApplets';
 import adminApi from '../Custom/Utils/api';
 import { Parse, Day } from 'dayspan';
 import Loader from '@bit/akeshavan.mindlogger-web.loader';
+import config from '../config';
 
 window.Parse = Parse;
 window.Day = Day;

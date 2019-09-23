@@ -1,9 +1,10 @@
 <template>
     <v-card
-      class="card"
+      class="appletCard"
       :width="310">
+      
       <v-layout v-if="currentApplet" class="selectedApplet" align-center justify-center column>
-        <v-icon size="48">
+        <v-icon size="72" color="primary">
           check
         </v-icon>
         <v-card-title primary-title>
@@ -11,10 +12,9 @@
             {{applet.applet["skos:prefLabel"]}}
           </h3>
         </v-card-title>
-      
       </v-layout>
 
-      <div v-else class="unselectedApplet">
+      <div v-else>
         <v-img
           :src="applet.applet['schema:image'] || 'https://picsum.photos/id/83/200/200'"
           width="100%"
@@ -26,7 +26,6 @@
           <h3 class="headline mb-0">
             {{applet.applet["skos:prefLabel"]}}
           </h3>
-          
         </v-card-title>
         <v-card-text> {{ applet.applet["schema:description"] }} </v-card-text>
         <v-card-actions>
@@ -41,21 +40,17 @@
             Select
           </v-btn>
         </v-card-actions>
-        </div>
+      </div>
     </v-card>
 </template>
 
 <style>
-  .card {
+  .appletCard {
     margin: 12px;
   }
   .selectedApplet {
     height: 100%;
-    width: 100%;
     align-content: center;
-  }
-  .unselectedApplet {
-    height: 100%
   }
 </style>
 
@@ -70,10 +65,7 @@ export default {
   },
   computed: {
     currentApplet() {
-      if (this.applet == this.$store.state.currentApplet) {
-        return true;
-      }
-      return false;
+      return this.applet == this.$store.state.currentApplet;
     }
   },
   data: () => ({
