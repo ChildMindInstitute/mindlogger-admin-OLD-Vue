@@ -1,15 +1,62 @@
 <template>
   <div>
-    <Applet v-for="(applet,i) in applets"
-    :key="`i${i}`" :applet="applet" v-on:deleteApplet="deleteApplet"
-      v-on:refreshApplet="refreshApplet"/>
+    <v-layout row wrap>
+      <Applet v-for="(applet,i) in applets"
+      :key="`i${i}`" :applet="applet" v-on:deleteApplet="deleteApplet"
+        v-on:refreshApplet="refreshApplet"/>
+
+      <v-card
+        class="card"
+        :width="310">
+          <v-card-title primary-title>
+            <div>
+              <h3 class="headline mb-0">
+                Add New Applet
+              </h3>
+            </div>
+          </v-card-title>
+          <v-card-actions>
+            <v-btn @click="dialog = true;">
+              +
+            </v-btn>
+          </v-card-actions>
+      </v-card>
+    </v-layout>
+    <v-dialog
+      v-model="dialog"
+      max-width="600"
+    >
+      <v-card>
+        <v-card-text>
+          <div style="margin-top: 2em;">
+            <h3>Create a new applet:</h3>
+            <v-text-field
+              label="activity set url"
+              v-model="newActivitySetURL"
+            ></v-text-field>
+            <v-btn color="success" :disabled="!newActivitySetURL || status === 'loading'" @click="addNewApplet">
+              Add
+            </v-btn>
+          </div>
+          <div class="mt-3">
+            <h3> Quick Add </h3>
+            <p> Below are a list of activity sets you can add. 
+              These are JSON-LD files that describe the questions of your
+              applet. Eventually, there will be a library of questions
+              and you will be able to create your own.
+            </p>
+            <p v-for="activityInfo in sampleActivitySets" :key="activityInfo.name">
+              <a @click="newActivitySetURL=activityInfo.url">{{activityInfo.name}}</a>
+            </p>
+          </div>
+        </v-card-text></v-card>
+    </v-dialog>
   </div>
 </template>
 
 <style>
-  .spaced {
-    margin-top: 1.5em;
-    margin-bottom: 1.5em;
+  .card {
+    margin: 12px;
   }
 </style>
 
@@ -17,6 +64,8 @@
 import _ from 'lodash';
 import Applet from './Applet';
 import adminApi from '../Utils/api';
+import config from '../../config';
+
 
 export default {
   name: 'AllApplets',
@@ -39,7 +88,9 @@ export default {
     },
   },
   data: () => ({
+    sampleActivitySets: config.activitySets,
     panel: [],
+    dialog: false
   }),
   computed: {
 
