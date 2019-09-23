@@ -5,23 +5,17 @@
       :key="`i${i}`" :applet="applet" v-on:deleteApplet="deleteApplet"
         v-on:refreshApplet="refreshApplet"/>
 
-      <v-card
-        class="card"
-        :width="310">
-          <v-card-title primary-title>
-            <div>
-              <h3 class="headline mb-0">
-                Add New Applet
-              </h3>
-            </div>
-          </v-card-title>
-          <v-card-actions>
-            <v-btn @click="dialog = true;">
-              +
-            </v-btn>
-          </v-card-actions>
-      </v-card>
+      
+      
     </v-layout>
+    <v-btn
+        color="primary"
+        fixed bottom right fab
+        style="bottom: 70px; right: 40px;"
+        @click="dialog = true"
+      >
+        <v-icon>add</v-icon>
+      </v-btn>
     <v-dialog
       v-model="dialog"
       max-width="600"
@@ -58,6 +52,10 @@
   .card {
     margin: 12px;
   }
+  .buttonClass {
+    width: 100%;
+    height: 100%;
+  }
 </style>
 
 <script>
@@ -90,7 +88,13 @@ export default {
   data: () => ({
     sampleActivitySets: config.activitySets,
     panel: [],
-    dialog: false
+    dialog: false,
+    /**
+     * placeholder for the new applet URL
+     * this will likely be a github link to an activity set
+     * from the ReproNim
+     */
+    newActivitySetURL: '',
   }),
   computed: {
 
@@ -103,6 +107,30 @@ export default {
       if (idx > -1) {
         this.panel = idx;
       }
+    },
+    /**
+     * add a new applet
+     */
+    addNewApplet() {
+      /**
+       * TODO: add a route in ../Custom/Utils/api.vue
+       * and call it with this.newAppletURL
+       */
+
+      this.status = 'loading';
+      adminApi.addNewApplet({ 
+        activitySetUrl: this.newActivitySetURL,
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        // user: this.$store.state.auth.user._id,
+        name: 'Mood',
+      }).then(() => {
+        // response should have the updated applet list
+        // this.$store.commit('setAllApplets', resp.data);
+        this.newActivitySetURL = '';
+        this.status = 'ready';
+        this.getApplets();
+      });
     },
     /**
      * delete an applet

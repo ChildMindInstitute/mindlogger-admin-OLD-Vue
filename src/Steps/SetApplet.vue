@@ -45,12 +45,6 @@ export default {
      * status of the get applets route
      */
     status: 'loading',
-    /**
-     * placeholder for the new applet URL
-     * this will likely be a github link to an activity set
-     * from the ReproNim
-     */
-    newActivitySetURL: '',
   }),
   components: {
     AllApplets,
@@ -146,30 +140,6 @@ export default {
     //     this.$store.commit('setGroups', groups);
     //   });
     // },
-    /**
-     * add a new applet
-     */
-    addNewApplet() {
-      /**
-       * TODO: add a route in ../Custom/Utils/api.vue
-       * and call it with this.newAppletURL
-       */
-
-      this.status = 'loading';
-      adminApi.addNewApplet({ 
-        activitySetUrl: this.newActivitySetURL,
-        apiHost: this.$store.state.backend,
-        token: this.$store.state.auth.authToken.token,
-        // user: this.$store.state.auth.user._id,
-        name: 'Mood',
-      }).then(() => {
-        // response should have the updated applet list
-        // this.$store.commit('setAllApplets', resp.data);
-        this.newActivitySetURL = '';
-        this.status = 'ready';
-        this.getApplets();
-      });
-    }
   },
   /**
    * get the user's applets if they are logged in
