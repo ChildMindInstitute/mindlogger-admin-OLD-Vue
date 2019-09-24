@@ -100,7 +100,7 @@ export default {
      * save the backend to the store
      */
     continueAction() {
-      this.$store.commit('setBackend', this.backendServer);
+      this.$store.commit('setBackend', this.backendServer.trim());
       return this.$store.state.backend;
     }
   },
