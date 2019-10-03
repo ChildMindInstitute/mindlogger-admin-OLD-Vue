@@ -2,13 +2,13 @@
   <v-app>
   <v-stepper v-model="e1" style="overflow: auto; height: calc(100% - 48px);">
     <v-stepper-header>
-      <v-stepper-step 
+      <v-stepper-step
       v-for="(step, index) in steps"
       :key="`step_tab_${index}`"
       :complete="e1 > index" :step="index+1">
       {{step.name}}
       </v-stepper-step>
-      
+
     </v-stepper-header>
 
     <v-stepper-items class="bg bog">
@@ -41,7 +41,7 @@
     </v-flex>
   </v-layout>
 
-       
+
 
   </v-app>
 </template>
@@ -80,7 +80,7 @@ import store from './State/state';
 import SetBackend from './Steps/SetBackend';
 import Login from './Steps/Login';
 import SetApplet from './Steps/SetApplet';
-import SetGroups from './Steps/SetGroups';
+// import SetGroups from './Steps/SetGroups';
 import SetUsers from './Steps/SetUsers';
 // import SetReviewers from './Steps/SetReviewers';
 import SetSchedule from './Steps/SetSchedule';
@@ -116,11 +116,11 @@ export default {
        {
         name: 'login',
         component: Login,
-      },     
+      },
       {
         name: 'applet',
         component: SetApplet,
-      },     
+      },
 
       // {
       //   name: 'groups',

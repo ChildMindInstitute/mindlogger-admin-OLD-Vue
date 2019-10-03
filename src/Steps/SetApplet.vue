@@ -29,7 +29,7 @@
       </div>
       <div class="mt-3">
         <h3> Quick Add </h3>
-        <p> Below are a list of activity sets you can add. 
+        <p> Below are a list of activity sets you can add.
           These are JSON-LD files that describe the questions of your
           applet. Eventually, there will be a library of questions
           and you will be able to create your own.
@@ -130,6 +130,7 @@ export default {
         user: this.$store.state.auth.user._id,
         role: 'manager',
       }).then((resp) => {
+        // eslint-disable-next-line
         console.log(resp.data);
         this.$store.commit('setAllApplets', resp.data);
         this.status = 'ready';
@@ -173,7 +174,7 @@ export default {
     //       {
     //         name: 'manager',
     //         id: resp.data.user.groups[0]._id,
-    //       },        
+    //       },
     //     ]
     //     this.$store.commit('setGroups', groups);
     //   });
@@ -188,12 +189,12 @@ export default {
        */
 
       this.status = 'loading';
-      adminApi.addNewApplet({ 
+      adminApi.addNewApplet({
         activitySetUrl: this.newActivitySetURL,
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         // user: this.$store.state.auth.user._id,
-        name: 'Mood',
+        // name: 'Mood',
       }).then(() => {
         // response should have the updated applet list
         // this.$store.commit('setAllApplets', resp.data);
@@ -213,4 +214,3 @@ export default {
   },
 }
 </script>
-

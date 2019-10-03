@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 Vue.use(Vuex);
 import { Store } from "vuex";
-import createPersistedState from 'vuex-persistedstate';
+// import createPersistedState from 'vuex-persistedstate';
 import _ from 'lodash';
 
 const state = {
@@ -76,7 +76,7 @@ const mutations = {
 const store = new Store({
   state,
   mutations,
-  plugins: [createPersistedState()],
+  // plugins: [createPersistedState()],
 })
 
 export default store;
