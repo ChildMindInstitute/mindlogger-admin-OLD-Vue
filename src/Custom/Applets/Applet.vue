@@ -2,7 +2,7 @@
     <v-card
       class="appletCard"
       :width="310">
-      
+
       <v-layout v-if="currentApplet" class="selectedApplet" align-center justify-center column>
         <v-icon size="72" color="primary">
           check
@@ -93,6 +93,7 @@ export default {
       this.$emit('deleteApplet', this.applet);
     },
     setSelectedApplet() {
+      // eslint-disable-next-line
       console.log(this.applet);
       this.$store.commit('setCurrentApplet', this.applet);
     }
@@ -102,4 +103,3 @@ export default {
   }
 }
 </script>
-

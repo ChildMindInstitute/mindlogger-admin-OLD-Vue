@@ -14,7 +14,7 @@
       <div v-else-if="status === 'error'" class="error">
         {{error.message}}
       </div>
-      
+
       <AllApplets :applets="allApplets"
         v-on:refreshAppletList="getApplets"/>
     </div>
@@ -26,7 +26,7 @@
 import api from '@bit/akeshavan.mindlogger-web.api';
 import _ from 'lodash';
 import AllApplets from '../Custom/Applets/AllApplets';
-import adminApi from '../Custom/Utils/api';
+// import adminApi from '../Custom/Utils/api';
 import { Parse, Day } from 'dayspan';
 import Loader from '@bit/akeshavan.mindlogger-web.loader';
 import config from '../config';
@@ -153,4 +153,3 @@ export default {
   },
 }
 </script>
-

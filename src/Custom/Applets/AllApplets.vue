@@ -28,7 +28,7 @@
             Add
           </v-btn>
           <h3> Quick Add </h3>
-          <p> Below are a list of activity sets you can add. 
+          <p> Below are a list of activity sets you can add.
             These are JSON-LD files that describe the questions of your
             applet. Eventually, there will be a library of questions
             and you will be able to create your own.
@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import _ from 'lodash';
+// import _ from 'lodash';
 import Applet from './Applet';
 import adminApi from '../Utils/api';
 import config from '../../config';
@@ -88,7 +88,7 @@ export default {
        * and call it with this.newAppletURL
        */
       this.status = 'loading';
-      adminApi.addNewApplet({ 
+      adminApi.addNewApplet({
         activitySetUrl: this.newActivitySetURL,
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
