@@ -217,17 +217,25 @@ export default {
       });
     },
     sendOpenReg(regVal) {
+      // eslint-disable-next-line
       console.log('sending the openReg parameter.');
       const groupObj = _.filter(this.currentApplet.groups, g => g.name === 'user')[0];
       const groupId = groupObj.id;
       this.openRegistration(groupId, regVal);
     },
     getOpenRegValue() {
-      const groupObj = _.filter(this.currentApplet.groups, g => g.name === 'user')[0]
-      // eslint-disable-next-line
-      console.log(groupObj || false);
-      console.log('setting the openReg value babsed on the current applet', groupObj.openRegistration);
-      return groupObj.openRegistration || false;
+      if (this.currentApplet) {
+        const groupObj = _.filter(this.currentApplet.groups, g => g.name === 'user')[0]
+        // eslint-disable-next-line
+        if (groupObj) {
+          // eslint-disable-next-line
+          console.log(groupObj || false);
+          // eslint-disable-next-line
+          console.log('setting the openReg value babsed on the current applet', groupObj.openRegistration);
+          return groupObj.openRegistration || false;
+        }
+      }
+      return false;
     },
     setOpenRegValue(val) {
       const groupObjIdx = _.findIndex(this.currentApplet.groups, g => g.name === 'user')
@@ -255,13 +263,14 @@ export default {
     removeFromGroup(groupInfo, userInfo) {
       // eslint-disable-next-line
       console.log('need to remove', groupInfo, 'from', userInfo);
-      // TODO: connect to this function
+
       adminApi.deleteUserFromRole({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         groupId: groupInfo._id,
         userId: userInfo.id,
-      }).then((resp) => {
+      }) // eslint-disable-next-line
+      .then((resp) => {
         this.getGroupTable();
       });
     },

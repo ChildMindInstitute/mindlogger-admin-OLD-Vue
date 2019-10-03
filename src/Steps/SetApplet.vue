@@ -97,6 +97,7 @@ export default {
         user: this.$store.state.auth.user._id,
         role: 'manager',
       }).then((resp) => {
+        // eslint-disable-next-line
         console.log(resp.data);
         this.$store.commit('setAllApplets', resp.data);
         this.status = 'ready';
@@ -136,7 +137,7 @@ export default {
     //       {
     //         name: 'manager',
     //         id: resp.data.user.groups[0]._id,
-    //       },        
+    //       },
     //     ]
     //     this.$store.commit('setGroups', groups);
     //   });

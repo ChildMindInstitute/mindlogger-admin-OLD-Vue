@@ -88,7 +88,7 @@
 </template>
 
 <script>
-import { Day, Schedule, Functions as fn } from 'dayspan';
+import { Day, Schedule } from 'dayspan';
 
 
 export default {
@@ -133,6 +133,7 @@ export default {
     }
   },
 
+  // eslint-disable-next-line
   data: vm => ({
 
   }),

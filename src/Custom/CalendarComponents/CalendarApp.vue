@@ -202,7 +202,7 @@
 </template>
 
 <script>
-import { Constants, Sorts, Calendar, Day, Units, Weekday, Month, DaySpan, PatternMap, Time, Op } from 'dayspan';
+import { Sorts, Calendar, Op } from 'dayspan';
 
 import EventDialog from './EventDialog';
 import ActivitySidebar from './ActivitySidebar';
@@ -298,6 +298,7 @@ export default {
     }
   },
 
+  // eslint-disable-next-line
   data: vm => ({
     drawer: null,
     optionsVisible: false,
@@ -707,6 +708,7 @@ export default {
       this.promptVisible = false;
     },
 
+    // eslint-disable-next-line
     eventFinish(ev)
     {
       this.triggerChange();
@@ -720,7 +722,9 @@ export default {
     },
 
     triggerChange()
-    { console.log('triggering change', this.calendar);
+    {
+      // eslint-disable-next-line
+      console.log('triggering change', this.calendar);
       this.$emit('change', {
         calendar: this.calendar
       });

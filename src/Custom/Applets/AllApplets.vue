@@ -106,12 +106,14 @@ export default {
      * delete an applet
      */
     deleteApplet(applet) {
+      // eslint-disable-next-line
       console.log('going to delete here', applet);
       adminApi.deleteApplet({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         appletId: applet.applet._id.split('applet/')[1],
       }).then((resp) => {
+        // eslint-disable-next-line
         console.log(resp);
         this.$emit('refreshAppletList');
       });
@@ -125,6 +127,7 @@ export default {
         token: this.$store.state.auth.authToken.token,
         appletId: applet.applet._id.split('applet/')[1],
       }).then((resp) => {
+        // eslint-disable-next-line
         console.log(resp);
         this.$emit('refreshAppletList');
       });
@@ -132,4 +135,3 @@ export default {
   }
 }
 </script>
-
