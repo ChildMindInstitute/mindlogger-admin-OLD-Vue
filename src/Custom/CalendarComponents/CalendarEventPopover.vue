@@ -155,7 +155,7 @@
 </template>
 
 <script>
-import { CalendarEvent, Calendar, Pattern } from 'dayspan';
+import { CalendarEvent, Calendar } from 'dayspan';
 
 
 export default {
@@ -298,6 +298,7 @@ export default {
     }
   },
 
+  // eslint-disable-next-line
   data: vm => ({
 
   }),

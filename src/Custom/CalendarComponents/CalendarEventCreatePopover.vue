@@ -1,4 +1,4 @@
-<template>
+-<template>
 
   <v-card class="ds-calendar-event-popover-card"
     :class="classes">
@@ -13,7 +13,7 @@
          v-model="details.title"
        ></v-text-field> -->
 
-       <v-select :items="activityNames" 
+       <v-select :items="activityNames"
         placeholder="Select Activity"
         v-model="details.title"></v-select>
 
@@ -93,7 +93,7 @@
 </template>
 
 <script>
-import { CalendarEvent, Calendar, Pattern, Functions as fn } from 'dayspan';
+import { CalendarEvent, Calendar, Functions as fn } from 'dayspan';
 import _ from 'lodash';
 
 
@@ -332,12 +332,11 @@ export default {
         type: type,
         calendarEvent: this.calendarEvent,
         calendar: this.calendar,
-        close: this.close,
+        close: this.close || true,
         details: this.details,
         handled: false,
         added: false,
         refresh: true,
-        close: true,
         $vm: this,
         $element: this.$el
 

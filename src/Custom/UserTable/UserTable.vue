@@ -30,7 +30,7 @@
          :headers="headers" :search="search"
          :pagination.sync="pagination" v-model="selected"
          select-all item-key="email" class="elevation-1">
-          
+
           <template slot="headers" slot-scope="props">
             <tr>
               <th>
@@ -234,13 +234,12 @@ export default {
      * by emitting an 'addGroupToSelected' event.
      */
     addGroupToSelected() {
-      console.log(this.selectedGroup, this.selected);
       this.$emit('addGroupToSelected', this.selectedGroup, this.selected);
     },
     /**
      * method to resend an email when the 'resend' button is clicked for
      * a pending user.
-     * 
+     *
      * this component emits the sendInvitationEmail event that needs to be handled
      * by the parent
      */

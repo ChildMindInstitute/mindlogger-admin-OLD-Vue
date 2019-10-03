@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { Calendar, Schedule, Identifier, Functions as fn } from 'dayspan';
+import { Calendar, Schedule, Functions as fn } from 'dayspan';
 import Event from './Event';
 
 export default {
@@ -77,6 +77,7 @@ export default {
     }
   },
 
+  // eslint-disable-next-line
   data: vm => ({
     open: false,
     calendarEvent: null,

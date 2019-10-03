@@ -103,7 +103,7 @@ export default {
         return this.$store.state.currentApplet.applet['skos:prefLabel'];
       }
     },
-  
+
     currentSchedule() {
       if (this.currentApplet) {
         return this.$store.state.currentApplet.applet.schedule || null;
@@ -176,9 +176,10 @@ export default {
         try {
           oldStateEvents = this.$store.state.currentApplet.applet.schedule.events;
         } catch (error) {
+          // eslint-disable-next-line
           console.log('state does not have anything');
         }
-        
+
         newStateEvents = state.events;
       }
 

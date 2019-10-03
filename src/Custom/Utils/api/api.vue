@@ -18,7 +18,7 @@ const setSchedule = ({ apiHost, token, id, data }) => axios({
  * TODO: fill in this route to add a new Applet with an
  * activity set URL
  */
-const addNewApplet = ({ apiHost, token, name, activitySetUrl }) => axios({
+const addNewApplet = ({ apiHost, token, activitySetUrl }) => axios({
 method: 'POST',
   url: `${apiHost}/applet/`,
   headers: {
