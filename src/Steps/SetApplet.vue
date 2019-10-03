@@ -14,36 +14,9 @@
       <div v-else-if="status === 'error'" class="error">
         {{error.message}}
       </div>
-      <v-card>
-        <v-card-text>
-      <div style="margin-top: 2em;">
 
-        <h3>Create a new applet:</h3>
-        <v-text-field
-          label="activity set url"
-          v-model="newActivitySetURL"
-        ></v-text-field>
-        <v-btn color="success" :disabled="!newActivitySetURL || status === 'loading'" @click="addNewApplet">
-          Add
-        </v-btn>
-      </div>
-      <div class="mt-3">
-        <h3> Quick Add </h3>
-        <p> Below are a list of activity sets you can add.
-          These are JSON-LD files that describe the questions of your
-          applet. Eventually, there will be a library of questions
-          and you will be able to create your own.
-        </p>
-        <p v-for="activityInfo in sampleActivitySets" :key="activityInfo.name">
-          <a @click="newActivitySetURL=activityInfo.url">{{activityInfo.name}}</a>
-        </p>
-      </div>
-        </v-card-text></v-card>
-      <div style="margin-top: 3em;">
-        <h3 style="margin-bottom: 1.5em;">Or select an existing applet:</h3>
-        <AllApplets :applets="allApplets" v-on:selected_applet="setSelectedApplet"
-         v-on:refreshAppletList="getApplets"/>
-      </div>
+      <AllApplets :applets="allApplets"
+        v-on:refreshAppletList="getApplets"/>
     </div>
   </v-container>
 </template>
@@ -53,7 +26,7 @@
 import api from '@bit/akeshavan.mindlogger-web.api';
 import _ from 'lodash';
 import AllApplets from '../Custom/Applets/AllApplets';
-import adminApi from '../Custom/Utils/api';
+// import adminApi from '../Custom/Utils/api';
 import { Parse, Day } from 'dayspan';
 import Loader from '@bit/akeshavan.mindlogger-web.loader';
 import config from '../config';
@@ -73,12 +46,6 @@ export default {
      * status of the get applets route
      */
     status: 'loading',
-    /**
-     * placeholder for the new applet URL
-     * this will likely be a github link to an activity set
-     * from the ReproNim
-     */
-    newActivitySetURL: '',
   }),
   components: {
     AllApplets,
@@ -148,10 +115,6 @@ export default {
     /**
      * commit the current applet to the store
      */
-    setSelectedApplet(appletIdx) {
-      this.$store.commit('setCurrentApplet', this.$store.state.allApplets[appletIdx]);
-      // this.getGroupMemberships();
-    },
     /**
      * get group memberships for the current applet
      */
@@ -179,30 +142,6 @@ export default {
     //     this.$store.commit('setGroups', groups);
     //   });
     // },
-    /**
-     * add a new applet
-     */
-    addNewApplet() {
-      /**
-       * TODO: add a route in ../Custom/Utils/api.vue
-       * and call it with this.newAppletURL
-       */
-
-      this.status = 'loading';
-      adminApi.addNewApplet({
-        activitySetUrl: this.newActivitySetURL,
-        apiHost: this.$store.state.backend,
-        token: this.$store.state.auth.authToken.token,
-        // user: this.$store.state.auth.user._id,
-        // name: 'Mood',
-      }).then(() => {
-        // response should have the updated applet list
-        // this.$store.commit('setAllApplets', resp.data);
-        this.newActivitySetURL = '';
-        this.status = 'ready';
-        this.getApplets();
-      });
-    }
   },
   /**
    * get the user's applets if they are logged in

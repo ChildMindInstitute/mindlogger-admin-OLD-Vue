@@ -1,64 +1,56 @@
 <template>
-    <v-card>
-       <v-layout>
-        <!-- <v-img
+    <v-card
+      class="appletCard"
+      :width="310">
+
+      <v-layout v-if="currentApplet" class="selectedApplet" align-center justify-center column>
+        <v-icon size="72" color="primary">
+          check
+        </v-icon>
+        <v-card-title primary-title>
+          <h3 class="headline mb-0">
+            {{applet.applet["skos:prefLabel"]}}
+          </h3>
+        </v-card-title>
+      </v-layout>
+
+      <div v-else>
+        <v-img
           :src="applet.applet['schema:image'] || 'https://picsum.photos/id/83/200/200'"
-          class="smallish"
-        ></v-img> -->
-          <v-flex class="text-lg-right">
-            <div v-if="currentApplet" style="color: red; text-align: center;">
-              <h4>CURRENT</h4>
-            </div>
-            <v-img
-              :src="applet.applet['schema:image'] || 'https://picsum.photos/id/83/200/200'"
-              height="125px"
-              width="125px"
-              class="pa-3 ma-3"
-              contain
-            ></v-img>
-          </v-flex>
-
-          <v-flex>
-            <v-card-title primary-title>
-              <div>
-                <h3 class="headline mb-0">
-                  {{applet.applet["skos:prefLabel"]}}
-                </h3>
-                <div> {{ applet.applet["schema:description"] }} </div>
-              </div>
-            </v-card-title>
-            <!-- <v-card-text>
-              omg the below doesn't make any sense because this is set per activity, not per applet.
-              so delete this.
-              <v-radio-group v-model="scheduleType" :mandatory="false" :disabled="!currentApplet">
-                <v-radio label="No Schedule" value="none"></v-radio>
-                <v-radio label="Calendar Dates" value="absolute"></v-radio>
-                <v-radio label="Relative to first response" value="relative"></v-radio>
-              </v-radio-group>
-            </v-card-text> -->
-            <v-btn :disabled="status !== 'ready'" @click="refreshApplet">
-              <span v-if="status === 'ready'">Refresh</span>
-              <span v-else> Refreshing.. </span>
-            </v-btn>
-            <v-btn @click="deleteApplet">
-              Delete
-            </v-btn>
-          </v-flex>
-        </v-layout>
-        
-
-        <v-card-actions class="pa-3 pt-3">
-          <!-- <v-btn flat color="orange" @click="select">Select</v-btn> -->
+          width="100%"
+          aspect-ratio="1"
+          contain
+        >
+        </v-img>
+        <v-card-title primary-title>
+          <h3 class="headline mb-0">
+            {{applet.applet["skos:prefLabel"]}}
+          </h3>
+        </v-card-title>
+        <v-card-text> {{ applet.applet["schema:description"] }} </v-card-text>
+        <v-card-actions>
+          <v-btn :disabled="status !== 'ready'" @click="refreshApplet">
+            <span v-if="status === 'ready'">Refresh</span>
+            <span v-else> Refreshing.. </span>
+          </v-btn>
+          <v-btn @click="deleteApplet">
+            Delete
+          </v-btn>
+          <v-btn @click="setSelectedApplet">
+            Select
+          </v-btn>
         </v-card-actions>
+      </div>
     </v-card>
 </template>
 
 <style>
-  .smallish {
-    max-width: 400px;
-    min-width: 200px;
-    width: 300px;
-    height: 100px;
+  .appletCard {
+    margin: 12px;
+  }
+  .selectedApplet {
+    height: 100%;
+    align-content: center;
   }
 </style>
 
@@ -73,10 +65,7 @@ export default {
   },
   computed: {
     currentApplet() {
-      if (this.applet == this.$store.state.currentApplet) {
-        return true;
-      }
-      return false;
+      return this.applet == this.$store.state.currentApplet;
     }
   },
   data: () => ({
@@ -102,6 +91,11 @@ export default {
     },
     deleteApplet() {
       this.$emit('deleteApplet', this.applet);
+    },
+    setSelectedApplet() {
+      // eslint-disable-next-line
+      console.log(this.applet);
+      this.$store.commit('setCurrentApplet', this.applet);
     }
   },
   created() {
@@ -109,4 +103,3 @@ export default {
   }
 }
 </script>
-

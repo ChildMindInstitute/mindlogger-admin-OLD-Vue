@@ -185,7 +185,7 @@
             class="ds-add-event-today"
             color="primary"
             fixed bottom right fab
-            style="bottom: 70px;"
+            style="bottom: 70px; right: 40px;"
             v-model="allowsAddToday"
             @click="addToday">
             <v-icon>add</v-icon>
