@@ -18,5 +18,6 @@ npm run build
 
 ### Lints and fixes files
 ```
-npm run lint
+npm -g i eslint-cli
+eslint "src/**/*.{js,vue}"
 ```
