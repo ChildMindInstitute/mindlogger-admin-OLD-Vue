@@ -1,13 +1,24 @@
 <template>
   <div>
-    <v-layout row wrap justify-center>
-      <Applet v-for="(applet,i) in applets"
-      :key="`i${i}`" :applet="applet" v-on:deleteApplet="deleteApplet"
-      v-on:refreshApplet="refreshApplet"/>
+    <v-layout
+      row
+      wrap
+      justify-center
+    >
+      <Applet
+        v-for="(applet,i) in applets"
+        :key="`i${i}`"
+        :applet="applet"
+        @deleteApplet="deleteApplet"
+        @refreshApplet="refreshApplet"
+      />
     </v-layout>
     <v-btn
       color="primary"
-      fixed bottom right fab
+      fixed
+      bottom
+      right
+      fab
       style="bottom: 70px; right: 40px;"
       @click="dialog = true"
     >
@@ -21,20 +32,28 @@
         <v-card-text>
           <h3>Create a new applet:</h3>
           <v-text-field
-            label="activity set url"
             v-model="newActivitySetURL"
-          ></v-text-field>
-          <v-btn color="success" :disabled="!newActivitySetURL || status === 'loading'" @click="addNewApplet">
+            label="activity set url"
+          />
+          <v-btn
+            color="success"
+            :disabled="!newActivitySetURL || status === 'loading'"
+            @click="addNewApplet"
+          >
             Add
           </v-btn>
           <h3> Quick Add </h3>
-          <p> Below are a list of activity sets you can add.
+          <p>
+            Below are a list of activity sets you can add.
             These are JSON-LD files that describe the questions of your
             applet. Eventually, there will be a library of questions
             and you will be able to create your own.
           </p>
-          <p v-for="activityInfo in sampleActivitySets" :key="activityInfo.name">
-            <a @click="newActivitySetURL=activityInfo.url">{{activityInfo.name}}</a>
+          <p
+            v-for="activityInfo in sampleActivitySets"
+            :key="activityInfo.name"
+          >
+            <a @click="newActivitySetURL=activityInfo.url">{{ activityInfo.name }}</a>
           </p>
         </v-card-text>
       </v-card>
@@ -51,19 +70,14 @@ import config from '../../config';
 
 export default {
   name: 'AllApplets',
+  components: {
+    Applet,
+  },
   props: {
     applets: {
       type: Array,
       required: true,
     }
-  },
-  components: {
-    Applet,
-  },
-  watch: {
-    currentApplet() {
-      return this.$store.state.currentApplet;
-    },
   },
   data: () => ({
     sampleActivitySets: config.activitySets,
@@ -77,6 +91,11 @@ export default {
   }),
   computed: {
 
+  },
+  watch: {
+    currentApplet() {
+      return this.$store.state.currentApplet;
+    },
   },
   methods: {
     /**

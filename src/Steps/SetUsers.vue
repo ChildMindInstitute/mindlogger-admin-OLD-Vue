@@ -1,22 +1,33 @@
 <template>
   <div>
-    <user-table :groups="groups" :items="items"
-     v-on:addUser="addUser"
-     v-on:addGroupToSelected="addGroupToSelected"
-     v-on:sendInvitationEmail="sendInvitationEmail"
-     v-on:removeFromGroup="removeFromGroup"
-     >
-      <template slot="header" v-slot:header>
-        <h1 style="text-align: center">Users</h1>
+    <user-table
+      :groups="groups"
+      :items="items"
+      @addUser="addUser"
+      @addGroupToSelected="addGroupToSelected"
+      @sendInvitationEmail="sendInvitationEmail"
+      @removeFromGroup="removeFromGroup"
+    >
+      <template
+        slot="header"
+        v-slot:header
+      >
+        <h1 style="text-align: center">
+          Users
+        </h1>
         <p style="text-align: center">
           Send invitations to your users to participate in
-          <b v-if="currentAppletReady">{{$store.state.currentApplet.applet['skos:prefLabel']}}</b>
+          <b v-if="currentAppletReady">{{ $store.state.currentApplet.applet['skos:prefLabel'] }}</b>
         </p>
         <div style="text-align: center;margin: auto;width:13em;">
-          <v-switch style="text-align: center;"
-            v-model="openRegValue" label="Open registration"
-            color="primary" hint="Users can join without an invitation"
-            :persistent-hint="true"/>
+          <v-switch
+            v-model="openRegValue"
+            style="text-align: center;"
+            label="Open registration"
+            color="primary"
+            hint="Users can join without an invitation"
+            :persistent-hint="true"
+          />
         </div>
       </template>
       <template slot="add">
@@ -34,10 +45,14 @@ import adminApi from '../Custom/Utils/api';
 
 
 export default {
-  name: 'users',
+  name: 'Users',
   components: {
     UserTable,
   },
+  data: () => ({
+    openReg: false,
+    regstatus: 'ready',
+  }),
   computed: {
     /**
      * ready to continue
@@ -69,6 +84,7 @@ export default {
         // this.openReg = groupObj.openRegistration || false;
         return _.map(this.currentApplet.groups, (g) => ({text: g.name}));
       }
+      return [];
     },
     /**
      * items for the user table. Get it from the store
@@ -103,10 +119,6 @@ export default {
       }
     }
   },
-  data: () => ({
-    openReg: false,
-    regstatus: 'ready',
-  }),
   watch: {
     currentApplet() {
 

@@ -1,7 +1,11 @@
 <template>
   <div>
     <div>
-      <Calendar :activities="activities" v-on:change="continueAction" ref="calendar"/>
+      <Calendar
+        ref="calendar"
+        :activities="activities"
+        @change="continueAction"
+      />
     </div>
   </div>
 </template>
@@ -12,7 +16,7 @@ import Calendar from '../Custom/CalendarComponents/CalendarMain';
 import adminApi from '../Custom/Utils/api';
 
 export default {
-  name: 'schedule',
+  name: 'Schedule',
   components: {
     Calendar,
   },
@@ -65,6 +69,7 @@ export default {
           return this.$store.state.currentApplet.applet.schedule;
         }
       }
+      return {};
     },
   },
   methods: {

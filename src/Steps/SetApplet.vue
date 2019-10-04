@@ -1,8 +1,13 @@
 <template>
   <v-container>
     <div v-if="isLoggedIn">
-      <h1 style="text-align: center;">Your Applets</h1>
-      <p style="text-align: center;" class="mb-3">
+      <h1 style="text-align: center;">
+        Your Applets
+      </h1>
+      <p
+        style="text-align: center;"
+        class="mb-3"
+      >
         An applet is a collection of
         <a href="https://github.com/ReproNim/schema-standardization">reusable surveys</a>
         along with
@@ -11,12 +16,17 @@
       <div v-if="status === 'loading'">
         <Loader />
       </div>
-      <div v-else-if="status === 'error'" class="error">
-        {{error.message}}
+      <div
+        v-else-if="status === 'error'"
+        class="error"
+      >
+        {{ error.message }}
       </div>
 
-      <AllApplets :applets="allApplets"
-        v-on:refreshAppletList="getApplets"/>
+      <AllApplets
+        :applets="allApplets"
+        @refreshAppletList="getApplets"
+      />
     </div>
   </v-container>
 </template>
@@ -36,6 +46,10 @@ window.Day = Day;
 
 export default {
   name: 'Applet',
+  components: {
+    AllApplets,
+    Loader,
+  },
   data: () => ({
     sampleActivitySets: config.activitySets,
     /**
@@ -47,10 +61,6 @@ export default {
      */
     status: 'loading',
   }),
-  components: {
-    AllApplets,
-    Loader,
-  },
   computed: {
     /**
      * a list of all the applets
@@ -84,6 +94,14 @@ export default {
         this.getApplets();
       }
     },
+  },
+  /**
+   * get the user's applets if they are logged in
+   */
+  mounted() {
+    if (this.isLoggedIn) {
+      this.getApplets();
+    }
   },
   methods: {
     /**
@@ -142,14 +160,6 @@ export default {
     //     this.$store.commit('setGroups', groups);
     //   });
     // },
-  },
-  /**
-   * get the user's applets if they are logged in
-   */
-  mounted() {
-    if (this.isLoggedIn) {
-      this.getApplets();
-    }
   },
 }
 </script>

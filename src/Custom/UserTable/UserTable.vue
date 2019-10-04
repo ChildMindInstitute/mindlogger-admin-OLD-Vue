@@ -1,16 +1,23 @@
 <template>
   <v-container>
-    <slot name="header"></slot>
+    <slot name="header" />
     <v-layout>
       <v-flex>
-        <v-select label="add to selected to group"
-         :disabled="!selected.length"
-         v-model="selectedGroup"
-         :items="groups">
-         </v-select>
+        <v-select
+          v-model="selectedGroup"
+          label="add to selected to group"
+          :disabled="!selected.length"
+          :items="groups"
+        />
       </v-flex>
       <v-flex>
-        <v-btn small fab :disabled="!selected.length" color="secondary" @click="addGroupToSelected">
+        <v-btn
+          small
+          fab
+          :disabled="!selected.length"
+          color="secondary"
+          @click="addGroupToSelected"
+        >
           <v-icon>add</v-icon>
         </v-btn>
       </v-flex>
@@ -21,17 +28,25 @@
           label="Search"
           single-line
           hide-details
-        ></v-text-field>
+        />
       </v-flex>
     </v-layout>
     <v-layout class="mt-3">
       <v-flex>
-        <v-data-table :items="items"
-         :headers="headers" :search="search"
-         :pagination.sync="pagination" v-model="selected"
-         select-all item-key="email" class="elevation-1">
-
-          <template slot="headers" slot-scope="props">
+        <v-data-table
+          v-model="selected"
+          :items="items"
+          :headers="headers"
+          :search="search"
+          :pagination.sync="pagination"
+          select-all
+          item-key="email"
+          class="elevation-1"
+        >
+          <template
+            slot="headers"
+            slot-scope="props"
+          >
             <tr>
               <th>
                 <v-checkbox
@@ -40,7 +55,7 @@
                   primary
                   hide-details
                   @click.native="toggleAll"
-                ></v-checkbox>
+                />
               </th>
               <th
                 v-for="header in props.headers"
@@ -48,41 +63,59 @@
                 :class="['column sortable ', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '']"
                 @click="changeSort(header.value)"
               >
-                <v-icon small>arrow_upward</v-icon>
+                <v-icon small>
+                  arrow_upward
+                </v-icon>
                 {{ header.text }}
               </th>
             </tr>
           </template>
 
-          <template slot="items" slot-scope="props">
+          <template
+            slot="items"
+            slot-scope="props"
+          >
             <td>
               <v-checkbox
                 v-model="props.selected"
                 primary
                 hide-details
-              ></v-checkbox>
+              />
             </td>
             <td>{{ props.item.email }}</td>
             <td>
               <ul class="nobullets">
-                <li v-for="group in props.item.groups" :key="group.name">
+                <li
+                  v-for="group in props.item.groups"
+                  :key="group.name"
+                >
                   <span v-if="group.status === 'active'">
-                    {{group.role}} &#8212; {{ group.status }}
+                    {{ group.role }} &#8212; {{ group.status }}
                   </span>
                   <span v-else>
-                    {{group.role}} &#8212; {{ group.status }}
-                    <v-btn small color="secondary" outline @click="resendClicked(props.item.email, group.role)">resend</v-btn>
+                    {{ group.role }} &#8212; {{ group.status }}
+                    <v-btn
+                      small
+                      color="secondary"
+                      outline
+                      @click="resendClicked(props.item.email, group.role)"
+                    >resend</v-btn>
                   </span>
                 </li>
               </ul>
               <!-- {{ props.item.groups[0].status }} -->
-
             </td>
             <td>
-              <span v-for="(chip, index) in props.item.groups" :key="`chip${index}`">
-                <v-chip :close="chip.role !== 'user'" @input="deleteGroup(chip, props.item)"
-                 v-model="chip.active">
-                  {{chip.role}}
+              <span
+                v-for="(chip, index) in props.item.groups"
+                :key="`chip${index}`"
+              >
+                <v-chip
+                  v-model="chip.active"
+                  :close="chip.role !== 'user'"
+                  @input="deleteGroup(chip, props.item)"
+                >
+                  {{ chip.role }}
                 </v-chip>
               </span>
             </td>
@@ -90,28 +123,46 @@
         </v-data-table>
       </v-flex>
     </v-layout>
-              <v-card class="mt-3">
-            <v-card-text>
-    <div class="mt-3 pt-3">
-      <slot name="add"></slot>
-    </div>
-    <v-layout class="mt-3">
-      <v-flex xs6 mr-3 pr-3>
-        <v-text-field label="add new user by email" v-model="newUserEmail"></v-text-field>
-      </v-flex>
-      <v-flex xs4 mr-3 pr-3>
-          <v-select label="group"
-          v-model="newUserGroup"
-         :items="groups">
-         </v-select>
-      </v-flex>
-      <v-flex xs2>
-        <v-btn large color="success" @click="addUser" :disabled="!validAdd">
-          Invite
-        </v-btn>
-      </v-flex>
-    </v-layout>
-            </v-card-text></v-card>
+    <v-card class="mt-3">
+      <v-card-text>
+        <div class="mt-3 pt-3">
+          <slot name="add" />
+        </div>
+        <v-layout class="mt-3">
+          <v-flex
+            xs6
+            mr-3
+            pr-3
+          >
+            <v-text-field
+              v-model="newUserEmail"
+              label="add new user by email"
+            />
+          </v-flex>
+          <v-flex
+            xs4
+            mr-3
+            pr-3
+          >
+            <v-select
+              v-model="newUserGroup"
+              label="group"
+              :items="groups"
+            />
+          </v-flex>
+          <v-flex xs2>
+            <v-btn
+              large
+              color="success"
+              :disabled="!validAdd"
+              @click="addUser"
+            >
+              Invite
+            </v-btn>
+          </v-flex>
+        </v-layout>
+      </v-card-text>
+    </v-card>
   </v-container>
 </template>
 <style>
@@ -132,9 +183,15 @@ export default {
   props: {
     groups: {
       type: Array,
+      default: function () {
+        return []
+      },
     },
     items: {
       type: Array,
+      default: function () {
+        return []
+      },
     },
   },
   data: () => ({

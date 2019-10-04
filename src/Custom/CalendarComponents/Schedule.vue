@@ -1,89 +1,94 @@
 <template>
-
-  <div class="ds-schedule"
-    :class="classes">
-
-    <div class="ds-schedule-span" v-if="showRange">
-
+  <div
+    class="ds-schedule"
+    :class="classes"
+  >
+    <div
+      v-if="showRange"
+      class="ds-schedule-span"
+    >
       <!-- Span -->
 
-      <slot name="scheduleSpan" v-bind="{schedule, day}">
-        <v-checkbox label="relative to first response"
-        v-model="schedule.relative"
+      <slot
+        name="scheduleSpan"
+        v-bind="{schedule, day}"
+      >
+        <v-checkbox
+          v-model="schedule.relative"
+          label="relative to first response"
         >
-        <template slot="label">
-          <div>
-            Relative to first response
-                  <p>
-        <small>
-          if this is selected, all dates and times entered below
-          will be relative to when the user first responds
-        </small>
-      </p>
-          </div>
-        </template>
+          <template slot="label">
+            <div>
+              Relative to first response
+              <p>
+                <small>
+                  if this is selected, all dates and times entered below
+                  will be relative to when the user first responds
+                </small>
+              </p>
+            </div>
+          </template>
         </v-checkbox>
 
         <ds-schedule-span
           :schedule="schedule"
           :day="day"
           :read-only="readOnly"
-        ></ds-schedule-span>
+        />
       </slot>
-
     </div>
 
 
     <div class="ds-schedule-type-line">
-
       <div class="ds-schedule-type">
-
         <!-- Type -->
-        <slot name="scheduleType" v-bind="{schedule, day, setType, custom}">
-
+        <slot
+          name="scheduleType"
+          v-bind="{schedule, day, setType, custom}"
+        >
           <ds-schedule-type
             :day="day"
             :schedule="schedule"
             :read-only="readOnly"
             @change="setType"
             @custom="custom"
-          ></ds-schedule-type>
-
+          />
         </slot>
-
       </div>
-
     </div>
 
-  <v-layout row wrap>
+    <v-layout
+      row
+      wrap
+    >
+      <v-flex xs12>
+        <!-- Times -->
+        <slot
+          name="scheduleTimes"
+          v-bind="{schedule, day}"
+        >
+          <ds-schedule-times
+            :schedule="schedule"
+            :read-only="readOnly"
+          />
+        </slot>
+      </v-flex>
+      <v-flex
+        v-if="!isReadOnly"
+        xs12
+      >
+        <slot
+          name="scheduleFooter"
+          v-bind="{schedule, day}"
+        />
 
-
-    <v-flex xs12>
-
-      <!-- Times -->
-      <slot name="scheduleTimes" v-bind="{schedule, day}">
-
-        <ds-schedule-times
-          :schedule="schedule"
-          :read-only="readOnly"
-        ></ds-schedule-times>
-
-      </slot>
-
-    </v-flex>
-    <v-flex xs12 v-if="!isReadOnly">
-
-      <slot name="scheduleFooter" v-bind="{schedule, day}"></slot>
-
-      <!-- Custom -->
-      <ds-schedule-type-custom-dialog
-        v-bind="{$scopedSlots}"
-        ref="customScheduler"
-      ></ds-schedule-type-custom-dialog>
-
-    </v-flex>
-  </v-layout>
-
+        <!-- Custom -->
+        <ds-schedule-type-custom-dialog
+          ref="customScheduler"
+          v-bind="{$scopedSlots}"
+        />
+      </v-flex>
+    </v-layout>
   </div>
 </template>
 
@@ -93,7 +98,7 @@ import { Day, Schedule } from 'dayspan';
 
 export default {
 
-  name: 'dsSchedule',
+  name: 'DsSchedule',
 
   props:
   {
