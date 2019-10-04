@@ -1,48 +1,60 @@
 <template>
   <v-app>
-  <v-stepper v-model="e1" style="overflow: auto; height: calc(100% - 48px);">
-    <v-stepper-header>
-      <v-stepper-step
-      v-for="(step, index) in steps"
-      :key="`step_tab_${index}`"
-      :complete="e1 > index" :step="index+1">
-      {{step.name}}
-      </v-stepper-step>
+    <v-stepper
+      v-model="e1"
+      style="overflow: auto; height: calc(100% - 48px);"
+    >
+      <v-stepper-header>
+        <v-stepper-step
+          v-for="(step, index) in steps"
+          :key="`step_tab_${index}`"
+          :complete="e1 > index"
+          :step="index+1"
+        >
+          {{ step.name }}
+        </v-stepper-step>
+      </v-stepper-header>
 
-    </v-stepper-header>
+      <v-stepper-items class="bg bog">
+        <v-stepper-content
+          v-for="(step, index) in steps"
+          :key="`step_content_${index}`"
+          :step="index+1"
+        >
+          <component
+            :is="step.component"
+            :ref="step.name"
+          />
+        </v-stepper-content>
+      </v-stepper-items>
+    </v-stepper>
 
-    <v-stepper-items class="bg bog">
-
-      <v-stepper-content v-for="(step, index) in steps" :step="index+1"
-       :key="`step_content_${index}`">
-        <component v-bind:is="step.component" :ref="step.name"/>
-      </v-stepper-content>
-
-    </v-stepper-items>
-
-  </v-stepper>
-
-  <v-layout row wrap>
-    <v-btn flat v-if="e1 > 1" @click="e1 -= 1">Prev</v-btn>
-    <v-flex></v-flex>
-    <v-flex></v-flex>
-    <v-flex>
-
-    <v-flex style="text-align: right;">
+    <v-layout
+      row
+      wrap
+    >
       <v-btn
-      color="primary"
-      @click="next"
-      v-if="e1 < steps.length"
-      :disabled="!readyToContinue"
+        v-if="e1 > 1"
+        flat
+        @click="e1 -= 1"
       >
-      Continue
+        Prev
       </v-btn>
-    </v-flex>
-    </v-flex>
-  </v-layout>
-
-
-
+      <v-flex />
+      <v-flex />
+      <v-flex>
+        <v-flex style="text-align: right;">
+          <v-btn
+            v-if="e1 < steps.length"
+            color="primary"
+            :disabled="!readyToContinue"
+            @click="next"
+          >
+            Continue
+          </v-btn>
+        </v-flex>
+      </v-flex>
+    </v-layout>
   </v-app>
 </template>
 
@@ -87,7 +99,7 @@ import SetSchedule from './Steps/SetSchedule';
 
 export default {
 
-  name: 'app',
+  name: 'App',
 
   store,
 

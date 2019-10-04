@@ -1,12 +1,10 @@
 <template>
-
   <v-dialog
-    v-bind="dialogProps"
     v-model="open"
-    :fullscreen="$dayspan.fullscreenDialogs">
-
+    v-bind="dialogProps"
+    :fullscreen="$dayspan.fullscreenDialogs"
+  >
     <v-card v-if="schedule && details">
-
       <v-card-text>
         <event
           v-bind="{$scopedSlots}"
@@ -28,13 +26,9 @@
             Notifications
           </template>
         </event>
-
       </v-card-text>
-
     </v-card>
-
   </v-dialog>
-
 </template>
 
 <script>

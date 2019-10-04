@@ -1,67 +1,81 @@
 <template>
-
-  <div class="ds-event"
-    :class="classes">
-
+  <div
+    class="ds-event"
+    :class="classes"
+  >
     <div class="ds-event-header ds-event-area">
-
-      <div class="ds-event-cancel" v-if="hasCancel">
-
+      <div
+        v-if="hasCancel"
+        class="ds-event-cancel"
+      >
         <!-- Cancel -->
-        <slot name="scheduleCancel" v-bind="{cancel, labels}">
-
+        <slot
+          name="scheduleCancel"
+          v-bind="{cancel, labels}"
+        >
           <v-tooltip bottom>
-            <v-btn slot="activator" icon class="ds-button" @click="cancel">
-              <v-icon dark>clear</v-icon>
+            <v-btn
+              slot="activator"
+              icon
+              class="ds-button"
+              @click="cancel"
+            >
+              <v-icon dark>
+                clear
+              </v-icon>
             </v-btn>
-            <span v-html="labels.cancel"></span>
+            <span v-html="labels.cancel" />
           </v-tooltip>
-
         </slot>
-
       </div>
 
       <div class="ds-event-actions">
-
         <!-- Save -->
-        <slot name="scheduleSave" v-bind="{hasSave, save, labels, readOnly}">
-
+        <slot
+          name="scheduleSave"
+          v-bind="{hasSave, save, labels, readOnly}"
+        >
           <v-btn
             v-if="!isReadOnly"
-            class="ds-button-tall ml-3 mt-0 mb-2" depressed
+            class="ds-button-tall ml-3 mt-0 mb-2"
+            depressed
             color="primary"
             :disabled="!canSave"
-            @click.stop="save">
-
-            <span v-html="labels.save"></span>
-
+            @click.stop="save"
+          >
+            <span v-html="labels.save" />
           </v-btn>
-
         </slot>
 
         <!-- More Actions -->
-        <slot name="scheduleActions" v-bind="{calendarEvent, schedule, calendar, actioned, readOnly}">
-
+        <slot
+          name="scheduleActions"
+          v-bind="{calendarEvent, schedule, calendar, actioned, readOnly}"
+        >
           <ds-schedule-actions
             v-if="calendarEvent && !isReadOnly"
             v-bind="{$scopedSlots}"
-            v-on="$listeners"
             :schedule="schedule"
             :calendar-event="calendarEvent"
             :calendar="calendar"
-            @finish="actioned">
-            <v-btn class="ds-button-tall ml-1 mt-0 mb-2" depressed>
-               {{ labels.moreActions }}
+            v-on="$listeners"
+            @finish="actioned"
+          >
+            <v-btn
+              class="ds-button-tall ml-1 mt-0 mb-2"
+              depressed
+            >
+              {{ labels.moreActions }}
             </v-btn>
           </ds-schedule-actions>
-
         </slot>
-
       </div>
 
       <!-- Title -->
-      <slot name="scheduleTitle" v-bind="{schedule, schedule, calendarEvent, details}">
-
+      <slot
+        name="scheduleTitle"
+        v-bind="{schedule, schedule, calendarEvent, details}"
+      >
         <!-- class="ds-textfield ds-calendar-event-title" -->
         <!-- <v-text-field single-line hide-details solo flat
           class="ds-event-title"
@@ -69,156 +83,209 @@
           :readonly="isReadOnly"
           v-model="details.title"
         ></v-text-field> -->
-        <v-select :items="activityNames" 
-        placeholder="Select Activity"
-        v-model="details.title"></v-select>
-
+        <v-select
+          v-model="details.title" 
+          :items="activityNames"
+          placeholder="Select Activity"
+        />
       </slot>
-
     </div>
 
     <div class="ds-event-body ds-event-area">
-      <slot name="schedule" v-bind="slotData">
-
+      <slot
+        name="schedule"
+        v-bind="slotData"
+      >
         <!-- absolute scheduling options below -->
         <my-schedule
           :schedule="schedule"
           :day="day"
           :read-only="readOnly"
-        ></my-schedule>
-
+        />
       </slot>
-
     </div>
 
     <!-- Tabs -->
-    <v-layout row v-if="hasTabs">
-      <v-flex xs12 class="mt-2">
-        <v-tabs class="text--primary" v-model="tab">
-
-          <v-tab href="#details" v-if="hasDetails">
+    <v-layout
+      v-if="hasTabs"
+      row
+    >
+      <v-flex
+        xs12
+        class="mt-2"
+      >
+        <v-tabs
+          v-model="tab"
+          class="text--primary"
+        >
+          <v-tab
+            v-if="hasDetails"
+            href="#details"
+          >
             {{ labels.tabs.details }}
           </v-tab>
 
-          <v-tab href="#forecast" v-if="showForecast">
+          <v-tab
+            v-if="showForecast"
+            href="#forecast"
+          >
             {{ labels.tabs.forecast }}
           </v-tab>
 
-          <v-tab href="#exclusions" v-if="showExclusions">
+          <v-tab
+            v-if="showExclusions"
+            href="#exclusions"
+          >
             {{ labels.tabs.removed }}
           </v-tab>
 
-          <v-tab href="#inclusions" v-if="showInclusions">
+          <v-tab
+            v-if="showInclusions"
+            href="#inclusions"
+          >
             {{ labels.tabs.added }}
           </v-tab>
 
-          <v-tab href="#cancelled" v-if="showCancels">
+          <v-tab
+            v-if="showCancels"
+            href="#cancelled"
+          >
             {{ labels.tabs.cancelled }}
           </v-tab>
 
-          <slot name="eventTabsExtra" v-bind="slotData"></slot>
+          <slot
+            name="eventTabsExtra"
+            v-bind="slotData"
+          />
 
           <!-- Details -->
-          <v-tab-item value="details" v-if="hasDetails">
+          <v-tab-item
+            v-if="hasDetails"
+            value="details"
+          >
             <v-card flat>
               <v-card-text>
-                {{details}}
+                {{ details }}
                 <br>
                 <br>
                 <!-- Max number of responses -->
                 max # of responses
                 <v-text-field
-                  single-line hide-details solo flat
+                  v-model="details.maxResponses"
+                  single-line
+                  hide-details
+                  solo
+                  flat
                   type="number"
                   :value="1"
-                  v-model="details.maxResponses"
-                ></v-text-field>
+                />
 
                 <!-- Notifications -->
 
-                <Notification :details="details" v-on:updatedNotification="(n) => {details.notifications = n}"/>
-
-
-
+                <Notification
+                  :details="details"
+                  @updatedNotification="(n) => {details.notifications = n}"
+                />
               </v-card-text>
             </v-card>
           </v-tab-item>
 
           <!-- Forecast -->
-          <v-tab-item value="forecast" lazy v-if="showForecast">
+          <v-tab-item
+            v-if="showForecast"
+            value="forecast"
+            lazy
+          >
             <v-card flat>
               <v-card-text>
-                <slot name="eventForecast" v-bind="slotData">
-
+                <slot
+                  name="eventForecast"
+                  v-bind="slotData"
+                >
                   <ds-schedule-forecast
                     :schedule="schedule"
                     :day="day"
                     :read-only="readOnly"
-                  ></ds-schedule-forecast>
-
+                  />
                 </slot>
               </v-card-text>
             </v-card>
           </v-tab-item>
 
           <!-- Exclusions -->
-          <v-tab-item value="exclusions" lazy v-if="showExclusions">
+          <v-tab-item
+            v-if="showExclusions"
+            value="exclusions"
+            lazy
+          >
             <v-card flat>
               <v-card-text>
-                <slot name="eventExclusions" v-bind="slotData">
-
+                <slot
+                  name="eventExclusions"
+                  v-bind="slotData"
+                >
                   <ds-schedule-modifier
                     :description="labels.exclusions"
                     :modifier="schedule.exclude"
                     :read-only="readOnly"
-                  ></ds-schedule-modifier>
-
+                  />
                 </slot>
               </v-card-text>
             </v-card>
           </v-tab-item>
 
           <!-- Inclusions -->
-          <v-tab-item value="inclusions" lazy v-if="showInclusions">
+          <v-tab-item
+            v-if="showInclusions"
+            value="inclusions"
+            lazy
+          >
             <v-card flat>
               <v-card-text>
-                <slot name="eventInclusions" v-bind="slotData">
-
+                <slot
+                  name="eventInclusions"
+                  v-bind="slotData"
+                >
                   <ds-schedule-modifier
                     :description="labels.inclusions"
                     :modifier="schedule.include"
                     :read-only="readOnly"
-                  ></ds-schedule-modifier>
-
+                  />
                 </slot>
               </v-card-text>
             </v-card>
           </v-tab-item>
 
           <!-- Cancelled -->
-          <v-tab-item value="cancelled" lazy v-if="showCancels">
+          <v-tab-item
+            v-if="showCancels"
+            value="cancelled"
+            lazy
+          >
             <v-card flat>
               <v-card-text>
-                <slot name="eventCancels" v-bind="slotData">
-
+                <slot
+                  name="eventCancels"
+                  v-bind="slotData"
+                >
                   <ds-schedule-modifier
                     :description="labels.cancelled"
                     :modifier="schedule.cancel"
                     :read-only="readOnly"
-                  ></ds-schedule-modifier>
-
+                  />
                 </slot>
               </v-card-text>
             </v-card>
           </v-tab-item>
 
-          <slot name="eventTabItemsExtra" v-bind="slotData"></slot>
-
+          <slot
+            name="eventTabItemsExtra"
+            v-bind="slotData"
+          />
         </v-tabs>
       </v-flex>
     </v-layout>
   </div>
-
 </template>
 
 <script>
@@ -229,7 +296,7 @@ import mySchedule from './Schedule';
 
 export default {
 
-  name: 'dsEvent',
+  name: 'DsEvent',
 
   components: {
     Notification,
@@ -372,25 +439,6 @@ export default {
     details: vm.$dayspan.getDefaultEventDetails()
   }),
 
-  watch:
-  {
-    targetSchedule:
-    {
-      handler: 'updateSchedule',
-      immediate: true
-    },
-
-    targetDetails:
-    {
-      handler: 'updateDetails',
-      immediate: true
-    },
-    title() {
-      const res = _.filter(this.activities, a => a.name === this.title);
-      this.details.URI = res[0].URI;
-    }
-  },
-
   computed:
   {
     title() {
@@ -473,6 +521,25 @@ export default {
     isReadOnly()
     {
       return this.readOnly || this.$dayspan.readOnly;
+    }
+  },
+
+  watch:
+  {
+    targetSchedule:
+    {
+      handler: 'updateSchedule',
+      immediate: true
+    },
+
+    targetDetails:
+    {
+      handler: 'updateDetails',
+      immediate: true
+    },
+    title() {
+      const res = _.filter(this.activities, a => a.name === this.title);
+      this.details.URI = res[0].URI;
     }
   },
 

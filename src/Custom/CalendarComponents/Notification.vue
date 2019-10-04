@@ -1,44 +1,74 @@
 <template>
   <div>
-    <v-checkbox label="turn on notifications"
-      v-model="details.useNotifications"></v-checkbox>
+    <v-checkbox
+      v-model="details.useNotifications"
+      label="turn on notifications"
+    />
     
     <div v-if="details.useNotifications">
-      <div v-for="(notification, index) in notificationTimes"
-      :key="'notifi_'+index" >
-
+      <div
+        v-for="(notification, index) in notificationTimes"
+        :key="'notifi_'+index"
+      >
         <!-- Start notification at -->
         <div class="ds-time-cell">
           <hr style="margin-bottom: 1.5em; margin-top: 1.5em;">
           <label>start notification at</label>
           <v-text-field
-            :disabled="!details.useNotifications"
-            single-line hide-details solo flat
-            type="time"
             v-model="notification.start"
-          ></v-text-field>
+            :disabled="!details.useNotifications"
+            single-line
+            hide-details
+            solo
+            flat
+            type="time"
+          />
         </div>
 
-        <v-checkbox v-if="notification.start"
-        :label="`only notify if activity hasn't been completed by ${notification.start}`"
-        v-model="notification.notifyIfIncomplete"></v-checkbox>
+        <v-checkbox
+          v-if="notification.start"
+          v-model="notification.notifyIfIncomplete"
+          :label="`only notify if activity hasn't been completed by ${notification.start}`"
+        />
 
-        <v-checkbox label="random notifications"
-          v-model="notification.random"></v-checkbox>
+        <v-checkbox
+          v-model="notification.random"
+          label="random notifications"
+        />
 
         <label>randomize ends at</label>
         <v-text-field
-          :disabled="!notification.random"
-          single-line hide-details solo flat
-          type="time"
           v-model="notification.end"
-        ></v-text-field>
+          :disabled="!notification.random"
+          single-line
+          hide-details
+          solo
+          flat
+          type="time"
+        />
 
-        <v-btn depressed color="secondary" @click="add(index)" fab small>
-          <v-icon dark>add</v-icon>
+        <v-btn
+          depressed
+          color="secondary"
+          fab
+          small
+          @click="add(index)"
+        >
+          <v-icon dark>
+            add
+          </v-icon>
         </v-btn>
-        <v-btn depressed color="secondary" @click="remove(index)" fab small v-if="index">
-          <v-icon dark>remove</v-icon>
+        <v-btn
+          v-if="index"
+          depressed
+          color="secondary"
+          fab
+          small
+          @click="remove(index)"
+        >
+          <v-icon dark>
+            remove
+          </v-icon>
         </v-btn>
       </div>
     </div>
@@ -53,6 +83,9 @@ export default {
   props: {
     details: {
       type: Object,
+      default: function () {
+        return {}
+      },
     },
   },
   data() {

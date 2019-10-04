@@ -1,47 +1,58 @@
 <template>
-    <v-card
-      class="appletCard"
-      :width="310">
+  <v-card
+    class="appletCard"
+    :width="310"
+  >
+    <v-layout
+      v-if="currentApplet"
+      class="selectedApplet"
+      align-center
+      justify-center
+      column
+    >
+      <v-icon
+        size="72"
+        color="primary"
+      >
+        check
+      </v-icon>
+      <v-card-title primary-title>
+        <h3 class="headline mb-0">
+          {{ applet.applet["skos:prefLabel"] }}
+        </h3>
+      </v-card-title>
+    </v-layout>
 
-      <v-layout v-if="currentApplet" class="selectedApplet" align-center justify-center column>
-        <v-icon size="72" color="primary">
-          check
-        </v-icon>
-        <v-card-title primary-title>
-          <h3 class="headline mb-0">
-            {{applet.applet["skos:prefLabel"]}}
-          </h3>
-        </v-card-title>
-      </v-layout>
-
-      <div v-else>
-        <v-img
-          :src="applet.applet['schema:image'] || 'https://picsum.photos/id/83/200/200'"
-          width="100%"
-          aspect-ratio="1"
-          contain
+    <div v-else>
+      <v-img
+        :src="applet.applet['schema:image'] || 'https://picsum.photos/id/83/200/200'"
+        width="100%"
+        aspect-ratio="1"
+        contain
+      />
+      <v-card-title primary-title>
+        <h3 class="headline mb-0">
+          {{ applet.applet["skos:prefLabel"] }}
+        </h3>
+      </v-card-title>
+      <v-card-text> {{ applet.applet["schema:description"] }} </v-card-text>
+      <v-card-actions>
+        <v-btn
+          :disabled="status !== 'ready'"
+          @click="refreshApplet"
         >
-        </v-img>
-        <v-card-title primary-title>
-          <h3 class="headline mb-0">
-            {{applet.applet["skos:prefLabel"]}}
-          </h3>
-        </v-card-title>
-        <v-card-text> {{ applet.applet["schema:description"] }} </v-card-text>
-        <v-card-actions>
-          <v-btn :disabled="status !== 'ready'" @click="refreshApplet">
-            <span v-if="status === 'ready'">Refresh</span>
-            <span v-else> Refreshing.. </span>
-          </v-btn>
-          <v-btn @click="deleteApplet">
-            Delete
-          </v-btn>
-          <v-btn @click="setSelectedApplet">
-            Select
-          </v-btn>
-        </v-card-actions>
-      </div>
-    </v-card>
+          <span v-if="status === 'ready'">Refresh</span>
+          <span v-else> Refreshing.. </span>
+        </v-btn>
+        <v-btn @click="deleteApplet">
+          Delete
+        </v-btn>
+        <v-btn @click="setSelectedApplet">
+          Select
+        </v-btn>
+      </v-card-actions>
+    </div>
+  </v-card>
 </template>
 
 <style>
@@ -63,20 +74,23 @@ export default {
       required: true,
     },
   },
+  data: () => ({
+    status: 'ready',
+  }),
   computed: {
     currentApplet() {
       return this.applet == this.$store.state.currentApplet;
     }
   },
-  data: () => ({
-    status: 'ready',
-  }),
   watch: {
     // scheduleType() {
     //   if (this.currentApplet) {
     //     // this.$store.commit('setSchedule', { scheduleType: this.scheduleType });
     //   }
     // }
+  },
+  created() {
+
   },
   methods: {
     // select() {
@@ -97,9 +111,6 @@ export default {
       console.log(this.applet);
       this.$store.commit('setCurrentApplet', this.applet);
     }
-  },
-  created() {
-
   }
 }
 </script>

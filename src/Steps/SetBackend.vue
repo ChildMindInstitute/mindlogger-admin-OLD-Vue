@@ -1,47 +1,52 @@
 <template>
   <v-container>
-    <v-layout row wrap>
-        <v-flex>
-          <h1 style="text-align: center;">MindLogger Admin</h1>
-          <p style="text-align: center;">
-            The MindLogger admin panel enables you to add
-            set of surveys (called an applet)
-            to your mobile app, and invite others to take them.
+    <v-layout
+      row
+      wrap
+    >
+      <v-flex>
+        <h1 style="text-align: center;">
+          MindLogger Admin
+        </h1>
+        <p style="text-align: center;">
+          The MindLogger admin panel enables you to add
+          set of surveys (called an applet)
+          to your mobile app, and invite others to take them.
 
-                        For more information, check out the 
-            <a href="https://github.com/ChildMindInstitute/mindlogger-app/wiki/Quickstart">Quickstart Guide</a>
-            .
-          </p>
+          For more information, check out the 
+          <a href="https://github.com/ChildMindInstitute/mindlogger-app/wiki/Quickstart">Quickstart Guide</a>
+          .
+        </p>
 
-          <br>
+        <br>
 
-          <v-card>
-            <v-card-text>
-          <h2>Select your Server</h2>
-          <p>
-            This server will hold your applet configuration settings
-            and all the data you collect.
-          </p>
-          <div id="serverInputContainer">
-            <v-select
-              label="Server URL"
-              @change="onChange($event)"
-              id="serverSelector"
-              :items="backendServers"
-              item-value="url"
-              item-text="name"
-            ></v-select>
-            <v-text-field
-              id="serverTextInput"
-              label="Server URL"
-              v-model="backendServer"
-              style="display:none;"
-            ></v-text-field>
-          </div>
-          <span class="underline"></span>
-            </v-card-text>
-          </v-card>
-        </v-flex>
+        <v-card>
+          <v-card-text>
+            <h2>Select your Server</h2>
+            <p>
+              This server will hold your applet configuration settings
+              and all the data you collect.
+            </p>
+            <div id="serverInputContainer">
+              <v-select
+                id="serverSelector"
+                label="Server URL"
+                :items="backendServers"
+                item-value="url"
+                item-text="name"
+                @change="onChange($event)"
+              />
+              <v-text-field
+                id="serverTextInput"
+                v-model="backendServer"
+                label="Server URL"
+                style="display:none;"
+              />
+            </div>
+            <span class="underline" />
+          </v-card-text>
+        </v-card>
+      </v-flex>
     </v-layout>
   </v-container>
 </template>

@@ -8,22 +8,40 @@
     <div>
       <v-container>
         <v-layout>
-          <v-flex class="mr-2" xs4>
-            <v-text-field label="new group name" v-model="newGroupName"></v-text-field>
+          <v-flex
+            class="mr-2"
+            xs4
+          >
+            <v-text-field
+              v-model="newGroupName"
+              label="new group name"
+            />
           </v-flex>
           <v-flex class="mr-2">
-            <v-text-field label="description" v-model="newGroupDescription"></v-text-field>
+            <v-text-field
+              v-model="newGroupDescription"
+              label="description"
+            />
           </v-flex>
           <v-flex xs1>
-            <v-btn color="primary" fab depressed small @click="addGroup" :disabled="!validGroup.valid">
-              <v-icon dark>add</v-icon>
+            <v-btn
+              color="primary"
+              fab
+              depressed
+              small
+              :disabled="!validGroup.valid"
+              @click="addGroup"
+            >
+              <v-icon dark>
+                add
+              </v-icon>
             </v-btn>
           </v-flex>
         </v-layout>
         <v-layout>
           <v-flex>
             <p v-if="validGroup.message">
-              <small>{{validGroup.message}}</small>
+              <small>{{ validGroup.message }}</small>
             </p>
           </v-flex>
         </v-layout>
@@ -35,17 +53,27 @@
         :items="groupItems"
         class="elevation-1"
       >
-      <template slot="items" slot-scope="props">
-        <td>{{ props.item.name }}</td>
-        <td>{{ props.item.description }}</td>
-        <td>
-          <v-btn color="secondary" fab small depressed @click="removeGroup(props.index)">
-            <v-icon dark>remove</v-icon>
-          </v-btn>
-        </td>
-      </template>
+        <template
+          slot="items"
+          slot-scope="props"
+        >
+          <td>{{ props.item.name }}</td>
+          <td>{{ props.item.description }}</td>
+          <td>
+            <v-btn
+              color="secondary"
+              fab
+              small
+              depressed
+              @click="removeGroup(props.index)"
+            >
+              <v-icon dark>
+                remove
+              </v-icon>
+            </v-btn>
+          </td>
+        </template>
       </v-data-table>
-
     </div>
   </v-container>
 </template>
@@ -54,7 +82,7 @@
 import _ from 'lodash';
 
 export default {
-  name: 'groups',
+  name: 'Groups',
   data: () => ({
     /**
      * placeholder variable for group name

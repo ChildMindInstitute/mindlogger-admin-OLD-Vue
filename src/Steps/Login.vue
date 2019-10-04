@@ -1,41 +1,63 @@
 <template>
   <v-container>
-    <v-layout row wrap>
-        <v-flex v-if="notLoggedIn">
-          <h1 style="text-align: center">Login</h1>
-                    <v-card>
-            <v-card-text>
+    <v-layout
+      row
+      wrap
+    >
+      <v-flex v-if="notLoggedIn">
+        <h1 style="text-align: center">
+          Login
+        </h1>
+        <v-card>
+          <v-card-text>
+            <p>
+              Log into your Mindlogger account hosted at {{ $store.state.backend }}
+            </p>
+            <v-text-field
+              v-model="username"
+              label="username"
+            />
 
-          <p>
-            Log into your Mindlogger account hosted at {{$store.state.backend}}
-          </p>
-          <v-text-field
-            label="username"
-            v-model="username"
-          ></v-text-field>
-
-          <v-text-field
-            label="password"
-            v-model="password"
-            type="password"
-          ></v-text-field>
+            <v-text-field
+              v-model="password"
+              label="password"
+              type="password"
+            />
 
 
-          <div v-if="this.error.message" class="error">
-            {{error.message}}
-          </div>
+            <div
+              v-if="this.error.message"
+              class="error"
+            >
+              {{ error.message }}
+            </div>
 
-          <v-btn @click="login" color="primary">Login</v-btn>
-            </v-card-text>
-                    </v-card>
-        </v-flex>
-        <v-flex v-else>
-                    <v-card>
-            <v-card-text>
-          <h1 style="text-align: center">Hello, {{auth.user.login}}</h1>
-          <p>Click "continue" or <v-btn @click="logout" color="primary">Logout</v-btn></p>
-            </v-card-text></v-card>
-        </v-flex>
+            <v-btn
+              color="primary"
+              @click="login"
+            >
+              Login
+            </v-btn>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+      <v-flex v-else>
+        <v-card>
+          <v-card-text>
+            <h1 style="text-align: center">
+              Hello, {{ auth.user.login }}
+            </h1>
+            <p>
+              Click "continue" or <v-btn
+                color="primary"
+                @click="logout"
+              >
+                Logout
+              </v-btn>
+            </p>
+          </v-card-text>
+        </v-card>
+      </v-flex>
     </v-layout>
   </v-container>
 </template>

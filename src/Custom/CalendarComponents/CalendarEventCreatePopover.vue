@@ -1,95 +1,117 @@
 -<template>
-
-  <v-card class="ds-calendar-event-popover-card"
-    :class="classes">
-
-   <v-toolbar extended flat
-    :style="styleHeader">
-
-     <v-toolbar-title slot="extension">
-
-       <!-- <v-text-field single-line hide-details solo flat autofocus
+  <v-card
+    class="ds-calendar-event-popover-card"
+    :class="classes"
+  >
+    <v-toolbar
+      extended
+      flat
+      :style="styleHeader"
+    >
+      <v-toolbar-title slot="extension">
+        <!-- <v-text-field single-line hide-details solo flat autofocus
          :label="labels.title"
          v-model="details.title"
        ></v-text-field> -->
 
-       <v-select :items="activityNames"
-        placeholder="Select Activity"
-        v-model="details.title"></v-select>
+        <v-select
+          v-model="details.title"
+          :items="activityNames"
+          placeholder="Select Activity"
+        />
+      </v-toolbar-title>
 
-     </v-toolbar-title>
+      <v-btn
+        v-if="!details.readonly"
+        color="secondary"
+        small
+        absolute
+        bottom
+        left
+        fab
+        icon
+        @click="edit"
+      >
+        <v-icon>{{ icons.edit }}</v-icon>
+      </v-btn>
 
-     <v-btn
-       v-if="!details.readonly"
-       color="secondary"
-       small absolute bottom left fab icon
-       @click="edit">
-       <v-icon>{{ icons.edit }}</v-icon>
-     </v-btn>
+      <slot
+        name="eventCreatePopoverToolbarLeft"
+        v-bind="slotData"
+      />
 
-     <slot name="eventCreatePopoverToolbarLeft" v-bind="slotData"></slot>
+      <v-spacer />
 
-     <v-spacer></v-spacer>
+      <slot
+        name="eventCreatePopoverToolbarRight"
+        v-bind="slotData"
+      />
 
-     <slot name="eventCreatePopoverToolbarRight" v-bind="slotData"></slot>
+      <slot
+        name="eventCreatePopoverToolbarSave"
+        v-bind="slotData"
+      >
+        <v-btn
+          class="ds-create-popover-save"
+          flat
+          :disabled="!isValid"
+          :style="styleText"
+          @click="save"
+        >
+          <v-icon left>
+            {{ icons.save }}
+          </v-icon>
+          <span>{{ labels.save }}</span>
+        </v-btn>
+      </slot>
 
-     <slot name="eventCreatePopoverToolbarSave" v-bind="slotData">
+      <slot
+        name="eventCreatePopoverToolbarClose"
+        v-bind="slotData"
+      >
+        <v-btn
+          icon
+          :style="styleText"
+          @click="close"
+        >
+          <v-icon>{{ icons.close }}</v-icon>
+        </v-btn>
+      </slot>
+    </v-toolbar>
+    <v-card-text>
+      <slot
+        name="eventCreatePopoverBodyTop"
+        v-bind="slotData"
+      />
 
-       <v-btn
-         class="ds-create-popover-save"
-         flat
-         :disabled="!isValid"
-         :style="styleText"
-         @click="save">
+      <v-list>
+        <v-list-tile>
+          <v-list-tile-avatar>
+            <v-icon>access_time</v-icon>
+          </v-list-tile-avatar>
+          <v-list-tile-content>
+            <slot
+              name="eventCreatePopoverOccurs"
+              v-bind="slotData"
+            >
+              <v-list-tile-title>{{ startDate }}</v-list-tile-title>
+              <v-list-tile-sub-title>{{ occurs }}</v-list-tile-sub-title>
+            </slot>
+          </v-list-tile-content>
+        </v-list-tile>
+      </v-list>
 
-         <v-icon left>{{ icons.save }}</v-icon>
-         <span>{{ labels.save }}</span>
+      <slot
+        name="eventCreatePopoverBodyBottom"
+        v-bind="slotData"
+      />
+    </v-card-text>
 
-       </v-btn>
-
-     </slot>
-
-     <slot name="eventCreatePopoverToolbarClose" v-bind="slotData">
-
-       <v-btn icon
-        @click="close"
-        :style="styleText">
-
-         <v-icon>{{ icons.close }}</v-icon>
-
-       </v-btn>
-
-     </slot>
-
-   </v-toolbar>
-   <v-card-text>
-
-     <slot name="eventCreatePopoverBodyTop" v-bind="slotData"></slot>
-
-     <v-list>
-
-       <v-list-tile>
-         <v-list-tile-avatar>
-           <v-icon>access_time</v-icon>
-         </v-list-tile-avatar>
-         <v-list-tile-content>
-           <slot name="eventCreatePopoverOccurs" v-bind="slotData">
-             <v-list-tile-title>{{ startDate }}</v-list-tile-title>
-             <v-list-tile-sub-title>{{ occurs }}</v-list-tile-sub-title>
-           </slot>
-         </v-list-tile-content>
-       </v-list-tile>
-
-     </v-list>
-
-     <slot name="eventCreatePopoverBodyBottom" v-bind="slotData"></slot>
-
-   </v-card-text>
-
-   <slot name="eventCreatePopoverActions" v-bind="slotData"></slot>
-
+    <slot
+      name="eventCreatePopoverActions"
+      v-bind="slotData"
+    />
   </v-card>
-
 </template>
 
 <script>
@@ -99,7 +121,7 @@ import _ from 'lodash';
 
 export default {
 
-  name: 'dsCalendarEventCreatePopover',
+  name: 'DsCalendarEventCreatePopover',
 
   props:
   {
@@ -173,15 +195,9 @@ export default {
     }
   },
 
-  watch: {
-    title() {
-      const res = _.filter(this.activities, a => a.name === this.title);
-      const color = res[0].color;
-      const hexColor = _.filter(this.$dayspan.colors, c => c.text === color)[0].value;
-      this.details.color = hexColor;
-      this.details.URI = res[0].URI;
-    },
-  },
+  data: vm => ({
+    details: vm.buildDetails()
+  }),
 
   computed:
   {
@@ -253,9 +269,15 @@ export default {
     }
   },
 
-  data: vm => ({
-    details: vm.buildDetails()
-  }),
+  watch: {
+    title() {
+      const res = _.filter(this.activities, a => a.name === this.title);
+      const color = res[0].color;
+      const hexColor = _.filter(this.$dayspan.colors, c => c.text === color)[0].value;
+      this.details.color = hexColor;
+      this.details.URI = res[0].URI;
+    },
+  },
 
   methods:
   {

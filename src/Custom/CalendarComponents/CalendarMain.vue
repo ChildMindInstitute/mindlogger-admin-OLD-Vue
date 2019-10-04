@@ -1,27 +1,33 @@
 <template>
-  <v-app id="dayspan" v-cloak>
-
-    <calendar-app ref="app"
+  <v-app
+    v-cloak
+    id="dayspan"
+  >
+    <calendar-app
+      ref="app"
       :events="events"
       :calendar="calendar"
       :read-only="readOnly"
       :activities="activities"
-      v-on:change="saveState">
+      @change="saveState"
+    >
+      <template slot="menuRight" />
 
-
-      <template slot="menuRight">
-
-      </template>
-
-      <template slot="eventPopover" slot-scope="slotData">
-         <calendar-event-popover
+      <template
+        slot="eventPopover"
+        slot-scope="slotData"
+      >
+        <calendar-event-popover
           v-bind="slotData"
           :read-only="readOnly"
           @finish="saveState"
-        ></calendar-event-popover>
+        />
       </template>
 
-      <template slot="eventCreatePopover" slot-scope="{placeholder, calendar, close}">
+      <template
+        slot="eventCreatePopover"
+        slot-scope="{placeholder, calendar, close}"
+      >
         <calendar-event-create-popover
           :calendar-event="placeholder"
           :calendar="calendar"
@@ -29,37 +35,46 @@
           :activities="activities"
           @create-edit="$refs.app.editPlaceholder"
           @create-popover-closed="saveState"
-        ></calendar-event-create-popover>
+        />
       </template>
 
-      <template slot="eventTimeTitle" slot-scope="{calendarEvent, details}">
+      <template
+        slot="eventTimeTitle"
+        slot-scope="{calendarEvent, details}"
+      >
         <div>
-          <v-icon class="ds-ev-icon"
+          <v-icon
             v-if="details.icon"
+            class="ds-ev-icon"
             size="14"
-            :style="{color: details.forecolor}">
+            :style="{color: details.forecolor}"
+          >
             {{ details.icon }}
           </v-icon>
           <strong class="ds-ev-title">{{ details.title }}</strong>
         </div>
-        <div class="ds-ev-description">{{ getCalendarTime( calendarEvent ) }}</div>
+        <div class="ds-ev-description">
+          {{ getCalendarTime( calendarEvent ) }}
+        </div>
       </template>
 
       <template slot="drawerBottom">
         <div class="pa-3">
           <v-subheader>Activities</v-subheader>
-          <v-checkbox v-for="act in activities" :key="act.name" :label="act.name" v-model="act.visible" :color="act.color">
-
-          </v-checkbox>
+          <v-checkbox
+            v-for="act in activities"
+            :key="act.name"
+            v-model="act.visible"
+            :label="act.name"
+            :color="act.color"
+          />
           <!-- <v-checkbox
             label="Read Only?"
             v-model="readOnly"
           ></v-checkbox> -->
         </div>
       </template>
-
     </calendar-app>
-
   </v-app>
 </template>
 
@@ -75,7 +90,7 @@ import CalendarEventPopover from './CalendarEventPopover';
 
 export default {
 
-  name: 'app',
+  name: 'App',
 
   components: {
     CalendarApp,
@@ -92,6 +107,25 @@ export default {
       type: Array,
     }
   },
+
+  data: () => ({
+    // activities: [
+    //   {
+    //     name: 'Morning',
+    //     color: 'blue',
+    //     visible: true,
+    //   },
+    //   {
+    //     name: 'Evening',
+    //     color: 'red',
+    //     visible: true,
+    //   }
+    // ],
+    storeKey: 'dayspanState',
+    calendar: Calendar.months(),
+    readOnly: false,
+    defaultEvents: [],
+  }),
 
   computed: {
     currentApplet() {
@@ -116,25 +150,6 @@ export default {
       this.loadState();
     },
   },
-
-  data: () => ({
-    // activities: [
-    //   {
-    //     name: 'Morning',
-    //     color: 'blue',
-    //     visible: true,
-    //   },
-    //   {
-    //     name: 'Evening',
-    //     color: 'red',
-    //     visible: true,
-    //   }
-    // ],
-    storeKey: 'dayspanState',
-    calendar: Calendar.months(),
-    readOnly: false,
-    defaultEvents: [],
-  }),
 
   mounted()
   {
