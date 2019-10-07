@@ -121,7 +121,7 @@ import _ from 'lodash';
 
 export default {
 
-  name: 'DsCalendarEventCreatePopover',
+  name: 'dsCalendarEventCreatePopover',
 
   props:
   {
