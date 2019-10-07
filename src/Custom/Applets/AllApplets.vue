@@ -66,6 +66,7 @@
 import Applet from './Applet';
 import adminApi from '../Utils/api';
 import config from '../../config';
+import api from '@bit/akeshavan.mindlogger-web.api';
 
 
 export default {
@@ -98,6 +99,24 @@ export default {
     },
   },
   methods: {
+    /**
+     * call getAppletsForUser and commit the response to the store.
+     */
+    getApplets() {
+      this.status = 'loading';
+      api.getAppletsForUser({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        user: this.$store.state.auth.user._id,
+        role: 'manager',
+      }).then((resp) => {
+        this.$store.commit('setAllApplets', resp.data);
+        this.status = 'ready';
+      }).catch((e) => {
+        this.error = e;
+        this.status = 'error';
+      });
+    },
     /**
      * add a new applet
      */
