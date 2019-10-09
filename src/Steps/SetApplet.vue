@@ -36,7 +36,6 @@
 import api from '@bit/akeshavan.mindlogger-web.api';
 import _ from 'lodash';
 import AllApplets from '../Custom/Applets/AllApplets';
-// import adminApi from '../Custom/Utils/api';
 import { Parse, Day } from 'dayspan';
 import Loader from '@bit/akeshavan.mindlogger-web.loader';
 import config from '../config';

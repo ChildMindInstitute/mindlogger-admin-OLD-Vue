@@ -25,8 +25,6 @@ method: 'POST',
     'Girder-Token': token,
   },
   params: {
-    // user,
-    // name,
     activitySetUrl,
   },
 })

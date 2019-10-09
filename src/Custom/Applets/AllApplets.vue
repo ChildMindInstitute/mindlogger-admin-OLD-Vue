@@ -37,8 +37,8 @@
           />
           <v-btn
             color="success"
-            :disabled="!newActivitySetURL || status === 'loading'"
-            @click="addNewApplet"
+            :disabled="!newActivitySetURL"
+            @click="onClickAdd"
           >
             Add
           </v-btn>
@@ -100,44 +100,29 @@ export default {
   },
   methods: {
     /**
-     * call getAppletsForUser and commit the response to the store.
+     * closes modal and adds applet
      */
-    getApplets() {
-      this.status = 'loading';
-      api.getAppletsForUser({
-        apiHost: this.$store.state.backend,
-        token: this.$store.state.auth.authToken.token,
-        user: this.$store.state.auth.user._id,
-        role: 'manager',
-      }).then((resp) => {
-        this.$store.commit('setAllApplets', resp.data);
-        this.status = 'ready';
-      }).catch((e) => {
-        this.error = e;
-        this.status = 'error';
-      });
+    onClickAdd(){
+      this.dialog = false;
+      this.addNewApplet();
     },
     /**
-     * add a new applet
+     * api call to add a new applet
      */
     addNewApplet() {
       /**
        * TODO: add a route in ../Custom/Utils/api.vue
        * and call it with this.newAppletURL
        */
-      this.status = 'loading';
       adminApi.addNewApplet({
         activitySetUrl: this.newActivitySetURL,
-        apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
-        // user: this.$store.state.auth.user._id,
-        name: 'Mood',
+        apiHost: this.$store.state.backend,
       }).then(() => {
         // response should have the updated applet list
         // this.$store.commit('setAllApplets', resp.data);
         this.newActivitySetURL = '';
-        this.status = 'ready';
-        this.getApplets();
+        this.$emit('refreshAppletList');
       });
     },
     /**
