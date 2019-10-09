@@ -36,7 +36,7 @@
             label="activity set url"
           />
           <v-btn
-            color="success"
+            color="primary"
             :disabled="!newActivitySetURL"
             @click="onClickAdd"
           >
@@ -110,27 +110,19 @@ export default {
      * api call to add a new applet
      */
     addNewApplet() {
-      /**
-       * TODO: add a route in ../Custom/Utils/api.vue
-       * and call it with this.newAppletURL
-       */
       adminApi.addNewApplet({
         activitySetUrl: this.newActivitySetURL,
         token: this.$store.state.auth.authToken.token,
         apiHost: this.$store.state.backend,
       }).then(() => {
-        // response should have the updated applet list
-        // this.$store.commit('setAllApplets', resp.data);
         this.newActivitySetURL = '';
         this.$emit('refreshAppletList');
       });
     },
     /**
-     * delete an applet
+     * deactivates an applet
      */
     deleteApplet(applet) {
-      // eslint-disable-next-line
-      console.log('going to delete here', applet);
       adminApi.deleteApplet({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,

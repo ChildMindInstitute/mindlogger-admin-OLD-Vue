@@ -3,7 +3,6 @@
  * Admin-panel API routes
  */
 import axios from 'axios';
-// import _ from 'lodash';
 
 const setSchedule = ({ apiHost, token, id, data }) => axios({
   method: 'put',
@@ -14,10 +13,6 @@ const setSchedule = ({ apiHost, token, id, data }) => axios({
   data,
 });
 
-/**
- * TODO: fill in this route to add a new Applet with an
- * activity set URL
- */
 const addNewApplet = ({ apiHost, token, activitySetUrl }) => axios({
 method: 'POST',
   url: `${apiHost}/applet/`,
