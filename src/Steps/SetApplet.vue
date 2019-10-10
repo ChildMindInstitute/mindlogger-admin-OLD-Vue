@@ -14,7 +14,10 @@
         study-specific settings, like your users and schedule.
       </p>
       <div v-if="status === 'loading'">
-        <Loader />
+        <v-progress-circular
+          indeterminate
+          color="primary"
+        ></v-progress-circular>
       </div>
       <div
         v-else-if="status === 'error'"
@@ -35,7 +38,7 @@
 // grab the api component we wrote in mindlogger-web
 import api from '@bit/akeshavan.mindlogger-web.api';
 import _ from 'lodash';
-import AllApplets from '../Custom/Applets/AllApplets';
+import AllApplets from '../Components/Applets/AllApplets';
 import { Parse, Day } from 'dayspan';
 import Loader from '@bit/akeshavan.mindlogger-web.loader';
 import config from '../config';
