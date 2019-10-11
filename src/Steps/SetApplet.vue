@@ -1,13 +1,14 @@
 <template>
   <v-container fluid>
-    <Loading v-if="true"/>
+    <Loading v-if="status === 'loading'" />
     <div
       v-else-if="status === 'error'"
       class="error"
     >
       {{ error.message }}
     </div>
-    <AllApplets v-else
+    <AllApplets
+      v-else
       :applets="allApplets"
       @refreshAppletList="getApplets"
     />
