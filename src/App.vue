@@ -40,8 +40,6 @@
       >
         Prev
       </v-btn>
-      <v-flex />
-      <v-flex />
       <v-flex>
         <v-flex style="text-align: right;">
           <v-btn

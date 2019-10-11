@@ -40,8 +40,8 @@
 <script>
 import _ from 'lodash';
 // this is a table that renders users and groups.
-import UserTable from '../Custom/UserTable';
-import adminApi from '../Custom/Utils/api';
+import UserTable from '../Components/UserTable';
+import adminApi from '../Components/Utils/api';
 
 
 export default {

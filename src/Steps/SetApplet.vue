@@ -1,33 +1,17 @@
 <template>
-  <v-container>
-    <div v-if="isLoggedIn">
-      <h1 style="text-align: center;">
-        Your Applets
-      </h1>
-      <p
-        style="text-align: center;"
-        class="mb-3"
-      >
-        An applet is a collection of
-        <a href="https://github.com/ReproNim/schema-standardization">reusable surveys</a>
-        along with
-        study-specific settings, like your users and schedule.
-      </p>
-      <div v-if="status === 'loading'">
-        <Loader />
-      </div>
-      <div
-        v-else-if="status === 'error'"
-        class="error"
-      >
-        {{ error.message }}
-      </div>
-
-      <AllApplets
-        :applets="allApplets"
-        @refreshAppletList="getApplets"
-      />
+  <v-container fluid>
+    <Loading v-if="status === 'loading'" />
+    <div
+      v-else-if="status === 'error'"
+      class="error"
+    >
+      {{ error.message }}
     </div>
+    <AllApplets
+      v-else
+      :applets="allApplets"
+      @refreshAppletList="getApplets"
+    />
   </v-container>
 </template>
 
@@ -35,9 +19,9 @@
 // grab the api component we wrote in mindlogger-web
 import api from '@bit/akeshavan.mindlogger-web.api';
 import _ from 'lodash';
-import AllApplets from '../Custom/Applets/AllApplets';
+import AllApplets from '../Components/Applets/AllApplets';
+import Loading from '../Components/Utils/Loading';
 import { Parse, Day } from 'dayspan';
-import Loader from '@bit/akeshavan.mindlogger-web.loader';
 import config from '../config';
 
 window.Parse = Parse;
@@ -47,7 +31,7 @@ export default {
   name: 'Applet',
   components: {
     AllApplets,
-    Loader,
+    Loading,
   },
   data: () => ({
     sampleActivitySets: config.activitySets,
