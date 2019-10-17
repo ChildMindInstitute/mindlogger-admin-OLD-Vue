@@ -1,5 +1,8 @@
 <template>
   <div>
+    <h1 v-if="applets === undefined || applets.length == 0">
+      You have no active applets.
+    </h1>
     <v-layout
       row
       wrap
