@@ -24,12 +24,11 @@
               type="password"
             />
 
-
             <div
-              v-if="this.error.message"
+              v-if="error"
               class="error"
             >
-              {{ error.message }}
+              {{ error }}
             </div>
 
             <v-btn
@@ -79,7 +78,7 @@ export default {
   data: () => ({
     username: '',
     password: '',
-    error: {},
+    error: '',
   }),
 
   computed: {
@@ -106,9 +105,6 @@ export default {
     }
   },
 
-  mounted() {
-  },
-
   methods: {
     /**
      * nothing to do when continue is pressed
@@ -121,7 +117,7 @@ export default {
      * save the response to the store
      */
     login() {
-      this.error = {};
+      this.error = '';
       api.signIn({
         apiHost: this.$store.state.backend,
         user: this.username,
@@ -129,7 +125,7 @@ export default {
       }).then((resp) => {
         this.$store.commit('setAuth', resp.data);
       }).catch((e) => {
-        this.error = e;
+        this.error = e.message === 'Request failed with status code 401' ? 'Invalid credentials' : e.message;
       });
     },
     /**
