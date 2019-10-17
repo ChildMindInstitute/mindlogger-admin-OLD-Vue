@@ -157,9 +157,7 @@ export default {
      * value of the stepper component
      */
     currentComponent() {
-      if (this.ready) {
-        return this.steps[this.e1 - 1].name, this.$refs[this.steps[this.e1 - 1].name][0];
-      }
+      return this.steps[this.e1 - 1].name, this.$refs[this.steps[this.e1 - 1].name][0];
     },
     /**
      * return the current component's `readyToContinue` function.

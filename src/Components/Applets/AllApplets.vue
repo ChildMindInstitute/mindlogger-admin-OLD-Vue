@@ -1,6 +1,16 @@
 <template>
   <div>
     <v-layout
+      v-if="applets === undefined || applets.length == 0"
+      align-center
+      column
+    >
+      <h1>
+        You have no active applets.
+      </h1>
+    </v-layout>
+    <v-layout
+      v-else
       row
       wrap
       justify-center
