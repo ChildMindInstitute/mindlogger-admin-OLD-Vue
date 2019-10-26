@@ -5,10 +5,14 @@
       wrap
     >
       <v-flex v-if="notLoggedIn">
-        <LoginForm v-if="!createAccount"
-          v-on:createAccount="toggleCreateAccount" />
-        <CreateUserForm v-else
-          v-on:login="toggleCreateAccount" />
+        <LoginForm
+          v-if="!createAccount"
+          @createAccount="toggleCreateAccount"
+        />
+        <CreateUserForm
+          v-else
+          @login="toggleCreateAccount"
+        />
       </v-flex>
       <v-flex v-else>
         <v-card>
@@ -38,8 +42,6 @@
 </style>
 
 <script>
-// load our api bit component from mindlogger-web
-import api from '@bit/akeshavan.mindlogger-web.api';
 import _ from 'lodash';
 import LoginForm from '../Components/Authentication/LoginForm.vue';
 import CreateUserForm from '../Components/Authentication/CreateUserForm.vue';

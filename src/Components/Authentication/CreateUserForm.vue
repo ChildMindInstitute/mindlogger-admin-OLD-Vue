@@ -56,7 +56,6 @@
 </style>
 
 <script>
-// load our api bit component from mindlogger-web
 import api from '../Utils/api/api.vue';
 import _ from 'lodash';
 
