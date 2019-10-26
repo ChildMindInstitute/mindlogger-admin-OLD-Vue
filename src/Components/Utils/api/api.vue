@@ -4,6 +4,21 @@
  */
 import axios from 'axios';
 
+const signIn = ({ apiHost, user, password }) => axios({
+  method: 'get',
+  url: `${apiHost}/user/authentication`,
+  headers: { 'Girder-Authorization': `Basic ${btoa(`${user}:${password}`)}` },
+});
+
+const signUp = ({apiHost, body}) => axios({
+  method: 'post',
+  url: `${apiHost}/user`,
+  params: {
+    ...body,
+    admin: true,
+  },
+});
+
 const setSchedule = ({ apiHost, token, id, data }) => axios({
   method: 'put',
   url: `${apiHost}/${id}/constraints`,
@@ -89,6 +104,8 @@ const updateRegistration = ({ apiHost, token, groupId, open }) => axios({
 })
 
 export default {
+  signIn,
+  signUp,
   setSchedule,
   addNewApplet,
   getGroupMemberships,
