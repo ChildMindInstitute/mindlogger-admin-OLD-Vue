@@ -296,7 +296,7 @@ import mySchedule from './Schedule';
 
 export default {
 
-  name: 'DsEvent',
+  name: 'dsEvent',
 
   components: {
     Notification,

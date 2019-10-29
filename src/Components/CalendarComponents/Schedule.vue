@@ -98,7 +98,7 @@ import { Day, Schedule } from 'dayspan';
 
 export default {
 
-  name: 'DsSchedule',
+  name: 'dsSchedule',
 
   props:
   {
