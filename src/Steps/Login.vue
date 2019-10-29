@@ -5,40 +5,14 @@
       wrap
     >
       <v-flex v-if="notLoggedIn">
-        <h1 style="text-align: center">
-          Login
-        </h1>
-        <v-card>
-          <v-card-text>
-            <p>
-              Log into your Mindlogger account hosted at {{ $store.state.backend }}
-            </p>
-            <v-text-field
-              v-model="username"
-              label="username"
-            />
-
-            <v-text-field
-              v-model="password"
-              label="password"
-              type="password"
-            />
-
-            <div
-              v-if="error"
-              class="error"
-            >
-              {{ error }}
-            </div>
-
-            <v-btn
-              color="primary"
-              @click="login"
-            >
-              Login
-            </v-btn>
-          </v-card-text>
-        </v-card>
+        <LoginForm
+          v-if="!createAccount"
+          @createAccount="toggleCreateAccount"
+        />
+        <CreateUserForm
+          v-else
+          @login="toggleCreateAccount"
+        />
       </v-flex>
       <v-flex v-else>
         <v-card>
@@ -68,17 +42,23 @@
 </style>
 
 <script>
-// load our api bit component from mindlogger-web
-import api from '@bit/akeshavan.mindlogger-web.api';
 import _ from 'lodash';
+import LoginForm from '../Components/Authentication/LoginForm.vue';
+import CreateUserForm from '../Components/Authentication/CreateUserForm.vue';
 
 export default {
   name: 'Login',
+
+  components: {
+    LoginForm,
+    CreateUserForm
+  },
 
   data: () => ({
     username: '',
     password: '',
     error: '',
+    createAccount: false
   }),
 
   computed: {
@@ -112,21 +92,8 @@ export default {
     continueAction() {
 
     },
-    /**
-     * the login method: sign in and then
-     * save the response to the store
-     */
-    login() {
-      this.error = '';
-      api.signIn({
-        apiHost: this.$store.state.backend,
-        user: this.username,
-        password: this.password
-      }).then((resp) => {
-        this.$store.commit('setAuth', resp.data);
-      }).catch((e) => {
-        this.error = e.message === 'Request failed with status code 401' ? 'Invalid credentials' : e.message;
-      });
+    toggleCreateAccount() {
+      this.createAccount = !this.createAccount;
     },
     /**
      * clear the store on logout.
