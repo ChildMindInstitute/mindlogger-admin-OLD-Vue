@@ -5,6 +5,13 @@
       style="overflow: auto; height: calc(100% - 48px);"
     >
       <v-stepper-header>
+                      <v-btn
+        v-if="e1 > 1"
+        flat
+        @click="e1 -= 1"
+      >
+        Prev
+      </v-btn>
         <v-stepper-step
           v-for="(step, index) in steps"
           :key="`step_tab_${index}`"
@@ -13,6 +20,14 @@
         >
           {{ step.name }}
         </v-stepper-step>
+                            <v-btn
+            v-if="e1 < steps.length"
+            color="primary"
+            :disabled="!readyToContinue"
+            @click="next"
+          >
+            Continue
+          </v-btn>
       </v-stepper-header>
 
       <v-stepper-items class="bg bog">
@@ -21,38 +36,16 @@
           :key="`step_content_${index}`"
           :step="index+1"
         >
+
           <component
             :is="step.component"
             :ref="step.name"
           />
+
         </v-stepper-content>
       </v-stepper-items>
     </v-stepper>
 
-    <v-layout
-      row
-      wrap
-    >
-      <v-btn
-        v-if="e1 > 1"
-        flat
-        @click="e1 -= 1"
-      >
-        Prev
-      </v-btn>
-      <v-flex>
-        <v-flex style="text-align: right;">
-          <v-btn
-            v-if="e1 < steps.length"
-            color="primary"
-            :disabled="!readyToContinue"
-            @click="next"
-          >
-            Continue
-          </v-btn>
-        </v-flex>
-      </v-flex>
-    </v-layout>
   </v-app>
 </template>
 
