@@ -2,7 +2,6 @@
 
 ## Project setup
 ```
-npm config set @bit:registry https://node.bitsrc.io
 npm install
 ```
 

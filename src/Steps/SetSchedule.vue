@@ -13,7 +13,7 @@
 <script>
 import _ from 'lodash';
 import Calendar from '../Components/CalendarComponents/CalendarMain';
-import adminApi from '../Components/Utils/api';
+import api from '../Components/Utils/api/api.vue';
 
 export default {
   name: 'Schedule',
