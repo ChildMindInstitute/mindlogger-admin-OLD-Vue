@@ -41,7 +41,7 @@
 import _ from 'lodash';
 // this is a table that renders users and groups.
 import UserTable from '../Components/UserTable';
-import adminApi from '../Components/Utils/api';
+import api from '../Components/Utils/api/api.vue';
 
 
 export default {
@@ -160,7 +160,7 @@ export default {
     sendServerInvite(email, group) {
       const groupObj = _.filter(this.currentApplet.groups, g => g.name === group)[0];
       const groupId = groupObj.id;
-      return adminApi.inviteToRoleByEmail({
+      return api.inviteToRoleByEmail({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         email: email,
@@ -216,7 +216,7 @@ export default {
      */
     openRegistration(groupId, open) {
       this.regstatus = 'loading'
-      adminApi.updateRegistration({
+      api.updateRegistration({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         groupId,
@@ -259,7 +259,7 @@ export default {
     getGroupTable() {
       // eslint-disable-next-line
       console.log('getting group table');
-      adminApi.getGroupTable({
+      api.getGroupTable({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         appletId: this.currentApplet.applet._id.split('applet/')[1],
@@ -276,7 +276,7 @@ export default {
       // eslint-disable-next-line
       console.log('need to remove', groupInfo, 'from', userInfo);
 
-      adminApi.deleteUserFromRole({
+      api.deleteUserFromRole({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         groupId: groupInfo._id,

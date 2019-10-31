@@ -16,8 +16,7 @@
 </template>
 
 <script>
-// grab the api component we wrote in mindlogger-web
-import api from '@bit/akeshavan.mindlogger-web.api';
+import api from '../Components/Utils/api/api.vue';
 import _ from 'lodash';
 import AllApplets from '../Components/Applets/AllApplets';
 import Loading from '../Components/Utils/Loading';
@@ -113,36 +112,6 @@ export default {
     continueAction() {
 
     },
-    /**
-     * commit the current applet to the store
-     */
-    /**
-     * get group memberships for the current applet
-     */
-    // getGroupMemberships() {
-    //   adminApi.getGroupMemberships({
-    //     apiHost: this.$store.state.backend,
-    //     token: this.$store.state.auth.authToken.token,
-    //     appletId: this.currentApplet.applet._id.split('applet/')[1],
-    //   }).then((resp) => {
-    //     console.log('response from group memberships', resp);
-    //     const groups = [
-    //       {
-    //         name: 'user',
-    //         id: resp.data.user.groups[0]._id,
-    //       },
-    //       {
-    //         name: 'reviewer',
-    //         id: resp.data.user.groups[0]._id,
-    //       },
-    //       {
-    //         name: 'manager',
-    //         id: resp.data.user.groups[0]._id,
-    //       },
-    //     ]
-    //     this.$store.commit('setGroups', groups);
-    //   });
-    // },
   },
 }
 </script>

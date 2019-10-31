@@ -103,6 +103,14 @@ const updateRegistration = ({ apiHost, token, groupId, open }) => axios({
   },
 })
 
+const getAppletsForUser = ({ apiHost, token, user, role = null }) => axios({
+  method: 'get',
+  url: `${apiHost}/user/${user}/applets?role=${role}`,
+  headers: {
+    'Girder-Token': token,
+  },
+});
+
 export default {
   signIn,
   signUp,
@@ -115,5 +123,6 @@ export default {
   deleteApplet,
   refreshApplet,
   updateRegistration,
+  getAppletsForUser,
 }
 </script>

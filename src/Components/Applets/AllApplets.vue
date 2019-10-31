@@ -74,10 +74,8 @@
 <script>
 // import _ from 'lodash';
 import Applet from './Applet';
-import adminApi from '../Utils/api';
+import api from '../Utils/api/api.vue';
 import config from '../../config';
-import api from '@bit/akeshavan.mindlogger-web.api';
-
 
 export default {
   name: 'AllApplets',
@@ -120,7 +118,7 @@ export default {
      * api call to add a new applet
      */
     addNewApplet() {
-      adminApi.addNewApplet({
+      api.addNewApplet({
         activitySetUrl: this.newActivitySetURL,
         token: this.$store.state.auth.authToken.token,
         apiHost: this.$store.state.backend,
@@ -133,7 +131,7 @@ export default {
      * deactivates an applet
      */
     deleteApplet(applet) {
-      adminApi.deleteApplet({
+      api.deleteApplet({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         appletId: applet.applet._id.split('applet/')[1],
@@ -147,7 +145,7 @@ export default {
      * refresh an applet's activity set
      */
     refreshApplet(applet) {
-      adminApi.refreshApplet({
+      api.refreshApplet({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         appletId: applet.applet._id.split('applet/')[1],
