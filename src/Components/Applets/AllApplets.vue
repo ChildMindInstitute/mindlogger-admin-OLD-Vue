@@ -42,12 +42,12 @@
         <v-card-text>
           <h3>Create a new applet:</h3>
           <v-text-field
-            v-model="newActivitySetURL"
+            v-model="newProtocolURL"
             label="activity set url"
           />
           <v-btn
             color="primary"
-            :disabled="!newActivitySetURL"
+            :disabled="!newProtocolURL"
             @click="onClickAdd"
           >
             Add
@@ -60,10 +60,10 @@
             and you will be able to create your own.
           </p>
           <p
-            v-for="activityInfo in sampleActivitySets"
+            v-for="activityInfo in sampleProtocols"
             :key="activityInfo.name"
           >
-            <a @click="newActivitySetURL=activityInfo.url">{{ activityInfo.name }}</a>
+            <a @click="newProtocolURL=activityInfo.url">{{ activityInfo.name }}</a>
           </p>
         </v-card-text>
       </v-card>
@@ -89,14 +89,14 @@ export default {
     }
   },
   data: () => ({
-    sampleActivitySets: config.activitySets,
+    sampleProtocols: config.protocols,
     dialog: false,
     /**
      * placeholder for the new applet URL
      * this will likely be a github link to an activity set
      * from the ReproNim
      */
-    newActivitySetURL: '',
+    newProtocolURL: '',
   }),
   computed: {
 
@@ -119,11 +119,11 @@ export default {
      */
     addNewApplet() {
       api.addNewApplet({
-        activitySetUrl: this.newActivitySetURL,
+        protocolUrl: this.newProtocolURL,
         token: this.$store.state.auth.authToken.token,
         apiHost: this.$store.state.backend,
       }).then(() => {
-        this.newActivitySetURL = '';
+        this.newProtocolURL = '';
         this.$emit('refreshAppletList');
       });
     },

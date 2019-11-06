@@ -21,13 +21,13 @@ const mutations = {
     }
     state.backend = backend;
   },
-  setCurrentApplet(state, activitySet) {
-    if (activitySet) {
-      state.currentApplet = activitySet;
+  setCurrentApplet(state, protocol) {
+    if (protocol) {
+      state.currentApplet = protocol;
     }
   },
-  setAllApplets(state, activitySets) {
-    state.allApplets = activitySets;
+  setAllApplets(state, protocols) {
+    state.allApplets = protocols;
   },
   setAuth(state, auth) {
     state.auth = auth;

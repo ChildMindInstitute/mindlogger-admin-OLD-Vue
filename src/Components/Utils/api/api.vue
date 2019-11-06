@@ -28,14 +28,14 @@ const setSchedule = ({ apiHost, token, id, data }) => axios({
   data,
 });
 
-const addNewApplet = ({ apiHost, token, activitySetUrl }) => axios({
+const addNewApplet = ({ apiHost, token, protocolUrl }) => axios({
 method: 'POST',
   url: `${apiHost}/applet/`,
   headers: {
     'Girder-Token': token,
   },
   params: {
-    activitySetUrl,
+    protocolUrl,
   },
 })
 
