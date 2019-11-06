@@ -33,7 +33,7 @@ export default {
     Loading,
   },
   data: () => ({
-    sampleActivitySets: config.activitySets,
+    sampleProtocols: config.protocols,
     /**
      * placeholder for any error messages from axios
      */
