@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2019.11-07
+### Changed
+- :arrow_up: Changed `GET /user/{id}/applets` to `GET /user/applets`
+
 ## [0.1.1] - 2019-11-06
 ### Added
 - :newspaper: CHANGELOG
