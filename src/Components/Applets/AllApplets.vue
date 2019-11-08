@@ -78,7 +78,7 @@
         </v-card-text>
       </v-card>
       <v-card v-else>
-        <ActivitySetBuilder v-on:closeBuilder="builderOpen = false"/>
+        <ActivitySetBuilder @closeBuilder="builderOpen = false" />
       </v-card>
     </v-dialog>
   </div>

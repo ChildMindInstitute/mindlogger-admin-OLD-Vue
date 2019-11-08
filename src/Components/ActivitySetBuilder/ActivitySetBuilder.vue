@@ -13,56 +13,81 @@
           :rules="textRules"
           label="Activity Set Name"
           required
-        ></v-text-field>
+        />
         <v-text-field
           v-model="description"
           :rules="textRules"
           label="Activity Set Description"
           required
-        ></v-text-field>
+        />
         <v-list>
           <v-subheader>
             Activities
           </v-subheader>
-          <v-list-tile v-for="(activity, index) in activities" v-bind:key="activity.id">
+          <v-list-tile
+            v-for="(activity, index) in activities"
+            :key="activity.id"
+          >
             <v-list-tile-content>
-              <v-list-tile-title v-text="activity.name"></v-list-tile-title>
-              <v-list-tile-sub-title v-text="activity.description"></v-list-tile-sub-title>
+              <v-list-tile-title v-text="activity.name" />
+              <v-list-tile-sub-title v-text="activity.description" />
             </v-list-tile-content>  
             <v-list-tile-action>
-              <v-btn icon @click="duplicateActivity(index)">
-                <v-icon color="grey lighten-1">content_copy</v-icon>
+              <v-btn
+                icon
+                @click="duplicateActivity(index)"
+              >
+                <v-icon color="grey lighten-1">
+                  content_copy
+                </v-icon>
               </v-btn>
             </v-list-tile-action>
             <v-list-tile-action>
-              <v-btn icon @click="deleteActivity(index)">
-                <v-icon color="grey lighten-1">delete</v-icon>
+              <v-btn
+                icon
+                @click="deleteActivity(index)"
+              >
+                <v-icon color="grey lighten-1">
+                  delete
+                </v-icon>
               </v-btn>
             </v-list-tile-action>
           </v-list-tile>
           <v-list-tile @click="addActivity">
-            <v-icon color="grey lighten-1">add</v-icon>
+            <v-icon color="grey lighten-1">
+              add
+            </v-icon>
           </v-list-tile>
         </v-list>
       </v-form>
       <v-alert
         style="margin-top: 12px; width: 100%"
-        :value="this.error"
+        :value="error"
         type="error"
       >
-        {{this.error}}
+        {{ error }}
       </v-alert>
       <div>
-      <v-btn color="primary" @click="onClickSaveActivitySet">Download</v-btn>
-      <v-btn outline color="primary" @click="closeBuilder">Discard</v-btn>
+        <v-btn
+          color="primary"
+          @click="onClickSaveActivitySet"
+        >
+          Download
+        </v-btn>
+        <v-btn
+          outline
+          color="primary"
+          @click="closeBuilder"
+        >
+          Discard
+        </v-btn>
       </div>
     </v-layout>
     <v-dialog
       v-model="dialog"
       width="800"
     >
-      <ActivityBuilder v-on:closeModal="onCloseActivityModal"/>
-      
+      <ActivityBuilder @closeModal="onCloseActivityModal" />
     </v-dialog>
   </v-container>
 </template>
@@ -169,7 +194,7 @@ export default {
       const activityVisibility = this.getActivityVisibility();
       const schema = {
         "@context": [ "https://raw.githubusercontent.com/ReproNim/reproschema/master/contexts/generic",
-            "https://raw.githubusercontent.com/ReproNim/reproschema/master/protocols/ema-hbn/ema-hbn_context"
+            "https://raw.githubusercontent.com/YOUR-ACTIVITY-SET-CONTEXT-FILE"
         ],
         "@type": "reproschema:ActivitySet",
         "@id": `${this.name}_schema`,

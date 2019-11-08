@@ -1,19 +1,19 @@
 <template>
   <v-form
-    v-model="valid"
     ref="form"
+    v-model="valid"
   >
     <v-text-field
-      label="Maximum response length"
       v-model="maxResponseLength"
+      label="Maximum response length"
       type="number"
-      v-on:change="update"
+      @change="update"
     />
     <v-switch
       v-model="isResponseRequired"
       label="Response required"
-      v-on:change="update"
-    ></v-switch>
+      @change="update"
+    />
   </v-form>
 </template>
 

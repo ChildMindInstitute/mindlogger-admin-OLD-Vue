@@ -15,27 +15,33 @@
           v-model="name"
           label="Item Name"
           required
-        ></v-text-field>
+        />
         <v-text-field
           v-model="description"
           label="Description"
           required
-        ></v-text-field>
+        />
         <v-text-field
           v-model="question"
           label="Question"
           required
-        ></v-text-field>
+        />
         <v-select
           v-model="inputType"
           :items="inputTypes"
           label="Input Type"
-        ></v-select>
-        <RadioBuilder v-if="inputType === 'radio'" v-on:updateOptions="updateOptions" />
-        <TextBuilder v-if="inputType === 'text'" v-on:update="updateResponseOptions"/>
+        />
+        <RadioBuilder
+          v-if="inputType === 'radio'"
+          @updateOptions="updateOptions"
+        />
+        <TextBuilder
+          v-if="inputType === 'text'"
+          @update="updateResponseOptions"
+        />
       </v-form>
     </v-card-text>
-    <v-divider></v-divider>
+    <v-divider />
     <v-card-actions>
       <v-btn
         color="danger"
@@ -44,7 +50,7 @@
       >
         Discard
       </v-btn>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-btn
         color="primary"
         text
@@ -118,7 +124,7 @@ export default {
       const responseOptions = this.getResponseOptions();
       return {
         "@context": [ "https://raw.githubusercontent.com/ReproNim/reproschema/master/contexts/generic",
-            "https://raw.githubusercontent.com/ReproNim/reproschema/master/activities/EmaHBNMorning/ema_morning_context"
+            "https://raw.githubusercontent.com/YOUR-ACTIVITY-CONTEXT-FILE"
         ],
         "@type": "reproschema:Field",
         "@id": this.name,
