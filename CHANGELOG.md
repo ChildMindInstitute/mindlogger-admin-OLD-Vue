@@ -5,8 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.1.3] - 2019-11-08
+### Changed
+- :arrow_up: :ambulance: Fix broken links for "quick add" protocols
 
-## [0.1.2] - 2019.11-07
+## [0.1.2] - 2019.11-08
+### Added
+- :sparkles: Protocol builder
+
 ### Changed
 - :arrow_up: Changed `GET /user/{id}/applets` to `GET /user/applets`
 
