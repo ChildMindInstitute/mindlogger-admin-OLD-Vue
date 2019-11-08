@@ -67,7 +67,7 @@
           </p>
           <h3> Build a new activity Set </h3>
           <p>
-            Build a new activity set from scratch and download the schema files. Currently supported item types include radio and text.
+            Build a new activity set from scratch and download the schema files. Currently, this feature only supports radio items and text items.
           </p>
           <v-btn
             color="primary"
