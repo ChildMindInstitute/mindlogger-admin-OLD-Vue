@@ -9,7 +9,7 @@
       </h1>
       <p class="text-center">
         An applet is a collection of
-        <a href="https://github.com/ReproNim/schema-standardization">reusable surveys</a>
+        <a href="https://github.com/ReproNim/reproschema">reusable surveys</a>
         along with
         study-specific settings, like your users and schedule.
       </p>
