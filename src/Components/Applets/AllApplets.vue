@@ -38,9 +38,9 @@
       v-model="dialog"
       max-width="800"
     >
-      <v-card>
+      <v-card v-if="!builderOpen">
         <v-card-text>
-          <h3>Create a new applet:</h3>
+          <h3>Upload an activity set</h3>
           <v-text-field
             v-model="newProtocolURL"
             label="activity set url"
@@ -65,7 +65,20 @@
           >
             <a @click="newProtocolURL=activityInfo.url">{{ activityInfo.name }}</a>
           </p>
+          <h3> Build a new activity Set </h3>
+          <p>
+            Build a new activity set from scratch and download the schema files. Currently, this feature only supports radio items and text items.
+          </p>
+          <v-btn
+            color="primary"
+            @click="builderOpen = true"
+          >
+            Launch Builder (beta)
+          </v-btn>
         </v-card-text>
+      </v-card>
+      <v-card v-else>
+        <ActivitySetBuilder @closeBuilder="builderOpen = false" />
       </v-card>
     </v-dialog>
   </div>
@@ -74,6 +87,7 @@
 <script>
 // import _ from 'lodash';
 import Applet from './Applet';
+import ActivitySetBuilder from '../ActivitySetBuilder/ActivitySetBuilder.vue';
 import api from '../Utils/api/api.vue';
 import config from '../../config';
 
@@ -81,6 +95,7 @@ export default {
   name: 'AllApplets',
   components: {
     Applet,
+    ActivitySetBuilder
   },
   props: {
     applets: {
@@ -91,6 +106,7 @@ export default {
   data: () => ({
     sampleProtocols: config.protocols,
     dialog: false,
+    builderOpen: false,
     /**
      * placeholder for the new applet URL
      * this will likely be a github link to an activity set
