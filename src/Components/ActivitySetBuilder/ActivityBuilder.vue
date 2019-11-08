@@ -106,11 +106,6 @@
     >
       <ItemBuilder @closeItemModal="onCloseItemModal" />
     </v-dialog>
-    <v-dialog
-      v-model="editDialog"
-    >
-      <ItemBuilder @closeItemModal="onCloseItemModal" />
-    </v-dialog>
   </div>
 </template>
 
@@ -132,9 +127,7 @@ export default {
         v => !!v || 'This field is required',
       ],
       dialog: false,
-      editDialog: false,
       error: '',
-      editIndex: 0,
     }),
 
     methods: {
@@ -154,11 +147,6 @@ export default {
       },
       onNewItem(item) {
         this.items.push(item);
-      },
-      editItem(index) {
-        this.editIndex = index;
-        this.editDialog = true;
-        return index;
       },
       duplicateItem(index) {
         this.items.push(this.items[index]);

@@ -132,10 +132,6 @@ export default {
     onNewActivity(activity) {
       this.activities.push(activity)
     },
-    editActivity(index) {
-      // todo
-      return index;
-    },
     duplicateActivity(index) {
       this.activities.push(this.activities[index]);
     },
