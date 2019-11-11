@@ -87,7 +87,7 @@
 <script>
 // import _ from 'lodash';
 import Applet from './Applet';
-import ActivitySetBuilder from '../ActivitySetBuilder/ActivitySetBuilder.vue';
+import Components from 'activity-set-builder';
 import api from '../Utils/api/api.vue';
 import config from '../../config';
 
@@ -95,7 +95,7 @@ export default {
   name: 'AllApplets',
   components: {
     Applet,
-    ActivitySetBuilder
+    ...Components
   },
   props: {
     applets: {
