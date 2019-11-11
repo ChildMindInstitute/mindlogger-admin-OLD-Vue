@@ -13,7 +13,7 @@
           set of surveys (called an applet)
           to your mobile app, and invite others to take them.
 
-          For more information, check out the 
+          For more information, check out the
           <a href="https://github.com/ChildMindInstitute/mindlogger-app/wiki/Quickstart">Quickstart Guide</a>
           .
         </p>
@@ -60,8 +60,9 @@ export default {
     // default to production API host
     backendServer: '',
     backendServers: [
-      {'name': 'MindLogger', 'url': 'https://api.mindlogger.org/api/v1'},
-      {'name': 'MindLogger development', 'url': 'https://dev.mindlogger.org/api/v1'},
+      {'name': 'MindLogger (api.mindlogger.org)', 'url': 'https://api.mindlogger.org/api/v1'},
+      {'name': 'MindLogger development (dev.mindlogger.org)', 'url': 'https://dev.mindlogger.org/api/v1'},
+      {'name': 'localhost (localhost:8080)', 'url': 'http://localhost:8080/api/v1'},
       {'name': 'other', 'url': ''}
     ]
   }),
@@ -92,11 +93,11 @@ export default {
     onChange(value) {
       this.backendServer = value;
       if(this.backendServer==''){
-        var inputContainer=document.getElementById('serverInputContainer');
         this.backendServer = 'https://????/api/v1';
-        inputContainer.childNodes[0].style.display='none';
-        inputContainer.childNodes[1].style.display='block';
       }
+      var inputContainer=document.getElementById('serverInputContainer');
+      inputContainer.childNodes[0].style.display='none';
+      inputContainer.childNodes[1].style.display='block';
     },
     updateValue(event) {
       this.backendServer = event;
