@@ -80,12 +80,12 @@ export default {
     continueAction() {
       const scheduleForm = new FormData();
       if (this.currentApplet) {
-        if (this.currentApplet.schedule) {
+        if (this.currentApplet.applet.schedule) {
           // eslint-disable-next-line
           console.log('saving the schedule');
           const schedule = this.currentApplet.applet.schedule;
           scheduleForm.set('schedule', JSON.stringify(schedule || {}));
-          adminApi.setSchedule({
+          api.setSchedule({
             apiHost: this.$store.state.backend,
             id: this.currentApplet.applet._id,
             token: this.$store.state.auth.authToken.token,

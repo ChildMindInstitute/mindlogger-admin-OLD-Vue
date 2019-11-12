@@ -50,6 +50,14 @@
           >
             Continue
           </v-btn>
+          <v-btn
+            v-else
+            color="primary"
+            :disabled="!readyToContinue"
+            @click="save"
+          >
+            Save
+          </v-btn>
         </v-flex>
       </v-flex>
     </v-layout>
@@ -143,7 +151,7 @@ export default {
       {
         name: 'schedule',
         component: SetSchedule,
-      },
+      }
       // {
       //   name: 'reviewers',
       //   component: SetReviewers,
@@ -187,6 +195,9 @@ export default {
     next() {
       this.currentComponent.continueAction();
       this.e1 += 1;
+    },
+    save() {
+      this.currentComponent.continueAction();
     }
   }
 }
