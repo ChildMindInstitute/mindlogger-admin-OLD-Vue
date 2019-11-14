@@ -8,7 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "activity-set-builder": "0.0.2",
+    "activity-set-builder": "0.0.7",
     "axios": "^0.19.0",
     "babel-loader": "^7.1.5",
     "dayspan-vuetify": "0.4.0",
