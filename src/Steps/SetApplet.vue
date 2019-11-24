@@ -34,38 +34,19 @@ export default {
   },
   data: () => ({
     sampleProtocols: config.protocols,
-    /**
-     * placeholder for any error messages from axios
-     */
     error: {},
-    /**
-     * status of the get applets route
-     */
     status: 'loading',
   }),
   computed: {
-    /**
-     * a list of all the applets
-     */
     allApplets() {
       return this.$store.state.allApplets;
     },
-    /**
-     * the currently selected applet
-     */
     currentApplet() {
       return this.$store.state.currentApplet;
     },
-    /**
-     * boolean for whether or not the user is logged in
-     */
     isLoggedIn() {
       return !_.isEmpty(this.$store.state.auth);
     },
-    /**
-     * only allow the user to continue if they have selected
-     * a current applet
-     */
     readyToContinue() {
       return !_.isEmpty(this.currentApplet);
     },
@@ -77,18 +58,12 @@ export default {
       }
     },
   },
-  /**
-   * get the user's applets if they are logged in
-   */
   mounted() {
     if (this.isLoggedIn) {
       this.getApplets();
     }
   },
   methods: {
-    /**
-     * call getAppletsForUser and commit the response to the store.
-     */
     getApplets() {
       this.status = 'loading';
       api.getAppletsForUser({
@@ -104,9 +79,6 @@ export default {
         this.status = 'error';
       });
     },
-    /**
-     * nothing to do when the user hits 'continue'
-     */
     continueAction() {
 
     },

@@ -82,24 +82,7 @@ export default {
       return this.applet == this.$store.state.currentApplet;
     }
   },
-  watch: {
-    // scheduleType() {
-    //   if (this.currentApplet) {
-    //     // this.$store.commit('setSchedule', { scheduleType: this.scheduleType });
-    //   }
-    // }
-  },
-  created() {
-
-  },
   methods: {
-    // select() {
-    //   // this.$store.commit('setCurrentApplet', this.applet);
-    //   if (!this.applet.schedule) {
-    //     // this.applet.schedule = { scheduleType: 'none' };
-    //     // this.$store.commit('setSchedule', this.applet.schedule);
-    //   }
-    // }
     refreshApplet() {
       this.$emit('refreshApplet', this.applet);
     },
@@ -107,10 +90,11 @@ export default {
       this.$emit('deleteApplet', this.applet);
     },
     setSelectedApplet() {
-      // eslint-disable-next-line
       console.log(this.applet);
       this.$store.commit('setCurrentApplet', this.applet);
-    }
+      this.$emit('selectApplet', null);
+    },
+    
   }
 }
 </script>

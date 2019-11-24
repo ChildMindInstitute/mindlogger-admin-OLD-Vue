@@ -41,41 +41,29 @@ export default {
     PendingUserTable,
   },
   data: () => ({
-    status: 'loading',
+    status: 'loading'
   }),
   computed: {
-    readyToContinue() {
-      return true;
-    },
-    currentApplet( ) {
-      return this.$store.state.currentApplet;
+    isUsersLoaded() {
+      return !_.isEmpty(this.$store.state.users);
     },
     activeUserList() {
-      return this.$store.state.currentApplet.users.active;
+      return this.$store.state.users.active;
     },
     pendingUserList() {
-      return this.$store.state.currentApplet.users.pending;
-    },
-    currentAppletReady() {
-      return !_.isEmpty(this.currentApplet);
+      return this.$store.state.users.pending;
     },
   },
-  mounted() {
-    this.getAppletUsers();
+  watch: {
+    isUsersLoaded() {
+      if (this.isUsersLoaded) {
+        this.status = 'ready';
+      } else {
+        this.status = 'loading';
+      }
+    }
   },
   methods: {
-    getAppletUsers() {
-      console.log('getting applet users');
-      api.getAppletUsers({
-        apiHost: this.$store.state.backend,
-        token: this.$store.state.auth.authToken.token,
-        appletId: this.currentApplet.applet._id.split('applet/')[1],
-      }).then((resp) => {
-        console.log('got applet users', resp.data);
-        this.$store.commit('setUsers', resp.data);
-        this.status = 'ready'
-      });
-    },
     continueAction() {
       return true;
     },

@@ -8,10 +8,10 @@ import _ from 'lodash';
 const state = {
   backend: 'https://api.mindlogger.org/api/v1',
   allApplets: [],
-  currentApplet: {
-  },
+  currentApplet: {},
   auth: {},
   continue: {},
+  users: {},
 };
 
 const mutations = {
@@ -55,15 +55,8 @@ const mutations = {
     // update this in the copy too.
     state.currentApplet = {...state.currentApplet, groups };
   },
-  setUsers(state, users) {
-    // TODO: this sucks.
-    const idx = _.findIndex(state.allApplets,
-      a => a.applet['skos:prefLabel'] == state.currentApplet.applet['skos:prefLabel']);
-    if (idx > -1) {
-      state.allApplets[idx].users = users;
-    }
-    // update this in the copy too.
-    state.currentApplet = {...state.currentApplet, users };
+  setUsers(state, newUsers) {
+    state.users = newUsers;
   },
   setReviewers(state, reviewers) {
     state.reviewers = reviewers;
