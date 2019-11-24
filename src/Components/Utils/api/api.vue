@@ -55,7 +55,7 @@ const getGroupMemberships = ({ apiHost, token, appletId }) => axios({
   },
 });
 
-const getGroupTable = ({ apiHost, token, appletId }) => axios({
+const getAppletUsers = ({ apiHost, token, appletId }) => axios({
   method: 'GET',
   url: `${apiHost}/applet/${appletId}/users`,
   headers: {
@@ -115,7 +115,7 @@ export default {
   addNewApplet,
   getGroupMemberships,
   deleteUserFromRole,
-  getGroupTable,
+  getAppletUsers,
   deleteApplet,
   refreshApplet,
   updateRegistration,
