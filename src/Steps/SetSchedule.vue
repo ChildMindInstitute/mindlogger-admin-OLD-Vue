@@ -79,8 +79,7 @@ export default {
      */
     continueAction() {
       const scheduleForm = new FormData();
-      if (this.currentApplet) {
-        if (this.currentApplet.applet.schedule) {
+      if (this.currentApplet && this.currentApplet.applet && this.currentApplet.applet.schedule) {
           // eslint-disable-next-line
           console.log('saving the schedule');
           const schedule = this.currentApplet.applet.schedule;
@@ -93,9 +92,6 @@ export default {
           }).then(() => {
           });
         }
-
-      }
-
     },
   }
 }
