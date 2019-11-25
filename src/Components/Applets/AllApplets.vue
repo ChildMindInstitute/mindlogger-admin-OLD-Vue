@@ -86,7 +86,6 @@
 </template>
 
 <script>
-// import _ from 'lodash';
 import Applet from './Applet';
 import Components from 'activity-set-builder';
 import api from '../Utils/api/api.vue';
@@ -155,13 +154,11 @@ export default {
     },
     getAppletUsers() {
       this.$store.commit('setUsers', []);
-      console.log('getting applet users');
       api.getAppletUsers({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         appletId: this.currentApplet.applet._id.split('applet/')[1],
       }).then((resp) => {
-        console.log('got applet users', resp.data);
         this.$store.commit('setUsers', resp.data);
       });
     },

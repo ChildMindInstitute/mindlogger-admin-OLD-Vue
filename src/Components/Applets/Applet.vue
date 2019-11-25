@@ -90,7 +90,6 @@ export default {
       this.$emit('deleteApplet', this.applet);
     },
     setSelectedApplet() {
-      console.log(this.applet);
       this.$store.commit('setCurrentApplet', this.applet);
       this.$emit('selectApplet', null);
     },
