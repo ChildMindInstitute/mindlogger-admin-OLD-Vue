@@ -11,7 +11,7 @@
       >
         <td>{{ props.item._id }}</td>
         <td>
-          {{ props.item.displayName }}
+          {{ `https://web.mindlogger.org/#/invitation/${props.item._id}` }}
         </td>
       </template>
     </v-data-table>
@@ -23,7 +23,7 @@
 <script>
 
 export default {
-  name: 'PendingUserTable',
+  name: 'PendingInviteTable',
   props: {
     users: {
       type: Array,
@@ -35,13 +35,13 @@ export default {
   data: () => ({
     headers: [
       {
-        text: 'User ID',
+        text: 'ID',
         align: 'left',
         sortable: false,
         value: '_id'
       },
-      { text: 'Display Name', value: 'displayName' },
+      { text: 'Invitation Link', value: 'invitationLink' },
     ],
-  })
+  }),
 }
 </script>

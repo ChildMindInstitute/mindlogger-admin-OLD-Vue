@@ -35,7 +35,7 @@ export default {
   data: () => ({
     headers: [
       {
-        text: 'User ID',
+        text: 'ID',
         align: 'left',
         sortable: false,
         value: '_id'
