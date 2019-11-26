@@ -64,6 +64,9 @@ export default {
     currentApplet() {
       return this.$store.state.currentApplet;
     },
+    readyToContinue() {	
+      return true;
+    },
   },
   watch: {
     isUsersLoaded() {
