@@ -20,7 +20,7 @@
         key="componentKey"
         :users="pendingInviteList"
       />
-      <create-invitation
+      <create-invitation-button
         @createInvitation="createInvitation"
       />
     </div>
@@ -37,15 +37,15 @@
 import _ from 'lodash';
 import ActiveUserTable from '../Components/Users/ActiveUserTable.vue';
 import PendingInviteTable from '../Components/Users/PendingInviteTable.vue';
-import CreateInvitation from '../Components/Users/CreateInvitation.vue'
+import CreateInvitationButton from '../Components/Users/CreateInvitationButton.vue'
 import api from '../Components/Utils/api/api.vue';
 
 export default {
-  name: 'Users',
+  name: 'SetUsers',
   components: {
     ActiveUserTable,
     PendingInviteTable,
-    CreateInvitation,
+    CreateInvitationButton,
   },
   data: () => ({
     status: 'loading',

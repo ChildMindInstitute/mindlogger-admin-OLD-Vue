@@ -1,18 +1,15 @@
 <template>
   <v-btn
-    @click="createInvitation"
     color="primary"
+    @click="createInvitation"
   >
     Create new invitation
   </v-btn>
 </template>
-<style>
 
-</style>
 <script>
-
 export default {
-  name: 'CreateInvitation',
+  name: 'CreateInvitationButton',
   methods: {
     createInvitation() {
       this.$emit('createInvitation', null);
