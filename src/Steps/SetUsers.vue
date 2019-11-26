@@ -88,13 +88,23 @@ export default {
         token: this.$store.state.auth.authToken.token,
         appletId: this.currentApplet.applet._id.split('applet/')[1],
       }).then((resp) => {
-        this.updateTables();
-        this.status = 'ready';
+        this.getAppletUsers();
       }).catch((e) => {
         this.error = e;
         this.status = 'error';
       });
-    }
+    },
+    getAppletUsers() {
+      api.getAppletUsers({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        appletId: this.currentApplet.applet._id.split('applet/')[1],
+      }).then((resp) => {
+        this.$store.commit('setUsers', resp.data);
+        this.updateTables();
+        this.status = 'ready';
+      });
+    },
   }
 }
 </script>
