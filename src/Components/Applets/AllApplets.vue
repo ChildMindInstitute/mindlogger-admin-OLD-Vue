@@ -21,6 +21,7 @@
         :applet="applet"
         @deleteApplet="deleteApplet"
         @refreshApplet="refreshApplet"
+        @selectApplet="getAppletUsers"
       />
     </v-layout>
     <v-btn
@@ -85,7 +86,6 @@
 </template>
 
 <script>
-// import _ from 'lodash';
 import Applet from './Applet';
 import Components from 'activity-set-builder';
 import api from '../Utils/api/api.vue';
@@ -107,15 +107,12 @@ export default {
     sampleProtocols: config.protocols,
     dialog: false,
     builderOpen: false,
-    /**
-     * placeholder for the new applet URL
-     * this will likely be a github link to an activity set
-     * from the ReproNim
-     */
     newProtocolURL: '',
   }),
   computed: {
-
+    currentApplet() {
+      return this.$store.state.currentApplet;
+    },
   },
   watch: {
     currentApplet() {
@@ -123,16 +120,10 @@ export default {
     },
   },
   methods: {
-    /**
-     * closes modal and adds applet
-     */
     onClickAdd(){
       this.dialog = false;
       this.addNewApplet();
     },
-    /**
-     * api call to add a new applet
-     */
     addNewApplet() {
       api.addNewApplet({
         protocolUrl: this.newProtocolURL,
@@ -143,32 +134,32 @@ export default {
         this.$emit('refreshAppletList');
       });
     },
-    /**
-     * deactivates an applet
-     */
     deleteApplet(applet) {
       api.deleteApplet({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         appletId: applet.applet._id.split('applet/')[1],
       }).then((resp) => {
-        // eslint-disable-next-line
-        console.log(resp);
         this.$emit('refreshAppletList');
       });
     },
-    /**
-     * refresh an applet's activity set
-     */
     refreshApplet(applet) {
       api.refreshApplet({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         appletId: applet.applet._id.split('applet/')[1],
       }).then((resp) => {
-        // eslint-disable-next-line
-        console.log(resp);
         this.$emit('refreshAppletList');
+      });
+    },
+    getAppletUsers() {
+      this.$store.commit('setUsers', []);
+      api.getAppletUsers({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        appletId: this.currentApplet.applet._id.split('applet/')[1],
+      }).then((resp) => {
+        this.$store.commit('setUsers', resp.data);
       });
     },
   }

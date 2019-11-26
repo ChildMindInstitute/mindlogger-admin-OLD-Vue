@@ -55,23 +55,12 @@ const getGroupMemberships = ({ apiHost, token, appletId }) => axios({
   },
 });
 
-const getGroupTable = ({ apiHost, token, appletId }) => axios({
+const getAppletUsers = ({ apiHost, token, appletId }) => axios({
   method: 'GET',
   url: `${apiHost}/applet/${appletId}/users`,
   headers: {
     'Girder-Token': token,
   },
-});
-
-const inviteToRoleByEmail = ({ apiHost, token, groupId, email }) => axios({
-  method: 'POST',
-  url: `${apiHost}/group/${groupId}/invitation`,
-  headers: {
-    'Girder-Token': token,
-  },
-  params: {
-    email,
-  }
 });
 
 const deleteUserFromRole = ({ apiHost, token, groupId, userId }) => {
@@ -111,18 +100,26 @@ const getAppletsForUser = ({ apiHost, token, user, role = null }) => axios({
   },
 });
 
+const getAppletInvitation = ({ apiHost, token, appletId }) => axios({
+  method: 'POST',
+  url: `${apiHost}/applet/${appletId}/invite`,
+  headers: {
+    'Girder-Token': token,
+  },
+});
+
 export default {
   signIn,
   signUp,
   setSchedule,
   addNewApplet,
   getGroupMemberships,
-  inviteToRoleByEmail,
   deleteUserFromRole,
-  getGroupTable,
+  getAppletUsers,
   deleteApplet,
   refreshApplet,
   updateRegistration,
   getAppletsForUser,
+  getAppletInvitation
 }
 </script>
