@@ -6,6 +6,7 @@
       :rowData="users"
       :modules="modules"
       :domLayout="domLayout"
+      @first-data-rendered="onFirstDataRendered"
     />
   </v-container>
 </template>
@@ -33,18 +34,25 @@ export default {
           headerName: 'ID',
           field: '_id',
           sortable: true,
-          filter: true
+          filter: true,
+          resizable: true,
         },
         {
           headerName: 'Display Name',
           field: 'displayName',
           sortable: true,
-          filter: true
+          filter: true,
+          resizable: true,
         },
       ],
       modules: AllCommunityModules,
       domLayout: 'autoHeight',
     };
+  },
+  methods: {
+    onFirstDataRendered(params) {
+      params.api.sizeColumnsToFit();
+    },
   },
 }
 </script>

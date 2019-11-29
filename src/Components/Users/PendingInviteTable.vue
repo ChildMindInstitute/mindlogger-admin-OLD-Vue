@@ -3,9 +3,10 @@
     <ag-grid-vue
       class="ag-theme-balham"
       :columnDefs="columnDefs"
-      :rowData="users"
+      :rowData="rowData"
       :modules="modules"
       :domLayout="domLayout"
+      @first-data-rendered="onFirstDataRendered"
     />
   </v-container>
 </template>
@@ -31,23 +32,49 @@ export default {
       columnDefs: [
         {
           headerName: 'ID',
-          field: '_id',
+          field: 'id',
           sortable: true,
-          filter: true
+          filter: true,
+          resizable: true,
         },
         {
           headerName: 'Invited By',
-          field: 'invitedBy.displayName',
+          field: 'invitedByName',
           sortable: true,
-          filter: true
+          filter: true,
+          resizable: true,
+        },
+        {
+          headerName: 'Invitation Link',
+          field: 'invitationLink',
+          sortable: true,
+          filter: true,
+          resizable: true,
         },
       ],
       modules: AllCommunityModules,
       domLayout: 'autoHeight',
     };
   },
-  mounted() {
-    console.log(this.users);
-  }
+  computed: {
+    rowData: function() {
+      console.log(this.users);
+      const dat = [];
+      this.users.forEach(invitation => {
+        dat.push({
+          'id': invitation._id,
+          'invitedByName': invitation.invitedBy.displayName,
+          'invitationLink': `web.minglogger.org/#/invitation/${invitation._id}`,
+        });
+      });
+      console.log(dat);
+      return dat;
+    }
+  },
+  methods: {
+    onFirstDataRendered(params) {
+      params.api.sizeColumnsToFit();
+    },
+  },
 }
 </script>
