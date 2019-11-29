@@ -1,11 +1,11 @@
 <template>
   <v-container>
     <ag-grid-vue
-      style="width: 100%; height: 500px;"
       class="ag-theme-balham"
       :columnDefs="columnDefs"
       :rowData="users"
       :modules="modules"
+      :domLayout="domLayout"
     />
   </v-container>
 </template>
