@@ -1,24 +1,23 @@
 <template>
   <v-container>
-    <v-data-table
-      :headers="headers"
-      :items="users"
-      class="elevation-1"
-    >
-      <template
-        slot="items"
-        slot-scope="props"
-      >
-        <td>{{ props.item._id }}</td>
-        <td>{{ `https://web.mindlogger.org/#/invitation/${props.item._id}` }}</td>
-      </template>
-    </v-data-table>
+    <ag-grid-vue
+      class="ag-theme-balham"
+      :columnDefs="columnDefs"
+      :rowData="users"
+      :modules="modules"
+      :domLayout="domLayout"
+    />
   </v-container>
 </template>
 
 <script>
+import {AgGridVue} from "@ag-grid-community/vue";
+import {AllCommunityModules} from '@ag-grid-community/all-modules';
 export default {
   name: 'PendingInviteTable',
+  components: {
+    AgGridVue
+  },
   props: {
     users: {
       type: Array,
@@ -27,19 +26,28 @@ export default {
       },
     },
   },
-  data: () => ({
-    headers: [
-      {
-        text: 'ID',
-        align: 'left',
-        sortable: false,
-        value: '_id',
-      },
-      {
-        text: 'Invitation Link',
-        value: 'invitationLink',
-      },
-    ],
-  }),
+  data() {
+    return {
+      columnDefs: [
+        {
+          headerName: 'ID',
+          field: '_id',
+          sortable: true,
+          filter: true
+        },
+        {
+          headerName: 'Invited By',
+          field: 'invitedBy.displayName',
+          sortable: true,
+          filter: true
+        },
+      ],
+      modules: AllCommunityModules,
+      domLayout: 'autoHeight',
+    };
+  },
+  mounted() {
+    console.log(this.users);
+  }
 }
 </script>

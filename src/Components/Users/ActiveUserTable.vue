@@ -1,29 +1,23 @@
 <template>
   <v-container>
-    <v-data-table
-      :headers="headers"
-      :items="users"
-      class="elevation-1"
-    >
-      <template
-        slot="items"
-        slot-scope="props"
-      >
-        <td>{{ props.item._id }}</td>
-        <td>
-          {{ props.item.displayName }}
-        </td>
-      </template>
-    </v-data-table>
+    <ag-grid-vue
+      style="width: 100%; height: 500px;"
+      class="ag-theme-balham"
+      :columnDefs="columnDefs"
+      :rowData="users"
+      :modules="modules"
+    />
   </v-container>
 </template>
-<style>
 
-</style>
 <script>
-
+import {AgGridVue} from "@ag-grid-community/vue";
+import {AllCommunityModules} from '@ag-grid-community/all-modules';
 export default {
   name: 'ActiveUserTable',
+  components: {
+    AgGridVue
+  },
   props: {
     users: {
       type: Array,
@@ -32,16 +26,25 @@ export default {
       },
     },
   },
-  data: () => ({
-    headers: [
-      {
-        text: 'ID',
-        align: 'left',
-        sortable: false,
-        value: '_id'
-      },
-      { text: 'Display Name', value: 'displayName' },
-    ],
-  })
+  data() {
+    return {
+      columnDefs: [
+        {
+          headerName: 'ID',
+          field: '_id',
+          sortable: true,
+          filter: true
+        },
+        {
+          headerName: 'Display Name',
+          field: 'displayName',
+          sortable: true,
+          filter: true
+        },
+      ],
+      modules: AllCommunityModules,
+      domLayout: 'autoHeight',
+    };
+  },
 }
 </script>
