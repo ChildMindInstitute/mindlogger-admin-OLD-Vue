@@ -14,20 +14,22 @@
       />
 
       <v-text-field
-        v-model="invitationBody.profile.displayName"
+        v-if="!useDefaultProfile"
+        v-model="invitationOptions.profile.displayName"
         label="displayName"
         required
       />
 
       <v-text-field
-        v-model="invitationBody.profile.email"
+        v-if="!useDefaultProfile"
+        v-model="invitationOptions.profile.email"
         :rules="emailRules"
         label="email"
         required
       />
 
       <v-select
-        v-model="invitationBody.role"
+        v-model="invitationOptions.role"
         :items="roles"
         :rules="[v => !!v || 'Item is required']"
         label="Role"
@@ -60,8 +62,8 @@ export default {
       emailRules: [ v => /.+@.+/.test(v) || 'Invalid Email address' ],
       useDefaultProfile: true,
       roles: ['user', 'coordinator', 'editor', 'manager', 'reviewer'],
-      invitationBody: {
-        role: '',
+      invitationOptions: {
+        role: 'user',
         profile: {
           displayName: '',
           email: '',
@@ -71,11 +73,21 @@ export default {
   },
   methods: {
     submit() {
-      this.$emit('createInvitation', this.invitationBody);
+      const invitationOptions = {};
+      if (this.invitationOptions.role) {
+        invitationOptions.role = this.invitationOptions.role;
+      }
+      if (this.invitationOptions.profile.email && this.invitationOptions.profile.email.trim() !== '') {
+        invitationOptions.profile.email = this.invitationOptions.profile.email;
+      }
+      if (this.invitationOptions.profile.displayName && this.invitationOptions.profile.displayName.trim() !== '') {
+        invitationOptions.profile.displayName = this.invitationOptions.profile.displayName;
+      }
+      this.$emit('createInvitation', invitationOptions);
     },
     reset() {
       this.useDefaultProfile = true;
-      this.this.invitationBody = {
+      this.this.invitationOptions = {
         role: 'user',
         profile: {
           displayName: '',

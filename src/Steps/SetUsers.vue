@@ -84,12 +84,13 @@ export default {
     updateTables() {
       this.componentKey += 1;
     },
-    createInvitation() {
+    createInvitation(invitationOptions) {
       this.status = 'loading';
       api.getAppletInvitation({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         appletId: this.currentApplet.applet._id.split('applet/')[1],
+        options: invitationOptions,
       }).then((resp) => {
         this.getAppletUsers();
       }).catch((e) => {
