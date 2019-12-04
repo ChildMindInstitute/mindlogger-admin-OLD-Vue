@@ -8,23 +8,26 @@
       v-model="valid"
       lazy-validation
     >
+      <v-checkbox
+        v-model="useDefaultProfile"
+        label="Let users pick their own displayName and email"
+      />
+
       <v-text-field
-        v-model="name"
-        :counter="10"
-        :rules="nameRules"
-        label="Name"
+        v-model="invitationBody.profile.displayName"
+        label="displayName"
         required
       />
 
       <v-text-field
-        v-model="email"
+        v-model="invitationBody.profile.email"
         :rules="emailRules"
-        label="E-mail"
+        label="email"
         required
       />
 
       <v-select
-        v-model="select"
+        v-model="invitationBody.role"
         :items="roles"
         :rules="[v => !!v || 'Item is required']"
         label="Role"
@@ -34,7 +37,7 @@
       <v-btn
         :disabled="!valid"
         color="success"
-        @click="validate"
+        @click="submit"
       >
         Submit
       </v-btn>
@@ -54,17 +57,31 @@ export default {
   name: 'CreateInvitationForm',
   data() {
     return {
+      emailRules: [ v => /.+@.+/.test(v) || 'Invalid Email address' ],
+      useDefaultProfile: true,
       roles: ['user', 'coordinator', 'editor', 'manager', 'reviewer'],
       invitationBody: {
         role: '',
-        idCode: '',
-        profile: {},
+        profile: {
+          displayName: '',
+          email: '',
+        },
       }
     };
   },
   methods: {
-    createInvitation() {
+    submit() {
       this.$emit('createInvitation', this.invitationBody);
+    },
+    reset() {
+      this.useDefaultProfile = true;
+      this.this.invitationBody = {
+        role: 'user',
+        profile: {
+          displayName: '',
+          email: '',
+        }
+      }
     }
   }
 }
