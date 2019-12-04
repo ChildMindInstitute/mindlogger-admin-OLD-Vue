@@ -85,6 +85,7 @@ export default {
       this.componentKey += 1;
     },
     createInvitation(invitationOptions) {
+      console.log(invitationOptions);
       this.status = 'loading';
       api.getAppletInvitation({
         apiHost: this.$store.state.backend,

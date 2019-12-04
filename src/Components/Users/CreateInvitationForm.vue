@@ -15,21 +15,21 @@
 
       <v-text-field
         v-if="!useDefaultProfile"
-        v-model="invitationOptions.profile.displayName"
+        v-model="params.profile.displayName"
         label="displayName"
         required
       />
 
       <v-text-field
         v-if="!useDefaultProfile"
-        v-model="invitationOptions.profile.email"
+        v-model="params.profile.email"
         :rules="emailRules"
         label="email"
         required
       />
 
       <v-select
-        v-model="invitationOptions.role"
+        v-model="params.role"
         :items="roles"
         :rules="[v => !!v || 'Item is required']"
         label="Role"
@@ -62,7 +62,7 @@ export default {
       emailRules: [ v => /.+@.+/.test(v) || 'Invalid Email address' ],
       useDefaultProfile: true,
       roles: ['user', 'coordinator', 'editor', 'manager', 'reviewer'],
-      invitationOptions: {
+      params: {
         role: 'user',
         profile: {
           displayName: '',
@@ -74,20 +74,26 @@ export default {
   methods: {
     submit() {
       const invitationOptions = {};
-      if (this.invitationOptions.role) {
-        invitationOptions.role = this.invitationOptions.role;
+      if (this.params.role) {
+        invitationOptions.role = this.params.role;
       }
-      if (this.invitationOptions.profile.email && this.invitationOptions.profile.email.trim() !== '') {
-        invitationOptions.profile.email = this.invitationOptions.profile.email;
-      }
-      if (this.invitationOptions.profile.displayName && this.invitationOptions.profile.displayName.trim() !== '') {
-        invitationOptions.profile.displayName = this.invitationOptions.profile.displayName;
+      if (!this.useDefaultProfile) {
+        if (this.params.profile.email && this.params.profile.email.trim() !== '') {
+          invitationOptions.profile = {};
+          invitationOptions.profile.email = this.params.profile.email;
+        }
+        if (this.params.profile.displayName && this.params.profile.displayName.trim() !== '') {
+          if (!invitationOptions.profile) {
+            invitationOptions.profile = {};
+          }
+          invitationOptions.profile.displayName = this.params.profile.displayName;
+        }
       }
       this.$emit('createInvitation', invitationOptions);
     },
     reset() {
       this.useDefaultProfile = true;
-      this.this.invitationOptions = {
+      this.params = {
         role: 'user',
         profile: {
           displayName: '',
