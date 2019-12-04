@@ -38,7 +38,7 @@
 
       <v-btn
         :disabled="!valid"
-        color="success"
+        color="primary"
         @click="submit"
       >
         Submit
