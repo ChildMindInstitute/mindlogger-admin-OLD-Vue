@@ -20,7 +20,7 @@
         key="componentKey"
         :users="pendingInviteList"
       />
-      <create-invitation-button
+      <create-invitation-form
         @createInvitation="createInvitation"
       />
     </div>
@@ -37,7 +37,7 @@
 import _ from 'lodash';
 import ActiveUserTable from '../Components/Users/ActiveUserTable.vue';
 import PendingInviteTable from '../Components/Users/PendingInviteTable.vue';
-import CreateInvitationButton from '../Components/Users/CreateInvitationButton.vue'
+import CreateInvitationForm from '../Components/Users/CreateInvitationForm.vue'
 import api from '../Components/Utils/api/api.vue';
 
 export default {
@@ -45,7 +45,7 @@ export default {
   components: {
     ActiveUserTable,
     PendingInviteTable,
-    CreateInvitationButton,
+    CreateInvitationForm,
   },
   data: () => ({
     status: 'loading',
@@ -84,12 +84,13 @@ export default {
     updateTables() {
       this.componentKey += 1;
     },
-    createInvitation() {
+    createInvitation(invitationOptions) {
       this.status = 'loading';
       api.getAppletInvitation({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         appletId: this.currentApplet.applet._id.split('applet/')[1],
+        options: invitationOptions,
       }).then((resp) => {
         this.getAppletUsers();
       }).catch((e) => {
