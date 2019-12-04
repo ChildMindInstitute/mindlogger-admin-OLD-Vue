@@ -100,12 +100,13 @@ const getAppletsForUser = ({ apiHost, token, user, role = null }) => axios({
   },
 });
 
-const getAppletInvitation = ({ apiHost, token, appletId }) => axios({
+const getAppletInvitation = ({ apiHost, token, appletId, options }) => axios({
   method: 'POST',
   url: `${apiHost}/applet/${appletId}/invite`,
   headers: {
     'Girder-Token': token,
   },
+  params : options,
 });
 
 export default {
