@@ -9,7 +9,7 @@ export default new Router({
     {
       path: '/',
       name: 'Stepper',
-      component: Stepper
-    }
+      component: Stepper,
+    },
   ]
 })

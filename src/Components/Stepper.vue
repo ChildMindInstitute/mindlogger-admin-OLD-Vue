@@ -81,27 +81,11 @@ import SetSchedule from '../Steps/SetSchedule';
 
 export default {
 
-  name: 'App',
-
-  store,
-
-  components: {
-
-  },
+  name: 'Stepper',
 
   data: () => ({
-    /**
-     * e1 is the variable for our step counter
-     */
     e1: 1,
-    /**
-     * flag for when the component is mounted.
-     */
     ready: false,
-    /**
-     * the set of components to render in order
-     * for the stepper component.
-     */
     steps: [
       {
         name: 'server',
@@ -115,11 +99,6 @@ export default {
         name: 'applet',
         component: SetApplet,
       },
-
-      // {
-      //   name: 'groups',
-      //   component: SetGroups
-      // },
       {
         name: 'users',
         component: SetUsers,
@@ -127,27 +106,14 @@ export default {
       {
         name: 'schedule',
         component: SetSchedule,
-      }
-      // {
-      //   name: 'reviewers',
-      //   component: SetReviewers,
-      // }
+      },
     ],
   }),
 
   computed: {
-    /**
-     * Select the component to display based on the step
-     * value of the stepper component
-     */
     currentComponent() {
       return this.steps[this.e1 - 1].name, this.$refs[this.steps[this.e1 - 1].name][0];
     },
-    /**
-     * return the current component's `readyToContinue` function.
-     * each component has its own logic for determining whether
-     * the user can move out of that screen.
-     */
     readyToContinue() {
       if (this.ready) {
         return this.currentComponent.readyToContinue;
@@ -155,26 +121,17 @@ export default {
       return true;
     },
   },
-  /**
-   * set a flag when the componentis mounted
-   */
-  mounted()
-  {
+  mounted() {
     this.ready = true;
   },
-
   methods: {
-    /**
-     * method to increment the step counter.
-     * it runs the component's continueAction before incrementing.
-     */
     next() {
       this.currentComponent.continueAction();
       this.e1 += 1;
     },
     save() {
       this.currentComponent.continueAction();
-    }
-  }
+    },
+  },
 }
 </script>
