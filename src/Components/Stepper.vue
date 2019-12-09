@@ -58,9 +58,11 @@
           </v-btn>
           <v-btn
             v-else
-            color="primary"
-            :disabled="!readyToContinue"
             @click="save"
+            color="primary"
+            fixed
+            bottom
+            right
           >
             Save
           </v-btn>
