@@ -186,15 +186,10 @@ export default {
       const storeState = this.$store.state;
       let oldStateEvents = [];
       let newStateEvents = [];
-      // let json = JSON.stringify(state);
-      if (state && storeState && this.$store.state.currentApplet) {
+      if (state && storeState) {
         try {
           oldStateEvents = this.$store.state.currentApplet.applet.schedule.events;
-        } catch (error) {
-          // eslint-disable-next-line
-          console.log('state does not have anything');
-        }
-
+        } catch { } 
         newStateEvents = state.events;
       }
 
@@ -212,8 +207,7 @@ export default {
     {
       let state = {};
 
-      try
-      {
+      try {
         let savedState = null;
         if (!_.isEmpty(this.currentApplet)) {
           savedState = this.$store.state.currentApplet.applet.schedule || null;
@@ -225,8 +219,7 @@ export default {
           state.preferToday = false;
         }
       }
-      catch (e)
-      {
+      catch {
         // eslint-disable-next-line
         console.log( e );
       }

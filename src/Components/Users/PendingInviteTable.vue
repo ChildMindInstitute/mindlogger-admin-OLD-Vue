@@ -58,7 +58,6 @@ export default {
   },
   computed: {
     rowData: function() {
-      console.log(this.users);
       const dat = [];
       this.users.forEach(invitation => {
         dat.push({
@@ -67,7 +66,6 @@ export default {
           'invitationLink': `web.minglogger.org/#/invitation/${invitation._id}`,
         });
       });
-      console.log(dat);
       return dat;
     }
   },

@@ -782,8 +782,6 @@ export default {
 
     triggerChange()
     {
-      // eslint-disable-next-line
-      console.log('triggering change', this.calendar);
       this.$emit('change', {
         calendar: this.calendar
       });
