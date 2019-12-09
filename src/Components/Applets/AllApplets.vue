@@ -77,7 +77,7 @@
             <v-btn
               color="primary"
             >
-              Launch Builder (beta)
+              Launch Builder
             </v-btn>
           </router-link>
         </v-card-text>
