@@ -39,7 +39,7 @@
       v-model="dialog"
       max-width="800"
     >
-      <v-card v-if="!builderOpen">
+      <v-card>
         <v-card-text>
           <h3>Upload an activity set</h3>
           <v-text-field
@@ -70,16 +70,17 @@
           <p>
             Build a new activity set from scratch and download the schema files. Currently, this feature only supports radio items and text items.
           </p>
-          <v-btn
-            color="primary"
-            @click="builderOpen = true"
+          <router-link
+            to="/build"
+            target="_blank"
           >
-            Launch Builder (beta)
-          </v-btn>
+            <v-btn
+              color="primary"
+            >
+              Launch Builder
+            </v-btn>
+          </router-link>
         </v-card-text>
-      </v-card>
-      <v-card v-else>
-        <ActivitySetBuilder @closeBuilder="builderOpen = false" />
       </v-card>
     </v-dialog>
   </div>
@@ -87,7 +88,6 @@
 
 <script>
 import Applet from './Applet';
-import Components from 'activity-set-builder';
 import api from '../Utils/api/api.vue';
 import config from '../../config';
 
@@ -95,7 +95,6 @@ export default {
   name: 'AllApplets',
   components: {
     Applet,
-    ...Components
   },
   props: {
     applets: {
@@ -106,7 +105,6 @@ export default {
   data: () => ({
     sampleProtocols: config.protocols,
     dialog: false,
-    builderOpen: false,
     newProtocolURL: '',
   }),
   computed: {
