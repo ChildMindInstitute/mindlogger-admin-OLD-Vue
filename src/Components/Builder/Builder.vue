@@ -18,39 +18,52 @@
       clipped
     >
       <v-list>
-        <v-list-tile>
+        <v-list-tile
+          @click="toggleAbout"
+        >
           <v-list-tile-action>
-            <v-icon>delete</v-icon>
+            <v-icon>info</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title>Reset Builder</v-list-tile-title>
+            <v-list-tile-title>About</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
 
     <v-content>
-      <ActivitySetBuilder />
+      <About
+        v-if="aboutOpen"
+      />
+      <ActivitySetBuilder 
+        v-else
+      />
     </v-content>
   </div>
 </template>
 
 <script>
 import Components from 'activity-set-builder';
+import About from './AboutBuilder';
 
 export default {
   name: 'Builder',
   components: {
-    ...Components
+    ...Components,
+    About
   },
   data () {
     return {
       drawer: false,
+      aboutOpen: false,
     };
   },
   methods: {
     toggleDrawer() {
       this.drawer = !this.drawer;
+    },
+    toggleAbout() {
+      this.aboutOpen = !this.aboutOpen;
     }
   }
 }
