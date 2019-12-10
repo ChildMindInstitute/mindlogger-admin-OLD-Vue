@@ -63,7 +63,7 @@ export default {
         dat.push({
           'id': invitation._id,
           'invitedByName': invitation.invitedBy.displayName,
-          'invitationLink': `web.minglogger.org/#/invitation/${invitation._id}`,
+          'invitationLink': `web.mindlogger.org/#/invitation/${invitation._id}`,
         });
       });
       return dat;
