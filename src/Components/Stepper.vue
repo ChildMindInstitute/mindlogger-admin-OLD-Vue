@@ -36,10 +36,10 @@
       <v-btn
         v-if="e1 > 1"
         flat
-        @click="e1 -= 1"
         fixed
         bottom
         left
+        @click="e1 -= 1"
       >
         Prev
       </v-btn>
@@ -48,21 +48,21 @@
           <v-btn
             v-if="e1 < steps.length"
             :disabled="!readyToContinue"
-            @click="next"
             color="primary"
             fixed
             bottom
             right
+            @click="next"
           >
             Continue
           </v-btn>
           <v-btn
             v-else
-            @click="save"
             color="primary"
             fixed
             bottom
             right
+            @click="save"
           >
             Save
           </v-btn>
