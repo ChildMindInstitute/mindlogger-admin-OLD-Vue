@@ -23,6 +23,9 @@
       <create-invitation-form
         @createInvitation="createInvitation"
       />
+      <div
+        style="height: 58px;"
+      />
     </div>
   </div>
 </template>
