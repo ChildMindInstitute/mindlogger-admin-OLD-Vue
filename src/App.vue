@@ -37,4 +37,12 @@ body, html, #app, #dayspan {
 .application--wrap {
   background-color: white;
 }
+
+div.ag-root .ag-cell-focus {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
 </style>
