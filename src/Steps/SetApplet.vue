@@ -19,6 +19,7 @@
     >
       <v-card>
         <v-card-title
+          class="headline grey lighten-2"
           primary-title
         >
           Upload Received
