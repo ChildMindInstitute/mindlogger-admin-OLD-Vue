@@ -1,16 +1,11 @@
 import Vue from 'vue';
-import Vuetify from 'vuetify';
-import DaySpanVuetify from 'dayspan-vuetify';
+import DaySpanVuetify from 'dayspan-vuetify-2';
 import router from './router';
 import App from './App.vue';
 
-import 'vuetify/dist/vuetify.css';
-import 'material-design-icons-iconfont/dist/material-design-icons.css';
-import 'dayspan-vuetify/dist/lib/dayspan-vuetify.min.css';
+import vuetify from './plugins/vuetify';
 
-Vue.config.productionTip = false
-
-Vue.use(Vuetify);
+Vue.config.productionTip = false;
 
 Vue.use(DaySpanVuetify, {
   methods: {
@@ -21,5 +16,6 @@ Vue.use(DaySpanVuetify, {
 new Vue({
   el: '#app',
   router,
+  vuetify,
   render: h => h(App)
-})
+});

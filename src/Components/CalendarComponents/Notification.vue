@@ -4,7 +4,7 @@
       v-model="details.useNotifications"
       label="turn on notifications"
     />
-    
+
     <div v-if="details.useNotifications">
       <div
         v-for="(notification, index) in notificationTimes"
@@ -20,7 +20,7 @@
             single-line
             hide-details
             solo
-            flat
+            text
             type="time"
           />
         </div>
@@ -43,7 +43,7 @@
           single-line
           hide-details
           solo
-          flat
+          text
           type="time"
         />
 
@@ -55,7 +55,7 @@
           @click="add(index)"
         >
           <v-icon dark>
-            add
+            mdi-plus
           </v-icon>
         </v-btn>
         <v-btn
@@ -67,7 +67,7 @@
           @click="remove(index)"
         >
           <v-icon dark>
-            remove
+            mdi-minus
           </v-icon>
         </v-btn>
       </div>

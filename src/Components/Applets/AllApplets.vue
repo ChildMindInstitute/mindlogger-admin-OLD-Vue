@@ -33,7 +33,7 @@
       style="bottom: 70px; right: 40px;"
       @click="dialog = true"
     >
-      <v-icon>add</v-icon>
+      <v-icon>mdi-plus</v-icon>
     </v-btn>
     <v-dialog
       v-model="dialog"

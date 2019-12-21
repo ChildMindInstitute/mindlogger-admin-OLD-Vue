@@ -189,7 +189,7 @@ export default {
       if (state && storeState) {
         try {
           oldStateEvents = this.$store.state.currentApplet.applet.schedule.events;
-        } catch { } 
+        } catch { }
         newStateEvents = state.events;
       }
 
@@ -250,7 +250,7 @@ body, html, #app, #dayspan {
   height: 100%;
 }
 
-.v-btn--flat,
+.v-btn--text,
 .v-text-field--solo .v-input__slot {
   background-color: #f5f5f5 !important;
   margin-bottom: 8px !important;

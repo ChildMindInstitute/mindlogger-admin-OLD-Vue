@@ -32,7 +32,7 @@
         </div>
 
         <v-btn
-          outline
+          outlined
           color="primary"
           @click="onLogin"
         >

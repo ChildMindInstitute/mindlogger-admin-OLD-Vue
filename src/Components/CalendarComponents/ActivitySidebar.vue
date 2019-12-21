@@ -4,7 +4,7 @@
       dark
       :color="color"
     >
-      <v-card-title>{{ activity.name }}</v-card-title>
+      <v-card-title class="name">{{ activity.name }}</v-card-title>
     </v-card>
   </div>
 </template>
@@ -35,4 +35,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  .name {
+    word-break: normal;
+  }
+</style>
 

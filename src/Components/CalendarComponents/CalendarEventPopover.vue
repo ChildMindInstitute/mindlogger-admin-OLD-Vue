@@ -5,7 +5,7 @@
   >
     <v-toolbar
       extended
-      flat
+      text
       :style="styleHeader"
     >
       <v-toolbar-title slot="extension">
@@ -26,10 +26,9 @@
         bottom
         left
         fab
-        icon
         @click="edit"
       >
-        <v-icon>edit</v-icon>
+        <v-icon>mdi-pencil</v-icon>
       </v-btn>
 
       <slot
@@ -51,23 +50,21 @@
         <v-tooltip
           v-if="!isReadOnly"
           bottom
+          color="secondary"
         >
-          <ds-schedule-actions
-            slot="activator"
-            v-bind="{$scopedSlots}"
-            :schedule="calendarEvent.schedule"
-            :calendar-event="calendarEvent"
-            :calendar="calendar"
-            v-on="$listeners"
-          >
-            <v-btn
-              icon
-              :style="styleButton"
+          <template v-slot:activator="{ on }">
+            <ds-schedule-actions
+                    v-on="on"
+                    v-bind="{$scopedSlots}"
+                    :schedule="calendarEvent.schedule"
+                    :calendar-event="calendarEvent"
+                    :calendar="calendar"
             >
-              <v-icon>more_vert</v-icon>
-            </v-btn>
-          </ds-schedule-actions>
-
+              <v-btn icon :style="styleButton">
+                <v-icon>mdi-dots-vertical</v-icon>
+              </v-btn>
+            </ds-schedule-actions>
+          </template>
           <span>{{ labels.options }}</span>
         </v-tooltip>
       </slot>
@@ -81,7 +78,7 @@
           :style="styleButton"
           @click="close"
         >
-          <v-icon>close</v-icon>
+          <v-icon>mdi-close</v-icon>
         </v-btn>
       </slot>
     </v-toolbar>
@@ -92,84 +89,84 @@
       />
 
       <v-list dense>
-        <v-list-tile>
-          <v-list-tile-avatar>
-            <v-icon>access_time</v-icon>
-          </v-list-tile-avatar>
-          <v-list-tile-content>
+        <v-list-item>
+          <v-list-item-avatar>
+            <v-icon>mdi-clock-outline</v-icon>
+          </v-list-item-avatar>
+          <v-list-item-content>
             <slot
               name="eventPopoverOccurs"
               v-bind="slotData"
             >
-              <v-list-tile-title>{{ startDate }}</v-list-tile-title>
-              <v-list-tile-sub-title>{{ occurs }}</v-list-tile-sub-title>
+              <v-list-item-title>{{ startDate }}</v-list-item-title>
+              <v-list-item-subtitle>{{ occurs }}</v-list-item-subtitle>
             </slot>
-          </v-list-tile-content>
-        </v-list-tile>
+          </v-list-item-content>
+        </v-list-item>
 
-        <v-list-tile v-if="details.location">
-          <v-list-tile-avatar>
-            <v-icon>location_on</v-icon>
-          </v-list-tile-avatar>
-          <v-list-tile-content>
+        <v-list-item v-if="details.location">
+          <v-list-item-avatar>
+            <v-icon>mdi-map-marker</v-icon>
+          </v-list-item-avatar>
+          <v-list-item-content>
             <slot
               name="eventPopoverLocation"
               v-bind="slotData"
             >
-              <v-list-tile-title>
+              <v-list-item-title>
                 <span v-html="details.location" />
-              </v-list-tile-title>
+              </v-list-item-title>
             </slot>
-          </v-list-tile-content>
-        </v-list-tile>
+          </v-list-item-content>
+        </v-list-item>
 
-        <v-list-tile v-if="details.description">
-          <v-list-tile-avatar>
-            <v-icon>subject</v-icon>
-          </v-list-tile-avatar>
-          <v-list-tile-content>
+        <v-list-item v-if="details.description">
+          <v-list-item-avatar>
+            <v-icon>mdi-text-subject</v-icon>
+          </v-list-item-avatar>
+          <v-list-item-content>
             <slot
               name="eventPopoverDescription"
               v-bind="slotData"
             >
-              <v-list-tile-title>
+              <v-list-item-title>
                 <span v-html="details.description" />
-              </v-list-tile-title>
+              </v-list-item-title>
             </slot>
-          </v-list-tile-content>
-        </v-list-tile>
+          </v-list-item-content>
+        </v-list-item>
 
-        <v-list-tile v-if="details.notify">
-          <v-list-tile-avatar>
-            <v-icon>notifications</v-icon>
-          </v-list-tile-avatar>
-          <v-list-tile-content>
+        <v-list-item v-if="details.notify">
+          <v-list-item-avatar>
+            <v-icon>mdi-bell</v-icon>
+          </v-list-item-avatar>
+          <v-list-item-content>
             <slot
               name="eventPopoverNotifications"
               v-bind="slotData"
             >
-              <v-list-tile-title>
+              <v-list-item-title>
                 <span v-html="details.notify" />
-              </v-list-tile-title>
+              </v-list-item-title>
             </slot>
-          </v-list-tile-content>
-        </v-list-tile>
+          </v-list-item-content>
+        </v-list-item>
 
-        <v-list-tile v-if="details.calendar">
-          <v-list-tile-avatar>
-            <v-icon>event</v-icon>
-          </v-list-tile-avatar>
-          <v-list-tile-content>
+        <v-list-item v-if="details.calendar">
+          <v-list-item-avatar>
+            <v-icon>mdi-calendar</v-icon>
+          </v-list-item-avatar>
+          <v-list-item-content>
             <slot
               name="eventPopoverCalendar"
               v-bind="slotData"
             >
-              <v-list-tile-title>
+              <v-list-item-title>
                 <span v-html="details.calendar" />
-              </v-list-tile-title>
+              </v-list-item-title>
             </slot>
-          </v-list-tile-content>
-        </v-list-tile>
+          </v-list-item-content>
+        </v-list-item>
 
         <!-- <v-list-tile v-if="hasBusy">
          <v-list-tile-avatar>
@@ -355,7 +352,6 @@ export default {
 <style scoped lang="scss">
 
 .ds-calendar-event-popover-card {
-
   .v-btn--floating.v-btn--left {
     margin-left: 0px !important;
 
