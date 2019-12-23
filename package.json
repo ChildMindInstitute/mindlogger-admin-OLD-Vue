@@ -1,6 +1,6 @@
 {
   "name": "mindlogger-admin",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -14,7 +14,7 @@
     "axios": "^0.19.0",
     "babel-loader": "^7.1.5",
     "dayspan-vuetify-2": "^0.2.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.15",
     "vue": "2.6.10",
     "vue-property-decorator": "^8.3.0",
     "vue-router": "^3.1.3",
