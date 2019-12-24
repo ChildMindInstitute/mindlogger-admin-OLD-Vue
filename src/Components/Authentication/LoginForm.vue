@@ -33,7 +33,7 @@
           Login
         </v-btn>
         <v-btn
-          outline
+          outlined
           color="primary"
           @click="onCreateAccount"
         >
@@ -44,9 +44,13 @@
   </div>
 </template>
 
-<style>
+<style scoped>
   .error {
     color: 'red';
+  }
+
+  .v-btn {
+    margin: 6px 8px;
   }
 </style>
 

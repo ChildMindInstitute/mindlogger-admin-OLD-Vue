@@ -35,7 +35,7 @@
     >
       <v-btn
         v-if="e1 > 1"
-        flat
+        text
         fixed
         bottom
         left

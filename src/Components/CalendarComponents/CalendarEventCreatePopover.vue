@@ -3,13 +3,13 @@
     class="ds-calendar-event-popover-card"
     :class="classes"
   >
-    <v-toolbar
+    <v-app-bar
       extended
       flat
       :style="styleHeader"
     >
       <v-toolbar-title slot="extension">
-        <!-- <v-text-field single-line hide-details solo flat autofocus
+        <!-- <v-text-field single-line hide-details solo text autofocus
          :label="labels.title"
          v-model="details.title"
        ></v-text-field> -->
@@ -29,10 +29,9 @@
         bottom
         left
         fab
-        icon
         @click="edit"
       >
-        <v-icon>{{ icons.edit }}</v-icon>
+        <v-icon>mdi-pencil</v-icon>
       </v-btn>
 
       <slot
@@ -53,13 +52,13 @@
       >
         <v-btn
           class="ds-create-popover-save"
-          flat
+          text
           :disabled="!isValid"
           :style="styleText"
           @click="save"
         >
           <v-icon left>
-            {{ icons.save }}
+            mdi-content-save
           </v-icon>
           <span>{{ labels.save }}</span>
         </v-btn>
@@ -74,10 +73,10 @@
           :style="styleText"
           @click="close"
         >
-          <v-icon>{{ icons.close }}</v-icon>
+          <v-icon>mdi-close</v-icon>
         </v-btn>
       </slot>
-    </v-toolbar>
+    </v-app-bar>
     <v-card-text>
       <slot
         name="eventCreatePopoverBodyTop"
@@ -85,20 +84,20 @@
       />
 
       <v-list>
-        <v-list-tile>
-          <v-list-tile-avatar>
-            <v-icon>access_time</v-icon>
-          </v-list-tile-avatar>
-          <v-list-tile-content>
+        <v-list-item>
+          <v-list-item-avatar>
+            <v-icon>mdi-clock-outline</v-icon>
+          </v-list-item-avatar>
+          <v-list-item-content>
             <slot
               name="eventCreatePopoverOccurs"
               v-bind="slotData"
             >
-              <v-list-tile-title>{{ startDate }}</v-list-tile-title>
-              <v-list-tile-sub-title>{{ occurs }}</v-list-tile-sub-title>
+              <v-list-item-title>{{ startDate }}</v-list-item-title>
+              <v-list-item-subtitle>{{ occurs }}</v-list-item-subtitle>
             </slot>
-          </v-list-tile-content>
-        </v-list-tile>
+          </v-list-item-content>
+        </v-list-item>
       </v-list>
 
       <slot
@@ -423,6 +422,7 @@ export default {
 
 .ds-create-popover-save {
   background-color: transparent !important;
+  margin-top: 9px;
 }
 
 .ds-color-option {

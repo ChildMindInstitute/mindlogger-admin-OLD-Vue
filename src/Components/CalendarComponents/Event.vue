@@ -13,17 +13,19 @@
           name="scheduleCancel"
           v-bind="{cancel, labels}"
         >
-          <v-tooltip bottom>
-            <v-btn
-              slot="activator"
-              icon
-              class="ds-button"
-              @click="cancel"
-            >
-              <v-icon dark>
-                clear
-              </v-icon>
-            </v-btn>
+          <v-tooltip bottom color="secondary">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                v-on="on"
+                icon
+                class="ds-button"
+                @click="cancel"
+              >
+                <v-icon dark>
+                  mdi-close
+                </v-icon>
+              </v-btn>
+            </template>
             <span v-html="labels.cancel" />
           </v-tooltip>
         </slot>
@@ -77,14 +79,14 @@
         v-bind="{schedule, schedule, calendarEvent, details}"
       >
         <!-- class="ds-textfield ds-calendar-event-title" -->
-        <!-- <v-text-field single-line hide-details solo flat
+        <!-- <v-text-field single-line hide-details solo text
           class="ds-event-title"
           :label="labels.title"
           :readonly="isReadOnly"
           v-model="details.title"
         ></v-text-field> -->
         <v-select
-          v-model="details.title" 
+          v-model="details.title"
           :items="activityNames"
           placeholder="Select Activity"
         />
@@ -163,7 +165,7 @@
             v-if="hasDetails"
             value="details"
           >
-            <v-card flat>
+            <v-card text>
               <v-card-text>
                 {{ details }}
                 <br>
@@ -175,7 +177,7 @@
                   single-line
                   hide-details
                   solo
-                  flat
+                  text
                   type="number"
                   :value="1"
                 />
@@ -196,7 +198,7 @@
             value="forecast"
             lazy
           >
-            <v-card flat>
+            <v-card text>
               <v-card-text>
                 <slot
                   name="eventForecast"
@@ -218,7 +220,7 @@
             value="exclusions"
             lazy
           >
-            <v-card flat>
+            <v-card text>
               <v-card-text>
                 <slot
                   name="eventExclusions"
@@ -240,7 +242,7 @@
             value="inclusions"
             lazy
           >
-            <v-card flat>
+            <v-card text>
               <v-card-text>
                 <slot
                   name="eventInclusions"
@@ -262,7 +264,7 @@
             value="cancelled"
             lazy
           >
-            <v-card flat>
+            <v-card text>
               <v-card-text>
                 <slot
                   name="eventCancels"

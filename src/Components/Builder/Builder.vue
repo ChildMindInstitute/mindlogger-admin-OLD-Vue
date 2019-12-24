@@ -7,7 +7,7 @@
       clipped-left
     >
       <v-toolbar-side-icon
-        @click="toggleDrawer"  
+        @click="toggleDrawer"
       />
       <v-toolbar-title>Activity Set Builder</v-toolbar-title>
     </v-toolbar>
@@ -35,7 +35,7 @@
       <About
         v-if="aboutOpen"
       />
-      <ActivitySetBuilder 
+      <ActivitySetBuilder
         v-else
       />
     </v-content>

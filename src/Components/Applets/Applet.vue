@@ -14,9 +14,11 @@
         size="72"
         color="primary"
       >
-        check
+        mdi-check
       </v-icon>
-      <v-card-title primary-title>
+      <v-card-title
+        primary-title
+      >
         <h3 class="headline mb-0">
           {{ applet.applet["skos:prefLabel"] }}
         </h3>
@@ -93,7 +95,7 @@ export default {
       this.$store.commit('setCurrentApplet', this.applet);
       this.$emit('selectApplet', null);
     },
-    
+
   }
 }
 </script>

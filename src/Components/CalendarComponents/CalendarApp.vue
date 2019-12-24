@@ -7,46 +7,52 @@
         style="height: 100%;"
       >
         <!-- top controls -->
-        <div>
-          <v-tooltip bottom>
-            <v-btn
-              slot="activator"
-              class="ds-skinny-button"
-              depressed
-              :icon="$vuetify.breakpoint.smAndDown"
-              @click="setToday"
-            >
-              <span v-if="$vuetify.breakpoint.mdAndUp">{{ labels.today }}</span>
-              <v-icon v-else>
-                {{ labels.todayIcon }}
-              </v-icon>
-            </v-btn>
+        <div class="top-controls">
+          <v-tooltip bottom color="secondary">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                v-on="on"
+                class="ds-skinny-button"
+                depressed
+                :icon="$vuetify.breakpoint.smAndDown"
+                @click="setToday"
+              >
+                <span v-if="$vuetify.breakpoint.mdAndUp">{{ labels.today }}</span>
+                <v-icon v-else>
+                  {{ labels.todayIcon }}
+                </v-icon>
+              </v-btn>
+            </template>
             <span>{{ todayDate }}</span>
           </v-tooltip>
 
-          <v-tooltip bottom>
-            <v-btn
-              slot="activator"
-              icon
-              depressed
-              class="ds-light-forecolor ds-skinny-button"
-              @click="prev"
-            >
-              <v-icon>keyboard_arrow_left</v-icon>
-            </v-btn>
+          <v-tooltip bottom color="secondary">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                v-on="on"
+                icon
+                depressed
+                class="ds-light-forecolor ds-skinny-button"
+                @click="prev"
+              >
+                <v-icon>mdi-chevron-left</v-icon>
+              </v-btn>
+            </template>
             <span>{{ prevLabel }}</span>
           </v-tooltip>
 
-          <v-tooltip bottom>
-            <v-btn
-              slot="activator"
-              icon
-              depressed
-              class="ds-light-forecolor ds-skinny-button"
-              @click="next"
-            >
-              <v-icon>keyboard_arrow_right</v-icon>
-            </v-btn>
+          <v-tooltip bottom color="secondary">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                v-on="on"
+                icon
+                depressed
+                class="ds-light-forecolor ds-skinny-button"
+                @click="next"
+              >
+                <v-icon>mdi-chevron-right</v-icon>
+              </v-btn>
+            </template>
             <span>{{ nextLabel }}</span>
           </v-tooltip>
 
@@ -57,29 +63,31 @@
             {{ summary }}
           </h1>
 
-          <span style="text-align: right">
+          <div>
             <v-menu>
-              <v-btn
-                slot="activator"
-                flat
-              >
-                {{ currentType.label }}
-                <v-icon>arrow_drop_down</v-icon>
-              </v-btn>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  v-on="on"
+                  text
+                >
+                  {{ currentType.label }}
+                  <v-icon>mdi-menu-down</v-icon>
+                </v-btn>
+              </template>
               <v-list>
-                <v-list-tile
+                <v-list-item
                   v-for="type in types"
                   :key="type.id"
                   @click="currentType = type"
                 >
-                  <v-list-tile-content>
-                    <v-list-tile-title>{{ type.label }}</v-list-tile-title>
-                  </v-list-tile-content>
-                  <v-list-tile-action>{{ type.shortcut }}</v-list-tile-action>
-                </v-list-tile>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ type.label }}</v-list-item-title>
+                  </v-list-item-content>
+                  <v-list-item-action>{{ type.shortcut }}</v-list-item-action>
+                </v-list-item>
               </v-list>
             </v-menu>
-          </span>
+          </div>
         </div>
 
         <v-layout
@@ -187,12 +195,12 @@
           >
             <v-list>
               <template v-for="option in options">
-                <v-list-tile
+                <v-list-item
                   :key="option.text"
                   @click="chooseOption( option )"
                 >
                   {{ option.text }}
-                </v-list-tile>
+                </v-list-item>
               </template>
             </v-list>
           </v-dialog>
@@ -212,7 +220,7 @@
               <v-card-actions>
                 <v-btn
                   color="primary"
-                  flat
+                  text
                   @click="choosePrompt( true )"
                 >
                   {{ labels.promptConfirm }}
@@ -220,7 +228,7 @@
                 <v-spacer />
                 <v-btn
                   color="secondary"
-                  flat
+                  text
                   @click="choosePrompt( false )"
                 >
                   {{ labels.promptCancel }}
@@ -246,7 +254,7 @@
               style="bottom: 70px; right: 40px;"
               @click="addToday"
             >
-              <v-icon>add</v-icon>
+              <v-icon>mdi-plus</v-icon>
             </v-btn>
           </v-fab-transition>
         </slot>
@@ -790,7 +798,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 
 .ds-app-calendar-toolbar {
 
@@ -822,4 +830,17 @@ export default {
   }
 }
 
+.title {
+  margin-right: 10px;
+}
+
+.v-btn--text {
+  margin-bottom: 0 !important;
+}
+
+.top-controls {
+  display: flex;
+  height: 50px;
+  align-items: center;
+}
 </style>

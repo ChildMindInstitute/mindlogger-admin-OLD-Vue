@@ -33,7 +33,7 @@
       style="bottom: 70px; right: 40px;"
       @click="dialog = true"
     >
-      <v-icon>add</v-icon>
+      <v-icon>mdi-plus</v-icon>
     </v-btn>
     <v-dialog
       v-model="dialog"
@@ -127,9 +127,11 @@ export default {
         protocolUrl: this.newProtocolURL,
         token: this.$store.state.auth.authToken.token,
         apiHost: this.$store.state.backend,
-      }).then(() => {
+      }).then((resp) => {
         this.newProtocolURL = '';
-        this.$emit('refreshAppletList');
+        this.$emit('appletUploadSuccessful', resp);
+      }).catch((e) => {
+        this.$emit('appletUploadError');
       });
     },
     deleteApplet(applet) {
