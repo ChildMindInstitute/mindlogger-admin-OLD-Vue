@@ -35,7 +35,7 @@
   </v-container>
 </template>
 
-<style>
+<style scoped>
   .error {
     color: 'red';
   }

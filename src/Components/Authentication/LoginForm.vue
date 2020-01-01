@@ -59,8 +59,6 @@ import api from '../Utils/api/api.vue';
 import _ from 'lodash';
 
 export default {
-  name: 'Login',
-
   data: () => ({
     username: '',
     password: '',
@@ -68,10 +66,6 @@ export default {
   }),
 
   methods: {
-    /**
-     * the login method: sign in and then
-     * save the response to the store
-     */
     login() {
       this.error = '';
       api.signIn({
