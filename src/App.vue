@@ -29,11 +29,7 @@ body, html, #app, #dayspan {
   width: 100%;
   height: 100%;
 }
-.v-btn--text,
-.v-text-field--solo .v-input__slot {
-  background-color: #f5f5f5 !important;
-  margin-bottom: 8px !important;
-}
+
 .application--wrap {
   background-color: white;
 }

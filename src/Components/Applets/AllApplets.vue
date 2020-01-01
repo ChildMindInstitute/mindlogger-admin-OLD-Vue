@@ -15,7 +15,7 @@
       wrap
       justify-center
     >
-      <Applet
+      <AppletCard
         v-for="(applet,i) in applets"
         :key="`i${i}`"
         :applet="applet"
@@ -87,14 +87,14 @@
 </template>
 
 <script>
-import Applet from './Applet';
+import AppletCard from './AppletCard.vue';
 import api from '../Utils/api/api.vue';
 import config from '../../config';
 
 export default {
   name: 'AllApplets',
   components: {
-    Applet,
+    AppletCard,
   },
   props: {
     applets: {
