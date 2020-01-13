@@ -8,11 +8,11 @@
 
     <v-snackbar
       v-model="successSnackbar"
-      :timeout="3000"
+      color="success"
     >
       {{ successMessage }}
       <v-btn
-        color="primary"
+        dark
         text
         @click="snackbar = false"
       >
@@ -22,11 +22,11 @@
 
     <v-snackbar
       v-model="errorSnackbar"
-      :multi-line="multiLine"
+      color="error"
     >
       {{ errorMessage }}
       <v-btn
-        color="red"
+        dark
         text
         @click="errorSnackbar = false"
       >
@@ -107,6 +107,7 @@ export default {
     continueAction() {
       const scheduleForm = new FormData();
       if (this.currentApplet && this.currentApplet.applet && this.currentApplet.applet.schedule) {
+          console.log('hello');
           const schedule = this.currentApplet.applet.schedule;
           scheduleForm.set('schedule', JSON.stringify(schedule || {}));
           api.setSchedule({
