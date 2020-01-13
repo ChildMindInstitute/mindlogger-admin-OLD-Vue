@@ -70,7 +70,7 @@ export default {
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         user: this.$store.state.auth.user._id,
-        role: 'manager',
+        role: 'coordinator',
       }).then((resp) => {
         this.$store.commit('setAllApplets', resp.data);
         this.status = 'ready';
