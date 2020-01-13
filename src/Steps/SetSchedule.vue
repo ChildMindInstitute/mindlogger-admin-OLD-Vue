@@ -1,12 +1,38 @@
 <template>
   <div>
-    <div>
-      <Calendar
-        ref="calendar"
-        :activities="activities"
-        @change="continueAction"
-      />
-    </div>
+    <Calendar
+      ref="calendar"
+      :activities="activities"
+      @change="continueAction"
+    />
+
+    <v-snackbar
+      v-model="successSnackbar"
+      :timeout="3000"
+    >
+      {{ successMessage }}
+      <v-btn
+        color="primary"
+        text
+        @click="snackbar = false"
+      >
+        Close
+      </v-btn>
+    </v-snackbar>
+
+    <v-snackbar
+      v-model="errorSnackbar"
+      :multi-line="multiLine"
+    >
+      {{ errorMessage }}
+      <v-btn
+        color="red"
+        text
+        @click="errorSnackbar = false"
+      >
+        Close
+      </v-btn>
+    </v-snackbar>
   </div>
 </template>
 
@@ -28,10 +54,11 @@ export default {
     "Light Blue","Pink","Glue", "Light Green",
     "Blue Gray", "Green", "Yellow", "Teal", "Brown", "Indigo",
     "Amber", "Cyan", "Gray", "Blue", "Purple", "Lime", "Deep Orange"],
-    /**
-     * you can always skip scheduling
-     */
     readyToContinue: true,
+    errorMessage: '',
+    errorSnackbar: false,
+    successMessage: 'Save Successful',
+    successSnackbar: false,
   }),
   computed: {
     /**
@@ -88,6 +115,10 @@ export default {
             token: this.$store.state.auth.authToken.token,
             data: scheduleForm,
           }).then(() => {
+            this.successSnackbar = true;
+          }).catch((e) => {
+            this.errorMessage = `Save Unsuccessful. ${e}`;
+            this.errorSnackbar = true;
           });
         }
     },
