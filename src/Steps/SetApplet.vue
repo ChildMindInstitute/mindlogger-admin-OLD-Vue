@@ -11,7 +11,35 @@
       v-else
       :applets="allApplets"
       @refreshAppletList="getApplets"
+      @appletUploadSuccessful="onAppletUploadSuccessful"
+      @appletUploadError="onAppletUploadError"
     />
+    <v-dialog
+      v-model="dialog"
+    >
+      <v-card>
+        <v-card-title
+          class="headline grey lighten-2"
+          primary-title
+        >
+          Upload Received
+        </v-card-title>
+        <v-card-text>
+          {{ dialogText }}
+        </v-card-text>
+        <v-divider />
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            color="primary"
+            text
+            @click="dialog = false"
+          >
+            Dismiss
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -36,6 +64,9 @@ export default {
     sampleProtocols: config.protocols,
     error: {},
     status: 'loading',
+    dialog: false,
+    dialogText: '',
+    dialogTextDefault: 'The applet is being created. Please check back in several mintutes to see it. If you have an email address associated with your account, you will receive an email when your applet is ready.',
   }),
   computed: {
     allApplets() {
@@ -78,6 +109,18 @@ export default {
         this.error = e;
         this.status = 'error';
       });
+    },
+    onAppletUploadSuccessful(resp) {
+      if (resp && resp.data && resp.data.message) {
+        this.dialogText = resp.data.message;
+      } else {
+        this.dialogText = dialogTextDefault;
+      }
+      this.dialog = true;
+    },
+    onAppletUploadError() {
+      this.dialogText = 'There was an error uploading your applet. Please try again or report the issue.'
+      this.dialog = true;
     },
     continueAction() {
 

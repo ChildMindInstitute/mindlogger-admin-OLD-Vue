@@ -33,7 +33,7 @@
               @click="addGroup"
             >
               <v-icon dark>
-                add
+                mdi-plus
               </v-icon>
             </v-btn>
           </v-flex>
@@ -68,7 +68,7 @@
               @click="removeGroup(props.index)"
             >
               <v-icon dark>
-                remove
+                mdi-minus
               </v-icon>
             </v-btn>
           </td>
@@ -122,7 +122,7 @@ export default {
      */
     currentApplet() {
       return this.$store.state.currentApplet;
-    }, 
+    },
     /**
      * there needs to be at least 1 group to continue
      */

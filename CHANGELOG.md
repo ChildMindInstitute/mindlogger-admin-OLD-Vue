@@ -4,9 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.5] - 2020-01-13
+
+## [0.1.6] - 2020-01-13
 ## Changed
 - :lock: Authorize coordinators to coordinate applets
+
+## [0.1.5] - 2019-12-23
+### Changed
+- Updated core dependencies
+    - Vue 2.6.10
+    - Vuetify 2.1.0
+- New calendar, courtesy of dayspan-vuetify-2
 
 ## [0.1.4] - 2019-11-26
 ### Changed

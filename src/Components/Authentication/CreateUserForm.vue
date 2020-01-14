@@ -32,7 +32,7 @@
         </div>
 
         <v-btn
-          outline
+          outlined
           color="primary"
           @click="onLogin"
         >
@@ -49,9 +49,13 @@
   </div>
 </template>
 
-<style>
+<style scoped>
   .error {
     color: 'red';
+  }
+
+  .v-btn {
+    margin: 6px 8px;
   }
 </style>
 
@@ -60,8 +64,6 @@ import api from '../Utils/api/api.vue';
 import _ from 'lodash';
 
 export default {
-  name: 'Login',
-
   data: () => ({
     username: '',
     displayName: '',
@@ -70,10 +72,6 @@ export default {
   }),
 
   methods: {
-    /**
-     * the login method: sign in and then
-     * save the response to the store
-     */
     createAccount() {
       this.error = '';
       api.signUp({
