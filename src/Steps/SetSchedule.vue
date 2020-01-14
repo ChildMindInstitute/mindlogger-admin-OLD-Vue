@@ -6,33 +6,69 @@
       @change="continueAction"
     />
 
-    <v-snackbar
-      v-model="successSnackbar"
-      color="success"
+    <v-dialog
+      v-model="dialog"
+      width="500"
     >
-      {{ successMessage }}
-      <v-btn
-        dark
-        text
-        @click="snackbar = false"
-      >
-        Close
-      </v-btn>
-    </v-snackbar>
 
-    <v-snackbar
-      v-model="errorSnackbar"
-      color="error"
+      <v-card>
+        <v-card-title
+          class="headline grey lighten-2"
+          primary-title
+        >
+          Saving Schedule
+        </v-card-title>
+
+        <v-card-text
+          v-if="loading"
+        >
+          <v-layout
+            align-center
+            column
+          >
+            <v-progress-circular
+              color="primary"
+              indeterminate
+            />
+          </v-layout>
+        </v-card-text>
+
+        <v-card-text
+          v-else-if="saveSuccess"
+        >
+          Save Successful
+        </v-card-text>
+
+        <v-card-text
+          v-else-if="saveError"
+        >
+          {{ errorMessage }}
+        </v-card-text>
+
+        <v-divider />
+
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            color="primary"
+            text
+            @click="dialog = false"
+          >
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-btn
+      color="primary"
+      fixed
+      bottom
+      right
+      @click="saveSchedule"
     >
-      {{ errorMessage }}
-      <v-btn
-        dark
-        text
-        @click="errorSnackbar = false"
-      >
-        Close
-      </v-btn>
-    </v-snackbar>
+      Save
+    </v-btn>
   </div>
 </template>
 
@@ -55,10 +91,11 @@ export default {
     "Blue Gray", "Green", "Yellow", "Teal", "Brown", "Indigo",
     "Amber", "Cyan", "Gray", "Blue", "Purple", "Lime", "Deep Orange"],
     readyToContinue: true,
+    dialog: false,
+    loading: false,
+    saveSuccess: false,
+    saveError: false,
     errorMessage: '',
-    errorSnackbar: false,
-    successMessage: 'Save Successful',
-    successSnackbar: false,
   }),
   computed: {
     /**
@@ -104,10 +141,13 @@ export default {
      * on continue, save the schedule.
      * TODO: probably we should save when you hit 'back' as well?
      */
-    continueAction() {
+    saveSchedule() {
       const scheduleForm = new FormData();
       if (this.currentApplet && this.currentApplet.applet && this.currentApplet.applet.schedule) {
-          console.log('hello');
+          this.dialog = true;
+          this.saveSuccess = false;
+          this.saveError = false;
+          this.loading = true;
           const schedule = this.currentApplet.applet.schedule;
           scheduleForm.set('schedule', JSON.stringify(schedule || {}));
           api.setSchedule({
@@ -116,10 +156,14 @@ export default {
             token: this.$store.state.auth.authToken.token,
             data: scheduleForm,
           }).then(() => {
-            this.successSnackbar = true;
+            console.log('success');
+            this.loading = false;
+            this.saveSuccess = true;
           }).catch((e) => {
             this.errorMessage = `Save Unsuccessful. ${e}`;
-            this.errorSnackbar = true;
+            console.log('fail');
+            this.loading = false;
+            this.saveError = true;
           });
         }
     },
