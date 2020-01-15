@@ -35,7 +35,7 @@
         <!-- Save -->
         <slot
           name="scheduleSave"
-          v-bind="{hasSave, save, labels, readOnly}"
+          v-bind="{hasSave, save, remove, labels, readOnly}"
         >
           <v-btn
             v-if="!isReadOnly"
@@ -46,6 +46,15 @@
             @click.stop="save"
           >
             <span v-html="labels.save" />
+          </v-btn>
+          <v-btn
+            v-if="!isReadOnly"
+            class="ds-button-tall ml-3 mt-0 mb-2"
+            depressed
+            color="red"
+            @click.stop="remove"
+          >
+            <span class="white--text">DELETE</span>
           </v-btn>
         </slot>
 
@@ -600,6 +609,13 @@ export default {
       }
 
       this.$emit('saved', ev);
+    },
+
+    remove()
+    {
+      var ev = this.getEvent('remove')
+
+      this.$emit('remove', ev);
     },
 
     actioned(ev)

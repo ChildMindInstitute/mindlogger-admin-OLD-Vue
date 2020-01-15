@@ -30,6 +30,18 @@
       >
         <v-icon>mdi-pencil</v-icon>
       </v-btn>
+      <v-btn
+        v-if="allowDelete"
+        color="red"
+        small
+        absolute
+        bottom
+        right
+        fab
+        @click="edit"
+      >
+        <v-icon color="white">mdi-delete</v-icon>
+      </v-btn>
 
       <slot
         name="eventPopoverToolbarLeft"
@@ -234,6 +246,14 @@ export default {
       }
     },
 
+    allowDeleteOnReadOnly:
+    {
+      type: Boolean,
+      default() {
+        return this.$dsDefaults().allowDeleteOnReadOnly;
+      }
+    },
+
     close:
     {
       type: Function
@@ -329,6 +349,11 @@ export default {
     allowEdit()
     {
       return this.allowEditOnReadOnly || !this.isReadOnly;
+    },
+
+    allowDelete()
+    {
+      return this.allowDeleteOnReadOnly || !this.isReadOnly;
     },
 
     isReadOnly()
