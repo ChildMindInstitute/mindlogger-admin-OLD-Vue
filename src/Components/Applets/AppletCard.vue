@@ -20,7 +20,7 @@
         primary-title
       >
         <h3 class="headline mb-0">
-          {{ applet.applet["skos:prefLabel"] }}
+          {{ appletPrefLabel }}
         </h3>
       </v-card-title>
     </v-layout>
@@ -34,10 +34,10 @@
       />
       <v-card-title primary-title>
         <h3 class="headline mb-0">
-          {{ applet.applet["skos:prefLabel"] }}
+          {{ appletPrefLabel }}
         </h3>
       </v-card-title>
-      <v-card-text> {{ applet.applet["schema:description"] }} </v-card-text>
+      <v-card-text> {{ appletDescription }} </v-card-text>
       <v-card-actions>
         <div class="container">
           <div>
@@ -106,6 +106,32 @@ export default {
   computed: {
     currentApplet() {
       return this.applet == this.$store.state.currentApplet;
+    },
+    appletPrefLabel() {
+      if (typeof this.applet.applet["http://www.w3.org/2004/02/skos/core#prefLabel"] === 'string') {
+        return this.applet.applet["http://www.w3.org/2004/02/skos/core#prefLabel"]
+      } else if (typeof this.applet.applet["http://www.w3.org/2004/02/skos/core#prefLabel"] === 'object') {
+        return this.applet.applet["http://www.w3.org/2004/02/skos/core#prefLabel"][0]["@value"];
+      } else if (typeof this.applet.applet["skos:prefLabel"] === 'string') {
+        return this.applet.applet["skos:prefLabel"]
+      } else if (typeof this.applet.applet["skos:prefLabel"] === 'object') {
+        return this.applet.applet["skos:prefLabel"][0]["@value"];
+      } else {
+        return null;
+      }
+    },
+    appletDescription() {
+      if (typeof this.applet.applet["schema:description"] === 'string') {
+        return this.applet.applet["schema:description"];
+      } else if (typeof this.applet.applet["schema:description"] === 'object') {
+        return this.applet.applet["schema:description"][0]["@value"];
+      } else if (typeof this.applet.applet["http://schema.org/description"] === 'string') {
+        return this.applet.applet["http://schema.org/description"];
+      } else if (typeof this.applet.applet["http://schema.org/description"] === 'object') {
+        return this.applet.applet["http://schema.org/description"][0]["@value"];
+      } else {
+        return null;
+      }
     },
   },
   methods: {
