@@ -56,16 +56,6 @@
           >
             Continue
           </v-btn>
-          <v-btn
-            v-else
-            color="primary"
-            fixed
-            bottom
-            right
-            @click="save"
-          >
-            Save
-          </v-btn>
         </v-flex>
       </v-flex>
     </v-layout>
