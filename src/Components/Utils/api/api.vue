@@ -21,7 +21,7 @@ const signUp = ({apiHost, body}) => axios({
 
 const setSchedule = ({ apiHost, token, id, data }) => axios({
   method: 'put',
-  url: `${apiHost}/${id}/constraints`,
+  url: `${apiHost}/${id}/schedule`,
   headers: {
     'Girder-Token': token,
   },
