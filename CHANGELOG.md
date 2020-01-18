@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix word breaks on ```v-card-title```
 - Fix JSON rendering on ```AppletCard``` caused by inconsistent schema
 
+## [0.1.7] - 2020-01-16
+## Changed
+- :tractor: `PUT /applet/{:id}/constraints` → `PUT /applet/{:id}/schedule`
+
 ## [0.1.6] - 2020-01-13
 ## Changed
 - :lock: Authorize coordinators to coordinate applets
