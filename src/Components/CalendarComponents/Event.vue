@@ -1,29 +1,13 @@
 <template>
-  <div
-    class="ds-event"
-    :class="classes"
-  >
+  <div class="ds-event" :class="classes">
     <div class="ds-event-header ds-event-area">
-      <div
-        v-if="hasCancel"
-        class="ds-event-cancel"
-      >
+      <div v-if="hasCancel" class="ds-event-cancel">
         <!-- Cancel -->
-        <slot
-          name="scheduleCancel"
-          v-bind="{cancel, labels}"
-        >
+        <slot name="scheduleCancel" v-bind="{cancel, labels}">
           <v-tooltip bottom color="secondary">
             <template v-slot:activator="{ on }">
-              <v-btn
-                v-on="on"
-                icon
-                class="ds-button"
-                @click="cancel"
-              >
-                <v-icon dark>
-                  mdi-close
-                </v-icon>
+              <v-btn v-on="on" icon class="ds-button" @click="cancel">
+                <v-icon dark>mdi-close</v-icon>
               </v-btn>
             </template>
             <span v-html="labels.cancel" />
@@ -33,10 +17,7 @@
 
       <div class="ds-event-actions">
         <!-- Save -->
-        <slot
-          name="scheduleSave"
-          v-bind="{hasSave, save, labels, readOnly}"
-        >
+        <slot name="scheduleSave" v-bind="{hasSave, save, labels, readOnly}">
           <v-btn
             v-if="!isReadOnly"
             class="ds-button-tall ml-3 mt-0 mb-2"
@@ -57,119 +38,58 @@
           <ds-schedule-actions
             v-if="calendarEvent && !isReadOnly"
             v-bind="{$scopedSlots}"
+            v-on="$listeners"
             :schedule="schedule"
             :calendar-event="calendarEvent"
             :calendar="calendar"
-            v-on="$listeners"
             @finish="actioned"
           >
             <v-btn
               class="ds-button-tall ml-1 mt-0 mb-2"
+              color="warning"
+              @click.stop="remove"
               depressed
-            >
-              {{ labels.moreActions }}
-            </v-btn>
+            >Remove</v-btn>
           </ds-schedule-actions>
         </slot>
       </div>
 
       <!-- Title -->
-      <slot
-        name="scheduleTitle"
-        v-bind="{schedule, schedule, calendarEvent, details}"
-      >
-        <!-- class="ds-textfield ds-calendar-event-title" -->
-        <!-- <v-text-field single-line hide-details solo text
-          class="ds-event-title"
-          :label="labels.title"
-          :readonly="isReadOnly"
-          v-model="details.title"
-        ></v-text-field> -->
-        <v-select
-          v-model="details.title"
-          :items="activityNames"
-          placeholder="Select Activity"
-        />
+      <slot name="scheduleTitle" v-bind="{schedule, schedule, calendarEvent, details}">
+        <v-select v-model="details.title" :items="activityNames" placeholder="Select Activity" />
       </slot>
     </div>
 
     <div class="ds-event-body ds-event-area">
-      <slot
-        name="schedule"
-        v-bind="slotData"
-      >
+      <slot name="schedule" v-bind="slotData">
         <!-- absolute scheduling options below -->
-        <my-schedule
-          :schedule="schedule"
-          :day="day"
-          :read-only="readOnly"
-        />
+        <my-schedule :schedule="schedule" :day="day" :read-only="readOnly" />
       </slot>
     </div>
 
     <!-- Tabs -->
-    <v-layout
-      v-if="hasTabs"
-      row
-    >
-      <v-flex
-        xs12
-        class="mt-2"
-      >
-        <v-tabs
-          v-model="tab"
-          class="text--primary"
-        >
-          <v-tab
-            v-if="hasDetails"
-            href="#details"
-          >
-            {{ labels.tabs.details }}
-          </v-tab>
+    <v-layout v-if="hasTabs" row>
+      <v-flex xs12 class="mt-2">
+        <v-tabs v-model="tab" class="text--primary">
+          <v-tab v-if="hasDetails" href="#details">{{ labels.tabs.details }}</v-tab>
 
-          <v-tab
-            v-if="showForecast"
-            href="#forecast"
-          >
-            {{ labels.tabs.forecast }}
-          </v-tab>
+          <v-tab v-if="showForecast" href="#forecast">{{ labels.tabs.forecast }}</v-tab>
 
-          <v-tab
-            v-if="showExclusions"
-            href="#exclusions"
-          >
-            {{ labels.tabs.removed }}
-          </v-tab>
+          <v-tab v-if="showExclusions" href="#exclusions">{{ labels.tabs.removed }}</v-tab>
 
-          <v-tab
-            v-if="showInclusions"
-            href="#inclusions"
-          >
-            {{ labels.tabs.added }}
-          </v-tab>
+          <v-tab v-if="showInclusions" href="#inclusions">{{ labels.tabs.added }}</v-tab>
 
-          <v-tab
-            v-if="showCancels"
-            href="#cancelled"
-          >
-            {{ labels.tabs.cancelled }}
-          </v-tab>
+          <v-tab v-if="showCancels" href="#cancelled">{{ labels.tabs.cancelled }}</v-tab>
 
-          <slot
-            name="eventTabsExtra"
-            v-bind="slotData"
-          />
+          <slot name="eventTabsExtra" v-bind="slotData" />
 
           <!-- Details -->
-          <v-tab-item
-            v-if="hasDetails"
-            value="details"
-          >
+          <v-tab-item v-if="hasDetails" value="details">
             <v-card text>
               <v-card-text>
                 {{ details }}
-                <br>
-                <br>
+                <br />
+                <br />
                 <!-- Max number of responses -->
                 max # of responses
                 <v-text-field
@@ -193,39 +113,21 @@
           </v-tab-item>
 
           <!-- Forecast -->
-          <v-tab-item
-            v-if="showForecast"
-            value="forecast"
-            lazy
-          >
+          <v-tab-item v-if="showForecast" value="forecast" lazy>
             <v-card text>
               <v-card-text>
-                <slot
-                  name="eventForecast"
-                  v-bind="slotData"
-                >
-                  <ds-schedule-forecast
-                    :schedule="schedule"
-                    :day="day"
-                    :read-only="readOnly"
-                  />
+                <slot name="eventForecast" v-bind="slotData">
+                  <ds-schedule-forecast :schedule="schedule" :day="day" :read-only="readOnly" />
                 </slot>
               </v-card-text>
             </v-card>
           </v-tab-item>
 
           <!-- Exclusions -->
-          <v-tab-item
-            v-if="showExclusions"
-            value="exclusions"
-            lazy
-          >
+          <v-tab-item v-if="showExclusions" value="exclusions" lazy>
             <v-card text>
               <v-card-text>
-                <slot
-                  name="eventExclusions"
-                  v-bind="slotData"
-                >
+                <slot name="eventExclusions" v-bind="slotData">
                   <ds-schedule-modifier
                     :description="labels.exclusions"
                     :modifier="schedule.exclude"
@@ -237,17 +139,10 @@
           </v-tab-item>
 
           <!-- Inclusions -->
-          <v-tab-item
-            v-if="showInclusions"
-            value="inclusions"
-            lazy
-          >
+          <v-tab-item v-if="showInclusions" value="inclusions" lazy>
             <v-card text>
               <v-card-text>
-                <slot
-                  name="eventInclusions"
-                  v-bind="slotData"
-                >
+                <slot name="eventInclusions" v-bind="slotData">
                   <ds-schedule-modifier
                     :description="labels.inclusions"
                     :modifier="schedule.include"
@@ -259,17 +154,10 @@
           </v-tab-item>
 
           <!-- Cancelled -->
-          <v-tab-item
-            v-if="showCancels"
-            value="cancelled"
-            lazy
-          >
+          <v-tab-item v-if="showCancels" value="cancelled" lazy>
             <v-card text>
               <v-card-text>
-                <slot
-                  name="eventCancels"
-                  v-bind="slotData"
-                >
+                <slot name="eventCancels" v-bind="slotData">
                   <ds-schedule-modifier
                     :description="labels.cancelled"
                     :modifier="schedule.cancel"
@@ -280,10 +168,7 @@
             </v-card>
           </v-tab-item>
 
-          <slot
-            name="eventTabItemsExtra"
-            v-bind="slotData"
-          />
+          <slot name="eventTabItemsExtra" v-bind="slotData" />
         </v-tabs>
       </v-flex>
     </v-layout>
@@ -291,143 +176,130 @@
 </template>
 
 <script>
-import { Day, Calendar, CalendarEvent, Schedule, Functions as fn } from 'dayspan';
-import _ from 'lodash';
-import Notification from './Notification';
-import mySchedule from './Schedule';
+import {
+  Day,
+  Calendar,
+  CalendarEvent,
+  Schedule,
+  Functions as fn
+} from "dayspan";
+import _ from "lodash";
+import Notification from "./Notification";
+import mySchedule from "./Schedule";
 
 export default {
-
-  name: 'dsEvent',
+  name: "dsEvent",
 
   components: {
     Notification,
-    mySchedule,
+    mySchedule
   },
 
-  props:
-  {
+  props: {
     activities: {
       type: Array,
-      required: true,
+      required: true
     },
-    targetSchedule:
-    {
+    targetSchedule: {
       required: true,
       type: Schedule
     },
 
-    targetDetails:
-    {
+    targetDetails: {
       type: Object,
       required: true
     },
 
-    calendarEvent:
-    {
+    calendarEvent: {
       type: CalendarEvent
     },
 
-    calendar:
-    {
+    calendar: {
       type: Calendar
     },
 
-    day:
-    {
+    day: {
       type: Day
     },
 
-    readOnly:
-    {
+    readOnly: {
       type: Boolean,
       default: false
     },
 
-    labels:
-    {
+    labels: {
       validate(x) {
-        return this.$dsValidate(x, 'labels');
+        return this.$dsValidate(x, "labels");
       },
       default() {
         return this.$dsDefaults().labels;
       }
     },
 
-    hasTitle:
-    {
+    hasTitle: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasTitle;
       }
     },
 
-    hasCancel:
-    {
+    hasCancel: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasCancel;
       }
     },
 
-    hasSave:
-    {
+    hasSave: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasSave;
       }
     },
 
-    hasTabs:
-    {
+    hasTabs: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasTabs;
       }
     },
 
-    hasDetails:
-    {
+    hasDetails: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasDetails;
       }
     },
 
-    hasForecast:
-    {
+    hasForecast: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasForecast;
       }
     },
 
-    hasExclusions:
-    {
+    hasExclusions: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasExclusions;
       }
     },
 
-    hasInclusions:
-    {
+    hasInclusions: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasInclusions;
       }
     },
 
-    hasCancelled:
-    {
+    hasCancelled: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasCancelled;
       }
     },
 
-    busyOptions:
-    {
+    busyOptions: {
       type: Array,
       default() {
         return this.$dsDefaults().busyOptions;
@@ -436,21 +308,19 @@ export default {
   },
 
   data: vm => ({
-    tab: 'details',
+    tab: "details",
     schedule: new Schedule(),
     details: vm.$dayspan.getDefaultEventDetails()
   }),
 
-  computed:
-  {
+  computed: {
     title() {
       return this.details.title;
     },
     activityNames() {
       return _.map(this.activities, a => a.name);
     },
-    slotData()
-    {
+    slotData() {
       return {
         targetSchedule: this.targetSchedule,
         targetDetails: this.targetDetails,
@@ -465,78 +335,75 @@ export default {
       };
     },
 
-    classes()
-    {
+    classes() {
       return {
-        'ds-has-cancel': this.hasCancel,
-        'ds-event-small': this.$vuetify.breakpoint.smAndDown
+        "ds-has-cancel": this.hasCancel,
+        "ds-event-small": this.$vuetify.breakpoint.smAndDown
       };
     },
 
-    canSave()
-    {
-      return this.$dayspan.isValidEvent( this.details, this.schedule, this.calenderEvent );
+    canSave() {
+      return this.$dayspan.isValidEvent(
+        this.details,
+        this.schedule,
+        this.calenderEvent
+      );
     },
 
-    repeats()
-    {
+    repeats() {
       return !this.schedule.isSingleEvent();
     },
 
-    showTitle()
-    {
-      return this.$dayspan.supports.title &&
-        this.hasTitle;
+    showTitle() {
+      return this.$dayspan.supports.title && this.hasTitle;
     },
 
-    showCancels()
-    {
-      return this.$dayspan.features.cancel &&
+    showCancels() {
+      return (
+        this.$dayspan.features.cancel &&
         this.repeats &&
         this.hasCancelled &&
-        !this.schedule.cancel.isEmpty();
+        !this.schedule.cancel.isEmpty()
+      );
     },
 
-    showForecast()
-    {
-      return this.$dayspan.features.forecast &&
-        this.repeats &&
-        this.hasForecast;
+    showForecast() {
+      return (
+        this.$dayspan.features.forecast && this.repeats && this.hasForecast
+      );
     },
 
-    showExclusions()
-    {
-      return this.$dayspan.features.exclude &&
+    showExclusions() {
+      return (
+        this.$dayspan.features.exclude &&
         this.repeats &&
         this.hasExclusions &&
-        !this.schedule.exclude.isEmpty();
+        !this.schedule.exclude.isEmpty()
+      );
     },
 
-    showInclusions()
-    {
-      return this.$dayspan.features.include &&
+    showInclusions() {
+      return (
+        this.$dayspan.features.include &&
         this.repeats &&
         this.hasInclusions &&
-        !this.schedule.include.isEmpty();
+        !this.schedule.include.isEmpty()
+      );
     },
 
-    isReadOnly()
-    {
+    isReadOnly() {
       return this.readOnly || this.$dayspan.readOnly;
     }
   },
 
-  watch:
-  {
-    targetSchedule:
-    {
-      handler: 'updateSchedule',
+  watch: {
+    targetSchedule: {
+      handler: "updateSchedule",
       immediate: true
     },
 
-    targetDetails:
-    {
-      handler: 'updateDetails',
+    targetDetails: {
+      handler: "updateDetails",
       immediate: true
     },
     title() {
@@ -545,23 +412,34 @@ export default {
     }
   },
 
-  methods:
-  {
-    save()
-    {
-      var ev = this.getEvent('save')
+  methods: {
+    remove() {
+      this.$dayspan.getPermission("actionRemove", () => {
+        let ev = this.getEvent("save");
+        this.$emit("remove", ev);
 
-      this.$emit('save', ev);
-
-      if (!ev.handled)
-      {
-        if (ev.target && ev.schedule)
-        {
-          ev.target.set( ev.schedule );
+        if (!ev.handled && ev.calendar) {
+          ev.calendar.removeEvent(ev.calendarEvent.event);
+          ev.handled = true;
         }
 
-        if (ev.calendarEvent)
-        {
+        this.$emit("finish", ev);
+        this.$emit("event-remove", ev.event);
+        this.$emit("cancel", this.getEvent("cancel"));
+      });
+    },
+    
+    save() {
+      var ev = this.getEvent("save");
+
+      this.$emit("save", ev);
+
+      if (!ev.handled) {
+        if (ev.target && ev.schedule) {
+          ev.target.set(ev.schedule);
+        }
+
+        if (ev.calendarEvent) {
           this.$dayspan.setEventDetails(
             ev.details,
             ev.targetDetails,
@@ -569,89 +447,78 @@ export default {
             ev.calendarEvent
           );
 
-          this.$emit('update', ev);
+          this.$emit("update", ev);
 
-          this.$emit('event-update', ev.calendarEvent.event);
-        }
-        else if (ev.create)
-        {
-          ev.created = this.$dayspan.createEvent( ev.details, ev.schedule );
+          this.$emit("event-update", ev.calendarEvent.event);
+        } else if (ev.create) {
+          ev.created = this.$dayspan.createEvent(ev.details, ev.schedule);
 
-          if (ev.calendar)
-          {
-            ev.calendar.addEvent( ev.created );
+          if (ev.calendar) {
+            ev.calendar.addEvent(ev.created);
             ev.added = true;
           }
 
-          this.$emit('create', ev);
+          this.$emit("create", ev);
         }
 
-        if (ev.calendar && ev.refresh)
-        {
+        if (ev.calendar && ev.refresh) {
           ev.calendar.refreshEvents();
         }
 
         ev.handled = true;
 
-        if (ev.created)
-        {
-          this.$emit('event-create', ev.created);
+        if (ev.created) {
+          this.$emit("event-create", ev.created);
         }
       }
 
-      this.$emit('saved', ev);
+      this.$emit("saved", ev);
     },
 
-    actioned(ev)
-    {
-      this.$emit('actioned', ev);
+    actioned(ev) {
+      this.$emit("actioned", ev);
     },
 
-    cancel()
-    {
-      this.$emit('cancel', this.getEvent('cancel'));
+    cancel() {
+      this.$emit("cancel", this.getEvent("cancel"));
     },
 
-    updateSchedule(schedule)
-    {
+    updateSchedule(schedule) {
       this.schedule = schedule.clone();
-      this.tab = 'details';
+      this.tab = "details";
     },
 
-    updateDetails(details)
-    {
-      this.details = this.$dayspan.copyEventDetails( details );
-      this.tab = 'details';
+    updateDetails(details) {
+      this.details = this.$dayspan.copyEventDetails(details);
+      this.tab = "details";
     },
 
-    getEvent(type, extra = {})
-    {
-      return fn.extend({
-
-        type: type,
-        day: this.day,
-        schedule: this.schedule,
-        target: this.targetSchedule,
-        details: this.details,
-        targetDetails: this.targetDetails,
-        calendar: this.calendar,
-        calendarEvent: this.calendarEvent,
-        handled: false,
-        refresh: true,
-        create: true,
-        added: false,
-        $vm: this,
-        $element: this.$el
-
-      }, extra);
+    getEvent(type, extra = {}) {
+      return fn.extend(
+        {
+          type: type,
+          day: this.day,
+          schedule: this.schedule,
+          target: this.targetSchedule,
+          details: this.details,
+          targetDetails: this.targetDetails,
+          calendar: this.calendar,
+          calendarEvent: this.calendarEvent,
+          handled: false,
+          refresh: true,
+          create: true,
+          added: false,
+          $vm: this,
+          $element: this.$el
+        },
+        extra
+      );
     }
-
   }
-}
+};
 </script>
 
 <style scoped lang="scss">
-
 .ds-calendar-event-title {
   font-size: 18px;
   padding-right: 8px;
@@ -669,18 +536,14 @@ export default {
 }
 
 .ds-event {
-
   &.ds-has-cancel {
-
     .ds-event-area {
       margin-left: 60px;
     }
   }
 
   &.ds-event-small {
-
     &.ds-has-cancel {
-
       .ds-event-area {
         margin-left: 0px;
       }
@@ -727,5 +590,4 @@ export default {
     margin-bottom: 8px;
   }
 }
-
 </style>

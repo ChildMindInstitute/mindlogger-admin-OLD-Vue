@@ -60,8 +60,11 @@
                     :calendar-event="calendarEvent"
                     :calendar="calendar"
             >
-              <v-btn icon :style="styleButton">
-                <v-icon>mdi-dots-vertical</v-icon>
+              <v-btn 
+                icon 
+                :style="styleButton"
+                @click.stop="remove">
+                <v-icon>mdi-delete</v-icon>
               </v-btn>
             </ds-schedule-actions>
           </template>
@@ -194,8 +197,7 @@
 </template>
 
 <script>
-import { CalendarEvent, Calendar } from 'dayspan';
-
+import { Day, Calendar, CalendarEvent, Schedule, Functions as fn } from 'dayspan';
 
 export default {
 
@@ -344,7 +346,43 @@ export default {
 
   methods:
   {
+    remove() {
+      this.$dayspan.getPermission('actionRemove', () =>
+      {
+        var ev = this.getEvent('save');
+        this.$emit('remove', ev);
+        if (!ev.handled && ev.calendar)
+        {
+          ev.calendar.removeEvent( ev.calendarEvent.event );
+          ev.handled = true;
+        }
+        this.$emit('finish', ev);
+        this.$emit('event-remove', ev.event);
+      });
 
+    },
+
+    getEvent(type, extra = {}) {
+      return fn.extend(
+        {
+          type: type,
+          day: this.day,
+          schedule: this.schedule,
+          target: this.targetSchedule,
+          details: this.details,
+          targetDetails: this.targetDetails,
+          calendar: this.calendar,
+          calendarEvent: this.calendarEvent,
+          handled: false,
+          refresh: true,
+          create: true,
+          added: false,
+          $vm: this,
+          $element: this.$el
+        },
+        extra
+      );
+    }
   }
 }
 </script>
