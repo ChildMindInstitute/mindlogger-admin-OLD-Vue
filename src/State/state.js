@@ -40,7 +40,6 @@ const mutations = {
       const idx = _.findIndex(state.allApplets,
         a => a.applet._id == state.currentApplet.applet._id);
       if (idx > -1) {
-        console.log(idx, state.allApplets[idx].applet);
         state.allApplets[idx].applet.schedule = schedule;
         state.currentApplet = state.allApplets[idx];
       }
