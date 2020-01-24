@@ -35,9 +35,12 @@ const mutations = {
   setSchedule(state, schedule) {
     if (!_.isEmpty(state.currentApplet)) {
       // TODO: this sucks.
+      // const idx = _.findIndex(state.allApplets,
+      //   a => a.applet['skos:prefLabel'] == state.currentApplet.applet['skos:prefLabel']);
       const idx = _.findIndex(state.allApplets,
-        a => a.applet['skos:prefLabel'] == state.currentApplet.applet['skos:prefLabel']);
+        a => a.applet._id == state.currentApplet.applet._id);
       if (idx > -1) {
+        console.log(idx, state.allApplets[idx].applet);
         state.allApplets[idx].applet.schedule = schedule;
         state.currentApplet = state.allApplets[idx];
       }
