@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.8] = 2020-1-23
 ### Changed
-- activity-set-builder 0.1.4 -> 0.1.5
+- activity-set-builder 0.1.5 -> 0.1.6
 
 ## [0.1.7] = 2020-1-17
 ### Changed
