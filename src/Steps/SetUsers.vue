@@ -17,7 +17,7 @@
       />
       <h1>Pending Invitations</h1>
       <pending-invite-table
-        key="componentKey"
+        key="componentKey1"
         :users="pendingInviteList"
       />
       <create-invitation-form

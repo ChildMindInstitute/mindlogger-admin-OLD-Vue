@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - activity-set-builder 0.1.5 -> 0.1.6
 
+## [0.1.7] - 2020-01-24
+## Changed
+- :bug: Fixed bug regarding not showing correct activities in schedule page
+
 ## [0.1.7] = 2020-1-17
 ### Changed
 - Fix word breaks on ```v-card-title```

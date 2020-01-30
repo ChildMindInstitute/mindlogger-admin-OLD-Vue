@@ -59,6 +59,7 @@ export default {
   name: 'CreateInvitationForm',
   data() {
     return {
+      valid: true,
       emailRules: [ v => /.+@.+/.test(v) || 'Invalid Email address' ],
       useDefaultProfile: true,
       roles: ['user', 'coordinator', 'editor', 'manager', 'reviewer'],

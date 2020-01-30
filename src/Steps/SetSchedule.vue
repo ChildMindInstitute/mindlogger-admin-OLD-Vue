@@ -140,6 +140,9 @@ export default {
      * on continue, save the schedule.
      * TODO: probably we should save when you hit 'back' as well?
      */
+    continueAction() {
+      return true;
+    },
     saveSchedule() {
       const scheduleForm = new FormData();
       if (this.currentApplet && this.currentApplet.applet && this.currentApplet.applet.schedule) {
