@@ -1,6 +1,6 @@
 {
   "name": "mindlogger-admin",
-  "version": "0.1.8",
+  "version": "0.1.10",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -10,7 +10,7 @@
   "dependencies": {
     "@ag-grid-community/all-modules": "^22.0.0",
     "@ag-grid-community/vue": "^22.0.0",
-    "activity-set-builder": "0.1.6",
+    "activity-set-builder": "0.1.7",
     "axios": "^0.19.0",
     "babel-loader": "^7.1.5",
     "dayspan-vuetify-2": "^0.2.0",

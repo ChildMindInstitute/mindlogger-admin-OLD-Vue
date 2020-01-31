@@ -1,11 +1,7 @@
 <template>
   <div class="ds-expand ds-calendar-app">
     <v-content class="ds-expand">
-      <v-container
-        fluid
-        class="ds-calendar-container"
-        style="height: 100%;"
-      >
+      <v-container fluid class="ds-calendar-container" style="height: 100%;">
         <!-- top controls -->
         <div class="top-controls">
           <v-tooltip bottom color="secondary">
@@ -17,10 +13,12 @@
                 :icon="$vuetify.breakpoint.smAndDown"
                 @click="setToday"
               >
-                <span v-if="$vuetify.breakpoint.mdAndUp">{{ labels.today }}</span>
-                <v-icon v-else>
-                  {{ labels.todayIcon }}
-                </v-icon>
+                <span v-if="$vuetify.breakpoint.mdAndUp">
+                  {{
+                  labels.today
+                  }}
+                </span>
+                <v-icon v-else>{{ labels.todayIcon }}</v-icon>
               </v-btn>
             </template>
             <span>{{ todayDate }}</span>
@@ -56,30 +54,18 @@
             <span>{{ nextLabel }}</span>
           </v-tooltip>
 
-          <h1
-            class="title ds-light-forecolor"
-            style="display: inline;"
-          >
-            {{ summary }}
-          </h1>
+          <h1 class="title ds-light-forecolor" style="display: inline;">{{ summary }}</h1>
 
           <div>
             <v-menu>
               <template v-slot:activator="{ on }">
-                <v-btn
-                  v-on="on"
-                  text
-                >
+                <v-btn v-on="on" text>
                   {{ currentType.label }}
                   <v-icon>mdi-menu-down</v-icon>
                 </v-btn>
               </template>
               <v-list>
-                <v-list-item
-                  v-for="type in types"
-                  :key="type.id"
-                  @click="currentType = type"
-                >
+                <v-list-item v-for="type in types" :key="type.id" @click="currentType = type">
                   <v-list-item-content>
                     <v-list-item-title>{{ type.label }}</v-list-item-title>
                   </v-list-item-content>
@@ -90,23 +76,13 @@
           </div>
         </div>
 
-        <v-layout
-          row
-          wrap
-          style="height: calc(100% - 200px);"
-        >
+        <v-layout row wrap style="height: calc(100% - 200px);">
           <!-- The activities in the applet -->
           <v-flex xs2>
             <div>
               <div class="px-3">
-                <h3 class="mb-3 mt-3 pb-3">
-                  Activities
-                </h3>
-                <div
-                  v-for="act in activities"
-                  :key="act.name"
-                  class="mt-3 mb-3"
-                >
+                <h3 class="mb-3 mt-3 pb-3">Activities</h3>
+                <div v-for="act in activities" :key="act.name" class="mt-3 mb-3">
                   <ActivitySidebar :activity="act" />
                 </div>
               </div>
@@ -115,20 +91,21 @@
 
           <v-flex xs10>
             <!-- The calendar -->
-            <ds-gestures
-              @swipeleft="next"
-              @swiperight="prev"
-            >
-              <div
-                v-if="currentType.schedule"
-                class="ds-expand"
-              >
+            <ds-gestures @swipeleft="next" @swiperight="prev">
+              <div v-if="currentType.schedule" class="ds-expand">
                 <slot
                   name="calendarAppAgenda"
-                  v-bind="{$scopedSlots, $listeners, calendar, add, edit, viewDay}"
+                  v-bind="{
+                    $scopedSlots,
+                    $listeners,
+                    calendar,
+                    add,
+                    edit,
+                    viewDay
+                  }"
                 >
                   <ds-agenda
-                    v-bind="{$scopedSlots}"
+                    v-bind="{ $scopedSlots }"
                     :read-only="readOnly"
                     :calendar="calendar"
                     v-on="$listeners"
@@ -139,17 +116,24 @@
                 </slot>
               </div>
 
-              <div
-                v-else
-                class="ds-expand"
-              >
+              <div v-else class="ds-expand">
                 <slot
                   name="calendarAppCalendar"
-                  v-bind="{$scopedSlots, $listeners, calendar, add, addAt, edit, viewDay, handleAdd, handleMove}"
+                  v-bind="{
+                    $scopedSlots,
+                    $listeners,
+                    calendar,
+                    add,
+                    addAt,
+                    edit,
+                    viewDay,
+                    handleAdd,
+                    handleMove
+                  }"
                 >
                   <ds-calendar
                     ref="calendar"
-                    v-bind="{$scopedSlots}"
+                    v-bind="{ $scopedSlots }"
                     :calendar="calendar"
                     :read-only="readOnly"
                     v-on="$listeners"
@@ -169,11 +153,11 @@
         <!-- dialogs and popups -->
         <slot
           name="calendarAppEventDialog"
-          v-bind="{$scopedSlots, $listeners, calendar, eventFinish}"
+          v-bind="{ $scopedSlots, $listeners, calendar, eventFinish }"
         >
           <event-dialog
             ref="eventDialog"
-            v-bind="{$scopedSlots}"
+            v-bind="{ $scopedSlots }"
             :calendar="calendar"
             :read-only="readOnly"
             :activities="activities"
@@ -185,7 +169,7 @@
 
         <slot
           name="calendarAppOptions"
-          v-bind="{optionsVisible, optionsDialog, options, chooseOption}"
+          v-bind="{ optionsVisible, optionsDialog, options, chooseOption }"
         >
           <v-dialog
             ref="optionsDialog"
@@ -195,12 +179,7 @@
           >
             <v-list>
               <template v-for="option in options">
-                <v-list-item
-                  :key="option.text"
-                  @click="chooseOption( option )"
-                >
-                  {{ option.text }}
-                </v-list-item>
+                <v-list-item :key="option.text" @click="chooseOption(option)">{{ option.text }}</v-list-item>
               </template>
             </v-list>
           </v-dialog>
@@ -208,40 +187,21 @@
 
         <slot
           name="calendarAppPrompt"
-          v-bind="{promptVisible, promptDialog, promptQuestion, choosePrompt}"
+          v-bind="{ promptVisible, promptDialog, promptQuestion, choosePrompt }"
         >
-          <v-dialog
-            ref="promptDialog"
-            v-model="promptVisible"
-            v-bind="promptDialog"
-          >
+          <v-dialog ref="promptDialog" v-model="promptVisible" v-bind="promptDialog">
             <v-card>
               <v-card-title>{{ promptQuestion }}</v-card-title>
               <v-card-actions>
-                <v-btn
-                  color="primary"
-                  text
-                  @click="choosePrompt( true )"
-                >
-                  {{ labels.promptConfirm }}
-                </v-btn>
+                <v-btn color="primary" text @click="choosePrompt(true)">{{ labels.promptConfirm }}</v-btn>
                 <v-spacer />
-                <v-btn
-                  color="secondary"
-                  text
-                  @click="choosePrompt( false )"
-                >
-                  {{ labels.promptCancel }}
-                </v-btn>
+                <v-btn color="secondary" text @click="choosePrompt(false)">{{ labels.promptCancel }}</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
         </slot>
 
-        <slot
-          name="calendarAppAdd"
-          v-bind="{allowsAddToday, addToday}"
-        >
+        <slot name="calendarAppAdd" v-bind="{ allowsAddToday, addToday }">
           <v-fab-transition v-if="!readOnly">
             <v-btn
               v-model="allowsAddToday"
@@ -259,105 +219,94 @@
           </v-fab-transition>
         </slot>
 
-        <slot
-          name="containerInside"
-          v-bind="{events, calendar}"
-        />
+        <slot name="containerInside" v-bind="{ events, calendar }" />
       </v-container>
     </v-content>
   </div>
 </template>
 
 <script>
-import { Sorts, Calendar, Op } from 'dayspan';
+import { Sorts, Calendar, Op } from "dayspan";
 
-import EventDialog from './EventDialog';
-import ActivitySidebar from './ActivitySidebar';
+import EventDialog from "./EventDialog";
+import ActivitySidebar from "./ActivitySidebar";
+import DsGestures from "./Gestures";
+import DsCalendar from "./Calendar";
 
 export default {
-
-  name: 'dsCalendarApp',
+  name: "dsCalendarApp",
 
   components: {
     EventDialog,
     ActivitySidebar,
+    DsCalendar,
+    DsGestures
   },
 
-  props:
-  {
+  props: {
     activities: {
-      type: Array,
-    },
-    events:
-    {
       type: Array
     },
-    calendar:
-    {
+    events: {
+      type: Array
+    },
+    calendar: {
       type: Calendar,
       default() {
         return Calendar.months();
       }
     },
-    readOnly:
-    {
+    readOnly: {
       type: Boolean,
       default: false
     },
-    types:
-    {
+    types: {
       type: Array,
       default() {
         return this.$dsDefaults().types;
       }
     },
-    allowsAddToday:
-    {
+    allowsAddToday: {
       type: Boolean,
       default() {
         return this.$dsDefaults().allowsAddToday;
       }
     },
-    formats:
-    {
+    formats: {
       validate(x) {
-        return this.$dsValidate(x, 'formats');
+        return this.$dsValidate(x, "formats");
       },
       default() {
         return this.$dsDefaults().formats;
       }
     },
-    labels:
-    {
+    labels: {
       validate(x) {
-        return this.$dsValidate(x, 'labels');
+        return this.$dsValidate(x, "labels");
       },
       default() {
         return this.$dsDefaults().labels;
       }
     },
-    styles:
-    {
+    styles: {
       validate(x) {
-        return this.$dsValidate(x, 'styles');
+        return this.$dsValidate(x, "styles");
       },
       default() {
         return this.$dsDefaults().styles;
       }
     },
-    optionsDialog:
-    {
+    optionsDialog: {
       validate(x) {
-        return this.$dsValidate(x, 'optionsDialog');
+        return this.$dsValidate(x, "optionsDialog");
       },
       default() {
         return this.$dsDefaults().optionsDialog;
       }
     },
-    promptDialog:
-    {
+    promptDialog: {
       validate(x) {
-        return this.$dsValidate(x, 'promptDialog');
+        return this.$dsValidate(x, "promptDialog");
       },
       default() {
         return this.$dsDefaults().promptDialog;
@@ -371,34 +320,31 @@ export default {
     optionsVisible: false,
     options: [],
     promptVisible: false,
-    promptQuestion: '',
+    promptQuestion: "",
     promptCallback: null
   }),
 
-  computed:
-  {
-    currentType:
-    {
-      get()
-      {
-        return this.types.find((type) =>
-          type.type === this.calendar.type &&
-          type.size === this.calendar.size
-        ) || this.types[0];
+  computed: {
+    currentType: {
+      get() {
+        return (
+          this.types.find(
+            type =>
+              type.type === this.calendar.type &&
+              type.size === this.calendar.size
+          ) || this.types[0]
+        );
       },
-      set(type)
-      {
+      set(type) {
         this.rebuild(undefined, true, type);
       }
     },
 
-    summary()
-    {
+    summary() {
       let small = this.$vuetify.breakpoint.xs;
 
-      if (small)
-      {
-        return this.calendar.start.format( this.formats.xs );
+      if (small) {
+        return this.calendar.start.format(this.formats.xs);
       }
 
       let large = this.$vuetify.breakpoint.mdAndUp;
@@ -406,54 +352,52 @@ export default {
       return this.calendar.summary(false, !large, false, !large);
     },
 
-    todayDate()
-    {
-      return this.$dayspan.today.format( this.formats.today );
+    todayDate() {
+      return this.$dayspan.today.format(this.formats.today);
     },
 
-    nextLabel()
-    {
-      return this.labels.next( this.currentType );
+    nextLabel() {
+      return this.labels.next(this.currentType);
     },
 
-    prevLabel()
-    {
-      return this.labels.prev( this.currentType );
+    prevLabel() {
+      return this.labels.prev(this.currentType);
     },
 
-    toolbarStyle()
-    {
+    toolbarStyle() {
       let large = this.$vuetify.breakpoint.lgAndUp;
 
       return large ? this.styles.toolbar.large : this.styles.toolbar.small;
     },
 
-    hasCreatePopover()
-    {
+    hasCreatePopover() {
       return !!this.$scopedSlots.eventCreatePopover;
     },
 
-    canAddDay()
-    {
-      return this.$dayspan.features.addDay && !this.readOnly && !this.$dayspan.readOnly;
+    canAddDay() {
+      return (
+        this.$dayspan.features.addDay &&
+        !this.readOnly &&
+        !this.$dayspan.readOnly
+      );
     },
 
-    canAddTime()
-    {
-      return this.$dayspan.features.addTime && !this.readOnly && !this.$dayspan.readOnly;
+    canAddTime() {
+      return (
+        this.$dayspan.features.addTime &&
+        !this.readOnly &&
+        !this.$dayspan.readOnly
+      );
     }
   },
 
-  watch:
-  {
-    'events': 'applyEvents',
-    'calendar': 'applyEvents'
+  watch: {
+    events: "applyEvents",
+    calendar: "applyEvents"
   },
 
-  mounted()
-  {
-    if (!this.$dayspan.promptOpen)
-    {
+  mounted() {
+    if (!this.$dayspan.promptOpen) {
       this.$dayspan.promptOpen = (question, callback) => {
         this.promptVisible = false;
         this.promptQuestion = question;
@@ -463,42 +407,38 @@ export default {
     }
   },
 
-  methods:
-  {
-    setState(state)
-    {
+  methods: {
+    setState(state) {
       state.eventSorter = state.listTimes
         ? Sorts.List([Sorts.FullDay, Sorts.Start])
         : Sorts.Start;
 
-      this.calendar.set( state );
+      this.calendar.set(state);
 
       this.triggerChange();
     },
 
-    applyEvents()
-    {
-      if (this.events)
-      {
+    applyEvents() {
+      if (this.events) {
         this.calendar.removeEvents();
         this.calendar.addEvents(this.events);
       }
     },
 
-    isType(type, aroundDay)
-    {
+    isType(type, aroundDay) {
       let cal = this.calendar;
 
-      return (cal.type === type.type && cal.size === type.size &&
-          (!aroundDay || cal.span.matchesDay(aroundDay)));
+      return (
+        cal.type === type.type &&
+        cal.size === type.size &&
+        (!aroundDay || cal.span.matchesDay(aroundDay))
+      );
     },
 
-    rebuild (aroundDay, force, forceType)
-    {
-      let type = forceType || this.currentType || this.types[ 2 ];
+    rebuild(aroundDay, force, forceType) {
+      let type = forceType || this.currentType || this.types[2];
 
-      if (this.isType( type, aroundDay ) && !force)
-      {
+      if (this.isType(type, aroundDay) && !force) {
         return;
       }
 
@@ -516,55 +456,47 @@ export default {
         repeatCovers: type.repeat
       };
 
-      this.setState( input );
+      this.setState(input);
     },
 
-    next()
-    {
+    next() {
       this.calendar.unselect().next();
 
       this.triggerChange();
     },
 
-    prev()
-    {
+    prev() {
       this.calendar.unselect().prev();
 
       this.triggerChange();
     },
 
-    setToday()
-    {
-      this.rebuild( this.$dayspan.today );
+    setToday() {
+      this.rebuild(this.$dayspan.today);
     },
 
-    viewDay(day)
-    {
-      this.rebuild( day, false, this.types[ 0 ] );
+    viewDay(day) {
+      this.rebuild(day, false, this.types[0]);
     },
 
-    edit(calendarEvent)
-    {
+    edit(calendarEvent) {
       let eventDialog = this.$refs.eventDialog;
 
       eventDialog.edit(calendarEvent);
     },
 
-    editPlaceholder(createEdit)
-    {
+    editPlaceholder(createEdit) {
       let placeholder = createEdit.calendarEvent;
       let details = createEdit.details;
       let eventDialog = this.$refs.eventDialog;
       let calendar = this.$refs.calendar;
 
-      eventDialog.addPlaceholder( placeholder, details );
-      eventDialog.$once('close', calendar.clearPlaceholder);
+      eventDialog.addPlaceholder(placeholder, details);
+      eventDialog.$once("close", calendar.clearPlaceholder);
     },
 
-    add(day)
-    {
-      if (!this.canAddDay)
-      {
+    add(day) {
+      if (!this.canAddDay) {
         return;
       }
 
@@ -572,40 +504,34 @@ export default {
       let calendar = this.$refs.calendar;
       let useDialog = !this.hasCreatePopover;
 
-      calendar.addPlaceholder( day, true, useDialog );
+      calendar.addPlaceholder(day, true, useDialog);
 
-      if (useDialog)
-      {
+      if (useDialog) {
         eventDialog.add(day);
-        eventDialog.$once('close', calendar.clearPlaceholder);
+        eventDialog.$once("close", calendar.clearPlaceholder);
       }
     },
 
-    addAt(dayHour)
-    {
-      if (!this.canAddTime)
-      {
+    addAt(dayHour) {
+      if (!this.canAddTime) {
         return;
       }
 
       let eventDialog = this.$refs.eventDialog;
       let calendar = this.$refs.calendar;
       let useDialog = !this.hasCreatePopover;
-      let at = dayHour.day.withHour( dayHour.hour );
+      let at = dayHour.day.withHour(dayHour.hour);
 
-      calendar.addPlaceholder( at, false, useDialog );
+      calendar.addPlaceholder(at, false, useDialog);
 
-      if (useDialog)
-      {
+      if (useDialog) {
         eventDialog.addAt(dayHour.day, dayHour.hour);
-        eventDialog.$once('close', calendar.clearPlaceholder);
+        eventDialog.$once("close", calendar.clearPlaceholder);
       }
     },
 
-    addToday()
-    {
-      if (!this.canAddDay)
-      {
+    addToday() {
+      if (!this.canAddDay) {
         return;
       }
 
@@ -615,54 +541,44 @@ export default {
 
       let day = this.$dayspan.today;
 
-      if (!this.calendar.filled.matchesDay( day ))
-      {
-        let first = this.calendar.days[ 0 ];
-        let last = this.calendar.days[ this.calendar.days.length - 1 ];
-        let firstDistance = Math.abs( first.currentOffset );
-        let lastDistance = Math.abs( last.currentOffset );
+      if (!this.calendar.filled.matchesDay(day)) {
+        let first = this.calendar.days[0];
+        let last = this.calendar.days[this.calendar.days.length - 1];
+        let firstDistance = Math.abs(first.currentOffset);
+        let lastDistance = Math.abs(last.currentOffset);
 
-        day = firstDistance < lastDistance ? first: last;
+        day = firstDistance < lastDistance ? first : last;
       }
 
-      calendar && calendar.addPlaceholder( day, true, useDialog );
+      calendar && calendar.addPlaceholder(day, true, useDialog);
 
-      if (useDialog)
-      {
-        eventDialog.add( day );
+      if (useDialog) {
+        eventDialog.add(day);
 
-        calendar && eventDialog.$once('close', calendar.clearPlaceholder);
+        calendar && eventDialog.$once("close", calendar.clearPlaceholder);
       }
     },
 
-    handleAdd(addEvent)
-    {
+    handleAdd(addEvent) {
       let eventDialog = this.$refs.eventDialog;
       let calendar = this.$refs.calendar;
 
       addEvent.handled = true;
 
-      if (!this.hasCreatePopover)
-      {
-        if (addEvent.placeholder.fullDay)
-        {
+      if (!this.hasCreatePopover) {
+        if (addEvent.placeholder.fullDay) {
           eventDialog.add(addEvent.span.start, addEvent.span.days(Op.UP));
-        }
-        else
-        {
+        } else {
           eventDialog.addSpan(addEvent.span);
         }
 
-        eventDialog.$once('close', addEvent.clearPlaceholder);
-      }
-      else
-      {
+        eventDialog.$once("close", addEvent.clearPlaceholder);
+      } else {
         calendar.placeholderForCreate = true;
       }
     },
 
-    handleMove(moveEvent)
-    {
+    handleMove(moveEvent) {
       let calendarEvent = moveEvent.calendarEvent;
       let target = moveEvent.target;
       let targetStart = target.start;
@@ -674,35 +590,35 @@ export default {
 
       let callbacks = {
         cancel: () => {
-          moveEvent.clearPlaceholder()
+          moveEvent.clearPlaceholder();
         },
         single: () => {
-          calendarEvent.move( targetStart );
+          calendarEvent.move(targetStart);
           this.eventsRefresh();
           moveEvent.clearPlaceholder();
 
-          this.$emit('event-update', calendarEvent.event);
+          this.$emit("event-update", calendarEvent.event);
         },
         instance: () => {
-          calendarEvent.move( targetStart );
+          calendarEvent.move(targetStart);
           this.eventsRefresh();
           moveEvent.clearPlaceholder();
 
-          this.$emit('event-update', calendarEvent.event);
+          this.$emit("event-update", calendarEvent.event);
         },
         duplicate: () => {
-          schedule.setExcluded( targetStart, false );
+          schedule.setExcluded(targetStart, false);
           this.eventsRefresh();
           moveEvent.clearPlaceholder();
 
-          this.$emit('event-update', calendarEvent.event);
+          this.$emit("event-update", calendarEvent.event);
         },
         all: () => {
-          schedule.moveTime( sourceStart.asTime(), targetStart.asTime() );
+          schedule.moveTime(sourceStart.asTime(), targetStart.asTime());
           this.eventsRefresh();
           moveEvent.clearPlaceholder();
 
-          this.$emit('event-update', calendarEvent.event);
+          this.$emit("event-update", calendarEvent.event);
         }
       };
 
@@ -711,43 +627,38 @@ export default {
         callback: callbacks.cancel
       });
 
-      if (schedule.isSingleEvent())
-      {
+      if (schedule.isSingleEvent()) {
         options.push({
           text: this.labels.moveSingleEvent,
           callback: callbacks.single
         });
 
-        if (this.$dayspan.features.moveDuplicate)
-        {
+        if (this.$dayspan.features.moveDuplicate) {
           options.push({
             text: this.labels.moveDuplicate,
             callback: callbacks.duplicate
           });
         }
-      }
-      else
-      {
-        if (this.$dayspan.features.moveInstance)
-        {
+      } else {
+        if (this.$dayspan.features.moveInstance) {
           options.push({
             text: this.labels.moveOccurrence,
             callback: callbacks.instance
           });
         }
 
-        if (this.$dayspan.features.moveDuplicate)
-        {
+        if (this.$dayspan.features.moveDuplicate) {
           options.push({
             text: this.labels.moveDuplicate,
             callback: callbacks.duplicate
           });
         }
 
-        if (this.$dayspan.features.moveAll &&
-            !schedule.isFullDay() &&
-            targetStart.sameDay(sourceStart))
-        {
+        if (
+          this.$dayspan.features.moveAll &&
+          !schedule.isFullDay() &&
+          targetStart.sameDay(sourceStart)
+        ) {
           options.push({
             text: this.labels.moveAll,
             callback: callbacks.all
@@ -759,55 +670,48 @@ export default {
       this.optionsVisible = true;
     },
 
-    chooseOption(option)
-    {
-      if (option)
-      {
+    chooseOption(option) {
+      if (option) {
         option.callback();
       }
 
       this.optionsVisible = false;
     },
 
-    choosePrompt(yes)
-    {
-      this.promptCallback( yes );
+    choosePrompt(yes) {
+      this.promptCallback(yes);
       this.promptVisible = false;
     },
 
     // eslint-disable-next-line
-    eventFinish(ev)
-    {
+    eventFinish(ev) {
       this.triggerChange();
     },
 
-    eventsRefresh()
-    {
+    eventsRefresh() {
       this.calendar.refreshEvents();
 
       this.triggerChange();
     },
 
-    triggerChange()
-    {
-      this.$emit('change', {
+    triggerChange() {
+      this.$emit("change", {
         calendar: this.calendar
       });
     }
   }
-}
+};
 </script>
 
 <style scoped>
-.v-card__text, .v-card__title {
+.v-card__text,
+.v-card__title {
   word-break: normal;
 }
 </style>
 
 <style scoped lang="scss">
-
 .ds-app-calendar-toolbar {
-
   .v-toolbar__content {
     border-bottom: 1px solid rgb(224, 224, 224);
   }
@@ -829,7 +733,6 @@ export default {
 }
 
 .v-btn--floating.ds-add-event-today {
-
   .v-icon {
     width: 24px;
     height: 24px;
