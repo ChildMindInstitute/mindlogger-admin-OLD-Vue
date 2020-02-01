@@ -1,8 +1,5 @@
 <template>
-  <v-app
-    v-cloak
-    id="dayspan"
-  >
+  <v-app v-cloak id="dayspan">
     <calendar-app
       ref="app"
       :events="events"
@@ -13,10 +10,7 @@
     >
       <template slot="menuRight" />
 
-      <template
-        slot="eventPopover"
-        slot-scope="slotData"
-      >
+      <template slot="eventPopover" slot-scope="slotData">
         <calendar-event-popover
           v-bind="slotData"
           :read-only="readOnly"
@@ -26,7 +20,7 @@
 
       <template
         slot="eventCreatePopover"
-        slot-scope="{placeholder, calendar, close}"
+        slot-scope="{ placeholder, calendar, close }"
       >
         <calendar-event-create-popover
           :calendar-event="placeholder"
@@ -38,23 +32,20 @@
         />
       </template>
 
-      <template
-        slot="eventTimeTitle"
-        slot-scope="{calendarEvent, details}"
-      >
+      <template slot="eventTimeTitle" slot-scope="{ calendarEvent, details }">
         <div>
           <v-icon
             v-if="details.icon"
             class="ds-ev-icon"
             size="14"
-            :style="{color: details.forecolor}"
+            :style="{ color: details.forecolor }"
           >
             {{ details.icon }}
           </v-icon>
           <strong class="ds-ev-title">{{ details.title }}</strong>
         </div>
         <div class="ds-ev-description">
-          {{ getCalendarTime( calendarEvent ) }}
+          {{ getCalendarTime(calendarEvent) }}
         </div>
       </template>
 
@@ -79,32 +70,30 @@
 </template>
 
 <script>
-import { Calendar } from 'dayspan';
-import Vue from 'vue';
-import _ from 'lodash';
+import { Calendar } from "dayspan";
+import Vue from "vue";
+import _ from "lodash";
 
-import CalendarApp from './CalendarApp';
-import CalendarEventCreatePopover from './CalendarEventCreatePopover';
-import CalendarEventPopover from './CalendarEventPopover';
-
+import CalendarApp from "./CalendarApp";
+import CalendarEventCreatePopover from "./CalendarEventCreatePopover";
+import CalendarEventPopover from "./CalendarEventPopover";
 
 export default {
-
-  name: 'App',
+  name: "App",
 
   components: {
     CalendarApp,
     CalendarEventCreatePopover,
-    CalendarEventPopover,
+    CalendarEventPopover
   },
 
   props: {
     activities: {
       type: Array,
-      required: true,
+      required: true
     },
     events: {
-      type: Array,
+      type: Array
     }
   },
 
@@ -121,10 +110,10 @@ export default {
     //     visible: true,
     //   }
     // ],
-    storeKey: 'dayspanState',
+    storeKey: "dayspanState",
     calendar: Calendar.months(),
     readOnly: false,
-    defaultEvents: [],
+    defaultEvents: []
   }),
 
   computed: {
@@ -134,7 +123,7 @@ export default {
 
     currentAppletName() {
       if (!_.isEmpty(this.currentApplet)) {
-        return this.$store.state.currentApplet.applet['skos:prefLabel'];
+        return this.$store.state.currentApplet.applet["skos:prefLabel"];
       }
     },
 
@@ -148,63 +137,57 @@ export default {
   watch: {
     currentAppletName() {
       this.loadState();
-    },
+    }
   },
 
-  mounted()
-  {
+  mounted() {
     window.app = this.$refs.app;
 
     this.loadState();
   },
 
-  methods:
-  {
-    getCalendarTime(calendarEvent)
-    {
-      let sa = calendarEvent.start.format('a');
-      let ea = calendarEvent.end.format('a');
-      let sh = calendarEvent.start.format('h');
-      let eh = calendarEvent.end.format('h');
+  methods: {
+    getCalendarTime(calendarEvent) {
+      let sa = calendarEvent.start.format("a");
+      let ea = calendarEvent.end.format("a");
+      let sh = calendarEvent.start.format("h");
+      let eh = calendarEvent.end.format("h");
 
-      if (calendarEvent.start.minute !== 0)
-      {
-        sh += calendarEvent.start.format(':mm');
+      if (calendarEvent.start.minute !== 0) {
+        sh += calendarEvent.start.format(":mm");
       }
 
-      if (calendarEvent.end.minute !== 0)
-      {
-        eh += calendarEvent.end.format(':mm');
+      if (calendarEvent.end.minute !== 0) {
+        eh += calendarEvent.end.format(":mm");
       }
 
-      return (sa === ea) ? (sh + ' - ' + eh + ea) : (sh + sa + ' - ' + eh + ea);
+      return sa === ea ? sh + " - " + eh + ea : sh + sa + " - " + eh + ea;
     },
 
-    saveState()
-    {
+    saveState() {
       const state = this.calendar.toInput(true);
       const storeState = this.$store.state;
       let oldStateEvents = [];
       let newStateEvents = [];
       if (state && storeState) {
         try {
-          oldStateEvents = this.$store.state.currentApplet.applet.schedule.events;
-        } catch { }
+          oldStateEvents = this.$store.state.currentApplet.applet.schedule
+            .events;
+        } catch {}
         newStateEvents = state.events;
       }
 
       if (this.currentApplet) {
-        this.$store.commit('setSchedule', state );
+        this.$store.commit("setSchedule", state);
         if (_.difference(oldStateEvents, newStateEvents)) {
-          this.$emit('change');
+          this.$emit("change");
         }
       }
 
       // localStorage.setItem(this.storeKey, json);
     },
 
-    loadState()
-    {
+    loadState() {
       let state = {};
 
       try {
@@ -213,38 +196,36 @@ export default {
           savedState = this.$store.state.currentApplet.applet.schedule || null;
         }
 
-        if (savedState)
-        {
+        if (savedState) {
           state = savedState;
           state.preferToday = false;
         }
-      }
-      catch (e) {
+      } catch (e) {
         // eslint-disable-next-line
-        console.log( e );
+        console.log(e);
       }
 
-      if (!state.events || !state.events.length)
-      {
+      if (!state.events || !state.events.length) {
         state.events = this.defaultEvents;
       }
 
-      state.events.forEach(ev =>
-      {
+      state.events.forEach(ev => {
         let defaults = this.$dayspan.getDefaultEventDetails();
 
-        ev.data = Vue.util.extend( defaults, ev.data );
+        ev.data = Vue.util.extend(defaults, ev.data);
       });
 
-      this.$refs.app.setState( state );
+      this.$refs.app.setState(state);
     }
   }
-}
+};
 </script>
 
 <style scoped>
-
-body, html, #app, #dayspan {
+body,
+html,
+#app,
+#dayspan {
   font-family: Roboto, sans-serif !important;
   width: 100%;
   height: 100%;
@@ -255,5 +236,4 @@ body, html, #app, #dayspan {
   background-color: #f5f5f5 !important;
   margin-bottom: 8px !important;
 }
-
 </style>

@@ -35,7 +35,7 @@
           name="scheduleActions"
           v-bind="{calendarEvent, schedule, calendar, actioned, readOnly}"
         >
-          <ds-schedule-actions
+          <schedule-actions
             v-if="calendarEvent && !isReadOnly"
             v-bind="{$scopedSlots}"
             v-on="$listeners"
@@ -50,7 +50,7 @@
               @click.stop="remove"
               depressed
             >Remove</v-btn>
-          </ds-schedule-actions>
+          </schedule-actions>
         </slot>
       </div>
 
@@ -117,7 +117,7 @@
             <v-card text>
               <v-card-text>
                 <slot name="eventForecast" v-bind="slotData">
-                  <ds-schedule-forecast :schedule="schedule" :day="day" :read-only="readOnly" />
+                  <schedule-forecast :schedule="schedule" :day="day" :read-only="readOnly" />
                 </slot>
               </v-card-text>
             </v-card>
@@ -128,7 +128,7 @@
             <v-card text>
               <v-card-text>
                 <slot name="eventExclusions" v-bind="slotData">
-                  <ds-schedule-modifier
+                  <schedule-modifier
                     :description="labels.exclusions"
                     :modifier="schedule.exclude"
                     :read-only="readOnly"
@@ -143,7 +143,7 @@
             <v-card text>
               <v-card-text>
                 <slot name="eventInclusions" v-bind="slotData">
-                  <ds-schedule-modifier
+                  <schedule-modifier
                     :description="labels.inclusions"
                     :modifier="schedule.include"
                     :read-only="readOnly"
@@ -158,7 +158,7 @@
             <v-card text>
               <v-card-text>
                 <slot name="eventCancels" v-bind="slotData">
-                  <ds-schedule-modifier
+                  <schedule-modifier
                     :description="labels.cancelled"
                     :modifier="schedule.cancel"
                     :read-only="readOnly"
@@ -184,7 +184,11 @@ import {
   Functions as fn
 } from "dayspan";
 import _ from "lodash";
+
 import Notification from "./Notification";
+import ScheduleModifier from "./ScheduleModifier";
+import ScheduleForecast from "./ScheduleForecast";
+import ScheduleActions from "./ScheduleActions";
 import mySchedule from "./Schedule";
 
 export default {
@@ -192,7 +196,10 @@ export default {
 
   components: {
     Notification,
-    mySchedule
+    mySchedule,
+    ScheduleForecast,
+    ScheduleModifier,
+    ScheduleActions
   },
 
   props: {
@@ -428,7 +435,7 @@ export default {
         this.$emit("cancel", this.getEvent("cancel"));
       });
     },
-    
+
     save() {
       var ev = this.getEvent("save");
 

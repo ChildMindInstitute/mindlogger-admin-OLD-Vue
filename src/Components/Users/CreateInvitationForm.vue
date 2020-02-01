@@ -1,13 +1,7 @@
 <template>
   <div>
-    <h1>
-      Create Invitation
-    </h1>
-    <v-form
-      ref="form"
-      v-model="valid"
-      lazy-validation
-    >
+    <h1>Create Invitation</h1>
+    <v-form ref="form" v-model="valid" lazy-validation>
       <v-checkbox
         v-model="useDefaultProfile"
         label="Let users pick their own displayName and email"
@@ -35,40 +29,28 @@
         label="Role"
         required
       />
+      <v-btn :disabled="!valid" color="primary" @click="submit">Submit</v-btn>
 
-      <v-btn
-        :disabled="!valid"
-        color="primary"
-        @click="submit"
-      >
-        Submit
-      </v-btn>
-
-      <v-btn
-        color="error"
-        @click="reset"
-      >
-        Reset Form
-      </v-btn>
+      <v-btn color="error" @click="reset">Reset Form</v-btn>
     </v-form>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'CreateInvitationForm',
+  name: "CreateInvitationForm",
   data() {
     return {
       valid: true,
-      emailRules: [ v => /.+@.+/.test(v) || 'Invalid Email address' ],
+      emailRules: [v => /.+@.+/.test(v) || "Invalid Email address"],
       useDefaultProfile: true,
-      roles: ['user', 'coordinator', 'editor', 'manager', 'reviewer'],
+      roles: ["user", "coordinator", "editor", "manager", "reviewer"],
       params: {
-        role: 'user',
+        role: "user",
         profile: {
-          displayName: '',
-          email: '',
-        },
+          displayName: "",
+          email: ""
+        }
       }
     };
   },
@@ -79,35 +61,43 @@ export default {
         invitationOptions.role = this.params.role;
       }
       if (!this.useDefaultProfile) {
-        if (this.params.profile.email && this.params.profile.email.trim() !== '') {
+        if (
+          this.params.profile.email &&
+          this.params.profile.email.trim() !== ""
+        ) {
           invitationOptions.profile = {};
           invitationOptions.profile.email = this.params.profile.email;
         }
-        if (this.params.profile.displayName && this.params.profile.displayName.trim() !== '') {
+        if (
+          this.params.profile.displayName &&
+          this.params.profile.displayName.trim() !== ""
+        ) {
           if (!invitationOptions.profile) {
             invitationOptions.profile = {};
           }
           invitationOptions.profile.displayName = this.params.profile.displayName;
         }
       }
-      this.$emit('createInvitation', invitationOptions);
+      this.$emit("createInvitation", invitationOptions);
     },
+
+    // eslint-disable-next-line
     reset() {
       this.useDefaultProfile = true;
       this.params = {
-        role: 'user',
+        role: "user",
         profile: {
-          displayName: '',
-          email: '',
+          displayName: "",
+          email: ""
         }
-      }
+      };
     }
   }
-}
+};
 </script>
 
 <style scoped>
-  .v-btn {
-    margin: 6px 8px;
-  }
+.v-btn {
+  margin: 6px 8px;
+}
 </style>
