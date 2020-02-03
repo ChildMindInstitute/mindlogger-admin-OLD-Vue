@@ -1,95 +1,48 @@
 <template>
-  <v-card
-    class="ds-calendar-event-popover-card"
-    :class="classes"
-  >
-    <v-toolbar
-      extended
-      text
-      :style="styleHeader"
-    >
+  <v-card class="ds-calendar-event-popover-card" :class="classes">
+    <v-toolbar extended text :style="styleHeader">
       <v-toolbar-title slot="extension">
         {{ details.title }}
-        <v-icon
-          v-if="details.icon"
-          :style="styleButton"
-        >
-          {{ details.icon }}
-        </v-icon>
+        <v-icon v-if="details.icon" :style="styleButton">{{ details.icon }}</v-icon>
       </v-toolbar-title>
 
-      <v-btn
-        v-if="allowEdit"
-        color="secondary"
-        small
-        absolute
-        bottom
-        left
-        fab
-        @click="edit"
-      >
+      <v-btn v-if="allowEdit" color="secondary" small absolute bottom left fab @click="edit">
         <v-icon>mdi-pencil</v-icon>
       </v-btn>
 
-      <slot
-        name="eventPopoverToolbarLeft"
-        v-bind="slotData"
-      />
+      <slot name="eventPopoverToolbarLeft" v-bind="slotData" />
 
       <v-spacer />
 
-      <slot
-        name="eventPopoverToolbarRight"
-        v-bind="slotData"
-      />
+      <slot name="eventPopoverToolbarRight" v-bind="slotData" />
 
-      <slot
-        name="eventPopoverToolbarActions"
-        v-bind="slotData"
-      >
-        <v-tooltip
-          v-if="!isReadOnly"
-          bottom
-          color="secondary"
-        >
+      <slot name="eventPopoverToolbarActions" v-bind="slotData">
+        <v-tooltip v-if="!isReadOnly" bottom color="secondary">
           <template v-slot:activator="{ on }">
-            <ds-schedule-actions
-                    v-on="on"
-                    v-bind="{$scopedSlots}"
-                    :schedule="calendarEvent.schedule"
-                    :calendar-event="calendarEvent"
-                    :calendar="calendar"
+            <schedule-actions
+              v-on="on"
+              v-bind="{ $scopedSlots }"
+              :schedule="calendarEvent.schedule"
+              :calendar-event="calendarEvent"
+              :calendar="calendar"
             >
-              <v-btn 
-                icon 
-                :style="styleButton"
-                @click.stop="remove">
+              <v-btn icon :style="styleButton" @click.stop="remove">
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
-            </ds-schedule-actions>
+            </schedule-actions>
           </template>
           <span>{{ labels.options }}</span>
         </v-tooltip>
       </slot>
 
-      <slot
-        name="eventPopoverToolbarClose"
-        v-bind="slotData"
-      >
-        <v-btn
-          icon
-          :style="styleButton"
-          @click="close"
-        >
+      <slot name="eventPopoverToolbarClose" v-bind="slotData">
+        <v-btn icon :style="styleButton" @click="close">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </slot>
     </v-toolbar>
     <v-card-text>
-      <slot
-        name="eventPopoverBodyTop"
-        v-bind="slotData"
-      />
+      <slot name="eventPopoverBodyTop" v-bind="slotData" />
 
       <v-list dense>
         <v-list-item>
@@ -97,10 +50,7 @@
             <v-icon>mdi-clock-outline</v-icon>
           </v-list-item-avatar>
           <v-list-item-content>
-            <slot
-              name="eventPopoverOccurs"
-              v-bind="slotData"
-            >
+            <slot name="eventPopoverOccurs" v-bind="slotData">
               <v-list-item-title>{{ startDate }}</v-list-item-title>
               <v-list-item-subtitle>{{ occurs }}</v-list-item-subtitle>
             </slot>
@@ -112,10 +62,7 @@
             <v-icon>mdi-map-marker</v-icon>
           </v-list-item-avatar>
           <v-list-item-content>
-            <slot
-              name="eventPopoverLocation"
-              v-bind="slotData"
-            >
+            <slot name="eventPopoverLocation" v-bind="slotData">
               <v-list-item-title>
                 <span v-html="details.location" />
               </v-list-item-title>
@@ -128,10 +75,7 @@
             <v-icon>mdi-text-subject</v-icon>
           </v-list-item-avatar>
           <v-list-item-content>
-            <slot
-              name="eventPopoverDescription"
-              v-bind="slotData"
-            >
+            <slot name="eventPopoverDescription" v-bind="slotData">
               <v-list-item-title>
                 <span v-html="details.description" />
               </v-list-item-title>
@@ -144,10 +88,7 @@
             <v-icon>mdi-bell</v-icon>
           </v-list-item-avatar>
           <v-list-item-content>
-            <slot
-              name="eventPopoverNotifications"
-              v-bind="slotData"
-            >
+            <slot name="eventPopoverNotifications" v-bind="slotData">
               <v-list-item-title>
                 <span v-html="details.notify" />
               </v-list-item-title>
@@ -160,101 +101,81 @@
             <v-icon>mdi-calendar</v-icon>
           </v-list-item-avatar>
           <v-list-item-content>
-            <slot
-              name="eventPopoverCalendar"
-              v-bind="slotData"
-            >
+            <slot name="eventPopoverCalendar" v-bind="slotData">
               <v-list-item-title>
                 <span v-html="details.calendar" />
               </v-list-item-title>
             </slot>
           </v-list-item-content>
         </v-list-item>
-
-        <!-- <v-list-tile v-if="hasBusy">
-         <v-list-tile-avatar>
-           <v-icon>work</v-icon>
-         </v-list-tile-avatar>
-         <v-list-tile-content>
-           <slot name="eventPopoverBusy" v-bind="slotData">
-             <v-list-tile-title>{{ busyness }}</v-list-tile-title>
-           </slot>
-         </v-list-tile-content>
-       </v-list-tile> -->
       </v-list>
 
-      <slot
-        name="eventPopoverBodyBottom"
-        v-bind="slotData"
-      />
+      <slot name="eventPopoverBodyBottom" v-bind="slotData" />
     </v-card-text>
 
-    <slot
-      name="eventPopoverActions"
-      v-bind="slotData"
-    />
+    <slot name="eventPopoverActions" v-bind="slotData" />
   </v-card>
 </template>
 
 <script>
-import { Day, Calendar, CalendarEvent, Schedule, Functions as fn } from 'dayspan';
+import {
+  Day,
+  Calendar,
+  CalendarEvent,
+  Schedule,
+  Functions as fn
+} from "dayspan";
+
+import ScheduleActions from "./ScheduleActions";
 
 export default {
-
-  name: 'dsCalendarEventPopover',
-
-  props:
-  {
-    calendarEvent:
-    {
+  name: "dsCalendarEventPopover",
+  components: {
+    ScheduleActions
+  },
+  props: {
+    calendarEvent: {
       required: true,
       type: CalendarEvent
     },
 
-    calendar:
-    {
+    calendar: {
       required: true,
       type: Calendar
     },
 
-    readOnly:
-    {
+    readOnly: {
       type: Boolean,
       default: false
     },
 
-    edit:
-    {
+    edit: {
       type: Function
     },
 
-    allowEditOnReadOnly:
-    {
+    allowEditOnReadOnly: {
       type: Boolean,
       default() {
         return this.$dsDefaults().allowEditOnReadOnly;
       }
     },
 
-    close:
-    {
+    close: {
       type: Function
     },
 
-    formats:
-    {
+    formats: {
       validate(x) {
-        return this.$dsValidate(x, 'formats');
+        return this.$dsValidate(x, "formats");
       },
       default() {
         return this.$dsDefaults().formats;
       }
     },
 
-    labels:
-    {
+    labels: {
       validate(x) {
-        return this.$dsValidate(x, 'labels');
+        return this.$dsValidate(x, "labels");
       },
       default() {
         return this.$dsDefaults().labels;
@@ -262,10 +183,8 @@ export default {
     }
   },
 
-  computed:
-  {
-    slotData()
-    {
+  computed: {
+    slotData() {
       return {
         calendarEvent: this.calendarEvent,
         calendar: this.calendar,
@@ -276,45 +195,38 @@ export default {
       };
     },
 
-    classes()
-    {
+    classes() {
       return {
-        'ds-event-cancelled': this.calendarEvent.cancelled
+        "ds-event-cancelled": this.calendarEvent.cancelled
       };
     },
 
-    styleHeader()
-    {
+    styleHeader() {
       return {
         backgroundColor: this.details.color,
         color: this.details.forecolor
       };
     },
 
-    styleButton()
-    {
+    styleButton() {
       return {
         color: this.details.forecolor
       };
     },
 
-    startDate()
-    {
-      return this.calendarEvent.start.format( this.formats.start );
+    startDate() {
+      return this.calendarEvent.start.format(this.formats.start);
     },
 
-    busyness()
-    {
+    busyness() {
       return this.details.busy ? this.labels.busy : this.labels.free;
     },
 
-    hasBusy()
-    {
-      return typeof this.details.busy === 'boolean';
+    hasBusy() {
+      return typeof this.details.busy === "boolean";
     },
 
-    occurs()
-    {
+    occurs() {
       return this.$dayspan.getEventOccurrence(
         this.calendarEvent.schedule,
         this.calendarEvent.start,
@@ -323,43 +235,34 @@ export default {
       );
     },
 
-    details()
-    {
+    details() {
       return this.calendarEvent.event.data;
     },
 
-    allowEdit()
-    {
+    allowEdit() {
       return this.allowEditOnReadOnly || !this.isReadOnly;
     },
 
-    isReadOnly()
-    {
+    isReadOnly() {
       return this.readOnly || this.$dayspan.readOnly || this.details.readonly;
     }
   },
 
   // eslint-disable-next-line
-  data: vm => ({
+  data: vm => ({}),
 
-  }),
-
-  methods:
-  {
+  methods: {
     remove() {
-      this.$dayspan.getPermission('actionRemove', () =>
-      {
-        var ev = this.getEvent('save');
-        this.$emit('remove', ev);
-        if (!ev.handled && ev.calendar)
-        {
-          ev.calendar.removeEvent( ev.calendarEvent.event );
+      this.$dayspan.getPermission("actionRemove", () => {
+        var ev = this.getEvent("save");
+        this.$emit("remove", ev);
+        if (!ev.handled && ev.calendar) {
+          ev.calendar.removeEvent(ev.calendarEvent.event);
           ev.handled = true;
         }
-        this.$emit('finish', ev);
-        this.$emit('event-remove', ev.event);
+        this.$emit("finish", ev);
+        this.$emit("event-remove", ev.event);
       });
-
     },
 
     getEvent(type, extra = {}) {
@@ -384,11 +287,10 @@ export default {
       );
     }
   }
-}
+};
 </script>
 
 <style scoped lang="scss">
-
 .ds-calendar-event-popover-card {
   .v-btn--floating.v-btn--left {
     margin-left: 0px !important;
@@ -402,13 +304,11 @@ export default {
     padding: 16px 0;
 
     .v-list {
-
       .v-list__tile {
         padding: 0px !important;
         height: auto;
 
         .v-list__tile__sub-title {
-
         }
       }
     }
@@ -422,5 +322,4 @@ export default {
     }
   }
 }
-
 </style>
