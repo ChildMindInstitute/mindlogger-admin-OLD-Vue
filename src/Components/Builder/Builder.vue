@@ -35,7 +35,7 @@
       <About
         v-if="aboutOpen"
       />
-      <ActivitySetBuilder
+      <ProtocolBuilder
         v-else
       />
     </v-content>
@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import Components from 'activity-set-builder';
+import Components from 'protocol-builder';
 import About from './AboutBuilder';
 
 export default {
