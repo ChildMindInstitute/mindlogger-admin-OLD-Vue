@@ -1,11 +1,20 @@
 <template>
   <div>
-    <div v-if="status === 'loading'" class="loading">
-      <v-progress-circular color="primary" indeterminate />
+    <div
+      v-if="status === 'loading'"
+      class="loading"
+    >
+      <v-progress-circular
+        color="primary"
+        indeterminate
+      />
     </div>
     <div v-else>
       <h1>Active Users</h1>
-      <active-user-table key="componentKey" :users="activeUserList" />
+      <active-user-table
+        key="componentKey"
+        :users="activeUserList"
+      />
       <h1>Pending Invitations</h1>
       <pending-invite-table :users="pendingInviteList" />
       <create-invitation-form @createInvitation="createInvitation" />

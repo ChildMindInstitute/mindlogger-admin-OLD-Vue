@@ -1,6 +1,9 @@
 <template>
   <div>
-    <v-stepper v-model="e1" class="elevation-0">
+    <v-stepper
+      v-model="e1"
+      class="elevation-0"
+    >
       <v-stepper-header>
         <v-stepper-step
           v-for="(step, index) in steps"
@@ -18,13 +21,26 @@
           :key="`step_content_${index}`"
           :step="index + 1"
         >
-          <component :is="step.component" :ref="step.name" />
+          <component
+            :is="step.component"
+            :ref="step.name"
+          />
         </v-stepper-content>
       </v-stepper-items>
     </v-stepper>
 
-    <v-layout row wrap>
-      <v-btn v-if="e1 > 1" color="primary" fixed bottom left @click="prev">
+    <v-layout
+      row
+      wrap
+    >
+      <v-btn
+        v-if="e1 > 1"
+        color="primary"
+        fixed
+        bottom
+        left
+        @click="prev"
+      >
         Prev
       </v-btn>
       <v-flex>
