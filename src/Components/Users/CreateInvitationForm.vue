@@ -1,7 +1,11 @@
 <template>
   <div>
     <h1>Create Invitation</h1>
-    <v-form ref="form" v-model="valid" lazy-validation>
+    <v-form
+      ref="form"
+      v-model="valid"
+      lazy-validation
+    >
       <v-checkbox
         v-model="useDefaultProfile"
         label="Let users pick their own displayName and email"
@@ -29,9 +33,20 @@
         label="Role"
         required
       />
-      <v-btn :disabled="!valid" color="primary" @click="submit">Submit</v-btn>
+      <v-btn
+        :disabled="!valid"
+        color="primary"
+        @click="submit"
+      >
+        Submit
+      </v-btn>
 
-      <v-btn color="error" @click="reset">Reset Form</v-btn>
+      <v-btn
+        color="error"
+        @click="reset"
+      >
+        Reset Form
+      </v-btn>
     </v-form>
   </div>
 </template>

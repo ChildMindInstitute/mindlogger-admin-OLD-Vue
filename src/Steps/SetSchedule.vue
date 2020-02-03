@@ -1,31 +1,67 @@
 <template>
   <div>
-    <Calendar ref="calendar" :activities="activities" @change="continueAction" />
+    <Calendar
+      ref="calendar"
+      :activities="activities"
+      @change="continueAction"
+    />
 
-    <v-dialog v-model="dialog" width="500">
+    <v-dialog
+      v-model="dialog"
+      width="500"
+    >
       <v-card>
-        <v-card-title class="headline grey lighten-2" primary-title>Saving Schedule</v-card-title>
+        <v-card-title
+          class="headline grey lighten-2"
+          primary-title
+        >
+          Saving Schedule
+        </v-card-title>
 
         <v-card-text v-if="loading">
-          <v-layout align-center column>
-            <v-progress-circular color="primary" indeterminate />
+          <v-layout
+            align-center
+            column
+          >
+            <v-progress-circular
+              color="primary"
+              indeterminate
+            />
           </v-layout>
         </v-card-text>
 
-        <v-card-text v-else-if="saveSuccess">Save Successful</v-card-text>
+        <v-card-text v-else-if="saveSuccess">
+          Save Successful
+        </v-card-text>
 
-        <v-card-text v-else-if="saveError">{{ errorMessage }}</v-card-text>
+        <v-card-text v-else-if="saveError">
+          {{ errorMessage }}
+        </v-card-text>
 
         <v-divider />
 
         <v-card-actions>
           <v-spacer />
-          <v-btn color="primary" text @click="dialog = false">Close</v-btn>
+          <v-btn
+            color="primary"
+            text
+            @click="dialog = false"
+          >
+            Close
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <v-btn color="primary" fixed bottom right @click="saveSchedule">Save</v-btn>
+    <v-btn
+      color="primary"
+      fixed
+      bottom
+      right
+      @click="saveSchedule"
+    >
+      Save
+    </v-btn>
   </div>
 </template>
 
