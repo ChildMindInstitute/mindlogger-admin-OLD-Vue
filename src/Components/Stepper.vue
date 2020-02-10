@@ -39,7 +39,7 @@
         fixed
         bottom
         left
-        @click="e1 -= 1"
+        @click="prev"
       >
         Prev
       </v-btn>
@@ -117,6 +117,12 @@ export default {
     this.ready = true;
   },
   methods: {
+    prev() {	
+      if (this.e1 === 5) {	
+        this.$refs.schedule[0].$refs.calendar.$refs.app.$refs.calendar.clearPlaceholder();	
+      }	
+      this.e1 -= 1;	
+    },
     next() {
       this.currentComponent.continueAction();
       this.e1 += 1;

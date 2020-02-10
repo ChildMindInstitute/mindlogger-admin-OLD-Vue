@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.13] = 2020-2-9
 ### Changed
 - Fixed Calendar entries to stay on Calendar.
+- Implemented localStorage on Calendar.
 
 ## [0.1.12] = 2020-2-7
 ### Changed

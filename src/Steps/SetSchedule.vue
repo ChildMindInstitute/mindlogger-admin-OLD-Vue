@@ -156,6 +156,8 @@ export default {
     continueAction() {},
 
     saveSchedule() {
+      this.$refs.calendar.$refs.app.$refs.calendar.clearPlaceholder();
+
       const scheduleForm = new FormData();
       if (
         this.currentApplet &&
