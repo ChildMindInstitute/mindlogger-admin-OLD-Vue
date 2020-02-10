@@ -31,7 +31,7 @@
         </v-card-text>
 
         <v-card-text v-else-if="saveSuccess">
-          Save Successful
+          Please wait several minutes.
         </v-card-text>
 
         <v-card-text v-else-if="saveError">
@@ -156,8 +156,6 @@ export default {
     continueAction() {},
 
     saveSchedule() {
-      this.$refs.calendar.$refs.app.$refs.calendar.clearPlaceholder();
-
       const scheduleForm = new FormData();
       if (
         this.currentApplet &&
@@ -170,15 +168,17 @@ export default {
         this.loading = true;
         const schedule = this.currentApplet.applet.schedule;
         scheduleForm.set("schedule", JSON.stringify(schedule || {}));
+        localStorage.setItem(this.currentApplet.applet._id, JSON.stringify(this.currentApplet.applet));
+
         api
           .setSchedule({
             apiHost: this.$store.state.backend,
-            id: this.currentApplet.applet._id,
+            id: this.currentApplet.applet._id.split("applet/")[1],
             token: this.$store.state.auth.authToken.token,
             data: scheduleForm
-          })
-          .then(() => {
-            console.log("success");
+          }) 
+          .then(response => {
+            console.log(response);
             this.loading = false;
             this.saveSuccess = true;
           })

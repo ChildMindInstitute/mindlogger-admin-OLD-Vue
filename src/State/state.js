@@ -1,9 +1,11 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+
 Vue.use(Vuex);
+
 import { Store } from "vuex";
-// import createPersistedState from 'vuex-persistedstate';
 import _ from 'lodash';
+import api from "../Components/Utils/api/api.vue";
 
 const state = {
   backend: 'https://api.mindlogger.org/api/v1',
@@ -24,6 +26,14 @@ const mutations = {
   setCurrentApplet(state, protocol) {
     if (protocol) {
       state.currentApplet = protocol;
+      
+      let saved_applet = localStorage.getItem(state.currentApplet.applet._id);
+      if(saved_applet) {
+        state.currentApplet.applet = JSON.parse(saved_applet);
+      }
+      else {
+        console.log('Nothing changed!');
+      }
     }
   },
   setAllApplets(state, protocols) {
@@ -32,13 +42,26 @@ const mutations = {
   setAuth(state, auth) {
     state.auth = auth;
   },
+  loadSchedule(state) {
+    api
+      .refreshApplet({
+        apiHost: state.backend,
+        appletId: state.currentApplet.applet._id.split('applet/')[1],
+        token: state.auth.authToken.token,
+      })
+      .then((response) => {
+        console.log(response);
+        //state.currentApplet.applet.schedule = response.data.applet.schedule;
+      })
+      .catch(e => {
+        console.log("fail", e);
+      });
+  },
   setSchedule(state, schedule) {
     if (!_.isEmpty(state.currentApplet)) {
       // TODO: this sucks.
-      // const idx = _.findIndex(state.allApplets,
-      //   a => a.applet['skos:prefLabel'] == state.currentApplet.applet['skos:prefLabel']);
       const idx = _.findIndex(state.allApplets,
-        a => a.applet._id == state.currentApplet.applet._id);
+        a => a.applet['skos:prefLabel'] == state.currentApplet.applet['skos:prefLabel']);
       if (idx > -1) {
         state.allApplets[idx].applet.schedule = schedule;
         state.currentApplet = state.allApplets[idx];
