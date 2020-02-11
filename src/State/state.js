@@ -27,9 +27,9 @@ const mutations = {
     if (protocol) {
       state.currentApplet = protocol;
       
-      let saved_applet = localStorage.getItem(state.currentApplet.applet._id);
-      if(saved_applet) {
-        state.currentApplet.applet = JSON.parse(saved_applet);
+      const savedApplet = localStorage.getItem(state.currentApplet.applet._id);
+      if(savedApplet) {
+        state.currentApplet.applet = JSON.parse(savedApplet);
       }
       else {
         console.log('Nothing changed!');
