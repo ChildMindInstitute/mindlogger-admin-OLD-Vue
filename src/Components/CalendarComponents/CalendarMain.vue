@@ -11,17 +11,10 @@
       <template slot="menuRight" />
 
       <template slot="eventPopover" slot-scope="slotData">
-        <calendar-event-popover
-          v-bind="slotData"
-          :read-only="readOnly"
-          @finish="saveState"
-        />
+        <calendar-event-popover v-bind="slotData" :read-only="readOnly" @finish="saveState" />
       </template>
 
-      <template
-        slot="eventCreatePopover"
-        slot-scope="{ placeholder, calendar, close }"
-      >
+      <template slot="eventCreatePopover" slot-scope="{placeholder, calendar, close}">
         <calendar-event-create-popover
           :calendar-event="placeholder"
           :calendar="calendar"
@@ -32,21 +25,17 @@
         />
       </template>
 
-      <template slot="eventTimeTitle" slot-scope="{ calendarEvent, details }">
+      <template slot="eventTimeTitle" slot-scope="{calendarEvent, details}">
         <div>
           <v-icon
             v-if="details.icon"
             class="ds-ev-icon"
             size="14"
-            :style="{ color: details.forecolor }"
-          >
-            {{ details.icon }}
-          </v-icon>
+            :style="{color: details.forecolor}"
+          >{{ details.icon }}</v-icon>
           <strong class="ds-ev-title">{{ details.title }}</strong>
         </div>
-        <div class="ds-ev-description">
-          {{ getCalendarTime(calendarEvent) }}
-        </div>
+        <div class="ds-ev-description">{{ getCalendarTime( calendarEvent ) }}</div>
       </template>
 
       <template slot="drawerBottom">
@@ -62,7 +51,7 @@
           <!-- <v-checkbox
             label="Read Only?"
             v-model="readOnly"
-          ></v-checkbox> -->
+          ></v-checkbox>-->
         </div>
       </template>
     </calendar-app>
@@ -162,6 +151,10 @@ export default {
       }
 
       return sa === ea ? sh + " - " + eh + ea : sh + sa + " - " + eh + ea;
+    },
+
+    getState() {
+      console.log("calendarmain -- -- -- - ");
     },
 
     saveState() {

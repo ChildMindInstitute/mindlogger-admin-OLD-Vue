@@ -9,7 +9,7 @@
           v-for="(step, index) in steps"
           :key="`step_tab_${index}`"
           :complete="e1 > index"
-          :step="index + 1"
+          :step="index+1"
         >
           {{ step.name }}
         </v-stepper-step>
@@ -19,7 +19,7 @@
         <v-stepper-content
           v-for="(step, index) in steps"
           :key="`step_content_${index}`"
-          :step="index + 1"
+          :step="index+1"
         >
           <component
             :is="step.component"
@@ -62,75 +62,78 @@
   </div>
 </template>
 
+
 <script>
-import store from "../State/state";
-import SetBackend from "../Steps/SetBackend";
-import Login from "../Steps/Login";
-import SetApplet from "../Steps/SetApplet";
-import SetUsers from "../Steps/SetUsers";
-import SetSchedule from "../Steps/SetSchedule";
+import store from '../State/state';
+import SetBackend from '../Steps/SetBackend';
+import Login from '../Steps/Login';
+import SetApplet from '../Steps/SetApplet';
+import SetUsers from '../Steps/SetUsers';
+import SetSchedule from '../Steps/SetSchedule';
 
 export default {
-  name: "Stepper",
+
+  name: 'Stepper',
 
   data: () => ({
     e1: 1,
     ready: false,
     steps: [
       {
-        name: "server",
-        component: SetBackend
+        name: 'server',
+        component: SetBackend,
+      },
+       {
+        name: 'login',
+        component: Login,
       },
       {
-        name: "login",
-        component: Login
+        name: 'applet',
+        component: SetApplet,
       },
       {
-        name: "applet",
-        component: SetApplet
+        name: 'users',
+        component: SetUsers,
       },
       {
-        name: "users",
-        component: SetUsers
+        name: 'schedule',
+        component: SetSchedule,
       },
-      {
-        name: "schedule",
-        component: SetSchedule
-      }
-    ]
+    ],
   }),
 
   computed: {
     currentComponent() {
-      return (
-        this.steps[this.e1 - 1].name,
-        this.$refs[this.steps[this.e1 - 1].name][0]
-      );
+      return this.steps[this.e1 - 1].name, this.$refs[this.steps[this.e1 - 1].name][0];
     },
     readyToContinue() {
       if (this.ready) {
         return this.currentComponent.readyToContinue;
       }
       return true;
-    }
+    },
   },
   mounted() {
     this.ready = true;
   },
   methods: {
-    prev() {
-      if (this.e1 === 5) {
-        this.$refs.schedule[0].$refs.calendar.$refs.app.$refs.calendar.clearPlaceholder();
-      }
-      this.e1 -= 1;
+    prev() {	
+      if (this.e1 === 5) {	
+        this.$refs.schedule[0].$refs.calendar.$refs.app.$refs.calendar.clearPlaceholder();	
+      }	
+      this.e1 -= 1;	
     },
     next() {
       this.currentComponent.continueAction();
       this.e1 += 1;
+      if (this.e1 === 5) {
+        this.$store.commit('loadSchedule');
+        this.currentComponent.$refs.calendar.loadState();
+      }
     },
     save() {
       this.currentComponent.continueAction();
-    }
-  }
-};
+    },
+  },
+}
 </script>
