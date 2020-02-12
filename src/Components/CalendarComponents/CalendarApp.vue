@@ -429,7 +429,7 @@ export default {
     setState(state) {
       state.eventSorter = state.listTimes
         ? Sorts.List([Sorts.FullDay, Sorts.Start])
-        : Sorts.Start;
+        : Sorts.List([Sorts.FullDay, Sorts.Desc(Sorts.Start)]);
 
       this.calendar.set(state);
 
