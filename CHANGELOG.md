@@ -4,10 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.15] = 2020-2-13
+## [0.1.16] = 2020-2-13
 ### Changed
-- Added DayRow Component and Fixed event-drag-issue-#754
-- Rebuilt Day component to fix event-drag-issue-#755
+- Added DayRow Component
+- Rebuilt Day component to fix event-drag issues
+
+## [0.1.15] = 2020-2-12
+### Changed
+- protocol-builder 0.1.11 -> 0.1.12
 
 ## [0.1.14] = 2020-2-11
 ### Changed
@@ -21,7 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.12] = 2020-2-7
 ### Changed
 - protocol-builder 0.1.9 -> 0.1.11
-
 
 ## [0.1.11] = 2020-2-3
 ### Changed
