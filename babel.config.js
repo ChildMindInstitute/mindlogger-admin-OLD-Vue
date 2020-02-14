@@ -2,5 +2,5 @@ module.exports = {
   presets: [
     '@vue/app'
   ],
-  plugins: ["transform-remove-console"]
+  plugins: process.env.NODE_ENV === 'production' ? ["transform-remove-console"] : []
 }
