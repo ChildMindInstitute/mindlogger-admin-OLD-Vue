@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.15] = 2020-2-13
 ### Changed
 - Added DayRow Component and Fixed event-drag-issue-#754
+- Rebuilt Day component to fix event-drag-issue-#755
 
 ## [0.1.14] = 2020-2-11
 ### Changed
