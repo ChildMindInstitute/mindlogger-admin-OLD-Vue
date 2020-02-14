@@ -263,7 +263,7 @@ export default {
     },
 
     mouseMoveDay(mouseEvent) {
-      if (this.adding && mouseEvent.left) {
+      if (this.adding && mouseEvent.left && !this.moving) {
         this.addEnd = mouseEvent.day;
 
         var min = this.addStart.min(this.addEnd);
