@@ -11,7 +11,7 @@
       </div>
     </div>
 
-    <ds-day-row
+    <day-row
       v-for="i in rows"
       v-bind="{ $scopedSlots }"
       v-on="$listeners"
@@ -20,16 +20,19 @@
       :calendar="calendar"
       :placeholder="placeholder"
       :placeholder-for-create="placeholderForCreate"
-    ></ds-day-row>
+    ></day-row>
   </div>
 </template>
 
 <script>
+import DayRow from "./DayRow";
 import { Calendar, CalendarEvent } from "dayspan";
 
 export default {
   name: "dsWeeksView",
-
+  components: {
+    DayRow
+  },
   props: {
     calendar: {
       required: true,
