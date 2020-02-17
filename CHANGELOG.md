@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.17] = 2020-2-15
+### Changed
+- Added and updated ScheduleSpan component
+- Set up properties to refresh calendar when event's changed.
+
 ## [0.1.16] = 2020-2-13
 ### Changed
 - Added DayRow Component
