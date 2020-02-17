@@ -7,6 +7,7 @@
       :read-only="readOnly"
       :activities="activities"
       @change="saveState"
+      @saved="loadState"
     >
       <template slot="menuRight" />
 
@@ -87,18 +88,6 @@ export default {
   },
 
   data: () => ({
-    // activities: [
-    //   {
-    //     name: 'Morning',
-    //     color: 'blue',
-    //     visible: true,
-    //   },
-    //   {
-    //     name: 'Evening',
-    //     color: 'red',
-    //     visible: true,
-    //   }
-    // ],
     storeKey: "dayspanState",
     calendar: Calendar.months(),
     readOnly: false,
@@ -176,8 +165,6 @@ export default {
           this.$emit("change");
         }
       }
-
-      // localStorage.setItem(this.storeKey, json);
     },
 
     loadState() {
