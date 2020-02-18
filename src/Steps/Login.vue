@@ -100,6 +100,7 @@ export default {
      */
     logout() {
       this.$store.commit('setAuth', {});
+      localStorage.clear();
     }
   },
 

@@ -483,6 +483,7 @@ export default {
     },
 
     next() {
+      console.log("%%%%", this.calendar.start);
       this.calendar.unselect().next();
       this.$refs.calendar.clearPlaceholder();
 

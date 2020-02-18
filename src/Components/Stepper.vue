@@ -130,6 +130,7 @@ export default {
         this.$store.commit('loadSchedule');
         this.currentComponent.$refs.calendar.loadState();
         this.currentComponent.$refs.calendar.$refs.app.setDefaultType();
+        this.currentComponent.$refs.calendar.$refs.app.setToday();
       }
     },
     save() {
