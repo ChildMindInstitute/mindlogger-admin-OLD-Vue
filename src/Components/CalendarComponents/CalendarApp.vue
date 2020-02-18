@@ -529,13 +529,16 @@ export default {
       let calendar = this.$refs.calendar;
       let useDialog = !this.hasCreatePopover;
 
-      this.handleType(this.types[2]);
       calendar.addPlaceholder(day, true, useDialog);
 
       if (useDialog) {
         eventDialog.add(day);
         eventDialog.$once("close", calendar.clearPlaceholder);
       }
+    },
+
+    setDefaultType() {
+      this.handleType(this.types[2]);
     },
 
     addAt(dayHour) {
