@@ -448,6 +448,8 @@ export default {
   height: 100%;
   position: relative;
   padding: 0px !important;
+  border-style: solid;
+  border-width: thin;
 }
 
 .ds-month-view {
