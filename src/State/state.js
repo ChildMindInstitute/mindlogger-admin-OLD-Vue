@@ -31,9 +31,6 @@ const mutations = {
       if(savedApplet) {
         state.currentApplet.applet = JSON.parse(savedApplet);
       }
-      else {
-        console.log('Nothing changed!');
-      }
     }
   },
   setAllApplets(state, protocols) {
@@ -50,7 +47,6 @@ const mutations = {
         token: state.auth.authToken.token,
       })
       .then((response) => {
-        console.log(response);
         //state.currentApplet.applet.schedule = response.data.applet.schedule;
       })
       .catch(e => {

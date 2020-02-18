@@ -142,9 +142,7 @@ export default {
       return sa === ea ? sh + " - " + eh + ea : sh + sa + " - " + eh + ea;
     },
 
-    getState() {
-      console.log("calendarmain -- -- -- - ");
-    },
+    getState() {},
 
     saveState() {
       const state = this.calendar.toInput(true);

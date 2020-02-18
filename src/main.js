@@ -8,6 +8,9 @@ import vuetify from './plugins/vuetify';
 Vue.config.productionTip = false;
 
 Vue.use(DaySpanVuetify, {
+  data: {
+    eventHeight: 20
+  },
   methods: {
     getDefaultEventColor: () => '#1976d2'
   }

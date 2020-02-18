@@ -429,7 +429,7 @@ export default {
     setState(state) {
       state.eventSorter = state.listTimes
         ? Sorts.List([Sorts.FullDay, Sorts.Start])
-        : Sorts.List([Sorts.FullDay, Sorts.Desc(Sorts.Start)]);
+        : Sorts.Start;
 
       this.calendar.set(state);
 
@@ -535,6 +535,10 @@ export default {
         eventDialog.add(day);
         eventDialog.$once("close", calendar.clearPlaceholder);
       }
+    },
+
+    setDefaultType() {
+      this.handleType(this.types[2]);
     },
 
     addAt(dayHour) {

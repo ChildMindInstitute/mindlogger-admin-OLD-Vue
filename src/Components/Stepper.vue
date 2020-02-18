@@ -129,6 +129,7 @@ export default {
       if (this.e1 === 5) {
         this.$store.commit('loadSchedule');
         this.currentComponent.$refs.calendar.loadState();
+        this.currentComponent.$refs.calendar.$refs.app.setDefaultType();
       }
     },
     save() {
