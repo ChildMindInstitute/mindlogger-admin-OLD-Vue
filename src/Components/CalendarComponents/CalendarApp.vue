@@ -429,7 +429,7 @@ export default {
     setState(state) {
       state.eventSorter = state.listTimes
         ? Sorts.List([Sorts.FullDay, Sorts.Start])
-        : Sorts.List([Sorts.FullDay, Sorts.Desc(Sorts.Start)]);
+        : Sorts.Start;
 
       this.calendar.set(state);
 
@@ -529,6 +529,7 @@ export default {
       let calendar = this.$refs.calendar;
       let useDialog = !this.hasCreatePopover;
 
+      this.handleType(this.types[2]);
       calendar.addPlaceholder(day, true, useDialog);
 
       if (useDialog) {
