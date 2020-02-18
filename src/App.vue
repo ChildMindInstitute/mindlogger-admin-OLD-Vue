@@ -24,6 +24,9 @@ export default {
     background-color: #005fa3 !important;
     border-color: #005fa3 !important;
 }
+.v-application {
+    background-color: #ffffff !important;
+}
 body, html, #app, #dayspan {
   font-family: 'IBM Plex Sans', sans-serif !important;
   width: 100%;
