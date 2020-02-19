@@ -444,12 +444,13 @@ export default {
 
 <style scoped lang="scss">
 .ds-calendar {
-  width: 100%;
+  width: 98%;
   height: 100%;
   position: relative;
   padding: 0px !important;
   border-style: solid;
   border-width: thin;
+  border-color: lightgrey;
 }
 
 .ds-month-view {
