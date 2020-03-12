@@ -1,8 +1,12 @@
 <template>
   <v-container>
     <ag-grid-vue
-      class="ag-theme-balham"
+      class="ag-theme-bootstrap"
+      :gridOptions="gridOptions"
       :columnDefs="columnDefs"
+      :rowSelection="multiSelection"
+      :rowMultiSelectWithClick="clickSelection"
+      :pagination="pagination"
       :rowData="users"
       :modules="modules"
       :domLayout="domLayout"
@@ -47,12 +51,23 @@ export default {
       ],
       modules: AllCommunityModules,
       domLayout: 'autoHeight',
+      multiSelection: 'multiple',
+      pagination: true,
+      gridOptions: null,
+      clickSelection: true
     };
+  },
+  beforeMount() {
+    this.gridOptions = {};
   },
   methods: {
     onFirstDataRendered(params) {
       params.api.sizeColumnsToFit();
     },
+    getSelectedNodes() {
+      console.log("************************-**********************", this.users);
+      this.$store.commit("setCurrentUsers", this.gridOptions.api.getSelectedNodes());
+    }
   },
 }
 </script>

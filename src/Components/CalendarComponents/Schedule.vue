@@ -57,18 +57,19 @@
 
         <div class="ds-time-cell">
           <v-checkbox
-            v-model="access"
-            @change="onAccess"
+            v-model="scheduledTimeout.access"
+            @change="handleAccess"
             label="Allow access before scheduled time"
           />
           <!-- <label>-- {{ access }} </label> -->
-          <label v-if="!access">Timeout : </label>
+          <label v-if="!scheduledTimeout.access">Timeout : </label>
 
-          <div class="ds-timeout-body" v-if="!access">
+          <div class="ds-timeout-body" v-if="!scheduledTimeout.access">
             <div class="ds-timeout-units">
               <v-text-field
                 type="number"
                 v-model="timeout.day"
+                @change="handleAccess"
                 class="ds-schedule-timeout"
                 single-line
                 hide-details
@@ -82,6 +83,7 @@
               <v-text-field
                 type="number"
                 v-model="timeout.hour"
+                @change="handleAccess"
                 class="ds-schedule-timeout"
                 single-line
                 hide-details
@@ -95,6 +97,7 @@
               <v-text-field
                 type="number"
                 v-model="timeout.minute"
+                @change="handleAccess"
                 class="ds-schedule-timeout"
                 single-line
                 hide-details
@@ -199,7 +202,7 @@ export default {
   // eslint-disable-next-line
   data() {
     return {
-      access: this.timeout.access,
+      scheduledTimeout: this.timeout
     }
   },
   computed:
@@ -228,17 +231,14 @@ export default {
       this.$refs.customScheduler.edit(this.schedule, this.day);
     },
 
-    onAccess() {
+    handleAccess() {
+      this.$emit('onTimeout', this.scheduledTimeout);
     },
 
     setType(type) {
       this.$emit('type', type);
     }
   },
-  
-  watch:
-  {
-  }
 }
 </script>
 

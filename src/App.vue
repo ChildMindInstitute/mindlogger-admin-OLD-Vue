@@ -16,7 +16,7 @@ export default {
 <style lang="scss">
   @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans:300,400');
   @import "../node_modules/@ag-grid-community/all-modules/dist/styles/ag-grid.css";
-  @import "../node_modules/@ag-grid-community/all-modules/dist/styles/ag-theme-balham.css";
+  @import "../node_modules/@ag-grid-community/all-modules/dist/styles/ag-theme-bootstrap.css";
 </style>
 
 <style>

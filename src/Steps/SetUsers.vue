@@ -12,6 +12,7 @@
     <div v-else>
       <h1>Active Users</h1>
       <active-user-table
+        ref="userTableRef"
         key="componentKey"
         :users="activeUserList"
       />

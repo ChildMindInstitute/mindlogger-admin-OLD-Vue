@@ -63,7 +63,7 @@
     <div class="ds-event-body ds-event-area">
       <slot name="schedule" v-bind="slotData">
         <!-- absolute scheduling options below -->
-        <my-schedule :timeout="timeout" :schedule="schedule" :day="day" :read-only="readOnly" />
+        <my-schedule @onTimeout="handleTimeout" :timeout="timeout" :schedule="schedule" :day="day" :read-only="readOnly" />
         
       </slot>
     </div>
@@ -318,6 +318,7 @@ export default {
   data: vm => ({
     tab: "details",
     schedule: new Schedule(),
+    scheduledTimeout: {},
     details: vm.$dayspan.getDefaultEventDetails(),
   }),
 
@@ -446,6 +447,10 @@ export default {
       });
     },
 
+    handleTimeout(scheduledTimeout) {
+      this.scheduledTimeout = scheduledTimeout;
+    },
+
     save() {
       var ev = this.getEvent("save");      
       this.$emit("save", ev);
@@ -511,8 +516,7 @@ export default {
 
     getEvent(type, extra = {}) {
       let evDetails = this.details;
-      evDetails.timeout = this.timeout;
-      console.log('$$$$$$$$$$', this.timeout);
+      evDetails.timeout = this.scheduledTimeout;
       return fn.extend(
         {
           type: type,
@@ -521,7 +525,7 @@ export default {
           target: this.targetSchedule,
           details: evDetails,
           targetDetails: this.targetDetails,
-          timeout: this.timeout,
+          timeout: this.scheduledTimeout,
           calendar: this.calendar,
           calendarEvent: this.calendarEvent,
           handled: false,
