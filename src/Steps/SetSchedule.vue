@@ -170,7 +170,6 @@ export default {
         this.loading = true;
         const schedule = this.currentApplet.applet.schedule;
         scheduleForm.set("schedule", JSON.stringify(schedule || {}));
-        console.log("^^^!^^^", schedule);    
         localStorage.setItem(this.currentApplet.applet._id, JSON.stringify(this.currentApplet.applet));
 
         api
