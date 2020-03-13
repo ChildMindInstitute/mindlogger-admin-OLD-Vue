@@ -12,6 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Finished general scheduling.
 - Updated active users list to be selectable.
 
+## [0.1.24] = 2020-3-12
+### Changed
+- protocol-builder 0.1.13 -> 0.1.14
+
+## [0.1.23] = 2020-3-9
+### Changed
+- protocol-builder 0.1.12 -> 0.1.13
+- Restored Travis' ```node_modules``` caching
+
 ## [0.1.23] = 2020-3-9
 ### Changed
 - protocol-builder 0.1.12 -> 0.1.13
