@@ -20,8 +20,8 @@
 			</a>
 
 			<span class="ds-first-day" v-if="showMonth">
-		{{ month }}
-	  </span>
+				{{ month }}
+			</span>
 
 		</div>
 
@@ -154,7 +154,8 @@ export default {
 					this.placeholder.event === calendarEvent.event) {
 					return false
 				}
-
+				if (JSON.stringify(calendarEvent.event.data.users) !== JSON.stringify(this.$store.state.currentUsers))
+					return false
 				return true
 			},
 

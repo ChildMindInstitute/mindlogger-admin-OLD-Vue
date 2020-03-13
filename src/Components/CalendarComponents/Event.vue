@@ -331,7 +331,7 @@ export default {
         day: 0,
         hour: 12,
         minute: 0,
-        access: true
+        access: false
       };
     },
     activityNames() {
@@ -473,9 +473,9 @@ export default {
           this.$emit("event-update", ev.calendarEvent.event);
         } else if (ev.create) {
           ev.created = this.$dayspan.createEvent(ev.details, ev.schedule);
-
           if (ev.calendar) {
             ev.calendar.addEvent(ev.created);
+            console.log('_________event_________', ev.calendar);
             ev.added = true;
           }
 
@@ -517,6 +517,7 @@ export default {
     getEvent(type, extra = {}) {
       let evDetails = this.details;
       evDetails.timeout = this.scheduledTimeout;
+      evDetails.users = this.$store.state.currentUsers;
       return fn.extend(
         {
           type: type,
@@ -525,7 +526,6 @@ export default {
           target: this.targetSchedule,
           details: evDetails,
           targetDetails: this.targetDetails,
-          timeout: this.scheduledTimeout,
           calendar: this.calendar,
           calendarEvent: this.calendarEvent,
           handled: false,
