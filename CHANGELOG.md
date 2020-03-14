@@ -3,15 +3,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.26] = 2020-3-13
+### Changed
+- Finished individual schedules.
+
+## [0.1.25] = 2020-3-10
+### Changed
+- Finished general scheduling.
+- Updated active users list to be selectable.
 
 ## [0.1.24] = 2020-3-12
 ### Changed
 - protocol-builder 0.1.13 -> 0.1.14
-
-## [0.1.23] = 2020-3-9
-### Changed
-- protocol-builder 0.1.12 -> 0.1.13
-- Restored Travis' ```node_modules``` caching
 
 ## [0.1.23] = 2020-3-9
 ### Changed

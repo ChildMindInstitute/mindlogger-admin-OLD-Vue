@@ -295,13 +295,21 @@ export default {
     },
 
     getEvent(type, extra = {}) {
+      let evDetails = this.details;
+      evDetails.timeout = {
+        day: 0,
+        hour: 12,
+        minute: 0,
+        access: false
+      };
+      evDetails.users = this.$store.state.currentUsers;
       return fn.extend(
         {
           type: type,
           calendarEvent: this.calendarEvent,
           calendar: this.calendar,
           close: this.close || true,
-          details: this.details,
+          details: evDetails,
           handled: false,
           added: false,
           refresh: true,

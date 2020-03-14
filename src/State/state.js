@@ -13,6 +13,7 @@ const state = {
   currentApplet: {},
   auth: {},
   continue: {},
+  currentUsers: [],
   users: {},
 };
 
@@ -75,6 +76,9 @@ const mutations = {
     }
     // update this in the copy too.
     state.currentApplet = {...state.currentApplet, groups };
+  },
+  setCurrentUsers(state, users) {
+    state.currentUsers = users;
   },
   setUsers(state, newUsers) {
     state.users = newUsers;

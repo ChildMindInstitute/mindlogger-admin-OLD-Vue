@@ -46,7 +46,7 @@
           name="scheduleType"
           v-bind="{schedule, day, setType, custom}"
         >
-          <ds-schedule-type
+          <schedule-type
             :day="day"
             :schedule="schedule"
             :read-only="readOnly"
@@ -54,6 +54,61 @@
             @custom="custom"
           />
         </slot>
+
+        <div class="ds-time-cell">
+          <v-checkbox
+            v-model="scheduledTimeout.access"
+            @change="handleAccess"
+            label="Allow access before scheduled time"
+          />
+          <!-- <label>-- {{ access }} </label> -->
+          <label v-if="!scheduledTimeout.access">Timeout : </label>
+
+          <div class="ds-timeout-body" v-if="!scheduledTimeout.access">
+            <div class="ds-timeout-units">
+              <v-text-field
+                type="number"
+                v-model="timeout.day"
+                @change="handleAccess"
+                class="ds-schedule-timeout"
+                single-line
+                hide-details
+                solo
+                flat
+              />
+              <div class="ds-timeout-unit"> days </div>
+            </div>
+
+            <div class="ds-timeout-units">
+              <v-text-field
+                type="number"
+                v-model="timeout.hour"
+                @change="handleAccess"
+                class="ds-schedule-timeout"
+                single-line
+                hide-details
+                solo
+                flat
+              />
+              <div class="ds-timeout-unit"> hours </div>
+            </div>
+
+            <div class="ds-timeout-units">
+              <v-text-field
+                type="number"
+                v-model="timeout.minute"
+                @change="handleAccess"
+                class="ds-schedule-timeout"
+                single-line
+                hide-details
+                solo
+                flat
+              />
+              <div class="ds-timeout-unit"> minutes </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -94,18 +149,24 @@
 
 <script>
 import { Day, Schedule } from 'dayspan';
-
+import ScheduleType from './ScheduleType';
 
 export default {
 
   name: 'dsSchedule',
-
+  components: {
+    ScheduleType
+  },
   props:
   {
     schedule:
     {
       required: true,
       type: Schedule
+    },
+
+    timeout: {
+      required: false,
     },
 
     day:
@@ -139,10 +200,11 @@ export default {
   },
 
   // eslint-disable-next-line
-  data: vm => ({
-
-  }),
-
+  data() {
+    return {
+      scheduledTimeout: this.timeout
+    }
+  },
   computed:
   {
     showRange()
@@ -165,16 +227,18 @@ export default {
 
   methods:
   {
-    custom()
-    {
+    custom() {
       this.$refs.customScheduler.edit(this.schedule, this.day);
     },
 
-    setType(type)
-    {
+    handleAccess() {
+      this.$emit('onTimeout', this.scheduledTimeout);
+    },
+
+    setType(type) {
       this.$emit('type', type);
     }
-  }
+  },
 }
 </script>
 
@@ -183,7 +247,8 @@ export default {
 .ds-schedule {
 
   .ds-schedule-type {
-    max-width: 436px;
+    display: flex;
+    max-width: 100%;
     padding-right: 8px;
   }
 
@@ -194,6 +259,36 @@ export default {
     }
   }
 
+  .ds-timeout-units {
+    display: flex;
+    margin-right: 5%;
+  }
+
+  .ds-schedule-timeout {
+    width: 15%;
+    margin-right: 0%;
+  }
+
+  .ds-time-cell {
+    margin-left: 2%;
+    width: 100%;
+  }
+
+  .ds-timeout-body {
+    display: flex;
+  }
+
+  .ds-timeout-unit {
+    line-height: 48px;
+  }
+
+  .v-text-field__slot {
+    border-bottom: 1px solid grey;
+  }
+
+  .v-input input {
+    text-align: center;
+  }
 }
 
 </style>
