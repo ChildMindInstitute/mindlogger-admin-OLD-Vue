@@ -295,7 +295,7 @@ export default {
     },
 
     getEvent(type, extra = {}) {
-      let evDetails = this.details;
+      const evDetails = this.details;
       evDetails.timeout = {
         day: 0,
         hour: 12,
