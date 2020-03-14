@@ -515,7 +515,7 @@ export default {
     },
 
     getEvent(type, extra = {}) {
-      let evDetails = this.details;
+      const evDetails = this.details;
       evDetails.timeout = this.scheduledTimeout;
       evDetails.users = this.$store.state.currentUsers;
       return fn.extend(
