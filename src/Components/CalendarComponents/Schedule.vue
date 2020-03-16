@@ -62,9 +62,9 @@
             label="Allow access before scheduled time"
           />
           <!-- <label>-- {{ access }} </label> -->
-          <label v-if="!scheduledTimeout.access">Timeout : </label>
+          <label>Timeout : </label>
 
-          <div class="ds-timeout-body" v-if="!scheduledTimeout.access">
+          <div class="ds-timeout-body">
             <div class="ds-timeout-units">
               <v-text-field
                 type="number"
