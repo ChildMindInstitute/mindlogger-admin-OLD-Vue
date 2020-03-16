@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.26] = 2020-3-13
 ### Changed
 - Finished individual schedules.
+- Allow activity timeout with the access before scheduled time.
 
 ## [0.1.25] = 2020-3-10
 ### Changed
