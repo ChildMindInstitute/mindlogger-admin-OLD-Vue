@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <ag-grid-vue
-      class="ag-theme-bootstrap"
+      class="ag-theme-balham"
       :gridOptions="gridOptions"
       :columnDefs="columnDefs"
       :rowSelection="multiSelection"
@@ -14,6 +14,12 @@
     />
   </v-container>
 </template>
+
+<style scoped>
+  .container {
+    padding: 0px;
+  }
+</style>
 
 <script>
 import {AgGridVue} from "@ag-grid-community/vue";

@@ -11,6 +11,12 @@
   </v-container>
 </template>
 
+<style scoped>
+  .container {
+    padding: 0px;
+  }
+</style>
+
 <script>
 import {AgGridVue} from "@ag-grid-community/vue";
 import {AllCommunityModules} from '@ag-grid-community/all-modules';
