@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.28] = 2020-3-20
 ### Changed
-- protocol-builder 0.1.14 -> 0.1.16
+- protocol-builder 0.1.14 -> 0.1.17
 
 ## [0.1.27] = 2020-3-17
 ### Changed
