@@ -92,7 +92,7 @@
                 <br />
                 <br />
                 <!-- Max number of responses -->
-                max # of responses
+                <!-- max # of responses
                 <v-text-field
                   v-model="details.maxResponses"
                   single-line
@@ -101,7 +101,7 @@
                   text
                   type="number"
                   :value="1"
-                />
+                /> -->
 
                 <!-- Notifications -->
 
