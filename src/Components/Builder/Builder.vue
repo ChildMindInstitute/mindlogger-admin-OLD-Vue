@@ -9,7 +9,7 @@
       <v-toolbar-side-icon
         @click="toggleDrawer"
       />
-      <v-toolbar-title>Activity Set Builder</v-toolbar-title>
+      <v-toolbar-title>{{ `Protocol Builder Version ${this.package.dependencies['protocol-builder']}` }}</v-toolbar-title>
     </v-toolbar>
 
     <v-navigation-drawer
@@ -45,6 +45,7 @@
 <script>
 import Components from 'protocol-builder';
 import About from './AboutBuilder';
+import PackageJson from '../../../package.json';
 
 export default {
   name: 'Builder',
@@ -56,6 +57,7 @@ export default {
     return {
       drawer: false,
       aboutOpen: false,
+      package: PackageJson,
     };
   },
   methods: {
