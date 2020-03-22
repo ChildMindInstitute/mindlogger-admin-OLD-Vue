@@ -13,23 +13,6 @@
         name="scheduleSpan"
         v-bind="{schedule, day}"
       >
-        <v-checkbox
-          v-model="schedule.relative"
-          label="relative to first response"
-        >
-          <template slot="label">
-            <div>
-              Relative to first response
-              <p>
-                <small>
-                  if this is selected, all dates and times entered below
-                  will be relative to when the user first responds
-                </small>
-              </p>
-            </div>
-          </template>
-        </v-checkbox>
-
         <ds-schedule-span
           :schedule="schedule"
           :day="day"
@@ -122,7 +105,7 @@
           name="scheduleTimes"
           v-bind="{schedule, day}"
         >
-          <ds-schedule-times
+          <schedule-times
             :schedule="schedule"
             :read-only="readOnly"
           />
@@ -150,12 +133,14 @@
 <script>
 import { Day, Schedule } from 'dayspan';
 import ScheduleType from './ScheduleType';
+import ScheduleTimes from './ScheduleTimes';
 
 export default {
 
   name: 'dsSchedule',
   components: {
-    ScheduleType
+    ScheduleType,
+    ScheduleTimes,
   },
   props:
   {
