@@ -62,6 +62,7 @@
                 class="ds-schedule-timeout"
                 single-line
                 hide-details
+                min="0"
                 solo
                 flat
               />
@@ -76,6 +77,8 @@
                 class="ds-schedule-timeout"
                 single-line
                 hide-details
+                max="23"
+                min="0"
                 solo
                 flat
               />
@@ -90,6 +93,8 @@
                 class="ds-schedule-timeout"
                 single-line
                 hide-details
+                max="59"
+                min="0"
                 solo
                 flat
               />
