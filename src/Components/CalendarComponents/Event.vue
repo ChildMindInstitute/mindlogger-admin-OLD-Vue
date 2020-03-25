@@ -331,7 +331,8 @@ export default {
         day: 0,
         hour: 12,
         minute: 0,
-        access: false
+        access: false,
+        allow: false,
       };
     },
     activityNames() {
@@ -448,7 +449,18 @@ export default {
     },
 
     handleTimeout(scheduledTimeout) {
-      this.scheduledTimeout = scheduledTimeout;
+      if (scheduledTimeout.allow) {
+        this.scheduledTimeout = scheduledTimeout;
+      } else {
+        const today = new Date();
+        this.scheduledTimeout = {
+          day: 0,
+          hour: 23 - today.getHours(),
+          minute: 59 - today.getMinutes(),
+          access: scheduledTimeout.access,
+          allow: scheduledTimeout.allow
+        };
+      }
     },
 
     save() {
@@ -517,7 +529,9 @@ export default {
     getEvent(type, extra = {}) {
       const evDetails = this.details;
       evDetails.timeout = this.scheduledTimeout;
-      evDetails.users = this.$store.state.currentUsers;
+      if (!this.$store.state.currentUsers.length) {
+        evDetails.users = this.$store.state.currentUsers;
+      }
       return fn.extend(
         {
           type: type,
