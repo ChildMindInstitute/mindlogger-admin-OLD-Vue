@@ -540,7 +540,7 @@ export default {
           evDetails.timeout = this.scheduledTimeout;
       }
 
-      if (!this.$store.state.currentUsers.length) {
+      if (this.$store.state.currentUsers.length) {
         evDetails.users = this.$store.state.currentUsers;
       }
       return fn.extend(
