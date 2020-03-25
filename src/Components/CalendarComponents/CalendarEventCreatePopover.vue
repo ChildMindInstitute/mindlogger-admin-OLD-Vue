@@ -235,7 +235,6 @@ export default {
 
     save() {
       let ev = this.getEvent("creating");
-      
       this.$emit("creating", ev);
       ev.calendar.events.sort((a, b) =>
         a.schedule.durationUnit < b.schedule.durationUnit
@@ -300,11 +299,12 @@ export default {
 
       evDetails.timeout = {
         day: 0,
-        hour: 23 - today.getHours(),
-        minute: 59 - today.getMinutes(),
+        hour: 23 - this.calendarEvent.start.hour,
+        minute: 59 - this.calendarEvent.start.minute,
         access: false,
-        allow: false
-      };
+        allow: false,
+      }
+    
       if (this.$store.state.currentUsers.length) {
         evDetails.users = this.$store.state.currentUsers;
       }

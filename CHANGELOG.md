@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.30] = 2020-3-24
 ### Changed
 - Updated scheduling request
+- Added an option for timeout
 
 ## [0.1.29] = 2020-3-22
 ### Changed

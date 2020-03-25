@@ -449,22 +449,11 @@ export default {
     },
 
     handleTimeout(scheduledTimeout) {
-      if (scheduledTimeout.allow) {
-        this.scheduledTimeout = scheduledTimeout;
-      } else {
-        const today = new Date();
-        this.scheduledTimeout = {
-          day: 0,
-          hour: 23 - today.getHours(),
-          minute: 59 - today.getMinutes(),
-          access: scheduledTimeout.access,
-          allow: scheduledTimeout.allow
-        };
-      }
+      this.scheduledTimeout = scheduledTimeout;
     },
 
     save() {
-      var ev = this.getEvent("save");      
+      var ev = this.getEvent("save"); 
       this.$emit("save", ev);
 
       if (!ev.handled) {
@@ -528,7 +517,29 @@ export default {
 
     getEvent(type, extra = {}) {
       const evDetails = this.details;
-      evDetails.timeout = this.scheduledTimeout;
+
+      if (!this.scheduledTimeout.allow) {
+        if (this.schedule.lastTime) {
+          evDetails.timeout = {
+            day: 0,
+            hour: 23 - this.schedule.lastTime.hour,
+            minute: 59 - this.schedule.lastTime.minute,
+            access: this.scheduledTimeout.access,
+            allow: this.scheduledTimeout.allow,
+          }
+        } else {
+          evDetails.timeout = {
+            day: 0,
+            hour: 23,
+            minute: 59,
+            access: this.scheduledTimeout.access,
+            allow: this.scheduledTimeout.allow,
+          }
+        } 
+      } else {
+          evDetails.timeout = this.scheduledTimeout;
+      }
+
       if (!this.$store.state.currentUsers.length) {
         evDetails.users = this.$store.state.currentUsers;
       }
