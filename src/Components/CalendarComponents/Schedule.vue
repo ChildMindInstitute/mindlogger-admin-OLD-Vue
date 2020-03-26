@@ -44,10 +44,16 @@
             @change="handleAccess"
             label="Allow access before scheduled time"
           />
-          <!-- <label>-- {{ access }} </label> -->
-          <label>Timeout : </label>
 
-          <div class="ds-timeout-body">
+          <v-checkbox
+            v-model="scheduledTimeout.allow"
+            @change="handleAccess"
+            label="Allow timeout"
+          />
+          <!-- <label>-- {{ access }} </label> -->
+          <label v-if="scheduledTimeout.allow">Timeout : </label>
+
+          <div v-if="scheduledTimeout.allow" class="ds-timeout-body">
             <div class="ds-timeout-units">
               <v-text-field
                 type="number"
@@ -56,6 +62,8 @@
                 class="ds-schedule-timeout"
                 single-line
                 hide-details
+                max="30"
+                min="0"
                 solo
                 flat
               />
@@ -70,6 +78,8 @@
                 class="ds-schedule-timeout"
                 single-line
                 hide-details
+                max="23"
+                min="00"
                 solo
                 flat
               />
@@ -84,6 +94,8 @@
                 class="ds-schedule-timeout"
                 single-line
                 hide-details
+                max="59"
+                min="00"
                 solo
                 flat
               />
@@ -269,6 +281,11 @@ export default {
 
   .v-text-field__slot {
     border-bottom: 1px solid grey;
+  }
+
+  .v-input--selection-controls {
+    margin-top: 0;
+    padding-top: 0;
   }
 
   .v-input input {
