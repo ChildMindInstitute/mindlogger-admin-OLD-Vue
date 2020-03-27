@@ -71,14 +71,11 @@ export default {
       params.api.sizeColumnsToFit();
     },
     getSelectedNodes() {
-      const selectedUsers = this.gridOptions.api.getSelectedRows();
+      const selectedUsers = this.gridOptions.api.getSelectedRows().map(function(val, index) {
+        return val._id;
+      });
 
-      if(selectedUsers.length) {
-        this.$store.commit("setCurrentUsers", selectedUsers);
-      }
-      else {
-        this.$store.commit("setCurrentUsers", this.users);
-      }
+      this.$store.commit("setCurrentUsers", selectedUsers);
     }
   },
 }

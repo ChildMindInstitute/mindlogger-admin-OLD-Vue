@@ -331,7 +331,8 @@ export default {
         day: 0,
         hour: 12,
         minute: 0,
-        access: false
+        access: false,
+        allow: false,
       };
     },
     activityNames() {
@@ -452,7 +453,7 @@ export default {
     },
 
     save() {
-      var ev = this.getEvent("save");      
+      var ev = this.getEvent("save"); 
       this.$emit("save", ev);
 
       if (!ev.handled) {
@@ -516,8 +517,32 @@ export default {
 
     getEvent(type, extra = {}) {
       const evDetails = this.details;
-      evDetails.timeout = this.scheduledTimeout;
-      evDetails.users = this.$store.state.currentUsers;
+
+      if (!this.scheduledTimeout.allow) {
+        if (this.schedule.lastTime) {
+          evDetails.timeout = {
+            day: 0,
+            hour: 23 - this.schedule.lastTime.hour,
+            minute: 59 - this.schedule.lastTime.minute,
+            access: this.scheduledTimeout.access,
+            allow: this.scheduledTimeout.allow,
+          }
+        } else {
+          evDetails.timeout = {
+            day: 0,
+            hour: 23,
+            minute: 59,
+            access: this.scheduledTimeout.access,
+            allow: this.scheduledTimeout.allow,
+          }
+        } 
+      } else {
+          evDetails.timeout = this.scheduledTimeout;
+      }
+
+      if (this.$store.state.currentUsers.length) {
+        evDetails.users = this.$store.state.currentUsers;
+      }
       return fn.extend(
         {
           type: type,
