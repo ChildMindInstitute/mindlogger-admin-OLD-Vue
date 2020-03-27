@@ -91,10 +91,11 @@ const mutations = {
   }
 };
 
-const store = new Store({
+export const storeConfig = {
   state,
   mutations,
-  // plugins: [createPersistedState()],
-})
+};
+
+const store = new Store(storeConfig);
 
 export default store;
