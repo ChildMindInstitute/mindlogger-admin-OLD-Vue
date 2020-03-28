@@ -318,8 +318,8 @@ export default {
   data: vm => ({
     tab: "details",
     schedule: new Schedule(),
-    scheduledTimeout: {},
     details: vm.$dayspan.getDefaultEventDetails(),
+    scheduledTimeout: {},
   }),
 
   computed: {
@@ -518,6 +518,9 @@ export default {
     getEvent(type, extra = {}) {
       const evDetails = this.details;
 
+      if (!this.scheduledTimeout.hasOwnProperty('allow')) {
+        this.scheduledTimeout = this.timeout;
+      }
       if (!this.scheduledTimeout.allow) {
         if (this.schedule.lastTime) {
           evDetails.timeout = {
