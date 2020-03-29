@@ -65,7 +65,6 @@
           <v-list-item-content>
             <slot name="eventCreatePopoverOccurs" v-bind="slotData">
               <v-list-item-title>{{ startDate }}</v-list-item-title>
-              <v-list-item-subtitle>{{ occurs }}</v-list-item-subtitle>
             </slot>
           </v-list-item-content>
         </v-list-item>

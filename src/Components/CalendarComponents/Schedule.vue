@@ -57,7 +57,7 @@
             <div class="ds-timeout-units">
               <v-text-field
                 type="number"
-                v-model="timeout.day"
+                v-model="scheduledTimeout.day"
                 @change="handleAccess"
                 class="ds-schedule-timeout"
                 single-line
@@ -73,7 +73,7 @@
             <div class="ds-timeout-units">
               <v-text-field
                 type="number"
-                v-model="timeout.hour"
+                v-model="scheduledTimeout.hour"
                 @change="handleAccess"
                 class="ds-schedule-timeout"
                 single-line
@@ -89,7 +89,7 @@
             <div class="ds-timeout-units">
               <v-text-field
                 type="number"
-                v-model="timeout.minute"
+                v-model="scheduledTimeout.minute"
                 @change="handleAccess"
                 class="ds-schedule-timeout"
                 single-line
@@ -220,6 +220,12 @@ export default {
     {
       return this.readOnly || this.$dayspan.readOnly;
     }
+  },
+
+  watch: {
+    timeout: function(newTimeout) {
+      scheduledTimeout = newTimeout;
+    },
   },
 
   methods:

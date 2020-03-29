@@ -126,6 +126,8 @@ import {
   Functions as fn
 } from "dayspan";
 
+import moment from "moment";
+
 import ScheduleActions from "./ScheduleActions";
 
 export default {
@@ -227,12 +229,12 @@ export default {
     },
 
     occurs() {
-      return this.$dayspan.getEventOccurrence(
-        this.calendarEvent.schedule,
-        this.calendarEvent.start,
-        this.labels,
-        this.formats
-      );
+      const timeout = this.calendarEvent.event.data.timeout;
+      const now = new Date(this.calendarEvent.start.format(""));
+      now.setDate(now.getDate() + parseInt(timeout.day));
+      now.setHours(now.getHours() + parseInt(timeout.hour));
+      now.setMinutes(now.getMinutes() + parseInt(timeout.minute));
+      return this.calendarEvent.start.format('h:mm a > ') + moment(now).format('MMMM D, h:mm a');
     },
 
     details() {
