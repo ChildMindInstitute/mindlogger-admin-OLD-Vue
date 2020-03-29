@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Showed endtime on event card
 
+## [0.1.32] = 2020-3-28
+### Changed
+- Added notification_id on scheduling data
+
 ## [0.1.31] = 2020-3-22
 ### Changed
 - add ```vue-test-utils``` as dependency

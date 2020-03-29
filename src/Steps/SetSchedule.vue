@@ -170,8 +170,6 @@ export default {
         this.loading = true;
         const schedule = this.currentApplet.applet.schedule;
         scheduleForm.set("schedule", JSON.stringify(schedule || {}));
-        localStorage.setItem(this.currentApplet.applet._id, JSON.stringify(this.currentApplet.applet));
-
         api
           .setSchedule({
             apiHost: this.$store.state.backend,
@@ -180,7 +178,9 @@ export default {
             data: scheduleForm
           }) 
           .then(response => {
-            console.log(response);
+            const applet = this.currentApplet.applet;
+            applet.schedule = response.data.applet.schedule;
+            localStorage.setItem(this.currentApplet.applet._id, JSON.stringify(applet));
             this.loading = false;
             this.saveSuccess = true;
           })
