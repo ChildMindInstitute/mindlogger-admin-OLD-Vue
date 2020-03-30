@@ -40,20 +40,21 @@ const mutations = {
   setAuth(state, auth) {
     state.auth = auth;
   },
-  loadSchedule(state) {
-    api
-      .refreshApplet({
-        apiHost: state.backend,
-        appletId: state.currentApplet.applet._id.split('applet/')[1],
-        token: state.auth.authToken.token,
-      })
-      .then((response) => {
-        //state.currentApplet.applet.schedule = response.data.applet.schedule;
-      })
-      .catch(e => {
-        console.log("fail", e);
-      });
-  },
+  // Just for now
+  // loadSchedule(state) {
+  //   api
+  //     .refreshApplet({
+  //       apiHost: state.backend,
+  //       appletId: state.currentApplet.applet._id.split('applet/')[1],
+  //       token: state.auth.authToken.token,
+  //     })
+  //     .then((response) => {
+  //       //state.currentApplet.applet.schedule = response.data.applet.schedule;
+  //     })
+  //     .catch(e => {
+  //       console.log("fail", e);
+  //     });
+  // },
   setSchedule(state, schedule) {
     if (!_.isEmpty(state.currentApplet)) {
       // TODO: this sucks.
