@@ -1,4 +1,4 @@
--<template>
+<template>
   <v-card class="ds-calendar-event-popover-card" :class="classes">
     <v-app-bar extended flat :style="styleHeader">
       <v-toolbar-title slot="extension">
@@ -235,15 +235,6 @@ export default {
     save() {
       let ev = this.getEvent("creating");
       this.$emit("creating", ev);
-      ev.calendar.events.sort((a, b) =>
-        a.schedule.durationUnit < b.schedule.durationUnit
-          ? 1
-          : a.schedule.durationUnit === b.schedule.durationUnit
-          ? a.schedule.duration < b.schedule.duration
-            ? 1
-            : -1
-          : -1
-      );
 
       if (!ev.handled && ev.details && ev.calendarEvent) {
         ev.created = ev.calendarEvent.event;
