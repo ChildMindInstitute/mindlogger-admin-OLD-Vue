@@ -37,6 +37,11 @@ const mutations = {
   setAllApplets(state, protocols) {
     state.allApplets = protocols;
   },
+  setApplet(state, applet) {
+    if(applet) {
+      state.currentApplet.applet = applet;
+    }
+  },
   setAuth(state, auth) {
     state.auth = auth;
   },
@@ -61,6 +66,7 @@ const mutations = {
       const idx = _.findIndex(state.allApplets,
         a => a.applet._id == state.currentApplet.applet._id);
       if (idx > -1) {
+        // console.log("$$$$", schedule);
         state.allApplets[idx].applet.schedule = schedule;
         state.currentApplet = state.allApplets[idx];
       }

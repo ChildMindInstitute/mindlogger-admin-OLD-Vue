@@ -180,13 +180,13 @@ export default {
           .then(response => {
             const applet = this.currentApplet.applet;
             applet.schedule = response.data.applet.schedule;
+            this.$store.commit('setApplet', applet);
             localStorage.setItem(this.currentApplet.applet._id, JSON.stringify(applet));
             this.loading = false;
             this.saveSuccess = true;
           })
           .catch(e => {
             this.errorMessage = `Save Unsuccessful. ${e}`;
-            console.log("fail");
             this.loading = false;
             this.saveError = true;
           });

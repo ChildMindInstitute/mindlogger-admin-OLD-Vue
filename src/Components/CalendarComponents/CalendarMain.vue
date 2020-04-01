@@ -147,6 +147,7 @@ export default {
     saveState() {
       const state = this.calendar.toInput(true);
       const storeState = this.$store.state;
+
       let oldStateEvents = [];
       let newStateEvents = [];
       if (state && storeState) {
@@ -158,10 +159,59 @@ export default {
       }
 
       if (this.currentApplet) {
-        this.$store.commit("setSchedule", state);
         if (_.difference(oldStateEvents, newStateEvents)) {
-          this.$emit("change");
+          // this.$emit("change");
+          if (oldStateEvents.length === newStateEvents.length) {
+            const events = oldStateEvents.map((event, i) => {
+              const ev = newStateEvents[i];
+              if (event.id) {
+                ev.id = event.id;
+              }
+              return ev;
+            });
+            state.events = events;
+          } else if(oldStateEvents.length < newStateEvents.length && oldStateEvents.length > 0) {
+            let index = 0;
+            const events = newStateEvents.map((event) => {
+              const ev = event;
+              const newEvent = oldStateEvents[index];
+              if (!newEvent) {
+                return ev;
+              }
+              if (newEvent.id) {
+                delete newEvent["id"];
+                if (JSON.stringify(ev) === JSON.stringify(newEvent)) {
+                  ev.id = oldStateEvents[index].id;
+                } else {
+                  index -= 1;
+                }
+              }
+              index += 1;
+              return ev;
+            });
+            state.events = events;            
+          } else if(oldStateEvents.length > newStateEvents.length && newStateEvents.length > 0) {
+            let index = 0;
+            const events = newStateEvents.map((event) => {
+              const ev = event;
+              const newEvent = oldStateEvents[index];
+
+              if (newEvent.id) {
+                delete newEvent["id"];
+                if (JSON.stringify(ev) === JSON.stringify(newEvent)) {
+                  ev.id = oldStateEvents[index].id;
+                } else {
+                  index += 1;
+                }
+              }
+              index += 1;
+              return ev;
+            });
+            state.events = events; 
+          }
         }
+        this.$store.commit("setSchedule", state);
+
       }
     },
  
