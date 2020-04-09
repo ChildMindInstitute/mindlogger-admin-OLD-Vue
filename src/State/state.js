@@ -37,29 +37,36 @@ const mutations = {
   setAllApplets(state, protocols) {
     state.allApplets = protocols;
   },
+  setApplet(state, applet) {
+    if(applet) {
+      state.currentApplet.applet = applet;
+    }
+  },
   setAuth(state, auth) {
     state.auth = auth;
   },
-  loadSchedule(state) {
-    api
-      .refreshApplet({
-        apiHost: state.backend,
-        appletId: state.currentApplet.applet._id.split('applet/')[1],
-        token: state.auth.authToken.token,
-      })
-      .then((response) => {
-        //state.currentApplet.applet.schedule = response.data.applet.schedule;
-      })
-      .catch(e => {
-        console.log("fail", e);
-      });
-  },
+  // Just for now
+  // loadSchedule(state) {
+  //   api
+  //     .refreshApplet({
+  //       apiHost: state.backend,
+  //       appletId: state.currentApplet.applet._id.split('applet/')[1],
+  //       token: state.auth.authToken.token,
+  //     })
+  //     .then((response) => {
+  //       //state.currentApplet.applet.schedule = response.data.applet.schedule;
+  //     })
+  //     .catch(e => {
+  //       console.log("fail", e);
+  //     });
+  // },
   setSchedule(state, schedule) {
     if (!_.isEmpty(state.currentApplet)) {
       // TODO: this sucks.
       const idx = _.findIndex(state.allApplets,
         a => a.applet._id == state.currentApplet.applet._id);
       if (idx > -1) {
+        // console.log("$$$$", schedule);
         state.allApplets[idx].applet.schedule = schedule;
         state.currentApplet = state.allApplets[idx];
       }

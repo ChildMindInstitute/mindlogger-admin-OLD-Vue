@@ -10,9 +10,18 @@ branches:
   - master
 notifications:
   email: false
-before_script:
-- npm install
-script:
-- npm run build
-after_success:
-- bash ./deploy.sh
+stages:
+  - test
+  - build 
+jobs:
+  include:
+    - stage: test
+      script:
+        - npm run test:unit
+    - stage: build
+      before_script:
+        - npm install
+      script:
+        - npm run build
+      after_success:
+        - bash ./deploy.sh

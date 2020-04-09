@@ -427,12 +427,7 @@ export default {
 
   methods: {
     setState(state) {
-      state.eventSorter = state.listTimes
-        ? Sorts.List([Sorts.FullDay, Sorts.Start])
-        : Sorts.Start;
-
       this.calendar.set(state);
-
       this.triggerChange();
     },
 
