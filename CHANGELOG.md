@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - protocol-builder 0.1.18 -> 0.1.20
 
+## [0.1.38] = 2020-4-7
+### Changed
+- Added 6 more unit tests for vuex mutations
+
 ## [0.1.37] = 2020-4-6
 ### Changed
 - Added code coverage reporting in ```jest.config.js```
