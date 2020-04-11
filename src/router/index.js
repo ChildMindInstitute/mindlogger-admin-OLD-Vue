@@ -9,6 +9,9 @@ import SetSchedule from '../Steps/SetSchedule';
 
 import _ from 'lodash';
 
+import store from '../State/state';
+
+
 Vue.use(Router);
 
 let router = new Router({
@@ -55,20 +58,20 @@ let router = new Router({
     },
     {
       path: '/',
-      name: 'Stepper',
-      component: Stepper,
+      redirect: '/login',
     },
   ]
 });
 
 
 router.beforeEach((to, from, next) => {
-  const isNotLoggedIn = _.isEmpty(this.$store.state.auth);
+  console.log('store:', store.state);
+  const isNotLoggedIn = _.isEmpty(store.state.auth);
   if (to.matched.some(record => record.meta.requiresAuth)) {
       if (isNotLoggedIn) {
           next({
               path: '/login',
-              params: { nextUrl: to.fullPath }
+              params: { nextUrl: to.fullPath },
           });
       } else {
           next();
@@ -79,7 +82,7 @@ router.beforeEach((to, from, next) => {
       }
       else {
           next({
-            path: '/applets'
+            path: '/applets',
           });
       }
   } else {

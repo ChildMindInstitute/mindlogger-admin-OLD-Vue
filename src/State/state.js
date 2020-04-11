@@ -5,6 +5,7 @@ Vue.use(Vuex);
 
 import { Store } from "vuex";
 import _ from 'lodash';
+import createPersistedState from "vuex-persistedstate";
 import api from "../Components/Utils/api/api.vue";
 
 const state = {
@@ -101,6 +102,9 @@ const mutations = {
 export const storeConfig = {
   state,
   mutations,
+  plugins: [
+    createPersistedState(),
+  ],
 };
 
 const store = new Store(storeConfig);
