@@ -41,7 +41,7 @@ let router = new Router({
       },
     },
     {
-      path: '/users',
+      path: '/applet/:appletId/users',
       name: 'SetUsers',
       component: SetUsers,
       meta: {
@@ -49,7 +49,7 @@ let router = new Router({
       },
     },
     {
-      path: '/schedules',
+      path: '/applet/:appletId/schedules',
       name: 'SetSchedule',
       component: SetSchedule,
       meta: {
