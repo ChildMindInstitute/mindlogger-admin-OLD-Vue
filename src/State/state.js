@@ -8,17 +8,24 @@ import _ from 'lodash';
 import createPersistedState from "vuex-persistedstate";
 import api from "../Components/Utils/api/api.vue";
 
-const state = {
-  backend: 'https://api.mindlogger.org/api/v1',
-  allApplets: [],
-  currentApplet: {},
-  auth: {},
-  continue: {},
-  currentUsers: [],
-  users: {},
-};
+const getDefaultState = () => {
+  return {
+    backend: 'https://api.mindlogger.org/api/v1',
+    allApplets: [],
+    currentApplet: {},
+    auth: {},
+    continue: {},
+    currentUsers: [],
+    users: {},
+  }
+}
+
+const state = getDefaultState();
 
 const mutations = {
+  resetState(state) {
+    Object.assign(state, getDefaultState());
+  },
   setBackend(state, backend) {
     if (backend !== state.backend) {
       state.auth = {};
