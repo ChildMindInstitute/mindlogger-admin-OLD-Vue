@@ -74,10 +74,11 @@ export default {
       }
     }
   },
+  mounted() {
+    this.$store.commit('setUsers', []);
+    this.getAppletUsers();
+  },
   methods: {
-    continueAction() {
-      return true;
-    },
     updateTables() {
       this.componentKey += 1;
     },

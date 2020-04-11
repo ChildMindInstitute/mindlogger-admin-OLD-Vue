@@ -75,24 +75,12 @@ export default {
     currentApplet() {
       return this.$store.state.currentApplet;
     },
-    isLoggedIn() {
-      return !_.isEmpty(this.$store.state.auth);
-    },
     readyToContinue() {
       return !_.isEmpty(this.currentApplet);
     },
   },
-  watch: {
-    isLoggedIn() {
-      if (this.isLoggedIn) {
-        this.getApplets();
-      }
-    },
-  },
   mounted() {
-    if (this.isLoggedIn) {
-      this.getApplets();
-    }
+    this.getApplets();
   },
   methods: {
     getApplets() {

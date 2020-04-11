@@ -143,7 +143,7 @@ export default {
     },
     setSelectedApplet() {
       this.$store.commit('setCurrentApplet', this.applet);
-      this.$emit('selectApplet', this.applet);
+      this.$router.push('/users');
     },
 
   }
