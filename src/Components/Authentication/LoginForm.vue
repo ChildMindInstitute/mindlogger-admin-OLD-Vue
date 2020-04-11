@@ -74,6 +74,7 @@ export default {
         password: this.password
       }).then((resp) => {
         this.$store.commit('setAuth', resp.data);
+        this.$router.push('/applets')
       }).catch((e) => {
         this.error = e.message === 'Request failed with status code 401' ? 'Invalid credentials' : e.message;
       });
