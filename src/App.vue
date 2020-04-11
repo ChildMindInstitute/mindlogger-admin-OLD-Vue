@@ -1,15 +1,45 @@
 <template>
   <v-app>
-    <router-view />
+    <v-app-bar
+      app
+      color="primary"
+      dark
+    >
+      <v-toolbar-title>MindLogger Admin</v-toolbar-title>
+      <v-spacer />
+      <v-btn
+        v-if="isLoggedIn"
+        icon
+        style="margin-right: 0px;"
+        @click="logout"
+      >
+        Logout
+      </v-btn>
+    </v-app-bar>
+    <v-content>
+      <router-view />
+    </v-content>
   </v-app>
 </template>
 
 <script>
 import store from './State/state';
+import _ from 'lodash';
 
 export default {
   name: 'App',
   store,
+  computed: {
+    isLoggedIn() {
+      return !_.isEmpty(this.$store.state.auth);
+    },
+  },
+  methods: {
+    logout() {
+      this.$store.commit('resetState');
+      this.$router.push('/login')
+    },
+  },
 }
 </script>
 
