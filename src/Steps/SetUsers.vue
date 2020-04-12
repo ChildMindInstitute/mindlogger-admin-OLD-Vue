@@ -21,6 +21,17 @@
       <create-invitation-form @createInvitation="createInvitation" />
       <div style="height: 58px;" />
     </div>
+    <v-btn
+      color="primary"
+      fixed
+      bottom
+      right
+      fab
+      style="bottom: 70px; right: 40px;"
+      @click="viewCalendar"
+    >
+      <v-icon>mdi-calendar</v-icon>
+    </v-btn>
   </div>
 </template>
 
@@ -120,6 +131,10 @@ export default {
           this.status = "error";
         });
     },
+    viewCalendar() {
+      const appletId = this.$route.params.appletId
+      this.$router.push(`/applet/${appletId}/schedule`);
+    }
   },
 };
 </script>
