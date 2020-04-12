@@ -3,7 +3,6 @@
     <Calendar
       ref="calendar"
       :activities="activities"
-      @change="continueAction"
     />
 
     <v-dialog
@@ -148,13 +147,11 @@ export default {
       return {};
     }
   },
+  mounted() {
+    this.$refs.calendar.loadState();
+    this.$refs.calendar.$refs.app.setDefaultType();
+  },
   methods: {
-    /**
-     * on continue, save the schedule.
-     * TODO: probably we should save when you hit 'back' as well?
-     */
-    continueAction() {},
-
     saveSchedule() {
       this.$refs.calendar.$refs.app.$refs.calendar.clearPlaceholder();
 

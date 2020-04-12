@@ -132,7 +132,8 @@ export default {
         });
     },
     viewCalendar() {
-      const appletId = this.$route.params.appletId
+      const appletId = this.$route.params.appletId;
+      this.$refs.userTableRef.getSelectedNodes();
       this.$router.push(`/applet/${appletId}/schedule`);
     }
   },

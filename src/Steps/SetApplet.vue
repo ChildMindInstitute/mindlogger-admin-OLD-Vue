@@ -110,9 +110,6 @@ export default {
       this.dialogText = 'There was an error uploading your applet. Please try again or report the issue.'
       this.dialog = true;
     },
-    continueAction() {
-
-    },
   },
 }
 </script>
