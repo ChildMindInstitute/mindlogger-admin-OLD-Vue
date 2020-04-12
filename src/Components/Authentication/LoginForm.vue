@@ -7,6 +7,18 @@
       <v-card-text>
         <p>
           Log into your Mindlogger account hosted at {{ $store.state.backend }}
+          <v-btn
+            icon
+            style="margin: 0px;"
+            @click="onSetBackend"
+          >
+            <v-icon
+              small
+              color="primary"
+            >
+              edit
+            </v-icon>
+          </v-btn>
         </p>
         <v-text-field
           v-model="username"
@@ -81,7 +93,10 @@ export default {
     },
     onCreateAccount() {
       this.$emit('createAccount', null);
-    }
+    },
+    onSetBackend() {
+      this.$emit('setBackend', null);
+    },
   }
 
 };

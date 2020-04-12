@@ -2,13 +2,19 @@
   <v-container>
     <v-layout>
       <v-flex>
+        <SetBackendForm
+          v-if="setBackend"
+          @setBackend="toggleSetBackend"
+        />
         <LoginForm
-          v-if="!createAccount"
+          v-else-if="!createAccount"
           @createAccount="toggleCreateAccount"
+          @setBackend="toggleSetBackend"
         />
         <CreateUserForm
           v-else
           @login="toggleCreateAccount"
+          @setBackend="toggleSetBackend"
         />
       </v-flex>
     </v-layout>
@@ -25,26 +31,29 @@
 import _ from 'lodash';
 import LoginForm from '../Components/Authentication/LoginForm.vue';
 import CreateUserForm from '../Components/Authentication/CreateUserForm.vue';
+import SetBackendForm from '../Components/Authentication/SetBackendForm.vue';
 
 export default {
   name: 'Login',
 
   components: {
     LoginForm,
-    CreateUserForm
+    CreateUserForm,
+    SetBackendForm,
   },
 
   data: () => ({
-    username: '',
-    password: '',
-    error: '',
-    createAccount: false
+    createAccount: false,
+    setBackend: false,
   }),
 
   methods: {
     toggleCreateAccount() {
       this.createAccount = !this.createAccount;
     },
+    toggleSetBackend() {
+      this.setBackend = !this.setBackend;
+    }
   },
 
 };
