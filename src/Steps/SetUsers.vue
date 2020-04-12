@@ -72,6 +72,10 @@ export default {
       } else {
         this.status = "loading";
       }
+    },
+    $route(to, from) {
+      this.status = "loading";
+      this.getAppletUsers()
     }
   },
   mounted() {
@@ -104,14 +108,18 @@ export default {
         .getAppletUsers({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
-          appletId: this.currentApplet.applet._id.split("applet/")[1]
+          appletId: this.$route.params.appletId
         })
         .then(resp => {
           this.$store.commit("setUsers", resp.data);
           this.updateTables();
           this.status = "ready";
+        })
+        .catch(e => {
+          this.error = e;
+          this.status = "error";
         });
-    }
-  }
+    },
+  },
 };
 </script>

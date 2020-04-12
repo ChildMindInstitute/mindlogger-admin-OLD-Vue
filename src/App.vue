@@ -17,7 +17,11 @@
       </v-btn>
     </v-app-bar>
     <v-content>
-      <router-view />
+      <v-container
+        fluid
+      >
+        <router-view />
+      </v-container>
     </v-content>
   </v-app>
 </template>

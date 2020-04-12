@@ -49,7 +49,7 @@ let router = new Router({
       },
     },
     {
-      path: '/applet/:appletId/schedules',
+      path: '/applet/:appletId/schedule',
       name: 'SetSchedule',
       component: SetSchedule,
       meta: {
@@ -65,7 +65,6 @@ let router = new Router({
 
 
 router.beforeEach((to, from, next) => {
-  console.log('store:', store.state);
   const isNotLoggedIn = _.isEmpty(store.state.auth);
   if (to.matched.some(record => record.meta.requiresAuth)) {
       if (isNotLoggedIn) {

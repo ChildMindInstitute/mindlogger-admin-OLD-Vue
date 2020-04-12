@@ -59,12 +59,32 @@
             </v-btn>
           </div>
           <div>
-            <v-btn
-              text
-              @click="setSelectedApplet"
-            >
-              Select
-            </v-btn>
+            <v-menu offset-x>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  text
+                  v-on="on"
+                >
+                  Select
+                </v-btn>
+              </template>
+              <v-list>
+                <v-list-item
+                  @click="onViewUsers"
+                >
+                  <v-list-item-title>
+                    View Users
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item
+                  @click="onViewGeneralCalendar"
+                >
+                  <v-list-item-title>
+                    View General Calendar
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
           </div>
         </div>
       </v-card-actions>
@@ -143,10 +163,17 @@ export default {
     },
     setSelectedApplet() {
       this.$store.commit('setCurrentApplet', this.applet);
+    },
+    onViewUsers() {
+      this.setSelectedApplet();
       const appletId = this.applet.applet._id.split("applet/")[1];
       this.$router.push(`applet/${appletId}/users`);
     },
-
+    onViewGeneralCalendar() {
+      this.setSelectedApplet();
+      const appletId = this.applet.applet._id.split("applet/")[1];
+      this.$router.push(`applet/${appletId}/schedule`);
+    },
   }
 }
 </script>
