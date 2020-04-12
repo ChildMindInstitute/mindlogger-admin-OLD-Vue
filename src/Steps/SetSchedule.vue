@@ -51,7 +51,15 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
+    <v-btn
+      color="primary"
+      fixed
+      bottom
+      left
+      @click="$router.go(-1)"
+    >
+      Back
+    </v-btn>
     <v-btn
       color="primary"
       fixed

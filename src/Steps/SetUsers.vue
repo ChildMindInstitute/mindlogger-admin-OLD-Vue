@@ -25,6 +25,15 @@
       color="primary"
       fixed
       bottom
+      left
+      @click="$router.go(-1)"
+    >
+      Back
+    </v-btn>
+    <v-btn
+      color="primary"
+      fixed
+      bottom
       right
       fab
       style="bottom: 70px; right: 40px;"

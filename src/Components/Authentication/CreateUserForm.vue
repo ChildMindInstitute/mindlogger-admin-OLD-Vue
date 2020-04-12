@@ -103,6 +103,7 @@ export default {
           }
         };
         this.$store.commit('setAuth', auth);
+        this.$router.push('/applets')
       }).catch((e) => {
         this.error = e.message;
       });
