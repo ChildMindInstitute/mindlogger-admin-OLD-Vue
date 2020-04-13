@@ -13,10 +13,36 @@
           label="username"
         />
 
+        <div
+          v-if="username == '' && submitted"
+          class="error"
+        >
+          {{ error }}
+        </div>
+
         <v-text-field
           v-model="displayName"
           label="display name"
         />
+
+        <div
+          v-if="displayName == '' && submitted"
+          class="error"
+        >
+          {{ error }}
+        </div>
+
+        <v-text-field
+          v-model="email"
+          label="email"
+        />
+
+        <div
+          v-if="email == '' && submitted"
+          class="error"
+        >
+          {{ error }}
+        </div>
 
         <v-text-field
           v-model="password"
@@ -25,10 +51,17 @@
         />
 
         <div
-          v-if="error"
+          v-if="password == '' && submitted"
           class="error"
         >
           {{ error }}
+        </div>
+
+        <div
+          v-if="errorMsg"
+          class="errorMsg"
+        >
+          {{ errorMsg }}
         </div>
 
         <v-btn
@@ -50,8 +83,9 @@
 </template>
 
 <style scoped>
-  .error {
-    color: 'red';
+  div.error {
+    background-color: white !important;
+    color: red;
   }
 
   .v-btn {
@@ -65,21 +99,31 @@ import _ from 'lodash';
 
 export default {
   data: () => ({
+    email: '',
     username: '',
     displayName: '',
     password: '',
-    error: '',
+    errorMsg: '',
+    error: 'This field is required',
+    submitted: false,
   }),
 
   methods: {
     createAccount() {
-      this.error = '';
+      // Added simple validation just for now
+      
+      this.submitted = true;
+      if (this.email == '' && this.username == '' && this.password == '' && this.displayName == '') {
+        return;
+      }
+      this.errorMsg = '';
       api.signUp({
         apiHost: this.$store.state.backend,
         body: {
           login: this.username,
           displayName: this.displayName,
-          password: this.password
+          password: this.password,
+          email: this.email
         }
       }).then((resp) => {
         const auth = {
@@ -92,7 +136,7 @@ export default {
         };
         this.$store.commit('setAuth', auth);
       }).catch((e) => {
-        this.error = e.message;
+        this.errorMsg = e.message;
       });
     },
     onLogin() {
