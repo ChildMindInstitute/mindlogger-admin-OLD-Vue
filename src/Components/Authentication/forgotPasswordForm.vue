@@ -72,7 +72,6 @@ export default {
         }
       }
       this.error = '';
-      console.log('email:', this.email);
       
       api.resetPassword({
         apiHost: this.$store.state.backend,

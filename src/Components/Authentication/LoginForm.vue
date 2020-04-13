@@ -1,143 +1,119 @@
 <template>
-  <v-container>
-    <v-layout
-      row
-      wrap
-    >
-      <v-flex v-if="notLoggedIn">
-        <LoginForm
-          v-if="!createAccount && !forgotPassword"
-          @createAccount="toggleCreateAccount"
-          @forgotPassword="toggleForgotPassword"
+  <div>
+    <h1 style="text-align: center">
+      Login
+    </h1>
+    <v-card>
+      <v-card-text>
+        <p>
+          Log into your Mindlogger account hosted at {{ $store.state.backend }}
+        </p>
+        <v-text-field
+          v-model="username"
+          label="username"
         />
-        <CreateUserForm
-          v-else-if="createAccount && !forgotPassword"
-          @login="toggleCreateAccount"
+
+        <v-text-field
+          v-model="password"
+          label="password"
+          type="password"
         />
-        <ForgotPasswordForm
-          v-else
-          @login="toggleForgotPassword"
-          @sendRequest="handleSendRequest"
-        />
-      </v-flex>
-      <v-flex v-else>
-        <v-card>
-          <v-card-text>
-            <h1 style="text-align: center">
-              Hello, {{ auth.user.login }}
-            </h1>
-            <p>
-              Click "continue" or <v-btn
-                color="primary"
-                @click="logout"
-              >
-                Logout
-              </v-btn>
-            </p>
-          </v-card-text>
-        </v-card>
-      </v-flex>
-      
-      <v-snackbar
-        v-model="snackAlert"
-        :color="color"
-        :timeout="timeout"
-      >
-        {{ text }}
-        <v-btn
-          color="white"
-          text
-          @click="snackAlert = false"
+
+        <div
+          v-if="error"
+          class="error"
         >
-          Close
+          {{ error }}
+        </div>
+
+        <v-btn
+          color="primary"
+          @click="login"
+        >
+          Login
         </v-btn>
-      </v-snackbar>
-    </v-layout>
-  </v-container>
+        <v-btn
+          outlined
+          class="createAccount"
+          color="primary"
+          @click="onCreateAccount"
+        >
+          Create Account
+        </v-btn>
+        <span>
+          OR
+        </span>
+        <v-btn
+          outlined
+          class="forgotPassword"
+          color="primary"
+          @click="onForgotPassword"
+        >
+          I forgot my password
+        </v-btn>
+      </v-card-text>
+    </v-card>
+  </div>
 </template>
 
 <style scoped>
   .error {
-    color: 'red';
+    color: 'white';
+  }
+
+  .v-btn {
+    margin: 6px 8px;
+  }
+
+  .createAccount{
+    margin-left: 20px;
+    border: none;
+    padding: 0 !important;
+    text-decoration: underline;
+  }
+
+  .forgotPassword {
+    border: none;
+    padding: 0 !important;
+    text-decoration: underline;
+  }
+
+  .createOrForgot{
+    top: 5px;
   }
 </style>
 
 <script>
+import api from '../Utils/api/api.vue';
 import _ from 'lodash';
-import LoginForm from '../Components/Authentication/LoginForm.vue';
-import CreateUserForm from '../Components/Authentication/CreateUserForm.vue';
-import ForgotPasswordForm from '../Components/Authentication/ForgotPasswordForm.vue';
 
 export default {
-  name: 'Login',
-
-  components: {
-    LoginForm,
-    CreateUserForm,
-    ForgotPasswordForm,
-  },
-
   data: () => ({
     username: '',
     password: '',
     error: '',
-    color: '#0abb8a',
-    createAccount: false,
-    forgotPassword: false,
-    snackAlert: false,
-    timeout: 3000,
-    text: 'Reset email has been sent',
-
   }),
 
-  computed: {
-    /**
-     * only let the user continue if they are authenticated
-     */
-    readyToContinue() {
-      if (!_.isEmpty(this.auth)) {
-        return true;
-      }
-      return false;
-    },
-    /**
-     * a boolean value for whether or not the user is logged in
-     */
-    notLoggedIn() {
-      return _.isEmpty(this.auth);
-    },
-    /**
-     * return the auth value from the store.
-     */
-    auth() {
-      return this.$store.state.auth;
-    }
-  },
-
   methods: {
-    /**
-     * nothing to do when continue is pressed
-     */
-    continueAction() {
-
+    login() {
+      this.error = '';
+      api.signIn({
+        apiHost: this.$store.state.backend,
+        user: this.username,
+        password: this.password
+      }).then((resp) => {
+        this.$store.commit('setAuth', resp.data);
+      }).catch((e) => {
+        this.error = e.message === 'Request failed with status code 401' ? 'Invalid credentials' : e.message;
+      });
     },
-    toggleCreateAccount() {
-      this.createAccount = !this.createAccount;
+    onCreateAccount() {
+      this.$emit('createAccount', null);
     },
-    toggleForgotPassword() {
-      this.forgotPassword = !this.forgotPassword;
-    },
-    handleSendRequest() {
-      this.forgotPassword = !this.forgotPassword;
-      this.snackAlert = true;
-    },
-    /**
-     * clear the store on logout.
-     */
-    logout() {
-      this.$store.commit('setAuth', {});
+    onForgotPassword() {
+      this.$emit('forgotPassword', null);
     }
-  },
+  }
 
 };
 </script>
