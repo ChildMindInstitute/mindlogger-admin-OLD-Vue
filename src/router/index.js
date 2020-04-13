@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Stepper from '@/Components/Stepper.vue';
 import Builder from '@/Components/Builder/Builder.vue';
 import Login from '../Steps/Login';
 import SetApplet from '../Steps/SetApplet';

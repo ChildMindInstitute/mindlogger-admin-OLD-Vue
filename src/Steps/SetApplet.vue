@@ -75,9 +75,6 @@ export default {
     currentApplet() {
       return this.$store.state.currentApplet;
     },
-    readyToContinue() {
-      return !_.isEmpty(this.currentApplet);
-    },
   },
   mounted() {
     this.getApplets();

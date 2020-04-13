@@ -81,9 +81,6 @@ export default {
     currentApplet() {
       return this.$store.state.currentApplet;
     },
-    readyToContinue() {
-      return true;
-    }
   },
   watch: {
     isUsersLoaded() {
@@ -96,7 +93,7 @@ export default {
     $route(to, from) {
       this.status = "loading";
       this.getAppletUsers()
-    }
+    },
   },
   mounted() {
     this.$store.commit('setUsers', []);

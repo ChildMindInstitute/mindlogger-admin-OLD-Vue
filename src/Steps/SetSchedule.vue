@@ -108,7 +108,6 @@ export default {
       "Lime",
       "Deep Orange"
     ],
-    readyToContinue: true,
     dialog: false,
     loading: false,
     saveSuccess: false,
@@ -154,6 +153,12 @@ export default {
       }
       return {};
     }
+  },
+  watch: {
+    $route(to, from) {
+      // If user modifies url during session, redirect to applets screen
+      this.$router.push('/applets');
+    },
   },
   mounted() {
     this.$refs.calendar.loadState();
