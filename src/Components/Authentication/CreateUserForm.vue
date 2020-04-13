@@ -7,6 +7,18 @@
       <v-card-text>
         <p>
           Create a new Mindlogger account hosted at {{ $store.state.backend }}
+          <v-btn
+            icon
+            style="margin: 0px;"
+            @click="onSetBackend"
+          >
+            <v-icon
+              small
+              color="primary"
+            >
+              edit
+            </v-icon>
+          </v-btn>
         </p>
         <v-text-field
           v-model="username"
@@ -135,13 +147,17 @@ export default {
           }
         };
         this.$store.commit('setAuth', auth);
+        this.$router.push('/applets')
       }).catch((e) => {
         this.errorMsg = e.message;
       });
     },
     onLogin() {
       this.$emit('login', null)
-    }
+    },
+    onSetBackend() {
+      this.$emit('setBackend', null);
+    },
   }
 
 };

@@ -1,18 +1,21 @@
 <template>
   <v-container>
-    <v-layout
-      row
-      wrap
-    >
+    <v-layout>
       <v-flex v-if="notLoggedIn">
+        <SetBackendForm
+          v-if="setBackend"
+          @setBackend="toggleSetBackend"
+        />
         <LoginForm
-          v-if="!createAccount && !forgotPassword"
+          v-else-if="!createAccount && !forgotPassword"
           @createAccount="toggleCreateAccount"
           @forgotPassword="toggleForgotPassword"
+          @setBackend="toggleSetBackend"
         />
         <CreateUserForm
           v-else-if="createAccount && !forgotPassword"
           @login="toggleCreateAccount"
+          @setBackend="toggleSetBackend"
         />
         <ForgotPasswordForm
           v-else
@@ -67,6 +70,7 @@ import _ from 'lodash';
 import LoginForm from '../Components/Authentication/LoginForm.vue';
 import CreateUserForm from '../Components/Authentication/CreateUserForm.vue';
 import ForgotPasswordForm from '../Components/Authentication/ForgotPasswordForm.vue';
+import SetBackendForm from '../Components/Authentication/SetBackendForm.vue';
 
 export default {
   name: 'Login',
@@ -83,6 +87,7 @@ export default {
     error: '',
     color: '#0abb8a',
     createAccount: false,
+    setBackend: false,
     forgotPassword: false,
     snackAlert: false,
     timeout: 3000,
@@ -115,12 +120,6 @@ export default {
   },
 
   methods: {
-    /**
-     * nothing to do when continue is pressed
-     */
-    continueAction() {
-
-    },
     toggleCreateAccount() {
       this.createAccount = !this.createAccount;
     },
@@ -136,6 +135,9 @@ export default {
      */
     logout() {
       this.$store.commit('setAuth', {});
+    },
+    toggleSetBackend() {
+      this.setBackend = !this.setBackend;
     }
   },
 

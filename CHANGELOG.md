@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added email on signup form
 - Finished password reset
 
+## [0.1.40] = 2020-4-12
+### Changed
+- add ```vuex-persistedstate``` to store state on refresh
+- spread 'steps' across routes with ```vue-router```
+    - add authentication rules for each route
+- add app bar to entire app, minor other UI changes
+
 ## [0.1.39] = 2020-4-9
 ### Changed
 - protocol-builder 0.1.18 -> 0.1.20

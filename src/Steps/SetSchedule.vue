@@ -3,7 +3,6 @@
     <Calendar
       ref="calendar"
       :activities="activities"
-      @change="continueAction"
     />
 
     <v-dialog
@@ -52,7 +51,15 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
+    <v-btn
+      color="primary"
+      fixed
+      bottom
+      left
+      @click="$router.go(-1)"
+    >
+      Back
+    </v-btn>
     <v-btn
       color="primary"
       fixed
@@ -101,7 +108,6 @@ export default {
       "Lime",
       "Deep Orange"
     ],
-    readyToContinue: true,
     dialog: false,
     loading: false,
     saveSuccess: false,
@@ -148,13 +154,17 @@ export default {
       return {};
     }
   },
+  watch: {
+    $route(to, from) {
+      // If user modifies url during session, redirect to applets screen
+      this.$router.push('/applets');
+    },
+  },
+  mounted() {
+    this.$refs.calendar.loadState();
+    this.$refs.calendar.$refs.app.setDefaultType();
+  },
   methods: {
-    /**
-     * on continue, save the schedule.
-     * TODO: probably we should save when you hit 'back' as well?
-     */
-    continueAction() {},
-
     saveSchedule() {
       this.$refs.calendar.$refs.app.$refs.calendar.clearPlaceholder();
 
