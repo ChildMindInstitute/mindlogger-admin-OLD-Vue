@@ -75,24 +75,9 @@ export default {
     currentApplet() {
       return this.$store.state.currentApplet;
     },
-    isLoggedIn() {
-      return !_.isEmpty(this.$store.state.auth);
-    },
-    readyToContinue() {
-      return !_.isEmpty(this.currentApplet);
-    },
-  },
-  watch: {
-    isLoggedIn() {
-      if (this.isLoggedIn) {
-        this.getApplets();
-      }
-    },
   },
   mounted() {
-    if (this.isLoggedIn) {
-      this.getApplets();
-    }
+    this.getApplets();
   },
   methods: {
     getApplets() {
@@ -121,9 +106,6 @@ export default {
     onAppletUploadError() {
       this.dialogText = 'There was an error uploading your applet. Please try again or report the issue.'
       this.dialog = true;
-    },
-    continueAction() {
-
     },
   },
 }

@@ -21,6 +21,26 @@
       <create-invitation-form @createInvitation="createInvitation" />
       <div style="height: 58px;" />
     </div>
+    <v-btn
+      color="primary"
+      fixed
+      bottom
+      left
+      @click="$router.go(-1)"
+    >
+      Back
+    </v-btn>
+    <v-btn
+      color="primary"
+      fixed
+      bottom
+      right
+      fab
+      style="bottom: 70px; right: 40px;"
+      @click="viewCalendar"
+    >
+      <v-icon>mdi-calendar</v-icon>
+    </v-btn>
   </div>
 </template>
 
@@ -61,9 +81,6 @@ export default {
     currentApplet() {
       return this.$store.state.currentApplet;
     },
-    readyToContinue() {
-      return true;
-    }
   },
   watch: {
     isUsersLoaded() {
@@ -72,12 +89,17 @@ export default {
       } else {
         this.status = "loading";
       }
-    }
+    },
+    $route(to, from) {
+      this.status = "loading";
+      this.getAppletUsers()
+    },
+  },
+  mounted() {
+    this.$store.commit('setUsers', []);
+    this.getAppletUsers();
   },
   methods: {
-    continueAction() {
-      return true;
-    },
     updateTables() {
       this.componentKey += 1;
     },
@@ -103,14 +125,23 @@ export default {
         .getAppletUsers({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
-          appletId: this.currentApplet.applet._id.split("applet/")[1]
+          appletId: this.$route.params.appletId
         })
         .then(resp => {
           this.$store.commit("setUsers", resp.data);
           this.updateTables();
           this.status = "ready";
+        })
+        .catch(e => {
+          this.error = e;
+          this.status = "error";
         });
+    },
+    viewCalendar() {
+      const appletId = this.$route.params.appletId;
+      this.$refs.userTableRef.getSelectedNodes();
+      this.$router.push(`/applet/${appletId}/schedule`);
     }
-  }
+  },
 };
 </script>

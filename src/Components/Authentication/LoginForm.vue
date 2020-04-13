@@ -7,6 +7,18 @@
       <v-card-text>
         <p>
           Log into your Mindlogger account hosted at {{ $store.state.backend }}
+          <v-btn
+            icon
+            style="margin: 0px;"
+            @click="onSetBackend"
+          >
+            <v-icon
+              small
+              color="primary"
+            >
+              edit
+            </v-icon>
+          </v-btn>
         </p>
         <v-text-field
           v-model="username"
@@ -74,13 +86,17 @@ export default {
         password: this.password
       }).then((resp) => {
         this.$store.commit('setAuth', resp.data);
+        this.$router.push('/applets')
       }).catch((e) => {
         this.error = e.message === 'Request failed with status code 401' ? 'Invalid credentials' : e.message;
       });
     },
     onCreateAccount() {
       this.$emit('createAccount', null);
-    }
+    },
+    onSetBackend() {
+      this.$emit('setBackend', null);
+    },
   }
 
 };

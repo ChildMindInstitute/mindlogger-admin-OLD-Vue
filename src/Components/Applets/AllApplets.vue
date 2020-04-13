@@ -21,7 +21,6 @@
         :applet="applet"
         @deleteApplet="deleteApplet"
         @refreshApplet="refreshApplet"
-        @selectApplet="getAppletUsers"
       />
     </v-layout>
     <v-btn
@@ -150,16 +149,6 @@ export default {
         appletId: applet.applet._id.split('applet/')[1],
       }).then((resp) => {
         this.$emit('refreshAppletList');
-      });
-    },
-    getAppletUsers() {
-      this.$store.commit('setUsers', []);
-      api.getAppletUsers({
-        apiHost: this.$store.state.backend,
-        token: this.$store.state.auth.authToken.token,
-        appletId: this.currentApplet.applet._id.split('applet/')[1],
-      }).then((resp) => {
-        this.$store.commit('setUsers', resp.data);
       });
     },
   }
