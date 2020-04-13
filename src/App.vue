@@ -7,14 +7,28 @@
     >
       <v-toolbar-title>MindLogger Admin</v-toolbar-title>
       <v-spacer />
-      <v-btn
+      <v-menu
         v-if="isLoggedIn"
-        icon
-        style="margin-right: 0px;"
-        @click="logout"
+        bottom
+        left
       >
-        Logout
-      </v-btn>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            icon
+            v-on="on"
+          >
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </template>
+
+        <v-list>
+          <v-list-item
+            @click="logout"
+          >
+            <v-list-item-title>Logout</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-app-bar>
     <v-content>
       <v-container
