@@ -1,15 +1,14 @@
-import AppletCard from '../../src/Components/Applets/AppletCard.vue';
-
-import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import { storeConfig } from '../../src/State/state.js';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import { cloneDeep } from 'lodash';
+import AppletCard from '../../src/Components/Applets/AppletCard.vue';
+import { storeConfig } from '../../src/State/state.js';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
 const store = new Vuex.Store(cloneDeep(storeConfig));
 
-test('sets current applet when selected', () => {
+test('AppletCard\'s \'currentApplet\' computed property', () => {
 
   const sampleApplet1 = { 
     'applet': { 
@@ -21,9 +20,9 @@ test('sets current applet when selected', () => {
       '_id': 'testAppletId2', 
     } 
   };
-  store.commit('setCurrentApplet', sampleApplet1);
-  expect(store.state.currentApplet).toBe(sampleApplet1); 
-
+  
+  // Create an instance of the AppletCard component
+  // pass sampletApplet2 as the applet prop
   const wrapper = shallowMount(AppletCard, {
     store,
     localVue,
@@ -32,5 +31,17 @@ test('sets current applet when selected', () => {
     }
   });
 
-  expect(wrapper.vm.status).toBe('ready')
+  // Set the app's current applet to sampletApplet1
+  store.commit('setCurrentApplet', sampleApplet1);
+
+  // Since the app's current applet doesn't match the component's
+  // applet prop, currentApplet should be false
+  expect(wrapper.vm.currentApplet).toBe(false);
+
+  // Set the app's current applet to sampletApplet2
+  store.commit('setCurrentApplet', sampleApplet2);
+
+  // Since the app's current applet matches the component's
+  // applet prop, currentApplet should be true
+  expect(wrapper.vm.currentApplet).toBe(true);
 })
