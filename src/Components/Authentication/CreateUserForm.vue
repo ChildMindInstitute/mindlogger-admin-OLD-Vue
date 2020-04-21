@@ -1,12 +1,16 @@
 <template>
   <div>
-    <h1 style="text-align: center">
-      Create Account
-    </h1>
-    <v-card>
+    <v-card class="elevation-12">
+      <v-toolbar
+        color="primary"
+        dark
+        flat
+      >
+        <v-toolbar-title>Create Account</v-toolbar-title>
+      </v-toolbar>
       <v-card-text>
         <p>
-          Create a new Mindlogger account hosted at {{ $store.state.backend }}
+          Create a new Mindlogger account at {{ $store.state.backend }}
           <v-btn
             icon
             style="margin: 0px;"
@@ -20,21 +24,26 @@
             </v-icon>
           </v-btn>
         </p>
-        <v-text-field
-          v-model="username"
-          label="username"
-        />
+        <v-form>
+          <v-text-field
+            v-model="username"
+            label="username"
+            prepend-icon="mdi-account"
+          />
 
-        <v-text-field
-          v-model="displayName"
-          label="display name"
-        />
+          <v-text-field
+            v-model="displayName"
+            label="display name"
+            prepend-icon="mdi-account-outline"
+          />
 
-        <v-text-field
-          v-model="password"
-          label="password"
-          type="password"
-        />
+          <v-text-field
+            v-model="password"
+            label="password"
+            type="password"
+            prepend-icon="lock"
+          />
+        </v-form>
 
         <div
           v-if="error"

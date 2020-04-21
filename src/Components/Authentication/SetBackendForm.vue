@@ -1,20 +1,27 @@
 <template>
   <div>
-    <h1 style="text-align: center">
-      Login
-    </h1>
-    <v-card>
+    <v-card class="elevation-12">
+      <v-toolbar
+        color="primary"
+        dark
+        flat
+      >
+        <v-toolbar-title>Set Server</v-toolbar-title>
+      </v-toolbar>
       <v-card-text>
         <p>
           Select your server. This server will hold your applet configuration settings and all the data you collect.
         </p>
-        <v-combobox
-          v-model="backendServer"
-          label="Server URL"
-          :items="backendServers"
-          item-value="url"
-          item-text="name"
-        />
+        <v-form>
+          <v-combobox
+            v-model="backendServer"
+            label="Server URL"
+            :items="backendServers"
+            item-value="url"
+            item-text="name"
+            prepend-icon="mdi-server"
+          />
+        </v-form>
 
         <v-btn
           color="primary"
