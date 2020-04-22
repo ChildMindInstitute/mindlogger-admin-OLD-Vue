@@ -145,6 +145,7 @@ export default {
     getState() {},
 
     saveState() {
+
       const state = this.calendar.toInput(true);
       const storeState = this.$store.state;
 
@@ -152,15 +153,14 @@ export default {
       let newStateEvents = [];
       if (state && storeState) {
         try {
-          oldStateEvents = this.$store.state.currentApplet.applet.schedule
-            .events;
+          const currentId = this.$store.state.currentApplet.applet._id;
+          oldStateEvents = this.$store.state.cachedEvents;
         } catch {}
         newStateEvents = state.events;
       }
 
       if (this.currentApplet) {
         if (_.difference(oldStateEvents, newStateEvents)) {
-          // this.$emit("change");
           if (oldStateEvents.length === newStateEvents.length) {
             const events = oldStateEvents.map((event, i) => {
               const ev = newStateEvents[i];
@@ -174,14 +174,15 @@ export default {
             let index = 0;
             const events = newStateEvents.map((event) => {
               const ev = event;
-              const newEvent = oldStateEvents[index];
+              let newEvent = oldStateEvents[index];
               if (!newEvent) {
                 return ev;
               }
               if (newEvent.id) {
+                const notificationId = newEvent.id;
                 delete newEvent["id"];
                 if (JSON.stringify(ev) === JSON.stringify(newEvent)) {
-                  ev.id = oldStateEvents[index].id;
+                  ev.id = notificationId;
                 } else {
                   index -= 1;
                 }
@@ -190,28 +191,10 @@ export default {
               return ev;
             });
             state.events = events;            
-          } else if(oldStateEvents.length > newStateEvents.length && newStateEvents.length > 0) {
-            let index = 0;
-            const events = newStateEvents.map((event) => {
-              const ev = event;
-              const newEvent = oldStateEvents[index];
-
-              if (newEvent.id) {
-                delete newEvent["id"];
-                if (JSON.stringify(ev) === JSON.stringify(newEvent)) {
-                  ev.id = oldStateEvents[index].id;
-                } else {
-                  index += 1;
-                }
-              }
-              index += 1;
-              return ev;
-            });
-            state.events = events; 
           }
         }
         this.$store.commit("setSchedule", state);
-
+        this.$store.commit("setCachedEvents", state.events);
       }
     },
  
