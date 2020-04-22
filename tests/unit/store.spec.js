@@ -39,7 +39,7 @@ test('sets "allApplets" value when "setAllApplets" is committed', () => {
     }, 
     { 
       'applet': { 
-        '_id': 'testppletId2',
+        '_id': 'testAppletId2',
       },
     }, 
   ]; 
