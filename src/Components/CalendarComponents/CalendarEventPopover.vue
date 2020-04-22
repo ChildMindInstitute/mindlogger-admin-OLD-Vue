@@ -26,9 +26,9 @@
               :calendar-event="calendarEvent"
               :calendar="calendar"
             >
-              <v-btn icon :style="styleButton" @click.stop="remove">
+              <!-- <v-btn icon :style="styleButton" @click.stop="remove">
                 <v-icon>mdi-delete</v-icon>
-              </v-btn>
+              </v-btn> -->
             </schedule-actions>
           </template>
           <span>{{ labels.options }}</span>
@@ -186,6 +186,10 @@ export default {
   },
 
   computed: {
+    currentApplet() {
+      return this.$store.state.currentApplet;
+    },
+
     slotData() {
       return {
         calendarEvent: this.calendarEvent,
@@ -254,19 +258,6 @@ export default {
   data: vm => ({}),
 
   methods: {
-    remove() {
-      this.$dayspan.getPermission("actionRemove", () => {
-        var ev = this.getEvent("save");
-        this.$emit("remove", ev);
-        if (!ev.handled && ev.calendar) {
-          ev.calendar.removeEvent(ev.calendarEvent.event);
-          ev.handled = true;
-        }
-        this.$emit("finish", ev);
-        this.$emit("event-remove", ev.event);
-      });
-    },
-
     getEvent(type, extra = {}) {
       return fn.extend(
         {

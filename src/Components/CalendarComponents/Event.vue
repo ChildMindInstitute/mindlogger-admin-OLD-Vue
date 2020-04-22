@@ -335,6 +335,9 @@ export default {
         allow: false,
       };
     },
+    currentApplet() {
+      return this.$store.state.currentApplet;
+    },
     activityNames() {
       return _.map(this.activities, a => a.name);
     },
@@ -442,7 +445,55 @@ export default {
           ev.handled = true;
         }
 
-        this.$emit("finish", ev);
+        const state = this.calendar.toInput(true);
+        const storeState = this.$store.state;
+
+        let oldStateEvents = [];
+        let newStateEvents = [];
+        if (state && storeState) {
+          try {
+            const currentId = this.$store.state.currentApplet.applet._id;
+            oldStateEvents = this.$store.state.cachedEvents;
+          } catch {}
+          newStateEvents = state.events;
+        }
+
+        if (this.currentApplet) {
+          if (_.difference(oldStateEvents, newStateEvents)) {
+            if (oldStateEvents.length === newStateEvents.length) {
+              const events = oldStateEvents.map((event, i) => {
+                const ev = newStateEvents[i];
+                if (event.id) {
+                  ev.id = event.id;
+                }
+                return ev;
+              });
+              state.events = events;
+            } else if(oldStateEvents.length > newStateEvents.length && newStateEvents.length > 0) {
+              let index = 0;
+              const events = newStateEvents.map((event) => {
+                const ev = event;
+                const newEvent = oldStateEvents[index];
+                if(!newEvent) {
+                  return ev;
+                }
+                if (newEvent.id) {
+                  delete newEvent["id"];
+                  if (JSON.stringify(ev) === JSON.stringify(newEvent)) {
+                    ev.id = oldStateEvents[index].id;
+                  } else {
+                    index += 1;
+                  }
+                }
+                index += 1;
+                return ev;
+              });
+              state.events = events; 
+            }
+          }
+          this.$store.commit("setSchedule", state);
+          this.$store.commit("setCachedEvents", state.events);
+        }
         this.$emit("event-remove", ev.event);
         this.$emit("cancel", this.getEvent("cancel"));
       });

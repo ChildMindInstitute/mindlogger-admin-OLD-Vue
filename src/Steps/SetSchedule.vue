@@ -191,7 +191,8 @@ export default {
             const applet = this.currentApplet.applet;
             applet.schedule = response.data.applet.schedule;
             this.$store.commit('setApplet', applet);
-            localStorage.setItem(this.currentApplet.applet._id, JSON.stringify(applet));
+            this.$store.commit('setCachedEvents', response.data.applet.schedule.events);
+            // localStorage.setItem(this.currentApplet.applet._id, JSON.stringify(applet));
             this.loading = false;
             this.saveSuccess = true;
           })

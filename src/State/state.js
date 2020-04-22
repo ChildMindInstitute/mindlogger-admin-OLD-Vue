@@ -12,6 +12,7 @@ const getDefaultState = () => {
   return {
     backend: 'https://api.mindlogger.org/api/v1',
     allApplets: [],
+    cachedEvents: [],
     currentApplet: {},
     auth: {},
     continue: {},
@@ -33,48 +34,46 @@ const mutations = {
     state.backend = backend;
   },
   setCurrentApplet(state, protocol) {
+
     if (protocol) {
       state.currentApplet = protocol;
       
-      const savedApplet = localStorage.getItem(state.currentApplet.applet._id);
-      if(savedApplet) {
-        state.currentApplet.applet = JSON.parse(savedApplet);
-      }
+      // const savedApplet = state.cachedApplets[state.currentApplet.applet._id];
+      // if(savedApplet) {
+      //   state.currentApplet.applet = JSON.parse(savedApplet);
+      // }
     }
   },
   setAllApplets(state, protocols) {
     state.allApplets = protocols;
   },
+  // setCachedApplet(state, applet) {
+  //   state.cachedApplets = state.allApplets;
+  //   if (applet) {
+  //     state.cachedApplets[state.currentApplet.applet._id] = state.currentApplet;
+  //   }
+  // },
   setApplet(state, applet) {
-    if(applet) {
+    if (applet) {
       state.currentApplet.applet = applet;
     }
   },
   setAuth(state, auth) {
     state.auth = auth;
   },
-  // Just for now
-  // loadSchedule(state) {
-  //   api
-  //     .refreshApplet({
-  //       apiHost: state.backend,
-  //       appletId: state.currentApplet.applet._id.split('applet/')[1],
-  //       token: state.auth.authToken.token,
-  //     })
-  //     .then((response) => {
-  //       //state.currentApplet.applet.schedule = response.data.applet.schedule;
-  //     })
-  //     .catch(e => {
-  //       console.log("fail", e);
-  //     });
-  // },
+
+  
+  setCachedEvents(state, events) {
+    if (events) {
+      state.cachedEvents = events;
+    }
+  },
   setSchedule(state, schedule) {
     if (!_.isEmpty(state.currentApplet)) {
       // TODO: this sucks.
       const idx = _.findIndex(state.allApplets,
         a => a.applet._id == state.currentApplet.applet._id);
       if (idx > -1) {
-        // console.log("$$$$", schedule);
         state.allApplets[idx].applet.schedule = schedule;
         state.currentApplet = state.allApplets[idx];
       }
