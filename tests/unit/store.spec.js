@@ -34,17 +34,17 @@ test('sets "allApplets" value when "setAllApplets" is committed', () => {
   const sampleAppletArray = [ 
     { 
       'applet': { 
-        '_id': 'testAppletId1', 
-      }, 
+        '_id': 'testAppletId1',
+      },
     }, 
     { 
       'applet': { 
-        '_id': 'testAppletId2', 
-      }, 
+        '_id': 'testppletId2',
+      },
     }, 
   ]; 
   store.commit('setAllApplets', sampleAppletArray); 
-  expect(store.state.allApplets).toBe(sampleAppletArray); 
+  expect(store.state.allApplets).toMatchObject(sampleAppletArray); 
 }); 
 
 test('sets "auth" value when "setAuth" is committed', () => { 
