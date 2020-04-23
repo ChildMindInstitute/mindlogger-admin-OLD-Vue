@@ -116,7 +116,7 @@ export const storeConfig = {
   state,
   mutations,
   plugins: [
-    createPersistedState(),
+    createPersistedState({ storage: window.sessionStorage }),
   ],
 };
 
