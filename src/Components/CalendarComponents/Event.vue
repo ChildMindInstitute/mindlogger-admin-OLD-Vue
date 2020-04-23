@@ -393,8 +393,6 @@ export default {
 
       const isTimeoutValid = this.isTimeoutValid;
 
-      
-
       return isValidDayspanEvent && isTimeoutValid;
     },
 

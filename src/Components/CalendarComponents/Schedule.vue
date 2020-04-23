@@ -109,7 +109,7 @@
           >
             Timeout invalid: timeout should be non-zero.
           </div>
-          
+
         </div>
 
       </div>
@@ -208,7 +208,6 @@ export default {
       type: Boolean,
       required: true,
       default: true,
-
     },
   },
 
