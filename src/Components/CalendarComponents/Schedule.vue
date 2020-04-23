@@ -102,6 +102,14 @@
               <div class="ds-timeout-unit"> minutes </div>
             </div>
           </div>
+          
+          <div
+            v-if="isTimeoutValid === false"
+            class="error"
+          >
+            Timeout invalid: timeout should be non-zero.
+          </div>
+          
         </div>
 
       </div>
@@ -193,7 +201,15 @@ export default {
       default() {
         return this.$dsDefaults().allowsRange;
       }
-    }
+    },
+
+    isTimeoutValid:
+    {
+      type: Boolean,
+      required: true,
+      default: true,
+
+    },
   },
 
   // eslint-disable-next-line

@@ -63,8 +63,14 @@
     <div class="ds-event-body ds-event-area">
       <slot name="schedule" v-bind="slotData">
         <!-- absolute scheduling options below -->
-        <my-schedule @onTimeout="handleTimeout" :timeout="timeout" :schedule="schedule" :day="day" :read-only="readOnly" />
-        
+        <my-schedule
+          @onTimeout="handleTimeout"
+          :timeout="timeout"
+          :schedule="schedule"
+          :day="day"
+          :read-only="readOnly"
+          :is-timeout-valid="isTimeoutValid"
+        />
       </slot>
     </div>
 
@@ -364,12 +370,32 @@ export default {
       };
     },
 
+    isTimeoutValid() {
+      if (!this.details.timeout.allow) {
+        return true;
+      } if (this.details.timeout.day > 0) {
+        return true;
+      } if (this.details.timeout.hour > 0) {
+        return true;
+      } if (this.details.timeout.minute > 0) {
+        return true;
+      }
+      // If 'Allow timeout' is checked & every value is 0, form is invalid
+      return false;
+    },
+
     canSave() {
-      return this.$dayspan.isValidEvent(
+      const isValidDayspanEvent = this.$dayspan.isValidEvent(
         this.details,
         this.schedule,
         this.calenderEvent
       );
+
+      const isTimeoutValid = this.isTimeoutValid;
+
+      
+
+      return isValidDayspanEvent && isTimeoutValid;
     },
 
     repeats() {
