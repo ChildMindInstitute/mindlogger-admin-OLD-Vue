@@ -45,7 +45,14 @@ const mutations = {
     }
   },
   setAllApplets(state, protocols) {
-    state.allApplets = protocols;
+    // Remove `activities` and `items` from each applet to save localStorage space
+    const protocolsWithoutItems = _.map(protocols, function(protocol) {
+        return {
+          ...protocol,
+          items: undefined,
+        };
+    });
+    state.allApplets = protocolsWithoutItems;
   },
   // setCachedApplet(state, applet) {
   //   state.cachedApplets = state.allApplets;
