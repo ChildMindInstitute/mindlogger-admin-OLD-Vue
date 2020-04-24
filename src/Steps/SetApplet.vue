@@ -66,7 +66,7 @@ export default {
     status: 'loading',
     dialog: false,
     dialogText: '',
-    dialogTextDefault: 'The applet is being created. Please check back in several mintutes to see it. If you have an email address associated with your account, you will receive an email when your applet is ready.',
+    dialogTextDefault: 'The applet is being created. Please check back in several mintutes to see it.',
   }),
   computed: {
     allApplets() {
