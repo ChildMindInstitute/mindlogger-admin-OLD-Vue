@@ -87,12 +87,6 @@ export default {
     currentApplet() {
       return this.$store.state.currentApplet;
     },
-    areNodesSelected() {
-      if (!this.isMounted) {
-        return;
-      }
-      return this.$refs.userTableRef.areNodesSelected();
-    }
   },
   watch: {
     isUsersLoaded() {
