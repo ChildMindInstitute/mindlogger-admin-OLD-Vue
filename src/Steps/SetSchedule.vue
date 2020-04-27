@@ -60,15 +60,21 @@
     >
       Back
     </v-btn>
-    <v-btn
-      color="primary"
-      fixed
-      bottom
-      right
-      @click="saveSchedule"
-    >
-      Save
-    </v-btn>
+    <v-tooltip top>
+      <template v-slot:activator="{ on }">
+        <v-btn
+          color="primary"
+          fixed
+          bottom
+          right
+          @click="saveSchedule"
+          v-on="on"
+        >
+          Save
+        </v-btn>
+      </template>
+      <span>Save all scheduled activities</span>
+    </v-tooltip>
   </div>
 </template>
 
