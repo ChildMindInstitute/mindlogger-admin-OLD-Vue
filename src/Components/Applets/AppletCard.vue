@@ -24,7 +24,6 @@
         </h3>
       </v-card-title>
     </v-layout>
-
     <div v-else>
       <v-img
         :src="applet.applet['schema:image'] || 'https://picsum.photos/id/83/200/200'"
@@ -41,22 +40,34 @@
       <v-card-actions>
         <div class="container">
           <div>
-            <v-btn
-              text
-              :disabled="status !== 'ready'"
-              @click="refreshApplet"
-            >
-              <span v-if="status === 'ready'">Refresh</span>
-              <span v-else> Refreshing.. </span>
-            </v-btn>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  text
+                  :disabled="status !== 'ready'"
+                  @click="refreshApplet"
+                  v-on="on"
+                >
+                  <span v-if="status === 'ready'">Refresh</span>
+                  <span v-else> Refreshing.. </span>
+                </v-btn>
+              </template>
+              <span>Refreshing applets will take several minutes</span>
+            </v-tooltip>
           </div>
           <div>
-            <v-btn
-              text
-              @click="deleteApplet"
-            >
-              Delete
-            </v-btn>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  text
+                  @click="deleteApplet"
+                  v-on="on"
+                >
+                  Delete
+                </v-btn>
+              </template>
+              <span>Permanantly disable this applet</span>
+            </v-tooltip>
           </div>
           <div>
             <v-menu offset-x>

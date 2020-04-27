@@ -30,17 +30,23 @@
     >
       Back
     </v-btn>
-    <v-btn
-      color="primary"
-      fixed
-      bottom
-      right
-      fab
-      style="bottom: 70px; right: 40px;"
-      @click="viewCalendar"
-    >
-      <v-icon>mdi-calendar</v-icon>
-    </v-btn>
+    <v-tooltip top>
+      <template v-slot:activator="{ on }">
+        <v-btn
+          color="primary"
+          fixed
+          bottom
+          right
+          fab
+          style="bottom: 70px; right: 40px;"
+          @click="viewCalendar"
+          v-on="on"
+        >
+          <v-icon>mdi-calendar</v-icon>
+        </v-btn>
+      </template>
+      <span>View schedule for the selected users</span>
+    </v-tooltip>
   </div>
 </template>
 
@@ -141,7 +147,7 @@ export default {
       const appletId = this.$route.params.appletId;
       this.$refs.userTableRef.getSelectedNodes();
       this.$router.push(`/applet/${appletId}/schedule`);
-    }
+    },
   },
 };
 </script>

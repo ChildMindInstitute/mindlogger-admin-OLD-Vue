@@ -23,17 +23,26 @@
         @refreshApplet="refreshApplet"
       />
     </v-layout>
-    <v-btn
-      color="primary"
-      fixed
-      bottom
-      right
-      fab
-      style="bottom: 70px; right: 40px;"
-      @click="dialog = true"
-    >
-      <v-icon>mdi-plus</v-icon>
-    </v-btn>
+    
+
+    <v-tooltip top>
+      <template v-slot:activator="{ on }">
+        <v-btn
+          color="primary"
+          fixed
+          bottom
+          right
+          fab
+          style="bottom: 70px; right: 40px;"
+          @click="dialog = true"
+          v-on="on"
+        >
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
+      </template>
+      <span>Create or upload a new applet</span>
+    </v-tooltip>
+
     <v-dialog
       v-model="dialog"
       max-width="800"
