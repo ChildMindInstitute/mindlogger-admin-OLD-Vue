@@ -459,8 +459,21 @@ export default {
   },
 
   methods: {
-    remove() {
-      this.$dayspan.getPermission("actionRemove", () => {
+    async remove() {
+      const res = await this.$dialog.warning({
+        title: '',
+        color: '#1976d2',
+        text: 'Are you sure you want to remove this event?',
+        persistent: false,
+        actions: {
+          No: "No",
+          Yes: {
+            color: "#1976d2",
+            text: "Yes",
+          }
+        }
+      });
+      if(res) {
         let ev = this.getEvent("save");
         this.$emit("remove", ev);
 
@@ -520,7 +533,7 @@ export default {
         }
         this.$emit("event-remove", ev.event);
         this.$emit("cancel", this.getEvent("cancel"));
-      });
+      }
     },
 
     handleTimeout(scheduledTimeout) {

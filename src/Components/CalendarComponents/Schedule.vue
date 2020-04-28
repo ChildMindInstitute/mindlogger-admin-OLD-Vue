@@ -13,7 +13,7 @@
         name="scheduleSpan"
         v-bind="{schedule, day}"
       >
-        <ds-schedule-span
+        <schedule-span
           :schedule="schedule"
           :day="day"
           :read-only="readOnly"
@@ -154,6 +154,7 @@
 import { Day, Schedule } from 'dayspan';
 import ScheduleType from './ScheduleType';
 import ScheduleTimes from './ScheduleTimes';
+import ScheduleSpan from './ScheduleSpan';
 
 export default {
 
@@ -161,6 +162,7 @@ export default {
   components: {
     ScheduleType,
     ScheduleTimes,
+    ScheduleSpan,
   },
   props:
   {
