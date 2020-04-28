@@ -118,15 +118,9 @@ export default {
             },
             updateScheduleAllDay (allDay) {
                 if (this.schedule.isFullDay() !== allDay) {
-                    this.$dayspan.getPermission('toggleAllDay',
-                        (prompted) => {
-                            this.schedule.setFullDay(allDay)
-                            this.triggerChange()
-                        },
-                        () => {
-                            this.allDay = !allDay
-                        }
-                    )
+                    this.schedule.setFullDay(allDay)
+                    this.triggerChange()
+                    //this.allDay = !allDay
                 }
             },
             changeTime (ev) {
