@@ -54,6 +54,22 @@ const mutations = {
     });
     state.allApplets = protocolsWithoutItems;
   },
+  updateAllApplets(state) {
+    const applets = state.allApplets;
+    for (let i = 0; i < applets.length; i ++) {
+      api.getSchedule({
+        apiHost: state.backend,
+        token: state.auth.authToken.token,
+        id: applets[i].applet._id.split("applet/")[1],
+      })
+      .then((res) => {
+        state.allApplets[i].applet.schedule = res.data;
+      })
+      .catch((err) => {
+        console.log('error', err);
+      })
+    }
+  },
   // setCachedApplet(state, applet) {
   //   state.cachedApplets = state.allApplets;
   //   if (applet) {
