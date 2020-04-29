@@ -28,6 +28,14 @@ const setSchedule = ({ apiHost, token, id, data }) => axios({
   data,
 });
 
+const getSchedule = ({ apiHost, token, id }) => axios({
+  method: 'get',
+  url: `${apiHost}/applet/${id}/schedule?get_all_events=true`,
+  headers: {
+    'Girder-Token': token,
+  },
+});
+
 const addNewApplet = ({ apiHost, token, protocolUrl }) => axios({
 method: 'POST',
   url: `${apiHost}/applet/`,
@@ -40,8 +48,8 @@ method: 'POST',
 })
 
 const refreshApplet = ({ apiHost, token, appletId }) => axios({
-  method: 'PUT',
-  url: `${apiHost}/applet/${appletId}/refresh`,
+  method: 'GET',
+  url: `${apiHost}/applet/${appletId}?refreshCache=true`,
   headers: {
     'Girder-Token': token,
   },
@@ -113,6 +121,7 @@ export default {
   signIn,
   signUp,
   setSchedule,
+  getSchedule,
   addNewApplet,
   getGroupMemberships,
   deleteUserFromRole,

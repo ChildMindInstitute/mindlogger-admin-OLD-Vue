@@ -90,6 +90,7 @@ export default {
       }).then((resp) => {
         this.$store.commit('setAllApplets', resp.data);
         this.status = 'ready';
+        this.$store.commit('updateAllApplets');
       }).catch((e) => {
         this.error = e;
         this.status = 'error';
