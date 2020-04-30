@@ -432,7 +432,6 @@ export default {
     },
 
     handleType(type) {
-      this.$refs.calendar.clearPlaceholder();
       this.currentType = type;
     },
 
@@ -479,14 +478,18 @@ export default {
 
     next() {
       this.calendar.unselect().next();
-      this.$refs.calendar.clearPlaceholder();
+      if (this.currentType.label !== 'Schedule') {
+        this.$refs.calendar.clearPlaceholder();
+      }
 
       this.triggerChange();
     },
 
     prev() {
       this.calendar.unselect().prev();
-      this.$refs.calendar.clearPlaceholder();
+      if (this.currentType.label !== 'Schedule') {
+        this.$refs.calendar.clearPlaceholder();
+      }
 
       this.triggerChange();
     },
