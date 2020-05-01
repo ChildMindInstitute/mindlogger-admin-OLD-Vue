@@ -30,7 +30,7 @@ const setSchedule = ({ apiHost, token, id, data }) => axios({
 
 const getSchedule = ({ apiHost, token, id }) => axios({
   method: 'get',
-  url: `${apiHost}/applet/${id}/schedule?get_all_events=true`,
+  url: `${apiHost}/applet/${id}/schedule?getAllEvents=true`,
   headers: {
     'Girder-Token': token,
   },
