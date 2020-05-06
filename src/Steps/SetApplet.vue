@@ -66,7 +66,6 @@ export default {
     status: 'loading',
     dialog: false,
     dialogText: '',
-    dialogTextDefault: 'The applet is being created. Please check back in several mintutes to see it.',
   }),
   computed: {
     allApplets() {
@@ -96,12 +95,8 @@ export default {
         this.status = 'error';
       });
     },
-    onAppletUploadSuccessful(resp) {
-      if (resp && resp.data && resp.data.message) {
-        this.dialogText = resp.data.message;
-      } else {
-        this.dialogText = dialogTextDefault;
-      }
+    onAppletUploadSuccessful() {
+      this.dialogText = 'The applet is being created. Please check back in several mintutes to see it.';
       this.dialog = true;
     },
     onAppletUploadError() {
