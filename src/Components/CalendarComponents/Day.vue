@@ -59,12 +59,14 @@
 <script>
 import { Day, Calendar, CalendarEvent, Functions as fn } from 'dayspan'
 import DsCalendarEvent from './CalendarEvent'
+import DsCalendarEventPlaceholder from './CalendarEventPlaceholder'
 
 export default {
 
 	name: 'dsDay',
   components: {
-    DsCalendarEvent
+		DsCalendarEvent,
+		DsCalendarEventPlaceholder,
   },
 	props:
 		{
