@@ -15,27 +15,27 @@
 					 @mousedown="mouseDownEvent"
 					 @mouseup="mouseUpEvent">
 
-		<span v-if="showName">
-		  <slot name="eventTitle" v-bind="{calendarEvent, hasPrefix, getPrefix, details}">
+						<span v-if="showName">
+							<slot name="eventTitle" v-bind="{calendarEvent, hasPrefix, getPrefix, details}">
 
-			<v-icon class="ds-ev-icon"
-					v-if="hasIcon"
-					size="14"
-					:style="{color: details.forecolor}">
-			  {{ details.icon }}
-			</v-icon>
-			<span v-if="hasPrefix">
-			  {{ getPrefix }}
-			</span>
-			<strong class="ds-ev-title">{{ details.title }}</strong>
-			<span class="ds-ev-description">{{ details.description }}</span>
+							<v-icon class="ds-ev-icon"
+									v-if="hasIcon"
+									size="14"
+									:style="{color: details.forecolor}">
+								{{ details.icon }}
+							</v-icon>
+							<span v-if="hasPrefix">
+								{{ getPrefix }}
+							</span>
+							<strong class="ds-ev-title">{{ details.title }}</strong>
+							<span class="ds-ev-description">{{ details.description }}</span>
 
-		  </slot>
-		</span>
+							</slot>
+						</span>
 
-					<span v-else>
-		  <slot name="eventEmpty" v-bind="{calendarEvent, details}">&nbsp;</slot>
-		</span>
+						<span v-else>
+							<slot name="eventEmpty" v-bind="{calendarEvent, details}">&nbsp;</slot>
+						</span>
 
 				</div>
 			</template>
@@ -231,6 +231,7 @@ export default {
 	}
 
 	.ds-calendar-event {
+		top: 0px !important;
 		color: white;
 		overflow: hidden;
 		text-overflow: ellipsis;
