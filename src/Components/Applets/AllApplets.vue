@@ -137,7 +137,7 @@ export default {
         apiHost: this.$store.state.backend,
       }).then((resp) => {
         this.newProtocolURL = '';
-        this.$emit('appletUploadSuccessful', resp);
+        this.$emit('appletUploadSuccessful');
       }).catch((e) => {
         this.$emit('appletUploadError');
       });

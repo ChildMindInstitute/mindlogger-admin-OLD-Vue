@@ -3,10 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## [0.1.51] = 2020-05-06
 ### Changed
 - Build ```CalenderEventPlaceholder``` component
 - Fixed events stack issue on calendar
+
+## [0.1.50] = 2020-5-4
+### Changed
+- Change confirmation text on applet upload
+- Allow unauthenticated users to view builder
 
 ## [0.1.49] = 2020-4-30
 ### Changed
