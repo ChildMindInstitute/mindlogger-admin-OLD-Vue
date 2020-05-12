@@ -58,7 +58,8 @@
               <v-text-field
                 type="number"
                 v-model="scheduledTimeout.day"
-                @change="handleAccess"
+                :value="scheduledTimeoutDecimal.day"
+                @change="onChangeDays"
                 class="ds-schedule-timeout"
                 single-line
                 hide-details
@@ -74,7 +75,8 @@
               <v-text-field
                 type="number"
                 v-model="scheduledTimeout.hour"
-                @change="handleAccess"
+                :value="scheduledTimeoutDecimal.hour"
+                @change="onChangeHours"
                 class="ds-schedule-timeout"
                 single-line
                 hide-details
@@ -90,7 +92,8 @@
               <v-text-field
                 type="number"
                 v-model="scheduledTimeout.minute"
-                @change="handleAccess"
+                :value="scheduledTimeoutDecimal.minute"
+                @change="onChangeMinutes"
                 class="ds-schedule-timeout"
                 single-line
                 hide-details
@@ -216,7 +219,8 @@ export default {
   // eslint-disable-next-line
   data() {
     return {
-      scheduledTimeout: this.timeout
+      scheduledTimeout: this.timeout,
+      scheduledTimeoutDecimal: this.timeout,
     }
   },
   computed:
@@ -257,7 +261,53 @@ export default {
 
     setType(type) {
       this.$emit('type', type);
-    }
+    },
+
+    onChangeDays(newVal){
+      // Convert to integer
+      this.scheduledTimeoutDecimal.day = Math.round(newVal);
+
+      // Days value must be at lest 0
+      if (this.scheduledTimeoutDecimal.day < 0) {
+        this.scheduledTimeoutDecimal.day = 0;
+      }
+      this.scheduledTimeout.day = this.scheduledTimeoutDecimal.day;
+      
+      // Emit updated form
+      this.handleAccess();
+    },
+
+    onChangeHours(newVal){
+      // Convert to integer
+      this.scheduledTimeoutDecimal.hour = Math.round(newVal);
+
+      // Hours value must be between 0 and 23, inclusive
+      if (this.scheduledTimeoutDecimal.hour < 0) {
+        this.scheduledTimeoutDecimal.hour = 0;
+      } else if (this.scheduledTimeoutDecimal.hour > 23) {
+        this.scheduledTimeoutDecimal.hour = 23;
+      }
+      this.scheduledTimeout.hour = this.scheduledTimeoutDecimal.hour;
+      
+      // Emit updated form
+      this.handleAccess();
+    },
+
+    onChangeMinutes(newVal){
+      // Convert to integer
+      this.scheduledTimeoutDecimal.minute = Math.round(newVal);
+
+      // Hours value must be between 0 and 59, inclusive
+      if (this.scheduledTimeoutDecimal.minute < 0) {
+        this.scheduledTimeoutDecimal.minute = 0;
+      } else if (this.scheduledTimeoutDecimal.minute > 59) {
+        this.scheduledTimeoutDecimal.minute = 59;
+      }
+      this.scheduledTimeout.minute = this.scheduledTimeoutDecimal.minute;
+      
+      // Emit updated form
+      this.handleAccess();
+    },
   },
 }
 </script>
