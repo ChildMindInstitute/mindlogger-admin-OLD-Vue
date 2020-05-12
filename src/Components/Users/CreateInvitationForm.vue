@@ -14,7 +14,7 @@
       <v-text-field
         v-if="!useDefaultProfile"
         v-model="params.profile.displayName"
-        label="displayName"
+        label="DisplayName"
         required
       />
 
@@ -22,8 +22,15 @@
         v-if="!useDefaultProfile"
         v-model="params.profile.email"
         :rules="emailRules"
-        label="email"
+        label="Email"
         required
+      />
+
+      <v-text-field
+        v-if="!useDefaultProfile"
+        v-model="params.profile.mrn"
+        type="number"
+        label="MRN (Optional)"
       />
 
       <v-select
@@ -64,7 +71,8 @@ export default {
         role: "user",
         profile: {
           displayName: "",
-          email: ""
+          email: "",
+          mrn: "",
         }
       }
     };
@@ -92,7 +100,17 @@ export default {
           }
           invitationOptions.profile.displayName = this.params.profile.displayName;
         }
+        if (
+          this.params.profile.mrn &&
+          this.params.profile.mrn.trim() !== ""
+        ) {
+          if (!invitationOptions.profile) {
+            invitationOptions.profile = {};
+          }
+          invitationOptions.profile.mrn = this.params.profile.mrn;
+        }
       }
+      
       this.$emit("createInvitation", invitationOptions);
     },
 
