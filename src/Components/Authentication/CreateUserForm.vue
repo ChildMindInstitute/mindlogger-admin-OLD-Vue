@@ -26,20 +26,26 @@
         </p>
         <v-form>
           <v-text-field
-            v-model="username"
-            label="username"
+            v-model="email"
+            label="Email"
+            prepend-icon="mdi-account-box-outline"
+          />
+
+          <v-text-field
+            v-model="firstName"
+            label="First Name"
             prepend-icon="mdi-account"
           />
-
+          
           <v-text-field
-            v-model="displayName"
-            label="display name"
+            v-model="lastName"
+            label="Last Name"
             prepend-icon="mdi-account-outline"
           />
-
+          
           <v-text-field
             v-model="password"
-            label="password"
+            label="Password"
             type="password"
             prepend-icon="lock"
           />
@@ -86,8 +92,9 @@ import _ from 'lodash';
 
 export default {
   data: () => ({
-    username: '',
-    displayName: '',
+    email: '',
+    firstName: '',
+    lastName: '',
     password: '',
     error: '',
   }),
@@ -95,11 +102,13 @@ export default {
   methods: {
     createAccount() {
       this.error = '';
+
       api.signUp({
         apiHost: this.$store.state.backend,
         body: {
-          login: this.username,
-          displayName: this.displayName,
+          email: this.email,
+          firstName: this.firstName,
+          lastName: this.lastName,
           password: this.password
         }
       }).then((resp) => {
