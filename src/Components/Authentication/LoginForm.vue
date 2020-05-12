@@ -26,14 +26,14 @@
         </p>
         <v-form>
           <v-text-field
-            v-model="email"
-            label="Email"
+            v-model="username"
+            label="username"
             prepend-icon="mdi-account"
           />
 
           <v-text-field
             v-model="password"
-            label="Password"
+            label="password"
             type="password"
             prepend-icon="lock"
           />
@@ -45,14 +45,8 @@
         >
           {{ error }}
         </div>
-        <p 
-          class="ml-32 text-underline"
-          @click="onForgotPassword"
-        >
-          Forgot Password?
-        </p>
+
         <v-btn
-          class="ml-32"
           color="primary"
           @click="login"
         >
@@ -86,7 +80,7 @@ import _ from 'lodash';
 
 export default {
   data: () => ({
-    email: '',
+    username: '',
     password: '',
     error: '',
   }),
@@ -96,7 +90,7 @@ export default {
       this.error = '';
       api.signIn({
         apiHost: this.$store.state.backend,
-        user: this.email,
+        user: this.username,
         password: this.password
       }).then((resp) => {
         this.$store.commit('setAuth', resp.data);
@@ -111,21 +105,7 @@ export default {
     onSetBackend() {
       this.$emit('setBackend', null);
     },
-    onForgotPassword() {
-      this.$emit('forgotPassword', null);
-    },
   }
 
 };
 </script>
-
-<style lang="scss" scoped>
-  .ml-32 {
-    margin-left: 32px;
-  }
-  .text-underline {
-    text-decoration: underline;
-    user-select: none;
-    cursor: pointer;
-  }
-</style>
