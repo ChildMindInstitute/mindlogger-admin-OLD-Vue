@@ -19,6 +19,14 @@ const signUp = ({apiHost, body}) => axios({
   },
 });
 
+const resetPassword = ({apiHost, body}) => axios({
+  method: 'put',
+  url: `${apiHost}/user/password/temporary`,
+  params: {
+    ...body,
+  },
+});
+
 const setSchedule = ({ apiHost, token, id, data }) => axios({
   method: 'put',
   url: `${apiHost}/applet/${id}/schedule`,
@@ -123,6 +131,7 @@ export default {
   setSchedule,
   getSchedule,
   addNewApplet,
+  resetPassword,
   getGroupMemberships,
   deleteUserFromRole,
   getAppletUsers,
