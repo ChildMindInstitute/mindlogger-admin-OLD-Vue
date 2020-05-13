@@ -68,7 +68,7 @@ export default {
       this.users.forEach(invitation => {
         dat.push({
           'id': invitation._id,
-          'invitedByName': invitation.invitedBy.displayName,
+          'invitedByName': invitation.displayName,
           'invitationLink': `web.mindlogger.org/#/invitation/${invitation._id}`,
         });
       });

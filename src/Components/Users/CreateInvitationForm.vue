@@ -88,26 +88,19 @@ export default {
           this.params.profile.email &&
           this.params.profile.email.trim() !== ""
         ) {
-          invitationOptions.profile = {};
-          invitationOptions.profile.email = this.params.profile.email;
+          invitationOptions.email = this.params.profile.email;
         }
         if (
           this.params.profile.displayName &&
           this.params.profile.displayName.trim() !== ""
         ) {
-          if (!invitationOptions.profile) {
-            invitationOptions.profile = {};
-          }
-          invitationOptions.profile.displayName = this.params.profile.displayName;
+          invitationOptions.displayName = this.params.profile.displayName;
         }
         if (
           this.params.profile.mrn &&
           this.params.profile.mrn.trim() !== ""
         ) {
-          if (!invitationOptions.profile) {
-            invitationOptions.profile = {};
-          }
-          invitationOptions.profile.mrn = this.params.profile.mrn;
+          invitationOptions.MRN = this.params.profile.mrn;
         }
       }
       
