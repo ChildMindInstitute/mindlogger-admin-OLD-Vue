@@ -2,6 +2,7 @@
   <v-container>
     <ag-grid-vue
       class="ag-theme-balham"
+      :gridOptions="gridOptions"
       :columnDefs="columnDefs"
       :rowData="rowData"
       :modules="modules"
@@ -59,6 +60,7 @@ export default {
         },
       ],
       modules: AllCommunityModules,
+      gridOptions: {},
       domLayout: 'autoHeight',
     };
   },
@@ -75,10 +77,21 @@ export default {
       return dat;
     }
   },
+  mounted() {
+    this.autoSizeAll();
+  },
   methods: {
     onFirstDataRendered(params) {
       params.api.sizeColumnsToFit();
     },
+    autoSizeAll() {
+      var allColumnIds = [];
+      this.gridOptions.columnApi.getAllColumns().forEach(function(column) {
+        allColumnIds.push(column.colId);
+      });
+
+      this.gridOptions.columnApi.autoSizeColumns(allColumnIds, false);
+    }
   },
 }
 </script>
