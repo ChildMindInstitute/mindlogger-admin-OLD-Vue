@@ -99,7 +99,7 @@ export default {
         user: this.email,
         password: this.password
       }).then((resp) => {
-        this.$store.commit('setAuth', resp.data);
+        this.$store.commit('setAuth', {auth: resp.data, email: this.email});
         this.$router.push('/applets')
       }).catch((e) => {
         this.error = e.message === 'Request failed with status code 401' ? 'Invalid credentials' : e.message;

@@ -17,6 +17,7 @@ const getDefaultState = () => {
     auth: {},
     continue: {},
     currentUsers: [],
+    userEmail: "",
     users: {},
   }
 }
@@ -81,8 +82,9 @@ const mutations = {
       state.currentApplet.applet = applet;
     }
   },
-  setAuth(state, auth) {
-    state.auth = auth;
+  setAuth(state, userData) {
+    state.auth = userData.auth;
+    state.userEmail = userData.email;
   },
 
   

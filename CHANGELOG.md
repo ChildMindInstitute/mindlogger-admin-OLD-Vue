@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implemented forgotPassword
 - Rebuilt invitationFrom
 - Added updated API endpoints
+- Modified addNewApplet
+- Updated pending table to show the entire invitation link
 
 ## [0.1.52] = 2020-05-06
 ### Changed

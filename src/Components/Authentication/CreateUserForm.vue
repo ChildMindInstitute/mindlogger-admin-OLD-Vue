@@ -120,7 +120,7 @@ export default {
             'displayName': resp.data.displayName
           }
         };
-        this.$store.commit('setAuth', auth);
+        this.$store.commit('setAuth', {auth: auth, email: this.email});
         this.$router.push('/applets')
       }).catch((e) => {
         this.error = e.message;

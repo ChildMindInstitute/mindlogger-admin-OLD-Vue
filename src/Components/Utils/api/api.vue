@@ -44,7 +44,7 @@ const getSchedule = ({ apiHost, token, id }) => axios({
   },
 });
 
-const addNewApplet = ({ apiHost, token, protocolUrl }) => axios({
+const addNewApplet = ({ apiHost, token, protocolUrl, email }) => axios({
 method: 'POST',
   url: `${apiHost}/applet/`,
   headers: {
@@ -52,6 +52,7 @@ method: 'POST',
   },
   params: {
     protocolUrl,
+    email,
   },
 })
 
