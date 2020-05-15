@@ -24,15 +24,20 @@
             </v-icon>
           </v-btn>
         </p>
-        <v-form>
+        <v-form
+          ref="form"
+          lazy-validation
+        >
           <v-text-field
             v-model="email"
+            :rules="emailRules"
             label="Email"
             prepend-icon="mdi-account"
           />
 
           <v-text-field
             v-model="password"
+            :rules="passwordRules"
             label="Password"
             type="password"
             prepend-icon="lock"
@@ -86,13 +91,25 @@ import _ from 'lodash';
 
 export default {
   data: () => ({
+    valid: true,
     email: '',
+    emailRules: [
+      v => !!v || 'E-mail is required',
+      v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
+    ],
     password: '',
+    passwordRules: [
+      v => !!v || 'Password is required',
+    ],
     error: '',
   }),
 
   methods: {
     login() {
+      if (!this.$refs.form.validate()) {
+        return;
+      }
+      
       this.error = '';
       api.signIn({
         apiHost: this.$store.state.backend,

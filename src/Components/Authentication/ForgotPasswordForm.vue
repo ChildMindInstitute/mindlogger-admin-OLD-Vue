@@ -12,32 +12,36 @@
         <p>
           Send a link to reset your password hosted at {{ $store.state.backend }}
         </p>
-
-        <v-text-field
-          v-model="email"
-          label="Email"
-        />
-
-        <div
-          v-if="error"
-          class="error"
+        <v-form
+          ref="form"
+          lazy-validation
         >
-          {{ error }}
-        </div>
+          <v-text-field
+            v-model="email"
+            :rules="emailRules"
+            label="Email"
+          />
+          <div
+            v-if="error"
+            class="error"
+          >
+            {{ error }}
+          </div>
 
-        <v-btn
-          outlined
-          color="primary"
-          @click="onLogin"
-        >
-          Login
-        </v-btn>
-        <v-btn
-          color="primary"
-          @click="createAccount"
-        >
-          Submit
-        </v-btn>
+          <v-btn
+            outlined
+            color="primary"
+            @click="onLogin"
+          >
+            Login
+          </v-btn>
+          <v-btn
+            color="primary"
+            @click="createAccount"
+          >
+            Submit
+          </v-btn>
+        </v-form>
       </v-card-text>
     </v-card>
   </div>
@@ -58,22 +62,19 @@ import _ from 'lodash';
 export default {
   data: () => ({
     email: '',
+    emailRules: [
+      v => !!v || 'E-mail is required',
+      v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
+    ],
     error: '',
   }),
   methods: {
     createAccount() {
-      if (!this.email) {
-        this.error = 'Please enter your email';
+      if (!this.$refs.form.validate()) {
         return;
-      } else {
-        const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
-        if (!regex.test(this.email)) {
-          this.error = 'Invalid email address';
-          return;
-        }
       }
+
       this.error = '';
-      
       api.resetPassword({
         apiHost: this.$store.state.backend,
         body: {
@@ -82,7 +83,7 @@ export default {
       }).then((resp) => {
         this.$emit('sendRequest', null);
       }).catch((e) => {
-        this.error = e.message;
+        this.error = e.message === 'Request failed with status code 400' ? 'That email is not registered' : e.message;
       });
     },
     onLogin() {
