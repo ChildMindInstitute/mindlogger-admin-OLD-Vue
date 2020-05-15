@@ -13,8 +13,15 @@
 
       <v-text-field
         v-if="!useDefaultProfile"
-        v-model="params.profile.displayName"
-        label="displayName"
+        v-model="params.profile.firstName"
+        label="FirstName"
+        required
+      />
+
+      <v-text-field
+        v-if="!useDefaultProfile"
+        v-model="params.profile.lastName"
+        label="LastName"
         required
       />
 
@@ -63,8 +70,10 @@ export default {
       params: {
         role: "user",
         profile: {
-          displayName: "",
-          email: ""
+          firstName: "",
+          lastName: "",
+          email: "",
+          mrn: "",
         }
       }
     };
@@ -80,19 +89,28 @@ export default {
           this.params.profile.email &&
           this.params.profile.email.trim() !== ""
         ) {
-          invitationOptions.profile = {};
-          invitationOptions.profile.email = this.params.profile.email;
+          invitationOptions.email = this.params.profile.email;
         }
         if (
-          this.params.profile.displayName &&
-          this.params.profile.displayName.trim() !== ""
+          this.params.profile.firstName &&
+          this.params.profile.firstName.trim() !== ""
         ) {
-          if (!invitationOptions.profile) {
-            invitationOptions.profile = {};
-          }
-          invitationOptions.profile.displayName = this.params.profile.displayName;
+          invitationOptions.firstName = this.params.profile.firstName;
+        }
+        if (
+          this.params.profile.lastName &&
+          this.params.profile.lastName.trim() !== ""
+        ) {
+          invitationOptions.lastName = this.params.profile.lastName;
+        }
+        if (
+          this.params.profile.mrn &&
+          this.params.profile.mrn.trim() !== ""
+        ) {
+          invitationOptions.MRN = this.params.profile.mrn;
         }
       }
+
       this.$emit("createInvitation", invitationOptions);
     },
 

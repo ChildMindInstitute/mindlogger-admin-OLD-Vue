@@ -19,6 +19,14 @@ const signUp = ({apiHost, body}) => axios({
   },
 });
 
+const resetPassword = ({apiHost, body}) => axios({
+  method: 'put',
+  url: `${apiHost}/user/password/temporary`,
+  params: {
+    ...body,
+  },
+});
+
 const setSchedule = ({ apiHost, token, id, data }) => axios({
   method: 'put',
   url: `${apiHost}/applet/${id}/schedule`,
@@ -36,7 +44,7 @@ const getSchedule = ({ apiHost, token, id }) => axios({
   },
 });
 
-const addNewApplet = ({ apiHost, token, protocolUrl }) => axios({
+const addNewApplet = ({ apiHost, token, protocolUrl, email }) => axios({
 method: 'POST',
   url: `${apiHost}/applet/`,
   headers: {
@@ -44,6 +52,7 @@ method: 'POST',
   },
   params: {
     protocolUrl,
+    email,
   },
 })
 
@@ -110,7 +119,7 @@ const getAppletsForUser = ({ apiHost, token, user, role = null }) => axios({
 
 const getAppletInvitation = ({ apiHost, token, appletId, options }) => axios({
   method: 'POST',
-  url: `${apiHost}/applet/${appletId}/invite`,
+  url: `${apiHost}/applet/${appletId}/inviteUser`,
   headers: {
     'Girder-Token': token,
   },
@@ -123,6 +132,7 @@ export default {
   setSchedule,
   getSchedule,
   addNewApplet,
+  resetPassword,
   getGroupMemberships,
   deleteUserFromRole,
   getAppletUsers,

@@ -24,16 +24,21 @@
             </v-icon>
           </v-btn>
         </p>
-        <v-form>
+        <v-form
+          ref="form"
+          lazy-validation
+        >
           <v-text-field
-            v-model="username"
-            label="username"
+            v-model="email"
+            :rules="emailRules"
+            label="Email"
             prepend-icon="mdi-account"
           />
 
           <v-text-field
             v-model="password"
-            label="password"
+            :rules="passwordRules"
+            label="Password"
             type="password"
             prepend-icon="lock"
           />
@@ -45,8 +50,14 @@
         >
           {{ error }}
         </div>
-
+        <p 
+          class="ml-32 text-underline"
+          @click="onForgotPassword"
+        >
+          Forgot Password?
+        </p>
         <v-btn
+          class="ml-32"
           color="primary"
           @click="login"
         >
@@ -80,23 +91,35 @@ import _ from 'lodash';
 
 export default {
   data: () => ({
-    username: '',
+    valid: true,
+    email: '',
+    emailRules: [
+      v => !!v || 'E-mail is required',
+      v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
+    ],
     password: '',
+    passwordRules: [
+      v => !!v || 'Password is required',
+    ],
     error: '',
   }),
 
   methods: {
     login() {
+      if (!this.$refs.form.validate()) {
+        return;
+      }
+      
       this.error = '';
       api.signIn({
         apiHost: this.$store.state.backend,
-        user: this.username,
+        user: this.email,
         password: this.password
       }).then((resp) => {
-        this.$store.commit('setAuth', resp.data);
+        this.$store.commit('setAuth', {auth: resp.data, email: this.email});
         this.$router.push('/applets')
       }).catch((e) => {
-        this.error = e.message === 'Request failed with status code 401' ? 'Invalid credentials' : e.message;
+          this.error = e.response.data.message;
       });
     },
     onCreateAccount() {
@@ -105,7 +128,21 @@ export default {
     onSetBackend() {
       this.$emit('setBackend', null);
     },
+    onForgotPassword() {
+      this.$emit('forgotPassword', null);
+    },
   }
 
 };
 </script>
+
+<style lang="scss" scoped>
+  .ml-32 {
+    margin-left: 32px;
+  }
+  .text-underline {
+    text-decoration: underline;
+    user-select: none;
+    cursor: pointer;
+  }
+</style>

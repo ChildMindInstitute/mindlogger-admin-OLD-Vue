@@ -4,9 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.54] = 2020-05-14
+## [0.1.53] = 2020-05-14
 ### Changed
-- Add Mindlogger testing server ```https://testing.mindlogger.org/api/v1```
+- Rebuilt user signin and signup
+- Implemented forgotPassword
+- Rebuilt invitationFrom
+- Added updated API endpoints
+- Modified addNewApplet
+- Updated pending table to show the entire invitation link
+- Added Mindlogger testing server ```https://testing.mindlogger.org/api/v1```
+- Implemented validation for login, sign up and forgetPassword
 
 ## [0.1.52] = 2020-05-06
 ### Changed
