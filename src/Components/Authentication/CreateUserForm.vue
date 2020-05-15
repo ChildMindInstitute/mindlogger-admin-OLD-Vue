@@ -145,7 +145,7 @@ export default {
         this.$store.commit('setAuth', {auth: auth, email: this.email});
         this.$router.push('/applets')
       }).catch((e) => {
-        this.error = e.message === 'Request failed with status code 400' ? 'That email is already registered in the system.' : e.message;
+        this.error = e.response.data.message;
       });
     },
     onLogin() {

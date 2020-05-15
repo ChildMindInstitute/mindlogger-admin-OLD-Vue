@@ -83,7 +83,7 @@ export default {
       }).then((resp) => {
         this.$emit('sendRequest', null);
       }).catch((e) => {
-        this.error = e.message === 'Request failed with status code 400' ? 'That email is not registered' : e.message;
+        this.error = e.response.data.message;
       });
     },
     onLogin() {
