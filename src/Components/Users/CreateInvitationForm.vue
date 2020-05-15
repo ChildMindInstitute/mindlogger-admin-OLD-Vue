@@ -29,15 +29,8 @@
         v-if="!useDefaultProfile"
         v-model="params.profile.email"
         :rules="emailRules"
-        label="Email"
+        label="email"
         required
-      />
-
-      <v-text-field
-        v-if="!useDefaultProfile"
-        v-model="params.profile.mrn"
-        type="number"
-        label="MRN (Optional)"
       />
 
       <v-select
