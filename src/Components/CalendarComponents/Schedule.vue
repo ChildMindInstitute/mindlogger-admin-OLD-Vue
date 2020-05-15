@@ -112,7 +112,39 @@
           >
             Timeout invalid: timeout should be non-zero.
           </div>
+          <v-checkbox
+                  v-model="scheduledIdleTime.allow"
+                  @change="handleIdleTimeAccess"
+                  label="Allow idle time"
+          />
+          <!-- <label>-- {{ access }} </label> -->
+          <label v-if="scheduledIdleTime.allow">Idle Time : </label>
 
+          <div v-if="scheduledIdleTime.allow" class="ds-timeout-body">
+            <div class="ds-timeout-units">
+              <v-text-field
+                      type="number"
+                      v-model="scheduledIdleTime.minute"
+                      :value="scheduledTimeoutDecimal.minute"
+                      @change="onChangeMinutes"
+                      class="ds-schedule-timeout"
+                      single-line
+                      hide-details
+                      max="59"
+                      min="00"
+                      solo
+                      flat
+              />
+              <div class="ds-timeout-unit"> minutes </div>
+            </div>
+          </div>
+
+          <div
+                  v-if="isTimeoutValid === false"
+                  class="error"
+          >
+            Idle Time invalid: Idle Time should be non-zero.
+          </div>
         </div>
 
       </div>
@@ -179,6 +211,10 @@ export default {
       required: false,
     },
 
+    idleTime: {
+      required: false,
+    },
+
     day:
     {
       type: Day
@@ -221,6 +257,7 @@ export default {
     return {
       scheduledTimeout: this.timeout,
       scheduledTimeoutDecimal: this.timeout,
+      scheduledIdleTime: this.idleTime
     }
   },
   computed:
@@ -257,6 +294,11 @@ export default {
 
     handleAccess() {
       this.$emit('onTimeout', this.scheduledTimeout);
+
+    },
+
+    handleIdleTimeAccess() {
+      this.$emit('onIdleTime', this.scheduledIdleTime);
     },
 
     setType(type) {
