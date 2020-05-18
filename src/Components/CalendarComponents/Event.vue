@@ -394,6 +394,13 @@ export default {
       return false;
     },
 
+    isIdleTimeValid() {
+      if (!this.details.idleTime.allow) {
+        return true;
+      }
+      return this.details.idleTime.minute > 0;
+    },
+
     canSave() {
       const isValidDayspanEvent = this.$dayspan.isValidEvent(
         this.details,
@@ -402,8 +409,9 @@ export default {
       );
 
       const isTimeoutValid = this.isTimeoutValid;
+      const isIdleTimeValid = this.isIdleTimeValid;
 
-      return isValidDayspanEvent && isTimeoutValid;
+      return isValidDayspanEvent && isTimeoutValid && isIdleTimeValid;
     },
 
     repeats() {
