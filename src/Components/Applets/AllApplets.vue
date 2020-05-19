@@ -133,7 +133,7 @@ export default {
     addNewApplet() {
       api.addNewApplet({
         protocolUrl: this.newProtocolURL,
-        email: this.$store.state.email,
+        email: this.$store.state.userEmail,
         token: this.$store.state.auth.authToken.token,
         apiHost: this.$store.state.backend,
       }).then((resp) => {
