@@ -13,7 +13,7 @@ before_deploy:
   - npm run build
 deploy:
   on:
-    branch: travis_config
+    branch: master
   provider: s3
   access_key_id: $GH_AWS_KEY
   secret_access_key: $GH_AWS_SECRET
