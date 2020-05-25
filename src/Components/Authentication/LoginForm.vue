@@ -10,7 +10,7 @@
       </v-toolbar>
       <v-card-text>
         <p>
-          Log into your Mindlogger account at {{ $store.state.backend }}
+          Log into your Mindlogger account
 <!--          <v-btn-->
 <!--            icon-->
 <!--            style="margin: 0px;"-->
