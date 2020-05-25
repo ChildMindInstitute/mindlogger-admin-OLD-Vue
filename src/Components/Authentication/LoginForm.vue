@@ -11,18 +11,6 @@
       <v-card-text>
         <p>
           Log into your Mindlogger account
-<!--          <v-btn-->
-<!--            icon-->
-<!--            style="margin: 0px;"-->
-<!--            @click="onSetBackend"-->
-<!--          >-->
-<!--            <v-icon-->
-<!--              small-->
-<!--              color="primary"-->
-<!--            >-->
-<!--              edit-->
-<!--            </v-icon>-->
-<!--          </v-btn>-->
         </p>
         <v-form
           ref="form"
