@@ -6,7 +6,9 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "dev-deploy": "aws s3 --profile benjaminthonetdev sync ./dist/ s3://admin.mindlogger.org --region us-east-1",
+    "test-deploy": "aws s3 --profile benjaminthonetdev sync ./dist/ s3://admin.test.mindlogger.org --region us-east-1"
   },
   "dependencies": {
     "@ag-grid-community/all-modules": "^22.1.1",
