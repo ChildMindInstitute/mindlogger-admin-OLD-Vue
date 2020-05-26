@@ -65,7 +65,9 @@
         <!-- absolute scheduling options below -->
         <my-schedule
           @onTimeout="handleTimeout"
+          @onIdleTime="handleIdleTime"
           :timeout="timeout"
+          :idle-time="idleTime"
           :schedule="schedule"
           :day="day"
           :read-only="readOnly"
@@ -326,6 +328,7 @@ export default {
     schedule: new Schedule(),
     details: vm.$dayspan.getDefaultEventDetails(),
     scheduledTimeout: {},
+    scheduledIdleTime: {},
   }),
 
   computed: {
@@ -341,6 +344,12 @@ export default {
         allow: false,
       };
     },
+    idleTime() {
+      return this.details.idleTime || {
+        minute: 1,
+        allow: false,
+      }
+    },
     currentApplet() {
       return this.$store.state.currentApplet;
     },
@@ -354,6 +363,7 @@ export default {
         schedule: this.schedule,
         details: this.details,
         timeout: this.details.timeout,
+        idleTime: this.details.idleTime,
         busyOptions: this.busyOptions,
         day: this.day,
         calendar: this.calendar,
@@ -540,6 +550,10 @@ export default {
       this.scheduledTimeout = scheduledTimeout;
     },
 
+    handleIdleTime(scheduledIdleTime) {
+      this.scheduledIdleTime = scheduledIdleTime;
+    },
+
     save() {
       var ev = this.getEvent("save"); 
       this.$emit("save", ev);
@@ -629,6 +643,18 @@ export default {
         } 
       } else {
           evDetails.timeout = this.scheduledTimeout;
+      }
+
+      if (!this.scheduledIdleTime.hasOwnProperty('allow')) {
+        this.scheduledIdleTime = this.idleTime;
+      }
+      if (!this.scheduledIdleTime.allow) {
+        evDetails.idleTime = {
+          minute: 1,
+          allow: this.scheduledIdleTime.allow
+        }
+      } else {
+        evDetails.idleTime = this.scheduledIdleTime;
       }
 
       if (this.$store.state.currentUsers.length) {
