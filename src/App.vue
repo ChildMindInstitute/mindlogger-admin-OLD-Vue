@@ -5,7 +5,7 @@
       color="primary"
       dark
     >
-      <v-toolbar-title>MindLogger Admin</v-toolbar-title>
+      <v-toolbar-title>MindLogger Admin {{ showEnvironment }}</v-toolbar-title>
       <v-spacer />
       <v-menu
         v-if="isLoggedIn"
@@ -51,6 +51,18 @@ export default {
     isLoggedIn() {
       return !_.isEmpty(this.$store.state.auth);
     },
+    showEnvironment() {
+      if (process.env.NODE_ENV === 'staging') {
+        return '(Test)'
+      }
+      if (process.env.NODE_ENV === 'development') {
+        return '(Dev)'
+      }
+      if (process.env.NODE_ENV === 'local') {
+        return '(Local)'
+      }
+      return ''
+    }
   },
   methods: {
     logout() {

@@ -1,27 +1,22 @@
 sudo: false
 language: node_js
 node_js:
-- "lts/*"
-cache:	
-  directories:	
-  - node_modules
-branches:
-  only:
-  - master
+  - "lts/*"
+cache:
+  directories:
+    - node_modules
 notifications:
   email: false
-stages:
-  - test
-  - build 
-jobs:
-  include:
-    - stage: test
-      script:
-        - npm run test:unit
-    - stage: build
-      before_script:
-        - npm install
-      script:
-        - npm run build
-      after_success:
-        - bash ./deploy.sh
+before_deploy:
+  - npm install
+  - npm run test:unit
+  - npm run build
+deploy:
+  on:
+    branch: master
+  provider: s3
+  access_key_id: $GH_AWS_KEY
+  secret_access_key: $GH_AWS_SECRET
+  bucket: admin.mindlogger.org
+  skip_cleanup: true
+  local_dir: dist
