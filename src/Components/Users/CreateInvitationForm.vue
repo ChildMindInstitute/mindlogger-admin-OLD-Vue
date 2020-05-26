@@ -33,6 +33,12 @@
         required
       />
 
+      <v-text-field
+        v-if="!useDefaultProfile"
+        v-model="params.profile.mrn"
+        label="MRN"
+      />
+
       <v-select
         v-model="params.role"
         :items="roles"
