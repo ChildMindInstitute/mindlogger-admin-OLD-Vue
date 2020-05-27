@@ -10,19 +10,7 @@
       </v-toolbar>
       <v-card-text>
         <p>
-          Log into your Mindlogger account at {{ $store.state.backend }}
-          <v-btn
-            icon
-            style="margin: 0px;"
-            @click="onSetBackend"
-          >
-            <v-icon
-              small
-              color="primary"
-            >
-              edit
-            </v-icon>
-          </v-btn>
+          Log into your Mindlogger account
         </p>
         <v-form
           ref="form"
