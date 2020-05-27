@@ -32,7 +32,7 @@ eslint "src/**/*.{js,vue}"
 ### deploy
 to deploy any branch to test server you need to config aws cli first
 using this command
-```aws configure --profile benjaminthonetdev```
+```aws configure --profile mindlogger_aws```
 then run commands
 - ```npm run build-dev```
 - ```npm run dev-deploy```
