@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Rebuilt the table for pending invitations
 
+## [0.1.55] = 2020-05-26
+- idle_time field added to event
+
 ## [0.1.54] = 2020-05-19
 ### Changed
 - Disabled email validation just for now
