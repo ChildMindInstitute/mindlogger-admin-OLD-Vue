@@ -64,7 +64,6 @@ export default {
     onUploadProtocol(newApplet) {
       const protocol = new FormData();
       protocol.set("protocol", JSON.stringify(newApplet || {}));
-      console.log('protocol------->', protocol);
 
       api.createApplet({
         data: protocol,
@@ -72,7 +71,6 @@ export default {
         token: this.$store.state.auth.authToken.token,
         apiHost: this.$store.state.backend,
       }).then((resp) => {
-        console.log('#######', resp);
         this.dialogText = 'The applet is being created. Please check back in several mintutes to see it.';
         this.dialog = true;
       }).catch((e) => {
