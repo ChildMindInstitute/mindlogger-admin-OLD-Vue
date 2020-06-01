@@ -4,115 +4,105 @@
     v-bind="dialogProps"
     :fullscreen="$dayspan.fullscreenDialogs"
   >
-    <v-card v-if="schedule && details">
-      <v-card-text>
-        <event
-          v-bind="{$scopedSlots}"
-          :target-details="details"
-          :target-schedule="schedule"
-          :calendar="calendar"
-          :calendar-event="calendarEvent"
-          :day="day"
-          :activities="activities"
-          :read-only="readOnly"
-          @saved="saved"
-          @cancel="cancel"
-          @actioned="actioned"
-          @event-create="eventCreate"
-          @event-update="eventUpdate"
-          @event-remove="eventRemove"
-        >
-          <template name="eventDetailsLocation">
-            Notifications
-          </template>
-        </event>
-      </v-card-text>
-    </v-card>
+    <div v-if="schedule && details">
+      <!-- <v-card-text> -->
+      <event
+        v-bind="{ $scopedSlots }"
+        :target-details="details"
+        :target-schedule="schedule"
+        :calendar="calendar"
+        :calendar-event="calendarEvent"
+        :day="day"
+        :activities="activities"
+        :read-only="readOnly"
+        @saved="saved"
+        @cancel="cancel"
+        @actioned="actioned"
+        @event-create="eventCreate"
+        @event-update="eventUpdate"
+        @event-remove="eventRemove"
+      >
+        <template name="eventDetailsLocation">
+          Notifications
+        </template>
+      </event>
+      <!-- </v-card-text> -->
+    </div>
   </v-dialog>
 </template>
 
 <script>
-import { Calendar, Schedule, Functions as fn } from 'dayspan';
-import Event from './Event';
+import { Calendar, Schedule, Functions as fn } from "dayspan";
+import Event from "./Event";
 
 export default {
-
-  name: 'dsEventDialog',
+  name: "dsEventDialog",
 
   components: {
     Event,
   },
 
-  props:
-  {
+  props: {
     activities: {
       type: Array,
       required: true,
     },
-    calendar:
-    {
-      type: Calendar
+    calendar: {
+      type: Calendar,
     },
 
-    dialogProps:
-    {
+    dialogProps: {
       validate(x) {
-        return this.$dsValidate(x, 'dialogProps');
+        return this.$dsValidate(x, "dialogProps");
       },
       default() {
         return this.$dsDefaults().dialogProps;
-      }
+      },
     },
 
-    readOnly:
-    {
+    readOnly: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   // eslint-disable-next-line
-  data: vm => ({
+  data: (vm) => ({
     open: false,
     calendarEvent: null,
     details: null,
     schedule: null,
-    day: null
+    day: null,
   }),
 
-  computed:
-  {
-  },
+  computed: {},
 
-  methods:
-  {
-    addToday()
-    {
-      this.add( this.$dayspan.today );
+  methods: {
+    addToday() {
+      this.add(this.$dayspan.today);
     },
 
-    add(day, days)
-    {
-      this.addSchedule( day, Schedule.forDay( day, days ) );
+    add(day, days) {
+      this.addSchedule(day, Schedule.forDay(day, days));
     },
 
-    addAt(day, hour)
-    {
-      this.addSchedule( day, Schedule.forTime( day, hour ) );
+    addAt(day, hour) {
+      this.addSchedule(day, Schedule.forTime(day, hour));
     },
 
-    addSpan(span)
-    {
-      this.addSchedule( span.start, Schedule.forSpan( span ) );
+    addSpan(span) {
+      this.addSchedule(span.start, Schedule.forSpan(span));
     },
 
-    addPlaceholder(placeholder, details)
-    {
-      this.addSchedule( placeholder.start, placeholder.schedule, details || placeholder.event.data );
+    addPlaceholder(placeholder, details) {
+      this.addSchedule(
+        placeholder.start,
+        placeholder.schedule,
+        details || placeholder.event.data
+      );
     },
 
-    addSchedule(day, schedule, details)
-    {
+    addSchedule(day, schedule, details) {
       this.day = day;
       this.calendarEvent = null;
       this.details = details || this.$dayspan.getDefaultEventDetails();
@@ -121,96 +111,84 @@ export default {
       this.finishOpen();
     },
 
-    edit(calendarEvent)
-    {
+    edit(calendarEvent) {
       this.day = calendarEvent.start;
       this.calendarEvent = calendarEvent;
-      this.details = calendarEvent.event.data || this.$dayspan.getDefaultEventDetails();
+      this.details =
+        calendarEvent.event.data || this.$dayspan.getDefaultEventDetails();
       this.schedule = calendarEvent.schedule;
 
       this.finishOpen();
     },
 
-    finishOpen()
-    {
-      var ev = this.getEvent('open');
+    finishOpen() {
+      var ev = this.getEvent("open");
 
-      this.$emit('open', ev);
+      this.$emit("open", ev);
 
-      if (ev.open)
-      {
+      if (ev.open) {
         this.open = true;
       }
     },
 
-    eventCreate(ev)
-    {
-      this.$emit('event-create', ev);
+    eventCreate(ev) {
+      this.$emit("event-create", ev);
     },
 
-    eventUpdate(ev)
-    {
-      this.$emit('event-update', ev);
+    eventUpdate(ev) {
+      this.$emit("event-update", ev);
     },
 
-    eventRemove(ev)
-    {
-      this.$emit('event-remove', ev);
+    eventRemove(ev) {
+      this.$emit("event-remove", ev);
     },
 
-    actioned(ev)
-    {
+    actioned(ev) {
       ev.hide = true;
-      this.$emit('actioned', ev);
-      this.finishClose( ev );
+      this.$emit("actioned", ev);
+      this.finishClose(ev);
     },
 
-    cancel(ev)
-    {
+    cancel(ev) {
       ev.hide = true;
-      this.$emit('cancel', ev);
-      this.finishClose( ev );
+      this.$emit("cancel", ev);
+      this.finishClose(ev);
     },
 
-    saved(ev)
-    {
+    saved(ev) {
       ev.hide = true;
-      this.$emit('saved', ev);
-      this.finishClose( ev );
+      this.$emit("saved", ev);
+      this.finishClose(ev);
     },
 
-    finishClose(ev)
-    {
-      if (ev.hide)
-      {
+    finishClose(ev) {
+      if (ev.hide) {
         this.open = false;
-        this.$emit('close', ev);
+        this.$emit("close", ev);
       }
 
       this.schedule = null;
       this.details = null;
     },
 
-    getEvent(type, extra = {})
-    {
-      return fn.extend({
-
-        type: type,
-        day: this.day,
-        schedule: this.schedule,
-        calendar: this.calendar,
-        calendarEvent: this.calendarEvent,
-        handled: false,
-        open: true,
-        $vm: this,
-        $element: this.$el
-
-      }, extra);
-    }
-  }
-}
+    getEvent(type, extra = {}) {
+      return fn.extend(
+        {
+          type: type,
+          day: this.day,
+          schedule: this.schedule,
+          calendar: this.calendar,
+          calendarEvent: this.calendarEvent,
+          handled: false,
+          open: true,
+          $vm: this,
+          $element: this.$el,
+        },
+        extra
+      );
+    },
+  },
+};
 </script>
 
-<style lang="scss">
-
-</style>
+<style lang="scss"></style>

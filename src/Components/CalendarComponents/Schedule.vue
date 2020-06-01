@@ -25,21 +25,23 @@
     <div class="ds-schedule-type-line">
       <div class="ds-schedule-type">
         <!-- Type -->
-        <slot
-          name="scheduleType"
-          v-bind="{schedule, day, setType, custom}"
-        >
-          <schedule-type
-            :day="day"
-            :schedule="schedule"
-            :read-only="readOnly"
-            @change="setType"
-            @custom="custom"
-          />
-        </slot>
-
+        <div class="ds-schedule-type-select">
+          <slot
+            name="scheduleType"
+            v-bind="{schedule, day, setType, custom}"
+          >
+            <schedule-type
+              :day="day"
+              :schedule="schedule"
+              :read-only="readOnly"
+              @change="setType"
+              @custom="custom"
+            />
+          </slot>
+        </div>
         <div class="ds-time-cell">
           <v-checkbox
+            class="mt-3"
             v-model="scheduledTimeout.access"
             @change="handleAccess"
             label="Allow access before scheduled time"
@@ -376,6 +378,10 @@ export default {
     display: flex;
     max-width: 100%;
     padding-right: 8px;
+  }
+
+  .ds-schedule-type-select {
+    width: 50%;
   }
 
   &.ds-schedule-small {

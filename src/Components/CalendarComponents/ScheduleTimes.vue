@@ -16,9 +16,6 @@
 
             </div>
             <div class="ds-time-row" v-for="(time, index) in schedule.times" :key="index">
-
-                <div class="ds-time-cell"></div>
-
                 <schedule-time
                         class="ds-time-cell double"
                         :index="index"
