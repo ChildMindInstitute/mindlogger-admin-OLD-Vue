@@ -44,13 +44,13 @@
             class="mt-3"
             v-model="scheduledTimeout.access"
             @change="handleAccess"
-            label="Allow access before scheduled time"
+            label="Access before scheduled time"
           />
 
           <v-checkbox
             v-model="scheduledTimeout.allow"
             @change="handleAccess"
-            label="Allow timeout"
+            label="Timeout"
           />
           <!-- <label>-- {{ access }} </label> -->
           <label v-if="scheduledTimeout.allow">Timeout : </label>
@@ -117,12 +117,12 @@
           <v-checkbox
                   v-model="oneTimeCompletion"
                   @change="handleOneTimeCompletion"
-                  label="Allow one-time completion"
+                  label="One-time completion"
           />
           <v-checkbox
                   v-model="scheduledIdleTime.allow"
                   @change="handleIdleTimeAccess"
-                  label="Allow idle time"
+                  label="Idle time"
           />
           <!-- <label>-- {{ access }} </label> -->
           <label v-if="scheduledIdleTime.allow">Idle Time : </label>
@@ -425,6 +425,10 @@ export default {
 
   .v-input input {
     text-align: center;
+  }
+
+  .v-messages {
+    min-height: 10px;
   }
 }
 

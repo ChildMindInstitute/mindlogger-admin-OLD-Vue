@@ -782,6 +782,7 @@ export default {
   }
 
   .ds-event-actions {
+    margin-left: 5px;
     float: right;
 
     > * {
