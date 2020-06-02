@@ -29,9 +29,6 @@ const mutations = {
     Object.assign(state, getDefaultState());
   },
   setBackend(state, backend) {
-    if (backend !== state.backend) {
-      state.auth = {};
-    }
     const backendServers = [
       {'url': 'https://api-prod.mindlogger.org/api/v1', 'env': 'production'},
       {'url': 'https://api-staging.mindlogger.org/api/v1', 'env': 'development'},
