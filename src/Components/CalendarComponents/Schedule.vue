@@ -113,6 +113,11 @@
             Timeout invalid: timeout should be non-zero.
           </div>
           <v-checkbox
+                  v-model="oneTimeCompletion"
+                  @change="handleOneTimeCompletion"
+                  label="Allow one-time completion"
+          />
+          <v-checkbox
                   v-model="scheduledIdleTime.allow"
                   @change="handleIdleTimeAccess"
                   label="Allow idle time"
@@ -211,6 +216,10 @@ export default {
       required: false,
     },
 
+    completion: {
+      required: false,
+    },
+
     idleTime: {
       required: false,
     },
@@ -255,6 +264,7 @@ export default {
   // eslint-disable-next-line
   data() {
     return {
+      oneTimeCompletion: this.completion,
       scheduledTimeout: this.timeout,
       scheduledTimeoutDecimal: this.timeout,
       scheduledIdleTime: this.idleTime
@@ -295,6 +305,10 @@ export default {
     handleAccess() {
       this.$emit('onTimeout', this.scheduledTimeout);
 
+    },
+
+    handleOneTimeCompletion() {
+      this.$emit('onCompletion', this.oneTimeCompletion);
     },
 
     handleIdleTimeAccess() {

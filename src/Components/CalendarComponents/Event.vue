@@ -66,6 +66,8 @@
         <my-schedule
           @onTimeout="handleTimeout"
           @onIdleTime="handleIdleTime"
+          @onCompletion="handleCompletion"
+          :completion="completion"
           :timeout="timeout"
           :idle-time="idleTime"
           :schedule="schedule"
@@ -327,6 +329,7 @@ export default {
     tab: "details",
     schedule: new Schedule(),
     details: vm.$dayspan.getDefaultEventDetails(),
+    oneTimeCompletion: false,
     scheduledTimeout: {},
     scheduledIdleTime: {},
   }),
@@ -334,6 +337,9 @@ export default {
   computed: {
     title() {
       return this.details.title;
+    },
+    completion() {
+      return this.details.completion || false;
     },
     timeout() {
       return this.details.timeout || {
@@ -363,6 +369,7 @@ export default {
         schedule: this.schedule,
         details: this.details,
         timeout: this.details.timeout,
+        completion: this.details.completion,
         idleTime: this.details.idleTime,
         busyOptions: this.busyOptions,
         day: this.day,
@@ -550,6 +557,10 @@ export default {
       this.scheduledTimeout = scheduledTimeout;
     },
 
+    handleCompletion(oneTimeCompletion) {
+      this.oneTimeCompletion = oneTimeCompletion;
+    },
+
     handleIdleTime(scheduledIdleTime) {
       this.scheduledIdleTime = scheduledIdleTime;
     },
@@ -618,6 +629,12 @@ export default {
 
     getEvent(type, extra = {}) {
       const evDetails = this.details;
+
+      if(this.oneTimeCompletion) {
+        evDetails.completion = true;
+      } else {
+        evDetails.completion = false;
+      }
 
       if (!this.scheduledTimeout.hasOwnProperty('allow')) {
         this.scheduledTimeout = this.timeout;

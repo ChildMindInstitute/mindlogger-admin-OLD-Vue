@@ -4,15 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.57] = 2020-05-27
+## [0.1.58] = 2020-05-27
 ### Changed
 - protocol-builder 0.1 -> applet-schema-builer 0.2
-- Rebuilt applet JSON data structure
-- Loaded and cached raw JSON reproschema
+- Updated pending invitations table with changed columns
+- Rebuilt applet JSON data structure to load and cach raw JSON reproschema
 
-## [0.1.56] = 2020-05-26
+## [0.1.57] = 2020-05-26
 ### Changed
-- Rebuilt the table for pending invitations
+- Implement One-time completion on event card
+
+## [0.1.56] = 2020-05-27
+- set server window removed
+- introduce new deployment to s3 bucket and travisCI
 
 ## [0.1.55] = 2020-05-26
 - idle_time field added to event
