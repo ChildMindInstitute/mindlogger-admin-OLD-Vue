@@ -10,7 +10,7 @@ import api from "../Components/Utils/api/api.vue";
 
 const getDefaultState = () => {
   return {
-    backend: 'https://api.mindlogger.org/api/v1',
+    backend: 'https://api-staging.mindlogger.org/api/v1',
     allApplets: [],
     cachedEvents: [],
     currentApplet: {},
@@ -149,6 +149,6 @@ export const storeConfig = {
 
 const store = new Store(storeConfig);
 
-store.commit('setBackend', null)
+// store.commit('setBackend', null)
 
 export default store;
