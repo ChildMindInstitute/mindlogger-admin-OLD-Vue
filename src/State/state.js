@@ -42,11 +42,6 @@ const mutations = {
 
     if (protocol) {
       state.currentApplet = protocol;
-      
-      // const savedApplet = state.cachedApplets[state.currentApplet.applet._id];
-      // if(savedApplet) {
-      //   state.currentApplet.applet = JSON.parse(savedApplet);
-      // }
     }
   },
   setAllApplets(state, protocols) {
