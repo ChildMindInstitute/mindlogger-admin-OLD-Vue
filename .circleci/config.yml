@@ -20,9 +20,9 @@ jobs:
       - checkout
       - run: npm run build
       - aws-s3/sync:
-          aws-access-key-id: $AWS_ACCESS_KEY_ID
-          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
-          aws-region: $AWS_REGION
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          aws-region: AWS_REGION
           from: dist
           to: 's3://admin-dev.mindlogger.org'
           overwrite: true
