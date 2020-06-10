@@ -25,7 +25,7 @@ jobs:
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           aws-region: AWS_REGION
           from: dist
-          to: 's3://admin-prod.mindlogger.org'
+          to: 's3://admin-test.mindlogger.org'
           overwrite: true
 
 workflows:
@@ -37,4 +37,4 @@ workflows:
             - serverInstall
           filters:
             branches:
-              only: master
+              only: circle_ci_config
