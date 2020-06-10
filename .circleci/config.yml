@@ -7,6 +7,7 @@ jobs:
       - image: circleci/node:latest
     steps:
       - checkout
+      - run: mkdir -p my_workspace
       - run: node --version
       - run: npm install
       - persist_to_workspace:
