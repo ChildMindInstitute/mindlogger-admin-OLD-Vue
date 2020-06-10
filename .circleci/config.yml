@@ -2,23 +2,28 @@
 version: 2.1
 
 orbs:
-  aws-cli: circleci/aws-cli@x.y
-  aws-s3: circleci/aws-s3@x.y.z
-  node: circleci/node@x.y
+  aws-s3: circleci/aws-s3@1.0.0
+  node: circleci/node@10
 
 jobs:
   serverInstall:
+    docker:
+      image: circleci/node:latest
     steps:
       - checkout
       - run: node --version
       - run: npm install
 
   integrationTests:
+    docker:
+      image: circleci/node:latest
     steps:
       - run: npm run test:unit
       - run: npm run build
 
   autoDeploy:
+    docker:
+      image: circleci/node:latest
     steps:
       - checkout
       - aws-s3/sync:
