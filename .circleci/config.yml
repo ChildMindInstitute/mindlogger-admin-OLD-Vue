@@ -7,21 +7,14 @@ jobs:
       - image: circleci/node:latest
     steps:
       - checkout
-      - run: mkdir -p my_workspace
       - run: node --version
       - run: npm install
-      - persist_to_workspace:
-        root: admin_app
-        paths:
-          - echo-output
 
   integrationTests:
     docker:
       - image: circleci/node:latest
     steps:
       - checkout
-      - attach_workspace:
-          at: admin_app
       - run: npm run test:unit
       - run: npm run build
 
