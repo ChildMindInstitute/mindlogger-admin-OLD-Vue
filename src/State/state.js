@@ -39,9 +39,9 @@ const mutations = {
       {'url': 'http://localhost:8080/api/v1', 'env': 'local'},
       {'url': process.env.CUSTOM_URL || '', 'env': 'other'}
     ]
-    state.backend = backend ||
-      _.find(backendServers, {'env': process.env.NODE_ENV}).url ||
-      backendServers[0].url;
+    state.backend = backend || 'NODE_ENV' in process.env ?
+      _.find(backendServers, {'env': process.env.NODE_ENV}).url :
+      backendServers[3].url;
   },
   setCurrentApplet(state, protocol) {
 
