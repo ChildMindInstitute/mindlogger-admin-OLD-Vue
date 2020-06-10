@@ -18,6 +18,7 @@ jobs:
       - image: circleci/node:latest
     steps:
       - checkout
+      - run: npm install
       - run: npm run build
       - aws-s3/sync:
           aws-access-key-id: AWS_ACCESS_KEY_ID
