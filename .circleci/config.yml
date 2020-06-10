@@ -1,38 +1,49 @@
 ---
-version: 2.1
-
-orbs:
-  aws-s3: circleci/aws-s3@1.0.0
-  node: circleci/node@10
+version: 2
 
 jobs:
   serverInstall:
     docker:
-      image: circleci/node:latest
+      - image: circleci/node:latest
     steps:
       - checkout
       - run: node --version
       - run: npm install
+      - persist_to_workspace:
+        root: admin_app
+        paths:
+          - echo-output
+
+  integrationTests:
+    docker:
+      - image: circleci/node:latest
+    steps:
+      - checkout
+      - attach_workspace:
+          at: admin_app
       - run: npm run test:unit
       - run: npm run build
 
-  autoDeploy:
-    docker:
-      image: circleci/node:latest
-    steps:
-      - checkout
-      - aws-s3/sync:
-          from: dist
-          to: 's3://admin-dev.mindlogger.org'
-          overwrite: true
+#  autoDeploy:
+#    docker:
+#      image: circleci/node:latest
+#    steps:
+#      - checkout
+#      - aws-s3/sync:
+#          from: dist
+#          to: 's3://admin-dev.mindlogger.org'
+#          overwrite: true
 
 workflows:
   test_all:
     jobs:
       - serverInstall
-      - autoDeploy:
+      - integrationTests:
           requires:
             - serverInstall
-          filters:
-            branches:
-              only: master
+#      - autoDeploy:
+#          requires:
+#            - serverInstall
+#          filters:
+#            branches:
+#              only: master
