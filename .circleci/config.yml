@@ -8,9 +8,16 @@ jobs:
     steps:
       - checkout
       - run: node --version
+      - run: npm install
+  integrationTest:
+    steps:
+      - run: npm run test:unit
+      - run: npm run build
 
 workflows:
-  version: 2
   test_all:
     jobs:
       - serverInstall
+      - integrationTest:
+          requires:
+            - serverInstall
