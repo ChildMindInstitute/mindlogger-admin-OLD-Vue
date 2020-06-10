@@ -9,8 +9,9 @@ import createPersistedState from "vuex-persistedstate";
 import api from "../Components/Utils/api/api.vue";
 
 const getDefaultState = () => {
+  console.log(process.env)
   return {
-    backend: 'https://api.mindlogger.org/api/v1',
+    backend: process.env.VUE_APP_SERVER_URL,
     allApplets: [],
     cachedEvents: [],
     currentApplet: {},
@@ -32,13 +33,7 @@ const mutations = {
     if (backend !== state.backend) {
       state.auth = {};
     }
-    const backendServers = [
-      {'url': 'https://api-prod.mindlogger.org/api/v1', 'env': 'production'},
-      {'url': 'https://api-staging.mindlogger.org/api/v1', 'env': 'development'},
-      {'url': 'https://api-test.mindlogger.org/api/v1', 'env': 'staging'},
-      {'url': 'http://localhost:8080/api/v1', 'env': 'local'},
-      {'url': process.env.CUSTOM_URL || '', 'env': 'other'}
-    ]
+
     state.backend = backend ||
       _.find(backendServers, {'env': process.env.NODE_ENV}).url ||
       backendServers[0].url;
@@ -47,11 +42,6 @@ const mutations = {
 
     if (protocol) {
       state.currentApplet = protocol;
-      
-      // const savedApplet = state.cachedApplets[state.currentApplet.applet._id];
-      // if(savedApplet) {
-      //   state.currentApplet.applet = JSON.parse(savedApplet);
-      // }
     }
   },
   setAllApplets(state, protocols) {
@@ -149,6 +139,6 @@ export const storeConfig = {
 
 const store = new Store(storeConfig);
 
-store.commit('setBackend', null)
+// store.commit('setBackend', null)
 
 export default store;

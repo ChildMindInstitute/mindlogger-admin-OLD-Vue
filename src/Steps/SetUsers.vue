@@ -111,20 +111,37 @@ export default {
     },
     createInvitation(invitationOptions) {
       this.status = "loading";
-      api
-        .getAppletInvitation({
-          apiHost: this.$store.state.backend,
-          token: this.$store.state.auth.authToken.token,
-          appletId: this.currentApplet.applet._id.split("applet/")[1],
-          options: invitationOptions
-        })
-        .then(resp => {
-          this.getAppletUsers();
-        })
-        .catch(e => {
-          this.error = e;
-          this.status = "error";
-        });
+      if(invitationOptions.email) {
+        api
+          .getAppletInvitation({
+            apiHost: this.$store.state.backend,
+            token: this.$store.state.auth.authToken.token,
+            appletId: this.currentApplet.applet._id.split("applet/")[1],
+            options: invitationOptions
+          })
+          .then(resp => {
+            this.getAppletUsers();
+          })
+          .catch(e => {
+            this.error = e;
+            this.status = "error";
+          });
+      } else {
+        api
+          .postAppletInvitation({
+            apiHost: this.$store.state.backend,
+            token: this.$store.state.auth.authToken.token,
+            appletId: this.currentApplet.applet._id.split("applet/")[1],
+            options: invitationOptions
+          })
+          .then(resp => {
+            this.getAppletUsers();
+          })
+          .catch(e => {
+            this.error = e;
+            this.status = "error";
+          });
+      }
     },
     getAppletUsers() {
       api
