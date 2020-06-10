@@ -13,11 +13,6 @@ jobs:
       - checkout
       - run: node --version
       - run: npm install
-
-  integrationTests:
-    docker:
-      image: circleci/node:latest
-    steps:
       - run: npm run test:unit
       - run: npm run build
 
@@ -35,12 +30,9 @@ workflows:
   test_all:
     jobs:
       - serverInstall
-      - integrationTests:
-          requires:
-            - serverInstall
       - autoDeploy:
           requires:
-            - integrationTests
+            - serverInstall
           filters:
             branches:
               only: master
