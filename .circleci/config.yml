@@ -35,6 +35,7 @@ jobs:
 #          overwrite: true
 
 workflows:
+  version: 2
   test_all:
     jobs:
       - serverInstall
