@@ -47,7 +47,7 @@
             <v-btn
               class="ds-button-tall ml-1 mt-0 mb-2"
               color="warning"
-              @click.stop="remove"
+              @click.stop="remove(calendarEvent.event.id)"
               depressed
             >Remove</v-btn>
           </schedule-actions>
@@ -476,7 +476,7 @@ export default {
   },
 
   methods: {
-    async remove() {
+    async remove(eventId) {
       const res = await this.$dialog.warning({
         title: '',
         color: '#1976d2',
@@ -490,7 +490,7 @@ export default {
           }
         }
       });
-      if(res) {
+      if(res === 'Yes') {
         let ev = this.getEvent("save");
         this.$emit("remove", ev);
 
@@ -543,6 +543,7 @@ export default {
                 return ev;
               });
               state.events = events; 
+              this.$store.commit("addRemovedEventId", eventId)
             }
           }
           this.$store.commit("setSchedule", state);

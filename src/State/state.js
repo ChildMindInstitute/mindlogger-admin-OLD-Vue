@@ -10,10 +10,12 @@ import api from "../Components/Utils/api/api.vue";
 
 const getDefaultState = () => {
   return {
-    backend: 'https://api.mindlogger.org/api/v1',
+    backend: 'https://api-staging.mindlogger.org/api/v1',
     allApplets: [],
     cachedEvents: [],
     currentApplet: {},
+    removedEvents: [],
+    updatedEvents: [],
     auth: {},
     continue: {},
     currentUsers: [],
@@ -28,10 +30,17 @@ const mutations = {
   resetState(state) {
     Object.assign(state, getDefaultState());
   },
+  addRemovedEventId(state, eventId) {
+    state.removedEvents.push(eventId);
+  },
+  addUpdatedEventId(state, eventId) {
+    state.updatedEvents.push(eventId);
+  },
+  resetUpdatedEventId(state) {
+    state.removedEvents = [];
+    state.updatedEvents = [];
+  },
   setBackend(state, backend) {
-    if (backend !== state.backend) {
-      state.auth = {};
-    }
     const backendServers = [
       {'url': 'https://api-prod.mindlogger.org/api/v1', 'env': 'production'},
       {'url': 'https://api-staging.mindlogger.org/api/v1', 'env': 'development'},
