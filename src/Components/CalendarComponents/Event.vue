@@ -24,7 +24,7 @@
           :items="activityNames"
           placeholder="Select Activity"
           dense
-          filled
+          outlined
         />
       </slot>
 
@@ -60,7 +60,7 @@
             <v-btn
               class="ds-button-tall"
               color="primary"
-              @click.stop="remove"
+              @click.stop="remove(calendarEvent.event.id)"
               depressed
               >Remove</v-btn
             >
@@ -78,6 +78,8 @@
           <my-schedule
             @onTimeout="handleTimeout"
             @onIdleTime="handleIdleTime"
+            @onCompletion="handleCompletion"
+            :completion="completion"
             :timeout="timeout"
             :idle-time="idleTime"
             :schedule="schedule"
@@ -358,6 +360,7 @@ export default {
     tab: "details",
     schedule: new Schedule(),
     details: vm.$dayspan.getDefaultEventDetails(),
+    oneTimeCompletion: false,
     scheduledTimeout: {},
     scheduledIdleTime: {},
   }),
@@ -365,6 +368,9 @@ export default {
   computed: {
     title() {
       return this.details.title;
+    },
+    completion() {
+      return this.details.completion || false;
     },
     timeout() {
       return (
@@ -398,6 +404,7 @@ export default {
         schedule: this.schedule,
         details: this.details,
         timeout: this.details.timeout,
+        completion: this.details.completion,
         idleTime: this.details.idleTime,
         busyOptions: this.busyOptions,
         day: this.day,
@@ -507,7 +514,7 @@ export default {
   },
 
   methods: {
-    async remove() {
+    async remove(eventId) {
       const res = await this.$dialog.warning({
         title: "",
         color: "#1976d2",
@@ -521,7 +528,7 @@ export default {
           },
         },
       });
-      if (res) {
+      if(res === 'Yes') {
         let ev = this.getEvent("save");
         this.$emit("remove", ev);
 
@@ -576,7 +583,8 @@ export default {
                 index += 1;
                 return ev;
               });
-              state.events = events;
+              state.events = events; 
+              this.$store.commit("addRemovedEventId", eventId)
             }
           }
           this.$store.commit("setSchedule", state);
@@ -593,6 +601,10 @@ export default {
 
     handleIdleTime(scheduledIdleTime) {
       this.scheduledIdleTime = scheduledIdleTime;
+    },
+
+    handleCompletion(oneTimeCompletion) {
+      this.oneTimeCompletion = oneTimeCompletion;
     },
 
     save() {
@@ -660,6 +672,12 @@ export default {
 
     getEvent(type, extra = {}) {
       const evDetails = this.details;
+
+      if(this.oneTimeCompletion) {
+        evDetails.completion = true;
+      } else {
+        evDetails.completion = false;
+      }
 
       if (!this.scheduledTimeout.hasOwnProperty("allow")) {
         this.scheduledTimeout = this.timeout;
@@ -802,15 +820,5 @@ export default {
   .v-input {
     margin-bottom: -26px;
   }
-}
-</style>
-
-<style lang="scss">
-.v-input__slot:before {
-  content: none !important;
-}
-
-.v-input__slot:after {
-  content: none !important;
 }
 </style>

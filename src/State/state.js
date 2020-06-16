@@ -11,10 +11,12 @@ import api from "../Components/Utils/api/api.vue";
 const getDefaultState = () => {
   console.log(process.env)
   return {
-    backend: process.env.VUE_APP_SERVER_URL,
+    backend: 'https://api-staging.mindlogger.org/api/v1',
     allApplets: [],
     cachedEvents: [],
     currentApplet: {},
+    removedEvents: [],
+    updatedEvents: [],
     auth: {},
     continue: {},
     currentUsers: [],
@@ -29,11 +31,24 @@ const mutations = {
   resetState(state) {
     Object.assign(state, getDefaultState());
   },
+  addRemovedEventId(state, eventId) {
+    state.removedEvents.push(eventId);
+  },
+  addUpdatedEventId(state, eventId) {
+    state.updatedEvents.push(eventId);
+  },
+  resetUpdatedEventId(state) {
+    state.removedEvents = [];
+    state.updatedEvents = [];
+  },
   setBackend(state, backend) {
-    if (backend !== state.backend) {
-      state.auth = {};
-    }
-
+    const backendServers = [
+      {'url': 'https://api-prod.mindlogger.org/api/v1', 'env': 'production'},
+      {'url': 'https://api-staging.mindlogger.org/api/v1', 'env': 'development'},
+      {'url': 'https://api-test.mindlogger.org/api/v1', 'env': 'staging'},
+      {'url': 'http://localhost:8080/api/v1', 'env': 'local'},
+      {'url': process.env.CUSTOM_URL || '', 'env': 'other'}
+    ]
     state.backend = backend ||
       _.find(backendServers, {'env': process.env.NODE_ENV}).url ||
       backendServers[0].url;
