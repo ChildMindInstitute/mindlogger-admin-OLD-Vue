@@ -93,13 +93,34 @@ const deleteUserFromRole = ({ apiHost, token, groupId, userId }) => {
   })
 };
 
+const postAppletInvitation = ({ apiHost, token, appletId, options }) => axios({
+  method: 'POST',
+  url: `${apiHost}/applet/${appletId}/invite`,
+  headers: {
+    'Girder-Token': token,
+  },
+  params : options,
+});
+
 const deleteApplet = ({ apiHost, token, appletId }) => axios({
   method: 'DELETE',
   url: `${apiHost}/applet/${appletId}`,
   headers: {
     'Girder-Token': token,
   },
-})
+});
+
+const createApplet = ({ apiHost, token, email, data }) => axios({
+  method: 'POST',
+  url: `${apiHost}/applet/fromJSON`,
+  headers: {
+    'Girder-Token': token,
+  },
+  params: {
+    email,
+  },
+  data,
+});
 
 const updateRegistration = ({ apiHost, token, groupId, open }) => axios({
   method: 'PUT',
@@ -107,7 +128,7 @@ const updateRegistration = ({ apiHost, token, groupId, open }) => axios({
   headers: {
     'Girder-Token': token,
   },
-})
+});
 
 const getAppletsForUser = ({ apiHost, token, user, role = null }) => axios({
   method: 'get',
@@ -136,7 +157,9 @@ export default {
   getGroupMemberships,
   deleteUserFromRole,
   getAppletUsers,
+  postAppletInvitation,
   deleteApplet,
+  createApplet,
   refreshApplet,
   updateRegistration,
   getAppletsForUser,

@@ -52,16 +52,7 @@ export default {
       return !_.isEmpty(this.$store.state.auth);
     },
     showEnvironment() {
-      if (process.env.NODE_ENV === 'staging') {
-        return '(Test)'
-      }
-      if (process.env.NODE_ENV === 'development') {
-        return '(Dev)'
-      }
-      if (process.env.NODE_ENV === 'local') {
-        return '(Local)'
-      }
-      return ''
+      return process.env.VUE_APP_TITLE_ENV
     }
   },
   methods: {

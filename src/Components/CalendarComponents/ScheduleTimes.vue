@@ -3,34 +3,29 @@
 
         <div class="ds-time-row">
 
-            <div class="ds-time-cell">
-
+            <div class="ds-time-allow"> </div>
+            <div>
                 <v-checkbox
                         ref="allDayCheckbox"
                         hide-details
-                        class="ma-2"
-                        :label="labels.all"
+                        label="All day"
                         :readonly="isReadOnly"
                         v-model="allDay"
                 ></v-checkbox>
-
-            </div>
-            <div class="ds-time-row" v-for="(time, index) in schedule.times" :key="index">
-
-                <div class="ds-time-cell"></div>
-
-                <schedule-time
-                        class="ds-time-cell double"
-                        :index="index"
-                        :show-add="isLastTime( index )"
-                        :show-remove="hasTimes"
-                        :value="schedule.times[ index ]"
-                        :key="index"
-                        :read-only="readOnly"
-                        @add="addTime"
-                        @remove="removeTime"
-                        @change="changeTime"
-                ></schedule-time>
+                <div v-for="(time, index) in schedule.times" :key="index">
+                    <schedule-time
+                            class="ds-time-cell double"
+                            :index="index"
+                            :show-add="isLastTime( index )"
+                            :show-remove="hasTimes"
+                            :value="schedule.times[ index ]"
+                            :key="index"
+                            :read-only="readOnly"
+                            @add="addTime"
+                            @remove="removeTime"
+                            @change="changeTime"
+                    ></schedule-time>
+                </div>
 
             </div>
 
@@ -176,16 +171,17 @@ export default {
 
 <style scoped lang="scss">
     .ds-schedule-times {
-        max-width: 388px;
         .ds-time-row {
             display: flex;
+            .ds-time-allow {
+                width: 34.8%;
+            }
             .ds-time-cell {
-                padding-right: 8px;
-                flex: 1 0 0px;
-                &.double {
-                    padding-right: 16px;
-                    flex: 2 0 0px;
-                }
+                // padding-right: 8px;
+                // flex: 1 0 0px;
+                padding-top: 15px;
+                padding-right: 16px;
+                flex: 2 0 0px;
             }
         }
     }

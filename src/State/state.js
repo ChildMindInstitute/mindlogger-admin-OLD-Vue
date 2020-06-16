@@ -9,6 +9,7 @@ import createPersistedState from "vuex-persistedstate";
 import api from "../Components/Utils/api/api.vue";
 
 const getDefaultState = () => {
+  console.log(process.env)
   return {
     backend: 'https://api-staging.mindlogger.org/api/v1',
     allApplets: [],
@@ -56,11 +57,6 @@ const mutations = {
 
     if (protocol) {
       state.currentApplet = protocol;
-      
-      // const savedApplet = state.cachedApplets[state.currentApplet.applet._id];
-      // if(savedApplet) {
-      //   state.currentApplet.applet = JSON.parse(savedApplet);
-      // }
     }
   },
   setAllApplets(state, protocols) {
@@ -158,6 +154,6 @@ export const storeConfig = {
 
 const store = new Store(storeConfig);
 
-store.commit('setBackend', null)
+// store.commit('setBackend', null)
 
 export default store;
