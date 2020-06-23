@@ -6,11 +6,13 @@
     "serve": "vue-cli-service serve --mode local",
     "build": "vue-cli-service build",
     "build-dev": "vue-cli-service build --mode development",
-    "build-test": "vue-cli-service build --mode staging",
+    "build-test": "vue-cli-service build --mode testing",
+    "build-staging": "vue-cli-service build --mode staging",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
     "dev-deploy": "aws s3 --profile mindlogger_aws sync ./dist/ s3://admin-dev.mindlogger.org --region us-east-1",
-    "test-deploy": "aws s3 --profile mindlogger_aws sync ./dist/ s3://admin-test.mindlogger.org --region us-east-1"
+    "test-deploy": "aws s3 --profile mindlogger_aws sync ./dist/ s3://admin-test.mindlogger.org --region us-east-1",
+    "staging-deploy": "aws s3 --profile mindlogger_aws sync ./dist/ s3://admin-staging.mindlogger.org --region us-east-1"
   },
   "dependencies": {
     "@ag-grid-community/all-modules": "^22.1.1",
