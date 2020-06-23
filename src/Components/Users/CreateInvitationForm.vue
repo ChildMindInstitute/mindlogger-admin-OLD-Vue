@@ -46,6 +46,7 @@
           </v-col>
 
           <v-col 
+            v-if="params.role === 'user'"
             cols="12" 
             sm="6" 
             md="4"

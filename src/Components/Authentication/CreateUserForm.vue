@@ -135,14 +135,14 @@ export default {
         }
       }).then((resp) => {
         const auth = {
-          'authToken': resp.data.authToken,
-          'user': {
-            '_id': resp.data._id,
-            'login': resp.data.login,
-            'displayName': resp.data.displayName
+          authToken: resp.data.authToken,
+          user: {
+            _id: resp.data._id,
+            login: resp.data.login,
+            displayName: resp.data.displayName
           }
         };
-        this.$store.commit('setAuth', {auth: auth, email: this.email});
+        this.$store.commit('setAuth', {auth, email: this.email});
         this.$router.push('/applets')
       }).catch((e) => {
         this.error = e.response.data.message;

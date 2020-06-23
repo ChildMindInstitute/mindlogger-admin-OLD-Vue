@@ -562,8 +562,7 @@ export default {
               });
               state.events = events;
             } else if (
-              oldStateEvents.length > newStateEvents.length &&
-              newStateEvents.length > 0
+              oldStateEvents.length > newStateEvents.length
             ) {
               let index = 0;
               const events = newStateEvents.map((event) => {
