@@ -106,7 +106,7 @@ export default {
         this.$store.commit('setAuth', {auth: resp.data, email: this.email});
         this.$router.push('/applets')
       }).catch((e) => {
-          this.error = e.response.data.message;
+        this.error = e.response.data.message;
       });
     },
     onCreateAccount() {
