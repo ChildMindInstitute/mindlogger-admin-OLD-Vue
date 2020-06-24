@@ -186,7 +186,7 @@ export default {
   createApplet,
   refreshApplet,
   updateRegistration,
-  getActivityData,
+  getActivityByUrl,
   getAppletsForUser,
   getUserResponses,
   getAppletInvitation
