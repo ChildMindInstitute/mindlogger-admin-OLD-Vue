@@ -140,18 +140,6 @@ const mutations = {
       state.ownerAccount = userData.auth.account;
     }
     state.userEmail = userData.email;
-
-    api
-      .getAccounts({
-        apiHost: state.backend,
-        token: state.auth.authToken.token,
-      })
-      .then((resp) => {
-        state.allAccounts = resp.data;
-      })
-      .catch((err) => {
-        console.warn(err);
-      });
   },
 
   setCachedEvents(state, events) {
