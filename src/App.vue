@@ -5,16 +5,12 @@
       color="primary"
       dark
     >
-      <v-toolbar-title>
-        MindLogger Admin {{ showEnvironment }}
-      </v-toolbar-title>
+      <v-toolbar-title>MindLogger Admin {{ showEnvironment }}</v-toolbar-title>
       <v-spacer />
       <v-menu
-        v-if="isLoggedIn && accounts.length"
-        :offset-y="true"
-        :nudge-width="150"
+        v-if="isLoggedIn"
         bottom
-        right
+        left
       >
         <template v-slot:activator="{ on }">
           <v-btn
@@ -24,31 +20,14 @@
             <v-icon>mdi-dots-vertical</v-icon>
           </v-btn>
         </template>
-        <v-card>
-          <v-list>
-            <v-list-item @click="logout">
-              <v-list-item-content>
-                <v-list-item-title>Logout</v-list-item-title>
-              </v-list-item-content>
 
-              <v-list-item-action>
-                <v-icon>mdi-logout</v-icon>
-              </v-list-item-action>
-            </v-list-item>
-          </v-list>
-
-          <v-divider />
-
-          <v-list>
-            <v-list-item 
-              v-for="(account, index) in accounts" 
-              :key="index" 
-              @click="switchAccount(account.accountId)"
-            >
-              <v-list-item-title>{{ account.accountName }}</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-card>
+        <v-list>
+          <v-list-item
+            @click="logout"
+          >
+            <v-list-item-title>Logout</v-list-item-title>
+          </v-list-item>
+        </v-list>
       </v-menu>
     </v-app-bar>
     <v-content>
@@ -63,7 +42,6 @@
 
 <script>
 import store from './State/state';
-import api from './Components/Utils/api/api.vue';
 import _ from 'lodash';
 
 export default {
@@ -75,12 +53,6 @@ export default {
     },
     showEnvironment() {
       return process.env.VUE_APP_TITLE_ENV
-    },
-    accountName() {
-      return this.$store.state.currentAccount ? this.$store.state.currentAccount.accountId : '';
-    },
-    accounts() {
-      return this.$store.state.allAccounts;
     }
   },
   methods: {
@@ -88,20 +60,6 @@ export default {
       this.$store.commit('resetState');
       this.$router.push('/login')
     },
-    
-    switchAccount(accountId) {
-      api.switchAccount({
-        apiHost: this.$store.state.backend,
-        token: this.$store.state.auth.authToken.token,
-        accountId
-      }).then((resp) => {
-        this.$store.commit('switchAccount', resp.data.account);
-        this.$router.push('/build');
-        this.$router.push('/applets');
-      }).catch((err) => {
-        console.warn(err);
-      })
-    }
   },
 }
 </script>
