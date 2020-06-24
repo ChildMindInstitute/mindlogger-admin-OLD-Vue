@@ -44,6 +44,30 @@ const getSchedule = ({ apiHost, token, id }) => axios({
   },
 });
 
+const getActivityByUrl = ({ apiHost, token, url }) => axios({
+  method: 'get',
+  url: `${apiHost}/activity`,
+  headers: {
+    'Girder-Token': token,
+  },
+  params: {
+    url
+  },
+});
+
+const getUserResponses = ({ apiHost, token, appletId, userId, untilDate }) => axios({
+  method: 'get',
+  url: `${apiHost}/response/last7days/${appletId}`,
+  headers: {
+    'Girder-Token': token,
+  },
+  params: {
+    applet: appletId,
+    subject: userId,
+    referenceDate: untilDate,
+  },
+});
+
 const addNewApplet = ({ apiHost, token, protocolUrl, email }) => axios({
 method: 'POST',
   url: `${apiHost}/applet/`,
@@ -162,7 +186,9 @@ export default {
   createApplet,
   refreshApplet,
   updateRegistration,
+  getActivityData,
   getAppletsForUser,
+  getUserResponses,
   getAppletInvitation
 }
 </script>
