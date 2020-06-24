@@ -49,13 +49,21 @@ test('sets "allApplets" value when "setAllApplets" is committed', () => {
 
 test('sets "auth" value when "setAuth" is committed', () => { 
   const store = getLocalStore();
-  const sampleAuth = { 
+  const token = { 
     'token': 'xxx', 
+  };
+  const sampleAuth = {
+    'authToken': token,
+    'user': {
+      '_id': 'userId',
+      'login': 'userLogin',
+      'displayName': 'userName'
+    }
   };
   const userData = {
     'auth': sampleAuth,
     'email': 'email@email.com',
-  }
+  } 
   store.commit('setAuth', userData); 
   expect(store.state.auth).toBe(sampleAuth); 
 }); 
