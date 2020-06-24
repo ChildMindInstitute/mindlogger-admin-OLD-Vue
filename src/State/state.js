@@ -9,7 +9,6 @@ import createPersistedState from "vuex-persistedstate";
 import api from "../Components/Utils/api/api.vue";
 
 const getDefaultState = () => {
-  console.log(process.env)
   return {
     backend: process.env.VUE_APP_SERVER_URL,
     allApplets: [],
@@ -101,7 +100,7 @@ const mutations = {
     state.userEmail = userData.email;
   },
 
-  
+
   setCachedEvents(state, events) {
     if (events) {
       state.cachedEvents = events;
