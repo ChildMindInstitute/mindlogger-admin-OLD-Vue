@@ -44,44 +44,6 @@ const getSchedule = ({ apiHost, token, id }) => axios({
   },
 });
 
-const getAccounts = ({ apiHost, token }) => axios({
-  method: 'get',
-  url: `${apiHost}/user/accounts`,
-  headers: {
-    'Girder-Token': token,
-  },
-});
-
-const switchAccount = ({ apiHost, token, accountId }) => axios({
-  method: 'put',
-  url: `${apiHost}/user/switchAccount`,
-  headers: {
-    'Girder-Token': token,
-  },
-  params: {
-    accountId,
-  },
-});
-
-const setAccountName = ({ apiHost, token, accountName }) => axios({
-  method: 'put',
-  url: `${apiHost}/user/accountName`,
-  headers: {
-    'Girder-Token': token,
-  },
-  params: {
-    accountName,
-  },
-});
-
-const getApplet = ({ apiHost, token, id }) => axios({
-  method: 'get',
-  url: `${apiHost}/applet/${id}`,
-  headers: {
-    'Girder-Token': token,
-  },
-});
-
 const addNewApplet = ({ apiHost, token, protocolUrl, email }) => axios({
 method: 'POST',
   url: `${apiHost}/applet/`,
@@ -190,9 +152,6 @@ export default {
   signUp,
   setSchedule,
   getSchedule,
-  getAccounts,
-  switchAccount,
-  setAccountName,
   addNewApplet,
   resetPassword,
   getGroupMemberships,
@@ -202,7 +161,6 @@ export default {
   deleteApplet,
   createApplet,
   refreshApplet,
-  getApplet,
   updateRegistration,
   getAppletsForUser,
   getAppletInvitation

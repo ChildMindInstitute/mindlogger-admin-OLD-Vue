@@ -91,12 +91,6 @@ export default {
     error: '',
   }),
 
-  computed: {
-    apiHost() {
-      return this.$store.state.backend;
-    }
-  },
-
   methods: {
     login() {
       if (!this.$refs.form.validate()) {
@@ -110,24 +104,10 @@ export default {
         password: this.password
       }).then((resp) => {
         this.$store.commit('setAuth', {auth: resp.data, email: this.email});
-        this.setAccounts();
+        this.$router.push('/applets')
       }).catch((e) => {
-        this.error = e.response.data.message;
+          this.error = e.response.data.message;
       });
-    },
-    setAccounts() {
-      api
-        .getAccounts({
-          apiHost: this.apiHost,
-          token: this.$store.state.auth.authToken.token,
-        })
-        .then((resp) => {
-          this.$store.commit('setAccounts', resp.data);
-          this.$router.push('/applets');
-        })
-        .catch((err) => {
-          console.warn(err);
-        });
     },
     onCreateAccount() {
       this.$emit('createAccount', null);

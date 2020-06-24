@@ -62,30 +62,17 @@ export default {
   },
   data: () => ({
     sampleProtocols: config.protocols,
-    status: 'loading',
-    accountsLoadingStatus: 'loading',
     error: {},
+    status: 'loading',
     dialog: false,
     dialogText: '',
   }),
   computed: {
-    currentAccount() {
-      return this.$store.state.currentAccount.accountId;
-    },
     allApplets() {
       return this.$store.state.allApplets;
     },
     currentApplet() {
       return this.$store.state.currentApplet;
-    },
-    accountApplets() {
-      return this.$store.state.currentApplets;
-    },
-  },
-  watch: {
-    currentAccount(newAccount, oldAccount) {
-      this.status = 'error';
-      this.getApplets();   
     },
   },
   mounted() {
@@ -94,33 +81,19 @@ export default {
   methods: {
     getApplets() {
       this.status = 'loading';
-      const allApplets = [];
-
-      if (!this.accountApplets || !this.accountApplets.length) {
+      api.getAppletsForUser({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        user: this.$store.state.auth.user._id,
+        role: 'coordinator',
+      }).then((resp) => {
+        this.$store.commit('setAllApplets', resp.data);
         this.status = 'ready';
-        return;
-      }
-
-      for (let i = 0; i < this.accountApplets.length; i ++ ) {
-        api.getApplet({
-          apiHost: this.$store.state.backend,
-          token: this.$store.state.auth.authToken.token,
-          id: this.accountApplets[i],
-        }).then((resp) => {
-          allApplets.push(resp.data);
-          if (
-            i === this.accountApplets.length - 1 
-            && this.status !== 'error'
-          ) {
-            this.$store.commit('setAllApplets', allApplets);
-            this.status = 'ready';
-            this.$store.commit('updateAllApplets');
-          }
-        }).catch((e) => {
-          this.error = e;
-          this.status = 'error';
-        });
-      }
+        this.$store.commit('updateAllApplets');
+      }).catch((e) => {
+        this.error = e;
+        this.status = 'error';
+      });
     },
     onAppletUploadSuccessful() {
       this.dialogText = 'The applet is being created. Please check back in several mintutes to see it.';
