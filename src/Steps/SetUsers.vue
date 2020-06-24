@@ -47,6 +47,24 @@
       </template>
       <span>View schedule for the selected users</span>
     </v-tooltip>
+
+    <v-tooltip top>
+      <template v-slot:activator="{ on }">
+        <v-btn
+          color="primary"
+          fixed
+          bottom
+          right
+          fab
+          style="bottom: 70px; right: 110px;"
+          @click="viewDashboard"
+          v-on="on"
+        >
+          <v-icon>mdi-chart-line</v-icon>
+        </v-btn>
+      </template>
+      <span>View the applet dashboard for the selected users</span>
+    </v-tooltip>
   </div>
 </template>
 
@@ -143,6 +161,12 @@ export default {
           });
       }
     },
+
+    /**
+     * Fetches the listing of users for the current applet.
+     *
+     * @return {void}
+     */
     getAppletUsers() {
       api
         .getAppletUsers({
@@ -160,10 +184,29 @@ export default {
           this.status = "error";
         });
     },
+
+    /**
+     * Navigates to the applet schedule calendar.
+     *
+     * @return {void}
+     */
     viewCalendar() {
-      const appletId = this.$route.params.appletId;
+      const { appletId } = this.$route.params;
+
       this.$refs.userTableRef.getSelectedNodes();
       this.$router.push(`/applet/${appletId}/schedule`);
+    },
+
+    /**
+     * Navigates to the token dashboard page.
+     *
+     * @return {void}
+     */
+    viewDashboard() {
+      const { appletId } = this.$route.params;
+
+      this.$refs.userTableRef.getSelectedNodes();
+      this.$router.push(`/applet/${appletId}/dashboard`);
     },
   },
 };
