@@ -209,7 +209,7 @@ export default {
       this.$refs.userTableRef.getSelectedNodes();
       this.$router.push({
         path: `/applet/${appletId}/dashboard`,
-        params: { users: this.$store.state.currentUsers },
+        query: { users: this.$store.state.currentUsers },
       });
     },
   },
