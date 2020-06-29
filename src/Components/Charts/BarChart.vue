@@ -144,13 +144,24 @@ export default {
      */
     drawAxes() {
       const { data } = this.$options.propsData;
-      const valueExtent = [0, 12];
       const dateExtent = d3.extent(data, d => {
         d.date.setHours(0);
         d.date.setMinutes(0);
         d.date.setSeconds(0);
         return d.date;
       });
+
+      // Calculate the maximum and minimum value for this dataset.
+      const valueExtent = d3.extent(
+        data
+          .map(
+            item => Object
+                  .values(item)
+                  .filter(value => !(value instanceof Date))
+                  .reduce((sum, current) => sum + current, 0)
+          )
+          .concat([0]),
+      );
 
       // Scales.
       this.yScale = d3

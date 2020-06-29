@@ -233,9 +233,9 @@ export default {
             }
 
             if (behaviour in date) {
-              date[behaviour] += 1;
+              date[behaviour] += value;
             } else {
-              date[behaviour] = 1;
+              date[behaviour] = value;
             }
           })
         });
