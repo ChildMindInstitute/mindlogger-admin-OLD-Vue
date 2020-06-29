@@ -205,8 +205,12 @@ export default {
     viewDashboard() {
       const { appletId } = this.$route.params;
 
+      // Update the app state with the selected users.
       this.$refs.userTableRef.getSelectedNodes();
-      this.$router.push(`/applet/${appletId}/dashboard`);
+      this.$router.push({
+        path: `/applet/${appletId}/dashboard`,
+        params: { users: this.$store.state.currentUsers },
+      });
     },
   },
 };

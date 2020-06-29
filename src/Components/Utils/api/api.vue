@@ -57,7 +57,7 @@ const getActivityByUrl = ({ apiHost, token, url }) => axios({
 
 const getUserResponses = ({ apiHost, token, appletId, userId, untilDate }) => axios({
   method: 'get',
-  url: `${apiHost}/response/last7days/${appletId}`,
+  url: `${apiHost}/response/last7Days/${appletId}`,
   headers: {
     'Girder-Token': token,
   },

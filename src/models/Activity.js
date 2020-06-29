@@ -1,3 +1,6 @@
+import axios from 'axios';
+
+import store from '../State/state';
 import i18n from '../core/i18n';
 import ReproLib from '../schema/ReproLib';
 import SKOS from '../schema/SKOS';
@@ -27,11 +30,42 @@ export default class Activity {
    * @return {Array} available response choices.
    */
   static parseResponseOptions(responseOptions) {
-    const itemListElement = responseOptions['schema:itemListElement'];
+    const itemListElement = responseOptions[0]['schema:itemListElement'];
 
-    return itemListElement.map(choice => ({
+    return itemListElement.map((choice, index) => ({
       name: i18n.arrayToObject(choice['schema:name']),
-      value: choice['schema:value'][0]['@value']),
+      value: choice['schema:value'][0]['@value'],
+      color: [
+        '#D93C4F',
+        '#F46E48',
+        '#FDAF5C',
+        '#FDDF87',
+        '#E6F59A',
+        '#ABDEA3',
+        '#5FC3A9',
+        '#2B87C6',
+      ][index],
     }));
+  }
+
+  /**
+   * Fetches an activity from the backend by its URL.
+   *
+   * @param {string} url the url of the activity to be fetched.
+   * @return {Activity} the requested activity.
+   */
+  static async fetchByUrl(url) {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: `${store.state.backend}/activity`,
+        headers: { 'Girder-Token': store.state.auth.authToken.token },
+        params: { url },
+      });
+
+      return new Activity(response.data);
+    } catch(error) {
+      console.error(error);
+    }
   }
 }

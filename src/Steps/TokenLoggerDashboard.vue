@@ -1,30 +1,108 @@
 <template>
   <div class="wrapper">
-    <h1>Applet Dashboard</h1>
+    <v-row justify="space-between" align="center">
+      <!-- Breadcrumb navigation -->
+      <v-breadcrumbs
+        :items="breadcrumbs"
+        large
+      >
+        <template v-slot:divider>
+          <v-icon>mdi-chevron-right</v-icon>
+        </template>
+      </v-breadcrumbs>
 
-    <bar-chart
-      plot-id="token-chart"
-      :data="chartData"
-      :features="chartKeys"
-    />
+      <!-- Export button -->
+      <v-btn
+        rounded
+        dark
+        color="deep-purple accent-4"
+        class="export-btn"
+      >
+        <v-icon>import_export</v-icon>
+        EXPORT
+      </v-btn>
+    </v-row>
+
+    <h4 class="section-title">Highlight</h4>
+
+    <!-- Alert message -->
+    <v-card>
+      <v-card-text>
+        This is a message about an unusual activity. It could be either
+        negative or positive. Lorem ipsum dolor sit amet, consectetur
+        adipiscing elit, sed do eiusmod tempor incididun utabore et dolore
+        magna aliqua.
+      </v-card-text>
+    </v-card>
+
+    <h4 class="section-title">Activities</h4>
+
+    <v-card
+      class="chart-card"
+      v-for="chart in charts"
+    >
+      <h5>{{ chart.title }}</h5>
+
+      <bar-chart
+        v-if="status === 'ready'"
+        plot-id="token-chart"
+        :data="chart.data"
+        :features="chart.features"
+      />
+    </v-card>
   </div>
 </template>
 
-<style scoped>
+<style>
 .container {
   background: #EFEFF2;
   height: 100%;
   width: 100%;
 }
+
+.wrapper {
+  width: 90%;
+  max-width: 1024px;
+  margin: 2rem auto;
+}
+
+.v-breadcrumbs__item {
+  color: #8728FB !important;
+}
+
+.v-breadcrumbs__item--disabled {
+  color: #333 !important;
+}
+
+.export-btn {
+  font-size: 0.8rem !important;
+}
+
+.export-btn .material-icons {
+  font-size: 1rem !important;
+  margin-right: 0.2rem;
+}
+
 .loading {
   text-align: center;
+}
+
+.section-title {
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+}
+
+.chart-card {
+  padding: 1.5rem;
 }
 </style>
 
 <script>
 import _ from "lodash";
 import api from "../Components/Utils/api/api.vue";
+import Activity from '../models/Activity.js';
 import BarChart from "../Components/Charts/BarChart.vue";
+
 
 export default {
   name: "SetUsers",
@@ -40,17 +118,22 @@ export default {
    * Component state.
    */
   data: () => ({
-    status: "ready", // TODO: Change this to loading.
-    chartData: [],
-    chartKeys: [],
+    status: "loading",
+
+    charts: [],
+    responses: [],
   }),
 
   /**
    * Computed properties.
    */
   computed: {
-    isTokenDataLoaded() {
-      return this.$store.state.tokens.length > 0;
+    breadcrumbs() {
+      return [
+        { text: 'All', to: '/' },
+        { text: 'Applet', to: `/${this.currentApplet.applet._id}/users` },
+        { text: 'Dashboard', disabled: true },
+      ];
     },
     currentApplet() {
       return this.$store.state.currentApplet;
@@ -69,8 +152,8 @@ export default {
    *
    * @return {void}
    */
-  created() {
-    //this.getTokenData();
+  mounted() {
+    this.getUserResponses();
     //this.formatResponseData();
   },
 
@@ -83,21 +166,24 @@ export default {
      *
      * @return {void}
      */
-    getTokenData() {
-      api
-        .getUserResponses({
+    async getUserResponses() {
+      try {
+        const response = await api.getUserResponses({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
-          appletId: this.$route.params.appletId
-        })
-        .then(resp => {
-          this.status = "ready";
-          this.$store.commit("setAppletResponses", resp.data);
-        })
-        .catch(e => {
-          this.status = "error";
-          this.error = e;
+          appletId: this.$route.params.appletId,
+          userId: this.$store.state.currentUsers[0],
         });
+
+        this.responses = await this.formatResponseData(
+          response.data.responses
+        );
+        this.status = "ready";
+      } catch(error) {
+        this.status = "error";
+        this.error = error;
+        console.error(error);
+      }
     },
 
     /**
@@ -105,39 +191,57 @@ export default {
      *
      * @return {void}
      */
-    formatResponseData(responses) {
-      let behaviour;
+    async formatResponseData(activitiesData) {
+      let activity;
       let date;
+      let chart = {
+        title: '',
+        data: [],
+        features: {},
+      };
 
-      for (let key in responses) {
-        // Behaviour key without the URL.
-        behaviour = key.split('/').pop();
+
+      for (let activityUrl in activitiesData) {
+        activity = await Activity.fetchByUrl(activityUrl);
+        chart.title = activity.question['en'];
 
         // Create a list of all possible behaviours.
-        if (!this.chartKeys.includes(behaviour)) {
-          this.chartKeys.push(behaviour);
-        }
+        chart.features = activity.choices.reduce(
+          (obj, choice) => {
+            obj[choice.value] = {
+              name: choice.name['en'],
+              value: choice.value,
+              color: choice.color,
+            };
+            return obj;
+          },
+          {}
+        );
 
-        //
-        responses[key].forEach(item => {
-          if (typeof item.value !== 'number') return;
-          item.date = new Date(item.date);
+        activitiesData[activityUrl].forEach(response => {
+          response.value.forEach(value => {
+            const behaviour = chart.features[value].name;
+            response.date = new Date(response.date);
 
-          date = this.chartData.find(d => d.date.getTime() ===
-            item.date.getTime());
+            date = chart.data.find(d =>
+              d.date.getTime() === response.date.getTime()
+            );
 
-          if (!date) {
-            date = { date: item.date };
-            this.chartData.push(date);
-          }
+            if (!date) {
+              date = { date: response.date };
+              chart.data.push(date);
+            }
 
-          if (behaviour in date) {
-            date[behaviour] += item.value;
-          } else {
-            date[behaviour] = item.value;
-          }
+            if (behaviour in date) {
+              date[behaviour] += 1;
+            } else {
+              date[behaviour] = 1;
+            }
+          })
         });
       }
+
+      this.charts.push(chart);
     }
   },
 };

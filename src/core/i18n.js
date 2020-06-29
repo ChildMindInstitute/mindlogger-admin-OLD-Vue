@@ -1,7 +1,7 @@
 export default {
   /**
    * Converts the given i18n array to an object.
-   *
+e  *
    * This function expects the array to have the following format:
    *  [
    *    { "@language": "en", "@value": "Paid attention" },
@@ -18,11 +18,11 @@ export default {
    * @return {Object} the i18n object.
    */
   arrayToObject: (data) => data.reduce(
-    (current, translations) => {
+    (translations, current) => {
       translations[current['@language']] = current['@value']
 
       return translations;
-    }
+    },
     {},
   ),
 };
