@@ -1,24 +1,22 @@
 <template>
-  <v-card
-    class="appletCard"
+  <v-card 
+    class="appletCard" 
     :width="cardWidth"
   >
-    <v-layout
-      v-if="currentApplet"
-      class="selectedApplet"
-      align-center
-      justify-center
+    <v-layout 
+      v-if="currentApplet" 
+      class="selectedApplet" 
+      align-center 
+      justify-center 
       column
     >
-      <v-icon
-        size="72"
+      <v-icon 
+        size="72" 
         color="primary"
       >
         mdi-check
       </v-icon>
-      <v-card-title
-        primary-title
-      >
+      <v-card-title primary-title>
         <h3 class="headline mb-0">
           {{ appletPrefLabel }}
         </h3>
@@ -36,20 +34,20 @@
           {{ appletPrefLabel }}
         </h3>
       </v-card-title>
-      <v-card-text> {{ appletDescription }} </v-card-text>
+      <v-card-text>{{ appletDescription }}</v-card-text>
       <v-card-actions>
         <div class="container">
           <div>
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <v-btn
-                  text
-                  :disabled="status !== 'ready'"
-                  @click="refreshApplet"
+                <v-btn 
+                  text 
+                  :disabled="status !== 'ready'" 
+                  @click="refreshApplet" 
                   v-on="on"
                 >
                   <span v-if="status === 'ready'">Refresh</span>
-                  <span v-else> Refreshing.. </span>
+                  <span v-else>Refreshing..</span>
                 </v-btn>
               </template>
               <span>Refreshing applets will take several minutes</span>
@@ -58,9 +56,9 @@
           <div>
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <v-btn
-                  text
-                  @click="deleteApplet"
+                <v-btn 
+                  text 
+                  @click="deleteApplet" 
                   v-on="on"
                 >
                   Delete
@@ -72,27 +70,19 @@
           <div>
             <v-menu offset-x>
               <template v-slot:activator="{ on }">
-                <v-btn
-                  text
+                <v-btn 
+                  text 
                   v-on="on"
                 >
                   Select
                 </v-btn>
               </template>
               <v-list>
-                <v-list-item
-                  @click="onViewUsers"
-                >
-                  <v-list-item-title>
-                    View Users
-                  </v-list-item-title>
+                <v-list-item @click="onViewUsers">
+                  <v-list-item-title>View Users</v-list-item-title>
                 </v-list-item>
-                <v-list-item
-                  @click="onViewGeneralCalendar"
-                >
-                  <v-list-item-title>
-                    View General Calendar
-                  </v-list-item-title>
+                <v-list-item @click="onViewGeneralCalendar">
+                  <v-list-item-title>View General Calendar</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
@@ -104,76 +94,92 @@
 </template>
 
 <style scoped>
-  .appletCard {
-    margin: 12px;
-  }
-  .selectedApplet {
-    height: 100%;
-    align-content: center;
-  }
-  .container > div {
-    display: inline-block;
-    display: -moz-inline-box;
-    *display: inline;
-    zoom: 1;
-    width: 33%;
-    text-align: center;
-  }
+.appletCard {
+  margin: 12px;
+}
+.selectedApplet {
+  height: 100%;
+  align-content: center;
+}
+.container > div {
+  display: inline-block;
+  display: -moz-inline-box;
+  *display: inline;
+  zoom: 1;
+  width: 33%;
+  text-align: center;
+}
 </style>
 
 <script>
 export default {
-  name: 'AppletCard',
+  name: "AppletCard",
   props: {
     applet: {
       type: Object,
-      required: true,
-    },
+      required: true
+    }
   },
   data: () => ({
-    status: 'ready',
-    cardWidth: 300,
+    status: "ready",
+    cardWidth: 300
   }),
   computed: {
     currentApplet() {
       return this.applet == this.$store.state.currentApplet;
     },
     appletPrefLabel() {
-      if (typeof this.applet.applet["http://www.w3.org/2004/02/skos/core#prefLabel"] === 'string') {
-        return this.applet.applet["http://www.w3.org/2004/02/skos/core#prefLabel"]
-      } else if (typeof this.applet.applet["http://www.w3.org/2004/02/skos/core#prefLabel"] === 'object') {
-        return this.applet.applet["http://www.w3.org/2004/02/skos/core#prefLabel"][0]["@value"];
-      } else if (typeof this.applet.applet["skos:prefLabel"] === 'string') {
-        return this.applet.applet["skos:prefLabel"]
-      } else if (typeof this.applet.applet["skos:prefLabel"] === 'object') {
+      if (
+        typeof this.applet.applet[
+          "http://www.w3.org/2004/02/skos/core#prefLabel"
+        ] === "string"
+      ) {
+        return this.applet.applet[
+          "http://www.w3.org/2004/02/skos/core#prefLabel"
+        ];
+      } else if (
+        typeof this.applet.applet[
+          "http://www.w3.org/2004/02/skos/core#prefLabel"
+        ] === "object"
+      ) {
+        return this.applet.applet[
+          "http://www.w3.org/2004/02/skos/core#prefLabel"
+        ][0]["@value"];
+      } else if (typeof this.applet.applet["skos:prefLabel"] === "string") {
+        return this.applet.applet["skos:prefLabel"];
+      } else if (typeof this.applet.applet["skos:prefLabel"] === "object") {
         return this.applet.applet["skos:prefLabel"][0]["@value"];
       } else {
         return null;
       }
     },
     appletDescription() {
-      if (typeof this.applet.applet["schema:description"] === 'string') {
+      if (typeof this.applet.applet["schema:description"] === "string") {
         return this.applet.applet["schema:description"];
-      } else if (typeof this.applet.applet["schema:description"] === 'object') {
+      } else if (typeof this.applet.applet["schema:description"] === "object") {
         return this.applet.applet["schema:description"][0]["@value"];
-      } else if (typeof this.applet.applet["http://schema.org/description"] === 'string') {
+      } else if (
+        typeof this.applet.applet["http://schema.org/description"] === "string"
+      ) {
         return this.applet.applet["http://schema.org/description"];
-      } else if (typeof this.applet.applet["http://schema.org/description"] === 'object') {
+      } else if (
+        typeof this.applet.applet["http://schema.org/description"] === "object"
+      ) {
         return this.applet.applet["http://schema.org/description"][0]["@value"];
       } else {
         return null;
       }
-    },
+    }
   },
   methods: {
     refreshApplet() {
-      this.$emit('refreshApplet', this.applet);
+      this.$emit("refreshApplet", this.applet);
     },
     deleteApplet() {
-      this.$emit('deleteApplet', this.applet);
+      this.$emit("deleteApplet", this.applet);
     },
     setSelectedApplet() {
-      this.$store.commit('setCurrentApplet', this.applet);
+      this.$store.commit("setCurrentApplet", this.applet);
     },
     onViewUsers() {
       this.setSelectedApplet();
@@ -182,9 +188,11 @@ export default {
     },
     onViewGeneralCalendar() {
       this.setSelectedApplet();
+
       const appletId = this.applet.applet._id.split("applet/")[1];
+      this.$store.commit("setCurrentUsers", []);
       this.$router.push(`applet/${appletId}/schedule`);
-    },
+    }
   }
-}
+};
 </script>
