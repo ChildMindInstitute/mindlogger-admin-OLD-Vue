@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.65] = 2020-06-29
+### Changed
+- Fixed menu-bar to be refreshed once an account is selected
+
 ## [0.1.64] = 2020-06-27
 ### Changed
 - Fixed the cache issue for selected users
