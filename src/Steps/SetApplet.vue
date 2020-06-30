@@ -84,9 +84,11 @@ export default {
   },
   watch: {
     currentAccount(newAccount, oldAccount) {
-      this.status = 'error';
       this.getApplets();   
     },
+    accountApplets(newApplets, oldApplets) {
+      this.getApplets();
+    }
   },
   mounted() {
     this.getApplets();
