@@ -23,8 +23,6 @@
       </v-btn>
     </v-row>
 
-    <h4 class="section-title">Highlight</h4>
-
     <!-- Alert message -->
     <v-card>
       <v-card-text>
@@ -35,13 +33,25 @@
       </v-card-text>
     </v-card>
 
-    <h4 class="section-title">Activities</h4>
+    <v-card class="chart-card">
+      <header>
+        <h5>Overview</h5>
+      </header>
+
+      <overview-chart
+        v-if="status === 'ready'"
+        :data='overviewData'
+        :features='overviewFeatures'
+      />
+    </v-card>
 
     <v-card
       class="chart-card"
       v-for="chart in charts"
     >
-      <h5>{{ chart.title }}</h5>
+      <header>
+        <h5>{{ chart.title }}</h5>
+      </header>
 
       <bar-chart
         v-if="status === 'ready'"
@@ -74,6 +84,10 @@
   color: #333 !important;
 }
 
+.v-card {
+  margin-bottom: 1.5rem;
+}
+
 .export-btn {
   font-size: 0.8rem !important;
 }
@@ -87,11 +101,6 @@
   text-align: center;
 }
 
-.section-title {
-  margin-bottom: 1rem;
-  margin-top: 2rem;
-}
-
 .chart-card {
   padding: 1.5rem;
 }
@@ -102,16 +111,18 @@ import _ from "lodash";
 import api from "../Components/Utils/api/api.vue";
 import Activity from '../models/Activity.js';
 import BarChart from "../Components/Charts/BarChart.vue";
+import OverviewChart from "../Components/Charts/OverviewChart.vue";
 
 
 export default {
-  name: "SetUsers",
+  name: "TokenLoggerDashboard",
 
   /**
    * Components that this component depends on.
    */
   components: {
     BarChart,
+    OverviewChart,
   },
 
   /**
@@ -122,6 +133,8 @@ export default {
 
     charts: [],
     responses: [],
+    overviewData: [],
+    overviewFeatures: [],
   }),
 
   /**
@@ -172,11 +185,11 @@ export default {
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
           appletId: this.$route.params.appletId,
-          userId: this.$store.state.currentUsers[0],
+          users: this.$store.state.currentUsers,
         });
 
         this.responses = await this.formatResponseData(
-          response.data.responses
+          response.data
         );
         this.status = "ready";
       } catch(error) {
@@ -200,7 +213,6 @@ export default {
         features: {},
       };
 
-
       for (let activityUrl in activitiesData) {
         activity = await Activity.fetchByUrl(activityUrl);
         chart.title = activity.question['en'];
@@ -218,10 +230,20 @@ export default {
           {}
         );
 
+        this.overviewFeatures.push(activity.question['en']);
+
         activitiesData[activityUrl].forEach(response => {
+          response.date = new Date(response.date);
+
+          if (response.value.length > 0) {
+            this.overviewData.push({
+              activity: activity.question['en'],
+              date: response.date,
+            });
+          }
+
           response.value.forEach(value => {
             const behaviour = chart.features[value].name;
-            response.date = new Date(response.date);
 
             date = chart.data.find(d =>
               d.date.getTime() === response.date.getTime()
