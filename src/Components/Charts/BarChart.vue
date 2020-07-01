@@ -1,51 +1,43 @@
 <template>
-    <div class="BarChart">
-
-        <!--
-        :width="width + margin.left * 2 + margin.right + legendWidth"
-        :height="height + margin.top + margin.bottom"
-        -->
-      <svg
-        :id="plotId"
-        preserveAspectRatio="xMinYMin meet"
-        viewBox="0 0 950 400"
+  <div class="BarChart" ref="container" >
+    <svg :id="plotId" >
+      <g class="x-axis"/>
+      <g class="y-axis"/>
+      <g class="chart"/>
+      <g class="legend-container"/>
+      <g
+        class="tooltip"
+        style="display: none"
       >
-        <g class="x-axis"/>
-        <g class="y-axis"/>
-        <g class="chart"/>
-        <g
-          class="tooltip"
-          style="display: none"
+        <rect
+          width="70"
+          height="25"
+          fill="white"
+          stroke="#BBB"
+          stroke-width="0.5px"
+        />
+        <text
+          x="35"
+          dy="1.5em"
+          style="text-anchor: middle"
+          font-size="12px"
+          font-weight="bold"
         >
-          <rect
-            width="30"
-            height="20"
-            fill="white"
-            stroke="#BBB"
-            stroke-width="0.5px"
-          />
-          <text
-            x="15"
-            dy="1.2em"
-            style="text-anchor: middle"
-            font-size="12px"
-            font-weight="bold"
-          >
-          </text>
-        </g>
-      </svg>
-    </div>
+        </text>
+      </g>
+    </svg>
+  </div>
 </template>
 
 
 <style>
 .BarChart {
-    display: inline-block;
-    position: relative;
-    width: 100%;
-    height: fit-content;
-    vertical-align: top;
-    ove4flow: hidden;
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  height: 400px;
+  vertical-align: top;
+  overflow: hidden;
 }
 
 .BarChart > svg {
@@ -94,21 +86,30 @@ export default {
   },
 
   data: () => ({
-    width: 700,
-    height: 300,
     legendWidth: 150,
     margin: {
       top: 40,
-      right: 50,
+      right: 200,
       bottom: 50,
       left: 30,
     }
   }),
 
   computed: {
-    barWidth() {
-      return 40;
-    }
+    dateExtent() {
+      return d3.extent(this.data, d => {
+        d.date.setHours(0);
+        d.date.setMinutes(0);
+        d.date.setSeconds(0);
+        return d.date;
+      });
+    },
+    daysCount() {
+      const from =this.dateExtent[0].getTime();
+      const to =this.dateExtent[1].getTime();
+
+      return Math.ceil((to - from) / (1000 * 3600 * 24));
+    },
   },
 
   /**
@@ -118,12 +119,27 @@ export default {
    */
   mounted() {
     this.render();
+    window.addEventListener('resize', this.render.bind(this))
   },
 
   /**
    * Component methods.
    */
   methods: {
+    barWidth() {
+      return this.width / this.daysCount - 8 ;
+    },
+
+    resize() {
+      const dimensions = this.$refs.container.getBoundingClientRect();
+      this.width = dimensions.width - this.margin.left - this.margin.right;
+      this.height = dimensions.height - this.margin.top - this.margin.bottom;
+
+      // Set dimensions.
+      this.svg
+        .attr('width', dimensions.width)
+        .attr('height', dimensions.height);
+    },
     /**
      * Renders the histogram with the plotted data.
      *
@@ -132,6 +148,7 @@ export default {
     render() {
       this.svg = d3.select('#' + this.$options.propsData.plotId);
 
+      this.resize();
       this.drawAxes();
       this.drawLegend();
       this.plotStackedData();
@@ -144,12 +161,7 @@ export default {
      */
     drawAxes() {
       const { data } = this.$options.propsData;
-      const dateExtent = d3.extent(data, d => {
-        d.date.setHours(0);
-        d.date.setMinutes(0);
-        d.date.setSeconds(0);
-        return d.date;
-      });
+
 
       // Calculate the maximum and minimum value for this dataset.
       const valueExtent = d3.extent(
@@ -169,20 +181,24 @@ export default {
         .domain(valueExtent)
         .range([this.height, 0]);
       this.xScale = d3
-        .scaleUtc()
-        .domain(dateExtent)
+        .scaleTime()
         .nice()
+        .domain(this.dateExtent)
         .range([0, this.width]);
 
       // Axes.
       const xAxis = d3
         .axisBottom()
         .scale(this.xScale)
-        .ticks(7);
+        .ticks(this.daysCount)
+        .tickFormat(d => d.toLocaleDateString(
+          'default',
+          { day: 'numeric', month: 'short' },
+        ));
       const yAxis = d3
         .axisLeft()
         .scale(this.yScale)
-        .tickSize(-this.width);
+        .tickSize(-this.width - this.barWidth());
 
       this.svg
         // Append the y-axis.
@@ -199,7 +215,7 @@ export default {
         .attr(
           'transform',
           `translate(
-            ${this.margin.left + this.barWidth / 2},
+            ${this.margin.left  },
             ${this.margin.top + this.height + 10}
           )`
         )
@@ -207,7 +223,7 @@ export default {
         // Rotate the x-axis labels.
         .selectAll('text')
         .style('text-anchor', 'center')
-        .attr('transform', d => 'rotate(0)');
+        .attr('transform', d => `translate(${-this.barWidth()/4}, 10) rotate(-65)`);
 
         // Hide the x-axis line.
         this.svg
@@ -226,8 +242,12 @@ export default {
       const { features } = this.$options.propsData;
       const featureArray = Object.values(features);
 
+      svg
+        .selectAll('.legend')
+        .remove();
+
       const legend = svg
-        .selectAll('legend')
+        .selectAll('.legend')
         .data(featureArray)
         .enter()
         .append('g')
@@ -268,6 +288,11 @@ export default {
 
       svg
         .select('.chart')
+        .selectAll('.layer')
+        .remove()
+
+      svg
+        .select('.chart')
         // Create one layer per feature.
         .selectAll('.layer')
         .data(layers)
@@ -281,21 +306,23 @@ export default {
         .data(layer => layer)
         .join('rect')
         // Set the bar position and dimension.
-        .attr('x', sequence => xScale(sequence.data.date) + this.margin.left/2)
-        .attr('y', sequence => yScale(sequence[1]) + this.margin.top)
-        .attr('width', s => this.barWidth)
-        .attr('height', sequence =>
-          yScale(sequence[0]) - yScale(sequence[1])
-        )
+        .attr('x', d => xScale(d.data.date) + this.margin.left)
+        .attr('width', s => this.barWidth())
+        .attr('y', d => yScale(d[1]) + this.margin.top)
+        .attr('height', d => yScale(d[0]) - yScale(d[1]))
         // Tooltip
         .on('mouseover', () => tooltip.style('display', null))
         .on('mouseout', () => tooltip.style('display', 'none'))
         .on('mousemove', d => {
           const x = d3.mouse(d3.event.currentTarget)[0];
-          const y = d3.mouse(d3.event.currentTarget)[1] - 23;
+          const y = d3.mouse(d3.event.currentTarget)[1] - 30;
+          const date = d.data.date.toLocaleDateString(
+            'default',
+            { day: 'numeric', month: 'short' },
+          );
 
           tooltip.attr('transform', `translate(${x}, ${y})`);
-          tooltip.select('text').text(d[1]-d[0]);
+          tooltip.select('text').text(`${date}: ${d[1]-d[0]}`);
         });
     },
   },
