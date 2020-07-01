@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.66] = 2020-07-01
+### Changed
+- Fixed MRN field name ```mrn``` to ```MRN```
+
 ## [0.1.65] = 2020-06-29
 ### Changed
 - Fixed menu-bar to be refreshed once an account is selected
