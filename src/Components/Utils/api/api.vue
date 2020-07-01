@@ -55,17 +55,13 @@ const getActivityByUrl = ({ apiHost, token, url }) => axios({
   },
 });
 
-const getUserResponses = ({ apiHost, token, appletId, userId, untilDate }) => axios({
+const getUserResponses = ({ apiHost, token, appletId, users, untilDate }) => axios({
   method: 'get',
-  url: `${apiHost}/response/last7Days/${appletId}`,
+  url: `${apiHost}/response/${appletId}`,
   headers: {
     'Girder-Token': token,
   },
-  params: {
-    applet: appletId,
-    subject: userId,
-    referenceDate: untilDate,
-  },
+  params: { users: users + '' },
 });
 
 const addNewApplet = ({ apiHost, token, protocolUrl, email }) => axios({
