@@ -3,7 +3,7 @@
     <v-row justify="space-between" align="center">
       <!-- Breadcrumb navigation -->
       <v-breadcrumbs
-        :items="breadcrumbs"
+        :items="breadcrumbs()"
         large
       >
         <template v-slot:divider>
@@ -45,21 +45,28 @@
       />
     </v-card>
 
-    <v-card
-      class="chart-card"
-      v-for="chart in charts"
-    >
-      <header>
-        <h5>{{ chart.title }}</h5>
-      </header>
 
-      <bar-chart
-        v-if="status === 'ready'"
-        plot-id="token-chart"
-        :data="chart.data"
-        :features="chart.features"
-      />
-    </v-card>
+    <div
+      v-if="applet"
+      v-for="activity in applet.activities"
+    >
+      <h5>{{ activity.description.en || activity.question.en }}</h5>
+
+      <v-card
+        class="chart-card"
+        v-for="item in activity.items"
+      >
+        <header>
+          <h5>{{ item.label.en }}</h5>
+        </header>
+
+        <token-chart
+          plot-id="token-chart"
+          :data="item.chartData.data"
+          :features="item.chartData.features"
+        />
+      </v-card>
+    </div>
   </div>
 </template>
 
@@ -109,8 +116,10 @@
 <script>
 import _ from "lodash";
 import api from "../Components/Utils/api/api.vue";
-import Activity from '../models/Activity.js';
-import BarChart from "../Components/Charts/BarChart.vue";
+import Applet from '../models/Applet';
+import Activity from '../models/Activity';
+import Item from '../models/Item';
+import TokenChart from "../Components/Charts/TokenChart.vue";
 import OverviewChart from "../Components/Charts/OverviewChart.vue";
 
 
@@ -121,7 +130,7 @@ export default {
    * Components that this component depends on.
    */
   components: {
-    BarChart,
+    TokenChart,
     OverviewChart,
   },
 
@@ -130,7 +139,11 @@ export default {
    */
   data: () => ({
     status: "loading",
-
+    applet: {
+      _id: '',
+      label: { en: 'Applet' },
+      activities: [],
+    },
     charts: [],
     responses: [],
     overviewData: [],
@@ -141,13 +154,6 @@ export default {
    * Computed properties.
    */
   computed: {
-    breadcrumbs() {
-      return [
-        { text: 'All', to: '/' },
-        { text: 'Applet', to: `/${this.currentApplet.applet._id}/users` },
-        { text: 'Dashboard', disabled: true },
-      ];
-    },
     currentApplet() {
       return this.$store.state.currentApplet;
     },
@@ -166,7 +172,8 @@ export default {
    * @return {void}
    */
   mounted() {
-    this.getUserResponses();
+    this.fetchAppletData();
+    //this.getUserResponses();
     //this.formatResponseData();
   },
 
@@ -174,6 +181,151 @@ export default {
    * Component methods.
    */
   methods: {
+    breadcrumbs() {
+      const appletName = this.applet.label.en;
+      const appletId = this.applet._id;
+
+      return [
+        { text: 'All', to: '/' },
+        { text: appletName, to: `/${appletId}/users` },
+        { text: 'Dashboard', disabled: true },
+      ];
+    },
+
+    async fetchAppletData() {
+      this.applet = await Applet.fetchById(this.$route.params.appletId);
+
+      for (let activityName in this.applet.data.activities) {
+        const activity = new Activity(this.applet.data.activities[activityName]);
+
+        for (let i = 0, l = activity.order.length; i < l; i++) {
+          const item = new Item(this.applet.data.items[activity.order[i]]);
+
+          item.chartData = {
+            data: [
+              {
+                date: new Date(2020, 6, 2),
+                'Brushed teeth': 1,
+                'Used foul language': 0,
+                'Showed agression': -4,
+                'Paid attention': 1,
+                'Cleaned room': 0,
+              },
+              {
+                date: new Date(2020, 6, 3),
+                'Brushed teeth': 1,
+                'Used foul language': -2,
+                'Showed agression': -4,
+                'Paid attention': 0,
+                'Cleaned room': 3,
+              },
+              {
+                date: new Date(2020, 6, 4),
+                'Brushed teeth': 1,
+                'Used foul language': -2,
+                'Showed agression': 0,
+                'Paid attention': 2,
+                'Cleaned room': 0,
+              },
+              {
+                date: new Date(2020, 6, 5),
+                'Brushed teeth': 1,
+                'Used foul language': 0,
+                'Showed agression': 0,
+                'Paid attention': 2,
+                'Cleaned room': 0,
+              },
+              {
+                date: new Date(2020, 6, 6),
+                'Brushed teeth': 1,
+                'Used foul language': 0,
+                'Showed agression': 0,
+                'Paid attention': 2,
+                'Cleaned room': 0,
+              },
+              {
+                date: new Date(2020, 6, 7),
+                'Brushed teeth': 0,
+                'Used foul language': 0,
+                'Showed agression': 0,
+                'Paid attention': 0,
+                'Cleaned room': 0,
+              },
+              {
+                date: new Date(2020, 6, 8),
+                'Brushed teeth': 1,
+                'Used foul language': 0,
+                'Showed agression': -4,
+                'Paid attention': 2,
+                'Cleaned room': 0,
+              },
+              {
+                date: new Date(2020, 6, 9),
+                'Brushed teeth': 1,
+                'Used foul language': 0,
+                'Showed agression': 0,
+                'Paid attention': 2,
+                'Cleaned room': 3,
+              },
+            ],
+
+            //features: [
+            //  {
+            //    name: 'Paid attention',
+            //    value: 2,
+            //    color: '#4b7bec',
+            //  },
+            //  {
+            //    name: 'Cleaned room',
+            //    value: 3,
+            //    color: '#2B87C6',
+            //  },
+            //  {
+            //    name: 'Brushed teeth',
+            //    value: 1,
+            //    color: '#778ca3',
+            //  },
+            //  {
+            //    name: 'Used foul language' ,
+            //    value: -2,
+            //    color: '#E91E63',
+            //  },
+            //  {
+            //    name: 'Showed agression' ,
+            //    value: -4,
+            //    color: '#F44336',
+            //  }
+            //],
+
+            /*
+            // Map of possible behaviours.
+            features: item.responseOptions.reduce(
+              (obj, option) => {
+                obj[option.value] = {
+                  name: option.name['en'],
+                  value: option.value,
+                  color: option.color,
+                };
+                return obj;
+              }, {}
+            ),
+            */
+          };
+
+          // Generate random chart data data.
+
+
+
+          activity.items.push(item);
+        }
+
+        this.applet.activities.push(activity);
+        this.overviewFeatures.push(activity.question['en']);
+
+        //activity.fetchResponses();
+      }
+    },
+
     /**
      * Fetches the user response data for the current applet.
      *
@@ -207,28 +359,9 @@ export default {
     async formatResponseData(activitiesData) {
       let activity;
       let date;
-      let chart = {
-        title: '',
-        data: [],
-        features: {},
-      };
 
       for (let activityUrl in activitiesData) {
-        activity = await Activity.fetchByUrl(activityUrl);
         chart.title = activity.question['en'];
-
-        // Create a list of all possible behaviours.
-        chart.features = activity.choices.reduce(
-          (obj, choice) => {
-            obj[choice.value] = {
-              name: choice.name['en'],
-              value: choice.value,
-              color: choice.color,
-            };
-            return obj;
-          },
-          {}
-        );
 
         this.overviewFeatures.push(activity.question['en']);
 
@@ -243,7 +376,7 @@ export default {
           }
 
           response.value.forEach(value => {
-            const behaviour = chart.features[value].name;
+            const behavior = chart.features[value].name;
 
             date = chart.data.find(d =>
               d.date.getTime() === response.date.getTime()
@@ -254,11 +387,7 @@ export default {
               chart.data.push(date);
             }
 
-            if (behaviour in date) {
-              date[behaviour] += value;
-            } else {
-              date[behaviour] = value;
-            }
+            date[behavior] = value;
           })
         });
       }

@@ -8,6 +8,7 @@
     "build-dev": "vue-cli-service build --mode development",
     "build-test": "vue-cli-service build --mode testing",
     "build-staging": "vue-cli-service build --mode staging",
+    "build-report": "vue-cli-service build --report",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
     "dev-deploy": "aws s3 --profile mindlogger_aws sync ./dist/ s3://admin-dev.mindlogger.org --region us-east-1",

@@ -17,7 +17,7 @@ e  *
    * @param {Array} data the i18n array.
    * @return {Object} the i18n object.
    */
-  arrayToObject: (data) => data.reduce(
+  arrayToObject: (data = []) => data.reduce(
     (translations, current) => {
       translations[current['@language']] = current['@value']
 
