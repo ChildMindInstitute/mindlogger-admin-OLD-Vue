@@ -10,7 +10,7 @@
     <AllApplets
       v-else
       :applets="allApplets"
-      @refreshAppletList="getApplets"
+      @refreshAppletList="getAccountData"
       @appletUploadSuccessful="onAppletUploadSuccessful"
       @appletUploadError="onAppletUploadError"
     />
@@ -91,9 +91,21 @@ export default {
     }
   },
   mounted() {
-    this.getApplets();
+    this.getAccountData();
   },
   methods: {
+    getAccountData() {
+      const accountId = this.$store.state.currentAccount.accountId;
+      api.switchAccount({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        accountId
+      }).then((resp) => {
+        this.$store.commit('switchAccount', resp.data.account);
+      }).catch((err) => {
+        console.warn(err);
+      });
+    },
     getApplets() {
       this.status = 'loading';
       const allApplets = [];
@@ -103,26 +115,26 @@ export default {
         return;
       }
 
-      for (let i = 0; i < this.accountApplets.length; i ++ ) {
-        api.getApplet({
-          apiHost: this.$store.state.backend,
-          token: this.$store.state.auth.authToken.token,
-          id: this.accountApplets[i],
-        }).then((resp) => {
-          allApplets.push(resp.data);
-          if (
-            i === this.accountApplets.length - 1 
-            && this.status !== 'error'
-          ) {
-            this.$store.commit('setAllApplets', allApplets);
-            this.status = 'ready';
-            this.$store.commit('updateAllApplets');
-          }
-        }).catch((e) => {
-          this.error = e;
-          this.status = 'error';
-        });
-      }
+      const requests = this.accountApplets.map((applet) => {
+        return (
+          new Promise((resolve, reject) => { 
+            api.getApplet({
+              apiHost: this.$store.state.backend,
+              token: this.$store.state.auth.authToken.token,
+              id: applet,
+            })
+            .then((response) => {
+              resolve(response.data);
+            })
+          })
+        );
+      });
+      Promise.all(requests).then((responses) => {
+        this.$store.commit('setAllApplets', responses);
+        this.status = 'ready';
+      }).catch((e) => {
+        this.status = 'error';
+      });
     },
     onAppletUploadSuccessful() {
       this.dialogText = 'The applet is being created. Please check back in several mintutes to see it.';

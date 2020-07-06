@@ -11,7 +11,7 @@ import api from "../Components/Utils/api/api.vue";
 const getDefaultState = () => {
   console.log(process.env);
   return {
-    backend: process.env.VUE_APP_SERVER_URL,
+    backend: "https://api-dev.mindlogger.org/api/v1",
     currentAccount: {},
     currentApplets: [],
     ownerAccount: {},
@@ -82,20 +82,12 @@ const mutations = {
     }
   },
   setAllApplets(state, protocols) {
-    // Remove `activities` and `items` from each applet to save localStorage space
-    const protocolsWithoutItems = _.map(protocols, function(protocol) {
-      return {
-        ...protocol,
-        items: undefined,
-      };
-    });
-    state.allApplets = protocolsWithoutItems;
-  },
-  updateAllApplets(state) {
-    const applets = state.allApplets;
+    state.allApplets = protocols;
     const currentApplets = state.currentAccount.applets;
-    for (let i = 0; i < applets.length; i++) {
-      const appletId = applets[i].applet._id.split("applet/")[1];
+    const requests = [];
+
+    protocols.forEach((protocol, i) => {
+      const appletId = protocol.applet._id.split("applet/")[1];
       let access = false;
 
       Object.keys(currentApplets).forEach((key, index) => {
@@ -103,7 +95,9 @@ const mutations = {
           currentApplets[key].forEach((id, index) => {
             if (
               appletId === id &&
-              (key === "manager" || key === "owner" || key === "coordinator")
+              (key === "manager" ||
+                key === "owner" ||
+                key === "coordinator")
             ) {
               access = true;
             }
@@ -111,20 +105,22 @@ const mutations = {
         }
       });
       if (access) {
-        api
-          .getSchedule({
-            apiHost: state.backend,
-            token: state.auth.authToken.token,
-            id: appletId,
-          })
-          .then((res) => {
-            state.allApplets[i].applet.schedule = res.data;
-          })
-          .catch((err) => {
-            console.log("error", err);
-          });
+        requests.push(
+          api
+            .getSchedule({
+              apiHost: state.backend,
+              token: state.auth.authToken.token,
+              id: appletId,
+            })
+            .then((res) => {
+              state.allApplets[i].applet.schedule = res.data;
+            })
+            .catch((err) => {
+              console.log("error", err);
+            }));
       }
-    }
+    });
+    Promise.all(requests).then();
   },
 
   setApplet(state, applet) {
