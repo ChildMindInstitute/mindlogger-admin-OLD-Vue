@@ -129,37 +129,24 @@ export default {
     },
     createInvitation(invitationOptions) {
       this.status = "loading";
-      if(invitationOptions.email) {
-        api
-          .getAppletInvitation({
-            apiHost: this.$store.state.backend,
-            token: this.$store.state.auth.authToken.token,
-            appletId: this.currentApplet.applet._id.split("applet/")[1],
-            options: invitationOptions
-          })
-          .then(resp => {
-            this.getAppletUsers();
-          })
-          .catch(e => {
-            this.error = e;
-            this.status = "error";
-          });
-      } else {
-        api
-          .postAppletInvitation({
-            apiHost: this.$store.state.backend,
-            token: this.$store.state.auth.authToken.token,
-            appletId: this.currentApplet.applet._id.split("applet/")[1],
-            options: invitationOptions
-          })
-          .then(resp => {
-            this.getAppletUsers();
-          })
-          .catch(e => {
-            this.error = e;
-            this.status = "error";
-          });
-      }
+
+      api
+        .getAppletInvitation({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          appletId: this.currentApplet.applet._id.split("applet/")[1],
+          options: invitationOptions
+        })
+        .then(resp => {
+          if (invitationOptions.role !== "user") {
+            this.setAccountName(invitationOptions.accountName);
+          }
+          this.getAppletUsers();
+        })
+        .catch(e => {
+          this.error = e;
+          this.status = "error";
+        });
     },
 
     /**
@@ -183,6 +170,27 @@ export default {
           this.error = e;
           this.status = "error";
         });
+    },
+
+    /**
+     * Saves the given name for the account in the API.
+     *
+     * @param {string} accountName the name of the account.
+     * @return {void}
+     */
+    setAccountName(accountName) {
+      api
+        .setAccountName({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          accountName
+        })
+        .then(resp => {
+          console.log(resp);
+        })
+        .catch(err => {
+          console.warn(err);
+        })
     },
 
     /**

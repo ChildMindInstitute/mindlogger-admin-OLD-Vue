@@ -169,6 +169,7 @@ export default {
   mounted() {
     this.$refs.calendar.loadState();
     this.$refs.calendar.$refs.app.setDefaultType();
+    this.$refs.calendar.$refs.app.setToday();
   },
   methods: {
     saveSchedule() {

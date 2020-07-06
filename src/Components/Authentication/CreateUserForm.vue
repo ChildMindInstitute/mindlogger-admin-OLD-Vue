@@ -118,6 +118,12 @@ export default {
     error: '',
   }),
 
+  computed: {
+    apiHost() {
+      return this.$store.state.backend;
+    }
+  },
+
   methods: {
     createAccount() {
       if (!this.$refs.form.validate()) {
@@ -126,7 +132,7 @@ export default {
       this.error = '';
 
       api.signUp({
-        apiHost: this.$store.state.backend,
+        apiHost: this.apiHost,
         body: {
           email: this.email,
           firstName: this.firstName,
@@ -135,18 +141,32 @@ export default {
         }
       }).then((resp) => {
         const auth = {
-          'authToken': resp.data.authToken,
-          'user': {
-            '_id': resp.data._id,
-            'login': resp.data.login,
-            'displayName': resp.data.displayName
+          authToken: resp.data.authToken,
+          user: {
+            _id: resp.data._id,
+            login: resp.data.login,
+            displayName: resp.data.displayName
           }
         };
-        this.$store.commit('setAuth', {auth: auth, email: this.email});
-        this.$router.push('/applets')
+        this.$store.commit('setAuth', {auth, email: this.email});
+        this.setAccounts();
       }).catch((e) => {
         this.error = e.response.data.message;
       });
+    },
+    setAccounts() {
+      api
+        .getAccounts({
+          apiHost: this.apiHost,
+          token: this.$store.state.auth.authToken.token,
+        })
+        .then((resp) => {
+          this.$store.commit('setAccounts', resp.data);
+          this.$router.push('/applets');
+        })
+        .catch((err) => {
+          console.warn(err);
+        });
     },
     onLogin() {
       this.$emit('login', null)
