@@ -81,9 +81,13 @@ const mutations = {
       state.currentApplet = protocol;
     }
   },
-  setAllApplets(state, protocols) {
+  setAllApplets(state, protocols) { 
     state.allApplets = protocols;
+  },
+
+  updateAllApplets(state) {
     const currentApplets = state.currentAccount.applets;
+    const protocols = state.allApplets;
     const requests = [];
 
     protocols.forEach((protocol, i) => {
@@ -117,7 +121,8 @@ const mutations = {
             })
             .catch((err) => {
               console.log("error", err);
-            }));
+            })
+        );
       }
     });
     Promise.all(requests).then();

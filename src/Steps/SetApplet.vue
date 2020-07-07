@@ -131,6 +131,7 @@ export default {
       });
       Promise.all(requests).then((responses) => {
         this.$store.commit('setAllApplets', responses);
+        this.$store.commit('updateAllApplets');
         this.status = 'ready';
       }).catch((e) => {
         this.status = 'error';
