@@ -186,6 +186,9 @@ const mutations = {
   setReviewers(state, reviewers) {
     state.reviewers = reviewers;
   },
+  setAccountName(state, accountName) {
+    state.ownerAccount.accountName = accountName;
+  },
   continue(state, params) {
     state.continue[params.component] = params.continue;
   },

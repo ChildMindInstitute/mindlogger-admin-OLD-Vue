@@ -155,6 +155,7 @@ export default {
           accountName
         })
         .then(resp => {
+          this.$store.commit('setAccountName', accountName);
           console.log(resp);
         })
         .catch(err => {

@@ -141,7 +141,7 @@ export default {
   },
   computed: {
     currentAccountName() {
-      return this.$store.state.currentAccount.accountName;
+      return this.$store.state.ownerAccount.accountName;
     },
     username() {
       return this.$store.state.auth.user.displayName;
