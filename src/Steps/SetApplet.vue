@@ -96,6 +96,10 @@ export default {
   methods: {
     getAccountData() {
       const accountId = this.$store.state.currentAccount.accountId;
+      if (!accountId) {
+        this.status = 'ready';
+        return;
+      }
       api.switchAccount({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
@@ -111,6 +115,7 @@ export default {
       const allApplets = [];
 
       if (!this.accountApplets || !this.accountApplets.length) {
+        this.$store.commit('setAllApplets', []);
         this.status = 'ready';
         return;
       }
