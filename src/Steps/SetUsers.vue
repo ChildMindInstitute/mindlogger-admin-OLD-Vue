@@ -120,7 +120,7 @@ export default {
           options: invitationOptions
         })
         .then(resp => {
-          if (invitationOptions.role !== "user") {
+          if (invitationOptions.role !== "user" && invitationOptions.accountName) {
             this.setAccountName(invitationOptions.accountName);
           }
           this.getAppletUsers();
@@ -155,6 +155,7 @@ export default {
           accountName
         })
         .then(resp => {
+          this.$store.commit('setAccountName', accountName);
           console.log(resp);
         })
         .catch(err => {

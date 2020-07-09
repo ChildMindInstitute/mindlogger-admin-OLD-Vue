@@ -25,7 +25,7 @@
             </div>
 
             <template v-for="day in calendar.days">
-              <ds-day-times
+              <day-times
                 v-bind="{ $scopedSlots }"
                 v-on="$listeners"
                 :key="day.dayIdentifier"
@@ -33,7 +33,7 @@
                 :placeholder="placeholder"
                 :placeholder-for-create="placeholderForCreate"
                 :calendar="calendar"
-              ></ds-day-times>
+              ></day-times>
             </template>
           </div>
         </div>
@@ -44,10 +44,13 @@
 
 <script>
 import { Calendar, CalendarEvent, Constants } from "dayspan";
+import DayTimes from './DayTimes'
 
 export default {
   name: "dsDaysView",
-
+  components: {
+    DayTimes,
+  },
   props: {
     calendar: {
       required: true,

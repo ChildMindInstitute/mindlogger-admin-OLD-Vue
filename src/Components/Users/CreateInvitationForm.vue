@@ -79,6 +79,7 @@
             md="4"
           >
             <v-text-field
+              v-if="username === currentAccountName"
               v-model="params.accountName"
               label="AccountName"
               :rules="accountNameRules"
@@ -138,6 +139,15 @@ export default {
       }
     };
   },
+  computed: {
+    currentAccountName() {
+      return this.$store.state.ownerAccount.accountName;
+    },
+    username() {
+      return this.$store.state.auth.user.displayName;
+    }
+  },
+
   methods: {
     submit() {
       const invitationOptions = {

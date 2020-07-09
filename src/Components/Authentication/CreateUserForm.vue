@@ -141,13 +141,12 @@ export default {
         }
       }).then((resp) => {
         const auth = {
-          authToken: resp.data.authToken,
+          ...resp.data,
           user: {
-            _id: resp.data._id,
-            login: resp.data.login,
             displayName: resp.data.displayName
           }
         };
+
         this.$store.commit('setAuth', {auth, email: this.email});
         this.setAccounts();
       }).catch((e) => {
