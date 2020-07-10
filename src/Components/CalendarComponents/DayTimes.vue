@@ -102,9 +102,12 @@ export default {
           this.placeholder.event === calendarEvent.event) {
           return false
         }
+        if (!this.$store.state.currentUsers.length && !calendarEvent.event.data.users) {
+					return true;
+				}
         if (JSON.stringify(calendarEvent.event.data.users) !== JSON.stringify(this.$store.state.currentUsers)) {
 					return false
-				}
+        }
         return true
       },
       addAt (hour) {
