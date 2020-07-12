@@ -19,12 +19,6 @@
           />
         </div>
 
-        <v-checkbox
-          v-if="notification.start"
-          v-model="notification.notifyIfIncomplete"
-          :label="`only notify if activity hasn't been completed by ${notification.start}`"
-        />
-
         <v-checkbox v-model="notification.random" label="random notifications" />
 
         <label>randomize ends at</label>
@@ -68,8 +62,7 @@ export default {
       notificationItem: {
         start: null,
         end: null,
-        random: false,
-        notifyIfIncomplete: false
+        random: false
       }
     };
   },
