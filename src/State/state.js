@@ -92,23 +92,32 @@ const mutations = {
 
     protocols.forEach((protocol, i) => {
       const appletId = protocol.applet._id.split("applet/")[1];
-      let access = false;
+      let roleValue = 0;
 
       Object.keys(currentApplets).forEach((key, index) => {
         if (currentApplets[key] && currentApplets[key].length) {
           currentApplets[key].forEach((id, index) => {
             if (
               appletId === id &&
-              (key === "manager" ||
-                key === "owner" ||
-                key === "coordinator")
+              key !== "user"
             ) {
-              access = true;
+              state.allApplets[i].role = key;
+              roleValue ++;
             }
           });
         }
       });
-      if (access) {
+      if (roleValue === 4) {
+        state.allApplets[i].role = "manager";
+      } else if (roleValue === 5) {
+        state.allApplets[i].role = "owner";
+      }
+
+      if (
+        state.allApplets[i].role === "owner" ||
+        state.allApplets[i].role === "manager" ||
+        state.allApplets[i].role === "coordinator"
+      ) {
         requests.push(
           api
             .getSchedule({
