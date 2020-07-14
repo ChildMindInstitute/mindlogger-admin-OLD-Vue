@@ -112,6 +112,7 @@ export default {
     createInvitation(invitationOptions) {
       this.status = "loading";
 
+      console.log('+++>', invitationOptions);
       api
         .getAppletInvitation({
           apiHost: this.$store.state.backend,

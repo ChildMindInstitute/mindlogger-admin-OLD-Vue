@@ -34,6 +34,7 @@
           right
           fab
           style="bottom: 70px; right: 40px;"
+          :disabled="!isEditable"
           @click="dialog = true"
           v-on="on"
         >
@@ -116,6 +117,15 @@ export default {
     newProtocolURL: '',
   }),
   computed: {
+    isEditable() {
+      let isEditor = false;
+      this.applets.forEach((applet) => {
+        if (applet.role === 'owner' || applet.role === 'manager' || applet.role === 'editor') {
+          isEditor = true;
+        }
+      });
+      return isEditor;
+    },
     currentApplet() {
       return this.$store.state.currentApplet;
     },
