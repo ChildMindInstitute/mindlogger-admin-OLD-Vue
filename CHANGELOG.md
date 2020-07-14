@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Implemented user role permission
 
+## [0.1.71] = 2020-07-09
+### Changed
+- notifyIfIncomplete parameter was removed
+
 ## [0.1.70] = 2020-07-09
 ### Changed
 - Fixed individual issue on daily view
