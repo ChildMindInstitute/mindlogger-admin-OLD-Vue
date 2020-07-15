@@ -124,6 +124,9 @@ export default {
           isEditor = true;
         }
       });
+      if (this.applets.length === 0) {
+        isEditor = true;
+      }
       return isEditor;
     },
     currentApplet() {
