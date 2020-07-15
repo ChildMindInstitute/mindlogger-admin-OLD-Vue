@@ -169,6 +169,7 @@ export default {
   mounted() {
     this.$refs.calendar.loadState();
     this.$refs.calendar.$refs.app.setDefaultType();
+    this.$refs.calendar.$refs.app.setToday();
   },
   methods: {
     saveSchedule() {
@@ -185,7 +186,9 @@ export default {
         this.saveError = false;
         this.loading = true;
         const schedule = this.currentApplet.applet.schedule;
+        const removedEvents = this.$store.state.removedEvents;
         scheduleForm.set("schedule", JSON.stringify(schedule || {}));
+        scheduleForm.set("deleted", JSON.stringify(removedEvents || {}));
         api
           .setSchedule({
             apiHost: this.$store.state.backend,
@@ -197,8 +200,8 @@ export default {
             const applet = this.currentApplet.applet;
             applet.schedule = response.data.applet.schedule;
             this.$store.commit('setApplet', applet);
+            this.$store.commit('resetUpdatedEventId');
             this.$store.commit('setCachedEvents', response.data.applet.schedule.events);
-            // localStorage.setItem(this.currentApplet.applet._id, JSON.stringify(applet));
             this.loading = false;
             this.saveSuccess = true;
           })

@@ -19,7 +19,8 @@
 </style>
 
 <script>
-import {AgGridVue} from "@ag-grid-community/vue";
+import moment from 'moment';
+import {AgGridVue} from '@ag-grid-community/vue';
 import {AllCommunityModules} from '@ag-grid-community/all-modules';
 export default {
   name: 'PendingInviteTable',
@@ -38,15 +39,29 @@ export default {
     return {
       columnDefs: [
         {
-          headerName: 'ID',
-          field: 'id',
+          headerName: 'MRN',
+          field: 'mrn',
           sortable: true,
           filter: true,
           resizable: true,
         },
         {
-          headerName: 'Invited By',
-          field: 'invitedByName',
+          headerName: 'First Name',
+          field: 'firstName',
+          sortable: true,
+          filter: true,
+          resizable: true,
+        },
+        {
+          headerName: 'Last Name',
+          field: 'lastName',
+          sortable: true,
+          filter: true,
+          resizable: true,
+        },
+        {
+          headerName: 'User Type',
+          field: 'userType',
           sortable: true,
           filter: true,
           resizable: true,
@@ -54,6 +69,13 @@ export default {
         {
           headerName: 'Invitation Link',
           field: 'invitationLink',
+          sortable: true,
+          filter: true,
+          resizable: true,
+        },
+        {
+          headerName: 'Date & Time Invited',
+          field: 'dateTime',
           sortable: true,
           filter: true,
           resizable: true,
@@ -69,9 +91,12 @@ export default {
       const dat = [];
       this.users.forEach(invitation => {
         dat.push({
-          'id': invitation._id,
-          'invitedByName': invitation.displayName,
+          'mrn': invitation.MRN,
+          'firstName': invitation.firstName,
+          'lastName': invitation.lastName,
+          'userType': invitation.role,
           'invitationLink': `web.mindlogger.org/#/invitation/${invitation._id}`,
+          'dateTime': moment(invitation.created).format('YYYY-MM-DD hh:mm:ss'),
         });
       });
       return dat;
@@ -90,7 +115,7 @@ export default {
         allColumnIds.push(column.colId);
       });
 
-      this.gridOptions.columnApi.autoSizeColumns(allColumnIds, false);
+      this.gridOptions.columnApi.autoSizeColumns(allColumnIds, true);
     }
   },
 }

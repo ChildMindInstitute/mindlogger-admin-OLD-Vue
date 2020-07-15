@@ -1,29 +1,32 @@
 {
   "name": "mindlogger-admin",
-  "version": "0.1.56",
+  "version": "0.1.71",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --mode local",
     "build": "vue-cli-service build",
     "build-dev": "vue-cli-service build --mode development",
-    "build-test": "vue-cli-service build --mode staging",
+    "build-test": "vue-cli-service build --mode testing",
+    "build-staging": "vue-cli-service build --mode staging",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
     "dev-deploy": "aws s3 --profile mindlogger_aws sync ./dist/ s3://admin-dev.mindlogger.org --region us-east-1",
-    "test-deploy": "aws s3 --profile mindlogger_aws sync ./dist/ s3://admin-test.mindlogger.org --region us-east-1"
+    "test-deploy": "aws s3 --profile mindlogger_aws sync ./dist/ s3://admin-test.mindlogger.org --region us-east-1",
+    "staging-deploy": "aws s3 --profile mindlogger_aws sync ./dist/ s3://admin-staging.mindlogger.org --region us-east-1"
   },
   "dependencies": {
     "@ag-grid-community/all-modules": "^22.1.1",
     "@ag-grid-community/vue": "^22.1.2",
+    "applet-schema-builder": "^0.2.2",
     "axios": "^0.19.2",
     "babel-loader": "^7.1.5",
     "dayspan-vuetify-2": "^0.2.0",
     "lodash": "^4.17.15",
-    "protocol-builder": "0.1.20",
+    "protocol-builder": "^0.1.20",
     "vue": "2.6.10",
     "vue-property-decorator": "^8.4.0",
     "vue-router": "^3.1.6",
-    "vuetify": "^2.2.15",
+    "vuetify": "^2.2.31",
     "vuetify-dialog": "^2.0.2",
     "vuex": "^3.1.2",
     "vuex-persistedstate": "^2.7.1"

@@ -29,7 +29,7 @@ const resetPassword = ({apiHost, body}) => axios({
 
 const setSchedule = ({ apiHost, token, id, data }) => axios({
   method: 'put',
-  url: `${apiHost}/applet/${id}/schedule`,
+  url: `${apiHost}/applet/${id}/schedule?rewrite=false`,
   headers: {
     'Girder-Token': token,
   },
@@ -39,6 +39,44 @@ const setSchedule = ({ apiHost, token, id, data }) => axios({
 const getSchedule = ({ apiHost, token, id }) => axios({
   method: 'get',
   url: `${apiHost}/applet/${id}/schedule?getAllEvents=true`,
+  headers: {
+    'Girder-Token': token,
+  },
+});
+
+const getAccounts = ({ apiHost, token }) => axios({
+  method: 'get',
+  url: `${apiHost}/user/accounts`,
+  headers: {
+    'Girder-Token': token,
+  },
+});
+
+const switchAccount = ({ apiHost, token, accountId }) => axios({
+  method: 'put',
+  url: `${apiHost}/user/switchAccount`,
+  headers: {
+    'Girder-Token': token,
+  },
+  params: {
+    accountId,
+  },
+});
+
+const setAccountName = ({ apiHost, token, accountName }) => axios({
+  method: 'put',
+  url: `${apiHost}/user/accountName`,
+  headers: {
+    'Girder-Token': token,
+  },
+  params: {
+    accountName,
+  },
+});
+
+const getApplet = ({ apiHost, token, id }) => axios({
+  method: 'get',
+  url: `${apiHost}/applet/${id}`,
   headers: {
     'Girder-Token': token,
   },
@@ -93,13 +131,34 @@ const deleteUserFromRole = ({ apiHost, token, groupId, userId }) => {
   })
 };
 
+const postAppletInvitation = ({ apiHost, token, appletId, options }) => axios({
+  method: 'POST',
+  url: `${apiHost}/applet/${appletId}/invite`,
+  headers: {
+    'Girder-Token': token,
+  },
+  params : options,
+});
+
 const deleteApplet = ({ apiHost, token, appletId }) => axios({
   method: 'DELETE',
   url: `${apiHost}/applet/${appletId}`,
   headers: {
     'Girder-Token': token,
   },
-})
+});
+
+const createApplet = ({ apiHost, token, email, data }) => axios({
+  method: 'POST',
+  url: `${apiHost}/applet/fromJSON`,
+  headers: {
+    'Girder-Token': token,
+  },
+  params: {
+    email,
+  },
+  data,
+});
 
 const updateRegistration = ({ apiHost, token, groupId, open }) => axios({
   method: 'PUT',
@@ -107,7 +166,7 @@ const updateRegistration = ({ apiHost, token, groupId, open }) => axios({
   headers: {
     'Girder-Token': token,
   },
-})
+});
 
 const getAppletsForUser = ({ apiHost, token, user, role = null }) => axios({
   method: 'get',
@@ -131,13 +190,19 @@ export default {
   signUp,
   setSchedule,
   getSchedule,
+  getAccounts,
+  switchAccount,
+  setAccountName,
   addNewApplet,
   resetPassword,
   getGroupMemberships,
   deleteUserFromRole,
   getAppletUsers,
+  postAppletInvitation,
   deleteApplet,
+  createApplet,
   refreshApplet,
+  getApplet,
   updateRegistration,
   getAppletsForUser,
   getAppletInvitation

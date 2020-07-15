@@ -111,6 +111,7 @@ export default {
     },
     createInvitation(invitationOptions) {
       this.status = "loading";
+
       api
         .getAppletInvitation({
           apiHost: this.$store.state.backend,
@@ -119,6 +120,9 @@ export default {
           options: invitationOptions
         })
         .then(resp => {
+          if (invitationOptions.role !== "user" && invitationOptions.accountName) {
+            this.setAccountName(invitationOptions.accountName);
+          }
           this.getAppletUsers();
         })
         .catch(e => {
@@ -142,6 +146,21 @@ export default {
           this.error = e;
           this.status = "error";
         });
+    },
+    setAccountName(accountName) {
+      api
+        .setAccountName({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          accountName
+        })
+        .then(resp => {
+          this.$store.commit('setAccountName', accountName);
+          console.log(resp);
+        })
+        .catch(err => {
+          console.warn(err);
+        })
     },
     viewCalendar() {
       const appletId = this.$route.params.appletId;

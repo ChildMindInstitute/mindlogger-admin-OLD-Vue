@@ -1,0 +1,40 @@
+version: 2.1
+
+orbs:
+  aws-s3: circleci/aws-s3@1.0.15
+
+jobs:
+  serverInstall:
+    docker:
+      - image: circleci/node:latest
+    steps:
+      - checkout
+      - run: node --version
+      - run: npm install
+      - run: npm run test:unit
+
+  autoDeploy:
+    docker:
+      - image: circleci/node:latest
+    steps:
+      - checkout
+      - run: npm install
+      - run: npm run build
+      - aws-s3/sync:
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          aws-region: AWS_REGION
+          from: dist
+          to: 's3://admin-prod.mindlogger.org'
+          overwrite: true
+
+workflows:
+  test_all:
+    jobs:
+      - serverInstall
+      - autoDeploy:
+          requires:
+            - serverInstall
+          filters:
+            branches:
+              only: master

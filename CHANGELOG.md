@@ -4,7 +4,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.57] = 2020-05-26
+## [0.1.71] = 2020-07-09
+### Changed
+- notifyIfIncomplete parameter was removed
+
+## [0.1.70] = 2020-07-09
+### Changed
+- Fixed individual issue on daily view
+
+## [0.1.69] = 2020-07-08
+### Changed
+- Updated email validation in invitation form
+
+## [0.1.68] = 2020-07-06
+### Changed
+- Resolved reflected individual schedules
+
+## [0.1.67] = 2020-07-05
+### Changed
+- Fixed sync issues on Vuex store
+
+## [0.1.66] = 2020-07-01
+### Changed
+- Fixed MRN field name ```mrn``` to ```MRN```
+
+## [0.1.65] = 2020-06-29
+### Changed
+- Fixed menu-bar to be refreshed once an account is selected
+
+## [0.1.64] = 2020-06-27
+### Changed
+- Fixed the cache issue for selected users
+
+## [0.1.63] = 2020-06-23
+### Changed
+- Implemented account owner role
+- Rebuilt tests for account owner role
+
+## [0.1.62] = 2020-06-20
+### Changed
+- Updated calendar to be opened on the day it is
+
+## [0.1.61] = 2020-06-15
+### Changed
+- Fixed One-time completion and UI issues
+
+## [0.1.60] = 2020-06-03
+### Changed
+- Updated UI elements and theme on event-dialog
+
+## [0.1.59] = 2020-06-02
+### Changed
+- ```applet-schema-builer 0.2.0``` to ```applet-schema-builer 0.2.1```
+- Updated creating invitation form
+- Resolved backend server URL and Fixed #192
+- Implemented updates to reproschema
+
+## [0.1.58] = 2020-05-27
+### Changed
+- protocol-builder 0.1 -> applet-schema-builer 0.2
+- Updated pending invitations table with changed columns
+- Rebuilt applet JSON data structure to load and cach raw JSON reproschema
+
+## [0.1.57] = 2020-05-27
 ### Changed
 - Implement One-time completion on event card
 

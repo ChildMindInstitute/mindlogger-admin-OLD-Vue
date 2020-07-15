@@ -10,7 +10,7 @@
     <AllApplets
       v-else
       :applets="allApplets"
-      @refreshAppletList="getApplets"
+      @refreshAppletList="getAccountData"
       @appletUploadSuccessful="onAppletUploadSuccessful"
       @appletUploadError="onAppletUploadError"
     />
@@ -62,36 +62,83 @@ export default {
   },
   data: () => ({
     sampleProtocols: config.protocols,
-    error: {},
     status: 'loading',
+    accountsLoadingStatus: 'loading',
+    error: {},
     dialog: false,
     dialogText: '',
   }),
   computed: {
+    currentAccount() {
+      return this.$store.state.currentAccount.accountId;
+    },
     allApplets() {
       return this.$store.state.allApplets;
     },
     currentApplet() {
       return this.$store.state.currentApplet;
     },
+    accountApplets() {
+      return this.$store.state.currentApplets;
+    },
+  },
+  watch: {
+    currentAccount(newAccount, oldAccount) {
+      this.getApplets();   
+    },
+    accountApplets(newApplets, oldApplets) {
+      this.getApplets();
+    }
   },
   mounted() {
-    this.getApplets();
+    this.getAccountData();
   },
   methods: {
-    getApplets() {
-      this.status = 'loading';
-      api.getAppletsForUser({
+    getAccountData() {
+      const accountId = this.$store.state.currentAccount.accountId;
+      if (!accountId) {
+        this.status = 'ready';
+        return;
+      }
+      api.switchAccount({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
-        user: this.$store.state.auth.user._id,
-        role: 'coordinator',
+        accountId
       }).then((resp) => {
-        this.$store.commit('setAllApplets', resp.data);
+        this.$store.commit('switchAccount', resp.data.account);
+      }).catch((err) => {
+        console.warn(err);
+      });
+    },
+    getApplets() {
+      this.status = 'loading';
+      const allApplets = [];
+
+      if (!this.accountApplets || !this.accountApplets.length) {
+        this.$store.commit('setAllApplets', []);
         this.status = 'ready';
+        return;
+      }
+
+      const requests = this.accountApplets.map((applet) => {
+        return (
+          new Promise((resolve, reject) => { 
+            api.getApplet({
+              apiHost: this.$store.state.backend,
+              token: this.$store.state.auth.authToken.token,
+              id: applet,
+            })
+            .then((response) => {
+              resolve(response.data);
+            })
+          })
+        );
+      });
+      Promise.all(requests).then((responses) => {
+        this.$store.commit('setAllApplets', responses);
         this.$store.commit('updateAllApplets');
+        this.status = 'ready';
       }).catch((e) => {
-        this.error = e;
         this.status = 'error';
       });
     },

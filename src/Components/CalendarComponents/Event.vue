@@ -1,12 +1,12 @@
 <template>
-  <div class="ds-event" :class="classes">
-    <div class="ds-event-header ds-event-area">
+  <v-card class="elevation-12 ds-event" :class="classes">
+    <v-toolbar color="primary" dark flat>
       <div v-if="hasCancel" class="ds-event-cancel">
         <!-- Cancel -->
-        <slot name="scheduleCancel" v-bind="{cancel, labels}">
+        <slot name="scheduleCancel" v-bind="{ cancel, labels }">
           <v-tooltip bottom color="secondary">
             <template v-slot:activator="{ on }">
-              <v-btn v-on="on" icon class="ds-button" @click="cancel">
+              <v-btn v-on="on" icon @click="cancel">
                 <v-icon dark>mdi-close</v-icon>
               </v-btn>
             </template>
@@ -15,12 +15,25 @@
         </slot>
       </div>
 
+      <slot
+        name="scheduleTitle"
+        v-bind="{ schedule, schedule, calendarEvent, details }"
+      >
+        <v-select
+          v-model="details.title"
+          :items="activityNames"
+          placeholder="Select Activity"
+          dense
+          outlined
+        />
+      </slot>
+
       <div class="ds-event-actions">
         <!-- Save -->
-        <slot name="scheduleSave" v-bind="{hasSave, save, labels, readOnly}">
+        <slot name="scheduleSave" v-bind="{ hasSave, save, labels, readOnly }">
           <v-btn
             v-if="!isReadOnly"
-            class="ds-button-tall ml-3 mt-0 mb-2"
+            class="ds-button-tall"
             depressed
             color="primary"
             :disabled="!canSave"
@@ -33,11 +46,11 @@
         <!-- More Actions -->
         <slot
           name="scheduleActions"
-          v-bind="{calendarEvent, schedule, calendar, actioned, readOnly}"
+          v-bind="{ calendarEvent, schedule, calendar, actioned, readOnly }"
         >
           <schedule-actions
             v-if="calendarEvent && !isReadOnly"
-            v-bind="{$scopedSlots}"
+            v-bind="{ $scopedSlots }"
             v-on="$listeners"
             :schedule="schedule"
             :calendar-event="calendarEvent"
@@ -45,145 +58,163 @@
             @finish="actioned"
           >
             <v-btn
-              class="ds-button-tall ml-1 mt-0 mb-2"
-              color="warning"
-              @click.stop="remove"
+              class="ds-button-tall"
+              color="primary"
+              @click.stop="remove(calendarEvent.event.id)"
               depressed
-            >Remove</v-btn>
+              >Remove</v-btn
+            >
           </schedule-actions>
         </slot>
       </div>
 
       <!-- Title -->
-      <slot name="scheduleTitle" v-bind="{schedule, schedule, calendarEvent, details}">
-        <v-select v-model="details.title" :items="activityNames" placeholder="Select Activity" />
-      </slot>
-    </div>
+    </v-toolbar>
 
-    <div class="ds-event-body ds-event-area">
-      <slot name="schedule" v-bind="slotData">
-        <!-- absolute scheduling options below -->
-        <my-schedule
-          @onTimeout="handleTimeout"
-          @onIdleTime="handleIdleTime"
-          @onCompletion="handleCompletion"
-          :completion="completion"
-          :timeout="timeout"
-          :idle-time="idleTime"
-          :schedule="schedule"
-          :day="day"
-          :read-only="readOnly"
-          :is-timeout-valid="isTimeoutValid"
-        />
-      </slot>
-    </div>
+    <v-card-text class="ds-event-details">
+      <div class="ds-event-body ds-event-area">
+        <slot name="schedule" v-bind="slotData">
+          <!-- absolute scheduling options below -->
+          <my-schedule
+            @onTimeout="handleTimeout"
+            @onIdleTime="handleIdleTime"
+            @onCompletion="handleCompletion"
+            :completion="completion"
+            :timeout="timeout"
+            :idle-time="idleTime"
+            :schedule="schedule"
+            :day="day"
+            :read-only="readOnly"
+            :is-timeout-valid="isTimeoutValid"
+          />
+        </slot>
+      </div>
 
-    <!-- Tabs -->
-    <v-layout v-if="hasTabs" row>
-      <v-flex xs12 class="mt-2">
-        <v-tabs v-model="tab" class="text--primary">
-          <v-tab v-if="hasDetails" href="#details">{{ labels.tabs.details }}</v-tab>
+      <!-- Tabs -->
+      <v-layout v-if="hasTabs">
+        <v-flex xs12 class="mt-2">
+          <v-tabs v-model="tab" class="text--primary">
+            <v-tab v-if="hasDetails" href="#details">
+              {{ labels.tabs.details }}
+            </v-tab>
 
-          <v-tab v-if="showForecast" href="#forecast">{{ labels.tabs.forecast }}</v-tab>
+            <v-tab v-if="showForecast" href="#forecast">
+              {{ labels.tabs.forecast }}
+            </v-tab>
 
-          <v-tab v-if="showExclusions" href="#exclusions">{{ labels.tabs.removed }}</v-tab>
+            <v-tab v-if="showExclusions" href="#exclusions">
+              {{ labels.tabs.removed }}
+            </v-tab>
 
-          <v-tab v-if="showInclusions" href="#inclusions">{{ labels.tabs.added }}</v-tab>
+            <v-tab v-if="showInclusions" href="#inclusions">
+              {{ labels.tabs.added }}
+            </v-tab>
 
-          <v-tab v-if="showCancels" href="#cancelled">{{ labels.tabs.cancelled }}</v-tab>
+            <v-tab v-if="showCancels" href="#cancelled">
+              {{ labels.tabs.cancelled }}
+            </v-tab>
 
-          <slot name="eventTabsExtra" v-bind="slotData" />
+            <slot name="eventTabsExtra" v-bind="slotData" />
 
-          <!-- Details -->
-          <v-tab-item v-if="hasDetails" value="details">
-            <v-card text>
-              <v-card-text>
-                {{ details }}
-                <br />
-                <br />
-                <!-- Max number of responses -->
-                <!-- max # of responses
-                <v-text-field
-                  v-model="details.maxResponses"
-                  single-line
-                  hide-details
-                  solo
-                  text
-                  type="number"
-                  :value="1"
-                /> -->
+            <!-- Details -->
+            <v-tab-item v-if="hasDetails" value="details">
+              <v-card text>
+                <v-card-text>
+                  {{ details }}
+                  <br />
+                  <br />
+                  <!-- Max number of responses -->
+                  <!-- max # of responses
+                  <v-text-field
+                    v-model="details.maxResponses"
+                    single-line
+                    hide-details
+                    solo
+                    text
+                    type="number"
+                    :value="1"
+                  />-->
 
-                <!-- Notifications -->
+                  <!-- Notifications -->
 
-                <Notification
-                  :details="details"
-                  @updatedNotification="(n) => {details.notifications = n}"
-                />
-              </v-card-text>
-            </v-card>
-          </v-tab-item>
-
-          <!-- Forecast -->
-          <v-tab-item v-if="showForecast" value="forecast" lazy>
-            <v-card text>
-              <v-card-text>
-                <slot name="eventForecast" v-bind="slotData">
-                  <schedule-forecast :schedule="schedule" :day="day" :read-only="readOnly" />
-                </slot>
-              </v-card-text>
-            </v-card>
-          </v-tab-item>
-
-          <!-- Exclusions -->
-          <v-tab-item v-if="showExclusions" value="exclusions" lazy>
-            <v-card text>
-              <v-card-text>
-                <slot name="eventExclusions" v-bind="slotData">
-                  <schedule-modifier
-                    :description="labels.exclusions"
-                    :modifier="schedule.exclude"
-                    :read-only="readOnly"
+                  <Notification
+                    :details="details"
+                    @updatedNotification="
+                      (n) => {
+                        details.notifications = n;
+                      }
+                    "
                   />
-                </slot>
-              </v-card-text>
-            </v-card>
-          </v-tab-item>
+                </v-card-text>
+              </v-card>
+            </v-tab-item>
 
-          <!-- Inclusions -->
-          <v-tab-item v-if="showInclusions" value="inclusions" lazy>
-            <v-card text>
-              <v-card-text>
-                <slot name="eventInclusions" v-bind="slotData">
-                  <schedule-modifier
-                    :description="labels.inclusions"
-                    :modifier="schedule.include"
-                    :read-only="readOnly"
-                  />
-                </slot>
-              </v-card-text>
-            </v-card>
-          </v-tab-item>
+            <!-- Forecast -->
+            <v-tab-item v-if="showForecast" value="forecast" lazy>
+              <v-card text>
+                <v-card-text>
+                  <slot name="eventForecast" v-bind="slotData">
+                    <schedule-forecast
+                      :schedule="schedule"
+                      :day="day"
+                      :read-only="readOnly"
+                    />
+                  </slot>
+                </v-card-text>
+              </v-card>
+            </v-tab-item>
 
-          <!-- Cancelled -->
-          <v-tab-item v-if="showCancels" value="cancelled" lazy>
-            <v-card text>
-              <v-card-text>
-                <slot name="eventCancels" v-bind="slotData">
-                  <schedule-modifier
-                    :description="labels.cancelled"
-                    :modifier="schedule.cancel"
-                    :read-only="readOnly"
-                  />
-                </slot>
-              </v-card-text>
-            </v-card>
-          </v-tab-item>
+            <!-- Exclusions -->
+            <v-tab-item v-if="showExclusions" value="exclusions" lazy>
+              <v-card text>
+                <v-card-text>
+                  <slot name="eventExclusions" v-bind="slotData">
+                    <schedule-modifier
+                      :description="labels.exclusions"
+                      :modifier="schedule.exclude"
+                      :read-only="readOnly"
+                    />
+                  </slot>
+                </v-card-text>
+              </v-card>
+            </v-tab-item>
 
-          <slot name="eventTabItemsExtra" v-bind="slotData" />
-        </v-tabs>
-      </v-flex>
-    </v-layout>
-  </div>
+            <!-- Inclusions -->
+            <v-tab-item v-if="showInclusions" value="inclusions" lazy>
+              <v-card text>
+                <v-card-text>
+                  <slot name="eventInclusions" v-bind="slotData">
+                    <schedule-modifier
+                      :description="labels.inclusions"
+                      :modifier="schedule.include"
+                      :read-only="readOnly"
+                    />
+                  </slot>
+                </v-card-text>
+              </v-card>
+            </v-tab-item>
+
+            <!-- Cancelled -->
+            <v-tab-item v-if="showCancels" value="cancelled" lazy>
+              <v-card text>
+                <v-card-text>
+                  <slot name="eventCancels" v-bind="slotData">
+                    <schedule-modifier
+                      :description="labels.cancelled"
+                      :modifier="schedule.cancel"
+                      :read-only="readOnly"
+                    />
+                  </slot>
+                </v-card-text>
+              </v-card>
+            </v-tab-item>
+
+            <slot name="eventTabItemsExtra" v-bind="slotData" />
+          </v-tabs>
+        </v-flex>
+      </v-layout>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script>
@@ -192,7 +223,7 @@ import {
   Calendar,
   CalendarEvent,
   Schedule,
-  Functions as fn
+  Functions as fn,
 } from "dayspan";
 import _ from "lodash";
 
@@ -210,39 +241,39 @@ export default {
     mySchedule,
     ScheduleForecast,
     ScheduleModifier,
-    ScheduleActions
+    ScheduleActions,
   },
 
   props: {
     activities: {
       type: Array,
-      required: true
+      required: true,
     },
     targetSchedule: {
       required: true,
-      type: Schedule
+      type: Schedule,
     },
 
     targetDetails: {
       type: Object,
-      required: true
+      required: true,
     },
 
     calendarEvent: {
-      type: CalendarEvent
+      type: CalendarEvent,
     },
 
     calendar: {
-      type: Calendar
+      type: Calendar,
     },
 
     day: {
-      type: Day
+      type: Day,
     },
 
     readOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     labels: {
@@ -251,81 +282,81 @@ export default {
       },
       default() {
         return this.$dsDefaults().labels;
-      }
+      },
     },
 
     hasTitle: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasTitle;
-      }
+      },
     },
 
     hasCancel: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasCancel;
-      }
+      },
     },
 
     hasSave: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasSave;
-      }
+      },
     },
 
     hasTabs: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasTabs;
-      }
+      },
     },
 
     hasDetails: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasDetails;
-      }
+      },
     },
 
     hasForecast: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasForecast;
-      }
+      },
     },
 
     hasExclusions: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasExclusions;
-      }
+      },
     },
 
     hasInclusions: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasInclusions;
-      }
+      },
     },
 
     hasCancelled: {
       type: Boolean,
       default() {
         return this.$dsDefaults().hasCancelled;
-      }
+      },
     },
 
     busyOptions: {
       type: Array,
       default() {
         return this.$dsDefaults().busyOptions;
-      }
-    }
+      },
+    },
   },
 
-  data: vm => ({
+  data: (vm) => ({
     tab: "details",
     schedule: new Schedule(),
     details: vm.$dayspan.getDefaultEventDetails(),
@@ -342,25 +373,29 @@ export default {
       return this.details.completion || false;
     },
     timeout() {
-      return this.details.timeout || {
-        day: 0,
-        hour: 12,
-        minute: 0,
-        access: false,
-        allow: false,
-      };
+      return (
+        this.details.timeout || {
+          day: 0,
+          hour: 12,
+          minute: 0,
+          access: false,
+          allow: false,
+        }
+      );
     },
     idleTime() {
-      return this.details.idleTime || {
-        minute: 1,
-        allow: false,
-      }
+      return (
+        this.details.idleTime || {
+          minute: 1,
+          allow: false,
+        }
+      );
     },
     currentApplet() {
       return this.$store.state.currentApplet;
     },
     activityNames() {
-      return _.map(this.activities, a => a.name);
+      return _.map(this.activities, (a) => a.name);
     },
     slotData() {
       return {
@@ -376,25 +411,28 @@ export default {
         calendar: this.calendar,
         calendarEvent: this.calendarEvent,
         labels: this.labels,
-        readOnly: this.readOnly
+        readOnly: this.readOnly,
       };
     },
 
     classes() {
       return {
         "ds-has-cancel": this.hasCancel,
-        "ds-event-small": this.$vuetify.breakpoint.smAndDown
+        "ds-event-small": this.$vuetify.breakpoint.smAndDown,
       };
     },
 
     isTimeoutValid() {
       if (!this.details.timeout.allow) {
         return true;
-      } if (this.details.timeout.day > 0) {
+      }
+      if (this.details.timeout.day > 0) {
         return true;
-      } if (this.details.timeout.hour > 0) {
+      }
+      if (this.details.timeout.hour > 0) {
         return true;
-      } if (this.details.timeout.minute > 0) {
+      }
+      if (this.details.timeout.minute > 0) {
         return true;
       }
       // If 'Allow timeout' is checked & every value is 0, form is invalid
@@ -456,41 +494,41 @@ export default {
 
     isReadOnly() {
       return this.readOnly || this.$dayspan.readOnly;
-    }
+    },
   },
 
   watch: {
     targetSchedule: {
       handler: "updateSchedule",
-      immediate: true
+      immediate: true,
     },
 
     targetDetails: {
       handler: "updateDetails",
-      immediate: true
+      immediate: true,
     },
     title() {
-      const res = _.filter(this.activities, a => a.name === this.title);
+      const res = _.filter(this.activities, (a) => a.name === this.title);
       this.details.URI = res[0].URI;
-    }
+    },
   },
 
   methods: {
-    async remove() {
+    async remove(eventId) {
       const res = await this.$dialog.warning({
-        title: '',
-        color: '#1976d2',
-        text: 'Are you sure you want to remove this event?',
+        title: "",
+        color: "#1976d2",
+        text: "Are you sure you want to remove this event?",
         persistent: false,
         actions: {
           No: "No",
           Yes: {
             color: "#1976d2",
             text: "Yes",
-          }
-        }
+          },
+        },
       });
-      if(res) {
+      if(res === 'Yes') {
         let ev = this.getEvent("save");
         this.$emit("remove", ev);
 
@@ -523,12 +561,14 @@ export default {
                 return ev;
               });
               state.events = events;
-            } else if(oldStateEvents.length > newStateEvents.length && newStateEvents.length > 0) {
+            } else if (
+              oldStateEvents.length > newStateEvents.length
+            ) {
               let index = 0;
               const events = newStateEvents.map((event) => {
                 const ev = event;
                 const newEvent = oldStateEvents[index];
-                if(!newEvent) {
+                if (!newEvent) {
                   return ev;
                 }
                 if (newEvent.id) {
@@ -543,6 +583,7 @@ export default {
                 return ev;
               });
               state.events = events; 
+              this.$store.commit("addRemovedEventId", eventId)
             }
           }
           this.$store.commit("setSchedule", state);
@@ -557,16 +598,16 @@ export default {
       this.scheduledTimeout = scheduledTimeout;
     },
 
-    handleCompletion(oneTimeCompletion) {
-      this.oneTimeCompletion = oneTimeCompletion;
-    },
-
     handleIdleTime(scheduledIdleTime) {
       this.scheduledIdleTime = scheduledIdleTime;
     },
 
+    handleCompletion(oneTimeCompletion) {
+      this.oneTimeCompletion = oneTimeCompletion;
+    },
+
     save() {
-      var ev = this.getEvent("save"); 
+      var ev = this.getEvent("save");
       this.$emit("save", ev);
 
       if (!ev.handled) {
@@ -589,7 +630,7 @@ export default {
           ev.created = this.$dayspan.createEvent(ev.details, ev.schedule);
           if (ev.calendar) {
             ev.calendar.addEvent(ev.created);
-            console.log('_________event_________', ev.calendar);
+            console.log("_________event_________", ev.calendar);
             ev.added = true;
           }
 
@@ -637,7 +678,7 @@ export default {
         evDetails.completion = false;
       }
 
-      if (!this.scheduledTimeout.hasOwnProperty('allow')) {
+      if (!this.scheduledTimeout.hasOwnProperty("allow")) {
         this.scheduledTimeout = this.timeout;
       }
       if (!this.scheduledTimeout.allow) {
@@ -648,7 +689,7 @@ export default {
             minute: 59 - this.schedule.lastTime.minute,
             access: this.scheduledTimeout.access,
             allow: this.scheduledTimeout.allow,
-          }
+          };
         } else {
           evDetails.timeout = {
             day: 0,
@@ -656,20 +697,20 @@ export default {
             minute: 59,
             access: this.scheduledTimeout.access,
             allow: this.scheduledTimeout.allow,
-          }
-        } 
+          };
+        }
       } else {
-          evDetails.timeout = this.scheduledTimeout;
+        evDetails.timeout = this.scheduledTimeout;
       }
 
-      if (!this.scheduledIdleTime.hasOwnProperty('allow')) {
+      if (!this.scheduledIdleTime.hasOwnProperty("allow")) {
         this.scheduledIdleTime = this.idleTime;
       }
       if (!this.scheduledIdleTime.allow) {
         evDetails.idleTime = {
           minute: 1,
-          allow: this.scheduledIdleTime.allow
-        }
+          allow: this.scheduledIdleTime.allow,
+        };
       } else {
         evDetails.idleTime = this.scheduledIdleTime;
       }
@@ -692,12 +733,12 @@ export default {
           create: true,
           added: false,
           $vm: this,
-          $element: this.$el
+          $element: this.$el,
         },
         extra
       );
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -748,11 +789,17 @@ export default {
     }
   }
 
+  .ds-event-details {
+    max-height: 580px;
+    overflow-y: auto;
+  }
+
   .ds-event-area {
     position: relative;
   }
 
   .ds-event-actions {
+    margin-left: 5px;
     float: right;
 
     > * {
@@ -765,12 +812,12 @@ export default {
   }
 
   .ds-event-cancel {
-    position: absolute;
-    left: -60px;
+    margin-left: -5px;
+    margin-right: 15px;
   }
 
   .v-input {
-    margin-bottom: 8px;
+    margin-bottom: -26px;
   }
 }
 </style>
