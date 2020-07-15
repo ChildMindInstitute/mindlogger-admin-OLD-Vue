@@ -211,3 +211,4 @@ export const storeConfig = {
 const store = new Store(storeConfig);
 
 export default store;
+
