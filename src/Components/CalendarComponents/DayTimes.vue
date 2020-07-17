@@ -3,7 +3,6 @@
     :class="classesDay"
     @mouseenter="mouseEnterDay"
     @mouseleave="mouseLeaveDay"
-    @mousemove.stop="mouseMove"
     @mousedown="mouseDown"
     @mouseup="mouseUp"
     @dragstart.prevent
@@ -121,12 +120,6 @@ export default {
       },
       mouseLeaveDay ($event) {
         this.$emit('mouse-leave-day', this.day)
-      },
-      mouseMove ($event) {
-        var time = this.getTimeAt($event, this.$dayspan.rounding.move)
-        var timeDrag = this.getTimeAt($event, this.$dayspan.rounding.add, true)
-        var ev = this.getEvent('mouse-move', $event, {time, timeDrag})
-        this.$emit('mouse-move', ev)
       },
       mouseDown ($event) {
         var time = this.getTimeAt($event, this.$dayspan.rounding.add)
