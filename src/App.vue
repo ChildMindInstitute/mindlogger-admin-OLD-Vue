@@ -10,7 +10,7 @@
       </v-toolbar-title>
       <v-spacer />
       <v-menu
-        v-if="isLoggedIn && accounts.length"
+        v-if="isLoggedIn"
         :offset-y="true"
         :nudge-width="150"
         bottom
@@ -40,6 +40,11 @@
           <v-divider />
 
           <v-list>
+            <v-list-item>
+              <v-list-item-title @click="switchAccount(ownerAccountId)">
+                {{ ownerAccountName }}
+              </v-list-item-title>
+            </v-list-item>
             <v-list-item 
               v-for="(account, index) in accounts" 
               :key="index" 
@@ -76,11 +81,20 @@ export default {
     showEnvironment() {
       return process.env.VUE_APP_TITLE_ENV
     },
-    accountName() {
-      return this.$store.state.currentAccount ? this.$store.state.currentAccount.accountId : '';
+    ownerAccountName() {
+      return this.$store.state.ownerAccount.accountName;
+    },
+    ownerAccountId() {
+      return this.$store.state.ownerAccount.accountId;
     },
     accounts() {
-      return this.$store.state.allAccounts;
+      const accounts = [];
+      this.$store.state.allAccounts.forEach(account => {
+        if (!account.owned) {
+          accounts.push(account);
+        }
+      });
+      return accounts;
     }
   },
   methods: {

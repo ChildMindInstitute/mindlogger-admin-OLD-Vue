@@ -9,7 +9,6 @@ import createPersistedState from "vuex-persistedstate";
 import api from "../Components/Utils/api/api.vue";
 
 const getDefaultState = () => {
-  console.log(process.env);
   return {
     backend: process.env.VUE_APP_SERVER_URL,
     currentAccount: {},
@@ -81,50 +80,60 @@ const mutations = {
       state.currentApplet = protocol;
     }
   },
-  setAllApplets(state, protocols) {
-    // Remove `activities` and `items` from each applet to save localStorage space
-    const protocolsWithoutItems = _.map(protocols, function(protocol) {
-      return {
-        ...protocol,
-        items: undefined,
-      };
-    });
-    state.allApplets = protocolsWithoutItems;
+  setAllApplets(state, protocols) { 
+    state.allApplets = protocols;
   },
+
   updateAllApplets(state) {
-    const applets = state.allApplets;
     const currentApplets = state.currentAccount.applets;
-    for (let i = 0; i < applets.length; i++) {
-      const appletId = applets[i].applet._id.split("applet/")[1];
-      let access = false;
+    const protocols = state.allApplets;
+    const requests = [];
+
+    protocols.forEach((protocol, i) => {
+      const appletId = protocol.applet._id.split("applet/")[1];
+      let roleValue = 0;
 
       Object.keys(currentApplets).forEach((key, index) => {
         if (currentApplets[key] && currentApplets[key].length) {
           currentApplets[key].forEach((id, index) => {
             if (
               appletId === id &&
-              (key === "manager" || key === "owner" || key === "coordinator")
+              key !== "user"
             ) {
-              access = true;
+              state.allApplets[i].role = key;
+              roleValue ++;
             }
           });
         }
       });
-      if (access) {
-        api
-          .getSchedule({
-            apiHost: state.backend,
-            token: state.auth.authToken.token,
-            id: appletId,
-          })
-          .then((res) => {
-            state.allApplets[i].applet.schedule = res.data;
-          })
-          .catch((err) => {
-            console.log("error", err);
-          });
+      if (roleValue === 4) {
+        state.allApplets[i].role = "manager";
+      } else if (roleValue === 5) {
+        state.allApplets[i].role = "owner";
       }
-    }
+
+      if (
+        state.allApplets[i].role === "owner" ||
+        state.allApplets[i].role === "manager" ||
+        state.allApplets[i].role === "coordinator"
+      ) {
+        requests.push(
+          api
+            .getSchedule({
+              apiHost: state.backend,
+              token: state.auth.authToken.token,
+              id: appletId,
+            })
+            .then((res) => {
+              state.allApplets[i].applet.schedule = res.data;
+            })
+            .catch((err) => {
+              console.log("error", err);
+            })
+        );
+      }
+    });
+    Promise.all(requests).then();
   },
 
   setApplet(state, applet) {
@@ -185,6 +194,9 @@ const mutations = {
   setReviewers(state, reviewers) {
     state.reviewers = reviewers;
   },
+  setAccountName(state, accountName) {
+    state.ownerAccount.accountName = accountName;
+  },
   continue(state, params) {
     state.continue[params.component] = params.continue;
   },
@@ -199,3 +211,4 @@ export const storeConfig = {
 const store = new Store(storeConfig);
 
 export default store;
+

@@ -8,6 +8,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Errors now log to sentry
 
+## [0.2.0] = 2020-07-13
+### Changed
+- Implemented user role permission
+
+## [0.1.71] = 2020-07-09
+### Changed
+- notifyIfIncomplete parameter was removed
+
+## [0.1.70] = 2020-07-09
+### Changed
+- Fixed individual issue on daily view
+
+## [0.1.69] = 2020-07-08
+### Changed
+- Updated email validation in invitation form
+
+## [0.1.68] = 2020-07-06
+### Changed
+- Resolved reflected individual schedules
+
+## [0.1.67] = 2020-07-05
+### Changed
+- Fixed sync issues on Vuex store
+
 ## [0.1.66] = 2020-07-01
 ### Changed
 - Fixed MRN field name ```mrn``` to ```MRN```
