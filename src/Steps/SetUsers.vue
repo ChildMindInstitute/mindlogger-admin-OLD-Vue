@@ -173,9 +173,9 @@ export default {
     },
 
     /**
-     * Saves the given name for the account in the API.
+     * Updates the account name in the API.
      *
-     * @param {string} accountName the name of the account.
+     * @param {string} accountName the new account name.
      * @return {void}
      */
     setAccountName(accountName) {
