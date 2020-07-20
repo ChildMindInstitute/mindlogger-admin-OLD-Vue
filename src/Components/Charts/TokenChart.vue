@@ -1,25 +1,43 @@
 <template>
   <div class="TokenChart" ref="container" >
     <svg :id="plotId" >
-      <g class="x-axis"/>
+      <defs>
+        <clipPath id="clip">
+          <rect
+            width="500"
+            height="300"
+          />
+        </clipPath>
+      </defs>
+
       <g class="y-axis"/>
-      <g class="chart"/>
+      <g class="x-axis"/>
+      <g
+        class="chart"
+        clip-path="url(#clip)"
+      />
+
+      <g class="context-y-axis"/>
+      <g class="context-x-axis"/>
+      <g
+        class="context-chart"
+        clip-path="url(#clip)"
+      />
+
       <g class="legend-container"/>
       <g
         class="tooltip"
         style="display: none"
       >
         <rect
-          width="80"
           height="25"
           fill="white"
           stroke="#BBB"
           stroke-width="0.5px"
         />
         <text
-          x="40"
+          dx="8px"
           dy="1.5em"
-          style="text-anchor: middle"
           font-size="12px"
           font-weight="bold"
         >
@@ -35,10 +53,14 @@
   display: inline-block;
   position: relative;
   width: 100%;
-  height: 400px;
+  height: 500px;
   vertical-align: top;
   margin: 2rem 1rem;
   margin-bottom: 0;
+}
+
+.TokenChart .chart {
+  overflow: hidden;
 }
 
 .TokenChart > svg {
@@ -46,28 +68,42 @@
   overflow: visible;
 }
 
-.TokenChart .y-axis .tick line {
-  stroke: #F3F3F3;
+.TokenChart > svg .selection {
+  fill: rgba(0,0,0, 0.1);
+  stroke: #DDD;
+  stroke-width: 2;
 }
 
+.TokenChart .y-axis .tick line {
+  stroke: #F5F5F5;
+}
+.TokenChart .context-y-axis .tick line {
+  stroke: #F5F5F5;
+}
+
+.TokenChart .context-y-axis .tick text,
 .TokenChart .y-axis .tick text {
-  transform: translate(-10px, 0) !important;
+  transform: translate(-6px, 0) !important;
   color: #AAA;
 }
 
+.TokenChart .context-x-axis .tick line,
 .TokenChart .x-axis .tick line {
   display: none;
 }
 
 
+.TokenChart .context-x-axis .domain,
+.TokenChart .context-y-axis .domain,
 .TokenChart .y-axis .domain,
 .TokenChart .x-axis .domain {
   stroke: transparent;
 }
 
+.TokenChart .context-x-axis .tick text,
 .TokenChart .x-axis .tick text {
-  transform: translate(0, 10px) !important;
   color: #555;
+  transform: translate(0, 10px) !important;
 }
 
 .TokenChart .tooltip {
@@ -79,6 +115,21 @@
 <script>
 import * as d3 from 'd3';
 
+
+const NOW = new Date();
+const TODAY = new Date(Date.UTC(
+  NOW.getFullYear(),
+  NOW.getMonth(),
+  NOW.getDate(),
+  23,
+  59,
+));
+const ONE_WEEK_AGO = new Date(TODAY);
+const ONE_MONTH_AGO = new Date(TODAY);
+
+ONE_WEEK_AGO.setDate(TODAY.getDate() - 6);
+ONE_MONTH_AGO.setMonth(TODAY.getMonth() - 1);
+
 /**
  * TokenChart component.
  */
@@ -89,6 +140,8 @@ export default {
    * Component properties.
    */
   props: {
+    maxValue: Number,
+    minValue: Number,
     plotId: String,
     data: Array,
     features: Array,
@@ -96,126 +149,27 @@ export default {
 
   data: () => ({
     legendWidth: 150,
-    margin: {
+    focusExtent: [ONE_WEEK_AGO, NOW],
+    divergingExtent: {
+      min: 0,
+      max: 0,
+    },
+    cummulativeExtent: {
+      min: 0,
+      max: 0,
+    },
+    focusMargin: {
       top: 40,
       right: 200,
-      bottom: 50,
+      bottom: 130,
       left: 30,
-    }
+    },
+
+    contextMargin: {
+      top: 330,
+      bottom: 0,
+    },
   }),
-
-  computed: {
-    dateExtent() {
-      return d3.extent(this.data.map(d => d.date));
-    },
-
-    valueExtent() {
-      let min = 0;
-      let max = 0;
-      let currentMin = 0;
-      let currentMax = 0;
-      let currentVal = 0;
-
-      this.data.forEach(d => {
-        currentMin = 0;
-        currentMax = 0;
-
-        this.features.forEach(f => {
-          currentVal =  d[f.name];
-
-          if (currentVal > 0) currentMax += currentVal;
-          if (currentVal < 0) currentMin += currentVal;
-        })
-
-        if (currentMin < min) min = currentMin;
-        if (currentMax > max) max = currentMax;
-      });
-
-      return [min - 2, max + 2];
-    },
-
-    maxCummulativeTokens() {
-      let dates = {};
-
-      this.data.forEach(d => {
-        const dateStr = d.date.toDateString();
-        let currentDate = dates[dateStr];
-
-        if (!currentDate) {
-          dates[dateStr] = currentDate = 0;
-        }
-
-        if (d.tokens > 0) {
-          dates[dateStr] += d.tokens;
-        }
-      });
-
-      return Math.max(...Object.values(dates));
-    },
-
-    minCummulativeTokens() {
-      let dates = {};
-
-      this.data.forEach(d => {
-        const dateStr = d.date.toDateString();
-        let currentDate = dates[dateStr];
-
-        if (!currentDate) {
-          dates[dateStr] = currentDate = 0;
-        }
-
-        if (d.tokens < 0) {
-          dates[dateStr] += d.tokens;
-        }
-      });
-
-      return Math.min(...Object.values(dates));
-    },
-
-    daysCount() {
-      const from = this.dateExtent[0].getTime();
-      const to = this.dateExtent[1].getTime();
-
-      return Math.ceil((to - from) / (1000 * 3600 * 24));
-    },
-
-    negatives() {
-      return this.features.filter(f => f.value < 0).map(f => f.name);
-    },
-
-    positives() {
-      return this.features.filter(f => f.value > 0).map(f => f.name);
-    },
-
-    colors() {
-      return new Map(this.features.map(f => [
-        f.name,
-        f.color,
-      ]));
-    },
-
-    signs() {
-      return new Map(this.features.map(f => [
-        f.name,
-        f.value >= 0 ? 1 : -1,
-      ]));
-    },
-
-    y() {
-      return d3
-        .scaleLinear()
-        .domain(this.valueExtent)
-        .range([this.height, 0]);
-    },
-
-    x() {
-      return d3
-        .scaleTime()
-        .nice()
-        .domain(this.dateExtent)
-        .range([0, this.width - this.margin.left]);
-    },
-  },
 
   /**
    * Method to be executed after the component has been mounted.
@@ -223,27 +177,124 @@ export default {
    * @return {void}
    */
   mounted() {
+    this.render = this.render.bind(this);
+
+    this.computeValueExtent();
     this.render();
-    window.addEventListener('resize', this.render.bind(this))
+    this.drawBrush();
+    window.addEventListener('resize', this.render);
+  },
+
+  destroyed() {
+    window.removeEventListener('resize', this.render);
   },
 
   /**
    * Component methods.
    */
   methods: {
-    barWidth() {
-      return Math.min(this.width / this.daysCount - 10, 50);
+    contextBarWidth() {
+      return this.width / 30 * 2/3;
+    },
+    focusBarWidth() {
+      const range = this.focusExtent;
+      const timeDelta = range[1].getTime() - range[0].getTime();
+      const numDays = Math.ceil(timeDelta / (24 * 60 * 60 * 1000));
+
+      return Math.min(this.width / numDays * 2/3, 50);
+    },
+
+    drawBrush() {
+      this.brush = d3
+        .brushX()
+        .extent([
+          [0, this.contextMargin.top - 5] ,
+          [this.width + this.focusBarWidth(), this.contextMargin.top +
+            this.contextHeight + 5],
+        ])
+        .on('end', () => {
+          const selection = d3.event.selection.map(this.contextX.invert);
+          this.focusExtent = [
+            d3.utcDay.ceil(selection[0]),
+            d3.utcDay.floor(selection[1]),
+          ];
+          this.drawAxes();
+          this.drawFocusChart();
+        });
+      this.svg
+        .append('g')
+        .call(this.brush)
+        .call(this.brush.move, [ONE_WEEK_AGO, TODAY].map(this.contextX))
+    },
+
+    computeValueExtent() {
+      let cummulative;
+      let positive;
+      let negative;
+      let dataPoint;
+      let feature;
+      let value;
+
+      for (let i = 0; i < this.data.length; i++) {
+        positive = 0;
+        negative = 0;
+        dataPoint = this.data[i];
+
+        for (let j = 0; j < this.features.length; j++) {
+          feature = this.features[j].name.en;
+          value = dataPoint[feature];
+
+          if (value === undefined) continue;
+
+          if (value < 0) {
+            negative += value;
+          } else {
+            positive += value;
+          }
+        }
+
+        if (positive > this.divergingExtent.max) {
+          this.divergingExtent.max = positive;
+        }
+
+        if (negative < this.divergingExtent.min) {
+          this.divergingExtent.min = negative;
+        }
+
+        if (dataPoint.cummulative < this.cummulativeExtent.min) {
+          this.cummulativeExtent.min = dataPoint.cummulative;
+        }
+        if (dataPoint.cummulative > this.cummulativeExtent.max) {
+          this.cummulativeExtent.max = dataPoint.cummulative;
+        }
+      };
     },
 
     resize() {
       const dimensions = this.$refs.container.getBoundingClientRect();
-      this.width = dimensions.width - this.margin.left - this.margin.right;
-      this.height = dimensions.height - this.margin.top - this.margin.bottom;
+      this.width = dimensions.width - this.focusMargin.left - this.focusMargin.right;
+      this.focusHeight = 450 - this.focusMargin.top - this.focusMargin.bottom;
+      this.contextHeight = 450 - this.contextMargin.top - this.contextMargin.bottom;
 
       // Set dimensions.
       this.svg
         .attr('width', dimensions.width)
         .attr('height', dimensions.height);
+
+      // Set clip path.
+      this.svg
+        .select("#clip rect")
+        .attr('width', this.width + this.focusBarWidth())
+        .attr('height', dimensions.height || 500);
+
+
+      if (this.brush) {
+        // Set brush area.
+        this.brush.extent([
+          [0, this.contextMargin.top] ,
+          [this.width + this.focusBarWidth(), this.contextMargin.top + this.contextHeight],
+        ]);
+      }
     },
     /**
      * Renders the histogram with the plotted data.
@@ -251,12 +302,13 @@ export default {
      * @return {void}
      */
     render() {
-      this.svg = d3.select('#' + this.$options.propsData.plotId);
+      this.svg = d3.select('#' + this.plotId);
 
       this.resize();
       this.drawAxes();
       this.drawLegend();
-      this.plotStackedData();
+      this.drawFocusChart();
+      this.drawContextChart();
     },
 
     /**
@@ -265,34 +317,107 @@ export default {
      * @return {void}
      */
     drawAxes() {
-      const { data } = this.$options.propsData;
-      const barWidth = this.barWidth();
+      const focusBarWidth = this.focusBarWidth();
+      const contextBarWidth = this.contextBarWidth();
+
+      // Scales.
+      this.y = d3
+        .scaleLinear()
+        .domain([this.divergingExtent.min, this.divergingExtent.max])
+        .range([this.focusHeight, 0]);
+      this.contextY = d3
+        .scaleLinear()
+        .domain([this.cummulativeExtent.min, this.cummulativeExtent.max])
+        .range([this.contextHeight, 0]);
+      this.x = d3
+        .scaleUtc()
+        .nice()
+        .domain(this.focusExtent)
+        .range([0, this.width]);
+      this.contextX = d3
+        .scaleUtc()
+        .nice()
+        .domain([ONE_MONTH_AGO, TODAY])
+        .range([0, this.width + focusBarWidth]);
 
       // Axes.
+      const range = this.focusExtent;
+      const timeDelta = range[1].getTime() - range[0].getTime();
+      const numDays = Math.ceil(timeDelta / (24 * 60 * 60 * 1000));
       const xAxis = d3
         .axisBottom()
         .scale(this.x)
-        .ticks(this.daysCount)
-        .tickSize(this.height)
+        .ticks(numDays)
+        .tickSize(this.focusHeight)
         .tickFormat(d => d.toLocaleDateString(
           'default',
           { day: 'numeric', month: 'short' },
         ));
-
-      // Append the x-axis.
-      this.svg
-        .select('.x-axis')
-        .attr('transform', `translate(${this.barWidth()/2}, 0)`)
-        .call(xAxis)
-
+      const contextXAxis = d3
+        .axisBottom()
+        .scale(this.contextX)
+        .ticks(15)
+        .tickSize(this.contextHeight)
+        .tickFormat(d => d.toLocaleDateString(
+          'default',
+          { day: 'numeric', month: 'numeric' },
+        ));
       const yAxis = d3
         .axisLeft()
         .scale(this.y)
-        .tickSize(-this.width - barWidth);
+        .tickSize(-this.width - focusBarWidth);
+      const contextYAxis = d3
+        .axisLeft()
+        .scale(this.contextY)
+        .tickSize(-this.width - focusBarWidth);
+
+      // Append the axes.
+      this.svg
+        .select('.x-axis')
+        .attr('transform', `translate(${focusBarWidth/2}, 0)`)
+        .call(xAxis);
 
       this.svg
         .select('.y-axis')
-        .call(yAxis);
+        .call(yAxis)
+
+      this.svg
+        .selectAll('.base-line')
+        .remove();
+
+      this.svg
+        .select('.x-axis')
+        .append('line')
+        .style('stroke', '#efefef')
+        .style('stroke-width', 3)
+        .attr('class', 'base-line')
+        .attr('x1', 0)
+        .attr('x2', this.width + focusBarWidth/2)
+        .attr('y1', this.y(0))
+        .attr('y2', this.y(0));
+
+      // Append the axes.
+      this.svg
+        .select('.context-x-axis')
+        .attr('transform', `translate(0, ${this.contextMargin.top})`)
+        .call(contextXAxis);
+      this.svg
+        .select('.context-y-axis')
+        .attr(
+          'transform',
+          `translate(0, ${this.contextMargin.top})`
+        )
+        .call(contextYAxis);
+      this.svg
+        .select('.context-x-axis')
+        .append('line')
+        .style('stroke', '#efefef')
+        .style('stroke-width', 2)
+        .attr('class', 'base-line')
+        .attr('x1', -contextBarWidth/2)
+        .attr('x2', this.width + focusBarWidth)
+        .attr('y1', this.contextY(0))
+        .attr('y2', this.contextY(0));
     },
 
     /**
@@ -302,16 +427,15 @@ export default {
      */
     drawLegend() {
       const { svg } = this;
-      const { features } = this.$options.propsData;
-      const featureArray = Object.values(features);
 
       svg
         .selectAll('.legend')
         .remove();
 
       const legend = svg
+        .select('.legend-container')
         .selectAll('.legend')
-        .data(featureArray)
+        .data(this.features)
         .enter()
         .append('g')
         .attr('class', 'legend')
@@ -320,8 +444,8 @@ export default {
       // Render the color square.
       legend
         .append('rect')
-        .attr('y', this.margin.top)
-        .attr('x', this.width + this.margin.left + 10)
+        .attr('y', this.focusMargin.top)
+        .attr('x', this.width + this.focusMargin.left + 10)
         .attr('width', 18)
         .attr('height', 18)
         .style('fill', f => f.color);
@@ -329,12 +453,12 @@ export default {
       // Render the legend text.
       legend
         .append('text')
-        .attr('x', this.width + this.margin.left + 40)
-        .attr('y', this.margin.top + 9)
+        .attr('x', this.width + this.focusMargin.left + 40)
+        .attr('y', this.focusMargin.top + 9)
         .attr('dy', '.35em')
         .attr('text-anchor', 'start')
         .attr('font-size', '12px')
-        .text(f => f.name);
+        .text(f => f.name.en);
     },
 
     /**
@@ -342,11 +466,11 @@ export default {
      *
      * @return {void}
      */
-    plotStackedData() {
+    drawFocusChart() {
       const { svg, x, y, data, features } = this;
-      const barWidth = this.barWidth();
+      const barWidth = this.focusBarWidth();
       const stack = d3.stack()
-        .keys(Object.values(features).map(f => f.name))
+        .keys(features.map(f => f.name.en))
         .offset(d3.stackOffsetDiverging);
       const layers = stack(data);
       const tooltip = svg.select('.tooltip');
@@ -358,31 +482,40 @@ export default {
 
       svg
         .select('.chart')
-        //.attr('transform', `translate(${this.margin.left}, ${this.margin.top})`)
         .selectAll('.layer')
         .data(layers)
         .join('g')
         .attr('class', 'layer')
         .attr('fill', layer => {
-          return Object.values(features).find(f => layer.key === f.name).color
+          return features.find(f => layer.key === f.name.en).color
         })
         .attr('opacity', '0.8')
 
         // Create the individual bars.
         .selectAll('rect')
-        .data(layer => layer)
+        .data(layer => {
+          layer.forEach(d => {
+            d.key = layer.key;
+            return d;
+          });
+
+          return layer;
+        })
         .join('rect')
 
         // Set the bar position and dimension.
         .attr('x', d => x(d.data.date))
         .attr('width', s => barWidth)
         .attr('y', d => y(d[1]))
-        .attr('height', d => y(d[0]) - y(d[1]))
+        .attr('height', d => {
+          return y(d[0]) - y(d[1]) || 0;
+        })
 
         // Tooltip
         .on('mouseover', () => tooltip.style('display', null))
         .on('mouseout', () => tooltip.style('display', 'none'))
-        .on('mousemove', d => {
+        .on('mousemove', function(d) {
+          const el = d3.select(this);
           const x = d3.mouse(d3.event.currentTarget)[0];
           const y = d3.mouse(d3.event.currentTarget)[1] - 30;
           const date = d.data.date.toLocaleDateString(
@@ -391,9 +524,42 @@ export default {
           );
 
           tooltip.attr('transform', `translate(${x}, ${y})`);
-          tooltip.select('text').text(`${date}: ${d[1]-d[0]}`);
+          const text = tooltip.select('text');
+          text.text(`${d.key}: ${d[1] - d[0]} `);
+
+          tooltip
+            .select('rect')
+            .attr('width', text.node().getBoundingClientRect().width + 16);
         });
     },
+
+    drawContextChart() {
+      const { svg, contextX, contextY, data} = this;
+      const barWidth = this.contextBarWidth();
+
+      svg
+        .select('.context-chart')
+        .selectAll('.bar')
+        .remove()
+
+      svg
+        .select('.context-chart')
+        .attr('transform', `translate(${-barWidth/2}, ${this.contextMargin.top})`)
+        .selectAll('.bar')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('title', d => d.date)
+        .attr('class', 'bar')
+        .attr('opacity', 0.75)
+        .attr('fill', d => '#AAA')
+
+        // Set the bar position and dimension.
+        .attr('x', d => contextX(d.date))
+        .attr('width', s => barWidth)
+        .attr('y', d => contextY(Math.max(0, d.cummulative)))
+        .attr('height', d => Math.abs(contextY(d.cummulative) - contextY(0)))
+    }
   },
 };
 

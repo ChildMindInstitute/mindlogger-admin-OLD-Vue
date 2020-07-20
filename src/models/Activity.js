@@ -23,44 +23,9 @@ export default class Activity {
     this.schemaVersion = i18n.arrayToObject(data['schema:schemaVersion']);
     this.url = data['schema:url'];
     this.items = [];
+    this.chartData = [];
   }
 
-  /**
-   * Given the JSON-LD object generates the list of available choices for this
-   * activity.
-   *
-   * @param {Object} responseOptions the json-ld object with the choice data.
-   * @return {Array} available response choices.
-   */
-  static parseResponseOptions(responseOptions) {
-    const itemListElement = responseOptions[0]['schema:itemListElement'];
-    const warmColors = [
-      '#E91E63',
-      '#F44336',
-      '#F46E48',
-      '#FDAF5C',
-      '#FDDF87',
-      '#9C27B0',
-      '#673AB7',
-    ];
-    const coldColors = [
-      '#778ca3',
-      '#2B87C6',
-      '#45aaf2',
-      '#4b7bec',
-      '#5FC3A9',
-      '#ABDEA3',
-      '#E6F59A',
-    ];
-
-    return itemListElement.map((choice, index) => ({
-      name: i18n.arrayToObject(choice['schema:name']),
-      value: choice['schema:value'][0]['@value'],
-      color: choice['schema:value'][0]['@value'] > 0
-        ? coldColors.shift()
-        : warmColors.shift(),
-    }));
-  }
 
   /**
    * Fetches an activity from the backend by its URL.
@@ -103,5 +68,11 @@ export default class Activity {
     } catch(error) {
       console.error(error);
     }
+  }
+
+  getTimeSeries() {
+    let dates = [];
+    let activity = [];
+    let currentDate;
   }
 }

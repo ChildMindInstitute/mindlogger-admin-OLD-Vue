@@ -132,6 +132,7 @@ const mutations = {
     }
   },
   setAuth(state, userData) {
+    console.log('setAuth', userData);
     state.auth = userData.auth;
     if (userData.auth.account) {
       state.currentAccount = userData.auth.account;

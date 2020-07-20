@@ -84,7 +84,7 @@ export default {
   },
   watch: {
     currentAccount(newAccount, oldAccount) {
-      this.getApplets();   
+      this.getApplets();
     },
     accountApplets(newApplets, oldApplets) {
       this.getApplets();
@@ -111,7 +111,7 @@ export default {
         }).then((resp) => {
           allApplets.push(resp.data);
           if (
-            i === this.accountApplets.length - 1 
+            i === this.accountApplets.length - 1
             && this.status !== 'error'
           ) {
             this.$store.commit('setAllApplets', allApplets);

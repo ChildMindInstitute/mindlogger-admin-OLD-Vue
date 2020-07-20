@@ -22,6 +22,16 @@ export default class Item {
     this.version = i18n.arrayToObject(data['schema:version']);
     this.schemaVersion = i18n.arrayToObject(data['schema:schemaVersion']);
     this.responseOptions = Item.parseResponseOptions(data[ReproLib.responseOptions]);
+    this.responses = [];
+    this.maxValue = 'schema:maxValue' in data[ReproLib.responseOptions][0]
+      ? data[ReproLib.responseOptions][0]['schema:maxValue'][0]['@value']
+      : 0;
+    this.minValue = 'schema:minValue' in data[ReproLib.responseOptions][0]
+      ? data[ReproLib.responseOptions][0]['schema:minValue'][0]['@value']
+      : 0;
+    this.chart = {
+      data: [],
+    };
   }
 
   /**
@@ -34,22 +44,18 @@ export default class Item {
   static parseResponseOptions(responseOptions) {
     const itemListElement = responseOptions[0]['schema:itemListElement'];
     const warmColors = [
-      '#E91E63',
-      '#F44336',
-      '#F46E48',
-      '#FDAF5C',
-      '#FDDF87',
-      '#9C27B0',
-      '#673AB7',
+      '#FDBB93',
+      '#E65751',
+      '#ED7465',
+      '#B83A49',
+      '#6A0A3D',
     ];
     const coldColors = [
-      '#45aaf2',
-      '#5FC3A9',
-      '#ABDEA3',
-      '#E6F59A',
-      '#4b7bec',
-      '#2B87C6',
-      '#778ca3',
+      '#419DC5',
+      '#70C3D0',
+      '#BEE0CC',
+      '#223B89',
+      '#316BA7',
     ];
 
     return itemListElement.map((choice, index) => ({
@@ -59,5 +65,33 @@ export default class Item {
         ? coldColors.shift()
         : warmColors.shift(),
     }));
+  }
+
+  getChoiceByValue(value) {
+    return this.responseOptions.find(choice => choice.value === value);
+  }
+
+  setResponses(responses) {
+      this.responses = responses.map(response => response.value.reduce(
+        (obj, value) => {
+          const choice =  this.getChoiceByValue(value);
+
+          return {
+            ...obj,
+            cummulative: obj.cummulative + value,
+            positive: value > 0 ? obj.positive + value : obj.positive,
+            negative: value < 0 ? obj.negative + value : obj.negative,
+            userActivity: true,
+            [choice.name.en]: value,
+          };
+        },
+        {
+          date: new Date(response.date),
+          cummulative: 0,
+          positive: 0,
+          negative: 0,
+          userActivity: false,
+        },
+      ));
   }
 }

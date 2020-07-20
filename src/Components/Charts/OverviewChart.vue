@@ -24,7 +24,7 @@
 }
 
 .OverviewChart .y-axis text {
-  transform: translate(-60px, 0) !important;
+  transform: translate(-65px, 0) !important;
   font-size: 12px;
   color: #444;
 }
@@ -79,14 +79,21 @@ export default {
    */
   computed: {
     dateExtent() {
-      return d3.extent(this.data, d => {
-        d.date.setHours(0);
-        d.date.setMinutes(0);
-        d.date.setSeconds(0);
-        return d.date;
-      });
+      const end = new Date();
+      const start = new Date();
+
+      start.setDate(start.getDate() - 22);
+
+      return [start, end];
+      //return d3.extent(this.data, d => {
+      //  d.date.setHours(0);
+      //  d.date.setMinutes(0);
+      //  d.date.setSeconds(0);
+      //  return d.date;
+      //});
     },
     daysCount() {
+      return 22;
       const from =this.dateExtent[0].getTime();
       const to =this.dateExtent[1].getTime();
 
