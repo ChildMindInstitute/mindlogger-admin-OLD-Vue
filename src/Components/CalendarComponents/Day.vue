@@ -4,7 +4,6 @@
 		 :class="classesDay"
 		 @mouseenter="mouseEnterDay"
 		 @mouseleave="mouseLeaveDay"
-		 @mousemove.stop="mouseMoveDay"
 		 @mousedown="mouseDownDay"
 		 @mouseup="mouseUpDay"
 		 @click.stop="add"
@@ -151,6 +150,8 @@ export default {
 	methods:
 		{
 			isVisible (calendarEvent) {
+				if (!calendarEvent.starting)
+					return false;
 				if (this.$dayspan.features.hideOnMove &&
 					this.placeholder &&
 					this.placeholder.event === calendarEvent.event) {
@@ -181,10 +182,6 @@ export default {
 
 			mouseLeaveDay ($event) {
 				this.$emit('mouse-leave-day', this.day)
-			},
-
-			mouseMoveDay ($event) {
-				this.$emit('mouse-move-day', this.getEvent('mouse-move-day', $event))
 			},
 
 			mouseDownDay ($event) {
