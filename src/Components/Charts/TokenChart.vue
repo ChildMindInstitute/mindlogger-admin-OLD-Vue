@@ -57,6 +57,7 @@
   vertical-align: top;
   margin: 2rem 1rem;
   margin-bottom: 0;
+  user-select: none;
 }
 
 .TokenChart .chart {
@@ -327,7 +328,7 @@ export default {
         .range([this.focusHeight, 0]);
       this.contextY = d3
         .scaleLinear()
-        .domain([this.cummulativeExtent.min, this.cummulativeExtent.max])
+        .domain([this.divergingExtent.min, this.divergingExtent.max])
         .range([this.contextHeight, 0]);
       this.x = d3
         .scaleUtc()
@@ -489,7 +490,6 @@ export default {
         .attr('fill', layer => {
           return features.find(f => layer.key === f.name.en).color
         })
-        .attr('opacity', '0.8')
 
         // Create the individual bars.
         .selectAll('rect')
@@ -542,6 +542,37 @@ export default {
         .selectAll('.bar')
         .remove()
 
+      // Negative
+      svg
+        .select('.context-chart')
+        .selectAll('.negative-bar')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('class', 'negative-bar')
+        .attr('fill', '#ED8495')
+        // Set the bar position and dimension.
+        .attr('x', d => contextX(d.date))
+        .attr('width', barWidth)
+        .attr('y', contextY(0))
+        .attr('height', d => Math.abs(contextY(d.negative) - contextY(0)))
+
+      // Positive
+      svg
+        .select('.context-chart')
+        .selectAll('.positive-bar')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('class', 'positive-bar')
+        .attr('fill', '#BEE0AC')
+        // Set the bar position and dimension.
+        .attr('x', d => contextX(d.date))
+        .attr('width', barWidth)
+        .attr('y', d => contextY(d.positive))
+        .attr('height', d => Math.abs(contextY(d.positive) - contextY(0)))
+
+      // Cummulative
       svg
         .select('.context-chart')
         .attr('transform', `translate(${-barWidth/2}, ${this.contextMargin.top})`)
@@ -549,16 +580,14 @@ export default {
         .data(data)
         .enter()
         .append('rect')
-        .attr('title', d => d.date)
         .attr('class', 'bar')
-        .attr('opacity', 0.75)
-        .attr('fill', d => '#AAA')
-
+        .attr('fill', 'black')
         // Set the bar position and dimension.
         .attr('x', d => contextX(d.date))
         .attr('width', s => barWidth)
         .attr('y', d => contextY(Math.max(0, d.cummulative)))
         .attr('height', d => Math.abs(contextY(d.cummulative) - contextY(0)))
+        .attr('opacity', 0.2);
     }
   },
 };

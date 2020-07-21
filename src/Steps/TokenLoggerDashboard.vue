@@ -184,7 +184,7 @@ export default {
       const appletId = this.$route.params.appletId;
 
       return [
-        { text: appletName, to: `/${appletId}/users` },
+        { text: appletName, to: `/applet/${appletId}/users` },
         { text: 'Dashboard', disabled: true },
       ];
     },
