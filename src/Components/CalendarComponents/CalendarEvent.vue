@@ -95,9 +95,13 @@ export default {
 	computed:
 		{
 			style () {
-				return this.isPlaceholderWithDay ?
+				const newStyle = this.isPlaceholderWithDay ?
 					this.$dayspan.getStylePlaceholderFull(this.details, this.calendarEvent, this.index, this.isPlaceholderWithDay) :
-					this.$dayspan.getStyleFull(this.details, this.calendarEvent, this.index)
+					this.$dayspan.getStyleFull(this.details, this.calendarEvent, this.index);
+				if (newStyle.right) {
+					newStyle.right = 0
+				}
+				return newStyle;
 			},
 
 			contentClass () {

@@ -1,6 +1,6 @@
 <template>
   <div class="ds-week-view-container">
-    <ds-week-header
+    <week-header
       v-bind="{ $scopedSlots }"
       v-on="$listeners"
       :calendar="calendar"
@@ -8,7 +8,7 @@
       :placeholder-for-create="placeholderForCreate"
       :days="calendar.days"
       :scroll-push="scrollPush"
-    ></ds-week-header>
+    ></week-header>
 
     <div class="ds-week-view-bottom">
       <div class="ds-week-view-scrollable" ref="scrollArea">
@@ -45,11 +45,13 @@
 <script>
 import { Calendar, CalendarEvent, Constants } from "dayspan";
 import DayTimes from './DayTimes'
+import WeekHeader from './WeekHeader'
 
 export default {
   name: "dsDaysView",
   components: {
     DayTimes,
+    WeekHeader,
   },
   props: {
     calendar: {

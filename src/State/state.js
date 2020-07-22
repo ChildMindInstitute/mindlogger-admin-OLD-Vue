@@ -111,27 +111,6 @@ const mutations = {
       } else if (roleValue === 5) {
         state.allApplets[i].role = "owner";
       }
-
-      if (
-        state.allApplets[i].role === "owner" ||
-        state.allApplets[i].role === "manager" ||
-        state.allApplets[i].role === "coordinator"
-      ) {
-        requests.push(
-          api
-            .getSchedule({
-              apiHost: state.backend,
-              token: state.auth.authToken.token,
-              id: appletId,
-            })
-            .then((res) => {
-              state.allApplets[i].applet.schedule = res.data;
-            })
-            .catch((err) => {
-              console.log("error", err);
-            })
-        );
-      }
     });
     Promise.all(requests).then();
   },
