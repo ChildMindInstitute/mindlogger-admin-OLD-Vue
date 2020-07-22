@@ -79,9 +79,26 @@
             md="4"
           >
             <v-text-field
+              v-if="username === currentAccountName"
               v-model="params.accountName"
               label="AccountName"
               :rules="accountNameRules"
+              required
+            />
+          </v-col>
+          <v-col 
+            v-if="params.role === 'reviewer'"
+            cols="12" 
+            sm="12" 
+            md="12"
+          >
+            <v-combobox
+              v-model="params.users"
+              hint="Press enter to add a user"
+              label="Users"
+              :rules="usersRules"
+              multiple
+              small-chips
               required
             />
           </v-col>
@@ -114,7 +131,7 @@ export default {
       valid: true,
       emailRules: [
         v => !!v || 'E-mail is required',
-        v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
+        v => /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(v) || 'E-mail must be valid',
       ],
       firstNameRules: [
         v => !!v || 'Name is required',
@@ -126,6 +143,9 @@ export default {
         v => !!v || 'Name is required',
       ],
       roles: ["user", "coordinator", "editor", "manager", "reviewer"],
+      usersRules: [
+        v => !!v || 'Users are required',
+      ],
       params: {
         role: "user",
         profile: {
@@ -135,9 +155,19 @@ export default {
           mrn: "",
         },
         accountName: "",
+        users: [],
       }
     };
   },
+  computed: {
+    currentAccountName() {
+      return this.$store.state.ownerAccount.accountName;
+    },
+    username() {
+      return this.$store.state.auth.user.displayName;
+    }
+  },
+
   methods: {
     submit() {
       const invitationOptions = {
@@ -151,6 +181,9 @@ export default {
         invitationOptions.MRN = this.params.profile.mrn;
       } else {
         invitationOptions.accountName = this.params.accountName;
+      }
+      if (this.params.role === "reviewer") {
+        invitationOptions.users = this.params.users;
       }
 
       this.$emit("createInvitation", invitationOptions);

@@ -77,7 +77,7 @@ const setAccountName = ({ apiHost, token, accountName }) => axios({
 
 const getApplet = ({ apiHost, token, id }) => axios({
   method: 'get',
-  url: `${apiHost}/applet/${id}`,
+  url: `${apiHost}/applet/${id}?retrieveSchedule=true`,
   headers: {
     'Girder-Token': token,
   },
@@ -116,8 +116,8 @@ method: 'POST',
 })
 
 const refreshApplet = ({ apiHost, token, appletId }) => axios({
-  method: 'GET',
-  url: `${apiHost}/applet/${appletId}?refreshCache=true`,
+  method: 'PUT',
+  url: `${apiHost}/applet/${appletId}/refresh`,
   headers: {
     'Girder-Token': token,
   },

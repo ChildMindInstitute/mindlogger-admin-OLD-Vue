@@ -95,7 +95,7 @@ export default {
           'firstName': invitation.firstName,
           'lastName': invitation.lastName,
           'userType': invitation.role,
-          'invitationLink': `web.mindlogger.org/#/invitation/${invitation._id}`,
+          'invitationLink': `${process.env.VUE_APP_WEB_URI}/#/invitation/${invitation._id}`,
           'dateTime': moment(invitation.created).format('YYYY-MM-DD hh:mm:ss'),
         });
       });
