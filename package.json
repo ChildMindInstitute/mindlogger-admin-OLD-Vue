@@ -18,8 +18,8 @@
   "dependencies": {
     "@ag-grid-community/all-modules": "^22.1.1",
     "@ag-grid-community/vue": "^22.1.2",
-    "@sentry/browser": "^5.19.0",
-    "@sentry/integrations": "^5.19.0",
+    "@sentry/browser": "^5.20.0",
+    "@sentry/integrations": "^5.20.0",
     "applet-schema-builder": "^0.2.2",
     "axios": "^0.19.2",
     "babel-loader": "^7.1.5",
