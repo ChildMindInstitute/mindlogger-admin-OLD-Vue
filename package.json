@@ -1,6 +1,6 @@
 {
   "name": "mindlogger-admin",
-  "version": "0.2.8",
+  "version": "0.2.2",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --mode local",
@@ -19,7 +19,7 @@
     "@ag-grid-community/vue": "^22.1.2",
     "@sentry/browser": "^5.19.0",
     "@sentry/integrations": "^5.19.0",
-    "applet-schema-builder": "^0.2.4",
+    "applet-schema-builder": "^0.2.2",
     "axios": "^0.19.2",
     "babel-loader": "^7.1.5",
     "dayspan-vuetify-2": "^0.2.0",
