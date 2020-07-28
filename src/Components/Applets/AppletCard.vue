@@ -182,12 +182,6 @@ export default {
     },
     setSelectedApplet() {
       this.$store.commit("setCurrentApplet", this.applet);
-
-      if (this.applet.applet && this.applet.applet.schedule) {
-        this.$store.commit("setCachedEvents", this.applet.applet.schedule.events);
-      } else {
-        this.$store.commit("setCachedEvents", []);
-      }
     },
     onViewUsers() {
       this.setSelectedApplet();
