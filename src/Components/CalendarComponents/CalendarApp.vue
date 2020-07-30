@@ -442,6 +442,10 @@ export default {
       }
     },
 
+    clearEvents() {
+      this.calendar.removeEvents();
+    },
+
     isType(type, aroundDay) {
       let cal = this.calendar;
 
