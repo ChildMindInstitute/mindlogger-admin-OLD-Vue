@@ -101,7 +101,7 @@
     position: fixed;
     bottom: 16px;
     text-align: right;
-    width: calc(100% - 32px);
+    right: 32px;
   }
 </style>
 
