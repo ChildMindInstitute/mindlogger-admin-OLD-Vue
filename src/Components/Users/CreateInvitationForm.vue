@@ -54,7 +54,7 @@
           >
             <v-select
               v-model="params.role"
-              :items="roles"
+              :items="appletRole !== 'coordinator' ? roles : rolesForCoordinator"
               :rules="[v => !!v || 'Item is required']"
               label="Role"
               required
@@ -143,6 +143,7 @@ export default {
         v => !!v || 'Name is required',
       ],
       roles: ["user", "coordinator", "editor", "manager", "reviewer"],
+      rolesForCoordinator: ["user", "reviewer"],
       usersRules: [
         v => !!v || 'Users are required',
       ],
@@ -165,7 +166,10 @@ export default {
     },
     username() {
       return this.$store.state.auth.user.displayName;
-    }
+    },
+    appletRole() {
+      return this.$store.state.currentApplet.role;
+    },
   },
 
   methods: {
