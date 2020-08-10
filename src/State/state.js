@@ -62,13 +62,21 @@ const mutations = {
   },
   switchAccount(state, account) {
     const accounts = [];
+    const appletIdArray = [];
     state.currentAccount = account;
 
     Object.keys(account.applets).forEach((key, index) => {
       if (account.applets[key] && account.applets[key].length) {
         account.applets[key].forEach((appletId, index) => {
-          if (!accounts.includes(appletId, 0)) {
-            accounts.push(appletId);
+          if (!appletIdArray.includes(appletId, 0)) {
+            appletIdArray.push(appletId);
+            accounts.push({
+              appletId,
+              allEvent:
+                key === "manager" || key === "coordinator"
+                  ? true
+                  : false,
+            });
           }
         });
       }
