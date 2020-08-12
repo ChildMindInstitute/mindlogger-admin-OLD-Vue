@@ -60,23 +60,50 @@
     >
       Back
     </v-btn>
-    <v-tooltip top>
-      <template v-slot:activator="{ on }">
-        <v-btn
-          color="primary"
-          fixed
-          bottom
-          right
-          @click="saveSchedule"
-          v-on="on"
-        >
-          Save
-        </v-btn>
-      </template>
-      <span>Save all scheduled activities</span>
-    </v-tooltip>
+
+    <template>
+      <div class="tools">
+        <v-tooltip top>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              color="primary"
+              class="ms-4"
+              @click="clearSchedule"
+              v-on="on"
+            >
+              Clear
+            </v-btn>
+          </template>
+          <span>Clear all scheduled activities</span>
+        </v-tooltip>
+
+        <v-tooltip top>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              color="primary"
+              class="ms-4"
+              @click="saveSchedule"
+              v-on="on"
+            >
+              Save
+            </v-btn>
+          </template>
+          <span>Save all scheduled activities</span>
+        </v-tooltip>
+      </div>
+    </template>
   </div>
 </template>
+
+
+<style scoped>
+  .tools {
+    position: fixed;
+    bottom: 16px;
+    text-align: right;
+    right: 32px;
+  }
+</style>
 
 <script>
 import _ from "lodash";
@@ -211,6 +238,37 @@ export default {
             this.saveError = true;
           });
       }
+    },
+
+    async clearSchedule() {
+      const res = await this.$dialog.warning({
+        title: "Alert",
+        color: "#1976d2",
+        text: "Are you sure you want to remove all events from calendar?",
+        persistent: false,
+        actions: {
+          No: "No",
+          Yes: {
+            color: "#1976d2",
+            text: "Yes",
+          },
+        },
+      });
+      if (res === 'Yes') {
+        const schedule = this.currentApplet.applet.schedule;
+        for (let event of schedule.events) {
+          if (event['id']) {
+            this.$store.commit('addRemovedEventId', event['id']);
+          }
+        }
+        schedule.events = []
+
+        this.$store.commit('setSchedule', schedule);
+        this.$store.commit('setCachedEvents', schedule.events);
+
+        this.$refs.calendar.$refs.app.clearEvents();
+      }
+      
     }
   }
 };

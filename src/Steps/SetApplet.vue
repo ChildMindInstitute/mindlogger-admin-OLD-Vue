@@ -120,13 +120,14 @@ export default {
         return;
       }
 
-      const requests = this.accountApplets.map((applet) => {
+      const requests = this.accountApplets.map((account) => {
         return (
-          new Promise((resolve, reject) => {
-            api.getApplet({
+          new Promise((resolve, reject) => { 
+            api.getApplet({ 
               apiHost: this.$store.state.backend,
               token: this.$store.state.auth.authToken.token,
-              id: applet,
+              allEvent: account.allEvent,
+              id: account.appletId,
             })
             .then((response) => {
               resolve(response.data);
