@@ -73,7 +73,7 @@
               <template v-slot:activator="{ on }">
                 <v-btn 
                   text 
-                  :disabled="applet.role === 'editor' || applet.role === 'reviewer'" 
+                  :disabled="applet.role === 'editor'" 
                   v-on="on"
                 >
                   Select

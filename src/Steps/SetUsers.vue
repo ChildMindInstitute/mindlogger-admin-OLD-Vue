@@ -16,10 +16,14 @@
         key="componentKey"
         :users="activeUserList"
       />
-      <h1>Pending Invitations</h1>
-      <pending-invite-table :users="pendingInviteList" />
-      <create-invitation-form @createInvitation="createInvitation" />
-      <div style="height: 58px;" />
+
+      <div v-if="['owner', 'manager', 'coordinator'].includes(currentApplet.role)">
+        <h1>Pending Invitations</h1>
+        <pending-invite-table :users="pendingInviteList" />
+        <create-invitation-form @createInvitation="createInvitation" />
+        <div style="height: 58px;" />
+      </div>
+
     </div>
     <v-btn
       color="primary"
@@ -30,7 +34,7 @@
     >
       Back
     </v-btn>
-    <v-tooltip top>
+    <v-tooltip top v-if="['owner', 'manager', 'coordinator'].includes(currentApplet.role)">
       <template v-slot:activator="{ on }">
         <v-btn
           color="primary"
@@ -48,7 +52,7 @@
       <span>View schedule for the selected users</span>
     </v-tooltip>
 
-    <v-tooltip top>
+    <v-tooltip top v-if="['owner', 'reviewer', 'manager'].includes(currentApplet.role)">
       <template v-slot:activator="{ on }">
         <v-btn
           color="primary"
