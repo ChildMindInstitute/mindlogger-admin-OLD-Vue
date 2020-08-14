@@ -79,7 +79,7 @@
             md="4"
           >
             <v-text-field
-              v-if="username === currentAccountName"
+              v-if="username === currentAccountName && appletRole == 'owner'"
               v-model="params.accountName"
               label="AccountName"
               :rules="accountNameRules"
