@@ -120,7 +120,7 @@ export default {
     isEditable() {
       let isEditor = false;
       this.applets.forEach((applet) => {
-        if (applet.role === 'owner' || applet.role === 'manager' || applet.role === 'editor') {
+        if (applet.roles.includes('editor')) {
           isEditor = true;
         }
       });

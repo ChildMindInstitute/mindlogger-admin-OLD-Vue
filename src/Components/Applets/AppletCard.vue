@@ -42,7 +42,7 @@
               <template v-slot:activator="{ on }">
                 <v-btn 
                   text 
-                  :disabled="status !== 'ready' || applet.role === 'coordinator' || applet.role === 'reviewer'" 
+                  :disabled="status !== 'ready' || !applet.roles.includes('editor')" 
                   @click="refreshApplet" 
                   v-on="on"
                 >
@@ -58,7 +58,7 @@
               <template v-slot:activator="{ on }">
                 <v-btn 
                   text 
-                  :disabled="applet.role === 'coordinator' || applet.role === 'reviewer'" 
+                  :disabled="!applet.roles.includes('manager')" 
                   @click="deleteApplet" 
                   v-on="on"
                 >
@@ -73,7 +73,7 @@
               <template v-slot:activator="{ on }">
                 <v-btn 
                   text 
-                  :disabled="applet.role === 'editor' || applet.role === 'reviewer'" 
+                  :disabled="!applet.roles.includes('coordinator')" 
                   v-on="on"
                 >
                   Select
