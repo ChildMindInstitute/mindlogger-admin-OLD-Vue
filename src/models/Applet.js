@@ -69,7 +69,7 @@ export default class Applet {
       method: 'get',
       url: `${store.state.backend}/response/${appletId}`,
       headers: { 'Girder-Token': store.state.auth.authToken.token },
-      params: { users: users.join(',') },
+      params: { users: JSON.stringify(users) },
     });
 
     for (let itemId in data) {
