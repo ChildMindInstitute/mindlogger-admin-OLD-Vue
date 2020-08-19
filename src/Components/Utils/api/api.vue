@@ -203,7 +203,7 @@ const getAppletInvitation = ({ apiHost, token, appletId, options }) => axios({
   headers: {
     'Girder-Token': token,
   },
-  params : options,
+  params : { ...options, users: JSON.stringify(options.users) },
 });
 
 export default {
