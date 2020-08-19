@@ -99,7 +99,8 @@ const mutations = {
 
     protocols.forEach((protocol, i) => {
       const appletId = protocol.applet._id.split("applet/")[1];
-      let roleValue = 0;
+
+      state.allApplets[i].roles = [];
 
       Object.keys(currentApplets).forEach((key, index) => {
         if (currentApplets[key] && currentApplets[key].length) {
@@ -108,17 +109,11 @@ const mutations = {
               appletId === id &&
               key !== "user"
             ) {
-              state.allApplets[i].role = key;
-              roleValue ++;
+              state.allApplets[i].roles.push(key);
             }
           });
         }
       });
-      if (roleValue === 4) {
-        state.allApplets[i].role = "manager";
-      } else if (roleValue === 5) {
-        state.allApplets[i].role = "owner";
-      }
     });
     Promise.all(requests).then();
   },

@@ -54,7 +54,7 @@
           >
             <v-select
               v-model="params.role"
-              :items="appletRole !== 'coordinator' ? roles : rolesForCoordinator"
+              :items="invitationRoles"
               :rules="[v => !!v || 'Item is required']"
               label="Role"
               required
@@ -79,7 +79,7 @@
             md="4"
           >
             <v-text-field
-              v-if="username === currentAccountName"
+              v-if="username === currentAccountName && appletRoles.includes('owner')"
               v-model="params.accountName"
               label="AccountName"
               :rules="accountNameRules"
@@ -142,8 +142,6 @@ export default {
       accountNameRules: [
         v => !!v || 'Name is required',
       ],
-      roles: ["user", "coordinator", "editor", "manager", "reviewer"],
-      rolesForCoordinator: ["user", "reviewer"],
       usersRules: [
         v => !!v || 'Users are required',
       ],
@@ -167,9 +165,20 @@ export default {
     username() {
       return this.$store.state.auth.user.displayName;
     },
-    appletRole() {
-      return this.$store.state.currentApplet.role;
+    appletRoles() {
+      return this.$store.state.currentApplet.roles;
     },
+    invitationRoles() {
+      let roles =  this.$store.state.currentApplet.roles;
+
+      if (roles.includes('manager') || roles.includes('owner')) {
+        return ["user", "coordinator", "editor", "manager", "reviewer"];
+      } else if (roles.includes('coordinator')) {
+        return ['user', 'reviewer'];
+      }
+
+      return [];
+    }
   },
 
   methods: {
