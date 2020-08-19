@@ -52,7 +52,7 @@
       <span>View schedule for the selected users</span>
     </v-tooltip>
 
-    <v-tooltip top v-if="['owner', 'reviewer', 'manager'].includes(currentApplet.role)">
+    <v-tooltip top v-if="dashboardEnabled">
       <template v-slot:activator="{ on }">
         <v-btn
           color="primary"
@@ -97,6 +97,12 @@ export default {
     componentKey: 0
   }),
   computed: {
+    dashboardEnabled() {
+      const hasRole = ['owner', 'reviewer', 'manager'].includes(this.currentApplet.role);
+      const isTokenLogger = this.currentApplet['@id'] === 'TokenLogger_schema';
+
+      return isTokenLogger && hasRole;
+    },
     isUsersLoaded() {
       return !_.isEmpty(this.$store.state.users);
     },
