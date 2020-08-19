@@ -46,6 +46,20 @@
         />
       </v-card>
     </div>
+
+    <div v-else>
+      There's no data available for the selected users.
+    </div>
+
+    <v-btn
+      color="primary"
+      fixed
+      bottom
+      left
+      @click="$router.go(-1)"
+    >
+      Back
+    </v-btn>
   </div>
 </template>
 
