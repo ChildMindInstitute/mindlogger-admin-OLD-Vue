@@ -98,10 +98,13 @@ export default {
   }),
   computed: {
     dashboardEnabled() {
-      const hasRole = ['owner', 'reviewer', 'manager'].includes(this.currentApplet.role);
-      const isTokenLogger = this.currentApplet['@id'] === 'TokenLogger_schema';
+      const hasPermission = this.currentApplet.roles.some(role => 
+        ['owner', 'reviewer', 'manager'].includes(role)
+      );
+      const id = this.currentApplet.applet['@id'];
+      const isTokenLogger = id.includes('TokenLogger') || id.includes('TokenCollector');
 
-      return isTokenLogger && hasRole;
+      return isTokenLogger && hasPermission;
     },
     isUsersLoaded() {
       return !_.isEmpty(this.$store.state.users);
