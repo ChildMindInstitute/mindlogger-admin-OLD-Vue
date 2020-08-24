@@ -17,7 +17,7 @@
         :users="activeUserList"
       />
 
-      <div v-if="['owner', 'manager', 'coordinator'].includes(currentApplet.role)">
+      <div v-if="currentApplet.roles.some(role => ['manager', 'reviewer', 'coordinator'].includes(role))">
         <h1>Pending Invitations</h1>
         <pending-invite-table :users="pendingInviteList" />
         <create-invitation-form @createInvitation="createInvitation" />
