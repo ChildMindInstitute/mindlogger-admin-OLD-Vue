@@ -84,7 +84,7 @@ export default {
   },
   watch: {
     currentAccount(newAccount, oldAccount) {
-      this.getApplets();
+      this.getApplets();   
     },
     accountApplets(newApplets, oldApplets) {
       this.getApplets();
