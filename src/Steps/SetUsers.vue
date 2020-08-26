@@ -25,56 +25,73 @@
       </div>
 
     </div>
-    <v-btn
-      color="primary"
-      fixed
-      bottom
-      left
-      @click="$router.go(-1)"
-    >
-      Back
-    </v-btn>
-    <v-tooltip top v-if="['owner', 'manager', 'coordinator'].includes(currentApplet.role)">
-      <template v-slot:activator="{ on }">
-        <v-btn
-          color="primary"
-          fixed
-          bottom
-          right
-          fab
-          style="bottom: 70px; right: 40px;"
-          @click="viewCalendar"
-          v-on="on"
-        >
-          <v-icon>mdi-calendar</v-icon>
-        </v-btn>
-      </template>
-      <span>View schedule for the selected users</span>
-    </v-tooltip>
 
-    <v-tooltip top v-if="dashboardEnabled">
-      <template v-slot:activator="{ on }">
-        <v-btn
-          color="primary"
-          fixed
-          bottom
-          right
-          fab
-          style="bottom: 70px; right: 110px;"
-          @click="viewDashboard"
-          v-on="on"
-        >
-          <v-icon>mdi-chart-line</v-icon>
-        </v-btn>
-      </template>
-      <span>View the applet dashboard for the selected users</span>
-    </v-tooltip>
+    <div class="tools">
+      <!-- CALENDAR BUTTON -->
+      <v-tooltip top v-if="hasRoles('owner', 'manager', 'coordinator')">
+        <template v-slot:activator="{ on }">
+          <v-btn
+            fab
+            color="primary"
+            @click="viewCalendar"
+            v-on="on"
+          >
+            <v-icon>mdi-calendar</v-icon>
+          </v-btn>
+        </template>
+        <span>View schedule for the selected users</span>
+      </v-tooltip>
+
+      <!-- DASHBOARD BUTTON -->
+      <v-tooltip top v-if="dashboardEnabled">
+        <template v-slot:activator="{ on }">
+          <v-btn
+            fab
+            color="primary"
+            @click="viewDashboard"
+            v-on="on"
+          >
+            <v-icon>mdi-chart-bar</v-icon>
+          </v-btn>
+        </template>
+        <span>View the applet dashboard for the selected users</span>
+      </v-tooltip>
+    </div>
+
+    <footer class="footer">
+      <!-- BACK BUTTON -->
+      <v-btn color="primary" @click="$router.go(-1)">
+        Back
+      </v-btn>
+    </footer>
   </div>
 </template>
 
 <style scoped>
 .loading {
   text-align: center;
+}
+
+.tools {
+  position: fixed;
+  bottom: 70px;
+  left: 70px;
+  right: 70px;
+
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.tools > *:not(:last-of-type) {
+  margin-right: 0.5rem; 
+}
+
+.footer {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
 }
 </style>
 
@@ -98,10 +115,8 @@ export default {
   }),
   computed: {
     dashboardEnabled() {
-      const hasPermission = this.currentApplet.roles.some(role => 
-        ['owner', 'reviewer', 'manager'].includes(role)
-      );
-      const id = this.currentApplet.applet['@id'];
+      const hasPermission = this.hasRoles('owner', 'reviewer', 'manager');
+      const id = this.currentApplet.applet['@id'] || '';
       const isTokenLogger = id.includes('TokenLogger') || id.includes('TokenCollector');
 
       return isTokenLogger && hasPermission;
