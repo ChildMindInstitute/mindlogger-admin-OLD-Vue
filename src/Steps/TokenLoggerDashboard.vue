@@ -23,8 +23,12 @@
       </v-btn>
     </v-row>
 
+    <div v-if="status !== 'ready'">
+      {{ status }}
+    </div>
+
     <div
-      v-if="applet"
+      v-else
       v-for="activity in applet.activities"
     >
       <h4 class="activity-header">{{ activity.question.en || activity.description.en }}</h4>
@@ -137,7 +141,7 @@ export default {
    * Component state.
    */
   data: () => ({
-    status: "loading",
+    status: 'Initializing dashboard',
     applet: {
       _id: '',
       label: { en: 'Applet' },
@@ -173,6 +177,7 @@ export default {
     const { users } = this.$route.query;
 
     try {
+      this.status = 'Loading applet data';
       this.applet = await Applet.fetchById(
         appletId,
         {
@@ -181,9 +186,9 @@ export default {
           users: Array.isArray(users) ? users : [users],
         },
       );
-      this.status = "ready";
+      this.status = 'ready';
     } catch(error) {
-      this.status = "error";
+      this.status = 'Oops, something went wrong. We couldn\'t load the applet';
       this.error = error;
       console.error(error);
     }
