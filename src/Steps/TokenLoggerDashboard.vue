@@ -63,7 +63,7 @@
   </div>
 </template>
 
-<style>
+<style scoped>
 .container {
   background: #EFEFF2;
   height: 100%;
