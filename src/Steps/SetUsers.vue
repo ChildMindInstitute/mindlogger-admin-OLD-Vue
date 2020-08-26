@@ -17,7 +17,7 @@
         :users="activeUserList"
       />
 
-      <div v-if="currentApplet.roles.some(role => ['manager', 'reviewer', 'coordinator'].includes(role))">
+      <div v-if="hasRoles('manager', 'coordinator')">
         <h1>Pending Invitations</h1>
         <pending-invite-table :users="pendingInviteList" />
         <create-invitation-form @createInvitation="createInvitation" />
@@ -137,6 +137,12 @@ export default {
     this.getAppletUsers();
   },
   methods: {
+    hasRoles() {
+      return [].some.call(
+        arguments, 
+        role => this.currentApplet.roles.includes(role),
+      );
+    },
     updateTables() {
       this.componentKey += 1;
     },
