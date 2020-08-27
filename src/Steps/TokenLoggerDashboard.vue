@@ -23,12 +23,15 @@
       </v-btn>
     </v-row>
 
-    <div v-if="status !== 'ready'">
+    <div 
+      v-if="loading"
+      class="status-message"
+    >
       {{ status }}
     </div>
 
     <div
-      v-else
+      v-if="applet"
       v-for="activity in applet.activities"
     >
       <h4 class="activity-header">{{ activity.question.en || activity.description.en }}</h4>
@@ -109,6 +112,12 @@
   text-align: center;
 }
 
+.status-message {
+  margin-top: 40px;
+  padding: 20px;
+  border: 1px solid #CCC;
+}
+
 .chart-card {
   padding: 1.5rem;
 }
@@ -141,6 +150,7 @@ export default {
    * Component state.
    */
   data: () => ({
+    loading: true,
     status: 'Initializing dashboard',
     applet: {
       _id: '',
@@ -186,7 +196,7 @@ export default {
           users: Array.isArray(users) ? users : [users],
         },
       );
-      this.status = 'ready';
+      this.loading = false;
     } catch(error) {
       this.status = 'Oops, something went wrong. We couldn\'t load the applet';
       this.error = error;
