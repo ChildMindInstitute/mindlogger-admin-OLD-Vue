@@ -75,8 +75,8 @@
 .tools {
   position: fixed;
   bottom: 70px;
-  left: 70px;
   right: 70px;
+  left: auto;
 
   display: flex;
   justify-content: flex-end;
@@ -91,7 +91,7 @@
   position: fixed;
   bottom: 16px;
   left: 16px;
-  right: 16px;
+  right: auto;
 }
 </style>
 
