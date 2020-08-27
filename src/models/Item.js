@@ -42,7 +42,7 @@ export default class Item {
    * @return {Array} available response choices.
    */
   static parseResponseOptions(responseOptions) {
-    const itemListElement = responseOptions[0][ReproLib.choices];
+    const itemListElement = responseOptions[0]['schema:itemListElement'];
     const warmColors = [
       '#FDBB93',
       '#E65751',
@@ -60,8 +60,8 @@ export default class Item {
 
     return itemListElement.map((choice, index) => ({
       name: i18n.arrayToObject(choice['schema:name']),
-      value: choice[ReproLib.value][0]['@value'],
-      color: choice[ReproLib.value][0]['@value'] > 0
+      value: choice['schema:value'][0]['@value'],
+      color: choice['schema:value'][0]['@value'] > 0
         ? coldColors.shift()
         : warmColors.shift(),
     }));
