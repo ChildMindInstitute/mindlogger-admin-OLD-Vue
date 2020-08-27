@@ -13,12 +13,14 @@ test('AppletCard\'s \'currentApplet\' computed property', () => {
   const sampleApplet1 = { 
     'applet': { 
       '_id': 'testAppletId1', 
-    } 
+    },
+    'roles': ['coordinator'],
   };
   const sampleApplet2 = { 
     'applet': { 
       '_id': 'testAppletId2', 
-    } 
+    },
+    'roles': ['reviewer'],
   };
   
   // Create an instance of the AppletCard component
