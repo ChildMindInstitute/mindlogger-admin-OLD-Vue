@@ -1,25 +1,9 @@
 <template>
-  <v-card 
-    class="appletCard" 
-    :width="cardWidth"
-  >
-    <v-layout 
-      v-if="currentApplet" 
-      class="selectedApplet" 
-      align-center 
-      justify-center 
-      column
-    >
-      <v-icon 
-        size="72" 
-        color="primary"
-      >
-        mdi-check
-      </v-icon>
+  <v-card class="appletCard" :width="cardWidth">
+    <v-layout v-if="currentApplet" class="selectedApplet" align-center justify-center column>
+      <v-icon size="72" color="primary">mdi-check</v-icon>
       <v-card-title primary-title>
-        <h3 class="headline mb-0">
-          {{ appletPrefLabel }}
-        </h3>
+        <h3 class="headline mb-0">{{ appletPrefLabel }}</h3>
       </v-card-title>
     </v-layout>
     <div v-else>
@@ -30,9 +14,7 @@
         contain
       />
       <v-card-title primary-title>
-        <h3 class="headline mb-0">
-          {{ appletPrefLabel }}
-        </h3>
+        <h3 class="headline mb-0">{{ appletPrefLabel }}</h3>
       </v-card-title>
       <v-card-text>{{ appletDescription }}</v-card-text>
       <v-card-actions>
@@ -40,10 +22,10 @@
           <div>
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <v-btn 
-                  text 
-                  :disabled="status !== 'ready' || !applet.roles.includes('editor')" 
-                  @click="refreshApplet" 
+                <v-btn
+                  text
+                  :disabled="status !== 'ready' || !applet.roles.includes('editor')"
+                  @click="refreshApplet"
                   v-on="on"
                 >
                   <span v-if="status === 'ready'">Refresh</span>
@@ -56,14 +38,12 @@
           <div>
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <v-btn 
-                  text 
-                  :disabled="!applet.roles.includes('manager')" 
-                  @click="deleteApplet" 
+                <v-btn
+                  text
+                  :disabled="!applet.roles.includes('manager')"
+                  @click="deleteApplet"
                   v-on="on"
-                >
-                  Delete
-                </v-btn>
+                >Delete</v-btn>
               </template>
               <span>Permanantly disable this applet</span>
             </v-tooltip>
@@ -71,15 +51,15 @@
           <div>
             <v-menu offset-x>
               <template v-slot:activator="{ on }">
-                <v-btn 
-                  text 
-                  :disabled="!applet.roles.includes('coordinator')" 
-                  v-on="on"
-                >
-                  Select
-                </v-btn>
+                <!-- :disabled="!applet.roles.includes('coordinator')"  -->
+                <v-btn text v-on="on">Select</v-btn>
               </template>
               <v-list>
+                <router-link :to="{ name: 'Builder', params: { applet: applet} }">
+                  <v-list-item>
+                    <v-list-item-title>Duplicate</v-list-item-title>
+                  </v-list-item>
+                </router-link>
                 <v-list-item @click="onViewUsers">
                   <v-list-item-title>View Users</v-list-item-title>
                 </v-list-item>
@@ -184,7 +164,10 @@ export default {
       this.$store.commit("setCurrentApplet", this.applet);
 
       if (this.applet.applet && this.applet.applet.schedule) {
-        this.$store.commit("setCachedEvents", this.applet.applet.schedule.events);
+        this.$store.commit(
+          "setCachedEvents",
+          this.applet.applet.schedule.events
+        );
       } else {
         this.$store.commit("setCachedEvents", []);
       }
@@ -204,3 +187,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+a {
+  text-decoration: none;
+}
+</style>
