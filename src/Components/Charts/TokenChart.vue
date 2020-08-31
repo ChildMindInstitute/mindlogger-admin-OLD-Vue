@@ -1,8 +1,9 @@
 <template>
-  <div class="TokenChart" ref="container" >
-    {{ focusExtent }}
-
-    <svg :id="plotId" >
+  <div
+    ref="container"
+    class="TokenChart"
+  >
+    <svg :id="plotId">
       <defs>
         <clipPath id="clip">
           <rect
@@ -12,21 +13,21 @@
         </clipPath>
       </defs>
 
-      <g class="y-axis"/>
-      <g class="x-axis"/>
+      <g class="y-axis" />
+      <g class="x-axis" />
       <g
         class="chart"
         clip-path="url(#clip)"
       />
 
-      <g class="context-y-axis"/>
-      <g class="context-x-axis"/>
+      <g class="context-y-axis" />
+      <g class="context-x-axis" />
       <g
         class="context-chart"
         clip-path="url(#clip)"
       />
 
-      <g class="legend-container"/>
+      <g class="legend-container" />
       <g
         class="tooltip"
         style="display: none"
@@ -42,8 +43,7 @@
           dy="1.5em"
           font-size="12px"
           font-weight="bold"
-        >
-        </text>
+        />
       </g>
     </svg>
   </div>

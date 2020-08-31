@@ -95,6 +95,7 @@
 
     <AppletPassword
       v-model="appletPasswordDialog"
+      :hasConfirmPassword="true"
       @set-password="onClickSubmitPassword"
     />
   </div>

@@ -23,12 +23,21 @@
         <create-invitation-form @createInvitation="createInvitation" />
         <div style="height: 58px;" />
       </div>
-
     </div>
+
+    <AppletPassword
+      ref="appletPasswordRef"
+      v-model="appletPasswordDialog"
+      :hasConfirmPassword="false"
+      @set-password="onClickSubmitPassword"
+    />
 
     <div class="tools">
       <!-- CALENDAR BUTTON -->
-      <v-tooltip top v-if="hasRoles('owner', 'manager', 'coordinator')">
+      <v-tooltip
+        v-if="hasRoles('owner', 'manager', 'coordinator')"
+        top
+      >
         <template v-slot:activator="{ on }">
           <v-btn
             fab
@@ -43,12 +52,15 @@
       </v-tooltip>
 
       <!-- DASHBOARD BUTTON -->
-      <v-tooltip top v-if="dashboardEnabled">
+      <v-tooltip
+        v-if="dashboardEnabled"
+        top
+      >
         <template v-slot:activator="{ on }">
           <v-btn
             fab
             color="primary"
-            @click="viewDashboard"
+            @click="onReviewerDashboard"
             v-on="on"
           >
             <v-icon>mdi-chart-bar</v-icon>
@@ -60,7 +72,10 @@
 
     <footer class="footer">
       <!-- BACK BUTTON -->
-      <v-btn color="primary" @click="$router.go(-1)">
+      <v-btn
+        color="primary"
+        @click="$router.go(-1)"
+      >
         Back
       </v-btn>
     </footer>
@@ -101,17 +116,21 @@ import ActiveUserTable from "../Components/Users/ActiveUserTable.vue";
 import PendingInviteTable from "../Components/Users/PendingInviteTable.vue";
 import CreateInvitationForm from "../Components/Users/CreateInvitationForm.vue";
 import api from "../Components/Utils/api/api.vue";
+import AppletPassword from '../Components/Applets/AppletPassword'
+import encryption from '../Components/Utils/encryption/encryption.vue';
 
 export default {
   name: "SetUsers",
   components: {
     ActiveUserTable,
     PendingInviteTable,
-    CreateInvitationForm
+    CreateInvitationForm,
+    AppletPassword
   },
   data: () => ({
     status: "loading",
-    componentKey: 0
+    componentKey: 0,
+    appletPasswordDialog: false
   }),
   computed: {
     dashboardEnabled() {
@@ -240,12 +259,46 @@ export default {
       this.$router.push(`/applet/${appletId}/schedule`);
     },
 
+    onReviewerDashboard() {
+      const encryptionInfo = this.currentApplet.applet.encryption;
+
+      if (encryptionInfo && encryptionInfo.appletPrivateKey) {
+        this.gotoDashboard();
+      } else {
+        this.appletPasswordDialog = true;
+      }
+    },
+
+    /** check applet password */
+    onClickSubmitPassword(appletPassword) {
+      const currentApplet = this.currentApplet;
+
+      const encryptionInfo = encryption.getAppletEncryptionInfo({
+        appletPassword,
+        accountId: this.$store.state.currentAccount.accountId,
+        prime: currentApplet.applet.encryption.appletPrime,
+        baseNumber: currentApplet.applet.encryption.base
+      });
+
+      if (encryptionInfo.getPublicKey().equals(Buffer.from(currentApplet.applet.encryption.appletPublicKey))) {
+        this.appletPasswordDialog = false;
+
+        this.$store.commit("setAppletPrivateKey", {
+          appletId: currentApplet.applet._id, 
+          key: Array.from(encryptionInfo.getPrivateKey())
+        });
+        this.gotoDashboard();
+      } else {
+        this.$refs.appletPasswordRef.defaultErrorMsg = 'Incorrect applet password';
+      }
+    },
+
     /**
      * Navigates to the token dashboard page.
      *
      * @return {void}
      */
-    viewDashboard() {
+    gotoDashboard() {
       const { appletId } = this.$route.params;
 
       // Update the app state with the selected users.
@@ -254,7 +307,7 @@ export default {
         path: `/applet/${appletId}/dashboard`,
         query: { users: this.$store.state.currentUsers },
       });
-    },
+    }
   },
 };
 </script>
