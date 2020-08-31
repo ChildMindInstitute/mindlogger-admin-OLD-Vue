@@ -1,10 +1,13 @@
 <template>
-  <div class="BarChart" ref="container" >
-    <svg :id="plotId" >
-      <g class="x-axis"/>
-      <g class="y-axis"/>
-      <g class="chart"/>
-      <g class="legend-container"/>
+  <div
+    ref="container"
+    class="BarChart"
+  >
+    <svg :id="plotId">
+      <g class="x-axis" />
+      <g class="y-axis" />
+      <g class="chart" />
+      <g class="legend-container" />
       <g
         class="tooltip"
         style="display: none"
@@ -22,8 +25,7 @@
           style="text-anchor: middle"
           font-size="12px"
           font-weight="bold"
-        >
-        </text>
+        />
       </g>
     </svg>
   </div>

@@ -20,6 +20,13 @@
       </div>
     </div>
 
+    <AppletPassword
+      ref="appletPasswordRef"
+      v-model="appletPasswordDialog"
+      :hasConfirmPassword="false"
+      @set-password="onClickSubmitPassword"
+    />
+
     <div class="tools">
       <!-- EXPORT BUTTON -->
       <v-tooltip v-if="hasRoles('owner', 'manager', 'coordinator')" top>
@@ -32,7 +39,10 @@
       </v-tooltip>
 
       <!-- CALENDAR BUTTON -->
-      <v-tooltip v-if="hasRoles('owner', 'manager', 'coordinator')" top>
+      <v-tooltip
+        v-if="hasRoles('owner', 'manager', 'coordinator')"
+        top
+      >
         <template v-slot:activator="{ on }">
           <v-btn fab color="primary" @click="viewCalendar" v-on="on">
             <v-icon>mdi-calendar</v-icon>
@@ -42,9 +52,17 @@
       </v-tooltip>
 
       <!-- DASHBOARD BUTTON -->
-      <v-tooltip v-if="dashboardEnabled" top>
+      <v-tooltip
+        v-if="dashboardEnabled"
+        top
+      >
         <template v-slot:activator="{ on }">
-          <v-btn fab color="primary" @click="viewDashboard" v-on="on">
+          <v-btn
+            fab
+            color="primary"
+            @click="onReviewerDashboard"
+            v-on="on"
+          >
             <v-icon>mdi-chart-bar</v-icon>
           </v-btn>
         </template>
@@ -61,7 +79,10 @@
 
     <footer class="footer">
       <!-- BACK BUTTON -->
-      <v-btn color="primary" @click="$router.go(-1)">
+      <v-btn
+        color="primary"
+        @click="$router.go(-1)"
+      >
         Back
       </v-btn>
     </footer>
@@ -103,6 +124,8 @@ import PendingInviteTable from "../Components/Users/PendingInviteTable.vue";
 import CreateInvitationForm from "../Components/Users/CreateInvitationForm.vue";
 import UserPassword from "../Components/Users/UserPassword.vue";
 import api from "../Components/Utils/api/api.vue";
+import AppletPassword from '../Components/Applets/AppletPassword'
+import encryption from '../Components/Utils/encryption/encryption.vue';
 
 export default {
   name: "SetUsers",
@@ -111,12 +134,14 @@ export default {
     PendingInviteTable,
     CreateInvitationForm,
     UserPassword,
+    AppletPassword
   },
   data: () => ({
     status: "loading",
     componentKey: 0,
     userPasswordDialog: false,
     exportError: "",
+    appletPasswordDialog: false
   }),
   computed: {
     dashboardEnabled() {
@@ -329,7 +354,7 @@ export default {
      *
      * @return {void}
      */
-    viewDashboard() {
+    gotoDashboard() {
       const { appletId } = this.$route.params;
 
       // Update the app state with the selected users.
@@ -338,7 +363,7 @@ export default {
         path: `/applet/${appletId}/dashboard`,
         query: { users: this.$store.state.currentUsers },
       });
-    },
+    }
   },
 };
 </script>

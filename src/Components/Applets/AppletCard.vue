@@ -83,7 +83,7 @@
                   :disabled="
                     !applet.roles.includes('coordinator') &&
                       !applet.roles.includes('reviewer')
-                  "
+                  " 
                   v-on="on"
                 >
                   Select
@@ -96,7 +96,7 @@
                 >
                   <v-list-item-title>View Users</v-list-item-title>
                 </v-list-item>
-                <v-list-item
+                <v-list-item 
                   :disabled="!applet.roles.includes('coordinator')"
                   @click="onViewGeneralCalendar"
                 >

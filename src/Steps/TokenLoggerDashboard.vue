@@ -1,6 +1,9 @@
 <template>
   <div class="wrapper">
-    <v-row justify="space-between" align="center">
+    <v-row
+      justify="space-between"
+      align="center"
+    >
       <!-- Breadcrumb navigation -->
       <v-breadcrumbs
         :items="breadcrumbs()"
@@ -30,33 +33,43 @@
       {{ status }}
     </div>
 
-    <div
-      v-if="applet"
+    <template
       v-for="activity in applet.activities"
     >
-      <h4 class="activity-header">{{ activity.question.en || activity.description.en }}</h4>
-
-      <v-card
-        class="chart-card"
-        v-for="item in activity.items"
+      <div 
+        v-if="applet" 
+        :key="activity._id"
       >
-        <header>
-          <h5>{{ item.description.en || item.label.en }}</h5>
-        </header>
+        <h4 class="activity-header">
+          {{ activity.question.en || activity.description.en }}
+        </h4>
 
-        <token-chart
-          plot-id="token-chart"
-          :minValue="item.minValue"
-          :maxValue="item.maxValue"
-          :data="item.responses"
-          :features="item.responseOptions"
-        />
-      </v-card>
-    </div>
+        <v-card
+          v-for="item in activity.items"
+          :key="item['_id']"
+          class="chart-card"
+        >
+          <header>
+            <h5>{{ item.description.en || item.label.en }}</h5>
+          </header>
 
-    <div v-else>
-      There's no data available for the selected users.
-    </div>
+          <token-chart
+            plot-id="token-chart"
+            :minValue="item.minValue"
+            :maxValue="item.maxValue"
+            :data="item.responses"
+            :features="item.responseOptions"
+          />
+        </v-card>
+      </div>
+
+      <div 
+        v-else 
+        :key="activity._id"
+      >
+        There's no data available for the selected users.
+      </div>
+    </template>
 
     <v-btn
       color="primary"

@@ -89,7 +89,18 @@ const mutations = {
       state.currentApplet = protocol;
     }
   },
-  setAllApplets(state, protocols) {
+
+  setAppletPrivateKey(state, { appletId, key }) {
+    for (let applet of state.allApplets) {
+      if (applet.applet._id == appletId) {
+        if (applet.applet.encryption) {
+          applet.applet.encryption.appletPrivateKey = key;
+        }
+      }
+    }
+  },
+
+  setAllApplets(state, protocols) { 
     state.allApplets = protocols;
   },
 

@@ -14,21 +14,24 @@
           :append-icon="password.value ? 'mdi-eye' : 'mdi-eye-off'"
           :type="password.value ? 'password' : 'text'"
           @click:append="() => (password.value = !password.value)"
+          @input="defaultErrorMsg=''"
         />
 
         <v-text-field
+          v-if="hasConfirmPassword"
           v-model="confirmPassword.data"
           label="Confirm password"
           :append-icon="confirmPassword.value ? 'mdi-eye' : 'mdi-eye-off'"
           :type="confirmPassword.value ? 'password' : 'text'"
           @click:append="() => (confirmPassword.value = !confirmPassword.value)"
+          @input="defaultErrorMsg=''"
         />
 
         <div
-          v-if="error"
+          v-if="error || defaultErrorMsg"
           class="error mb-4"
         >
-          {{ error }}
+          {{ error || defaultErrorMsg }}
         </div>
 
         <v-btn
@@ -50,7 +53,12 @@
             value: {
                 type: Boolean,
                 required: true
-            }
+            },
+            hasConfirmPassword: {
+              type: Boolean,
+              required: false,
+              default: true
+            },
         },
         data: () => ({
             password: {
@@ -61,10 +69,11 @@
                 data: '',
                 value: true
             },
+            defaultErrorMsg: ''
         }),
         computed: {
             error() {
-                return this.errorPassword(this.password.data) || this.errorConfirmPassword(this.confirmPassword.data);
+                return this.errorPassword(this.password.data) || this.hasConfirmPassword && this.errorConfirmPassword(this.confirmPassword.data);
             }
         },
         methods: {
