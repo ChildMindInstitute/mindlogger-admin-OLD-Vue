@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.12] = 2020-08-31
 ### Changed
 - Fixed the time selector position and size after resizing the dashboard 
+- Dashboard chart enforces a time window of one week
 
 ## [0.2.11] = 2020-08-20
 ### Changed
