@@ -132,7 +132,6 @@ const mutations = {
     }
     state.userEmail = userData.email;
   },
-
   setCachedEvents(state, events) {
     if (events) {
       state.cachedEvents = events;
