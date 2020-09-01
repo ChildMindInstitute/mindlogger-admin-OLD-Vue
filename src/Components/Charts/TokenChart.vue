@@ -206,26 +206,35 @@ export default {
     },
 
     drawBrush() {
-      this.brush = d3
-        .brushX()
-        .extent([
-          [0, this.contextMargin.top - 5] ,
-          [this.width + this.focusBarWidth(), this.contextMargin.top +
-            this.contextHeight + 5],
-        ])
-        .on('end', () => {
-          const selection = d3.event.selection.map(this.contextX.invert);
-          this.focusExtent = [
-            d3.utcDay.ceil(selection[0]),
-            d3.utcDay.floor(selection[1]),
-          ];
-          this.drawAxes();
-          this.drawFocusChart();
-        });
-      this.svg
-        .append('g')
-        .call(this.brush)
-        .call(this.brush.move, [ONE_WEEK_AGO, TODAY].map(this.contextX))
+      if (!this.brush) {
+        this.brush = d3
+          .brushX()
+          .extent([
+            [0, this.contextMargin.top - 5] ,
+            [this.width + this.focusBarWidth(), this.contextMargin.top +
+              this.contextHeight + 5],
+          ])
+          .on('end', () => {
+            const selection = d3.event.selection.map(this.contextX.invert);
+            this.focusExtent = [
+              d3.utcDay.ceil(selection[0]),
+              d3.utcDay.floor(selection[1]),
+            ];
+            this.drawAxes();
+            this.drawFocusChart();
+          });
+      }
+
+      if (!this.brushContainer) {
+        this.brushContainer = this.svg
+          .append('g')
+          .call(this.brush);
+      }
+
+      this.brushContainer.call(
+        this.brush.move, 
+        [ONE_WEEK_AGO, TODAY].map(this.contextX),
+      );
     },
 
     computeValueExtent() {
@@ -308,6 +317,7 @@ export default {
       this.resize();
       this.drawAxes();
       this.drawLegend();
+      this.drawBrush();
       this.drawFocusChart();
       this.drawContextChart();
     },
