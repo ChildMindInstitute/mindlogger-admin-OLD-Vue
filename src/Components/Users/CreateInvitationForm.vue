@@ -69,7 +69,7 @@
           >
             <v-text-field
               v-model="params.profile.mrn"
-              label="MRN"
+              label="Institutional ID"
             />
           </v-col>
           <v-col 
