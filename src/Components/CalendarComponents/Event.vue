@@ -78,6 +78,7 @@
           <my-schedule
             @onTimeout="handleTimeout"
             @onIdleTime="handleIdleTime"
+            @onExtendedTime="handleExtendedTime"
             @onCompletion="handleCompletion"
             :completion="completion"
             :timeout="timeout"
@@ -85,6 +86,7 @@
             :schedule="schedule"
             :day="day"
             :read-only="readOnly"
+            :extended-time="extendedTime"
             :is-timeout-valid="isTimeoutValid"
           />
         </slot>
@@ -361,6 +363,7 @@ export default {
     schedule: new Schedule(),
     details: vm.$dayspan.getDefaultEventDetails(),
     oneTimeCompletion: false,
+    scheduledExtendedTime: {},
     scheduledTimeout: {},
     scheduledIdleTime: {},
   }),
@@ -379,6 +382,14 @@ export default {
           hour: 12,
           minute: 0,
           access: false,
+          allow: false,
+        }
+      );
+    },
+    extendedTime() {
+      return (
+        this.details.extendedTime || {
+          days: 7,
           allow: false,
         }
       );
@@ -406,6 +417,7 @@ export default {
         timeout: this.details.timeout,
         completion: this.details.completion,
         idleTime: this.details.idleTime,
+        extendedTime: this.details.extendedTime,
         busyOptions: this.busyOptions,
         day: this.day,
         calendar: this.calendar,
@@ -602,6 +614,10 @@ export default {
       this.scheduledIdleTime = scheduledIdleTime;
     },
 
+    handleExtendedTime(scheduledExtendedTime) {
+      this.scheduledExtendedTime = scheduledExtendedTime;
+    },
+
     handleCompletion(oneTimeCompletion) {
       this.oneTimeCompletion = oneTimeCompletion;
     },
@@ -676,6 +692,18 @@ export default {
         evDetails.completion = true;
       } else {
         evDetails.completion = false;
+      }
+
+      if (!this.scheduledExtendedTime.hasOwnProperty("allow")) {
+        this.scheduledExtendedTime = this.extendedTime;
+      }
+      if (!this.scheduledExtendedTime.allow) {
+        evDetails.extendedTime = {
+          minute: 1,
+          allow: this.scheduledExtendedTime.allow,
+        };
+      } else {
+        evDetails.extendedTime = this.scheduledExtendedTime;
       }
 
       if (!this.scheduledTimeout.hasOwnProperty("allow")) {
