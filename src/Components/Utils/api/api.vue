@@ -85,7 +85,7 @@ const setAccountName = ({ apiHost, token, accountName }) =>
 const getApplet = ({ apiHost, token, allEvent, id }) =>
   axios({
     method: "get",
-    url: `${apiHost}/applet/${id}?retrieveSchedule=true&retrieveAllEvents=${allEvent}&retrieveItems=false`,
+    url: `${apiHost}/applet/${id}?retrieveSchedule=true&retrieveAllEvents=${allEvent}&retrieveItems=true`,
     headers: {
       "Girder-Token": token
     }

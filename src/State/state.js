@@ -73,9 +73,7 @@ const mutations = {
             accounts.push({
               appletId,
               allEvent:
-                key === "manager" || key === "coordinator"
-                  ? true
-                  : false,
+                key === "manager" || key === "coordinator" ? true : false,
             });
           }
         });
@@ -88,7 +86,7 @@ const mutations = {
       state.currentApplet = protocol;
     }
   },
-  setAllApplets(state, protocols) { 
+  setAllApplets(state, protocols) {
     state.allApplets = protocols;
   },
 
@@ -105,10 +103,7 @@ const mutations = {
       Object.keys(currentApplets).forEach((key, index) => {
         if (currentApplets[key] && currentApplets[key].length) {
           currentApplets[key].forEach((id, index) => {
-            if (
-              appletId === id &&
-              key !== "user"
-            ) {
+            if (appletId === id && key !== "user") {
               state.allApplets[i].roles.push(key);
             }
           });
@@ -193,4 +188,3 @@ export const storeConfig = {
 const store = new Store(storeConfig);
 
 export default store;
-
