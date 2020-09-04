@@ -51,7 +51,6 @@
           <div>
             <v-menu offset-x>
               <template v-slot:activator="{ on }">
-                <!-- :disabled="!applet.roles.includes('coordinator')"  -->
                 <v-btn text v-on="on">Select</v-btn>
               </template>
               <v-list>
@@ -60,10 +59,13 @@
                     <v-list-item-title>Duplicate</v-list-item-title>
                   </v-list-item>
                 </router-link>
-                <v-list-item @click="onViewUsers">
+                <v-list-item :disabled="!applet.roles.includes('coordinator')" @click="onViewUsers">
                   <v-list-item-title>View Users</v-list-item-title>
                 </v-list-item>
-                <v-list-item @click="onViewGeneralCalendar">
+                <v-list-item
+                  :disabled="!applet.roles.includes('coordinator')"
+                  @click="onViewGeneralCalendar"
+                >
                   <v-list-item-title>View General Calendar</v-list-item-title>
                 </v-list-item>
               </v-list>
