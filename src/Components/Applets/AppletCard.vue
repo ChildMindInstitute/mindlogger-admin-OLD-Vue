@@ -1,20 +1,34 @@
 <template>
   <v-card class="appletCard" :width="cardWidth">
-    <v-layout v-if="currentApplet" class="selectedApplet" align-center justify-center column>
-      <v-icon size="72" color="primary">mdi-check</v-icon>
+    <v-layout
+      v-if="currentApplet"
+      class="selectedApplet"
+      align-center
+      justify-center
+      column
+    >
+      <v-icon size="72" color="primary">
+        mdi-check
+      </v-icon>
       <v-card-title primary-title>
-        <h3 class="headline mb-0">{{ appletPrefLabel }}</h3>
+        <h3 class="headline mb-0">
+          {{ appletPrefLabel }}
+        </h3>
       </v-card-title>
     </v-layout>
     <div v-else>
       <v-img
-        :src="applet.applet['schema:image'] || 'https://picsum.photos/id/83/200/200'"
+        :src="
+          applet.applet['schema:image'] || 'https://picsum.photos/id/83/200/200'
+        "
         width="100%"
         aspect-ratio="1"
         contain
       />
       <v-card-title primary-title>
-        <h3 class="headline mb-0">{{ appletPrefLabel }}</h3>
+        <h3 class="headline mb-0">
+          {{ appletPrefLabel }}
+        </h3>
       </v-card-title>
       <v-card-text>{{ appletDescription }}</v-card-text>
       <v-card-actions>
@@ -24,7 +38,9 @@
               <template v-slot:activator="{ on }">
                 <v-btn
                   text
-                  :disabled="status !== 'ready' || !applet.roles.includes('editor')"
+                  :disabled="
+                    status !== 'ready' || !applet.roles.includes('editor')
+                  "
                   @click="refreshApplet"
                   v-on="on"
                 >
@@ -43,7 +59,9 @@
                   :disabled="!applet.roles.includes('manager')"
                   @click="deleteApplet"
                   v-on="on"
-                >Delete</v-btn>
+                >
+                  Delete
+                </v-btn>
               </template>
               <span>Permanantly disable this applet</span>
             </v-tooltip>
@@ -51,15 +69,29 @@
           <div>
             <v-menu offset-x>
               <template v-slot:activator="{ on }">
-                <v-btn text v-on="on">Select</v-btn>
+                <v-btn
+                  text
+                  :disabled="
+                    !applet.roles.includes('coordinator') &&
+                      !applet.roles.includes('reviewer')
+                  "
+                  v-on="on"
+                >
+                  Select
+                </v-btn>
               </template>
               <v-list>
-                <router-link :to="{ name: 'Builder', params: { applet: applet} }">
+                <router-link
+                  :to="{ name: 'Builder', params: { applet: applet } }"
+                >
                   <v-list-item>
                     <v-list-item-title>Duplicate</v-list-item-title>
                   </v-list-item>
                 </router-link>
-                <v-list-item :disabled="!applet.roles.includes('coordinator')" @click="onViewUsers">
+                <v-list-item
+                  :disabled="!applet.roles.includes('coordinator')"
+                  @click="onViewUsers"
+                >
                   <v-list-item-title>View Users</v-list-item-title>
                 </v-list-item>
                 <v-list-item
@@ -101,12 +133,12 @@ export default {
   props: {
     applet: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   data: () => ({
     status: "ready",
-    cardWidth: 300
+    cardWidth: 300,
   }),
   computed: {
     currentApplet() {
@@ -153,7 +185,7 @@ export default {
       } else {
         return null;
       }
-    }
+    },
   },
   methods: {
     refreshApplet() {
@@ -185,8 +217,8 @@ export default {
       const appletId = this.applet.applet._id.split("applet/")[1];
       this.$store.commit("setCurrentUsers", []);
       this.$router.push(`applet/${appletId}/schedule`);
-    }
-  }
+    },
+  },
 };
 </script>
 

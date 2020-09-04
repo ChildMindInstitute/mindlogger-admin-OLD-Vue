@@ -16,43 +16,82 @@
         key="componentKey"
         :users="activeUserList"
       />
-      <h1>Pending Invitations</h1>
-      <pending-invite-table :users="pendingInviteList" />
-      <create-invitation-form @createInvitation="createInvitation" />
-      <div style="height: 58px;" />
+
+      <div v-if="hasRoles('manager', 'coordinator')">
+        <h1>Pending Invitations</h1>
+        <pending-invite-table :users="pendingInviteList" />
+        <create-invitation-form @createInvitation="createInvitation" />
+        <div style="height: 58px;" />
+      </div>
+
     </div>
-    <v-btn
-      color="primary"
-      fixed
-      bottom
-      left
-      @click="$router.go(-1)"
-    >
-      Back
-    </v-btn>
-    <v-tooltip top>
-      <template v-slot:activator="{ on }">
-        <v-btn
-          color="primary"
-          fixed
-          bottom
-          right
-          fab
-          style="bottom: 70px; right: 40px;"
-          @click="viewCalendar"
-          v-on="on"
-        >
-          <v-icon>mdi-calendar</v-icon>
-        </v-btn>
-      </template>
-      <span>View schedule for the selected users</span>
-    </v-tooltip>
+
+    <div class="tools">
+      <!-- CALENDAR BUTTON -->
+      <v-tooltip top v-if="hasRoles('owner', 'manager', 'coordinator')">
+        <template v-slot:activator="{ on }">
+          <v-btn
+            fab
+            color="primary"
+            @click="viewCalendar"
+            v-on="on"
+          >
+            <v-icon>mdi-calendar</v-icon>
+          </v-btn>
+        </template>
+        <span>View schedule for the selected users</span>
+      </v-tooltip>
+
+      <!-- DASHBOARD BUTTON -->
+      <v-tooltip top v-if="dashboardEnabled">
+        <template v-slot:activator="{ on }">
+          <v-btn
+            fab
+            color="primary"
+            @click="viewDashboard"
+            v-on="on"
+          >
+            <v-icon>mdi-chart-bar</v-icon>
+          </v-btn>
+        </template>
+        <span>View the applet dashboard for the selected users</span>
+      </v-tooltip>
+    </div>
+
+    <footer class="footer">
+      <!-- BACK BUTTON -->
+      <v-btn color="primary" @click="$router.go(-1)">
+        Back
+      </v-btn>
+    </footer>
   </div>
 </template>
 
 <style scoped>
 .loading {
   text-align: center;
+}
+
+.tools {
+  position: fixed;
+  bottom: 70px;
+  right: 70px;
+  left: auto;
+
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.tools > *:not(:last-of-type) {
+  margin-right: 0.5rem; 
+}
+
+.footer {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  right: auto;
 }
 </style>
 
@@ -75,6 +114,13 @@ export default {
     componentKey: 0
   }),
   computed: {
+    dashboardEnabled() {
+      const hasPermission = this.hasRoles('owner', 'reviewer', 'manager');
+      const id = this.currentApplet.applet['@id'] || '';
+      const isTokenLogger = id.includes('TokenLogger') || id.includes('TokenCollector');
+
+      return isTokenLogger && hasPermission;
+    },
     isUsersLoaded() {
       return !_.isEmpty(this.$store.state.users);
     },
@@ -106,6 +152,12 @@ export default {
     this.getAppletUsers();
   },
   methods: {
+    hasRoles() {
+      return [].some.call(
+        arguments, 
+        role => this.currentApplet.roles.includes(role),
+      );
+    },
     updateTables() {
       this.componentKey += 1;
     },
@@ -130,6 +182,12 @@ export default {
           this.status = "error";
         });
     },
+
+    /**
+     * Fetches the listing of users for the current applet.
+     *
+     * @return {void}
+     */
     getAppletUsers() {
       api
         .getAppletUsers({
@@ -147,6 +205,13 @@ export default {
           this.status = "error";
         });
     },
+
+    /**
+     * Updates the account name in the API.
+     *
+     * @param {string} accountName the new account name.
+     * @return {void}
+     */
     setAccountName(accountName) {
       api
         .setAccountName({
@@ -162,10 +227,33 @@ export default {
           console.warn(err);
         })
     },
+
+    /**
+     * Navigates to the applet schedule calendar.
+     *
+     * @return {void}
+     */
     viewCalendar() {
-      const appletId = this.$route.params.appletId;
+      const { appletId } = this.$route.params;
+
       this.$refs.userTableRef.getSelectedNodes();
       this.$router.push(`/applet/${appletId}/schedule`);
+    },
+
+    /**
+     * Navigates to the token dashboard page.
+     *
+     * @return {void}
+     */
+    viewDashboard() {
+      const { appletId } = this.$route.params;
+
+      // Update the app state with the selected users.
+      this.$refs.userTableRef.getSelectedNodes();
+      this.$router.push({
+        path: `/applet/${appletId}/dashboard`,
+        query: { users: this.$store.state.currentUsers },
+      });
     },
   },
 };

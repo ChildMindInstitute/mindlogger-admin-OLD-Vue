@@ -5,6 +5,7 @@ import Login from "../Steps/Login";
 import SetApplet from "../Steps/SetApplet";
 import SetUsers from "../Steps/SetUsers";
 import SetSchedule from "../Steps/SetSchedule";
+import TokenLoggerDashboard from "../Steps/TokenLoggerDashboard";
 
 import _ from "lodash";
 
@@ -50,6 +51,14 @@ let router = new Router({
       path: "/applet/:appletId/schedule",
       name: "SetSchedule",
       component: SetSchedule,
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
+      path: "/applet/:appletId/dashboard",
+      name: "TokenLoggerDashboard",
+      component: TokenLoggerDashboard,
       meta: {
         requiresAuth: true,
       },
