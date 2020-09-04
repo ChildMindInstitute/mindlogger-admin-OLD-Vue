@@ -103,17 +103,18 @@ const getUserResponses = ({ apiHost, token, appletId, users, untilDate }) => axi
   params: { users: users + '' },
 });
 
-const addNewApplet = ({ apiHost, token, protocolUrl, email }) => axios({
-method: 'POST',
+const addNewApplet = ({ apiHost, token, protocolUrl, email, data }) => axios({
+  method: 'POST',
   url: `${apiHost}/applet/`,
   headers: {
     'Girder-Token': token,
   },
   params: {
     protocolUrl,
-    email,
+    email
   },
-})
+  data
+});
 
 const refreshApplet = ({ apiHost, token, appletId }) => axios({
   method: 'PUT',

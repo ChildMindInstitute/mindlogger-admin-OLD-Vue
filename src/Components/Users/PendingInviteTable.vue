@@ -39,7 +39,7 @@ export default {
     return {
       columnDefs: [
         {
-          headerName: 'MRN',
+          headerName: 'Institutional ID',
           field: 'mrn',
           sortable: true,
           filter: true,

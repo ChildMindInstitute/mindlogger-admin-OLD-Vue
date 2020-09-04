@@ -35,6 +35,11 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <AppletPassword
+      v-model="appletPasswordDialog"
+      @set-password="onClickSubmitPassword"
+    />
   </v-content>
 </template>
 
@@ -45,11 +50,15 @@ import PackageJson from '../../../package.json';
 import api from '../Utils/api/api.vue';
 import { cloneDeep } from 'lodash';
 
+import encryption from '../Utils/encryption/encryption.vue';
+import AppletPassword from '../Applets/AppletPassword'
+
 export default {
   name: 'Builder',
   components: {
     ...Components,
-    About
+    About,
+    AppletPassword
   },
   data () {
     return {
@@ -58,12 +67,33 @@ export default {
       package: PackageJson,
       dialog: false,
       dialogText: '',
+      appletPasswordDialog: false,
+      newApplet: {}
     };
   },
   methods: {
+    onClickSubmitPassword(appletPassword) {
+      this.appletPasswordDialog = false;
+      this.addNewApplet(appletPassword);
+    },
     onUploadProtocol(newApplet) {
+      this.newApplet = newApplet;
+      this.appletPasswordDialog = true;
+    },
+    addNewApplet(appletPassword) {
       const protocol = new FormData();
-      protocol.set("protocol", JSON.stringify(newApplet || {}));
+      protocol.set('protocol', JSON.stringify(this.newApplet || {}));
+
+      const encryptionInfo = encryption.getAppletEncryptionInfo({
+        appletPassword: appletPassword,
+        accountId: this.$store.state.currentAccount.accountId
+      });
+
+      protocol.set('encryption', JSON.stringify({
+        appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
+        appletPrime: Array.from(encryptionInfo.getPrime()),
+        base: Array.from(encryptionInfo.getGenerator())
+      }));
 
       api.createApplet({
         data: protocol,
@@ -71,7 +101,7 @@ export default {
         token: this.$store.state.auth.authToken.token,
         apiHost: this.$store.state.backend,
       }).then((resp) => {
-        this.dialogText = 'The applet is being created. Please check back in several mintutes to see it.';
+        this.dialogText = resp.data.message;
         this.dialog = true;
       }).catch((e) => {
         console.log(e);

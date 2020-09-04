@@ -35,7 +35,7 @@
           fab
           style="bottom: 70px; right: 40px;"
           :disabled="!isEditable"
-          @click="dialog = true"
+          @click="appletUploadDialog = true"
           v-on="on"
         >
           <v-icon>mdi-plus</v-icon>
@@ -45,7 +45,7 @@
     </v-tooltip>
 
     <v-dialog
-      v-model="dialog"
+      v-model="appletUploadDialog"
       max-width="800"
     >
       <v-card>
@@ -92,6 +92,11 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+
+    <AppletPassword
+      v-model="appletPasswordDialog"
+      @set-password="onClickSubmitPassword"
+    />
   </div>
 </template>
 
@@ -99,11 +104,14 @@
 import AppletCard from './AppletCard.vue';
 import api from '../Utils/api/api.vue';
 import config from '../../config';
+import encryption from '../Utils/encryption/encryption.vue';
+import AppletPassword from './AppletPassword'
 
 export default {
   name: 'AllApplets',
   components: {
     AppletCard,
+    AppletPassword
   },
   props: {
     applets: {
@@ -113,8 +121,9 @@ export default {
   },
   data: () => ({
     sampleProtocols: config.protocols,
-    dialog: false,
+    appletUploadDialog: false,
     newProtocolURL: '',
+    appletPasswordDialog: false,
   }),
   computed: {
     isEditable() {
@@ -139,19 +148,36 @@ export default {
     },
   },
   methods: {
-    onClickAdd(){
-      this.dialog = false;
-      this.addNewApplet();
+    onClickAdd() {
+      this.appletUploadDialog = false;
+      this.appletPasswordDialog = true;
     },
-    addNewApplet() {
+    onClickSubmitPassword(appletPassword) {
+      this.appletPasswordDialog = false;
+      this.addNewApplet(appletPassword);
+    },
+    addNewApplet(appletPassword) {
+      const encryptionInfo = encryption.getAppletEncryptionInfo({
+        appletPassword: appletPassword,
+        accountId: this.$store.state.currentAccount.accountId
+      });
+
+      const encryptionForm = new FormData();
+      encryptionForm.set('encryption', JSON.stringify({
+            appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
+            appletPrime: Array.from(encryptionInfo.getPrime()),
+            base: Array.from(encryptionInfo.getGenerator())
+      }));
+
       api.addNewApplet({
         protocolUrl: this.newProtocolURL,
         email: this.$store.state.userEmail,
         token: this.$store.state.auth.authToken.token,
         apiHost: this.$store.state.backend,
+        data: encryptionForm
       }).then((resp) => {
         this.newProtocolURL = '';
-        this.$emit('appletUploadSuccessful');
+        this.$emit('appletUploadSuccessful', resp.data.message);
       }).catch((e) => {
         this.$emit('appletUploadError');
       });

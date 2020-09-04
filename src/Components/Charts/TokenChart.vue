@@ -1,5 +1,7 @@
 <template>
   <div class="TokenChart" ref="container" >
+    {{ focusExtent }}
+
     <svg :id="plotId" >
       <defs>
         <clipPath id="clip">
@@ -117,13 +119,15 @@
 import * as d3 from 'd3';
 
 
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const NOW = new Date();
 const TODAY = new Date(Date.UTC(
   NOW.getFullYear(),
   NOW.getMonth(),
-  NOW.getDate(),
-  23,
-  59,
+  NOW.getDate() + 1,
+  0,
+  0,
+  0,
 ));
 const ONE_WEEK_AGO = new Date(TODAY);
 const ONE_MONTH_AGO = new Date(TODAY);
@@ -150,7 +154,7 @@ export default {
 
   data: () => ({
     legendWidth: 150,
-    focusExtent: [ONE_WEEK_AGO, NOW],
+    focusExtent: [ONE_WEEK_AGO, TODAY],
     divergingExtent: {
       min: 0,
       max: 0,
@@ -206,26 +210,56 @@ export default {
     },
 
     drawBrush() {
-      this.brush = d3
-        .brushX()
-        .extent([
-          [0, this.contextMargin.top - 5] ,
-          [this.width + this.focusBarWidth(), this.contextMargin.top +
-            this.contextHeight + 5],
-        ])
-        .on('end', () => {
-          const selection = d3.event.selection.map(this.contextX.invert);
-          this.focusExtent = [
-            d3.utcDay.ceil(selection[0]),
-            d3.utcDay.floor(selection[1]),
-          ];
-          this.drawAxes();
-          this.drawFocusChart();
-        });
-      this.svg
-        .append('g')
-        .call(this.brush)
-        .call(this.brush.move, [ONE_WEEK_AGO, TODAY].map(this.contextX))
+      if (!this.brush) {
+        this.brush = d3
+          .brushX()
+          .on('end', () => {
+            if (!d3.event.sourceEvent) return;  // Only transition after input.
+            if (!d3.event.selection) return;  // Ignore empty selections.
+
+            const selection = d3.event.selection.map(this.contextX.invert);
+            let fromDate = selection[0];
+            let toDate = selection[1];
+
+
+            this.focusExtent = [
+              fromDate,
+              toDate,
+            ];
+
+            this.drawAxes();
+            this.drawFocusChart();
+          });
+      }
+
+      d3.selectAll('.overlay').style('pointer-events', 'none');
+      d3.selectAll('.handle').style('pointer-events', 'none');
+
+      this.brush.extent([
+        [
+          0, 
+          this.contextMargin.top - 5,
+        ],
+        [
+          this.width + this.focusBarWidth(), 
+          this.contextMargin.top + this.contextHeight + 5,
+        ],
+      ]);
+
+      if (!this.brushContainer) {
+        this.brushContainer = this.svg
+          .append('g')
+          .call(this.brush)
+          .call(
+            this.brush.move, 
+            [ONE_WEEK_AGO, TODAY].map(this.contextX),
+          );
+      } else {
+        this.brushContainer.call(
+          this.brush.move,
+          this.focusExtent.map(this.contextX),
+        );
+      }
     },
 
     computeValueExtent() {
@@ -308,6 +342,7 @@ export default {
       this.resize();
       this.drawAxes();
       this.drawLegend();
+      this.drawBrush();
       this.drawFocusChart();
       this.drawContextChart();
     },
@@ -348,7 +383,7 @@ export default {
       const xAxis = d3
         .axisBottom()
         .scale(this.x)
-        .ticks(numDays)
+        .ticks(d3.utcDay)
         .tickSize(this.focusHeight)
         .tickFormat(d => d.toLocaleDateString(
           'default',

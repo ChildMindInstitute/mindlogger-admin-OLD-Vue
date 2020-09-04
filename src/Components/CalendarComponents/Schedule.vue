@@ -119,6 +119,40 @@
                   @change="handleOneTimeCompletion"
                   label="One-time completion"
           />
+
+          <v-checkbox
+                  v-model="scheduledExtendedTime.allow"
+                  @change="handleExtendedTimeAccess"
+                  label="Extended Past Due"
+          />
+          <!-- <label>-- {{ access }} </label> -->
+          <label v-if="scheduledExtendedTime.allow">Extended Time : </label>
+
+          <div v-if="scheduledExtendedTime.allow" class="ds-timeout-body">
+            <div class="ds-timeout-units">
+              <v-text-field
+                      type="number"
+                      v-model="scheduledExtendedTime.days"
+                      :value="scheduledExtendedTimeDecimal.days"
+                      @change="onChangeExtendedDays"
+                      class="ds-schedule-timeout"
+                      single-line
+                      hide-details
+                      max="31"
+                      min="00"
+                      solo
+                      flat
+              />
+              <div class="ds-timeout-unit"> days </div>
+            </div>
+          </div>
+          <div
+            v-if="isTimeoutValid === false"
+            class="error"
+          >
+            Extended Time invalid: Extended Time should be non-zero.
+          </div>
+
           <v-checkbox
                   v-model="scheduledIdleTime.allow"
                   @change="handleIdleTimeAccess"
@@ -214,6 +248,10 @@ export default {
       type: Schedule
     },
 
+    extendedTime: {
+      required: false,
+    },
+
     timeout: {
       required: false,
     },
@@ -269,6 +307,8 @@ export default {
       oneTimeCompletion: this.completion,
       scheduledTimeout: this.timeout,
       scheduledTimeoutDecimal: this.timeout,
+      scheduledExtendedTime: this.extendedTime,
+      scheduledExtendedTimeDecimal: this.extendedTime,
       scheduledIdleTime: this.idleTime
     }
   },
@@ -317,8 +357,28 @@ export default {
       this.$emit('onIdleTime', this.scheduledIdleTime);
     },
 
+    handleExtendedTimeAccess() {
+      this.$emit('onExtendedTime', this.scheduledExtendedTime);
+    },
+
     setType(type) {
       this.$emit('type', type);
+    },
+
+    onChangeExtendedDays(newVal){
+      // Convert to integer
+      this.scheduledExtendedTimeDecimal.days = Math.round(newVal);
+
+      // Hours value must be between 0 and 59, inclusive
+      if (this.scheduledExtendedTimeDecimal.days < 0) {
+        this.scheduledExtendedTimeDecimal.days = 0;
+      } else if (this.scheduledExtendedTimeDecimal.days > 31) {
+        this.scheduledExtendedTimeDecimal.days = 31;
+      }
+      this.scheduledExtendedTime.days = this.scheduledExtendedTimeDecimal.days;
+      
+      // Emit updated form
+      this.handleExtendedTimeAccess();
     },
 
     onChangeDays(newVal){
