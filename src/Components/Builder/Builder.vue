@@ -80,8 +80,6 @@ export default {
           this.dialog = true;
         });
     },
-  },
-  methods: {
     onClickSubmitPassword(appletPassword) {
       this.appletPasswordDialog = false;
       this.addNewApplet(appletPassword);

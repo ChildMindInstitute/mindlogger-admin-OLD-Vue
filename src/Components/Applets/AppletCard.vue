@@ -68,6 +68,15 @@
           </div>
           <div>
             <v-menu offset-x>
+              <router-link
+                :to="{ name: 'Builder', params: { applet: applet } }"
+              >
+                <v-list>
+                  <v-list-item>
+                    <v-list-item-title>Duplicate</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </router-link>
               <template v-slot:activator="{ on }">
                 <v-btn
                   text
@@ -81,13 +90,6 @@
                 </v-btn>
               </template>
               <v-list>
-                <router-link
-                  :to="{ name: 'Builder', params: { applet: applet } }"
-                >
-                  <v-list-item>
-                    <v-list-item-title>Duplicate</v-list-item-title>
-                  </v-list-item>
-                </router-link>
                 <v-list-item
                   :disabled="!applet.roles.includes('coordinator')"
                   @click="onViewUsers"
@@ -103,6 +105,13 @@
               </v-list>
             </v-menu>
           </div>
+          <router-link :to="{ name: 'Builder', params: { applet: applet } }">
+            <v-list>
+              <v-list-item>
+                <v-list-item-title>Duplicate</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </router-link>
         </div>
       </v-card-actions>
     </div>
