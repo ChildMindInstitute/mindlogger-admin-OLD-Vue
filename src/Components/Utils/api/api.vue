@@ -125,7 +125,7 @@ const refreshApplet = ({ apiHost, token, appletId }) => axios({
 
 const revokeAppletUser = ({ apiHost, token, appletId, profileId }) => axios({
   method: 'DELETE',
-  url: `${apiHost}/applet/${appletId}`,
+  url: `${apiHost}/applet/${appletId}/deleteUser`,
   headers: {
     'Girder-Token': token,
   },

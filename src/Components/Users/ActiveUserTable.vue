@@ -225,16 +225,6 @@ export default {
       });
 
       if (response === 'Yes') {
-        // const roleInfo = {};
-        // if (userCellData.roles[0] === "manager") {
-        //   roleInfo['reviewer'] = 0;
-        //   roleInfo['editor'] = 0;
-        //   roleInfo['coordinator'] = 0;
-        // }
-        // roleInfo[userCellData.roles[0]] = 0;
-        // roleInfo['user'] = 0;
-
-        // this.updateUserRoles(roleInfo);
         this.revokeAppletUser(this.userCellData._id);
       }
     },
@@ -262,6 +252,7 @@ export default {
           console.log(error);
         })
       } else {
+        this.currentUserList = [];
         this.editRoleDialog = true;
       }
     },
@@ -319,6 +310,22 @@ export default {
         roleInfo['reviewer'] = newUserList;
       } else {
         this.currentUserRoles.forEach((role) => {
+          this.userCellData.roles.forEach((role) => {
+            if (!this.currentUserRoles.includes(role)) {
+              if (role === "manager") {
+                if (roleInfo['coordinator'] !== 1) {
+                  roleInfo['coordinator'] = 0;
+                }
+                if (roleInfo['editor'] !== 1) {
+                  roleInfo['editor'] = 0;
+                }
+                if (roleInfo['reviewer'] !== 1) {
+                  roleInfo['reviewer'] = 0;
+                }
+              }
+              roleInfo[role] = 0;
+            }
+          });
           if (!this.userCellData.roles.includes(role)) {
             if (role === 'reviewer') {
               const newUserList = [];
@@ -335,23 +342,6 @@ export default {
             }
           }
         });
-
-        this.userCellData.roles.forEach((role) => {
-          if (!this.currentUserRoles.includes(role)) {
-            if (role === "manager") {
-              if (roleInfo['coordinator'] !== 1) {
-                roleInfo['coordinator'] = 0;
-              }
-              if (roleInfo['editor'] !== 1) {
-                roleInfo['editor'] = 0;
-              }
-              if (roleInfo['reviewer'] !== 1) {
-                roleInfo['reviewer'] = 0;
-              }
-            }
-            roleInfo[role] = 0;
-          }
-        })
       }
 
       this.updateUserRoles(roleInfo);
@@ -399,7 +389,13 @@ export default {
         appletId: this.appletId,
         profileId,
       }).then((response) => {
-        console.log('deleted--->', response);
+        let newData = []; 
+        this.userData.forEach((user) => {
+          if (user._id !== profileId) {
+            newData.push(user);
+          }
+        });
+        this.userData = newData;
       }).catch((error) => {
         console.log(error);
       })
