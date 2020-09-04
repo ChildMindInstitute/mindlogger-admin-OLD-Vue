@@ -10,7 +10,7 @@ import api from "../Components/Utils/api/api.vue";
 
 const getDefaultState = () => {
   return {
-    backend: process.env.VUE_APP_SERVER_URL,
+    backend: "https://api-dev.mindlogger.org/api/v1",
     currentAccount: {},
     currentApplets: [],
     ownerAccount: {},
