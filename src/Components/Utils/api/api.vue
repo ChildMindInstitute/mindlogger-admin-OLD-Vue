@@ -124,7 +124,7 @@ const refreshApplet = ({ apiHost, token, appletId }) => axios({
   },
 });
 
-const revokeAppletUser = ({ apiHost, token, appletId, profileId }) => axios({
+const revokeAppletUser = ({ apiHost, token, appletId, profileId, deleteResponse }) => axios({
   method: 'DELETE',
   url: `${apiHost}/applet/${appletId}/deleteUser`,
   headers: {
@@ -132,6 +132,7 @@ const revokeAppletUser = ({ apiHost, token, appletId, profileId }) => axios({
   },
   params: {
     profileId,
+    deleteResponse,
   },
 });
 
