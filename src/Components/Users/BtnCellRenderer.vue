@@ -1,6 +1,6 @@
 <template>
   <span
-    v-if="!params.data.roles.includes('owner') && params.data.roles != 'user'"
+    v-if="!params.data.roles.includes('owner')"
     class="btn-align"
   >
     <v-btn
@@ -8,11 +8,13 @@
       small
       color="primary"
       class="btn-edit"
+      :disabled="params.data.roles == 'user'"
       @click.stop="btnEditedHandler($event)"
     >
-      <v-icon>edit</v-icon>
+      <v-icon v-if="params.data.roles != 'user'">edit</v-icon>
     </v-btn>
     <v-btn
+      v-if="params.data.roles != 'user'"
       icon
       small
       color=""
@@ -20,6 +22,38 @@
     >
       <v-icon>delete</v-icon>
     </v-btn>
+
+    <v-menu 
+      v-if="params.data.roles == 'user'"
+      offset-y
+    >
+      <template v-slot:activator="{ attrs, on }">
+        <v-btn
+          icon
+          small
+          color=""
+          v-bind="attrs"
+          v-on="on"
+        >
+          <v-icon>delete</v-icon>
+        </v-btn>
+      </template>
+
+      <v-list>
+        <v-list-item
+          link
+          @click="btnDeletedHandler('deleteUser')"
+        >
+          <v-list-item-title> Remove user </v-list-item-title>
+        </v-list-item>
+        <v-list-item 
+          link
+          @click="btnDeletedHandler('deleteData')"
+        >
+          <v-list-item-title> Remove user & data </v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-menu>
   </span>
 </template>
 
@@ -35,10 +69,17 @@ export default Vue.extend({
      */
     
     btnEditedHandler(event) {
-      this.params.clicked({
-        data: JSON.stringify(this.params.data), 
-        action: 'edit'
-      });
+      if (this.params.data.roles != 'user') {
+        this.params.clicked({
+          data: JSON.stringify(this.params.data), 
+          action: 'edit'
+        });
+      } else {
+        this.params.clicked({
+          data: JSON.stringify(this.params.data), 
+          action: 'userEdit'
+        });
+      }
     },
     
     /**
@@ -47,11 +88,23 @@ export default Vue.extend({
      * @return {void}
      */
     
-    btnDeletedHandler() {
+    btnDeletedHandler(action = 'delete') {
       this.params.clicked({
         data: JSON.stringify(this.params.data), 
-        action: 'delete'
+        action,
       });
+
+      // if (this.params.data.roles != 'user') {
+      //   this.params.clicked({
+      //     data: JSON.stringify(this.params.data), 
+      //     action: 'delete'
+      //   });
+      // } else {
+      //   this.params.clicked({
+      //     data: JSON.stringify(this.params.data), 
+      //     action: 'userDelete'
+      //   });
+      // }
     }
   }
 });
