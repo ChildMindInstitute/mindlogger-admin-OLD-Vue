@@ -195,7 +195,9 @@ export default {
           withResponses: true,
           users: Array.isArray(users) ? users : [users],
         },
+        this.$store.state.currentApplet.applet.encryption
       );
+
       this.loading = false;
     } catch(error) {
       this.status = 'Oops, something went wrong. We couldn\'t load the applet';

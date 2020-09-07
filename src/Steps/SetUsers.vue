@@ -289,6 +289,41 @@ export default {
       this.$router.push(`/applet/${appletId}/schedule`);
     },
 
+    onReviewerDashboard() {
+      const encryptionInfo = this.currentApplet.applet.encryption;
+
+      if (encryptionInfo && encryptionInfo.appletPrivateKey) {
+        this.gotoDashboard();
+      } else {
+        this.appletPasswordDialog = true;
+      }
+    },
+
+    /** check applet password */
+    onClickSubmitPassword(appletPassword) {
+      const currentApplet = this.currentApplet;
+
+      const encryptionInfo = encryption.getAppletEncryptionInfo({
+        appletPassword,
+        accountId: this.$store.state.currentAccount.accountId,
+        prime: currentApplet.applet.encryption.appletPrime,
+        baseNumber: currentApplet.applet.encryption.base
+      });
+
+      if (encryptionInfo.getPublicKey().equals(Buffer.from(currentApplet.applet.encryption.appletPublicKey))) {
+        this.appletPasswordDialog = false;
+
+        this.$store.commit("setAppletPrivateKey", {
+          appletId: currentApplet.applet._id, 
+          key: Array.from(encryptionInfo.getPrivateKey())
+        });
+
+        this.gotoDashboard();
+      } else {
+        this.$refs.appletPasswordRef.defaultErrorMsg = 'Incorrect applet password';
+      }
+    },
+
     /**
      * Navigates to the token dashboard page.
      *
