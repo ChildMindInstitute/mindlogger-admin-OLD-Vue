@@ -127,9 +127,8 @@ export default {
           this.status = "error";
         });
     },
-    onAppletUploadSuccessful() {
-      this.dialogText =
-        "The applet is being created. Please check back in several mintutes to see it.";
+    onAppletUploadSuccessful(message) {
+      this.dialogText = message;
       this.dialog = true;
     },
     onAppletUploadError() {

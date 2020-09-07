@@ -19,6 +19,11 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <AppletPassword
+      v-model="appletPasswordDialog"
+      @set-password="onClickSubmitPassword"
+    />
   </v-content>
 </template>
 
@@ -32,12 +37,15 @@ import { cloneDeep } from "lodash";
 // import encryption from "../Utils/encryption/encryption.vue";
 // import AppletPassword from "../Applets/AppletPassword";
 
+import encryption from '../Utils/encryption/encryption.vue';
+import AppletPassword from '../Applets/AppletPassword'
+
 export default {
   name: "Builder",
   components: {
     ...Components,
-    About
-    // AppletPassword
+    About,
+    AppletPassword
   },
   data() {
     return {
@@ -76,6 +84,10 @@ export default {
       this.addNewApplet(appletPassword);
     },
     onUploadProtocol(newApplet) {
+      this.newApplet = newApplet;
+      this.appletPasswordDialog = true;
+    },
+    addNewApplet(appletPassword) {
       const protocol = new FormData();
       protocol.set("protocol", JSON.stringify(this.newApplet || {}));
 
