@@ -13,7 +13,6 @@
       :domLayout="domLayout"
       @first-data-rendered="onFirstDataRendered"
     />
-
     <v-dialog
       v-model="editRoleDialog"
       max-width="500px"
@@ -58,6 +57,65 @@
             @click="onSaveUserRole()"
           >
             Save
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog
+      v-model="passwordDialog"
+      persistent
+      max-width="450px"
+    >
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          color="primary"
+          dark
+          v-bind="attrs"
+          v-on="on"
+        >
+          Open Dialog
+        </v-btn>
+      </template>
+      <v-card>
+        <v-card-title class="edit-card-title">
+          <span class="headline">Are you sure?</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="password"
+                  label="Confirm password"
+                  type="password"
+                  required
+                />
+                <div
+                  v-if="error"
+                  class="error"
+                >
+                  {{ error }}
+                </div>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="passwordDialog = false"
+          >
+            Close
+          </v-btn>
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="onConfirmPassword()"
+          >
+            Confirm
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -109,8 +167,11 @@ export default {
       gridOptions: null,
       clickSelection: true,
       editRoleDialog: false,
+      passwordDialog: false,
       userRoleData: ['coordinator', 'editor', 'reviewer', 'manager'],
       disabledRoles: ['coordinator', 'editor', 'reviewer'],
+      password: '',
+      error: '',
     };
   },
   computed: {
@@ -125,64 +186,77 @@ export default {
   },
   beforeMount() {
     this.gridOptions = {};
-    this.userData = this.users.map((user) => {
-      let roles = [];
-      if (user.roles.length === 1 && user.roles[0] === 'user') {
-        roles.push('user');
-      } else if (user.roles.includes('owner')) {
-        roles.push('owner');
-      } else if (user.roles.includes('manager')) {
-        roles.push('manager');
-      } else {
-        roles = user.roles.filter(role => role != 'user');
-      }
-      return {
-        displayName: user.displayName,
-        email: user.email,
-        mrn: user.MRN,
-        _id: user._id,
-        roles
-      };
-    })
+    const isManager = this.$store.state.currentAccount.applets['manager'] ? true : false;
+    if (isManager) {
+      this.userData = this.users.map((user) => {
+        let roles = [];
+        if (user.roles.length === 1 && user.roles[0] === 'user') {
+          roles.push('user');
+        } else if (user.roles.includes('owner')) {
+          roles.push('owner');
+        } else if (user.roles.includes('manager')) {
+          roles.push('manager');
+        } else {
+          roles = user.roles.filter(role => role != 'user');
+        }
+        return {
+          displayName: user.displayName,
+          email: user.email,
+          mrn: user.MRN,
+          _id: user._id,
+          roles
+        };
+      });
+    } else {
+      this.userData = this.users.map((user) => {
+        return {
+          displayName: user.displayName,
+          email: user.email,
+          mrn: user.MRN,
+          _id: user._id,
+          roles: ['user'],
+        };
+      });
+    }
     this.columnDefs = [
-        {
-          headerName: 'Name',
-          field: 'displayName',
-          sortable: true,
-          filter: true,
-          resizable: true,
-          cellStyle: {justifyContent: 'center'}
+      {
+        headerName: 'Name',
+        field: 'displayName',
+        sortable: true,
+        filter: true,
+        resizable: true,
+        cellStyle: {justifyContent: 'center'}
+      },
+      {
+        headerName: 'Roles',
+        field: 'roles',
+        sortable: true,
+        filter: true,
+        resizable: true,
+        cellStyle: {justifyContent: 'center'}
+      },
+      {
+        headerName: 'Email',
+        field: 'email',
+        sortable: true,
+        filter: true,
+        resizable: true,
+        cellStyle: {justifyContent: 'center'}
+      },
+      {
+        headerName: '',
+        field: 'athelete',
+        maxWidth: 200,
+        cellStyle: {display: 'flex', justifyContent: 'center'},
+        cellRenderer: 'btnCellRenderer',
+        cellRendererParams: {
+          clicked: this.onClickedHander
         },
-        {
-          headerName: 'Roles',
-          field: 'roles',
-          sortable: true,
-          filter: true,
-          resizable: true,
-          cellStyle: {justifyContent: 'center'}
-        },
-        {
-          headerName: 'Email',
-          field: 'email',
-          sortable: true,
-          filter: true,
-          resizable: true,
-          cellStyle: {justifyContent: 'center'}
-        },
-        {
-          headerName: '',
-          field: 'athelete',
-          maxWidth: 200,
-          cellStyle: {display: 'flex', justifyContent: 'center'},
-          cellRenderer: 'btnCellRenderer',
-          cellRendererParams: {
-            clicked: this.onClickedHander
-          },
-        },
-      ];
-      this.frameworkComponents = {
-        btnCellRenderer: BtnCellRenderer
-      };
+      },
+    ];
+    this.frameworkComponents = {
+      btnCellRenderer: BtnCellRenderer
+    };
   },
   methods: {
     /**
@@ -196,11 +270,39 @@ export default {
       this.userCellData = JSON.parse(data);
       this.currentUserRoles = this.userCellData.roles;
 
-      if (action === "delete") {
+      if (action === 'delete') {
         await this.onDeleteRole(this.userCellData);
-      } else {
+      } else if (action === 'edit') {
         this.onEditRole(this.userCellData);
+      } else if (action === 'deleteUser') {
+        this.revokeAppletUser(this.userCellData._id, false);
+      } else if (action === 'deleteData') {
+        this.passwordDialog = true;
       }
+    },
+
+    /**
+     * Confirm password to remove user and data
+     * 
+     * @return {void}
+     */
+
+    onConfirmPassword() {
+      this.error = '';
+      if (!this.password) {
+        this.error = 'No password';
+      }
+      
+      api.signIn({
+        apiHost: this.$store.state.backend,
+        user: this.$store.state.userEmail,
+        password: this.password
+      }).then((resp) => {
+        this.revokeAppletUser(this.userCellData._id);
+        this.passwordDialog = false;
+      }).catch((e) => {
+        this.error = 'Incorrect password';
+      });
     },
 
     /**
@@ -238,7 +340,6 @@ export default {
     onEditRole(userCellData) {
       this.userCellData.userList = [];
       if (userCellData.roles.includes('reviewer')) {
-        console.log('reviewer');
         api.getUserList({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
@@ -382,12 +483,13 @@ export default {
      * @return {void}
      */
 
-    revokeAppletUser(profileId) {
+    revokeAppletUser(profileId, deleteResponse = true) {
       api.revokeAppletUser({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         appletId: this.appletId,
         profileId,
+        deleteResponse,
       }).then((response) => {
         let newData = []; 
         this.userData.forEach((user) => {
@@ -419,6 +521,10 @@ export default {
 .edit-card-title {
   color: white;
   background: #1976d2;
+}
+
+.error {
+  color: 'red';
 }
 
 </style>
