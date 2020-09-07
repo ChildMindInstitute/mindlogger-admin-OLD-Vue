@@ -287,6 +287,7 @@ export default {
           appletId: currentApplet.applet._id, 
           key: Array.from(encryptionInfo.getPrivateKey())
         });
+
         this.gotoDashboard();
       } else {
         this.$refs.appletPasswordRef.defaultErrorMsg = 'Incorrect applet password';

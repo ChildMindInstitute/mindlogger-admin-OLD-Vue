@@ -10,6 +10,7 @@ import Item from './Item';
 // Schemas.
 import ReproLib from '../schema/ReproLib';
 import SKOS from '../schema/SKOS';
+import encryptionUtils from '../Components/Utils/encryption/encryption.vue'
 
 
 export default class Applet {
@@ -22,6 +23,7 @@ export default class Applet {
     this.data = data;
     this.id = data.applet['@id'];
     this._id = data.applet['_id'];
+    this.encryption = data.applet.encryption;
     this.label = i18n.arrayToObject(data.applet[SKOS.prefLabel]);
     this.description = data.applet['schema:description'];
     this.schemaVersion = data.applet['schema:schemaVersion'];
@@ -72,9 +74,39 @@ export default class Applet {
       params: { users: JSON.stringify(users) },
     });
 
-    for (let itemId in data) {
-      this.items[itemId].setResponses(data[itemId]);
-      this.items[itemId].setResponses(data[itemId]);
+    /** decrypt data */
+    data.AESKeys = [];
+    for (let userPublicKey of data.keys) {
+      data.AESKeys.push(encryptionUtils.getAESKey(
+        this.encryption.appletPrivateKey,
+        userPublicKey,
+        this.encryption.appletPrime,
+        this.encryption.base
+      ));
+    }
+
+    for (let responseId in data.dataSources) {
+      const source = data.dataSources[responseId];
+      try {
+        source.data = JSON.parse(encryptionUtils.decryptData({
+          text: source.data,
+          key: data.AESKeys[source.key]
+        }));
+      } catch (e) {
+        source.data = {};
+      }
+    }
+
+    for (let itemId in data.responses) {
+      const responses = data.responses[itemId];
+
+      for (let response of responses) {
+        if (response.value && response.value.ptr !== undefined && response.value.src !== undefined) {
+          response.value = data.dataSources[response.value.src].data[response.value.ptr];
+        }
+      }
+
+      this.items[itemId].setResponses(responses);
     }
   }
 
@@ -89,7 +121,7 @@ export default class Applet {
    * @param {boolean} opts.users users whose responses will be fetched.
    * @returns {Applet} the requested applet.
    */
-  static async fetchById(appletId, opts) {
+  static async fetchById(appletId, opts, encryptionInfo) {
     const id = appletId.split('/').pop();
 
     try {
@@ -98,6 +130,8 @@ export default class Applet {
         url: `${store.state.backend}/applet/${id}`,
         headers: { 'Girder-Token': store.state.auth.authToken.token },
       });
+
+      response.data.applet.encryption = encryptionInfo;
       const applet = new Applet(response.data);
 
       if (opts.withActivities) {
