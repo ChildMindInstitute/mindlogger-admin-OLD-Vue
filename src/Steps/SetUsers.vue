@@ -1,13 +1,7 @@
 <template>
   <div>
-    <div
-      v-if="status === 'loading'"
-      class="loading"
-    >
-      <v-progress-circular
-        color="primary"
-        indeterminate
-      />
+    <div v-if="status === 'loading'" class="loading">
+      <v-progress-circular color="primary" indeterminate />
     </div>
     <div v-else>
       <h1>Active Users</h1>
@@ -23,19 +17,23 @@
         <create-invitation-form @createInvitation="createInvitation" />
         <div style="height: 58px;" />
       </div>
-
     </div>
 
     <div class="tools">
-      <!-- CALENDAR BUTTON -->
-      <v-tooltip top v-if="hasRoles('owner', 'manager', 'coordinator')">
+      <!-- EXPORT BUTTON -->
+      <v-tooltip v-if="hasRoles('owner', 'manager', 'coordinator')" top>
         <template v-slot:activator="{ on }">
-          <v-btn
-            fab
-            color="primary"
-            @click="viewCalendar"
-            v-on="on"
-          >
+          <v-btn fab color="primary" @click="openPasswordModal" v-on="on">
+            <v-icon>mdi-export-variant</v-icon>
+          </v-btn>
+        </template>
+        <span>Export user's data</span>
+      </v-tooltip>
+
+      <!-- CALENDAR BUTTON -->
+      <v-tooltip v-if="hasRoles('owner', 'manager', 'coordinator')" top>
+        <template v-slot:activator="{ on }">
+          <v-btn fab color="primary" @click="viewCalendar" v-on="on">
             <v-icon>mdi-calendar</v-icon>
           </v-btn>
         </template>
@@ -43,20 +41,20 @@
       </v-tooltip>
 
       <!-- DASHBOARD BUTTON -->
-      <v-tooltip top v-if="dashboardEnabled">
+      <v-tooltip v-if="dashboardEnabled" top>
         <template v-slot:activator="{ on }">
-          <v-btn
-            fab
-            color="primary"
-            @click="viewDashboard"
-            v-on="on"
-          >
+          <v-btn fab color="primary" @click="viewDashboard" v-on="on">
             <v-icon>mdi-chart-bar</v-icon>
           </v-btn>
         </template>
         <span>View the applet dashboard for the selected users</span>
       </v-tooltip>
     </div>
+
+    <UserPassword
+      v-model="userPasswordDialog"
+      @set-password="exportUsersData"
+    />
 
     <footer class="footer">
       <!-- BACK BUTTON -->
@@ -84,7 +82,7 @@
 }
 
 .tools > *:not(:last-of-type) {
-  margin-right: 0.5rem; 
+  margin-right: 0.5rem;
 }
 
 .footer {
@@ -100,6 +98,7 @@ import _ from "lodash";
 import ActiveUserTable from "../Components/Users/ActiveUserTable.vue";
 import PendingInviteTable from "../Components/Users/PendingInviteTable.vue";
 import CreateInvitationForm from "../Components/Users/CreateInvitationForm.vue";
+import UserPassword from "../Components/Users/UserPassword.vue";
 import api from "../Components/Utils/api/api.vue";
 
 export default {
@@ -107,17 +106,20 @@ export default {
   components: {
     ActiveUserTable,
     PendingInviteTable,
-    CreateInvitationForm
+    CreateInvitationForm,
+    UserPassword,
   },
   data: () => ({
     status: "loading",
-    componentKey: 0
+    componentKey: 0,
+    userPasswordDialog: false,
   }),
   computed: {
     dashboardEnabled() {
-      const hasPermission = this.hasRoles('owner', 'reviewer', 'manager');
-      const id = this.currentApplet.applet['@id'] || '';
-      const isTokenLogger = id.includes('TokenLogger') || id.includes('TokenCollector');
+      const hasPermission = this.hasRoles("owner", "reviewer", "manager");
+      const id = this.currentApplet.applet["@id"] || "";
+      const isTokenLogger =
+        id.includes("TokenLogger") || id.includes("TokenCollector");
 
       return isTokenLogger && hasPermission;
     },
@@ -133,6 +135,9 @@ export default {
     currentApplet() {
       return this.$store.state.currentApplet;
     },
+    currentUsers() {
+      return this.$store.state.currentUsers;
+    },
   },
   watch: {
     isUsersLoaded() {
@@ -144,22 +149,43 @@ export default {
     },
     $route(to, from) {
       this.status = "loading";
-      this.getAppletUsers()
+      this.getAppletUsers();
     },
   },
   mounted() {
-    this.$store.commit('setUsers', []);
+    this.$store.commit("setUsers", []);
     this.getAppletUsers();
   },
   methods: {
     hasRoles() {
-      return [].some.call(
-        arguments, 
-        role => this.currentApplet.roles.includes(role),
+      return [].some.call(arguments, (role) =>
+        this.currentApplet.roles.includes(role)
       );
     },
     updateTables() {
       this.componentKey += 1;
+    },
+    openPasswordModal() {
+      this.userPasswordDialog = true;
+      this.$refs.userTableRef.getSelectedNodes();
+    },
+    exportUsersData(appletPassword) {
+      this.userPasswordDialog = false;
+      const appletId = this.currentApplet.applet["_id"].replace("applet/", "");
+
+      api
+        .getUsersData({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          appletId: appletId,
+          options: this.currentUsers,
+        })
+        .then((resp) => {})
+        .catch((e) => {
+          this.error = e;
+          this.status = "error";
+        });
+      console.log("appletPassword: ", appletPassword);
     },
     createInvitation(invitationOptions) {
       this.status = "loading";
@@ -169,15 +195,18 @@ export default {
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
           appletId: this.currentApplet.applet._id.split("applet/")[1],
-          options: invitationOptions
+          options: invitationOptions,
         })
-        .then(resp => {
-          if (invitationOptions.role !== "user" && invitationOptions.accountName) {
+        .then((resp) => {
+          if (
+            invitationOptions.role !== "user" &&
+            invitationOptions.accountName
+          ) {
             this.setAccountName(invitationOptions.accountName);
           }
           this.getAppletUsers();
         })
-        .catch(e => {
+        .catch((e) => {
           this.error = e;
           this.status = "error";
         });
@@ -193,14 +222,14 @@ export default {
         .getAppletUsers({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
-          appletId: this.$route.params.appletId
+          appletId: this.$route.params.appletId,
         })
-        .then(resp => {
+        .then((resp) => {
           this.$store.commit("setUsers", resp.data);
           this.updateTables();
           this.status = "ready";
         })
-        .catch(e => {
+        .catch((e) => {
           this.error = e;
           this.status = "error";
         });
@@ -217,15 +246,15 @@ export default {
         .setAccountName({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
-          accountName
+          accountName,
         })
-        .then(resp => {
-          this.$store.commit('setAccountName', accountName);
+        .then((resp) => {
+          this.$store.commit("setAccountName", accountName);
           console.log(resp);
         })
-        .catch(err => {
+        .catch((err) => {
           console.warn(err);
-        })
+        });
     },
 
     /**

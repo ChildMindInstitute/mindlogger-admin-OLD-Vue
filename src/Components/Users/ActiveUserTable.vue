@@ -16,24 +16,24 @@
 </template>
 
 <style scoped>
-  .container {
-    padding: 0px;
-  }
+.container {
+  padding: 0px;
+}
 </style>
 
 <script>
-import {AgGridVue} from "@ag-grid-community/vue";
-import {AllCommunityModules} from '@ag-grid-community/all-modules';
+import { AgGridVue } from "@ag-grid-community/vue";
+import { AllCommunityModules } from "@ag-grid-community/all-modules";
 export default {
-  name: 'ActiveUserTable',
+  name: "ActiveUserTable",
   components: {
-    AgGridVue
+    AgGridVue,
   },
   props: {
     users: {
       type: Array,
-      default: function () {
-        return []
+      default: function() {
+        return [];
       },
     },
   },
@@ -41,26 +41,26 @@ export default {
     return {
       columnDefs: [
         {
-          headerName: 'ID',
-          field: '_id',
+          headerName: "ID",
+          field: "_id",
           sortable: true,
           filter: true,
           resizable: true,
         },
         {
-          headerName: 'Display Name',
-          field: 'displayName',
+          headerName: "Display Name",
+          field: "displayName",
           sortable: true,
           filter: true,
           resizable: true,
         },
       ],
       modules: AllCommunityModules,
-      domLayout: 'autoHeight',
-      multiSelection: 'multiple',
+      domLayout: "autoHeight",
+      multiSelection: "multiple",
       pagination: true,
       gridOptions: null,
-      clickSelection: true
+      clickSelection: true,
     };
   },
   beforeMount() {
@@ -71,12 +71,14 @@ export default {
       params.api.sizeColumnsToFit();
     },
     getSelectedNodes() {
-      const selectedUsers = this.gridOptions.api.getSelectedRows().map(function(val, index) {
-        return val._id;
-      });
+      const selectedUsers = this.gridOptions.api
+        .getSelectedRows()
+        .map(function(val, index) {
+          return val._id;
+        });
 
       this.$store.commit("setCurrentUsers", selectedUsers);
-    }
+    },
   },
-}
+};
 </script>
