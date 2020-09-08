@@ -2,23 +2,29 @@
   <v-dialog max-width="800" :value="value" @input="$emit('input', $event)">
     <v-card>
       <v-card-text>
-        <h3>User Password</h3>
+        <template v-if="error === ''">
+          <h3>User Password</h3>
 
-        <v-text-field
-          v-model="password.data"
-          label="Enter password"
-          :append-icon="password.value ? 'mdi-eye' : 'mdi-eye-off'"
-          :type="password.value ? 'password' : 'text'"
-          @click:append="() => (password.value = !password.value)"
-        />
-        <!-- 
-        <div v-if="error" class="error mb-4">
-          {{ error }}
-        </div> -->
+          <v-text-field
+            v-model="password.data"
+            label="Enter password"
+            :append-icon="password.value ? 'mdi-eye' : 'mdi-eye-off'"
+            :type="password.value ? 'password' : 'text'"
+            @click:append="() => (password.value = !password.value)"
+          />
 
-        <v-btn color="primary" @click="onClickSubmitPassword">
-          Submit
-        </v-btn>
+          <v-btn color="primary" @click="onClickSubmitPassword">
+            Submit
+          </v-btn>
+        </template>
+        <template v-else>
+          <div v-if="error" class="mb-4">
+            {{ error }}
+          </div>
+          <v-btn color="primary" @click="onClickRemoveError">
+            Close
+          </v-btn>
+        </template>
       </v-card-text>
     </v-card>
   </v-dialog>
@@ -32,6 +38,10 @@ export default {
       type: Boolean,
       required: true,
     },
+    error: {
+      type: String,
+      required: true,
+    },
   },
   data: () => ({
     password: {
@@ -42,6 +52,9 @@ export default {
   methods: {
     onClickSubmitPassword() {
       this.$emit("set-password", this.password.data);
+    },
+    onClickRemoveError() {
+      this.$emit("remove-error");
     },
   },
 };

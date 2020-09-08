@@ -53,7 +53,9 @@
 
     <UserPassword
       v-model="userPasswordDialog"
+      :error="exportError"
       @set-password="exportUsersData"
+      @remove-error="exportRemoveError"
     />
 
     <footer class="footer">
@@ -113,6 +115,7 @@ export default {
     status: "loading",
     componentKey: 0,
     userPasswordDialog: false,
+    exportError: "",
   }),
   computed: {
     dashboardEnabled() {
@@ -169,11 +172,16 @@ export default {
       this.userPasswordDialog = true;
       this.$refs.userTableRef.getSelectedNodes();
     },
+    exportRemoveError() {
+      this.exportError = "";
+      this.userPasswordDialog = false;
+    },
     exportUsersData(appletPassword) {
       this.userPasswordDialog = false;
+
       const appletId = this.currentApplet.applet["_id"].replace("applet/", "");
       const payload = {
-        users: this.currentUsers,
+        users: this.currentUsers.join(","),
         password: appletPassword,
         format: "CSV",
       };
@@ -194,8 +202,8 @@ export default {
           anchor.click();
         })
         .catch((e) => {
-          this.error = e;
-          this.status = "error";
+          this.exportError = e.message;
+          this.userPasswordDialog = true;
         });
     },
     createInvitation(invitationOptions) {
