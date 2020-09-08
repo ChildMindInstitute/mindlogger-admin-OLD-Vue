@@ -172,20 +172,31 @@ export default {
     exportUsersData(appletPassword) {
       this.userPasswordDialog = false;
       const appletId = this.currentApplet.applet["_id"].replace("applet/", "");
+      const payload = {
+        users: this.currentUsers,
+        password: appletPassword,
+        format: "CSV",
+      };
 
       api
         .getUsersData({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
           appletId: appletId,
-          options: this.currentUsers,
+          options: payload,
         })
-        .then((resp) => {})
+        .then((resp) => {
+          let anchor = document.createElement("a");
+          anchor.href =
+            "data:text/csv;charset=utf-8," + encodeURIComponent(resp.data);
+          anchor.target = "_blank";
+          anchor.download = "report.csv";
+          anchor.click();
+        })
         .catch((e) => {
           this.error = e;
           this.status = "error";
         });
-      console.log("appletPassword: ", appletPassword);
     },
     createInvitation(invitationOptions) {
       this.status = "loading";

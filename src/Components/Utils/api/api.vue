@@ -229,7 +229,7 @@ const getAppletInvitation = ({ apiHost, token, appletId, options }) =>
 
 const getUsersData = ({ apiHost, token, appletId, options }) =>
   axios({
-    method: "POST",
+    method: "GET",
     url: `${apiHost}/applet/${appletId}/data`,
     headers: {
       "Girder-Token": token,
