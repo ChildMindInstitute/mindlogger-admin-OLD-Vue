@@ -23,7 +23,6 @@
     "axios": "^0.19.2",
     "babel-loader": "^7.1.5",
     "d3": "5",
-    "crypto": "^1.0.1",
     "dayspan-vuetify-2": "^0.2.0",
     "lodash": "^4.17.15",
     "protocol-builder": "^0.1.20",
