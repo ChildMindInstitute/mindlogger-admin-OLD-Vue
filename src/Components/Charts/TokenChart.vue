@@ -417,14 +417,20 @@ export default {
           'default',
           { day: 'numeric', month: 'numeric' },
         ));
+      const yAxisTicks = this.y.ticks().filter(Number.isInteger);
       const yAxis = d3
         .axisLeft()
         .scale(this.y)
-        .tickSize(-this.width - focusBarWidth);
+        .tickValues(yAxisTicks)
+        .tickSize(-this.width - focusBarWidth)
+        .tickFormat(d3.format('d'));
+      const contextYAxisTicks = this.contextY.ticks().filter(Number.isInteger);
       const contextYAxis = d3
         .axisLeft()
         .scale(this.contextY)
-        .tickSize(-this.width - focusBarWidth);
+        .tickValues(contextYAxisTicks)
+        .tickSize(-this.width - focusBarWidth)
+        .tickFormat(d3.format('d'));
 
       // Append the axes.
       this.svg
