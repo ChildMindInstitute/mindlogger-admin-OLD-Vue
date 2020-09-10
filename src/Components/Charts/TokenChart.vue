@@ -97,10 +97,10 @@
 }
 
 .TokenChart .y-axis .tick line {
-  stroke: #F5F5F5;
+  stroke: #EAEAEA;
 }
 .TokenChart .context-y-axis .tick line {
-  stroke: #F5F5F5;
+  stroke: #EFEFEF;
 }
 
 .TokenChart .context-y-axis .tick text,
@@ -153,6 +153,7 @@ const ONE_MONTH_AGO = new Date(TODAY);
 
 ONE_WEEK_AGO.setDate(TODAY.getDate() - 6);
 ONE_MONTH_AGO.setMonth(TODAY.getMonth() - 1);
+
 
 /**
  * TokenChart component.
@@ -290,8 +291,19 @@ export default {
       let value;
 
       for (let i = 0; i < this.data.length; i++) {
-        positive = 0;
-        negative = 0;
+        // Both counts start in 1 and -1 to allow the maximum and minimum token 
+        // values to be included in the chart axis labels.
+        //
+        // This is due to d3.js optimizing the number of ticks/labels for the
+        // available space. d3 tries to include all the labels if there's enough
+        // space. If there is not, it will reduce the tick/label count to a
+        // dividend of the original count. Hence, if the maximum value is 15,
+        // the scale will go from 1 to 14 in steps of 2 (0, 2, 4, 6 and so on).
+        // This causes the 15 not to be included in the scale. Adding one to
+        // both ends makes sure the scale will go up to 16, which feels more
+        // natural.
+        positive = 1; 
+        negative = -1;
         dataPoint = this.data[i];
 
         for (let j = 0; j < this.features.length; j++) {
@@ -395,15 +407,16 @@ export default {
         .domain([ONE_MONTH_AGO, TODAY])
         .range([0, this.width + focusBarWidth]);
 
-      // Axes.
       const range = this.focusExtent;
       const timeDelta = range[1].getTime() - range[0].getTime();
       const numDays = Math.ceil(timeDelta / (24 * 60 * 60 * 1000));
+
+      // X-axis.
       const xAxis = d3
         .axisBottom()
         .scale(this.x)
         .ticks(d3.utcDay)
-        .tickSize(this.focusHeight)
+        .tickSize(this.focusHeight)  // Height of the tick line.
         .tickFormat(d => d.toLocaleDateString(
           'default',
           { day: 'numeric', month: 'short' },
@@ -412,24 +425,22 @@ export default {
         .axisBottom()
         .scale(this.contextX)
         .ticks(15)
-        .tickSize(this.contextHeight)
+        .tickSize(this.contextHeight)  // Height of the tick line.
         .tickFormat(d => d.toLocaleDateString(
           'default',
           { day: 'numeric', month: 'numeric' },
         ));
-      const yAxisTicks = this.y.ticks().filter(Number.isInteger);
+
+      // Y-axis.
       const yAxis = d3
         .axisLeft()
         .scale(this.y)
-        .tickValues(yAxisTicks)
-        .tickSize(-this.width - focusBarWidth)
+        .tickSize(-this.width - focusBarWidth)  // Width of the tick line.
         .tickFormat(d3.format('d'));
-      const contextYAxisTicks = this.contextY.ticks().filter(Number.isInteger);
       const contextYAxis = d3
         .axisLeft()
         .scale(this.contextY)
-        .tickValues(contextYAxisTicks)
-        .tickSize(-this.width - focusBarWidth)
+        .tickSize(-this.width - focusBarWidth) // Width of the tick line.
         .tickFormat(d3.format('d'));
 
       // Append the axes.
