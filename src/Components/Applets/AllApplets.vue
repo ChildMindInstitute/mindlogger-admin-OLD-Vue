@@ -1,6 +1,10 @@
 <template>
   <div>
-    <v-layout v-if="applets === undefined || applets.length == 0" align-center column>
+    <v-layout
+      v-if="applets === undefined || applets.length == 0"
+      align-center
+      column
+    >
       <h1>You have no active applets.</h1>
     </v-layout>
     <v-layout v-else row wrap justify-center>
@@ -31,12 +35,19 @@
       </template>
       <span>Create or upload a new applet</span>
     </v-tooltip>
+
     <v-dialog v-model="dialog" max-width="800">
       <v-card>
         <v-card-text>
           <h3>Upload an activity set</h3>
           <v-text-field v-model="newProtocolURL" label="activity set url" />
-          <v-btn color="primary" :disabled="!newProtocolURL" @click="onClickAdd">Add</v-btn>
+          <v-btn
+            color="primary"
+            :disabled="!newProtocolURL"
+            @click="onClickAdd"
+          >
+            Add
+          </v-btn>
           <h3>Quick Add</h3>
           <p>
             Below are a list of activity sets you can add. These are JSON-LD
@@ -46,9 +57,7 @@
           </p>
           <p v-for="activityInfo in sampleProtocols" :key="activityInfo.name">
             <a @click="newProtocolURL = activityInfo.url">
-              {{
-              activityInfo.name
-              }}
+              {{ activityInfo.name }}
             </a>
           </p>
           <h3>Build a new activity Set</h3>
@@ -57,7 +66,9 @@
             Currently, this feature only supports radio items and text items.
           </p>
           <router-link to="/build" target="_blank">
-            <v-btn color="primary">Launch Builder</v-btn>
+            <v-btn color="primary">
+              Launch Builder
+            </v-btn>
           </router-link>
         </v-card-text>
       </v-card>
@@ -69,32 +80,30 @@
 import AppletCard from "./AppletCard.vue";
 import api from "../Utils/api/api.vue";
 import config from "../../config";
-// import encryption from "../Utils/encryption/encryption.vue";
-// import AppletPassword from "./AppletPassword";
 
 export default {
   name: "AllApplets",
   components: {
-    AppletCard
+    AppletCard,
     // AppletPassword
   },
   props: {
     applets: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
   data: () => ({
     sampleProtocols: config.protocols,
     dialog: false,
     appletUploadDialog: false,
     newProtocolURL: "",
-    appletPasswordDialog: false
+    appletPasswordDialog: false,
   }),
   computed: {
     isEditable() {
       let isEditor = false;
-      this.applets.forEach(applet => {
+      this.applets.forEach((applet) => {
         if (applet.roles.includes("editor")) {
           isEditor = true;
         }
@@ -106,12 +115,12 @@ export default {
     },
     currentApplet() {
       return this.$store.state.currentApplet;
-    }
+    },
   },
   watch: {
     currentApplet() {
       return this.$store.state.currentApplet;
-    }
+    },
   },
   methods: {
     onClickAdd() {
@@ -124,13 +133,13 @@ export default {
           protocolUrl: this.newProtocolURL,
           email: this.$store.state.userEmail,
           token: this.$store.state.auth.authToken.token,
-          apiHost: this.$store.state.backend
+          apiHost: this.$store.state.backend,
         })
-        .then(resp => {
+        .then((resp) => {
           this.newProtocolURL = "";
           this.$emit("appletUploadSuccessful");
         })
-        .catch(e => {
+        .catch((e) => {
           this.$emit("appletUploadError");
         });
     },
@@ -139,9 +148,9 @@ export default {
         .deleteApplet({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
-          appletId: applet.applet._id.split("applet/")[1]
+          appletId: applet.applet._id.split("applet/")[1],
         })
-        .then(resp => {
+        .then((resp) => {
           this.$emit("refreshAppletList");
         });
     },
@@ -150,12 +159,12 @@ export default {
         .refreshApplet({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
-          appletId: applet.applet._id.split("applet/")[1]
+          appletId: applet.applet._id.split("applet/")[1],
         })
-        .then(resp => {
+        .then((resp) => {
           this.$emit("refreshAppletList");
         });
-    }
-  }
+    },
+  },
 };
 </script>
