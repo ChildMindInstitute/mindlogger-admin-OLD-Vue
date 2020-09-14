@@ -624,6 +624,13 @@ export default {
 
     save() {
       var ev = this.getEvent("save");
+
+      for (const activityId in this.$store.state.currentApplet.activities) {
+        const activity = this.$store.state.currentApplet.activities[activityId];
+        if (ev.details.URI === activity['@id'] || ev.details.URI === activity['url']) {
+          ev.details.activity_id = activity['_id'].split('/')[1];
+        }
+      }
       this.$emit("save", ev);
 
       if (!ev.handled) {
