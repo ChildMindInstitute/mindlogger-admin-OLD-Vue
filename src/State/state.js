@@ -5,12 +5,12 @@ Vue.use(Vuex);
 
 import { Store } from "vuex";
 import _ from "lodash";
-import createPersistedState from "vuex-persistedstate";
+// import createPersistedState from "vuex-persistedstate";
 import api from "../Components/Utils/api/api.vue";
 
 const getDefaultState = () => {
   return {
-    backend: process.env.VUE_APP_SERVER_URL,
+    backend: "https://api-dev.mindlogger.org/api/v1",
     currentAccount: {},
     currentApplets: [],
     ownerAccount: {},
@@ -181,7 +181,7 @@ const mutations = {
 export const storeConfig = {
   state,
   mutations,
-  plugins: [createPersistedState({ storage: window.sessionStorage })],
+  // plugins: [createPersistedState({ storage: window.sessionStorage })],
 };
 
 const store = new Store(storeConfig);

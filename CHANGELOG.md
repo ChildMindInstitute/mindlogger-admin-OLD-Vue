@@ -4,9 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.2] = 2020-08-31
+
+## [0.3.4] = 2020-09-06
 ### Changed
-- ask manager to enter applet password when he creates new one
+- Implemented managing roles for users
+- Allow owners/managers/coordinators/ to remove user roles
+- Allow owners/managers/coordinators/ to remove users and data
+
+## [0.3.3] = 2020-09-04
+### Changed
+- Implemented managing roles for organizers
+- Add/remove/update roles
+- Add/remove/update userList to be reviewed by reviewer
+- Revoke user access to the applet
+
+## [0.3.2] = 2020-09-08
+### Changed
+- Fixed styles and format for the time range label in the dashboard
 
 ## [0.3.1] = 2020-08-26
 ### Changed

@@ -646,7 +646,6 @@ export default {
           ev.created = this.$dayspan.createEvent(ev.details, ev.schedule);
           if (ev.calendar) {
             ev.calendar.addEvent(ev.created);
-            console.log("_________event_________", ev.calendar);
             ev.added = true;
           }
 

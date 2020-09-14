@@ -8,7 +8,7 @@ const signIn = ({ apiHost, user, password }) =>
   axios({
     method: "get",
     url: `${apiHost}/user/authentication`,
-    headers: { "Girder-Authorization": `Basic ${btoa(`${user}:${password}`)}` },
+    headers: { "Girder-Authorization": `Basic ${btoa(`${user}:${password}`)}` }
   });
 
 const signUp = ({ apiHost, body }) =>
@@ -17,8 +17,8 @@ const signUp = ({ apiHost, body }) =>
     url: `${apiHost}/user`,
     params: {
       ...body,
-      admin: true,
-    },
+      admin: true
+    }
   });
 
 const resetPassword = ({ apiHost, body }) =>
@@ -26,8 +26,8 @@ const resetPassword = ({ apiHost, body }) =>
     method: "put",
     url: `${apiHost}/user/password/temporary`,
     params: {
-      ...body,
-    },
+      ...body
+    }
   });
 
 const setSchedule = ({ apiHost, token, id, data }) =>
@@ -35,9 +35,9 @@ const setSchedule = ({ apiHost, token, id, data }) =>
     method: "put",
     url: `${apiHost}/applet/${id}/schedule`,
     headers: {
-      "Girder-Token": token,
+      "Girder-Token": token
     },
-    data,
+    data
   });
 
 const getSchedule = ({ apiHost, token, id }) =>
@@ -45,8 +45,8 @@ const getSchedule = ({ apiHost, token, id }) =>
     method: "get",
     url: `${apiHost}/applet/${id}/schedule?getAllEvents=true`,
     headers: {
-      "Girder-Token": token,
-    },
+      "Girder-Token": token
+    }
   });
 
 const getAccounts = ({ apiHost, token }) =>
@@ -54,8 +54,8 @@ const getAccounts = ({ apiHost, token }) =>
     method: "get",
     url: `${apiHost}/user/accounts`,
     headers: {
-      "Girder-Token": token,
-    },
+      "Girder-Token": token
+    }
   });
 
 const switchAccount = ({ apiHost, token, accountId }) =>
@@ -63,11 +63,11 @@ const switchAccount = ({ apiHost, token, accountId }) =>
     method: "put",
     url: `${apiHost}/user/switchAccount`,
     headers: {
-      "Girder-Token": token,
+      "Girder-Token": token
     },
     params: {
-      accountId,
-    },
+      accountId
+    }
   });
 
 const setAccountName = ({ apiHost, token, accountName }) =>
@@ -75,11 +75,11 @@ const setAccountName = ({ apiHost, token, accountName }) =>
     method: "put",
     url: `${apiHost}/user/accountName`,
     headers: {
-      "Girder-Token": token,
+      "Girder-Token": token
     },
     params: {
-      accountName,
-    },
+      accountName
+    }
   });
 
 const getApplet = ({ apiHost, token, allEvent, id }) =>
@@ -87,8 +87,8 @@ const getApplet = ({ apiHost, token, allEvent, id }) =>
     method: "get",
     url: `${apiHost}/applet/${id}?retrieveSchedule=true&retrieveAllEvents=${allEvent}&retrieveItems=true`,
     headers: {
-      "Girder-Token": token,
-    },
+      "Girder-Token": token
+    }
   });
 
 const getActivityByUrl = ({ apiHost, token, url }) =>
@@ -96,11 +96,11 @@ const getActivityByUrl = ({ apiHost, token, url }) =>
     method: "get",
     url: `${apiHost}/activity`,
     headers: {
-      "Girder-Token": token,
+      "Girder-Token": token
     },
     params: {
-      url,
-    },
+      url
+    }
   });
 
 const getUserResponses = ({ apiHost, token, appletId, users, untilDate }) =>
@@ -108,9 +108,9 @@ const getUserResponses = ({ apiHost, token, appletId, users, untilDate }) =>
     method: "get",
     url: `${apiHost}/response/${appletId}`,
     headers: {
-      "Girder-Token": token,
+      "Girder-Token": token
     },
-    params: { users: users + "" },
+    params: { users: users + "" }
   });
 
 const addNewApplet = ({ apiHost, token, protocolUrl, email }) =>
@@ -118,12 +118,12 @@ const addNewApplet = ({ apiHost, token, protocolUrl, email }) =>
     method: "POST",
     url: `${apiHost}/applet/`,
     headers: {
-      "Girder-Token": token,
+      "Girder-Token": token
     },
     params: {
       protocolUrl,
-      email,
-    },
+      email
+    }
   });
 
 const refreshApplet = ({ apiHost, token, appletId }) =>
@@ -131,8 +131,27 @@ const refreshApplet = ({ apiHost, token, appletId }) =>
     method: "PUT",
     url: `${apiHost}/applet/${appletId}/refresh`,
     headers: {
-      "Girder-Token": token,
+      "Girder-Token": token
+    }
+  });
+
+const revokeAppletUser = ({
+  apiHost,
+  token,
+  appletId,
+  profileId,
+  deleteResponse
+}) =>
+  axios({
+    method: "DELETE",
+    url: `${apiHost}/applet/${appletId}/deleteUser`,
+    headers: {
+      "Girder-Token": token
     },
+    params: {
+      profileId,
+      deleteResponse
+    }
   });
 
 const getGroupMemberships = ({ apiHost, token, appletId }) =>
@@ -140,17 +159,42 @@ const getGroupMemberships = ({ apiHost, token, appletId }) =>
     method: "GET",
     url: `${apiHost}/applet/${appletId}/roles`,
     headers: {
-      "Girder-Token": token,
-    },
+      "Girder-Token": token
+    }
   });
 
 const getAppletUsers = ({ apiHost, token, appletId }) =>
   axios({
     method: "GET",
-    url: `${apiHost}/applet/${appletId}/users`,
+    url: `${apiHost}/applet/${appletId}/users?retrieveRoles=true`,
     headers: {
-      "Girder-Token": token,
+      "Girder-Token": token
+    }
+  });
+
+const getUserList = ({ apiHost, token, appletId, reviewerId }) =>
+  axios({
+    method: "GET",
+    url: `${apiHost}/applet/${appletId}/reviewer/userList`,
+    headers: {
+      "Girder-Token": token
     },
+    params: {
+      reviewerId
+    }
+  });
+
+const updateUserRoles = ({ apiHost, token, appletId, userId, roleInfo }) =>
+  axios({
+    method: "PUT",
+    url: `${apiHost}/applet/${appletId}/updateRoles`,
+    headers: {
+      "Girder-Token": token
+    },
+    params: {
+      userId,
+      roleInfo
+    }
   });
 
 const deleteUserFromRole = ({ apiHost, token, groupId, userId }) => {
@@ -160,9 +204,9 @@ const deleteUserFromRole = ({ apiHost, token, groupId, userId }) => {
     method: "DELETE",
     url: `${apiHost}/group/${groupId}/member`,
     headers: {
-      "Girder-Token": token,
+      "Girder-Token": token
     },
-    data: f,
+    data: f
   });
 };
 
@@ -171,9 +215,9 @@ const postAppletInvitation = ({ apiHost, token, appletId, options }) =>
     method: "POST",
     url: `${apiHost}/applet/${appletId}/invite`,
     headers: {
-      "Girder-Token": token,
+      "Girder-Token": token
     },
-    params: options,
+    params: options
   });
 
 const deleteApplet = ({ apiHost, token, appletId }) =>
@@ -181,8 +225,8 @@ const deleteApplet = ({ apiHost, token, appletId }) =>
     method: "DELETE",
     url: `${apiHost}/applet/${appletId}`,
     headers: {
-      "Girder-Token": token,
-    },
+      "Girder-Token": token
+    }
   });
 
 const createApplet = ({ apiHost, token, email, data }) =>
@@ -190,12 +234,12 @@ const createApplet = ({ apiHost, token, email, data }) =>
     method: "POST",
     url: `${apiHost}/applet/fromJSON`,
     headers: {
-      "Girder-Token": token,
+      "Girder-Token": token
     },
     params: {
-      email,
+      email
     },
-    data,
+    data
   });
 
 const updateRegistration = ({ apiHost, token, groupId, open }) =>
@@ -203,8 +247,8 @@ const updateRegistration = ({ apiHost, token, groupId, open }) =>
     method: "PUT",
     url: `${apiHost}/group/${groupId}?openRegistration=${open}`,
     headers: {
-      "Girder-Token": token,
-    },
+      "Girder-Token": token
+    }
   });
 
 const getAppletsForUser = ({ apiHost, token, user, role = null }) =>
@@ -212,8 +256,8 @@ const getAppletsForUser = ({ apiHost, token, user, role = null }) =>
     method: "get",
     url: `${apiHost}/user/applets?role=${role}`,
     headers: {
-      "Girder-Token": token,
-    },
+      "Girder-Token": token
+    }
   });
 
 const getAppletInvitation = ({ apiHost, token, appletId, options }) =>
@@ -221,9 +265,9 @@ const getAppletInvitation = ({ apiHost, token, appletId, options }) =>
     method: "POST",
     url: `${apiHost}/applet/${appletId}/inviteUser`,
     headers: {
-      "Girder-Token": token,
+      "Girder-Token": token
     },
-    params: options,
+    params: options
   });
 
 const duplicateApplet = ({ apiHost, token, appletId, options }) =>
@@ -231,9 +275,9 @@ const duplicateApplet = ({ apiHost, token, appletId, options }) =>
     method: "POST",
     url: `${apiHost}/applet/${appletId}/duplicate`,
     headers: {
-      "Girder-Token": token,
+      "Girder-Token": token
     },
-    params: options,
+    params: options
   });
 
 export default {
@@ -248,17 +292,20 @@ export default {
   resetPassword,
   getGroupMemberships,
   deleteUserFromRole,
+  updateUserRoles,
   getAppletUsers,
   postAppletInvitation,
+  revokeAppletUser,
   deleteApplet,
   createApplet,
   refreshApplet,
   getApplet,
+  getUserList,
   updateRegistration,
   getActivityByUrl,
   getUserResponses,
   getAppletsForUser,
   getAppletInvitation,
-  duplicateApplet,
+  duplicateApplet
 };
 </script>

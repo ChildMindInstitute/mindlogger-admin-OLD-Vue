@@ -15,6 +15,7 @@
         ref="userTableRef"
         key="componentKey"
         :users="activeUserList"
+        :appletId="$route.params.appletId"
       />
 
       <div v-if="hasRoles('manager', 'coordinator')">
@@ -23,7 +24,6 @@
         <create-invitation-form @createInvitation="createInvitation" />
         <div style="height: 58px;" />
       </div>
-
     </div>
 
     <div class="tools">
