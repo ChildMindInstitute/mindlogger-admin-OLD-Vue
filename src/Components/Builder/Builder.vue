@@ -38,7 +38,7 @@ import { cloneDeep } from "lodash";
 // import AppletPassword from "../Applets/AppletPassword";
 
 import encryption from '../Utils/encryption/encryption.vue';
-import AppletPassword from '../Applets/AppletPassword'
+import AppletPassword from '../Utils/dialogs/AppletPassword'
 
 export default {
   name: "Builder",

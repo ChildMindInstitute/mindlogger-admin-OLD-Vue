@@ -18,10 +18,10 @@ const getAppletEncryptionInfo = ({ appletPassword, accountId, prime, baseNumber 
         Buffer.from(baseNumber ? baseNumber : base)
     );
 
-    key.setPrivateKey(getPrivateKey({
+    key.setPrivateKey(Buffer.from(getPrivateKey({
         appletPassword,
         accountId
-    }));
+    })));
     key.generateKeys();
 
     return key;
@@ -48,10 +48,22 @@ const decryptData = ({ text, key }) => {
     return decrypted.toString();
 }
 
+/** encrypt */
+export const encryptData = ({ text, key }) => {
+    let iv = crypto.randomBytes(config.IV_LENGTH);
+    let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
+    let encrypted = cipher.update(text);
+   
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+    return iv.toString('hex') + ':' + encrypted.toString('hex');
+}
+
 
 export default {
     getAppletEncryptionInfo,
     getAESKey,
-    decryptData
+    decryptData,
+    encryptData
 }
 </script>

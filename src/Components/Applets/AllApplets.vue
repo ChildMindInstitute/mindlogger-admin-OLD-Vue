@@ -90,7 +90,7 @@ import AppletCard from './AppletCard.vue';
 import api from '../Utils/api/api.vue';
 import config from '../../config';
 import encryption from '../Utils/encryption/encryption.vue';
-import AppletPassword from './AppletPassword'
+import AppletPassword from '../Utils/dialogs/AppletPassword'
 
 export default {
   name: "AllApplets",

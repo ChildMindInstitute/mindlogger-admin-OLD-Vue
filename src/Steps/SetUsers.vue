@@ -10,6 +10,7 @@
         key="componentKey"
         :users="activeUserList"
         :appletId="$route.params.appletId"
+        @reUploadResponse="responseReUploadEvent"
       />
 
       <div v-if="hasRoles('manager', 'coordinator')">
@@ -25,6 +26,46 @@
       v-model="appletPasswordDialog"
       :hasConfirmPassword="false"
       @set-password="onClickSubmitPassword"
+    />
+
+    <v-dialog
+      v-model="responseUpdateDialog.visible"
+      max-width="500px"
+    >
+      <v-card>
+        <v-card-title
+          class="headline grey lighten-2"
+          primary-title
+        >
+          Refresh response
+        </v-card-title>
+        <v-card-text> 
+          Do you want to refresh {{ responseUpdateDialog.userData.displayName }}'s data on device?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            color="primary"
+            text
+            @click="onReuploadResponse"
+          >
+            Yes
+          </v-btn>
+          <v-btn
+            color="primary"
+            text
+            @click="onDeclineReuploading"
+          >
+            No
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <Information
+      v-model="informationDialog"
+      :dialogText="informationText"
+      :title="'Refresh Response'"
     />
 
     <div class="tools">
@@ -124,8 +165,10 @@ import PendingInviteTable from "../Components/Users/PendingInviteTable.vue";
 import CreateInvitationForm from "../Components/Users/CreateInvitationForm.vue";
 import UserPassword from "../Components/Users/UserPassword.vue";
 import api from "../Components/Utils/api/api.vue";
-import AppletPassword from '../Components/Applets/AppletPassword'
+import AppletPassword from '../Components/Utils/dialogs/AppletPassword'
 import encryption from '../Components/Utils/encryption/encryption.vue';
+import Applet from '../models/Applet';
+import Information from '../Components/Utils/dialogs/information.vue';
 
 export default {
   name: "SetUsers",
@@ -134,14 +177,22 @@ export default {
     PendingInviteTable,
     CreateInvitationForm,
     UserPassword,
-    AppletPassword
+    AppletPassword,
+    Information,
   },
   data: () => ({
     status: "loading",
     componentKey: 0,
     userPasswordDialog: false,
     exportError: "",
-    appletPasswordDialog: false
+    appletPasswordDialog: false,
+    requestedAction: null,
+    responseUpdateDialog: {
+      visible: false,
+      userData: {}
+    },
+    informationDialog: false,
+    informationText: '',
   }),
   computed: {
     dashboardEnabled() {
@@ -257,13 +308,74 @@ export default {
         });
     },
 
+    responseReUploadEvent(user) {
+      this.responseUpdateDialog.userData = user;
+      this.responseUpdateDialog.visible = true;
+    },
+
+    onReuploadResponse() {
+      const encryptionInfo = this.currentApplet.applet.encryption;
+
+      this.responseUpdateDialog.visible = false;
+
+      if (encryptionInfo && encryptionInfo.appletPrivateKey) {
+        this.updateUserResponse(this.responseUpdateDialog.userData);
+      } else {
+        this.appletPasswordDialog = true;
+        this.requestedAction = this.updateUserResponse.bind(this, this.responseUpdateDialog.userData);
+      }
+    },
+
+    onDeclineReuploading() {
+      this.responseUpdateDialog.visible = false;
+      this.informationDialog = true;
+      this.informationText = 'Refresh Declined';
+    },
+
+    updateUserResponse(userData) {
+      let to = new Date();
+      let from = new Date();
+      from.setDate(from.getDate() - 8);
+
+      const apiHost = this.$store.state.backend;
+      const token = this.$store.state.auth.authToken.token;
+      const appletId = this.$route.params.appletId;
+
+      api.getUserResponses({
+        apiHost, token, appletId,
+        users: [userData._id],
+        fromDate: from.toISOString(),
+        toDate: to.toISOString()
+      }).then(({ data }) => {
+        Applet.decryptResponses(data, this.currentApplet.applet.encryption);
+        Applet.encryptResponses(data, this.currentApplet.applet.encryption, userData.refreshRequest.userPublicKey)
+
+        const form = new FormData();
+
+        form.set('responses', JSON.stringify({ 
+          dataSources: Object.keys(data.dataSources).reduce((accumulator, responseId) => {
+            accumulator[responseId] = data.dataSources[responseId].data;
+            return accumulator;
+          }, {}), 
+          userPublicKey: userData.refreshRequest.userPublicKey
+        }));
+
+        api.replaceResponseData({
+          apiHost, token, appletId, data: form
+        }).then((msg) => {
+          this.informationDialog = true;
+          this.informationText = 'Refresh Complete';
+        })
+      })
+    },
+
     /**
      * Fetches the listing of users for the current applet.
      *
      * @return {void}
      */
     getAppletUsers() {
-      api
+      return api
         .getAppletUsers({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
@@ -317,10 +429,11 @@ export default {
     onReviewerDashboard() {
       const encryptionInfo = this.currentApplet.applet.encryption;
 
-      if (encryptionInfo && encryptionInfo.appletPrivateKey) {
+      if (!encryptionInfo || !encryptionInfo.appletPrime || encryptionInfo.appletPrivateKey) {
         this.gotoDashboard();
       } else {
         this.appletPasswordDialog = true;
+        this.requestedAction = this.gotoDashboard.bind(this);
       }
     },
 
@@ -343,7 +456,7 @@ export default {
           key: Array.from(encryptionInfo.getPrivateKey())
         });
 
-        this.gotoDashboard();
+        this.requestedAction();
       } else {
         this.$refs.appletPasswordRef.defaultErrorMsg = 'Incorrect applet password';
       }

@@ -74,14 +74,26 @@ export default class Applet {
       params: { users: JSON.stringify(users) },
     });
 
+    if( this.encryption ) {
+      Applet.decryptResponses(data, this.encryption);
+    }
+
+    for (let itemId in data.responses) {
+      // data.responses[itemId][0].value = [3,5];
+      this.items[itemId].setResponses(data.responses[itemId]);
+    }
+  }
+
+
+  static decryptResponses(data, encryption) {
     /** decrypt data */
     data.AESKeys = [];
     for (let userPublicKey of data.keys) {
       data.AESKeys.push(encryptionUtils.getAESKey(
-        this.encryption.appletPrivateKey,
+        encryption.appletPrivateKey,
         userPublicKey,
-        this.encryption.appletPrime,
-        this.encryption.base
+        encryption.appletPrime,
+        encryption.base
       ));
     }
 
@@ -105,11 +117,32 @@ export default class Applet {
           response.value = data.dataSources[response.value.src].data[response.value.ptr];
         }
       }
-
-      this.items[itemId].setResponses(responses);
     }
+  
+    return data;
   }
 
+  static encryptResponses(data, encryption, userPublicKey) {
+    data.AESKeys = [
+      encryptionUtils.getAESKey(
+        encryption.appletPrivateKey,
+        userPublicKey,
+        encryption.appletPrime,
+        encryption.base
+      )
+    ];
+
+    for (let responseId in data.dataSources) {
+      const source = data.dataSources[responseId];
+      source.key = 0;
+      source.data = encryptionUtils.encryptData({
+        text: JSON.stringify(source.data),
+        key: data.AESKeys[source.key]
+      });
+    }
+
+    return data;
+  }
 
   /**
    * Fetches an applet from the backend by its ID.

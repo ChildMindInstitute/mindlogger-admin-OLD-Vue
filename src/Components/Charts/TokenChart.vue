@@ -1,5 +1,8 @@
 <template>
-  <div class="TokenChart" ref="container" >
+  <div
+    ref="container"
+    class="TokenChart"
+  >
     <div class="time-range">
       Showing data from
       <span class="date">{{ fromDate }}</span>
@@ -7,7 +10,7 @@
       <span class="date">{{ toDate }}</span>
     </div>
 
-    <svg :id="plotId" >
+    <svg :id="plotId">
       <defs>
         <clipPath id="clip">
           <rect

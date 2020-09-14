@@ -102,7 +102,8 @@
 import { AgGridVue } from "@ag-grid-community/vue";
 import { AllCommunityModules } from "@ag-grid-community/all-modules";
 import BtnCellRenderer from "./BtnCellRenderer.vue";
-import api from "../Utils/api/api.vue";
+import api from '../Utils/api/api.vue';
+import UserRequestCellRenderer from './UserRequestCellRenderer';
 
 export default {
   name: "ActiveUserTable",
@@ -158,10 +159,15 @@ export default {
         };
       });
     },
+    currentApplet() {
+      return this.$store.state.currentApplet;
+    },
   },
   beforeMount() {
     const { isManager, isCoordinator } = this;
     this.gridOptions = {};
+    const appletId = this.currentApplet.applet._id.split('/')[1];
+    const isManager = this.$store.state.currentAccount.applets['manager'].indexOf(appletId) >= 0;
 
     if (isManager) {
       this.userData = this.users.map((user) => {
@@ -180,7 +186,8 @@ export default {
           email: user.email,
           mrn: user.MRN,
           _id: user._id,
-          roles,
+          refreshRequest: user.refreshRequest && user.refreshRequest.userPublicKey ? user.refreshRequest : null,
+          roles
         };
       });
     } else {
@@ -194,6 +201,7 @@ export default {
         };
       });
     }
+
     this.columnDefs = [
       {
         headerName: "Name",
@@ -235,8 +243,22 @@ export default {
       });
     }
 
+    const encryption = this.currentApplet.applet.encryption;
+    if (this.currentApplet.roles.includes('manager') && encryption && encryption.appletPrime ) {
+      this.columnDefs.splice( 2, 0, {
+        headerName: '',
+        field: 'refreshRequest',
+        maxWidth: 200,
+        cellStyle: {display: 'flex', justifyContent: 'center'},
+        cellRenderer: 'UserRequestCellRenderer',
+        cellRendererParams: {
+          clicked: this.onReUploadResponse
+        },
+      });
+    }
     this.frameworkComponents = {
       btnCellRenderer: BtnCellRenderer,
+      UserRequestCellRenderer
     };
   },
   methods: {
@@ -343,6 +365,10 @@ export default {
         this.currentUserList = [];
         this.editRoleDialog = true;
       }
+    },
+
+    onReUploadResponse(user) {
+      this.$emit('reUploadResponse', user);
     },
 
     /**
