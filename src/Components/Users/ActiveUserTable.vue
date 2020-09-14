@@ -175,6 +175,9 @@ export default {
     };
   },
   computed: {
+    isManager() { 
+      return this.$store.state.currentAccount.applets['manager'];
+    },
     computedItems() {
       return this.userRoleData.map(item => {
         return {
@@ -243,7 +246,10 @@ export default {
         resizable: true,
         cellStyle: {justifyContent: 'center'}
       },
-      {
+    ];
+
+    if (isManager) {
+      this.columnDefs.push({
         headerName: '',
         field: 'athelete',
         maxWidth: 200,
@@ -252,8 +258,9 @@ export default {
         cellRendererParams: {
           clicked: this.onClickedHander
         },
-      },
-    ];
+      });
+    }
+
     this.frameworkComponents = {
       btnCellRenderer: BtnCellRenderer
     };
