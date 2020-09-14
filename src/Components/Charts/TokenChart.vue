@@ -2,9 +2,9 @@
   <div class="TokenChart" ref="container" >
     <div class="time-range">
       Showing data from
-      <span class="date">{{ focusExtent[0].toDateString() }}</span>
+      <span class="date">{{ fromDate }}</span>
       to
-      <span class="date">{{ focusExtent[1].toDateString() }}</span>
+      <span class="date">{{ toDate }}</span>
     </div>
 
     <svg :id="plotId" >
@@ -136,6 +136,7 @@
 
 <script>
 import * as d3 from 'd3';
+import * as moment from 'moment';
 
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
@@ -143,7 +144,7 @@ const NOW = new Date();
 const TODAY = new Date(Date.UTC(
   NOW.getFullYear(),
   NOW.getMonth(),
-  NOW.getDate() + 1,
+  NOW.getDate(),
   0,
   0,
   0,
@@ -194,6 +195,15 @@ export default {
       bottom: 0,
     },
   }),
+
+  computed: {
+    fromDate() {
+      return moment.utc(this.focusExtent[0]).format('ddd, D MMM YYYY');
+    },
+    toDate() {
+      return moment.utc(this.focusExtent[1]).format('ddd, D MMM YYYY');
+    },
+  },
 
   /**
    * Method to be executed after the component has been mounted.
@@ -404,19 +414,13 @@ export default {
         .scale(this.x)
         .ticks(d3.utcDay)
         .tickSize(this.focusHeight)
-        .tickFormat(d => d.toLocaleDateString(
-          'default',
-          { day: 'numeric', month: 'short' },
-        ));
+        .tickFormat(d => moment.utc(d).format('MMM D'));
       const contextXAxis = d3
         .axisBottom()
         .scale(this.contextX)
         .ticks(15)
         .tickSize(this.contextHeight)
-        .tickFormat(d => d.toLocaleDateString(
-          'default',
-          { day: 'numeric', month: 'numeric' },
-        ));
+        .tickFormat(d => moment.utc(d).format('M/D'));
       const yAxis = d3
         .axisLeft()
         .scale(this.y)
