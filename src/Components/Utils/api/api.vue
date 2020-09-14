@@ -85,7 +85,7 @@ const setAccountName = ({ apiHost, token, accountName }) =>
 const getApplet = ({ apiHost, token, allEvent, id }) =>
   axios({
     method: "get",
-    url: `${apiHost}/applet/${id}?retrieveSchedule=true&retrieveAllEvents=${allEvent}&retrieveItems=false`,
+    url: `${apiHost}/applet/${id}?retrieveSchedule=true&retrieveAllEvents=${allEvent}&retrieveItems=true`,
     headers: {
       "Girder-Token": token,
     },
@@ -136,6 +136,25 @@ const refreshApplet = ({ apiHost, token, appletId }) =>
     },
   });
 
+const revokeAppletUser = ({
+  apiHost,
+  token,
+  appletId,
+  profileId,
+  deleteResponse,
+}) =>
+  axios({
+    method: "DELETE",
+    url: `${apiHost}/applet/${appletId}/deleteUser`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: {
+      profileId,
+      deleteResponse,
+    },
+  });
+
 const getGroupMemberships = ({ apiHost, token, appletId }) =>
   axios({
     method: "GET",
@@ -148,9 +167,34 @@ const getGroupMemberships = ({ apiHost, token, appletId }) =>
 const getAppletUsers = ({ apiHost, token, appletId }) =>
   axios({
     method: "GET",
-    url: `${apiHost}/applet/${appletId}/users`,
+    url: `${apiHost}/applet/${appletId}/users?retrieveRoles=true`,
     headers: {
       "Girder-Token": token,
+    },
+  });
+
+const getUserList = ({ apiHost, token, appletId, reviewerId }) =>
+  axios({
+    method: "GET",
+    url: `${apiHost}/applet/${appletId}/reviewer/userList`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: {
+      reviewerId,
+    },
+  });
+
+const updateUserRoles = ({ apiHost, token, appletId, userId, roleInfo }) =>
+  axios({
+    method: "PUT",
+    url: `${apiHost}/applet/${appletId}/updateRoles`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: {
+      userId,
+      roleInfo,
     },
   });
 
@@ -237,6 +281,16 @@ const getUsersData = ({ apiHost, token, appletId, options }) =>
     params: options,
   });
 
+const duplicateApplet = ({ apiHost, token, appletId, options }) =>
+  axios({
+    method: "POST",
+    url: `${apiHost}/applet/${appletId}/duplicate`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: options,
+  });
+
 export default {
   signIn,
   signUp,
@@ -249,17 +303,21 @@ export default {
   resetPassword,
   getGroupMemberships,
   deleteUserFromRole,
+  updateUserRoles,
   getAppletUsers,
   postAppletInvitation,
+  revokeAppletUser,
   deleteApplet,
   createApplet,
   refreshApplet,
   getApplet,
+  getUserList,
   updateRegistration,
   getActivityByUrl,
-  getAppletsForUser,
   getUserResponses,
   getAppletInvitation,
   getUsersData,
+  getAppletsForUser,
+  duplicateApplet,
 };
 </script>

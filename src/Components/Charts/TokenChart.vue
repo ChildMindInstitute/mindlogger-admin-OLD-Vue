@@ -1,6 +1,11 @@
 <template>
   <div class="TokenChart" ref="container" >
-    {{ focusExtent }}
+    <div class="time-range">
+      Showing data from
+      <span class="date">{{ focusExtent[0].toDateString() }}</span>
+      to
+      <span class="date">{{ focusExtent[1].toDateString() }}</span>
+    </div>
 
     <svg :id="plotId" >
       <defs>
@@ -55,11 +60,25 @@
   display: inline-block;
   position: relative;
   width: 100%;
-  height: 500px;
+  height: 550px;
   vertical-align: top;
-  margin: 2rem 1rem;
+  margin: 0 1rem 2rem 1rem;
   margin-bottom: 0;
   user-select: none;
+}
+
+.TokenChart .time-range {
+  margin-bottom: 2rem;
+  margin-left: -0.8rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #777;
+  text-transform: uppercase;
+}
+
+.TokenChart .time-range .date {
+  margin: 0 0.3rem;
+  color: #1976D2;
 }
 
 .TokenChart .chart {

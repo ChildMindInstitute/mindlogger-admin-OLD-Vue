@@ -1,19 +1,13 @@
 <template>
-  <v-card 
-    class="appletCard" 
-    :width="cardWidth"
-  >
-    <v-layout 
-      v-if="currentApplet" 
-      class="selectedApplet" 
-      align-center 
-      justify-center 
+  <v-card class="appletCard" :width="cardWidth">
+    <v-layout
+      v-if="currentApplet"
+      class="selectedApplet"
+      align-center
+      justify-center
       column
     >
-      <v-icon 
-        size="72" 
-        color="primary"
-      >
+      <v-icon size="72" color="primary">
         mdi-check
       </v-icon>
       <v-card-title primary-title>
@@ -24,7 +18,9 @@
     </v-layout>
     <div v-else>
       <v-img
-        :src="applet.applet['schema:image'] || 'https://picsum.photos/id/83/200/200'"
+        :src="
+          applet.applet['schema:image'] || 'https://picsum.photos/id/83/200/200'
+        "
         width="100%"
         aspect-ratio="1"
         contain
@@ -40,10 +36,12 @@
           <div>
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <v-btn 
-                  text 
-                  :disabled="status !== 'ready' || !applet.roles.includes('editor')" 
-                  @click="refreshApplet" 
+                <v-btn
+                  text
+                  :disabled="
+                    status !== 'ready' || !applet.roles.includes('editor')
+                  "
+                  @click="refreshApplet"
                   v-on="on"
                 >
                   <span v-if="status === 'ready'">Refresh</span>
@@ -56,10 +54,10 @@
           <div>
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <v-btn 
-                  text 
-                  :disabled="!applet.roles.includes('manager')" 
-                  @click="deleteApplet" 
+                <v-btn
+                  text
+                  :disabled="!applet.roles.includes('manager')"
+                  @click="deleteApplet"
                   v-on="on"
                 >
                   Delete
@@ -70,31 +68,50 @@
           </div>
           <div>
             <v-menu offset-x>
+              <router-link
+                :to="{ name: 'Builder', params: { applet: applet } }"
+              >
+                <v-list>
+                  <v-list-item>
+                    <v-list-item-title>Duplicate</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </router-link>
               <template v-slot:activator="{ on }">
-                <v-btn 
-                  text 
+                <v-btn
+                  text
                   :disabled="
                     !applet.roles.includes('coordinator') &&
-                    !applet.roles.includes('reviewer')
-                  " 
+                      !applet.roles.includes('reviewer')
+                  "
                   v-on="on"
                 >
                   Select
                 </v-btn>
               </template>
               <v-list>
-                <v-list-item @click="onViewUsers">
+                <v-list-item
+                  :disabled="!applet.roles.includes('coordinator')"
+                  @click="onViewUsers"
+                >
                   <v-list-item-title>View Users</v-list-item-title>
                 </v-list-item>
-                <v-list-item 
-                  @click="onViewGeneralCalendar"
+                <v-list-item
                   :disabled="!applet.roles.includes('coordinator')"
+                  @click="onViewGeneralCalendar"
                 >
                   <v-list-item-title>View General Calendar</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
           </div>
+          <router-link :to="{ name: 'Builder', params: { applet: applet } }">
+            <v-list>
+              <v-list-item>
+                <v-list-item-title>Duplicate</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </router-link>
         </div>
       </v-card-actions>
     </div>
@@ -125,12 +142,12 @@ export default {
   props: {
     applet: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   data: () => ({
     status: "ready",
-    cardWidth: 300
+    cardWidth: 300,
   }),
   computed: {
     currentApplet() {
@@ -177,7 +194,7 @@ export default {
       } else {
         return null;
       }
-    }
+    },
   },
   methods: {
     refreshApplet() {
@@ -190,7 +207,10 @@ export default {
       this.$store.commit("setCurrentApplet", this.applet);
 
       if (this.applet.applet && this.applet.applet.schedule) {
-        this.$store.commit("setCachedEvents", this.applet.applet.schedule.events);
+        this.$store.commit(
+          "setCachedEvents",
+          this.applet.applet.schedule.events
+        );
       } else {
         this.$store.commit("setCachedEvents", []);
       }
@@ -206,7 +226,13 @@ export default {
       const appletId = this.applet.applet._id.split("applet/")[1];
       this.$store.commit("setCurrentUsers", []);
       this.$router.push(`applet/${appletId}/schedule`);
-    }
-  }
+    },
+  },
 };
 </script>
+
+<style scoped>
+a {
+  text-decoration: none;
+}
+</style>

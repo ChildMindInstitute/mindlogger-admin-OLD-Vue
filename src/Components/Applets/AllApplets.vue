@@ -5,9 +5,7 @@
       align-center
       column
     >
-      <h1>
-        You have no active applets.
-      </h1>
+      <h1>You have no active applets.</h1>
     </v-layout>
     <v-layout v-else row wrap justify-center>
       <AppletCard
@@ -58,9 +56,9 @@
             own.
           </p>
           <p v-for="activityInfo in sampleProtocols" :key="activityInfo.name">
-            <a @click="newProtocolURL = activityInfo.url">{{
-              activityInfo.name
-            }}</a>
+            <a @click="newProtocolURL = activityInfo.url">
+              {{ activityInfo.name }}
+            </a>
           </p>
           <h3>Build a new activity Set</h3>
           <p>
@@ -87,6 +85,7 @@ export default {
   name: "AllApplets",
   components: {
     AppletCard,
+    // AppletPassword
   },
   props: {
     applets: {
@@ -97,7 +96,9 @@ export default {
   data: () => ({
     sampleProtocols: config.protocols,
     dialog: false,
+    appletUploadDialog: false,
     newProtocolURL: "",
+    appletPasswordDialog: false,
   }),
   computed: {
     isEditable() {

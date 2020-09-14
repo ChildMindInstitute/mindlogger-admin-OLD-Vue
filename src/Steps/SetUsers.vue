@@ -9,6 +9,7 @@
         ref="userTableRef"
         key="componentKey"
         :users="activeUserList"
+        :appletId="$route.params.appletId"
       />
 
       <div v-if="hasRoles('manager', 'coordinator')">
