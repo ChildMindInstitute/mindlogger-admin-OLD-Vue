@@ -1,12 +1,7 @@
 <template>
   <v-container fluid>
     <Loading v-if="status === 'loading'" />
-    <div
-      v-else-if="status === 'error'"
-      class="error"
-    >
-      {{ error.message }}
-    </div>
+    <div v-else-if="status === 'error'" class="error">{{ error.message }}</div>
     <AllApplets
       v-else
       :applets="allApplets"
@@ -14,29 +9,14 @@
       @appletUploadSuccessful="onAppletUploadSuccessful"
       @appletUploadError="onAppletUploadError"
     />
-    <v-dialog
-      v-model="dialog"
-    >
+    <v-dialog v-model="dialog">
       <v-card>
-        <v-card-title
-          class="headline grey lighten-2"
-          primary-title
-        >
-          Upload Received
-        </v-card-title>
-        <v-card-text>
-          {{ dialogText }}
-        </v-card-text>
+        <v-card-title class="headline grey lighten-2" primary-title>Upload Received</v-card-title>
+        <v-card-text>{{ dialogText }}</v-card-text>
         <v-divider />
         <v-card-actions>
           <v-spacer />
-          <v-btn
-            color="primary"
-            text
-            @click="dialog = false"
-          >
-            Dismiss
-          </v-btn>
+          <v-btn color="primary" text @click="dialog = false">Dismiss</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -44,29 +24,29 @@
 </template>
 
 <script>
-import api from '../Components/Utils/api/api.vue';
-import _ from 'lodash';
-import AllApplets from '../Components/Applets/AllApplets';
-import Loading from '../Components/Utils/Loading';
-import { Parse, Day } from 'dayspan';
-import config from '../config';
+import api from "../Components/Utils/api/api.vue";
+import _ from "lodash";
+import AllApplets from "../Components/Applets/AllApplets";
+import Loading from "../Components/Utils/Loading";
+import { Parse, Day } from "dayspan";
+import config from "../config";
 
 window.Parse = Parse;
 window.Day = Day;
 
 export default {
-  name: 'Applet',
+  name: "Applet",
   components: {
     AllApplets,
-    Loading,
+    Loading
   },
   data: () => ({
     sampleProtocols: config.protocols,
-    status: 'loading',
-    accountsLoadingStatus: 'loading',
+    status: "loading",
+    accountsLoadingStatus: "loading",
     error: {},
     dialog: false,
-    dialogText: '',
+    dialogText: ""
   }),
   computed: {
     currentAccount() {
@@ -80,7 +60,7 @@ export default {
     },
     accountApplets() {
       return this.$store.state.currentApplets;
-    },
+    }
   },
   watch: {
     currentAccount(newAccount, oldAccount) {
@@ -97,60 +77,66 @@ export default {
     getAccountData() {
       const accountId = this.$store.state.currentAccount.accountId;
       if (!accountId) {
-        this.status = 'ready';
+        this.status = "ready";
         return;
       }
-      api.switchAccount({
-        apiHost: this.$store.state.backend,
-        token: this.$store.state.auth.authToken.token,
-        accountId
-      }).then((resp) => {
-        this.$store.commit('switchAccount', resp.data.account);
-      }).catch((err) => {
-        console.warn(err);
-      });
+      api
+        .switchAccount({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          accountId
+        })
+        .then(resp => {
+          this.$store.commit("switchAccount", resp.data.account);
+        })
+        .catch(err => {
+          console.warn(err);
+        });
     },
     getApplets() {
-      this.status = 'loading';
+      this.status = "loading";
       const allApplets = [];
 
       if (!this.accountApplets || !this.accountApplets.length) {
-        this.$store.commit('setAllApplets', []);
-        this.status = 'ready';
+        this.$store.commit("setAllApplets", []);
+        this.status = "ready";
         return;
       }
 
-      const requests = this.accountApplets.map((account) => {
-        return (
-          new Promise((resolve, reject) => { 
-            api.getApplet({ 
+      const requests = this.accountApplets.map(account => {
+        return new Promise((resolve, reject) => {
+          api
+            .getApplet({
               apiHost: this.$store.state.backend,
               token: this.$store.state.auth.authToken.token,
               allEvent: account.allEvent,
-              id: account.appletId,
+              id: account.appletId
             })
-            .then((response) => {
+            .then(response => {
               resolve(response.data);
-            })
-          })
-        );
+            });
+        });
       });
-      Promise.all(requests).then((responses) => {
-        this.$store.commit('setAllApplets', responses);
-        this.$store.commit('updateAllApplets');
-        this.status = 'ready';
-      }).catch((e) => {
-        this.status = 'error';
-      });
+      Promise.all(requests)
+        .then(responses => {
+          this.$store.commit("setAllApplets", responses);
+          this.$store.commit("updateAllApplets");
+          this.status = "ready";
+        })
+        .catch(e => {
+          this.status = "error";
+        });
     },
-    onAppletUploadSuccessful(message) {
-      this.dialogText = message;
+    onAppletUploadSuccessful() {
+      this.dialogText =
+        "The applet is being created. Please check back in several mintutes to see it.";
       this.dialog = true;
     },
     onAppletUploadError() {
-      this.dialogText = 'There was an error uploading your applet. Please try again or report the issue.'
+      this.dialogText =
+        "There was an error uploading your applet. Please try again or report the issue.";
       this.dialog = true;
-    },
-  },
-}
+    }
+  }
+};
 </script>

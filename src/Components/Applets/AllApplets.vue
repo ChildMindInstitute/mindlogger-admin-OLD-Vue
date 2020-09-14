@@ -5,25 +5,17 @@
       align-center
       column
     >
-      <h1>
-        You have no active applets.
-      </h1>
+      <h1>You have no active applets.</h1>
     </v-layout>
-    <v-layout
-      v-else
-      row
-      wrap
-      justify-center
-    >
+    <v-layout v-else row wrap justify-center>
       <AppletCard
-        v-for="(applet,i) in applets"
+        v-for="(applet, i) in applets"
         :key="`i${i}`"
         :applet="applet"
         @deleteApplet="deleteApplet"
         @refreshApplet="refreshApplet"
       />
     </v-layout>
-    
 
     <v-tooltip top>
       <template v-slot:activator="{ on }">
@@ -35,7 +27,7 @@
           fab
           style="bottom: 70px; right: 40px;"
           :disabled="!isEditable"
-          @click="appletUploadDialog = true"
+          @click="dialog = true"
           v-on="on"
         >
           <v-icon>mdi-plus</v-icon>
@@ -44,17 +36,11 @@
       <span>Create or upload a new applet</span>
     </v-tooltip>
 
-    <v-dialog
-      v-model="appletUploadDialog"
-      max-width="800"
-    >
+    <v-dialog v-model="dialog" max-width="800">
       <v-card>
         <v-card-text>
           <h3>Upload an activity set</h3>
-          <v-text-field
-            v-model="newProtocolURL"
-            label="activity set url"
-          />
+          <v-text-field v-model="newProtocolURL" label="activity set url" />
           <v-btn
             color="primary"
             :disabled="!newProtocolURL"
@@ -62,74 +48,63 @@
           >
             Add
           </v-btn>
-          <h3> Quick Add </h3>
+          <h3>Quick Add</h3>
           <p>
-            Below are a list of activity sets you can add.
-            These are JSON-LD files that describe the questions of your
-            applet. Eventually, there will be a library of questions
-            and you will be able to create your own.
+            Below are a list of activity sets you can add. These are JSON-LD
+            files that describe the questions of your applet. Eventually, there
+            will be a library of questions and you will be able to create your
+            own.
           </p>
-          <p
-            v-for="activityInfo in sampleProtocols"
-            :key="activityInfo.name"
-          >
-            <a @click="newProtocolURL=activityInfo.url">{{ activityInfo.name }}</a>
+          <p v-for="activityInfo in sampleProtocols" :key="activityInfo.name">
+            <a @click="newProtocolURL = activityInfo.url">
+              {{ activityInfo.name }}
+            </a>
           </p>
-          <h3> Build a new activity Set </h3>
+          <h3>Build a new activity Set</h3>
           <p>
-            Build a new activity set from scratch and download the schema files. Currently, this feature only supports radio items and text items.
+            Build a new activity set from scratch and download the schema files.
+            Currently, this feature only supports radio items and text items.
           </p>
-          <router-link
-            to="/build"
-            target="_blank"
-          >
-            <v-btn
-              color="primary"
-            >
+          <router-link to="/build" target="_blank">
+            <v-btn color="primary">
               Launch Builder
             </v-btn>
           </router-link>
         </v-card-text>
       </v-card>
     </v-dialog>
-
-    <AppletPassword
-      v-model="appletPasswordDialog"
-      @set-password="onClickSubmitPassword"
-    />
   </div>
 </template>
 
 <script>
-import AppletCard from './AppletCard.vue';
-import api from '../Utils/api/api.vue';
-import config from '../../config';
-import encryption from '../Utils/encryption/encryption.vue';
-import AppletPassword from './AppletPassword'
+import AppletCard from "./AppletCard.vue";
+import api from "../Utils/api/api.vue";
+import config from "../../config";
 
 export default {
-  name: 'AllApplets',
+  name: "AllApplets",
   components: {
     AppletCard,
-    AppletPassword
+    // AppletPassword
   },
   props: {
     applets: {
       type: Array,
       required: true,
-    }
+    },
   },
   data: () => ({
     sampleProtocols: config.protocols,
+    dialog: false,
     appletUploadDialog: false,
-    newProtocolURL: '',
+    newProtocolURL: "",
     appletPasswordDialog: false,
   }),
   computed: {
     isEditable() {
       let isEditor = false;
       this.applets.forEach((applet) => {
-        if (applet.roles.includes('editor')) {
+        if (applet.roles.includes("editor")) {
           isEditor = true;
         }
       });
@@ -149,57 +124,47 @@ export default {
   },
   methods: {
     onClickAdd() {
-      this.appletUploadDialog = false;
-      this.appletPasswordDialog = true;
+      this.dialog = false;
+      this.addNewApplet();
     },
-    onClickSubmitPassword(appletPassword) {
-      this.appletPasswordDialog = false;
-      this.addNewApplet(appletPassword);
-    },
-    addNewApplet(appletPassword) {
-      const encryptionInfo = encryption.getAppletEncryptionInfo({
-        appletPassword: appletPassword,
-        accountId: this.$store.state.currentAccount.accountId
-      });
-
-      const encryptionForm = new FormData();
-      encryptionForm.set('encryption', JSON.stringify({
-            appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
-            appletPrime: Array.from(encryptionInfo.getPrime()),
-            base: Array.from(encryptionInfo.getGenerator())
-      }));
-
-      api.addNewApplet({
-        protocolUrl: this.newProtocolURL,
-        email: this.$store.state.userEmail,
-        token: this.$store.state.auth.authToken.token,
-        apiHost: this.$store.state.backend,
-        data: encryptionForm
-      }).then((resp) => {
-        this.newProtocolURL = '';
-        this.$emit('appletUploadSuccessful', resp.data.message);
-      }).catch((e) => {
-        this.$emit('appletUploadError');
-      });
+    addNewApplet() {
+      api
+        .addNewApplet({
+          protocolUrl: this.newProtocolURL,
+          email: this.$store.state.userEmail,
+          token: this.$store.state.auth.authToken.token,
+          apiHost: this.$store.state.backend,
+        })
+        .then((resp) => {
+          this.newProtocolURL = "";
+          this.$emit("appletUploadSuccessful");
+        })
+        .catch((e) => {
+          this.$emit("appletUploadError");
+        });
     },
     deleteApplet(applet) {
-      api.deleteApplet({
-        apiHost: this.$store.state.backend,
-        token: this.$store.state.auth.authToken.token,
-        appletId: applet.applet._id.split('applet/')[1],
-      }).then((resp) => {
-        this.$emit('refreshAppletList');
-      });
+      api
+        .deleteApplet({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          appletId: applet.applet._id.split("applet/")[1],
+        })
+        .then((resp) => {
+          this.$emit("refreshAppletList");
+        });
     },
     refreshApplet(applet) {
-      api.refreshApplet({
-        apiHost: this.$store.state.backend,
-        token: this.$store.state.auth.authToken.token,
-        appletId: applet.applet._id.split('applet/')[1],
-      }).then((resp) => {
-        this.$emit('refreshAppletList');
-      });
+      api
+        .refreshApplet({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          appletId: applet.applet._id.split("applet/")[1],
+        })
+        .then((resp) => {
+          this.$emit("refreshAppletList");
+        });
     },
-  }
-}
+  },
+};
 </script>
