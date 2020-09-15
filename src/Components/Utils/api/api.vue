@@ -300,6 +300,15 @@ const replaceResponseData = ({ apiHost, token, appletId, data }) => axios({
   data
 });
 
+const setAppletEncryption = ({ apiHost, token, appletId, data }) => axios({
+  method: 'put',
+  url: `${apiHost}/applet/${appletId}/encryption`,
+  headers: {
+    'Girder-Token': token,
+  },
+  data
+})
+
 export default {
   signIn,
   signUp,
@@ -329,5 +338,6 @@ export default {
   getAppletsForUser,
   duplicateApplet,
   replaceResponseData,
-};
+  setAppletEncryption,
+}
 </script>

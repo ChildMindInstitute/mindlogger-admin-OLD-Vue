@@ -100,6 +100,18 @@ const mutations = {
     }
   },
 
+  updateAppletData(state, applet) {
+    for (let i = 0; i < state.allApplets.length; i++) {
+      if (state.allApplets[i].applet._id == applet.applet._id) {
+        state.allApplets[i] = applet;
+
+        if (state.currentApplet.applet && state.currentApplet.applet._id == applet.applet._id) {
+          state.currentApplet = applet;
+        }
+      }
+    }
+  },
+
   setAllApplets(state, protocols) { 
     state.allApplets = protocols;
   },

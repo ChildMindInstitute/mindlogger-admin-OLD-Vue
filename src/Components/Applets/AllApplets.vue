@@ -9,11 +9,12 @@
     </v-layout>
     <v-layout v-else row wrap justify-center>
       <AppletCard
-        v-for="(applet, i) in applets"
-        :key="`i${i}`"
+        v-for="(applet,i) in applets"
+        :key="`i${i + baseKey}`"
         :applet="applet"
         @deleteApplet="deleteApplet"
         @refreshApplet="refreshApplet"
+        @onUpdateAppletPassword="onUpdateAppletPassword"
       />
     </v-layout>
 
@@ -109,6 +110,8 @@ export default {
     appletUploadDialog: false,
     newProtocolURL: '',
     appletPasswordDialog: false,
+    requestedAction: null,
+    baseKey: 0,
   }),
   computed: {
     isEditable() {
@@ -123,8 +126,13 @@ export default {
       }
       return isEditor;
     },
+
     currentApplet() {
       return this.$store.state.currentApplet;
+    },
+
+    accountApplets() {
+      return this.$store.state.currentApplets;
     },
   },
   watch: {
@@ -136,12 +144,46 @@ export default {
     onClickAdd() {
       this.appletUploadDialog = false;
       this.appletPasswordDialog = true;
+      this.requestedAction = this.addNewApplet.bind(this);
     },
+
+    onUpdateAppletPassword(applet) {
+      this.appletPasswordDialog = true;
+      this.requestedAction = this.setAppletPassword.bind(this, applet);
+    },
+
+    setAppletPassword(applet, appletPassword) {
+      let apiHost = this.$store.state.backend;
+      let token = this.$store.state.auth.authToken.token;
+      let appletId = applet.applet._id.split("applet/")[1];
+
+      api.setAppletEncryption({
+        token,
+        apiHost,
+        data: this.getEncryptionForm(appletPassword),
+        appletId
+      }).then(() => api.getApplet({
+        token,
+        apiHost,
+        id: appletId,
+        allEvent: this.accountApplets.find(value => value.appletId == appletId).allEvent
+      })).then((resp) => {
+        this.$store.commit('updateAppletData', {
+          ...resp.data,
+          roles: applet.roles
+        });
+
+        this.baseKey = this.baseKey + 1;
+        this.$emit('onAppletPasswordChanged');
+      })
+    },
+
     onClickSubmitPassword(appletPassword) {
       this.appletPasswordDialog = false;
-      this.addNewApplet(appletPassword);
+      this.requestedAction(appletPassword);
     },
-    addNewApplet(appletPassword) {
+
+    getEncryptionForm(appletPassword) {
       const encryptionInfo = encryption.getAppletEncryptionInfo({
         appletPassword: appletPassword,
         accountId: this.$store.state.currentAccount.accountId
@@ -154,12 +196,16 @@ export default {
             base: Array.from(encryptionInfo.getGenerator())
       }));
 
+      return encryptionForm;
+    },
+
+    addNewApplet(appletPassword) {
       api.addNewApplet({
         protocolUrl: this.newProtocolURL,
         email: this.$store.state.userEmail,
         token: this.$store.state.auth.authToken.token,
         apiHost: this.$store.state.backend,
-        data: encryptionForm
+        data: this.getEncryptionForm(appletPassword)
       }).then((resp) => {
         this.newProtocolURL = '';
         this.$emit('appletUploadSuccessful', resp.data.message);
@@ -167,6 +213,7 @@ export default {
         this.$emit('appletUploadError');
       });
     },
+
     deleteApplet(applet) {
       api
         .deleteApplet({
@@ -178,6 +225,7 @@ export default {
           this.$emit("refreshAppletList");
         });
     },
+
     refreshApplet(applet) {
       api
         .refreshApplet({

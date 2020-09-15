@@ -8,11 +8,12 @@
       @refreshAppletList="getAccountData"
       @appletUploadSuccessful="onAppletUploadSuccessful"
       @appletUploadError="onAppletUploadError"
+      @onAppletPasswordChanged="onAppletPasswordChanged"
     />
     <Information
       v-model="dialog"
       :dialogText="dialogText"
-      :title="'Upload Received'"
+      :title="dialogTitle"
     />
   </v-container>
 </template>
@@ -42,7 +43,8 @@ export default {
     accountsLoadingStatus: "loading",
     error: {},
     dialog: false,
-    dialogText: ""
+    dialogText: '',
+    dialogTitle: '',
   }),
   computed: {
     currentAccount() {
@@ -124,14 +126,20 @@ export default {
         });
     },
     onAppletUploadSuccessful(message) {
+      this.dialogText = 'Upload Received';
       this.dialogText = message;
       this.dialog = true;
     },
     onAppletUploadError() {
-      this.dialogText =
-        "There was an error uploading your applet. Please try again or report the issue.";
+      this.dialogText = 'Upload Error';
+      this.dialogText = 'There was an error uploading your applet. Please try again or report the issue.'
+      this.dialog = true;
+    },
+    onAppletPasswordChanged() {
+      this.dialogText = 'Applet password is updated successfully.';
+      this.dialogTitle = 'Applet Encryption Update';
       this.dialog = true;
     }
-  }
-};
+  },
+}
 </script>

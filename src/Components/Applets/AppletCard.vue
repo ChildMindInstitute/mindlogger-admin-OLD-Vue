@@ -216,18 +216,25 @@ export default {
       }
     },
     onViewUsers() {
-      this.setSelectedApplet();
-      const appletId = this.applet.applet._id.split("applet/")[1];
-      this.$router.push(`applet/${appletId}/users`);
+      if (this.applet.roles.includes('owner') && !Object.keys(this.applet.applet.encryption).length) {
+        this.$emit('onUpdateAppletPassword', this.applet);
+      } else {
+        this.setSelectedApplet();
+        const appletId = this.applet.applet._id.split("applet/")[1];
+        this.$router.push(`applet/${appletId}/users`);
+      }
     },
     onViewGeneralCalendar() {
-      this.setSelectedApplet();
-
-      const appletId = this.applet.applet._id.split("applet/")[1];
-      this.$store.commit("setCurrentUsers", []);
-      this.$router.push(`applet/${appletId}/schedule`);
-    },
-  },
+      if (this.applet.roles.includes('owner') && !Object.keys(this.applet.applet.encryption).length) {
+        this.$emit('onUpdateAppletPassword', this.applet);
+      } else {
+        this.setSelectedApplet();
+        const appletId = this.applet.applet._id.split("applet/")[1];
+        this.$store.commit("setCurrentUsers", []);
+        this.$router.push(`applet/${appletId}/schedule`);
+      }
+    }
+  }
 };
 </script>
 

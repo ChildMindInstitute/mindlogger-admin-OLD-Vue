@@ -363,8 +363,10 @@ export default {
         api.replaceResponseData({
           apiHost, token, appletId, data: form
         }).then((msg) => {
-          this.informationDialog = true;
-          this.informationText = 'Refresh Complete';
+          this.getAppletUsers().then(() => {
+            this.informationDialog = true;
+            this.informationText = 'Refresh Complete';
+          });
         })
       })
     },

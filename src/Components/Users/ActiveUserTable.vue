@@ -163,44 +163,51 @@ export default {
       return this.$store.state.currentApplet;
     },
   },
-  beforeMount() {
-    const { isManager, isCoordinator } = this;
-    this.gridOptions = {};
-    const appletId = this.currentApplet.applet._id.split('/')[1];
-    const isManager = this.$store.state.currentAccount.applets['manager'].indexOf(appletId) >= 0;
+  watch: {
+    users: {
+      immediate: true,
+      deep: false,
+      handler(newValue, oldValue) {
+        const appletId = this.currentApplet.applet._id.split('/')[1];
+        const isManager = this.$store.state.currentAccount.applets['manager'].indexOf(appletId) >= 0;
 
-    if (isManager) {
-      this.userData = this.users.map((user) => {
-        let roles = [];
-        if (user.roles.length === 1 && user.roles[0] === "user") {
-          roles.push("user");
-        } else if (user.roles.includes("owner")) {
-          roles.push("owner");
-        } else if (user.roles.includes("manager")) {
-          roles.push("manager");
+        if (isManager) {
+          this.userData = this.users.map((user) => {
+            let roles = [];
+            if (user.roles.length === 1 && user.roles[0] === 'user') {
+              roles.push('user');
+            } else if (user.roles.includes('owner')) {
+              roles.push('owner');
+            } else if (user.roles.includes('manager')) {
+              roles.push('manager');
+            } else {
+              roles = user.roles.filter(role => role != 'user');
+            }
+            return {
+              displayName: user.displayName,
+              email: user.email,
+              mrn: user.MRN,
+              _id: user._id,
+              refreshRequest: user.refreshRequest && user.refreshRequest.userPublicKey ? user.refreshRequest : null,
+              roles
+            };
+          });
         } else {
-          roles = user.roles.filter((role) => role != "user");
+          this.userData = this.users.map((user) => {
+            return {
+              displayName: user.displayName,
+              email: user.email,
+              mrn: user.MRN,
+              _id: user._id,
+              roles: ['user'],
+            };
+          });
         }
-        return {
-          displayName: user.displayName,
-          email: user.email,
-          mrn: user.MRN,
-          _id: user._id,
-          refreshRequest: user.refreshRequest && user.refreshRequest.userPublicKey ? user.refreshRequest : null,
-          roles
-        };
-      });
-    } else {
-      this.userData = this.users.map((user) => {
-        return {
-          displayName: user.displayName,
-          email: user.email,
-          mrn: user.MRN,
-          _id: user._id,
-          roles: ["user"],
-        };
-      });
+      }
     }
+  },
+  beforeMount() {
+    this.gridOptions = {};
 
     this.columnDefs = [
       {
