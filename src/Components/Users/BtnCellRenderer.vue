@@ -11,10 +11,10 @@
       :disabled="params.data.roles == 'user'"
       @click.stop="btnEditedHandler($event)"
     >
-      <v-icon v-if="params.data.roles != 'user'">edit</v-icon>
+      <v-icon v-if="params.data.roles != 'user' && isManager">edit</v-icon>
     </v-btn>
     <v-btn
-      v-if="params.data.roles != 'user'"
+      v-if="params.data.roles != 'user' && isManager"
       icon
       small
       color=""
@@ -48,6 +48,7 @@
         </v-list-item>
         <v-list-item 
           link
+          :disabled="!isManager"
           @click="btnDeletedHandler('deleteData')"
         >
           <v-list-item-title> Remove user & data </v-list-item-title>
@@ -61,6 +62,12 @@
 import Vue from "vue";
 
 export default Vue.extend({
+
+  computed: {
+    isManager() {
+      return this.$store.state.currentAccount.applets["manager"] ? true : false;
+    }
+  },
   methods: {
     /**
      * Edit action handler
