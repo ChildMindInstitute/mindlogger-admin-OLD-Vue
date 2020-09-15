@@ -5,10 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
 ## [0.3.7] = 2020-09-14
 
-### Changed
 - Add support for strings as token values in the dashboard
+
+## [0.3.6] = 2020-09-140
+
+### Changed
+
+- Hide the "Remove User" option for users who are not managers
 
 ## [0.3.5] = 2020-09-14
 
