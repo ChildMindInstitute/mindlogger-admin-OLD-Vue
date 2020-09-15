@@ -71,10 +71,30 @@ export default class Item {
     return this.responseOptions.find(choice => choice.value === value);
   }
 
+  getChoiceByName(name) {
+    return this.responseOptions.find(choice => choice.name.en === name);
+  }
+
+  getChoice(str) {
+    const numericValue = +str;
+
+    return Number.isNaN(numericValue)
+      ? this.getChoiceByName(str)
+      : this.getChoiceByValue(numericValue);
+  }
+
+
   setResponses(responses) {
-      this.responses = responses.map(response => response.value.reduce(
-        (obj, value) => {
-          const choice =  this.getChoiceByValue(value);
+    this.responses = responses.map(response => {
+      if (!Array.isArray(response.value)) {
+        // Ensure that it is an array.
+        response.value = [response.value];
+      }
+
+      return response.value.reduce(
+        (obj, tokenValue) => {
+          const choice =  this.getChoice(tokenValue);
+          const { value, name } = choice;
 
           return {
             ...obj,
@@ -82,7 +102,7 @@ export default class Item {
             positive: value > 0 ? obj.positive + value : obj.positive,
             negative: value < 0 ? obj.negative + value : obj.negative,
             userActivity: true,
-            [choice.name.en]: value,
+            [name.en]: value,
           };
         },
         {
@@ -92,6 +112,7 @@ export default class Item {
           negative: 0,
           userActivity: false,
         },
-      ));
+      );
+    });
   }
 }
