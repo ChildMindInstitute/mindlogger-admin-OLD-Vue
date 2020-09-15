@@ -46,8 +46,10 @@
         >
           <v-list-item-title> Remove user </v-list-item-title>
         </v-list-item>
+
         <v-list-item 
           link
+          v-if="params.isManager"
           @click="btnDeletedHandler('deleteData')"
         >
           <v-list-item-title> Remove user & data </v-list-item-title>

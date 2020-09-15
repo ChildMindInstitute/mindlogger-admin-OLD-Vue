@@ -147,6 +147,9 @@ export default {
     isManager() { 
       return this.$store.state.currentAccount.applets['manager'];
     },
+    isCoordinator() { 
+      return this.$store.state.currentAccount.applets['coordinator'];
+    },
     computedItems() {
       return this.userRoleData.map((item) => {
         return {
@@ -157,10 +160,9 @@ export default {
     },
   },
   beforeMount() {
+    const { isManager, isCoordinator } = this;
     this.gridOptions = {};
-    const isManager = this.$store.state.currentAccount.applets["manager"]
-      ? true
-      : false;
+
     if (isManager) {
       this.userData = this.users.map((user) => {
         let roles = [];
@@ -219,7 +221,7 @@ export default {
       },
     ];
 
-    if (isManager) {
+    if (isManager || isCoordinator) {
       this.columnDefs.push({
         headerName: "",
         field: "athelete",
@@ -228,6 +230,7 @@ export default {
         cellRenderer: "btnCellRenderer",
         cellRendererParams: {
           clicked: this.onClickedHander,
+          isManager: isManager,
         },
       });
     }
