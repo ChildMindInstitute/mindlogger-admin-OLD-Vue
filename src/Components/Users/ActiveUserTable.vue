@@ -52,11 +52,6 @@
     </v-dialog>
 
     <v-dialog v-model="passwordDialog" persistent max-width="450px">
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn color="primary" dark v-bind="attrs" v-on="on">
-          Open Dialog
-        </v-btn>
-      </template>
       <v-card>
         <v-card-title class="edit-card-title">
           <span class="headline">Are you sure?</span>
@@ -158,37 +153,37 @@ export default {
     const isManager = this.$store.state.currentAccount.applets["manager"]
       ? true
       : false;
-    if (isManager) {
-      this.userData = this.users.map((user) => {
-        let roles = [];
-        if (user.roles.length === 1 && user.roles[0] === "user") {
-          roles.push("user");
-        } else if (user.roles.includes("owner")) {
-          roles.push("owner");
-        } else if (user.roles.includes("manager")) {
-          roles.push("manager");
-        } else {
-          roles = user.roles.filter((role) => role != "user");
-        }
-        return {
-          displayName: user.displayName,
-          email: user.email,
-          mrn: user.MRN,
-          _id: user._id,
-          roles,
-        };
-      });
-    } else {
-      this.userData = this.users.map((user) => {
-        return {
-          displayName: user.displayName,
-          email: user.email,
-          mrn: user.MRN,
-          _id: user._id,
-          roles: ["user"],
-        };
-      });
-    }
+    // if (isManager) {
+    this.userData = this.users.map((user) => {
+      let roles = [];
+      if (user.roles.length === 1 && user.roles[0] === "user") {
+        roles.push("user");
+      } else if (user.roles.includes("owner")) {
+        roles.push("owner");
+      } else if (user.roles.includes("manager")) {
+        roles.push("manager");
+      } else {
+        roles = user.roles.filter((role) => role != "user");
+      }
+      return {
+        displayName: user.displayName,
+        email: user.email,
+        mrn: user.MRN,
+        _id: user._id,
+        roles,
+      };
+    });
+    // } else {
+    //   this.userData = this.users.map((user) => {
+    //     return {
+    //       displayName: user.displayName,
+    //       email: user.email,
+    //       mrn: user.MRN,
+    //       _id: user._id,
+    //       roles: ["user"],
+    //     };
+    //   });
+    // }
     this.columnDefs = [
       {
         headerName: "Name",
