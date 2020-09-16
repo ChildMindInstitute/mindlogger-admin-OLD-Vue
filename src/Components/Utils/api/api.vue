@@ -8,7 +8,7 @@ const signIn = ({ apiHost, user, password }) =>
   axios({
     method: "get",
     url: `${apiHost}/user/authentication`,
-    headers: { "Girder-Authorization": `Basic ${btoa(`${user}:${password}`)}` }
+    headers: { "Girder-Authorization": `Basic ${btoa(`${user}:${password}`)}` },
   });
 
 const signUp = ({ apiHost, body }) =>
@@ -304,8 +304,9 @@ export default {
   updateRegistration,
   getActivityByUrl,
   getUserResponses,
-  getAppletsForUser,
   getAppletInvitation,
-  duplicateApplet
+  getUsersData,
+  getAppletsForUser,
+  duplicateApplet,
 };
 </script>
