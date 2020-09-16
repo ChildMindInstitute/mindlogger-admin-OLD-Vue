@@ -10,7 +10,7 @@ import api from "../Components/Utils/api/api.vue";
 
 const getDefaultState = () => {
   return {
-    backend: "https://api-dev.mindlogger.org/api/v1",
+    backend: "",
     currentAccount: {},
     currentApplets: [],
     ownerAccount: {},
@@ -52,10 +52,13 @@ const mutations = {
       { url: "http://localhost:8080/api/v1", env: "local" },
       { url: process.env.CUSTOM_URL || "", env: "other" },
     ];
-    state.backend =
-      backend ||
-      _.find(backendServers, { env: process.env.NODE_ENV }).url ||
-      backendServers[0].url;
+
+    // state.backend =
+    //   backend ||
+    //   _.find(backendServers, { env: process.env.NODE_ENV }).url ||
+    //   backendServers[0].url;
+
+    state.backend = process.env.VUE_APP_SERVER_URL || backendServers[0].url;
   },
   setAccounts(state, accounts) {
     state.allAccounts = accounts;
@@ -73,9 +76,7 @@ const mutations = {
             accounts.push({
               appletId,
               allEvent:
-                key === "manager" || key === "coordinator"
-                  ? true
-                  : false,
+                key === "manager" || key === "coordinator" ? true : false,
             });
           }
         });
@@ -88,7 +89,7 @@ const mutations = {
       state.currentApplet = protocol;
     }
   },
-  setAllApplets(state, protocols) { 
+  setAllApplets(state, protocols) {
     state.allApplets = protocols;
   },
 
@@ -105,10 +106,7 @@ const mutations = {
       Object.keys(currentApplets).forEach((key, index) => {
         if (currentApplets[key] && currentApplets[key].length) {
           currentApplets[key].forEach((id, index) => {
-            if (
-              appletId === id &&
-              key !== "user"
-            ) {
+            if (appletId === id && key !== "user") {
               state.allApplets[i].roles.push(key);
             }
           });
@@ -192,4 +190,3 @@ export const storeConfig = {
 const store = new Store(storeConfig);
 
 export default store;
-
