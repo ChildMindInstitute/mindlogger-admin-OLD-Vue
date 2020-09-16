@@ -167,6 +167,12 @@ export default {
     };
   },
   computed: {
+    isManager() { 
+      return this.$store.state.currentAccount.applets['manager'];
+    },
+    isCoordinator() { 
+      return this.$store.state.currentAccount.applets['coordinator'];
+    },
     computedItems() {
       return this.userRoleData.map((item) => {
         return {
@@ -177,11 +183,8 @@ export default {
     },
   },
   beforeMount() {
+    const { isManager, isCoordinator } = this;
     this.gridOptions = {};
-    const isManager = this.$store.state.currentAccount.applets["manager"]
-      ? true
-      : false;
-    // if (isManager) {
     this.userData = this.users.map((user) => {
       let roles = [];
       if (user.roles.length === 1 && user.roles[0] === "user") {
@@ -201,17 +204,6 @@ export default {
         roles,
       };
     });
-    // } else {
-    //   this.userData = this.users.map((user) => {
-    //     return {
-    //       displayName: user.displayName,
-    //       email: user.email,
-    //       mrn: user.MRN,
-    //       _id: user._id,
-    //       roles: ["user"],
-    //     };
-    //   });
-    // }
     this.columnDefs = [
       {
         headerName: "Name",
@@ -237,7 +229,10 @@ export default {
         resizable: true,
         cellStyle: { justifyContent: "center" },
       },
-      {
+    ];
+
+    if (isManager || isCoordinator) {
+      this.columnDefs.push({
         headerName: "",
         field: "athelete",
         maxWidth: 200,
@@ -245,9 +240,11 @@ export default {
         cellRenderer: "btnCellRenderer",
         cellRendererParams: {
           clicked: this.onClickedHander,
+          isManager: isManager,
         },
-      },
-    ];
+      });
+    }
+
     this.frameworkComponents = {
       btnCellRenderer: BtnCellRenderer,
     };

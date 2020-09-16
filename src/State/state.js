@@ -45,17 +45,20 @@ const mutations = {
     state.updatedEvents = [];
   },
   setBackend(state, backend) {
-    const backendServers = [
-      { url: "https://api-prod.mindlogger.org/api/v1", env: "production" },
-      { url: "https://api-staging.mindlogger.org/api/v1", env: "development" },
-      { url: "https://api-test.mindlogger.org/api/v1", env: "staging" },
-      { url: "http://localhost:8080/api/v1", env: "local" },
-      { url: process.env.CUSTOM_URL || "", env: "other" },
-    ];
-    state.backend =
-      backend ||
-      _.find(backendServers, { env: process.env.NODE_ENV }).url ||
-      backendServers[0].url;
+    // const backendServers = [
+    //   { url: "https://api-prod.mindlogger.org/api/v1", env: "production" },
+    //   { url: "https://api-staging.mindlogger.org/api/v1", env: "development" },
+    //   { url: "https://api-test.mindlogger.org/api/v1", env: "staging" },
+    //   { url: "http://localhost:8080/api/v1", env: "local" },
+    //   { url: process.env.CUSTOM_URL || "", env: "other" },
+    // ];
+
+    // state.backend =
+    //   backend ||
+    //   _.find(backendServers, { env: process.env.NODE_ENV }).url ||
+    //   backendServers[0].url;
+
+    state.backend = process.env.VUE_APP_SERVER_URL || backend;
   },
   setAccounts(state, accounts) {
     state.allAccounts = accounts;

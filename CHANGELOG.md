@@ -5,11 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.7] = 2020-09-15
+## [0.3.10] = 2020-09-16
 ### Changed
+- Disallowed to save empty roles
 - Disallowed coordinators to editor organizer roles
 - Fixed user roles on ActiveUserTable
 - Removed unnecessary elements
+
+## [0.3.9] = 2020-09-10
+### Changed
+- Fixed dashboard chart showing decimal values in y-axis labels
+- Fixed y-axis scale. It was changed to include the maximum token value.
+
+## [0.3.8] = 2020-09-14
+
+### Changed
+
+- Fix timezone handling in dashboard
+
+## [0.3.7] = 2020-09-14
+
+- Add support for strings as token values in the dashboard
+
+## [0.3.6] = 2020-09-140
+
+### Changed
+
+- Hide the "Remove User" option for users who are not managers
+
+## [0.3.5] = 2020-09-14
 
 ## [0.3.6] = 2020-09-14
 ### Changed

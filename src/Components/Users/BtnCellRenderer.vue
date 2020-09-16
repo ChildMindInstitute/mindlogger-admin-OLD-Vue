@@ -46,6 +46,7 @@
         >
           <v-list-item-title> Remove user </v-list-item-title>
         </v-list-item>
+
         <v-list-item 
           link
           :disabled="!isManager"
