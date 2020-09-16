@@ -13,7 +13,10 @@
       :domLayout="domLayout"
       @first-data-rendered="onFirstDataRendered"
     />
-    <v-dialog v-model="editRoleDialog" max-width="500px">
+    <v-dialog
+      v-model="editRoleDialog"
+      max-width="500px"
+    >
       <v-card>
         <v-card-title class="edit-card-title">
           Edit roles
@@ -25,8 +28,9 @@
             label="Select"
             multiple
             chips
+            :required="currentUserRoles"
             :item-disabled="['editor']"
-            hint="What are the target roles"
+            :hint="currentUserRoles.length ? '' : 'At least one role is required'"
             persistent-hint
           />
           <v-combobox
@@ -41,17 +45,30 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="primary" text @click="editRoleDialog = false">
+          <v-btn
+            color="primary"
+            text
+            @click="editRoleDialog = false"
+          >
             Close
           </v-btn>
-          <v-btn color="primary" text @click="onSaveUserRole()">
+          <v-btn
+            color="primary"
+            :disabled="!currentUserRoles.length"
+            text
+            @click="onSaveUserRole()"
+          >
             Save
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="passwordDialog" persistent max-width="450px">
+    <v-dialog
+      v-model="passwordDialog"
+      persistent
+      max-width="450px"
+    >
       <v-card>
         <v-card-title class="edit-card-title">
           <span class="headline">Are you sure?</span>
@@ -66,7 +83,10 @@
                   type="password"
                   required
                 />
-                <div v-if="error" class="error">
+                <div
+                  v-if="error"
+                  class="error"
+                >
                   {{ error }}
                 </div>
               </v-col>
@@ -75,10 +95,18 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="blue darken-1" text @click="passwordDialog = false">
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="passwordDialog = false"
+          >
             Close
           </v-btn>
-          <v-btn color="blue darken-1" text @click="onConfirmPassword()">
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="onConfirmPassword()"
+          >
             Confirm
           </v-btn>
         </v-card-actions>
