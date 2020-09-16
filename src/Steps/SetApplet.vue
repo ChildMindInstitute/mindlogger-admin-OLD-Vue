@@ -126,12 +126,12 @@ export default {
         });
     },
     onAppletUploadSuccessful(message) {
-      this.dialogText = 'Upload Received';
+      this.dialogTitle = 'Upload Received';
       this.dialogText = message;
       this.dialog = true;
     },
     onAppletUploadError() {
-      this.dialogText = 'Upload Error';
+      this.dialogTitle = 'Upload Error';
       this.dialogText = 'There was an error uploading your applet. Please try again or report the issue.'
       this.dialog = true;
     },
