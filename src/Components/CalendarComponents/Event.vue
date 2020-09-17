@@ -80,7 +80,9 @@
             @onIdleTime="handleIdleTime"
             @onExtendedTime="handleExtendedTime"
             @onCompletion="handleCompletion"
+            @onScheduledDay="handleScheduledDay"
             :completion="completion"
+            :onlyScheduledDay="scheduledDay"
             :timeout="timeout"
             :idle-time="idleTime"
             :schedule="schedule"
@@ -363,6 +365,7 @@ export default {
     schedule: new Schedule(),
     details: vm.$dayspan.getDefaultEventDetails(),
     oneTimeCompletion: false,
+    onlyScheduledDay: false,
     scheduledExtendedTime: {},
     scheduledTimeout: {},
     scheduledIdleTime: {},
@@ -374,6 +377,9 @@ export default {
     },
     completion() {
       return this.details.completion || false;
+    },
+    scheduledDay() {
+      return this.details.onlyScheduledDay || false;
     },
     timeout() {
       return (
@@ -416,6 +422,7 @@ export default {
         details: this.details,
         timeout: this.details.timeout,
         completion: this.details.completion,
+        scheduledDay: this.details.onlyScheduledDay,
         idleTime: this.details.idleTime,
         extendedTime: this.details.extendedTime,
         busyOptions: this.busyOptions,
@@ -618,6 +625,10 @@ export default {
       this.scheduledExtendedTime = scheduledExtendedTime;
     },
 
+    handleScheduledDay(onlyScheduledDay) {
+      this.onlyScheduledDay = onlyScheduledDay;
+    },
+
     handleCompletion(oneTimeCompletion) {
       this.oneTimeCompletion = oneTimeCompletion;
     },
@@ -694,10 +705,16 @@ export default {
     getEvent(type, extra = {}) {
       const evDetails = this.details;
 
-      if(this.oneTimeCompletion) {
+      if (this.oneTimeCompletion) {
         evDetails.completion = true;
       } else {
         evDetails.completion = false;
+      }
+
+      if (this.onlyScheduledDay) {
+        evDetails.onlyScheduledDay = true;
+      } else {
+        evDetails.onlyScheduledDay = false;
       }
 
       if (!this.scheduledExtendedTime.hasOwnProperty("allow")) {
