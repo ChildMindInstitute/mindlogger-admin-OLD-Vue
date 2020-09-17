@@ -75,11 +75,10 @@ export default class Applet {
     });
 
     if( this.encryption ) {
-      Applet.decryptResponses(data, this.encryption);
+      Applet.replaceItemValues(Applet.decryptResponses(data, this.encryption));
     }
 
     for (let itemId in data.responses) {
-      // data.responses[itemId][0].value = [3,5];
       this.items[itemId].setResponses(data.responses[itemId]);
     }
   }
@@ -109,6 +108,10 @@ export default class Applet {
       }
     }
 
+    return data;
+  }
+
+  static replaceItemValues(data) {
     for (let itemId in data.responses) {
       const responses = data.responses[itemId];
 
@@ -118,7 +121,7 @@ export default class Applet {
         }
       }
     }
-  
+
     return data;
   }
 

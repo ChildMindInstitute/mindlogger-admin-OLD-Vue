@@ -1,5 +1,8 @@
 <template>
-  <v-card class="appletCard" :width="cardWidth">
+  <v-card
+    class="appletCard"
+    :width="cardWidth"
+  >
     <v-layout
       v-if="currentApplet"
       class="selectedApplet"
@@ -7,7 +10,10 @@
       justify-center
       column
     >
-      <v-icon size="72" color="primary">
+      <v-icon
+        size="72"
+        color="primary"
+      >
         mdi-check
       </v-icon>
       <v-card-title primary-title>

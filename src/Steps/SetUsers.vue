@@ -1,7 +1,13 @@
 <template>
   <div>
-    <div v-if="status === 'loading'" class="loading">
-      <v-progress-circular color="primary" indeterminate />
+    <div
+      v-if="status === 'loading'"
+      class="loading"
+    >
+      <v-progress-circular
+        color="primary"
+        indeterminate
+      />
     </div>
     <div v-else>
       <h1>Active Users</h1>
@@ -70,9 +76,17 @@
 
     <div class="tools">
       <!-- EXPORT BUTTON -->
-      <v-tooltip v-if="hasRoles('owner', 'manager', 'coordinator')" top>
+      <v-tooltip
+        v-if="hasRoles('owner', 'manager', 'coordinator')"
+        top
+      >
         <template v-slot:activator="{ on }">
-          <v-btn fab color="primary" @click="openPasswordModal" v-on="on">
+          <v-btn
+            fab
+            color="primary"
+            @click="onUserDataExport"
+            v-on="on"
+          >
             <v-icon>mdi-export-variant</v-icon>
           </v-btn>
         </template>
@@ -85,7 +99,12 @@
         top
       >
         <template v-slot:activator="{ on }">
-          <v-btn fab color="primary" @click="viewCalendar" v-on="on">
+          <v-btn
+            fab
+            color="primary"
+            @click="viewCalendar"
+            v-on="on"
+          >
             <v-icon>mdi-calendar</v-icon>
           </v-btn>
         </template>
@@ -110,13 +129,6 @@
         <span>View the applet dashboard for the selected users</span>
       </v-tooltip>
     </div>
-
-    <UserPassword
-      v-model="userPasswordDialog"
-      :error="exportError"
-      @set-password="exportUsersData"
-      @remove-error="exportRemoveError"
-    />
 
     <footer class="footer">
       <!-- BACK BUTTON -->
@@ -160,10 +172,11 @@
 
 <script>
 import _ from "lodash";
+import ObjectToCSV from "object-to-csv";
+
 import ActiveUserTable from "../Components/Users/ActiveUserTable.vue";
 import PendingInviteTable from "../Components/Users/PendingInviteTable.vue";
 import CreateInvitationForm from "../Components/Users/CreateInvitationForm.vue";
-import UserPassword from "../Components/Users/UserPassword.vue";
 import api from "../Components/Utils/api/api.vue";
 import AppletPassword from '../Components/Utils/dialogs/AppletPassword'
 import encryption from '../Components/Utils/encryption/encryption.vue';
@@ -176,7 +189,6 @@ export default {
     ActiveUserTable,
     PendingInviteTable,
     CreateInvitationForm,
-    UserPassword,
     AppletPassword,
     Information,
   },
@@ -245,22 +257,24 @@ export default {
     updateTables() {
       this.componentKey += 1;
     },
-    openPasswordModal() {
-      this.userPasswordDialog = true;
+    onUserDataExport() {
+      const encryptionInfo = this.currentApplet.applet.encryption;
+
+      if (!encryptionInfo || !encryptionInfo.appletPrime || encryptionInfo.appletPrivateKey) {
+        this.exportUsersData();
+      } else {
+        this.appletPasswordDialog = true;
+        this.requestedAction = this.exportUsersData.bind(this);
+      }
+    },
+    exportUsersData() {
       this.$refs.userTableRef.getSelectedNodes();
-    },
-    exportRemoveError() {
-      this.exportError = "";
-      this.userPasswordDialog = false;
-    },
-    exportUsersData(appletPassword) {
-      this.userPasswordDialog = false;
+
+      this.appletPasswordDialog = false;
 
       const appletId = this.currentApplet.applet["_id"].replace("applet/", "");
       const payload = {
-        users: this.currentUsers.join(","),
-        password: appletPassword,
-        format: "CSV",
+        users: this.currentUsers.join(",")
       };
 
       api
@@ -271,9 +285,44 @@ export default {
           options: payload,
         })
         .then((resp) => {
+          const { data } = resp;
+          const activeUsers = this.$store.state.users.active, userIdToData = {};
+          for (let user of activeUsers) {
+            userIdToData[user['_id']] = user;
+          }
+
+          Applet.decryptResponses(data, this.currentApplet.applet.encryption);
+
+          const result = [];
+
+          for (let response of data.responses) {
+            const { MRN, displayName } = userIdToData[response.userId];
+
+            for (let itemUrl in response.data) {
+              let itemData = response.data[itemUrl];
+              if (itemData.ptr !== undefined && itemData.src !== undefined) {
+                response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr];
+              }
+
+              result.push({
+                created: response.created,
+                MRN: (MRN || null),
+                displayName,
+                activity: response.activity.name,
+                item: itemUrl,
+                response: response.data[itemUrl]
+              });
+            }
+          }
+
+          let otc = new ObjectToCSV({ 
+            keys: Object.keys(result[0]).map(value => ({ key: value, as: value })),
+            data: result, 
+          });
+
           let anchor = document.createElement("a");
           anchor.href =
-            "data:text/csv;charset=utf-8," + encodeURIComponent(resp.data);
+            "data:text/csv;charset=utf-8," + encodeURIComponent(otc.getCSV());
           anchor.target = "_blank";
           anchor.download = "report.csv";
           anchor.click();
@@ -347,7 +396,7 @@ export default {
         fromDate: from.toISOString(),
         toDate: to.toISOString()
       }).then(({ data }) => {
-        Applet.decryptResponses(data, this.currentApplet.applet.encryption);
+        Applet.replaceItemValues(Applet.decryptResponses(data, this.currentApplet.applet.encryption));
         Applet.encryptResponses(data, this.currentApplet.applet.encryption, userData.refreshRequest.userPublicKey)
 
         const form = new FormData();

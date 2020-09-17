@@ -7,7 +7,12 @@
     >
       <h1>You have no active applets.</h1>
     </v-layout>
-    <v-layout v-else row wrap justify-center>
+    <v-layout
+      v-else
+      row
+      wrap
+      justify-center
+    >
       <AppletCard
         v-for="(applet,i) in applets"
         :key="`i${i + baseKey}`"
@@ -44,7 +49,10 @@
       <v-card>
         <v-card-text>
           <h3>Upload an activity set</h3>
-          <v-text-field v-model="newProtocolURL" label="activity set url" />
+          <v-text-field
+            v-model="newProtocolURL"
+            label="activity set url"
+          />
           <v-btn
             color="primary"
             :disabled="!newProtocolURL"
@@ -59,7 +67,10 @@
             will be a library of questions and you will be able to create your
             own.
           </p>
-          <p v-for="activityInfo in sampleProtocols" :key="activityInfo.name">
+          <p
+            v-for="activityInfo in sampleProtocols"
+            :key="activityInfo.name"
+          >
             <a @click="newProtocolURL = activityInfo.url">
               {{ activityInfo.name }}
             </a>
@@ -69,7 +80,10 @@
             Build a new activity set from scratch and download the schema files.
             Currently, this feature only supports radio items and text items.
           </p>
-          <router-link to="/build" target="_blank">
+          <router-link
+            to="/build"
+            target="_blank"
+          >
             <v-btn color="primary">
               Launch Builder
             </v-btn>

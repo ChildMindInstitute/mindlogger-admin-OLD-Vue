@@ -13,7 +13,10 @@
       :domLayout="domLayout"
       @first-data-rendered="onFirstDataRendered"
     />
-    <v-dialog v-model="editRoleDialog" max-width="500px">
+    <v-dialog
+      v-model="editRoleDialog"
+      max-width="500px"
+    >
       <v-card>
         <v-card-title class="edit-card-title">
           Edit roles
@@ -41,19 +44,36 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="primary" text @click="editRoleDialog = false">
+          <v-btn
+            color="primary"
+            text
+            @click="editRoleDialog = false"
+          >
             Close
           </v-btn>
-          <v-btn color="primary" text @click="onSaveUserRole()">
+          <v-btn
+            color="primary"
+            text
+            @click="onSaveUserRole()"
+          >
             Save
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="passwordDialog" persistent max-width="450px">
+    <v-dialog
+      v-model="passwordDialog"
+      persistent
+      max-width="450px"
+    >
       <template v-slot:activator="{ on, attrs }">
-        <v-btn color="primary" dark v-bind="attrs" v-on="on">
+        <v-btn
+          color="primary"
+          dark
+          v-bind="attrs"
+          v-on="on"
+        >
           Open Dialog
         </v-btn>
       </template>
@@ -71,7 +91,10 @@
                   type="password"
                   required
                 />
-                <div v-if="error" class="error">
+                <div
+                  v-if="error"
+                  class="error"
+                >
                   {{ error }}
                 </div>
               </v-col>
@@ -80,10 +103,18 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="blue darken-1" text @click="passwordDialog = false">
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="passwordDialog = false"
+          >
             Close
           </v-btn>
-          <v-btn color="blue darken-1" text @click="onConfirmPassword()">
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="onConfirmPassword()"
+          >
             Confirm
           </v-btn>
         </v-card-actions>
