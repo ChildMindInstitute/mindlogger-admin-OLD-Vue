@@ -273,6 +273,12 @@ export default {
     addEventType(schedule) {
       const appletSchedule = schedule;
       appletSchedule.events.forEach((event, index) => {
+        for (const activityId in this.$store.state.currentApplet.activities) {
+          const activity = this.$store.state.currentApplet.activities[activityId];
+          if (event.data.URI === activity['@id'] || event.data.URI === activity['url']) {
+            appletSchedule.events[index].data.activity_id = activity['_id'].split('/')[1];
+          }
+        }
         if (Object.keys(event.schedule).includes("dayOfWeek")) {
           appletSchedule.events[index].data.eventType = "Weekly";
         } else if (Object.keys(event.schedule).includes("year")) {
