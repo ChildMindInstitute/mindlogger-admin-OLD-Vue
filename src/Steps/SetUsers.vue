@@ -296,7 +296,7 @@ export default {
           const result = [];
 
           for (let response of data.responses) {
-            const { MRN, displayName } = userIdToData[response.userId];
+            const { MRN, displayName, _id } = userIdToData[response.userId];
 
             for (let itemUrl in response.data) {
               let itemData = response.data[itemUrl];
@@ -305,9 +305,11 @@ export default {
               }
 
               result.push({
+                id: response._id,
                 created: response.created,
                 MRN: (MRN || null),
                 displayName,
+                userId: _id,
                 activity: response.activity.name,
                 item: itemUrl,
                 response: response.data[itemUrl]
@@ -316,7 +318,7 @@ export default {
           }
 
           let otc = new ObjectToCSV({ 
-            keys: Object.keys(result[0]).map(value => ({ key: value, as: value })),
+            keys: ['id', 'created', 'MRN', 'displayName', 'userId', 'activity', 'item', 'response'].map(value => ({ key: value, as: value })),
             data: result, 
           });
 
