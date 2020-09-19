@@ -117,6 +117,21 @@
               <span>Duplicate Existing Applet</span>
             </v-tooltip>
           </div>
+          <div>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  text
+                  :disabled="!applet.roles.includes('editor')"
+                  @click="editApplet"
+                  v-on="on"
+                >
+                  Edit
+                </v-btn>
+              </template>
+              <span>Edit Existing Applet</span>
+            </v-tooltip>
+          </div>
         </div>
       </v-card-actions>
     </div>
@@ -138,6 +153,10 @@
   zoom: 1;
   width: 33%;
   text-align: center;
+}
+
+.container > div > * {
+  width: 100%;
 }
 </style>
 
@@ -242,6 +261,14 @@ export default {
     duplicateApplet() {
       this.$emit('duplicateApplet', this.applet);
     },
+    editApplet() {
+      this.$router.push({
+        name: 'Builder',
+        params: {
+          applet: this.applet
+        }
+      })
+    }
   }
 };
 </script>
