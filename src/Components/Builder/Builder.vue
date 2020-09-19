@@ -5,7 +5,6 @@
       v-else
       exportButton
       @uploadProtocol="onUploadProtocol"
-      @duplicateApplet="onDuplicateApplet"
     />
 
     <v-dialog v-model="dialog">
@@ -70,26 +69,6 @@ export default {
     };
   },
   methods: {
-    onDuplicateApplet(applet) {
-      api
-        .duplicateApplet({
-          apiHost: this.$store.state.backend,
-          token: this.$store.state.auth.authToken.token,
-          appletId: applet.id,
-          options: applet
-        })
-        .then(resp => {
-          this.dialogText =
-            "The applet is being duplicated. Please check back in several mintutes to see it.";
-          this.dialog = true;
-        })
-        .catch(e => {
-          console.log(e);
-          this.dialogText =
-            "There was an error duplicating your applet. Please try again or report the issue.";
-          this.dialog = true;
-        });
-    },
     onClickSubmitPassword(appletPassword) {
       this.appletPasswordDialog = false;
       this.addNewApplet(appletPassword);

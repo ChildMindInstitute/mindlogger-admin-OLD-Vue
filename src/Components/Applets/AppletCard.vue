@@ -74,15 +74,6 @@
           </div>
           <div>
             <v-menu offset-x>
-              <router-link
-                :to="{ name: 'Builder', params: { applet: applet } }"
-              >
-                <v-list>
-                  <v-list-item>
-                    <v-list-item-title>Duplicate</v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </router-link>
               <template v-slot:activator="{ on }">
                 <v-btn
                   text
@@ -111,13 +102,21 @@
               </v-list>
             </v-menu>
           </div>
-          <router-link :to="{ name: 'Builder', params: { applet: applet } }">
-            <v-list>
-              <v-list-item>
-                <v-list-item-title>Duplicate</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </router-link>
+          <div>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  text
+                  :disabled="!applet.roles.includes('editor')"
+                  @click="duplicateApplet"
+                  v-on="on"
+                >
+                  Duplicate
+                </v-btn>
+              </template>
+              <span>Duplicate Existing Applet</span>
+            </v-tooltip>
+          </div>
         </div>
       </v-card-actions>
     </div>
@@ -239,7 +238,10 @@ export default {
         this.$store.commit("setCurrentUsers", []);
         this.$router.push(`applet/${appletId}/schedule`);
       }
-    }
+    },
+    duplicateApplet() {
+      this.$emit('duplicateApplet', this.applet);
+    },
   }
 };
 </script>

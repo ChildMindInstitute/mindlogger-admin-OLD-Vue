@@ -20,6 +20,7 @@
         @deleteApplet="deleteApplet"
         @refreshApplet="refreshApplet"
         @onUpdateAppletPassword="onUpdateAppletPassword"
+        @duplicateApplet="duplicateApplet"
       />
     </v-layout>
 
@@ -97,6 +98,12 @@
       :hasConfirmPassword="true"
       @set-password="onClickSubmitPassword"
     />
+
+    <AppletName
+      v-model="appletDuplicateDialog.visibility"
+      @set-value="onSetAppletDuplicateName"
+      ref="appletNameDialog"
+    />
   </div>
 </template>
 
@@ -106,12 +113,14 @@ import api from '../Utils/api/api.vue';
 import config from '../../config';
 import encryption from '../Utils/encryption/encryption.vue';
 import AppletPassword from '../Utils/dialogs/AppletPassword'
+import AppletName from '../Utils/dialogs/AppletName';
 
 export default {
   name: "AllApplets",
   components: {
     AppletCard,
-    AppletPassword
+    AppletPassword,
+    AppletName,
   },
   props: {
     applets: {
@@ -126,6 +135,10 @@ export default {
     appletPasswordDialog: false,
     requestedAction: null,
     baseKey: 0,
+    appletDuplicateDialog: {
+      visibility: false,
+      applet: null
+    }
   }),
   computed: {
     isEditable() {
@@ -251,6 +264,26 @@ export default {
           this.$emit("refreshAppletList");
         });
     },
+    duplicateApplet(applet) {
+      this.appletDuplicateDialog.visibility = true;
+      this.appletDuplicateDialog.applet = applet;
+      this.$refs.appletNameDialog.appletName = `duplicate of ${applet.applet['http://www.w3.org/2004/02/skos/core#prefLabel'][0]['@value']}`;
+    },
+
+    onSetAppletDuplicateName(appletName) {
+      api
+        .duplicateApplet({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          appletId: this.appletDuplicateDialog.applet.applet._id.split('/')[1],
+          options: {
+            name: appletName,
+          }
+        })
+        .then(resp => {
+          this.$emit("refreshAppletList");
+        });
+    }
   },
 };
 </script>
