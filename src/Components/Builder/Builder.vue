@@ -10,12 +10,16 @@
 
     <v-dialog v-model="dialog">
       <v-card>
-        <v-card-title class="headline grey lighten-2" primary-title>Upload Received</v-card-title>
+        <v-card-title class="headline grey lighten-2" primary-title>
+          Upload Received
+        </v-card-title>
         <v-card-text>{{ dialogText }}</v-card-text>
         <v-divider />
         <v-card-actions>
           <v-spacer />
-          <v-btn color="primary" text @click="dialog = false">Dismiss</v-btn>
+          <v-btn color="primary" text @click="dialog = false">
+            Dismiss
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -36,7 +40,7 @@ export default {
   name: "Builder",
   components: {
     ...Components,
-    About
+    About,
     // AppletPassword
   },
   data() {
@@ -47,7 +51,7 @@ export default {
       dialog: false,
       dialogText: "",
       appletPasswordDialog: false,
-      newApplet: {}
+      newApplet: {},
     };
   },
   methods: {
@@ -57,14 +61,14 @@ export default {
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
           appletId: applet.id,
-          options: applet
+          options: applet,
         })
-        .then(resp => {
+        .then((resp) => {
           this.dialogText =
             "The applet is being duplicated. Please check back in several mintutes to see it.";
           this.dialog = true;
         })
-        .catch(e => {
+        .catch((e) => {
           console.log(e);
           this.dialogText =
             "There was an error duplicating your applet. Please try again or report the issue.";
@@ -76,12 +80,13 @@ export default {
       this.addNewApplet(appletPassword);
     },
     onUploadProtocol(newApplet) {
+      console.log("HERE!!!");
       const protocol = new FormData();
       protocol.set("protocol", JSON.stringify(this.newApplet || {}));
 
       const encryptionInfo = encryption.getAppletEncryptionInfo({
         appletPassword: appletPassword,
-        accountId: this.$store.state.currentAccount.accountId
+        accountId: this.$store.state.currentAccount.accountId,
       });
 
       protocol.set(
@@ -89,7 +94,7 @@ export default {
         JSON.stringify({
           appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
           appletPrime: Array.from(encryptionInfo.getPrime()),
-          base: Array.from(encryptionInfo.getGenerator())
+          base: Array.from(encryptionInfo.getGenerator()),
         })
       );
 
@@ -98,20 +103,20 @@ export default {
           data: protocol,
           email: this.$store.state.userEmail,
           token: this.$store.state.auth.authToken.token,
-          apiHost: this.$store.state.backend
+          apiHost: this.$store.state.backend,
         })
-        .then(resp => {
+        .then((resp) => {
           this.dialogText =
             "The applet is being created. Please check back in several mintutes to see it.";
           this.dialog = true;
         })
-        .catch(e => {
+        .catch((e) => {
           console.log(e);
           this.dialogText =
             "There was an error uploading your applet. Please try again or report the issue.";
           this.dialog = true;
         });
-    }
-  }
+    },
+  },
 };
 </script>
