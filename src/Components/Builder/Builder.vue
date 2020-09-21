@@ -7,28 +7,11 @@
       @uploadProtocol="onUploadProtocol"
     />
 
-    <v-dialog v-model="dialog">
-      <v-card>
-        <v-card-title
-          class="headline grey lighten-2"
-          primary-title
-        >
-          Upload Received
-        </v-card-title>
-        <v-card-text>{{ dialogText }}</v-card-text>
-        <v-divider />
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            color="primary"
-            text
-            @click="dialog = false"
-          >
-            Dismiss
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <Information
+      v-model="dialog"
+      :dialogText="dialogText"
+      :title="dialogTitle"
+    />
 
     <AppletPassword
       v-model="appletPasswordDialog"
@@ -44,18 +27,17 @@ import PackageJson from "../../../package.json";
 import api from "../Utils/api/api.vue";
 import { cloneDeep } from "lodash";
 
-// import encryption from "../Utils/encryption/encryption.vue";
-// import AppletPassword from "../Applets/AppletPassword";
-
 import encryption from '../Utils/encryption/encryption.vue';
 import AppletPassword from '../Utils/dialogs/AppletPassword'
+import Information from '../Utils/dialogs/information';
 
 export default {
   name: "Builder",
   components: {
     ...Components,
     About,
-    AppletPassword
+    AppletPassword,
+    Information,
   },
   data() {
     return {
@@ -64,6 +46,7 @@ export default {
       package: PackageJson,
       dialog: false,
       dialogText: "",
+      dialogTitle: "",
       appletPasswordDialog: false,
       newApplet: {}
     };
@@ -103,14 +86,14 @@ export default {
           apiHost: this.$store.state.backend
         })
         .then(resp => {
-          this.dialogText =
-            "The applet is being created. Please check back in several mintutes to see it.";
+          this.dialogText = resp.data.message;
+          this.dialogTitle = 'Upload Received';
           this.dialog = true;
         })
         .catch(e => {
           console.log(e);
-          this.dialogText =
-            "There was an error uploading your applet. Please try again or report the issue.";
+          this.dialogText = "There was an error uploading your applet. Please try again or report the issue.";
+          this.dialogTitle = 'Upload Error';
           this.dialog = true;
         });
     }
