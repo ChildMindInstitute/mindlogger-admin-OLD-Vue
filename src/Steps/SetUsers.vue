@@ -22,7 +22,10 @@
 
     <div class="tools">
       <!-- EXPORT BUTTON -->
-      <v-tooltip v-if="hasRoles('owner', 'manager', 'coordinator')" top>
+      <v-tooltip
+        v-if="hasRoles('owner', 'manager', 'coordinator', 'reviewer')"
+        top
+      >
         <template v-slot:activator="{ on }">
           <v-btn fab color="primary" @click="openPasswordModal" v-on="on">
             <v-icon>mdi-export-variant</v-icon>
@@ -159,6 +162,8 @@ export default {
   mounted() {
     this.$store.commit("setUsers", []);
     this.getAppletUsers();
+
+    console.log("this.currentApplet.roles: ", this.currentApplet.roles);
   },
   methods: {
     hasRoles() {
