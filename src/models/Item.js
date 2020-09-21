@@ -56,6 +56,7 @@ export default class Item {
       '#BEE0CC',
       '#223B89',
       '#316BA7',
+      '#1976D2',
     ];
 
     return itemListElement.map((choice, index) => ({
