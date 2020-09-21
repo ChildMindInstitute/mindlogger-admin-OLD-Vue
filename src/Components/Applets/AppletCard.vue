@@ -68,7 +68,7 @@
           </div>
           <div>
             <v-menu offset-x>
-              <router-link
+              <!-- <router-link
                 :to="{ name: 'Builder', params: { applet: applet } }"
               >
                 <v-list>
@@ -76,7 +76,7 @@
                     <v-list-item-title>Duplicate</v-list-item-title>
                   </v-list-item>
                 </v-list>
-              </router-link>
+              </router-link> -->
               <template v-slot:activator="{ on }">
                 <v-btn
                   text
@@ -93,7 +93,7 @@
                 <v-list-item
                   :disabled="
                     !applet.roles.includes('coordinator') &&
-                    !applet.roles.includes('reviewer')
+                      !applet.roles.includes('reviewer')
                   "
                   @click="onViewUsers"
                 >
@@ -108,7 +108,10 @@
               </v-list>
             </v-menu>
           </div>
-          <router-link :to="{ name: 'Builder', params: { applet: applet } }">
+          <router-link
+            v-if="!applet.roles.includes('coordinator')"
+            :to="{ name: 'Builder', params: { applet: applet } }"
+          >
             <v-list>
               <v-list-item>
                 <v-list-item-title>Duplicate</v-list-item-title>
