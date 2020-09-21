@@ -12,7 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.10] = 2020-09-16
 ### Changed
 - Allow reviewers to access the users page 
->>>>>>> develop
 
 ## [0.3.9] = 2020-09-10
 ### Changed
