@@ -91,7 +91,10 @@
               </template>
               <v-list>
                 <v-list-item
-                  :disabled="!applet.roles.includes('coordinator')"
+                  :disabled="
+                    !applet.roles.includes('coordinator') &&
+                    !applet.roles.includes('reviewer')
+                  "
                   @click="onViewUsers"
                 >
                   <v-list-item-title>View Users</v-list-item-title>
