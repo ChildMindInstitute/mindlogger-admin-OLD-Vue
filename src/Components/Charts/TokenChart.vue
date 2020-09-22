@@ -125,7 +125,7 @@
 .TokenChart .context-x-axis .tick text,
 .TokenChart .x-axis .tick text {
   color: #555;
-  transform: rotate(-45deg) translate(0, 15px) !important;
+  transform: translate(0, 18px) rotate(-45deg) !important;
   transform-origin: center;
   transform-box: fill-box;
 }
