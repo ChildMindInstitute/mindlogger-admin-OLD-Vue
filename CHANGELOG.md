@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove negative values when all the tokens are posive
 - Show the current day in the x-axis labels
 
+## [0.3.11] = 2020-09-17
+### Changed
+- Fixed chart legend overflowing container
+
 ## [0.3.10] = 2020-09-16
 ### Changed
 - Allow reviewers to access the users page 

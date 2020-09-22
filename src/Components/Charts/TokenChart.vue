@@ -1,5 +1,21 @@
 <template>
   <div class="TokenChart" ref="container" >
+    <div class="legend">
+      <div 
+        class="legend-item" 
+        v-for="feature in features"
+        :key="feature.name.en"
+      >
+        <div 
+          class="color-box"
+          :style="{ background: feature.color }">
+        </div>
+        <div class="label">
+          {{ feature.name.en }}
+        </div>
+      </div>
+    </div>
+
     <div class="time-range">
       Showing data from
       <span class="date">{{ fromDate }}</span>
@@ -31,7 +47,6 @@
         clip-path="url(#clip)"
       />
 
-      <g class="legend-container"/>
       <g
         class="tooltip"
         style="display: none"
@@ -60,7 +75,6 @@
   display: inline-block;
   position: relative;
   width: 100%;
-  height: 550px;
   vertical-align: top;
   margin: 0 1rem 2rem 1rem;
   margin-bottom: 0;
@@ -81,6 +95,29 @@
   color: #1976D2;
 }
 
+.TokenChart .legend {
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  margin: 1rem 0;
+}
+
+.TokenChart .legend .legend-item {
+  display: flex;
+  align-items: center;
+  min-width: 45%;
+  margin-right: 30px;
+  margin-bottom: 12px;
+  flex: 1 1 0px;
+}
+
+.TokenChart .legend .legend-item .color-box {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-right: 0.5rem;
+}
+
 .TokenChart .chart {
   overflow: hidden;
 }
@@ -88,6 +125,7 @@
 .TokenChart > svg {
   display: block;
   overflow: visible;
+  height: 500px;
 }
 
 .TokenChart > svg .selection {
@@ -188,7 +226,7 @@ export default {
     },
     focusMargin: {
       top: 40,
-      right: 200,
+      right: 50,
       bottom: 130,
       left: 30,
     },
@@ -381,7 +419,6 @@ export default {
 
       this.resize();
       this.drawAxes();
-      this.drawLegend();
       this.drawBrush();
       this.drawFocusChart();
       this.drawContextChart();
@@ -493,47 +530,6 @@ export default {
         .attr('x2', this.width + focusBarWidth)
         .attr('y1', this.contextY(0))
         .attr('y2', this.contextY(0));
-    },
-
-    /**
-     * Draws the legend for the chart.
-     *
-     * @return {void}
-     */
-    drawLegend() {
-      const { svg } = this;
-
-      svg
-        .selectAll('.legend')
-        .remove();
-
-      const legend = svg
-        .select('.legend-container')
-        .selectAll('.legend')
-        .data(this.features)
-        .enter()
-        .append('g')
-        .attr('class', 'legend')
-        .attr('transform', (d, i) => `translate(30, ${i*28})`);
-
-      // Render the color square.
-      legend
-        .append('rect')
-        .attr('y', this.focusMargin.top)
-        .attr('x', this.width + this.focusMargin.left + 10)
-        .attr('width', 18)
-        .attr('height', 18)
-        .style('fill', f => f.color);
-
-      // Render the legend text.
-      legend
-        .append('text')
-        .attr('x', this.width + this.focusMargin.left + 40)
-        .attr('y', this.focusMargin.top + 9)
-        .attr('dy', '.35em')
-        .attr('text-anchor', 'start')
-        .attr('font-size', '12px')
-        .text(f => f.name.en);
     },
 
     /**
