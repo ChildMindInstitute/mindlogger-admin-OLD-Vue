@@ -80,23 +80,8 @@ export default {
       this.addNewApplet(appletPassword);
     },
     onUploadProtocol(newApplet) {
-      console.log("HERE!!!");
       const protocol = new FormData();
-      protocol.set("protocol", JSON.stringify(this.newApplet || {}));
-
-      const encryptionInfo = encryption.getAppletEncryptionInfo({
-        appletPassword: appletPassword,
-        accountId: this.$store.state.currentAccount.accountId,
-      });
-
-      protocol.set(
-        "encryption",
-        JSON.stringify({
-          appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
-          appletPrime: Array.from(encryptionInfo.getPrime()),
-          base: Array.from(encryptionInfo.getGenerator()),
-        })
-      );
+      protocol.set("protocol", JSON.stringify(newApplet || {}));
 
       api
         .createApplet({
