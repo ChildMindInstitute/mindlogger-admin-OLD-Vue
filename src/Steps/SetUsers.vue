@@ -22,7 +22,7 @@
 
     <div class="tools">
       <!-- EXPORT BUTTON -->
-      <v-tooltip v-if="hasRoles('owner', 'manager')" top>
+      <v-tooltip v-if="hasRoles('owner', 'manager', 'reviewer')" top>
         <template v-slot:activator="{ on }">
           <v-btn fab color="primary" @click="openPasswordModal" v-on="on">
             <v-icon>mdi-export-variant</v-icon>
