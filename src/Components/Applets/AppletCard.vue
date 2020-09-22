@@ -45,7 +45,7 @@
                 <v-btn
                   text
                   :disabled="
-                    status !== 'ready' || !applet.roles.includes('editor')
+                    status !== 'ready' || !applet.roles.includes('editor') || !applet.applet.url
                   "
                   @click="refreshApplet"
                   v-on="on"
@@ -262,13 +262,8 @@ export default {
       this.$emit('duplicateApplet', this.applet);
     },
     editApplet() {
-      this.$router.push({
-        name: 'Builder',
-        params: {
-          applet: this.applet
-        }
-      })
-    }
+      this.$emit('onEditApplet', this.applet);
+    },
   }
 };
 </script>
