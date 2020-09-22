@@ -181,10 +181,19 @@ const mutations = {
   },
 };
 
+const stateCopy = (({ currentApplet, ...o }) => o)(state);
+const stateToPersist = Object.keys(stateCopy);
+delete stateToPersist.currentApplet;
+
 export const storeConfig = {
   state,
   mutations,
-  plugins: [createPersistedState({ storage: window.sessionStorage })],
+  plugins: [
+    createPersistedState({
+      storage: window.sessionStorage,
+      paths: stateToPersist,
+    }),
+  ],
 };
 
 const store = new Store(storeConfig);
