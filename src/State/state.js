@@ -181,9 +181,10 @@ const mutations = {
   },
 };
 
-const stateCopy = (({ currentApplet, ...o }) => o)(state);
+const stateCopy = (({ currentApplet, currentApplets, allApplets, ...o }) => o)(
+  state
+);
 const stateToPersist = Object.keys(stateCopy);
-delete stateToPersist.currentApplet;
 
 export const storeConfig = {
   state,
