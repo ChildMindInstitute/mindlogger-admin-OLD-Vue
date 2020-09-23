@@ -5,6 +5,7 @@
       v-else
       exportButton
       :initialData="(isEditing || null) && currentApplet"
+      :key="componentKey"
       @uploadProtocol="onUploadProtocol"
       @updateProtocol="onUpdateProtocol"
     />
@@ -52,6 +53,7 @@ export default {
       appletPasswordDialog: false,
       newApplet: {},
       isEditing: false,
+      componentKey: 1
     };
   },
   beforeMount() {
@@ -102,14 +104,20 @@ export default {
         token: this.$store.state.auth.authToken.token,
         apiHost: this.$store.state.backend,
       }).then(resp => {
-        this.onUploadSucess(resp.data.message);
+        this.$store.commit('updateAppletData', {
+          ...resp.data,
+          roles: this.currentApplet.roles
+        });
+
+        this.componentKey = this.componentKey + 1;
+
+        this.onUploadSucess();
       }).catch(e => {
-        console.log(e);
         this.onUploadError();
       })
     },
-    onUploadSucess(message) {
-        this.dialogText = message;
+    onUploadSucess() {
+        this.dialogText = 'Your applet is successfully updated';
         this.dialogTitle = 'Upload Received';
         this.dialog = true;
     },
