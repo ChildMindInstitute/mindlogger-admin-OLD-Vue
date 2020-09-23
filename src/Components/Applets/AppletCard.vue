@@ -126,7 +126,7 @@
                 <v-btn
                   text
                   :disabled="!applet.roles.includes('editor')"
-                  @click="editApplet"
+                  @click="onEditApplet"
                   v-on="on"
                 >
                   Edit
@@ -138,6 +138,13 @@
         </div>
       </v-card-actions>
     </div>
+
+    <ConfirmationDialog
+      v-model="appletEditDialog"
+      :dialogText="'By editing this applet that has been downloaded from Github, any changes will only store within MindLogger and will not update GitHub with those changes.'"
+      :title="'Applet Edit'"
+      @onOK="editApplet"
+    />
   </v-card>
 </template>
 
@@ -164,8 +171,13 @@
 </style>
 
 <script>
+import ConfirmationDialog from '../Utils/dialogs/ConfirmationDialog';
+
 export default {
   name: "AppletCard",
+  components: {
+    ConfirmationDialog,
+  },
   props: {
     applet: {
       type: Object,
@@ -175,6 +187,7 @@ export default {
   data: () => ({
     status: "ready",
     cardWidth: 300,
+    appletEditDialog: false,
   }),
   computed: {
     isOwner() {
@@ -302,9 +315,20 @@ export default {
     duplicateApplet() {
       this.$emit('duplicateApplet', this.applet);
     },
-    editApplet() {
-      this.$emit('onEditApplet', this.applet);
+    onEditApplet() {
+      if (this.applet.applet.url) {
+        this.appletEditDialog = true;
+      } else {
+        this.editApplet();
+      }
     },
+    editApplet() {
+      this.setSelectedApplet();
+      this.$router.push({
+        name: 'Builder', 
+        params: { isEditing: true }
+      });
+    }
   }
 };
 </script>

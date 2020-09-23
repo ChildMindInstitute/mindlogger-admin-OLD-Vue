@@ -242,6 +242,16 @@ const createApplet = ({ apiHost, token, email, data }) =>
     data,
   });
 
+const updateApplet = ({ apiHost, token, data, appletId }) =>
+  axios({
+    method: "PUT",
+    url: `${apiHost}/applet/${appletId}/fromJSON`,
+    headers: {
+      "Girder-Token": token,
+    },
+    data,
+  })
+
 const updateRegistration = ({ apiHost, token, groupId, open }) =>
   axios({
     method: "PUT",
@@ -339,5 +349,6 @@ export default {
   duplicateApplet,
   replaceResponseData,
   setAppletEncryption,
+  updateApplet,
 }
 </script>

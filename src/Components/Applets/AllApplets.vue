@@ -21,7 +21,6 @@
         @refreshApplet="refreshApplet"
         @onUpdateAppletPassword="onUpdateAppletPassword"
         @duplicateApplet="duplicateApplet"
-        @onEditApplet="onEditApplet"
       />
     </v-layout>
 
@@ -105,13 +104,6 @@
       @set-value="onSetAppletDuplicateName"
       ref="appletNameDialog"
     />
-
-    <ConfirmationDialog
-      v-model="appletEditDialog.visibility"
-      :dialogText="'By editing this applet that has been downloaded from Github, any changes will only store within MindLogger and will not update GitHub with those changes.'"
-      :title="'Applet Edit'"
-      @onOK="editApplet"
-    />
   </div>
 </template>
 
@@ -122,7 +114,6 @@ import config from '../../config';
 import encryption from '../Utils/encryption/encryption.vue';
 import AppletPassword from '../Utils/dialogs/AppletPassword'
 import AppletName from '../Utils/dialogs/AppletName';
-import ConfirmationDialog from '../Utils/dialogs/ConfirmationDialog';
 
 export default {
   name: "AllApplets",
@@ -130,7 +121,6 @@ export default {
     AppletCard,
     AppletPassword,
     AppletName,
-    ConfirmationDialog,
   },
   props: {
     applets: {
@@ -298,23 +288,6 @@ export default {
           this.$emit("refreshAppletList");
         });
     },
-
-    onEditApplet(applet) {
-      this.appletEditDialog.applet = applet;
-      if (applet.applet.url) {
-        this.appletEditDialog.visibility = true;
-      } else {
-        this.editApplet();
-      }
-    },
-    editApplet() {
-      this.$router.push({
-        name: 'Builder',
-        params: {
-          applet: this.appletEditDialog.applet
-        }
-      });
-    }
   },
 };
 </script>

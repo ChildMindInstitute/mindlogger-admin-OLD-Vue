@@ -4,7 +4,9 @@
     <AppletSchemaBuilder
       v-else
       exportButton
+      :initialData="(isEditing || null) && currentApplet"
       @uploadProtocol="onUploadProtocol"
+      @updateProtocol="onUpdateProtocol"
     />
 
     <Information
@@ -49,7 +51,18 @@ export default {
       dialogTitle: "",
       appletPasswordDialog: false,
       newApplet: {},
+      isEditing: false,
     };
+  },
+  beforeMount() {
+    if (this.$route.params.isEditing) {
+      this.isEditing = true;
+    }
+  },
+  computed: {
+    currentApplet() {
+      return this.$store.state.currentApplet;
+    }
   },
   methods: {
     onClickSubmitPassword(appletPassword) {
@@ -72,17 +85,39 @@ export default {
           apiHost: this.$store.state.backend,
         })
         .then(resp => {
-          this.dialogText = resp.data.message;
-          this.dialogTitle = 'Upload Received';
-          this.dialog = true;
+          this.onUploadSucess(resp.data.message);
         })
         .catch((e) => {
           console.log(e);
-          this.dialogText = "There was an error uploading your applet. Please try again or report the issue.";
-          this.dialogTitle = 'Upload Error';
-          this.dialog = true;
+          this.onUploadError();
         });
     },
-  },
+    onUpdateProtocol(updateData) {
+      const protocol = new FormData();
+      protocol.set("protocol", JSON.stringify(updateData || {}));
+
+      api.updateApplet({
+        data: protocol,
+        appletId: this.currentApplet.applet._id.split('/')[1],
+        token: this.$store.state.auth.authToken.token,
+        apiHost: this.$store.state.backend,
+      }).then(resp => {
+        this.onUploadSucess(resp.data.message);
+      }).catch(e => {
+        console.log(e);
+        this.onUploadError();
+      })
+    },
+    onUploadSucess(message) {
+        this.dialogText = message;
+        this.dialogTitle = 'Upload Received';
+        this.dialog = true;
+    },
+    onUploadError() {
+        this.dialogText = "There was an error uploading your applet. Please try again or report the issue.";
+        this.dialogTitle = 'Upload Error';
+        this.dialog = true;
+    },
+  }
 };
 </script>
