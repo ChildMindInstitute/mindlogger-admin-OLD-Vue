@@ -88,7 +88,10 @@
               </template>
               <v-list>
                 <v-list-item
-                  :disabled="!applet.roles.includes('coordinator')"
+                  :disabled="
+                    !applet.roles.includes('coordinator') &&
+                      !applet.roles.includes('reviewer')
+                  "
                   @click="onViewUsers"
                 >
                   <v-list-item-title>View Users</v-list-item-title>
@@ -174,6 +177,44 @@ export default {
     cardWidth: 300,
   }),
   computed: {
+    isOwner() {
+      const roles = this.applet.roles;
+      return (
+        roles.includes("coordinator") &&
+        roles.includes("editor") &&
+        roles.includes("manager") &&
+        roles.includes("owner") &&
+        roles.includes("reviewer")
+      );
+    },
+    isManager() {
+      const roles = this.applet.roles;
+      return (
+        roles.includes("coordinator") &&
+        roles.includes("editor") &&
+        roles.includes("manager") &&
+        roles.includes("reviewer")
+      );
+    },
+    isCoordinator() {
+      const roles = this.applet.roles;
+      return roles.includes("coordinator") && roles.length === 1;
+    },
+    isEditor() {
+      const roles = this.applet.roles;
+      return roles.includes("editor") && roles.length === 1;
+    },
+    isReviewer() {
+      const roles = this.applet.roles;
+      return roles.includes("reviewer") && roles.length === 1;
+    },
+    isUser() {
+      return (
+        (this.applet.roles.includes("user") &&
+          this.applet.roles.length === 1) ||
+        !this.applet.roles.length
+      );
+    },
     currentApplet() {
       return this.applet == this.$store.state.currentApplet;
     },

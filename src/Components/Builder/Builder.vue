@@ -48,7 +48,7 @@ export default {
       dialogText: "",
       dialogTitle: "",
       appletPasswordDialog: false,
-      newApplet: {}
+      newApplet: {},
     };
   },
   methods: {
@@ -62,41 +62,27 @@ export default {
     },
     addNewApplet(appletPassword) {
       const protocol = new FormData();
-      protocol.set("protocol", JSON.stringify(this.newApplet || {}));
-
-      const encryptionInfo = encryption.getAppletEncryptionInfo({
-        appletPassword: appletPassword,
-        accountId: this.$store.state.currentAccount.accountId
-      });
-
-      protocol.set(
-        "encryption",
-        JSON.stringify({
-          appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
-          appletPrime: Array.from(encryptionInfo.getPrime()),
-          base: Array.from(encryptionInfo.getGenerator())
-        })
-      );
+      protocol.set("protocol", JSON.stringify(newApplet || {}));
 
       api
         .createApplet({
           data: protocol,
           email: this.$store.state.userEmail,
           token: this.$store.state.auth.authToken.token,
-          apiHost: this.$store.state.backend
+          apiHost: this.$store.state.backend,
         })
         .then(resp => {
           this.dialogText = resp.data.message;
           this.dialogTitle = 'Upload Received';
           this.dialog = true;
         })
-        .catch(e => {
+        .catch((e) => {
           console.log(e);
           this.dialogText = "There was an error uploading your applet. Please try again or report the issue.";
           this.dialogTitle = 'Upload Error';
           this.dialog = true;
         });
-    }
-  }
+    },
+  },
 };
 </script>
