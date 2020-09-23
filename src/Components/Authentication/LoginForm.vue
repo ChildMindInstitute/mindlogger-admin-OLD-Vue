@@ -1,21 +1,14 @@
 <template>
   <div>
     <v-card class="elevation-12">
-      <v-toolbar
-        color="primary"
-        dark
-        flat
-      >
+      <v-toolbar color="primary" dark flat>
         <v-toolbar-title>Login</v-toolbar-title>
       </v-toolbar>
       <v-card-text>
         <p>
           Log into your Mindlogger account
         </p>
-        <v-form
-          ref="form"
-          lazy-validation
-        >
+        <v-form ref="form" lazy-validation>
           <v-text-field
             v-model="email"
             label="Email"
@@ -31,30 +24,16 @@
           />
         </v-form>
 
-        <div
-          v-if="error"
-          class="error"
-        >
+        <div v-if="error" class="error">
           {{ error }}
         </div>
-        <p 
-          class="ml-32 text-underline"
-          @click="onForgotPassword"
-        >
+        <p class="ml-32 text-underline" @click="onForgotPassword">
           Forgot Password?
         </p>
-        <v-btn
-          class="ml-32"
-          color="primary"
-          @click="login"
-        >
+        <v-btn class="ml-32" color="primary" @click="login">
           Login
         </v-btn>
-        <v-btn
-          outlined
-          color="primary"
-          @click="onCreateAccount"
-        >
+        <v-btn outlined color="primary" @click="onCreateAccount">
           Create Account
         </v-btn>
       </v-card-text>
@@ -63,38 +42,36 @@
 </template>
 
 <style scoped>
-  .error {
-    color: 'red';
-  }
+.error {
+  color: "red";
+}
 
-  .v-btn {
-    margin: 6px 8px;
-  }
+.v-btn {
+  margin: 6px 8px;
+}
 </style>
 
 <script>
-import api from '../Utils/api/api.vue';
-import _ from 'lodash';
+import api from "../Utils/api/api.vue";
+import _ from "lodash";
 
 export default {
   data: () => ({
     valid: true,
-    email: '',
+    email: "",
     emailRules: [
-      v => !!v || 'E-mail is required',
-      v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
+      (v) => !!v || "E-mail is required",
+      (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
     ],
-    password: '',
-    passwordRules: [
-      v => !!v || 'Password is required',
-    ],
-    error: '',
+    password: "",
+    passwordRules: [(v) => !!v || "Password is required"],
+    error: "",
   }),
 
   computed: {
     apiHost() {
       return this.$store.state.backend;
-    }
+    },
   },
 
   methods: {
@@ -102,18 +79,21 @@ export default {
       if (!this.$refs.form.validate()) {
         return;
       }
-      
-      this.error = '';
-      api.signIn({
-        apiHost: this.$store.state.backend,
-        user: this.email,
-        password: this.password
-      }).then((resp) => {
-        this.$store.commit('setAuth', {auth: resp.data, email: this.email});
-        this.setAccounts();
-      }).catch((e) => {
-        this.error = e.response.data.message;
-      });
+
+      this.error = "";
+      api
+        .signIn({
+          apiHost: this.$store.state.backend,
+          user: this.email,
+          password: this.password,
+        })
+        .then((resp) => {
+          this.$store.commit("setAuth", { auth: resp.data, email: this.email });
+          this.setAccounts();
+        })
+        .catch((e) => {
+          this.error = e.response.data.message;
+        });
     },
     setAccounts() {
       api
@@ -122,34 +102,33 @@ export default {
           token: this.$store.state.auth.authToken.token,
         })
         .then((resp) => {
-          this.$store.commit('setAccounts', resp.data);
-          this.$router.push('/applets');
+          this.$store.commit("setAccounts", resp.data);
+          this.$router.push("/applets");
         })
         .catch((err) => {
           console.warn(err);
         });
     },
     onCreateAccount() {
-      this.$emit('createAccount', null);
+      this.$emit("createAccount", null);
     },
     onSetBackend() {
-      this.$emit('setBackend', null);
+      this.$emit("setBackend", null);
     },
     onForgotPassword() {
-      this.$emit('forgotPassword', null);
+      this.$emit("forgotPassword", null);
     },
-  }
-
+  },
 };
 </script>
 
 <style lang="scss" scoped>
-  .ml-32 {
-    margin-left: 32px;
-  }
-  .text-underline {
-    text-decoration: underline;
-    user-select: none;
-    cursor: pointer;
-  }
+.ml-32 {
+  margin-left: 32px;
+}
+.text-underline {
+  text-decoration: underline;
+  user-select: none;
+  cursor: pointer;
+}
 </style>
