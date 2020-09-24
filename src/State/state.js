@@ -58,7 +58,7 @@ const mutations = {
     //   _.find(backendServers, { env: process.env.NODE_ENV }).url ||
     //   backendServers[0].url;
 
-    state.backend = process.env.VUE_APP_SERVER_URL || backend;
+    state.backend = backend || process.env.VUE_APP_SERVER_URL;
   },
   setAccounts(state, accounts) {
     state.allAccounts = accounts;
