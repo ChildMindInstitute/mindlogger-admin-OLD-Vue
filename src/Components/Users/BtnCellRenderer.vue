@@ -48,8 +48,8 @@
         </v-list-item>
 
         <v-list-item 
+          v-if="params.isManager"
           link
-          :disabled="!isManager"
           @click="btnDeletedHandler('deleteData')"
         >
           <v-list-item-title> Remove user & data </v-list-item-title>

@@ -7,14 +7,22 @@
     >
       <h1>You have no active applets.</h1>
     </v-layout>
-    <v-layout v-else row wrap justify-center>
+    <v-layout
+      v-else
+      row
+      wrap
+      justify-center
+    >
       <AppletCard
-        v-for="(applet, i) in applets"
-        :key="`i${i}`"
+        v-for="(applet,i) in applets"
+        :key="`i${i + baseKey}`"
         :applet="applet"
         @deleteApplet="deleteApplet"
         @transferOwnership="transferOwnership"
         @refreshApplet="refreshApplet"
+        @onUpdateAppletPassword="onUpdateAppletPassword"
+        @duplicateApplet="duplicateApplet"
+        @onEditApplet="onEditApplet"
       />
     </v-layout>
 
@@ -28,7 +36,7 @@
           fab
           style="bottom: 70px; right: 40px;"
           :disabled="!isEditable"
-          @click="dialog = true"
+          @click="appletUploadDialog = true"
           v-on="on"
         >
           <v-icon>mdi-plus</v-icon>
@@ -37,11 +45,17 @@
       <span>Create or upload a new applet</span>
     </v-tooltip>
 
-    <v-dialog v-model="dialog" max-width="800">
+    <v-dialog
+      v-model="appletUploadDialog"
+      max-width="800"
+    >
       <v-card>
         <v-card-text>
           <h3>Upload an activity set</h3>
-          <v-text-field v-model="newProtocolURL" label="activity set url" />
+          <v-text-field
+            v-model="newProtocolURL"
+            label="activity set url"
+          />
           <v-btn
             color="primary"
             :disabled="!newProtocolURL"
@@ -56,7 +70,10 @@
             will be a library of questions and you will be able to create your
             own.
           </p>
-          <p v-for="activityInfo in sampleProtocols" :key="activityInfo.name">
+          <p
+            v-for="activityInfo in sampleProtocols"
+            :key="activityInfo.name"
+          >
             <a @click="newProtocolURL = activityInfo.url">
               {{ activityInfo.name }}
             </a>
@@ -66,7 +83,10 @@
             Build a new activity set from scratch and download the schema files.
             Currently, this feature only supports radio items and text items.
           </p>
-          <router-link to="/build" target="_blank">
+          <router-link
+            to="/build"
+            target="_blank"
+          >
             <v-btn color="primary">
               Launch Builder
             </v-btn>
@@ -74,19 +94,44 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+
+    <AppletPassword
+      v-model="appletPasswordDialog"
+      :hasConfirmPassword="true"
+      @set-password="onClickSubmitPassword"
+    />
+
+    <AppletName
+      v-model="appletDuplicateDialog.visibility"
+      @set-value="onSetAppletDuplicateName"
+      ref="appletNameDialog"
+    />
+
+    <ConfirmationDialog
+      v-model="appletEditDialog.visibility"
+      :dialogText="'By editing this applet that has been downloaded from Github, any changes will only store within MindLogger and will not update GitHub with those changes.'"
+      :title="'Applet Edit'"
+      @onOK="editApplet"
+    />
   </div>
 </template>
 
 <script>
-import AppletCard from "./AppletCard.vue";
-import api from "../Utils/api/api.vue";
-import config from "../../config";
+import AppletCard from './AppletCard.vue';
+import api from '../Utils/api/api.vue';
+import config from '../../config';
+import encryption from '../Utils/encryption/encryption.vue';
+import AppletPassword from '../Utils/dialogs/AppletPassword'
+import AppletName from '../Utils/dialogs/AppletName';
+import ConfirmationDialog from '../Utils/dialogs/ConfirmationDialog';
 
 export default {
   name: "AllApplets",
   components: {
     AppletCard,
-    // AppletPassword
+    AppletPassword,
+    AppletName,
+    ConfirmationDialog,
   },
   props: {
     applets: {
@@ -96,10 +141,19 @@ export default {
   },
   data: () => ({
     sampleProtocols: config.protocols,
-    dialog: false,
     appletUploadDialog: false,
-    newProtocolURL: "",
+    newProtocolURL: '',
     appletPasswordDialog: false,
+    requestedAction: null,
+    baseKey: 0,
+    appletDuplicateDialog: {
+      visibility: false,
+      applet: null
+    },
+    appletEditDialog: {
+      visibility: false,
+      applet: null
+    },
   }),
   computed: {
     isEditable() {
@@ -114,8 +168,13 @@ export default {
       }
       return isEditor;
     },
+
     currentApplet() {
       return this.$store.state.currentApplet;
+    },
+
+    accountApplets() {
+      return this.$store.state.currentApplets;
     },
   },
   watch: {
@@ -125,24 +184,45 @@ export default {
   },
   methods: {
     onClickAdd() {
-      this.dialog = false;
-      this.addNewApplet();
+      this.appletUploadDialog = false;
+      this.appletPasswordDialog = true;
+      this.requestedAction = this.addNewApplet.bind(this);
     },
-    addNewApplet() {
-      api
-        .addNewApplet({
-          protocolUrl: this.newProtocolURL,
-          email: this.$store.state.userEmail,
-          token: this.$store.state.auth.authToken.token,
-          apiHost: this.$store.state.backend,
-        })
-        .then((resp) => {
-          this.newProtocolURL = "";
-          this.$emit("appletUploadSuccessful");
-        })
-        .catch((e) => {
-          this.$emit("appletUploadError");
+
+    onUpdateAppletPassword(applet) {
+      this.appletPasswordDialog = true;
+      this.requestedAction = this.setAppletPassword.bind(this, applet);
+    },
+
+    setAppletPassword(applet, appletPassword) {
+      let apiHost = this.$store.state.backend;
+      let token = this.$store.state.auth.authToken.token;
+      let appletId = applet.applet._id.split("applet/")[1];
+
+      api.setAppletEncryption({
+        token,
+        apiHost,
+        data: this.getEncryptionForm(appletPassword),
+        appletId
+      }).then(() => api.getApplet({
+        token,
+        apiHost,
+        id: appletId,
+        allEvent: this.accountApplets.find(value => value.appletId == appletId).allEvent
+      })).then((resp) => {
+        this.$store.commit('updateAppletData', {
+          ...resp.data,
+          roles: applet.roles
         });
+
+        this.baseKey = this.baseKey + 1;
+        this.$emit('onAppletPasswordChanged');
+      })
+    },
+
+    onClickSubmitPassword(appletPassword) {
+      this.appletPasswordDialog = false;
+      this.requestedAction(appletPassword);
     },
     transferOwnership({ email, applet }) {
       api
@@ -159,6 +239,38 @@ export default {
           console.log(err);
         })
     },
+
+    getEncryptionForm(appletPassword) {
+      const encryptionInfo = encryption.getAppletEncryptionInfo({
+        appletPassword: appletPassword,
+        accountId: this.$store.state.currentAccount.accountId
+      });
+
+      const encryptionForm = new FormData();
+      encryptionForm.set('encryption', JSON.stringify({
+            appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
+            appletPrime: Array.from(encryptionInfo.getPrime()),
+            base: Array.from(encryptionInfo.getGenerator())
+      }));
+
+      return encryptionForm;
+    },
+
+    addNewApplet(appletPassword) {
+      api.addNewApplet({
+        protocolUrl: this.newProtocolURL,
+        email: this.$store.state.userEmail,
+        token: this.$store.state.auth.authToken.token,
+        apiHost: this.$store.state.backend,
+        data: this.getEncryptionForm(appletPassword)
+      }).then((resp) => {
+        this.newProtocolURL = '';
+        this.$emit('appletUploadSuccessful', resp.data.message);
+      }).catch((e) => {
+        this.$emit('appletUploadError');
+      });
+    },
+
     deleteApplet(applet) {
       api
         .deleteApplet({
@@ -170,6 +282,7 @@ export default {
           this.$emit("refreshAppletList");
         });
     },
+
     refreshApplet(applet) {
       api
         .refreshApplet({
@@ -181,6 +294,43 @@ export default {
           this.$emit("refreshAppletList");
         });
     },
+    duplicateApplet(applet) {
+      this.appletDuplicateDialog.visibility = true;
+      this.appletDuplicateDialog.applet = applet;
+      this.$refs.appletNameDialog.appletName = `duplicate of ${applet.applet['http://www.w3.org/2004/02/skos/core#prefLabel'][0]['@value']}`;
+    },
+
+    onSetAppletDuplicateName(appletName) {
+      api
+        .duplicateApplet({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          appletId: this.appletDuplicateDialog.applet.applet._id.split('/')[1],
+          options: {
+            name: appletName,
+          }
+        })
+        .then(resp => {
+          this.$emit("refreshAppletList");
+        });
+    },
+
+    onEditApplet(applet) {
+      this.appletEditDialog.applet = applet;
+      if (applet.applet.url) {
+        this.appletEditDialog.visibility = true;
+      } else {
+        this.editApplet();
+      }
+    },
+    editApplet() {
+      this.$router.push({
+        name: 'Builder',
+        params: {
+          applet: this.appletEditDialog.applet
+        }
+      });
+    }
   },
 };
 </script>

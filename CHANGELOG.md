@@ -5,16 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.14] = 2020-09-20
+## [0.3.16] = 2020-09-20
 ### Changed
 - Implemented transferring ownership
 
-## [0.3.13] = 2020-09-17
+## [0.3.15] = 2020-09-17
 ### Changed
 - Embeded monthly eventType
 - Added `Only scheduled day` option
 
-## [0.3.12] = 2020-09-16
+## [0.3.14] = 2020-09-16
 ### Changed
 - Disallowed to save empty roles
 - Disallowed coordinators to editor organizer roles
@@ -22,16 +22,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed Backend API url issue
 - Removed unnecessary elements
 
-## [0.3.11] = 2020-09-17
+## [0.3.13] = 2020-09-23
+
 ### Changed
+
+- update user data export according to new encryption
+
+## [0.3.12] = 2020-09-22
+
+### Changed
+
+- Fixed errors related with exceeded local storage quota
+- Fixed 'duplicate' button show/hide by roles
+
+## [0.3.11] = 2020-09-17
+
+### Changed
+
 - Fixed chart legend overflowing container
 
 ## [0.3.10] = 2020-09-16
+
 ### Changed
-- Allow reviewers to access the users page 
+
+- Allow reviewers to access the users page
 
 ## [0.3.9] = 2020-09-10
+
 ### Changed
+
 - Fixed dashboard chart showing decimal values in y-axis labels
 - Fixed y-axis scale. It was changed to include the maximum token value.
 

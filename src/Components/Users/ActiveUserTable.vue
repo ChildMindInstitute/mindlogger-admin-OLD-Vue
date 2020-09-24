@@ -125,7 +125,8 @@
 import { AgGridVue } from "@ag-grid-community/vue";
 import { AllCommunityModules } from "@ag-grid-community/all-modules";
 import BtnCellRenderer from "./BtnCellRenderer.vue";
-import api from "../Utils/api/api.vue";
+import api from '../Utils/api/api.vue';
+import UserRequestCellRenderer from './UserRequestCellRenderer';
 
 export default {
   name: "ActiveUserTable",
@@ -146,7 +147,6 @@ export default {
   },
   data() {
     return {
-      userData: [],
       currentUserList: [],
       currentUserRoles: [],
       userCellData: null,
@@ -181,9 +181,46 @@ export default {
         };
       });
     },
+    currentApplet() {
+      return this.$store.state.currentApplet;
+    },
+
+    userData() {
+      if (this.isManager) {
+        return this.users.map((user) => {
+          let roles = [];
+          if (user.roles.length === 1 && user.roles[0] === 'user') {
+            roles.push('user');
+          } else if (user.roles.includes('owner')) {
+            roles.push('owner');
+          } else if (user.roles.includes('manager')) {
+            roles.push('manager');
+          } else {
+            roles = user.roles.filter(role => role != 'user');
+          }
+          return {
+            displayName: user.displayName,
+            email: user.email,
+            mrn: user.MRN,
+            _id: user._id,
+            refreshRequest: user.refreshRequest && user.refreshRequest.userPublicKey ? user.refreshRequest : null,
+            roles
+          };
+        });
+      } else {
+        return this.users.map((user) => {
+          return {
+            displayName: user.displayName,
+            email: user.email,
+            mrn: user.MRN,
+            _id: user._id,
+            roles: ['user'],
+          };
+        });
+      }
+    }
   },
   beforeMount() {
-    const { isManager, isCoordinator } = this;
     this.gridOptions = {};
     this.userData = this.users.map((user) => {
       let roles = [];
@@ -204,6 +241,8 @@ export default {
         roles,
       };
     });
+    const { isManager, isCoordinator } = this;
+
     this.columnDefs = [
       {
         headerName: "Name",
@@ -245,8 +284,22 @@ export default {
       });
     }
 
+    const encryption = this.currentApplet.applet.encryption;
+    if (this.currentApplet.roles.includes('manager') && encryption && encryption.appletPrime ) {
+      this.columnDefs.splice( 2, 0, {
+        headerName: '',
+        field: 'refreshRequest',
+        maxWidth: 200,
+        cellStyle: {display: 'flex', justifyContent: 'center'},
+        cellRenderer: 'UserRequestCellRenderer',
+        cellRendererParams: {
+          clicked: this.onReUploadResponse
+        },
+      });
+    }
     this.frameworkComponents = {
       btnCellRenderer: BtnCellRenderer,
+      UserRequestCellRenderer
     };
   },
   methods: {
@@ -353,6 +406,10 @@ export default {
         this.currentUserList = [];
         this.editRoleDialog = true;
       }
+    },
+
+    onReUploadResponse(user) {
+      this.$emit('reUploadResponse', user);
     },
 
     /**
