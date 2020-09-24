@@ -21,7 +21,7 @@
           <v-list>
             <v-list-item @click="logout">
               <v-list-item-content>
-                <v-list-item-title>Logout</v-list-item-title>
+                <v-list-item-title>{{ $t("logout") }}</v-list-item-title>
               </v-list-item-content>
 
               <v-list-item-action>

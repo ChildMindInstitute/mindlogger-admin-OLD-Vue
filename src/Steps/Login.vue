@@ -1,21 +1,8 @@
 <template>
-  <v-container
-    fluid
-    fill-height
-  >
-    <v-layout
-      align-center
-      justify-center
-    >
-      <v-flex
-        xs12
-        sm8
-        md4
-      >
-        <SetBackendForm
-          v-if="setBackend"
-          @setBackend="toggleSetBackend"
-        />
+  <v-container fluid fill-height>
+    <v-layout align-center justify-center>
+      <v-flex xs12 sm8 md4>
+        <SetBackendForm v-if="setBackend" @setBackend="toggleSetBackend" />
         <LoginForm
           v-else-if="!createAccount && !forgotPassword"
           @createAccount="toggleCreateAccount"
@@ -34,17 +21,9 @@
         />
       </v-flex>
 
-      <v-snackbar
-        v-model="snackAlert"
-        :color="color"
-        :timeout="timeout"
-      >
+      <v-snackbar v-model="snackAlert" :color="color" :timeout="timeout">
         {{ text }}
-        <v-btn
-          color="white"
-          text
-          @click="snackAlert = false"
-        >
+        <v-btn color="white" text @click="snackAlert = false">
           Close
         </v-btn>
       </v-snackbar>
@@ -53,20 +32,20 @@
 </template>
 
 <style scoped>
-  .error {
-    color: 'red';
-  }
+.error {
+  color: "red";
+}
 </style>
 
 <script>
-import _ from 'lodash';
-import LoginForm from '../Components/Authentication/LoginForm.vue';
-import CreateUserForm from '../Components/Authentication/CreateUserForm.vue';
-import ForgotPasswordForm from '../Components/Authentication/ForgotPasswordForm.vue';
-import SetBackendForm from '../Components/Authentication/SetBackendForm.vue';
+import _ from "lodash";
+import LoginForm from "../Components/Authentication/LoginForm.vue";
+import CreateUserForm from "../Components/Authentication/CreateUserForm.vue";
+import ForgotPasswordForm from "../Components/Authentication/ForgotPasswordForm.vue";
+import SetBackendForm from "../Components/Authentication/SetBackendForm.vue";
 
 export default {
-  name: 'Login',
+  name: "Login",
 
   components: {
     LoginForm,
@@ -76,15 +55,17 @@ export default {
   },
 
   data: () => ({
-    color: '#0abb8a',
+    color: "#0abb8a",
     createAccount: false,
     setBackend: false,
     forgotPassword: false,
     snackAlert: false,
     timeout: 3000,
-    text: 'Reset email has been sent',
+    text: "",
   }),
-
+  created() {
+    this.text = this.$t("resetEmailSent");
+  },
   methods: {
     toggleCreateAccount() {
       this.createAccount = !this.createAccount;
@@ -98,10 +79,7 @@ export default {
     },
     toggleSetBackend() {
       this.setBackend = !this.setBackend;
-    }
+    },
   },
-
 };
 </script>
-
-
