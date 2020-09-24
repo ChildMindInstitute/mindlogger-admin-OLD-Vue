@@ -1,5 +1,8 @@
 <template>
-  <v-card class="appletCard" :width="cardWidth">
+  <v-card
+    class="appletCard"
+    :width="cardWidth"
+  >
     <v-layout
       v-if="currentApplet"
       class="selectedApplet"
@@ -7,7 +10,10 @@
       justify-center
       column
     >
-      <v-icon size="72" color="primary">
+      <v-icon
+        size="72"
+        color="primary"
+      >
         mdi-check
       </v-icon>
       <v-card-title primary-title>
@@ -39,7 +45,7 @@
                 <v-btn
                   text
                   :disabled="
-                    status !== 'ready' || !applet.roles.includes('editor')
+                    status !== 'ready' || !applet.roles.includes('editor') || !applet.applet.url
                   "
                   @click="refreshApplet"
                   v-on="on"
@@ -68,22 +74,13 @@
           </div>
           <div>
             <v-menu offset-x>
-              <!-- <router-link
-                :to="{ name: 'Builder', params: { applet: applet } }"
-              >
-                <v-list>
-                  <v-list-item>
-                    <v-list-item-title>Duplicate</v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </router-link> -->
               <template v-slot:activator="{ on }">
                 <v-btn
                   text
                   :disabled="
                     !applet.roles.includes('coordinator') &&
                       !applet.roles.includes('reviewer')
-                  "
+                  " 
                   v-on="on"
                 >
                   Select
@@ -99,7 +96,7 @@
                 >
                   <v-list-item-title>View Users</v-list-item-title>
                 </v-list-item>
-                <v-list-item
+                <v-list-item 
                   :disabled="!applet.roles.includes('coordinator')"
                   @click="onViewGeneralCalendar"
                 >
@@ -108,16 +105,36 @@
               </v-list>
             </v-menu>
           </div>
-          <router-link
-            v-if="isOwner || isManager || isEditor"
-            :to="{ name: 'Builder', params: { applet: applet } }"
-          >
-            <v-list>
-              <v-list-item>
-                <v-list-item-title>Duplicate</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </router-link>
+          <div>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  text
+                  :disabled="!applet.roles.includes('editor')"
+                  @click="duplicateApplet"
+                  v-on="on"
+                >
+                  Duplicate
+                </v-btn>
+              </template>
+              <span>Duplicate Existing Applet</span>
+            </v-tooltip>
+          </div>
+          <div>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  text
+                  :disabled="!applet.roles.includes('editor')"
+                  @click="editApplet"
+                  v-on="on"
+                >
+                  Edit
+                </v-btn>
+              </template>
+              <span>Edit Existing Applet</span>
+            </v-tooltip>
+          </div>
         </div>
       </v-card-actions>
     </div>
@@ -139,6 +156,10 @@
   zoom: 1;
   width: 33%;
   text-align: center;
+}
+
+.container > div > * {
+  width: 100%;
 }
 </style>
 
@@ -260,18 +281,31 @@ export default {
       }
     },
     onViewUsers() {
-      this.setSelectedApplet();
-      const appletId = this.applet.applet._id.split("applet/")[1];
-      this.$router.push(`applet/${appletId}/users`);
+      if (this.applet.roles.includes('owner') && !Object.keys(this.applet.applet.encryption).length) {
+        this.$emit('onUpdateAppletPassword', this.applet);
+      } else {
+        this.setSelectedApplet();
+        const appletId = this.applet.applet._id.split("applet/")[1];
+        this.$router.push(`applet/${appletId}/users`);
+      }
     },
     onViewGeneralCalendar() {
-      this.setSelectedApplet();
-
-      const appletId = this.applet.applet._id.split("applet/")[1];
-      this.$store.commit("setCurrentUsers", []);
-      this.$router.push(`applet/${appletId}/schedule`);
+      if (this.applet.roles.includes('owner') && !Object.keys(this.applet.applet.encryption).length) {
+        this.$emit('onUpdateAppletPassword', this.applet);
+      } else {
+        this.setSelectedApplet();
+        const appletId = this.applet.applet._id.split("applet/")[1];
+        this.$store.commit("setCurrentUsers", []);
+        this.$router.push(`applet/${appletId}/schedule`);
+      }
     },
-  },
+    duplicateApplet() {
+      this.$emit('duplicateApplet', this.applet);
+    },
+    editApplet() {
+      this.$emit('onEditApplet', this.applet);
+    },
+  }
 };
 </script>
 

@@ -1,6 +1,6 @@
 {
   "name": "mindlogger-admin",
-  "version": "0.3.11",
+  "version": "0.3.13",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --mode local",
@@ -22,9 +22,11 @@
     "applet-schema-builder": "^0.2.15",
     "axios": "^0.19.2",
     "babel-loader": "^7.1.5",
+    "crypto": "^1.0.1",
     "d3": "5",
     "dayspan-vuetify-2": "^0.2.0",
     "lodash": "^4.17.15",
+    "object-to-csv": "^1.0.5",
     "protocol-builder": "^0.1.20",
     "vue": "2.6.10",
     "vue-property-decorator": "^8.4.0",

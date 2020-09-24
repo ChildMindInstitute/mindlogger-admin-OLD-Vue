@@ -1,11 +1,14 @@
 <template>
-    <div class="OverviewChart" ref="container">
-      <svg id="overview-chart">
-        <g class="x-axis"/>
-        <g class="y-axis"/>
-        <g class="chart"/>
-      </svg>
-    </div>
+  <div
+    ref="container"
+    class="OverviewChart"
+  >
+    <svg id="overview-chart">
+      <g class="x-axis" />
+      <g class="y-axis" />
+      <g class="chart" />
+    </svg>
+  </div>
 </template>
 
 

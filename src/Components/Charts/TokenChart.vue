@@ -23,7 +23,7 @@
       <span class="date">{{ toDate }}</span>
     </div>
 
-    <svg :id="plotId" >
+    <svg :id="plotId">
       <defs>
         <clipPath id="clip">
           <rect
@@ -33,15 +33,15 @@
         </clipPath>
       </defs>
 
-      <g class="y-axis"/>
-      <g class="x-axis"/>
+      <g class="y-axis" />
+      <g class="x-axis" />
       <g
         class="chart"
         clip-path="url(#clip)"
       />
 
-      <g class="context-y-axis"/>
-      <g class="context-x-axis"/>
+      <g class="context-y-axis" />
+      <g class="context-x-axis" />
       <g
         class="context-chart"
         clip-path="url(#clip)"
@@ -62,8 +62,7 @@
           dy="1.5em"
           font-size="12px"
           font-weight="bold"
-        >
-        </text>
+        />
       </g>
     </svg>
   </div>

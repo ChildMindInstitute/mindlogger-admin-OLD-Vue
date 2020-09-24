@@ -5,24 +5,18 @@
       v-else
       exportButton
       @uploadProtocol="onUploadProtocol"
-      @duplicateApplet="onDuplicateApplet"
     />
 
-    <v-dialog v-model="dialog">
-      <v-card>
-        <v-card-title class="headline grey lighten-2" primary-title>
-          Upload Received
-        </v-card-title>
-        <v-card-text>{{ dialogText }}</v-card-text>
-        <v-divider />
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="primary" text @click="dialog = false">
-            Dismiss
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <Information
+      v-model="dialog"
+      :dialogText="dialogText"
+      :title="dialogTitle"
+    />
+
+    <AppletPassword
+      v-model="appletPasswordDialog"
+      @set-password="onClickSubmitPassword"
+    />
   </v-content>
 </template>
 
@@ -33,15 +27,17 @@ import PackageJson from "../../../package.json";
 import api from "../Utils/api/api.vue";
 import { cloneDeep } from "lodash";
 
-// import encryption from "../Utils/encryption/encryption.vue";
-// import AppletPassword from "../Applets/AppletPassword";
+import encryption from '../Utils/encryption/encryption.vue';
+import AppletPassword from '../Utils/dialogs/AppletPassword'
+import Information from '../Utils/dialogs/information';
 
 export default {
   name: "Builder",
   components: {
     ...Components,
     About,
-    // AppletPassword
+    AppletPassword,
+    Information,
   },
   data() {
     return {
@@ -50,36 +46,21 @@ export default {
       package: PackageJson,
       dialog: false,
       dialogText: "",
+      dialogTitle: "",
       appletPasswordDialog: false,
       newApplet: {},
     };
   },
   methods: {
-    onDuplicateApplet(applet) {
-      api
-        .duplicateApplet({
-          apiHost: this.$store.state.backend,
-          token: this.$store.state.auth.authToken.token,
-          appletId: applet.id,
-          options: applet,
-        })
-        .then((resp) => {
-          this.dialogText =
-            "The applet is being duplicated. Please check back in several mintutes to see it.";
-          this.dialog = true;
-        })
-        .catch((e) => {
-          console.log(e);
-          this.dialogText =
-            "There was an error duplicating your applet. Please try again or report the issue.";
-          this.dialog = true;
-        });
-    },
     onClickSubmitPassword(appletPassword) {
       this.appletPasswordDialog = false;
       this.addNewApplet(appletPassword);
     },
     onUploadProtocol(newApplet) {
+      this.newApplet = newApplet;
+      this.appletPasswordDialog = true;
+    },
+    addNewApplet(appletPassword) {
       const protocol = new FormData();
       protocol.set("protocol", JSON.stringify(newApplet || {}));
 
@@ -90,15 +71,15 @@ export default {
           token: this.$store.state.auth.authToken.token,
           apiHost: this.$store.state.backend,
         })
-        .then((resp) => {
-          this.dialogText =
-            "The applet is being created. Please check back in several mintutes to see it.";
+        .then(resp => {
+          this.dialogText = resp.data.message;
+          this.dialogTitle = 'Upload Received';
           this.dialog = true;
         })
         .catch((e) => {
           console.log(e);
-          this.dialogText =
-            "There was an error uploading your applet. Please try again or report the issue.";
+          this.dialogText = "There was an error uploading your applet. Please try again or report the issue.";
+          this.dialogTitle = 'Upload Error';
           this.dialog = true;
         });
     },

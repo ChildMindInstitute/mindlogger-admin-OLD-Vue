@@ -13,7 +13,10 @@
       :domLayout="domLayout"
       @first-data-rendered="onFirstDataRendered"
     />
-    <v-dialog v-model="editRoleDialog" max-width="500px">
+    <v-dialog
+      v-model="editRoleDialog"
+      max-width="500px"
+    >
       <v-card>
         <v-card-title class="edit-card-title">
           Edit roles
@@ -41,19 +44,36 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="primary" text @click="editRoleDialog = false">
+          <v-btn
+            color="primary"
+            text
+            @click="editRoleDialog = false"
+          >
             Close
           </v-btn>
-          <v-btn color="primary" text @click="onSaveUserRole()">
+          <v-btn
+            color="primary"
+            text
+            @click="onSaveUserRole()"
+          >
             Save
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="passwordDialog" persistent max-width="450px">
+    <v-dialog
+      v-model="passwordDialog"
+      persistent
+      max-width="450px"
+    >
       <template v-slot:activator="{ on, attrs }">
-        <v-btn color="primary" dark v-bind="attrs" v-on="on">
+        <v-btn
+          color="primary"
+          dark
+          v-bind="attrs"
+          v-on="on"
+        >
           Open Dialog
         </v-btn>
       </template>
@@ -71,7 +91,10 @@
                   type="password"
                   required
                 />
-                <div v-if="error" class="error">
+                <div
+                  v-if="error"
+                  class="error"
+                >
                   {{ error }}
                 </div>
               </v-col>
@@ -80,10 +103,18 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="blue darken-1" text @click="passwordDialog = false">
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="passwordDialog = false"
+          >
             Close
           </v-btn>
-          <v-btn color="blue darken-1" text @click="onConfirmPassword()">
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="onConfirmPassword()"
+          >
             Confirm
           </v-btn>
         </v-card-actions>
@@ -102,7 +133,8 @@
 import { AgGridVue } from "@ag-grid-community/vue";
 import { AllCommunityModules } from "@ag-grid-community/all-modules";
 import BtnCellRenderer from "./BtnCellRenderer.vue";
-import api from "../Utils/api/api.vue";
+import api from '../Utils/api/api.vue';
+import UserRequestCellRenderer from './UserRequestCellRenderer';
 
 export default {
   name: "ActiveUserTable",
@@ -123,7 +155,6 @@ export default {
   },
   data() {
     return {
-      userData: [],
       currentUserList: [],
       currentUserRoles: [],
       userCellData: null,
@@ -158,42 +189,49 @@ export default {
         };
       });
     },
+    currentApplet() {
+      return this.$store.state.currentApplet;
+    },
+
+    userData() {
+      if (this.isManager) {
+        return this.users.map((user) => {
+          let roles = [];
+          if (user.roles.length === 1 && user.roles[0] === 'user') {
+            roles.push('user');
+          } else if (user.roles.includes('owner')) {
+            roles.push('owner');
+          } else if (user.roles.includes('manager')) {
+            roles.push('manager');
+          } else {
+            roles = user.roles.filter(role => role != 'user');
+          }
+          return {
+            displayName: user.displayName,
+            email: user.email,
+            mrn: user.MRN,
+            _id: user._id,
+            refreshRequest: user.refreshRequest && user.refreshRequest.userPublicKey ? user.refreshRequest : null,
+            roles
+          };
+        });
+      } else {
+        return this.users.map((user) => {
+          return {
+            displayName: user.displayName,
+            email: user.email,
+            mrn: user.MRN,
+            _id: user._id,
+            roles: ['user'],
+          };
+        });
+      }
+    }
   },
   beforeMount() {
-    const { isManager, isCoordinator } = this;
     this.gridOptions = {};
+    const { isManager, isCoordinator } = this;
 
-    if (isManager) {
-      this.userData = this.users.map((user) => {
-        let roles = [];
-        if (user.roles.length === 1 && user.roles[0] === "user") {
-          roles.push("user");
-        } else if (user.roles.includes("owner")) {
-          roles.push("owner");
-        } else if (user.roles.includes("manager")) {
-          roles.push("manager");
-        } else {
-          roles = user.roles.filter((role) => role != "user");
-        }
-        return {
-          displayName: user.displayName,
-          email: user.email,
-          mrn: user.MRN,
-          _id: user._id,
-          roles,
-        };
-      });
-    } else {
-      this.userData = this.users.map((user) => {
-        return {
-          displayName: user.displayName,
-          email: user.email,
-          mrn: user.MRN,
-          _id: user._id,
-          roles: ["user"],
-        };
-      });
-    }
     this.columnDefs = [
       {
         headerName: "Name",
@@ -235,8 +273,22 @@ export default {
       });
     }
 
+    const encryption = this.currentApplet.applet.encryption;
+    if (this.currentApplet.roles.includes('manager') && encryption && encryption.appletPrime ) {
+      this.columnDefs.splice( 2, 0, {
+        headerName: '',
+        field: 'refreshRequest',
+        maxWidth: 200,
+        cellStyle: {display: 'flex', justifyContent: 'center'},
+        cellRenderer: 'UserRequestCellRenderer',
+        cellRendererParams: {
+          clicked: this.onReUploadResponse
+        },
+      });
+    }
     this.frameworkComponents = {
       btnCellRenderer: BtnCellRenderer,
+      UserRequestCellRenderer
     };
   },
   methods: {
@@ -343,6 +395,10 @@ export default {
         this.currentUserList = [];
         this.editRoleDialog = true;
       }
+    },
+
+    onReUploadResponse(user) {
+      this.$emit('reUploadResponse', user);
     },
 
     /**
