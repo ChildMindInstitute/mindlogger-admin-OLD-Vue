@@ -77,7 +77,7 @@ export default {
     },
     addNewApplet(appletPassword) {
       const protocol = new FormData();
-      protocol.set("protocol", JSON.stringify(newApplet || {}));
+      protocol.set("protocol", JSON.stringify(this.newApplet || {}));
 
       api
         .createApplet({
