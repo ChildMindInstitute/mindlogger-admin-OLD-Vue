@@ -103,15 +103,14 @@ const getActivityByUrl = ({ apiHost, token, url }) =>
     },
   });
 
-const getUserResponses = ({ apiHost, token, appletId, users, untilDate }) =>
-  axios({
-    method: "get",
-    url: `${apiHost}/response/${appletId}`,
-    headers: {
-      "Girder-Token": token,
-    },
-    params: { users: users + "" },
-  });
+const getUserResponses = ({ apiHost, token, appletId, users, fromDate, toDate }) => axios({
+  method: 'get',
+  url: `${apiHost}/response/${appletId}`,
+  headers: {
+    'Girder-Token': token,
+  },
+  params: { users: JSON.stringify(users), fromDate, toDate },
+});
 
 const addNewApplet = ({ apiHost, token, protocolUrl, email, data }) =>
   axios({
@@ -291,6 +290,25 @@ const duplicateApplet = ({ apiHost, token, appletId, options }) =>
     params: options,
   });
 
+
+const replaceResponseData = ({ apiHost, token, appletId, data }) => axios({
+  method: 'put',
+  url: `${apiHost}/response/${appletId}`,
+  headers: {
+    'Girder-Token': token,
+  },
+  data
+});
+
+const setAppletEncryption = ({ apiHost, token, appletId, data }) => axios({
+  method: 'put',
+  url: `${apiHost}/applet/${appletId}/encryption`,
+  headers: {
+    'Girder-Token': token,
+  },
+  data
+})
+
 export default {
   signIn,
   signUp,
@@ -319,5 +337,7 @@ export default {
   getUsersData,
   getAppletsForUser,
   duplicateApplet,
-};
+  replaceResponseData,
+  setAppletEncryption,
+}
 </script>
