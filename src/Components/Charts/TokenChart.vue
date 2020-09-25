@@ -162,7 +162,9 @@
 .TokenChart .context-x-axis .tick text,
 .TokenChart .x-axis .tick text {
   color: #555;
-  transform: translate(0, 10px) !important;
+  transform: translate(0, 18px) rotate(-45deg) !important;
+  transform-origin: center;
+  transform-box: fill-box;
 }
 
 .TokenChart .tooltip {
@@ -338,19 +340,8 @@ export default {
       let value;
 
       for (let i = 0; i < this.data.length; i++) {
-        // Both counts start in 1 and -1 to allow the maximum and minimum token 
-        // values to be included in the chart axis labels.
-        //
-        // This is due to d3.js optimizing the number of ticks/labels for the
-        // available space. d3 tries to include all the labels if there's enough
-        // space. If there is not, it will reduce the tick/label count to a
-        // dividend of the original count. Hence, if the maximum value is 15,
-        // the scale will go from 1 to 14 in steps of 2 (0, 2, 4, 6 and so on).
-        // This causes the 15 not to be included in the scale. Adding one to
-        // both ends makes sure the scale will go up to 16, which feels more
-        // natural.
-        positive = 1; 
-        negative = -1;
+        positive = 0; 
+        negative = 0;
         dataPoint = this.data[i];
 
         for (let j = 0; j < this.features.length; j++) {
@@ -380,7 +371,15 @@ export default {
         if (dataPoint.cummulative > this.cummulativeExtent.max) {
           this.cummulativeExtent.max = dataPoint.cummulative;
         }
-      };
+      }
+
+      if (this.divergingExtent.max % 2) {
+        this.divergingExtent.max += 1;
+      }
+      
+      if (this.divergingExtent.min % 2) {
+        this.divergingExtent.min -= 1;
+      }
     },
 
     resize() {
@@ -467,18 +466,20 @@ export default {
       const contextXAxis = d3
         .axisBottom()
         .scale(this.contextX)
-        .ticks(15)
+        .ticks(30)
         .tickSize(this.contextHeight)  // Height of the tick line.
         .tickFormat(d => moment.utc(d).format('M/D'));
       const yAxis = d3
         .axisLeft()
         .scale(this.y)
+        .ticks(Math.abs(this.divergingExtent.min) + this.divergingExtent.max + 1)
         .tickSize(-this.width - focusBarWidth)  // Width of the tick line.
         .tickFormat(d3.format('d'));
       const contextYAxis = d3
         .axisLeft()
         .scale(this.contextY)
         .tickSize(-this.width - focusBarWidth) // Width of the tick line.
+        .ticks(Math.abs(this.divergingExtent.min) + this.divergingExtent.max + 1)
         .tickFormat(d3.format('d'));
 
       // Append the axes.
