@@ -39,35 +39,34 @@
     <v-dialog v-model="dialog" max-width="800">
       <v-card>
         <v-card-text>
-          <h3>Upload an activity set</h3>
-          <v-text-field v-model="newProtocolURL" label="activity set url" />
+          <h3>{{ $t("uploadActivitySet") }}</h3>
+          <v-text-field
+            v-model="newProtocolURL"
+            :label="$t('activitySetUrl')"
+          />
           <v-btn
             color="primary"
             :disabled="!newProtocolURL"
             @click="onClickAdd"
           >
-            Add
+            {{ $t("add") }}
           </v-btn>
-          <h3>Quick Add</h3>
+          <h3>{{ $t("quickAdd") }}</h3>
           <p>
-            Below are a list of activity sets you can add. These are JSON-LD
-            files that describe the questions of your applet. Eventually, there
-            will be a library of questions and you will be able to create your
-            own.
+            {{ $t("jsonLdFiles") }}
           </p>
           <p v-for="activityInfo in sampleProtocols" :key="activityInfo.name">
             <a @click="newProtocolURL = activityInfo.url">
               {{ activityInfo.name }}
             </a>
           </p>
-          <h3>Build a new activity Set</h3>
+          <h3>{{ $t("buildNewActivity") }}</h3>
           <p>
-            Build a new activity set from scratch and download the schema files.
-            Currently, this feature only supports radio items and text items.
+            {{ $t("buildNewActivityScratch") }}
           </p>
           <router-link to="/build" target="_blank">
             <v-btn color="primary">
-              Launch Builder
+              {{ $t("launchBuilder") }}
             </v-btn>
           </router-link>
         </v-card-text>

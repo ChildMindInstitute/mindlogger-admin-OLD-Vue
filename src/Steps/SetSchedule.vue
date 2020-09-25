@@ -1,31 +1,16 @@
 <template>
   <div>
-    <Calendar
-      ref="calendar"
-      :activities="activities"
-    />
+    <Calendar ref="calendar" :activities="activities" />
 
-    <v-dialog
-      v-model="dialog"
-      width="500"
-    >
+    <v-dialog v-model="dialog" width="500">
       <v-card>
-        <v-card-title
-          class="headline grey lighten-2"
-          primary-title
-        >
+        <v-card-title class="headline grey lighten-2" primary-title>
           Saving Schedule
         </v-card-title>
 
         <v-card-text v-if="loading">
-          <v-layout
-            align-center
-            column
-          >
-            <v-progress-circular
-              color="primary"
-              indeterminate
-            />
+          <v-layout align-center column>
+            <v-progress-circular color="primary" indeterminate />
           </v-layout>
         </v-card-text>
 
@@ -41,24 +26,14 @@
 
         <v-card-actions>
           <v-spacer />
-          <v-btn
-            color="primary"
-            text
-            @click="dialog = false"
-          >
+          <v-btn color="primary" text @click="dialog = false">
             Close
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-btn
-      color="primary"
-      fixed
-      bottom
-      left
-      @click="$router.go(-1)"
-    >
-      Back
+    <v-btn color="primary" fixed bottom left @click="$router.go(-1)">
+      {{ $t("back") }}
     </v-btn>
 
     <template>
@@ -71,7 +46,7 @@
               @click="clearSchedule"
               v-on="on"
             >
-              Clear
+              {{ $t("clear") }}
             </v-btn>
           </template>
           <span>Clear all scheduled activities</span>
@@ -79,13 +54,8 @@
 
         <v-tooltip top>
           <template v-slot:activator="{ on }">
-            <v-btn
-              color="primary"
-              class="ms-4"
-              @click="saveSchedule"
-              v-on="on"
-            >
-              Save
+            <v-btn color="primary" class="ms-4" @click="saveSchedule" v-on="on">
+              {{ $t("save") }}
             </v-btn>
           </template>
           <span>Save all scheduled activities</span>
@@ -95,14 +65,13 @@
   </div>
 </template>
 
-
 <style scoped>
-  .tools {
-    position: fixed;
-    bottom: 16px;
-    text-align: right;
-    right: 32px;
-  }
+.tools {
+  position: fixed;
+  bottom: 16px;
+  text-align: right;
+  right: 32px;
+}
 </style>
 
 <script>
@@ -113,7 +82,7 @@ import api from "../Components/Utils/api/api.vue";
 export default {
   name: "Schedule",
   components: {
-    Calendar
+    Calendar,
   },
   data: () => ({
     /**
@@ -139,13 +108,13 @@ export default {
       "Blue",
       "Purple",
       "Lime",
-      "Deep Orange"
+      "Deep Orange",
     ],
     dialog: false,
     loading: false,
     saveSuccess: false,
     saveError: false,
-    errorMessage: ""
+    errorMessage: "",
   }),
   computed: {
     /**
@@ -169,7 +138,7 @@ export default {
             name,
             color,
             visibility: 1,
-            URI
+            URI,
           };
         });
       }
@@ -185,12 +154,12 @@ export default {
         }
       }
       return {};
-    }
+    },
   },
   watch: {
     $route(to, from) {
       // If user modifies url during session, redirect to applets screen
-      this.$router.push('/applets');
+      this.$router.push("/applets");
     },
   },
   mounted() {
@@ -221,18 +190,21 @@ export default {
             apiHost: this.$store.state.backend,
             id: this.currentApplet.applet._id.split("applet/")[1],
             token: this.$store.state.auth.authToken.token,
-            data: scheduleForm
-          }) 
-          .then(response => {
+            data: scheduleForm,
+          })
+          .then((response) => {
             const applet = this.currentApplet.applet;
             applet.schedule = response.data.applet.schedule;
-            this.$store.commit('setApplet', applet);
-            this.$store.commit('resetUpdatedEventId');
-            this.$store.commit('setCachedEvents', response.data.applet.schedule.events);
+            this.$store.commit("setApplet", applet);
+            this.$store.commit("resetUpdatedEventId");
+            this.$store.commit(
+              "setCachedEvents",
+              response.data.applet.schedule.events
+            );
             this.loading = false;
             this.saveSuccess = true;
           })
-          .catch(e => {
+          .catch((e) => {
             this.errorMessage = `Save Unsuccessful. ${e}`;
             this.loading = false;
             this.saveError = true;
@@ -254,22 +226,21 @@ export default {
           },
         },
       });
-      if (res === 'Yes') {
+      if (res === "Yes") {
         const schedule = this.currentApplet.applet.schedule;
         for (let event of schedule.events) {
-          if (event['id']) {
-            this.$store.commit('addRemovedEventId', event['id']);
+          if (event["id"]) {
+            this.$store.commit("addRemovedEventId", event["id"]);
           }
         }
-        schedule.events = []
+        schedule.events = [];
 
-        this.$store.commit('setSchedule', schedule);
-        this.$store.commit('setCachedEvents', schedule.events);
+        this.$store.commit("setSchedule", schedule);
+        this.$store.commit("setCachedEvents", schedule.events);
 
         this.$refs.calendar.$refs.app.clearEvents();
       }
-      
-    }
-  }
+    },
+  },
 };
 </script>

@@ -2,44 +2,29 @@
   <div class="wrapper">
     <v-row justify="space-between" align="center">
       <!-- Breadcrumb navigation -->
-      <v-breadcrumbs
-        :items="breadcrumbs()"
-        large
-      >
+      <v-breadcrumbs :items="breadcrumbs()" large>
         <template v-slot:divider>
           <v-icon>mdi-chevron-right</v-icon>
         </template>
       </v-breadcrumbs>
 
       <!-- Export button -->
-      <v-btn
-        rounded
-        dark
-        color="deep-purple accent-4"
-        class="export-btn"
-      >
+      <v-btn rounded dark color="deep-purple accent-4" class="export-btn">
         <v-icon>import_export</v-icon>
         EXPORT
       </v-btn>
     </v-row>
 
-    <div 
-      v-if="loading"
-      class="status-message"
-    >
+    <div v-if="loading" class="status-message">
       {{ status }}
     </div>
 
-    <div
-      v-if="applet"
-      v-for="activity in applet.activities"
-    >
-      <h4 class="activity-header">{{ activity.question.en || activity.description.en }}</h4>
+    <div v-for="activity in applet.activities" v-if="applet">
+      <h4 class="activity-header">
+        {{ activity.question.en || activity.description.en }}
+      </h4>
 
-      <v-card
-        class="chart-card"
-        v-for="item in activity.items"
-      >
+      <v-card v-for="item in activity.items" class="chart-card">
         <header>
           <h5>{{ item.description.en || item.label.en }}</h5>
         </header>
@@ -58,21 +43,15 @@
       There's no data available for the selected users.
     </div>
 
-    <v-btn
-      color="primary"
-      fixed
-      bottom
-      left
-      @click="$router.go(-1)"
-    >
-      Back
+    <v-btn color="primary" fixed bottom left @click="$router.go(-1)">
+      {{ $t("back") }}
     </v-btn>
   </div>
 </template>
 
 <style scoped>
 .container {
-  background: #EFEFF2;
+  background: #efeff2;
   height: 100%;
   width: 100%;
 }
@@ -88,7 +67,7 @@
 }
 
 .v-breadcrumbs__item {
-  color: #8728FB !important;
+  color: #8728fb !important;
 }
 
 .v-breadcrumbs__item--disabled {
@@ -115,7 +94,7 @@
 .status-message {
   margin-top: 40px;
   padding: 20px;
-  border: 1px solid #CCC;
+  border: 1px solid #ccc;
 }
 
 .chart-card {
@@ -130,11 +109,10 @@
 <script>
 import _ from "lodash";
 import api from "../Components/Utils/api/api.vue";
-import Applet from '../models/Applet';
-import Activity from '../models/Activity';
-import Item from '../models/Item';
+import Applet from "../models/Applet";
+import Activity from "../models/Activity";
+import Item from "../models/Item";
 import TokenChart from "../Components/Charts/TokenChart.vue";
-
 
 export default {
   name: "TokenLoggerDashboard",
@@ -151,10 +129,10 @@ export default {
    */
   data: () => ({
     loading: true,
-    status: 'Initializing dashboard',
+    status: "Initializing dashboard",
     applet: {
-      _id: '',
-      label: { en: 'Applet' },
+      _id: "",
+      label: { en: "Applet" },
       activities: [],
     },
     charts: [],
@@ -173,9 +151,7 @@ export default {
   /**
    * Handlers to be executed each time a property changes its value.
    */
-  watch: {
-
-  },
+  watch: {},
 
   /**
    * Method to be executed after the component has been mounted.
@@ -187,18 +163,15 @@ export default {
     const { users } = this.$route.query;
 
     try {
-      this.status = 'Loading applet data';
-      this.applet = await Applet.fetchById(
-        appletId,
-        {
-          withActivities: true,
-          withResponses: true,
-          users: Array.isArray(users) ? users : [users],
-        },
-      );
+      this.status = "Loading applet data";
+      this.applet = await Applet.fetchById(appletId, {
+        withActivities: true,
+        withResponses: true,
+        users: Array.isArray(users) ? users : [users],
+      });
       this.loading = false;
-    } catch(error) {
-      this.status = 'Oops, something went wrong. We couldn\'t load the applet';
+    } catch (error) {
+      this.status = "Oops, something went wrong. We couldn't load the applet";
       this.error = error;
       console.error(error);
     }
@@ -214,7 +187,7 @@ export default {
 
       return [
         { text: appletName, to: `/applet/${appletId}/users` },
-        { text: 'Dashboard', disabled: true },
+        { text: "Dashboard", disabled: true },
       ];
     },
   },

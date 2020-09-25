@@ -6,7 +6,7 @@
       </v-toolbar>
       <v-card-text>
         <p>
-          Log into your Mindlogger account
+          {{ $t("logIntoAccount") }}
         </p>
         <v-form ref="form" lazy-validation>
           <v-text-field
@@ -39,7 +39,7 @@
           </v-col>
           <v-col cols="auto">
             <v-btn outlined color="primary" @click="onCreateAccount">
-              Create Account
+              {{ $t("createAccount") }}
             </v-btn>
           </v-col>
           <v-col cols="4">
@@ -86,10 +86,10 @@ export default {
     email: "",
     emailRules: [
       (v) => !!v || "E-mail is required",
-      (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
+      (v) => /.+@.+\..+/.test(v) || $t("emailMustBeValid"),
     ],
     password: "",
-    passwordRules: [(v) => !!v || "Password is required"],
+    passwordRules: [(v) => !!v || $t("passwordRequired")],
     error: "",
     languages: [
       {

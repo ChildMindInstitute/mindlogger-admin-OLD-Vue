@@ -4,7 +4,7 @@
       <v-progress-circular color="primary" indeterminate />
     </div>
     <div v-else>
-      <h1>Active Users</h1>
+      <h1>{{ $t("activeUsers") }}</h1>
       <active-user-table
         ref="userTableRef"
         key="componentKey"
@@ -13,7 +13,7 @@
       />
 
       <div v-if="hasRoles('manager', 'coordinator')">
-        <h1>Pending Invitations</h1>
+        <h1>{{ $t("pendingInvitations") }}</h1>
         <pending-invite-table :users="pendingInviteList" />
         <create-invitation-form @createInvitation="createInvitation" />
         <div style="height: 58px;" />
@@ -62,7 +62,7 @@
     <footer class="footer">
       <!-- BACK BUTTON -->
       <v-btn color="primary" @click="$router.go(-1)">
-        Back
+        {{ $t("back") }}
       </v-btn>
     </footer>
   </div>

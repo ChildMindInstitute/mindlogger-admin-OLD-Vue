@@ -1,18 +1,10 @@
 <template>
   <div>
-    <h1>Create Invitation</h1>
-    <v-form
-      ref="form"
-      v-model="valid"
-      :lazy-validation="lazy"
-    >
+    <h1>{{ $t("createInvitation") }}</h1>
+    <v-form ref="form" v-model="valid" :lazy-validation="lazy">
       <v-container>
         <v-row>
-          <v-col 
-            cols="12" 
-            sm="6" 
-            md="6"
-          >
+          <v-col cols="12" sm="6" md="6">
             <v-text-field
               v-model="params.profile.firstName"
               label="FirstName"
@@ -21,11 +13,7 @@
             />
           </v-col>
 
-          <v-col 
-            cols="12" 
-            sm="6" 
-            md="6"
-          >
+          <v-col cols="12" sm="6" md="6">
             <v-text-field
               v-model="params.profile.lastName"
               label="LastName"
@@ -34,64 +22,43 @@
             />
           </v-col>
 
-          <v-col 
-            cols="12" 
-            sm="6" 
-            md="4"
-          >
+          <v-col cols="12" sm="6" md="4">
             <v-text-field
               v-model="params.profile.email"
               :rules="emailRules"
-              label="Email"
+              :label="$t('email')"
               required
             />
           </v-col>
 
-          <v-col 
-            cols="12" 
-            sm="6" 
-            md="4"
-          >
+          <v-col cols="12" sm="6" md="4">
             <v-select
               v-model="params.role"
               :items="invitationRoles"
-              :rules="[v => !!v || 'Item is required']"
-              label="Role"
+              :rules="[(v) => !!v || 'Item is required']"
+              :label="$t('role')"
               required
             />
           </v-col>
 
-          <v-col 
-            v-if="params.role === 'user'"
-            cols="12" 
-            sm="6" 
-            md="4"
-          >
+          <v-col v-if="params.role === 'user'" cols="12" sm="6" md="4">
             <v-text-field
               v-model="params.profile.mrn"
-              label="Institutional ID"
+              :label="$t('createInvitation')"
             />
           </v-col>
-          <v-col 
-            v-else
-            cols="12" 
-            sm="6" 
-            md="4"
-          >
+          <v-col v-else cols="12" sm="6" md="4">
             <v-text-field
-              v-if="username === currentAccountName && appletRoles.includes('owner')"
+              v-if="
+                username === currentAccountName && appletRoles.includes('owner')
+              "
               v-model="params.accountName"
               label="AccountName"
               :rules="accountNameRules"
               required
             />
           </v-col>
-          <v-col 
-            v-if="params.role === 'reviewer'"
-            cols="12" 
-            sm="12" 
-            md="12"
-          >
+          <v-col v-if="params.role === 'reviewer'" cols="12" sm="12" md="12">
             <v-combobox
               v-model="params.users"
               hint="Press enter to add a user"
@@ -103,18 +70,11 @@
             />
           </v-col>
         </v-row>
-        <v-btn
-          :disabled="!valid"
-          color="primary"
-          @click="submit"
-        >
+        <v-btn :disabled="!valid" color="primary" @click="submit">
           Submit
         </v-btn>
 
-        <v-btn
-          color="error"
-          @click="reset"
-        >
+        <v-btn color="error" @click="reset">
           Reset Form
         </v-btn>
       </v-container>
@@ -130,21 +90,15 @@ export default {
       lazy: false,
       valid: true,
       emailRules: [
-        v => !!v || 'E-mail is required',
-        v => /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(v) || 'E-mail must be valid',
+        (v) => !!v || "E-mail is required",
+        (v) =>
+          /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(v) ||
+          $t("emailMustBeValid"),
       ],
-      firstNameRules: [
-        v => !!v || 'Name is required',
-      ],
-      lastNameRules: [
-        v => !!v || 'Name is required',
-      ],
-      accountNameRules: [
-        v => !!v || 'Name is required',
-      ],
-      usersRules: [
-        v => !!v || 'Users are required',
-      ],
+      firstNameRules: [(v) => !!v || $t("firstNameRequired")],
+      lastNameRules: [(v) => !!v || $t("lastNameRequired")],
+      accountNameRules: [(v) => !!v || "Name is required"],
+      usersRules: [(v) => !!v || "Users are required"],
       params: {
         role: "user",
         profile: {
@@ -155,7 +109,7 @@ export default {
         },
         accountName: "",
         users: [],
-      }
+      },
     };
   },
   computed: {
@@ -169,16 +123,16 @@ export default {
       return this.$store.state.currentApplet.roles;
     },
     invitationRoles() {
-      let roles =  this.$store.state.currentApplet.roles;
+      let roles = this.$store.state.currentApplet.roles;
 
-      if (roles.includes('manager') || roles.includes('owner')) {
+      if (roles.includes("manager") || roles.includes("owner")) {
         return ["user", "coordinator", "editor", "manager", "reviewer"];
-      } else if (roles.includes('coordinator')) {
-        return ['user', 'reviewer'];
+      } else if (roles.includes("coordinator")) {
+        return ["user", "reviewer"];
       }
 
       return [];
-    }
+    },
   },
 
   methods: {
@@ -187,9 +141,9 @@ export default {
         firstName: this.params.profile.firstName,
         lastName: this.params.profile.lastName,
         email: this.params.profile.email,
-        role: this.params.role
+        role: this.params.role,
       };
-      
+
       if (this.params.role === "user") {
         invitationOptions.MRN = this.params.profile.mrn;
       } else {
@@ -208,11 +162,11 @@ export default {
         role: "user",
         profile: {
           displayName: "",
-          email: ""
-        }
+          email: "",
+        },
       };
-    }
-  }
+    },
+  },
 };
 </script>
 

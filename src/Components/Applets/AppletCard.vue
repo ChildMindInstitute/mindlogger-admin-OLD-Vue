@@ -44,7 +44,7 @@
                   @click="refreshApplet"
                   v-on="on"
                 >
-                  <span v-if="status === 'ready'">Refresh</span>
+                  <span v-if="status === 'ready'">{{ $t("refresh") }}</span>
                   <span v-else>Refreshing..</span>
                 </v-btn>
               </template>
@@ -60,7 +60,7 @@
                   @click="deleteApplet"
                   v-on="on"
                 >
-                  Delete
+                  {{ $t("delete") }}
                 </v-btn>
               </template>
               <span>Permanantly disable this applet</span>
@@ -86,7 +86,7 @@
                   "
                   v-on="on"
                 >
-                  Select
+                  {{ $t("select") }}
                 </v-btn>
               </template>
               <v-list>
@@ -97,13 +97,15 @@
                   "
                   @click="onViewUsers"
                 >
-                  <v-list-item-title>View Users</v-list-item-title>
+                  <v-list-item-title>{{ $t("viewUsers") }}</v-list-item-title>
                 </v-list-item>
                 <v-list-item
                   :disabled="!applet.roles.includes('coordinator')"
                   @click="onViewGeneralCalendar"
                 >
-                  <v-list-item-title>View General Calendar</v-list-item-title>
+                  <v-list-item-title>
+                    {{ $t("viewCalendar") }}
+                  </v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>

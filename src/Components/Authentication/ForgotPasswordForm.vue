@@ -6,7 +6,7 @@
       </v-toolbar>
       <v-card-text>
         <p>
-          Send a link to reset your password hosted at
+          {{ $t("sendLinkPswdHosted") }}
           {{ $store.state.backend }}
         </p>
         <v-form ref="form" lazy-validation>
@@ -44,7 +44,7 @@ export default {
     email: "",
     emailRules: [
       (v) => !!v || "E-mail is required",
-      (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
+      (v) => /.+@.+\..+/.test(v) || $t("emailMustBeValid"),
     ],
     error: "",
   }),

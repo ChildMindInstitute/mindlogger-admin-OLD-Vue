@@ -22,7 +22,7 @@
           <v-select
             v-model="currentUserRoles"
             :items="computedItems"
-            label="Select"
+            :label="$t('select')"
             multiple
             chips
             :item-disabled="['editor']"
@@ -42,10 +42,10 @@
         <v-card-actions>
           <v-spacer />
           <v-btn color="primary" text @click="editRoleDialog = false">
-            Close
+            {{ $t("close") }}
           </v-btn>
           <v-btn color="primary" text @click="onSaveUserRole()">
-            Save
+            {{ $t("save") }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -81,7 +81,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn color="blue darken-1" text @click="passwordDialog = false">
-            Close
+            {{ $t("close") }}
           </v-btn>
           <v-btn color="blue darken-1" text @click="onConfirmPassword()">
             Confirm
@@ -144,11 +144,11 @@ export default {
     };
   },
   computed: {
-    isManager() { 
-      return this.$store.state.currentAccount.applets['manager'];
+    isManager() {
+      return this.$store.state.currentAccount.applets["manager"];
     },
-    isCoordinator() { 
-      return this.$store.state.currentAccount.applets['coordinator'];
+    isCoordinator() {
+      return this.$store.state.currentAccount.applets["coordinator"];
     },
     computedItems() {
       return this.userRoleData.map((item) => {
