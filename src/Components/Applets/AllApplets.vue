@@ -18,6 +18,7 @@
         :key="`i${i + baseKey}`"
         :applet="applet"
         @deleteApplet="deleteApplet"
+        @transferOwnership="transferOwnership"
         @refreshApplet="refreshApplet"
         @onUpdateAppletPassword="onUpdateAppletPassword"
         @duplicateApplet="duplicateApplet"
@@ -222,6 +223,21 @@ export default {
     onClickSubmitPassword(appletPassword) {
       this.appletPasswordDialog = false;
       this.requestedAction(appletPassword);
+    },
+    transferOwnership({ email, applet }) {
+      api
+        .transferOwnership({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          appletId: applet.applet._id.split("applet/")[1],
+          email: email
+        })
+        .then((resp) => {
+          this.$emit("refreshAppletList");
+        })
+        .catch((err) => {
+          console.log(err);
+        })
     },
 
     getEncryptionForm(appletPassword) {

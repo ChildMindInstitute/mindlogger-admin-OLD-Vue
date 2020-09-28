@@ -28,8 +28,9 @@
             label="Select"
             multiple
             chips
+            :required="currentUserRoles"
             :item-disabled="['editor']"
-            hint="What are the target roles"
+            :hint="currentUserRoles.length ? '' : 'At least one role is required'"
             persistent-hint
           />
           <v-combobox
@@ -53,6 +54,7 @@
           </v-btn>
           <v-btn
             color="primary"
+            :disabled="!currentUserRoles.length"
             text
             @click="onSaveUserRole()"
           >
@@ -67,16 +69,6 @@
       persistent
       max-width="450px"
     >
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          color="primary"
-          dark
-          v-bind="attrs"
-          v-on="on"
-        >
-          Open Dialog
-        </v-btn>
-      </template>
       <v-card>
         <v-card-title class="edit-card-title">
           <span class="headline">Are you sure?</span>
@@ -194,42 +186,49 @@ export default {
     },
 
     userData() {
-      if (this.isManager) {
-        return this.users.map((user) => {
-          let roles = [];
-          if (user.roles.length === 1 && user.roles[0] === 'user') {
-            roles.push('user');
-          } else if (user.roles.includes('owner')) {
-            roles.push('owner');
-          } else if (user.roles.includes('manager')) {
-            roles.push('manager');
-          } else {
-            roles = user.roles.filter(role => role != 'user');
-          }
-          return {
-            displayName: user.displayName,
-            email: user.email,
-            mrn: user.MRN,
-            _id: user._id,
-            refreshRequest: user.refreshRequest && user.refreshRequest.userPublicKey ? user.refreshRequest : null,
-            roles
-          };
-        });
-      } else {
-        return this.users.map((user) => {
-          return {
-            displayName: user.displayName,
-            email: user.email,
-            mrn: user.MRN,
-            _id: user._id,
-            roles: ['user'],
-          };
-        });
-      }
+      return this.users.map((user) => {
+        let roles = [];
+        if (user.roles.length === 1 && user.roles[0] === 'user') {
+          roles.push('user');
+        } else if (user.roles.includes('owner')) {
+          roles.push('owner');
+        } else if (user.roles.includes('manager')) {
+          roles.push('manager');
+        } else {
+          roles = user.roles.filter(role => role != 'user');
+        }
+        return {
+          displayName: user.displayName,
+          email: user.email,
+          mrn: user.MRN,
+          _id: user._id,
+          refreshRequest: user.refreshRequest && user.refreshRequest.userPublicKey ? user.refreshRequest : null,
+          roles
+        };
+      });
     }
   },
   beforeMount() {
     this.gridOptions = {};
+    this.userData = this.users.map((user) => {
+      let roles = [];
+      if (user.roles.length === 1 && user.roles[0] === "user") {
+        roles.push("user");
+      } else if (user.roles.includes("owner")) {
+        roles.push("owner");
+      } else if (user.roles.includes("manager")) {
+        roles.push("manager");
+      } else {
+        roles = user.roles.filter((role) => role != "user");
+      }
+      return {
+        displayName: user.displayName,
+        email: user.email,
+        mrn: user.MRN,
+        _id: user._id,
+        roles,
+      };
+    });
     const { isManager, isCoordinator } = this;
 
     this.columnDefs = [

@@ -88,6 +88,12 @@
               </template>
               <v-list>
                 <v-list-item
+                  :disabled="!applet.roles.includes('owner')"
+                  @click="onTransferOwnership"
+                >
+                  <v-list-item-title>Transfer ownership</v-list-item-title>
+                </v-list-item>
+                <v-list-item
                   :disabled="
                     !applet.roles.includes('coordinator') &&
                       !applet.roles.includes('reviewer')
@@ -138,6 +144,32 @@
         </div>
       </v-card-actions>
     </div>
+    <v-dialog v-model="ownershipDialog" persistent max-width="600px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Transfer Applet Ownership</span>
+        </v-card-title>
+        <v-card-text>
+          <v-row>
+            <v-col cols="12">
+              <v-text-field v-model="ownershipEmail" class="ownershipField" label="Owner Email" required></v-text-field>
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="ownershipDialog = false">Close</v-btn>
+          <v-btn 
+            color="blue darken-1" 
+            text 
+            @click="onSubmitOwnership" 
+            :disabled="!emailRules.test(ownershipEmail)"
+          >
+            Submit
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -157,7 +189,9 @@
   width: 33%;
   text-align: center;
 }
-
+.ownershipField {
+  margin: 0 12px;
+}
 .container > div > * {
   width: 100%;
 }
@@ -175,6 +209,9 @@ export default {
   data: () => ({
     status: "ready",
     cardWidth: 300,
+    ownershipDialog: false,
+    ownershipEmail: "",
+    emailRules: /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
   }),
   computed: {
     isOwner() {
@@ -288,6 +325,15 @@ export default {
         const appletId = this.applet.applet._id.split("applet/")[1];
         this.$router.push(`applet/${appletId}/users`);
       }
+    },
+    onSubmitOwnership() {
+      this.$emit('transferOwnership', {
+        email: this.ownershipEmail,
+        applet: this.applet,
+      });
+    },
+    onTransferOwnership() {
+      this.ownershipDialog = true;
     },
     onViewGeneralCalendar() {
       if (this.applet.roles.includes('owner') && !Object.keys(this.applet.applet.encryption).length) {

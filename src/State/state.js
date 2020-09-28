@@ -10,7 +10,7 @@ import api from "../Components/Utils/api/api.vue";
 
 const getDefaultState = () => {
   return {
-    backend: "",
+    backend: process.env.VUE_APP_SERVER_URL,
     currentAccount: {},
     currentApplets: [],
     ownerAccount: {},
