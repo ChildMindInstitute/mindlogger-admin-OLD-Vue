@@ -242,6 +242,14 @@ export default {
         cellStyle: { justifyContent: "center" },
       },
       {
+        headerName: "Institutional ID",
+        field: "mrn",
+        sortable: true,
+        filter: true,
+        resizable: true,
+        cellStyle: { justifyContent: "center" },
+      },
+      {
         headerName: "Roles",
         field: "roles",
         sortable: true,

@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove negative values when all the tokens are posive
 - Show the current day in the x-axis labels
 
+## [0.3.15] = 2020-09-22
+### Changed
+- Map MRN to Profile ID in reviewer invites.
+
 ## [0.3.13] = 2020-09-23
 
 ### Changed
