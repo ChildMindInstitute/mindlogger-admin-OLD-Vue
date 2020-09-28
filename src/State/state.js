@@ -105,14 +105,17 @@ const mutations = {
       if (state.allApplets[i].applet._id == applet.applet._id) {
         state.allApplets[i] = applet;
 
-        if (state.currentApplet.applet && state.currentApplet.applet._id == applet.applet._id) {
+        if (
+          state.currentApplet.applet &&
+          state.currentApplet.applet._id == applet.applet._id
+        ) {
           state.currentApplet = applet;
         }
       }
     }
   },
 
-  setAllApplets(state, protocols) { 
+  setAllApplets(state, protocols) {
     state.allApplets = protocols;
   },
 
@@ -204,9 +207,7 @@ const mutations = {
   },
 };
 
-const stateCopy = (({ currentApplet, currentApplets, allApplets, ...o }) => o)(
-  state
-);
+const stateCopy = (({ allApplets, ...o }) => o)(state);
 const stateToPersist = Object.keys(stateCopy);
 
 export const storeConfig = {

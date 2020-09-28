@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Embeded monthly eventType
 - Added `Only scheduled day` option
+- Map MRN to Profile ID in reviewer invites.
 
 ## [0.3.14] = 2020-09-16
 ### Changed
