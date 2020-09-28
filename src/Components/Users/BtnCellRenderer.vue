@@ -4,6 +4,7 @@
     class="btn-align"
   >
     <v-btn
+      v-if="params.data.roles != 'user' && isManager"
       icon
       small
       color="primary"
@@ -11,7 +12,7 @@
       :disabled="params.data.roles == 'user'"
       @click.stop="btnEditedHandler($event)"
     >
-      <v-icon v-if="params.data.roles != 'user' && isManager">edit</v-icon>
+      <v-icon>edit</v-icon>
     </v-btn>
     <v-btn
       v-if="params.data.roles != 'user' && isManager"
