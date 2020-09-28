@@ -149,6 +149,7 @@ export default {
     return {
       currentUserList: [],
       currentUserRoles: [],
+      userData: [],
       userCellData: null,
       columnDefs: null,
       frameworkComponents: null,
@@ -184,29 +185,6 @@ export default {
     currentApplet() {
       return this.$store.state.currentApplet;
     },
-
-    userData() {
-      return this.users.map((user) => {
-        let roles = [];
-        if (user.roles.length === 1 && user.roles[0] === 'user') {
-          roles.push('user');
-        } else if (user.roles.includes('owner')) {
-          roles.push('owner');
-        } else if (user.roles.includes('manager')) {
-          roles.push('manager');
-        } else {
-          roles = user.roles.filter(role => role != 'user');
-        }
-        return {
-          displayName: user.displayName,
-          email: user.email,
-          mrn: user.MRN,
-          _id: user._id,
-          refreshRequest: user.refreshRequest && user.refreshRequest.userPublicKey ? user.refreshRequest : null,
-          roles
-        };
-      });
-    }
   },
   beforeMount() {
     this.gridOptions = {};
@@ -226,6 +204,7 @@ export default {
         email: user.email,
         mrn: user.MRN,
         _id: user._id,
+        refreshRequest: user.refreshRequest && user.refreshRequest.userPublicKey ? user.refreshRequest : null,
         roles,
       };
     });
