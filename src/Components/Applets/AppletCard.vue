@@ -141,7 +141,7 @@
 
     <ConfirmationDialog
       v-model="appletEditDialog"
-      :dialogText="'By editing this applet that has been downloaded from Github, any changes will only store within MindLogger and will not update GitHub with those changes.'"
+      :dialogText="editDialogText"
       :title="'Applet Edit'"
       @onOK="editApplet"
     />
@@ -188,6 +188,7 @@ export default {
     status: "ready",
     cardWidth: 300,
     appletEditDialog: false,
+    editDialogText: 'By editing this applet that has been downloaded from Github, any changes will only store within MindLogger and will not update GitHub with those changes.'
   }),
   computed: {
     isOwner() {
