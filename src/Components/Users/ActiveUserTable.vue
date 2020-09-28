@@ -169,10 +169,12 @@ export default {
   },
   computed: {
     isManager() { 
-      return this.$store.state.currentAccount.applets['manager'];
+      const { manager } = this.$store.state.currentAccount.applets;
+      return (manager && manager.length) ? true : false;
     },
     isCoordinator() { 
-      return this.$store.state.currentAccount.applets['coordinator'];
+      const { coordinator } = this.$store.state.currentAccount.applets;
+      return (coordinator && coordinator.length) ? true : false;
     },
     computedItems() {
       return this.userRoleData.map((item) => {

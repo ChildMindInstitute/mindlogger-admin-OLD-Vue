@@ -67,7 +67,8 @@ export default Vue.extend({
 
   computed: {
     isManager() {
-      return this.$store.state.currentAccount.applets["manager"] ? true : false;
+      const { manager } = this.$store.state.currentAccount.applets;
+      return (manager && manager.length) ? true : false;
     }
   },
   methods: {
