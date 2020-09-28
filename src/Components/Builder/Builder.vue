@@ -6,8 +6,12 @@
       exportButton
       :initialData="(isEditing || null) && currentApplet"
       :key="componentKey"
+      :getProtocols="getProtocols"
+      :versions="versions"
       @uploadProtocol="onUploadProtocol"
       @updateProtocol="onUpdateProtocol"
+      @prepareApplet="onPrepareApplet"
+      @onUploadError="onUploadError"
     />
 
     <Information
@@ -53,12 +57,22 @@ export default {
       appletPasswordDialog: false,
       newApplet: {},
       isEditing: false,
+      versions: [],
       componentKey: 1
     };
   },
-  beforeMount() {
+  async beforeMount() {
+    const apiHost = this.$store.state.backend;
+    const token = this.$store.state.auth.authToken.token;
+    const appletId = this.currentApplet.applet._id.split('/')[1];
+
+    this.versions = [];
+
     if (this.$route.params.isEditing) {
       this.isEditing = true;
+
+      const resp = await api.getAppletVersions({ apiHost, token, appletId });
+      this.versions = resp.data;
     }
   },
   computed: {
@@ -96,36 +110,68 @@ export default {
     },
     onUpdateProtocol(updateData) {
       const protocol = new FormData();
-      protocol.set("protocol", JSON.stringify(updateData || {}));
+      protocol.set("protocol", JSON.stringify(updateData|| {}));
 
+      const appletId = this.currentApplet.applet._id.split('/')[1];
+      const token = this.$store.state.auth.authToken.token;
+      const apiHost = this.$store.state.backend;
       api.updateApplet({
         data: protocol,
-        appletId: this.currentApplet.applet._id.split('/')[1],
-        token: this.$store.state.auth.authToken.token,
-        apiHost: this.$store.state.backend,
+        appletId,
+        token,
+        apiHost,
       }).then(resp => {
         this.$store.commit('updateAppletData', {
           ...resp.data,
           roles: this.currentApplet.roles
         });
 
-        this.componentKey = this.componentKey + 1;
+        api.getAppletVersions({ apiHost, token, appletId }).then(resp => {
+          this.versions = resp.data;
+          this.componentKey = this.componentKey + 1;
+        });
 
         this.onUploadSucess();
       }).catch(e => {
         this.onUploadError();
       })
     },
+    onPrepareApplet(data) {
+      const protocol = new FormData();
+      protocol.set("protocol", JSON.stringify(data || {}));
+
+      const appletId = this.currentApplet.applet._id.split('/')[1];
+      const token = this.$store.state.auth.authToken.token;
+      const apiHost = this.$store.state.backend;
+
+      api.prepareApplet({
+        apiHost, token, data: protocol, appletId
+      }).then(resp => api.getAppletVersions({ apiHost, token, appletId })).then(resp => {
+        this.versions = resp.data;
+        this.componentKey = this.componentKey + 1;
+      });
+    },
     onUploadSucess() {
         this.dialogText = 'Your applet is successfully updated';
         this.dialogTitle = 'Upload Received';
         this.dialog = true;
     },
-    onUploadError() {
-        this.dialogText = "There was an error uploading your applet. Please try again or report the issue.";
+    onUploadError(msg) {
+        this.dialogText = msg || "There was an error uploading your applet. Please try again or report the issue.";
         this.dialogTitle = 'Upload Error';
         this.dialog = true;
     },
+    getProtocols(versions) {
+      if (!this.isEditing) return [];
+      const appletId = this.currentApplet.applet._id.split('/')[1];
+
+      return api.getProtocolData({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        appletId,
+        versions
+      })
+    }
   }
 };
 </script>

@@ -204,7 +204,7 @@ const mutations = {
   },
 };
 
-const stateCopy = (({ currentApplet, currentApplets, allApplets, ...o }) => o)(
+const stateCopy = (( o ) => o)(
   state
 );
 const stateToPersist = Object.keys(stateCopy);

@@ -252,6 +252,16 @@ const updateApplet = ({ apiHost, token, data, appletId }) =>
     data,
   })
 
+const prepareApplet = ({ apiHost, token, data, appletId }) =>
+  axios({
+    method: "PUT",
+    url: `${apiHost}/applet/${appletId}/prepare`,
+    headers: {
+      "Girder-Token": token,
+    },
+    data,
+  })
+
 const updateRegistration = ({ apiHost, token, groupId, open }) =>
   axios({
     method: "PUT",
@@ -317,6 +327,23 @@ const setAppletEncryption = ({ apiHost, token, appletId, data }) => axios({
     'Girder-Token': token,
   },
   data
+});
+
+const getAppletVersions = ({ apiHost, token, appletId }) => axios({
+  method: 'get',
+  url: `${apiHost}/applet/${appletId}/versions`,
+  headers: {
+    'Girder-Token': token
+  }
+});
+
+const getProtocolData = ({ apiHost, token, appletId, versions }) => axios({
+  method: 'get',
+  url: `${apiHost}/applet/${appletId}/protocolData`,
+  headers: {
+    'Girder-Token': token
+  },
+  params: { versions: JSON.stringify(versions) },
 })
 
 export default {
@@ -350,5 +377,8 @@ export default {
   replaceResponseData,
   setAppletEncryption,
   updateApplet,
+  getAppletVersions,
+  getProtocolData,
+  prepareApplet,
 }
 </script>
