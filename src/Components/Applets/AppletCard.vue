@@ -336,7 +336,7 @@ export default {
       this.ownershipDialog = true;
     },
     onViewGeneralCalendar() {
-      if (this.applet.roles.includes('owner') && !(this.applet.applet.encryption && !Object.keys(this.applet.applet.encryption).length)) {
+      if (this.applet.roles.includes('owner') && !(this.applet.applet.encryption && Object.keys(this.applet.applet.encryption).length)) {
         this.$emit('onUpdateAppletPassword', this.applet);
       } else {
         this.setSelectedApplet();
