@@ -339,7 +339,7 @@ export default {
       const response = await this.$dialog.warning({
         title: "",
         color: "#1976d2",
-        text: "Are you sure to remove this Role?",
+        text: "Are you sure to remove this user?",
         persistent: false,
         actions: {
           No: "No",
