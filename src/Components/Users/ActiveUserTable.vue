@@ -149,6 +149,7 @@ export default {
     return {
       currentUserList: [],
       currentUserRoles: [],
+      userData: [],
       userCellData: null,
       columnDefs: null,
       frameworkComponents: null,
@@ -168,10 +169,12 @@ export default {
   },
   computed: {
     isManager() { 
-      return this.$store.state.currentAccount.applets['manager'];
+      const { manager } = this.$store.state.currentAccount.applets;
+      return (manager && manager.length) ? true : false;
     },
     isCoordinator() { 
-      return this.$store.state.currentAccount.applets['coordinator'];
+      const { coordinator } = this.$store.state.currentAccount.applets;
+      return (coordinator && coordinator.length) ? true : false;
     },
     computedItems() {
       return this.userRoleData.map((item) => {
@@ -184,29 +187,6 @@ export default {
     currentApplet() {
       return this.$store.state.currentApplet;
     },
-
-    userData() {
-      return this.users.map((user) => {
-        let roles = [];
-        if (user.roles.length === 1 && user.roles[0] === 'user') {
-          roles.push('user');
-        } else if (user.roles.includes('owner')) {
-          roles.push('owner');
-        } else if (user.roles.includes('manager')) {
-          roles.push('manager');
-        } else {
-          roles = user.roles.filter(role => role != 'user');
-        }
-        return {
-          displayName: user.displayName,
-          email: user.email,
-          mrn: user.MRN,
-          _id: user._id,
-          refreshRequest: user.refreshRequest && user.refreshRequest.userPublicKey ? user.refreshRequest : null,
-          roles
-        };
-      });
-    }
   },
   beforeMount() {
     this.gridOptions = {};
@@ -226,6 +206,7 @@ export default {
         email: user.email,
         mrn: user.MRN,
         _id: user._id,
+        refreshRequest: user.refreshRequest && user.refreshRequest.userPublicKey ? user.refreshRequest : null,
         roles,
       };
     });
@@ -358,7 +339,7 @@ export default {
       const response = await this.$dialog.warning({
         title: "",
         color: "#1976d2",
-        text: "Are you sure to remove this Role?",
+        text: "Are you sure to remove this user?",
         persistent: false,
         actions: {
           No: "No",
