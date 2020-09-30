@@ -77,7 +77,7 @@
     <div class="tools">
       <!-- EXPORT BUTTON -->
       <v-tooltip
-        v-if="hasRoles('owner', 'manager', 'coordinator')"
+        v-if="hasRoles('owner', 'manager', 'reviewer')"
         top
       >
         <template v-slot:activator="{ on }">

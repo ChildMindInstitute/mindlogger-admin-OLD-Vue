@@ -132,7 +132,7 @@
                 <v-btn
                   text
                   :disabled="!applet.roles.includes('editor')"
-                  @click="editApplet"
+                  @click="onEditApplet"
                   v-on="on"
                 >
                   Edit
@@ -144,6 +144,13 @@
         </div>
       </v-card-actions>
     </div>
+
+    <ConfirmationDialog
+      v-model="appletEditDialog"
+      :dialogText="editDialogText"
+      :title="'Applet Edit'"
+      @onOK="editApplet"
+    />
     <v-dialog v-model="ownershipDialog" persistent max-width="600px">
       <v-card>
         <v-card-title>
@@ -198,8 +205,13 @@
 </style>
 
 <script>
+import ConfirmationDialog from '../Utils/dialogs/ConfirmationDialog';
+
 export default {
   name: "AppletCard",
+  components: {
+    ConfirmationDialog,
+  },
   props: {
     applet: {
       type: Object,
@@ -209,6 +221,8 @@ export default {
   data: () => ({
     status: "ready",
     cardWidth: 300,
+    appletEditDialog: false,
+    editDialogText: 'By editing this applet that has been downloaded from Github, any changes will only store within MindLogger and will not update GitHub with those changes.',
     ownershipDialog: false,
     ownershipEmail: "",
     emailRules: /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
@@ -336,7 +350,7 @@ export default {
       this.ownershipDialog = true;
     },
     onViewGeneralCalendar() {
-      if (this.applet.roles.includes('owner') && !(this.applet.applet.encryption && !Object.keys(this.applet.applet.encryption).length)) {
+      if (this.applet.roles.includes('owner') && !(this.applet.applet.encryption && Object.keys(this.applet.applet.encryption).length)) {
         this.$emit('onUpdateAppletPassword', this.applet);
       } else {
         this.setSelectedApplet();
@@ -348,9 +362,20 @@ export default {
     duplicateApplet() {
       this.$emit('duplicateApplet', this.applet);
     },
-    editApplet() {
-      this.$emit('onEditApplet', this.applet);
+    onEditApplet() {
+      if (this.applet.applet.url) {
+        this.appletEditDialog = true;
+      } else {
+        this.editApplet();
+      }
     },
+    editApplet() {
+      this.setSelectedApplet();
+      this.$router.push({
+        name: 'Builder', 
+        params: { isEditing: true }
+      });
+    }
   }
 };
 </script>
