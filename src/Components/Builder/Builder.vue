@@ -90,12 +90,22 @@ export default {
       this.appletPasswordDialog = true;
     },
     addNewApplet(appletPassword) {
-      const protocol = new FormData();
-      protocol.set("protocol", JSON.stringify(this.newApplet || {}));
+      const form = new FormData();
+      form.set("protocol", JSON.stringify(this.newApplet || {}));
+
+      const encryptionInfo = encryption.getAppletEncryptionInfo({
+        appletPassword: appletPassword,
+        accountId: this.$store.state.currentAccount.accountId
+      });
+      form.set('encryption', JSON.stringify({
+        appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
+        appletPrime: Array.from(encryptionInfo.getPrime()),
+        base: Array.from(encryptionInfo.getGenerator())
+      }));
 
       api
         .createApplet({
-          data: protocol,
+          data: form,
           email: this.$store.state.userEmail,
           token: this.$store.state.auth.authToken.token,
           apiHost: this.$store.state.backend,
@@ -151,8 +161,8 @@ export default {
         this.componentKey = this.componentKey + 1;
       });
     },
-    onUploadSucess() {
-        this.dialogText = 'Your applet is successfully updated';
+    onUploadSucess(msg) {
+        this.dialogText = msg || 'Your applet is successfully updated';
         this.dialogTitle = 'Upload Received';
         this.dialog = true;
     },
