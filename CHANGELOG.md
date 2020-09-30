@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.17] = 2020-09-22
+### Changed
+- Remove duplicated labels in the y-axis of the token chart
+- Remove negative values when all the tokens are posive
+- Show the current day in the x-axis labels
+
+## [0.3.16] = 2020-09-20
+### Changed
+- Implemented transferring ownership
+
+## [0.3.15] = 2020-09-17
+### Changed
+- Embeded monthly eventType
+- Added `Only scheduled day` option
+- Map MRN to Profile ID in reviewer invites.
+
+## [0.3.14] = 2020-09-16
+### Changed
+- Disallowed to save empty roles
+- Disallowed coordinators to editor organizer roles
+- Fixed user roles on ActiveUserTable
+- Fixed Backend API url issue
+- Removed unnecessary elements
+
 ## [0.3.13] = 2020-09-23
 
 ### Changed
@@ -55,6 +79,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.5] = 2020-09-14
 
+## [0.3.6] = 2020-09-14
+### Changed
+- Updated the event data to be included `activity_id`
+
+## [0.3.5] = 2020-09-14
 ### Changed
 
 - Implemented duplicating existing applet

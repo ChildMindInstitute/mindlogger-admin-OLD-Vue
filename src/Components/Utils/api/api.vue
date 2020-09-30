@@ -70,6 +70,18 @@ const switchAccount = ({ apiHost, token, accountId }) =>
     },
   });
 
+const transferOwnership = ({ apiHost, token, appletId, email }) =>
+  axios({
+    method: "put",
+    url: `${apiHost}/applet/${appletId}/transferOwnerShip`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: {
+      email,
+    },
+  });
+
 const setAccountName = ({ apiHost, token, accountName }) =>
   axios({
     method: "put",
@@ -360,6 +372,7 @@ export default {
   deleteUserFromRole,
   updateUserRoles,
   getAppletUsers,
+  transferOwnership,
   postAppletInvitation,
   revokeAppletUser,
   deleteApplet,

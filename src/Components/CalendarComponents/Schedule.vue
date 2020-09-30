@@ -48,6 +48,12 @@
           />
 
           <v-checkbox
+            v-model="scheduledDay"
+            @change="handleScheduledDay"
+            label="Only scheduled day"
+          />
+
+          <v-checkbox
             v-model="scheduledTimeout.allow"
             @change="handleAccess"
             label="Timeout"
@@ -115,9 +121,9 @@
             Timeout invalid: timeout should be non-zero.
           </div>
           <v-checkbox
-                  v-model="oneTimeCompletion"
-                  @change="handleOneTimeCompletion"
-                  label="One-time completion"
+            v-model="oneTimeCompletion"
+            @change="handleOneTimeCompletion"
+            label="One-time completion"
           />
 
           <v-checkbox
@@ -256,6 +262,11 @@ export default {
       required: false,
     },
 
+    onlyScheduledDay: {
+      type: Boolean,
+      required: false,
+    },
+
     completion: {
       required: false,
     },
@@ -306,6 +317,7 @@ export default {
     return {
       oneTimeCompletion: this.completion,
       scheduledTimeout: this.timeout,
+      scheduledDay: this.onlyScheduledDay,
       scheduledTimeoutDecimal: this.timeout,
       scheduledExtendedTime: this.extendedTime,
       scheduledExtendedTimeDecimal: this.extendedTime,
@@ -347,6 +359,10 @@ export default {
     handleAccess() {
       this.$emit('onTimeout', this.scheduledTimeout);
 
+    },
+
+    handleScheduledDay() {
+      this.$emit('onScheduledDay', this.scheduledDay);
     },
 
     handleOneTimeCompletion() {
