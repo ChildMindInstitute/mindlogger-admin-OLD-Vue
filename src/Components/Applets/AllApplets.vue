@@ -301,7 +301,8 @@ export default {
           }
         })
         .then(resp => {
-          this.$emit("refreshAppletList");
+          this.appletDuplicateDialog.visibility = false;
+          this.$emit('appletUploadSuccessful', resp.data.message);
         });
     },
   },
