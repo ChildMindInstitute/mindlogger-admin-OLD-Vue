@@ -43,7 +43,7 @@ export default {
   data: () => ({
     email: "",
     emailRules: [
-      (v) => !!v || "E-mail is required",
+      (v) => !!v || $t("emailRequired"),
       (v) => /.+@.+\..+/.test(v) || $t("emailMustBeValid"),
     ],
     error: "",

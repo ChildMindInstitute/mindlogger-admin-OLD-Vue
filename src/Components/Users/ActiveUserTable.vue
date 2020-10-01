@@ -26,14 +26,14 @@
             multiple
             chips
             :item-disabled="['editor']"
-            hint="What are the target roles"
+            :hint="$t('targetRoles')"
             persistent-hint
           />
           <v-combobox
             v-if="currentUserRoles.includes('reviewer')"
             v-model="currentUserList"
-            hint="Add or remove users for reviewer role"
-            label="User list"
+            :hint="$t('addRemoveReviewer')"
+            :label="$t('userList')"
             multiple
             small-chips
             required
@@ -54,7 +54,7 @@
     <v-dialog v-model="passwordDialog" persistent max-width="450px">
       <template v-slot:activator="{ on, attrs }">
         <v-btn color="primary" dark v-bind="attrs" v-on="on">
-          Open Dialog
+          {{ $t("openDialog") }}
         </v-btn>
       </template>
       <v-card>
@@ -67,7 +67,7 @@
               <v-col cols="12">
                 <v-text-field
                   v-model="password"
-                  label="Confirm password"
+                  :label="$t('confirmPassword')"
                   type="password"
                   required
                 />
@@ -84,7 +84,7 @@
             {{ $t("close") }}
           </v-btn>
           <v-btn color="blue darken-1" text @click="onConfirmPassword()">
-            Confirm
+            {{ $t("confirm") }}
           </v-btn>
         </v-card-actions>
       </v-card>

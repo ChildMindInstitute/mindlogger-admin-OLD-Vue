@@ -5,7 +5,7 @@
     <v-dialog v-model="dialog" width="500">
       <v-card>
         <v-card-title class="headline grey lighten-2" primary-title>
-          Saving Schedule
+          {{ $t("savingSchedule") }}
         </v-card-title>
 
         <v-card-text v-if="loading">
@@ -15,7 +15,7 @@
         </v-card-text>
 
         <v-card-text v-else-if="saveSuccess">
-          Please wait several minutes.
+          {{ $t("waitSeveralMinutes") }}
         </v-card-text>
 
         <v-card-text v-else-if="saveError">
@@ -27,7 +27,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn color="primary" text @click="dialog = false">
-            Close
+            {{ $t("close") }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -49,7 +49,7 @@
               {{ $t("clear") }}
             </v-btn>
           </template>
-          <span>Clear all scheduled activities</span>
+          <span>{{ $t("clearActivities") }}</span>
         </v-tooltip>
 
         <v-tooltip top>
@@ -58,7 +58,7 @@
               {{ $t("save") }}
             </v-btn>
           </template>
-          <span>Save all scheduled activities</span>
+          <span>{{ $t("saveActivities") }}</span>
         </v-tooltip>
       </div>
     </template>

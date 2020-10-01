@@ -1,7 +1,9 @@
 <template>
   <v-container fluid>
     <Loading v-if="status === 'loading'" />
-    <div v-else-if="status === 'error'" class="error">{{ error.message }}</div>
+    <div v-else-if="status === 'error'" class="error">
+      {{ error.message }}
+    </div>
     <AllApplets
       v-else
       :applets="allApplets"
@@ -11,12 +13,16 @@
     />
     <v-dialog v-model="dialog">
       <v-card>
-        <v-card-title class="headline grey lighten-2" primary-title>Upload Received</v-card-title>
+        <v-card-title class="headline grey lighten-2" primary-title>
+          {{ $t("uploadReceived") }}
+        </v-card-title>
         <v-card-text>{{ dialogText }}</v-card-text>
         <v-divider />
         <v-card-actions>
           <v-spacer />
-          <v-btn color="primary" text @click="dialog = false">Dismiss</v-btn>
+          <v-btn color="primary" text @click="dialog = false">
+            {{ $t("dismiss") }}
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -38,7 +44,7 @@ export default {
   name: "Applet",
   components: {
     AllApplets,
-    Loading
+    Loading,
   },
   data: () => ({
     sampleProtocols: config.protocols,
@@ -46,7 +52,7 @@ export default {
     accountsLoadingStatus: "loading",
     error: {},
     dialog: false,
-    dialogText: ""
+    dialogText: "",
   }),
   computed: {
     currentAccount() {
@@ -60,7 +66,7 @@ export default {
     },
     accountApplets() {
       return this.$store.state.currentApplets;
-    }
+    },
   },
   watch: {
     currentAccount(newAccount, oldAccount) {
@@ -68,7 +74,7 @@ export default {
     },
     accountApplets(newApplets, oldApplets) {
       this.getApplets();
-    }
+    },
   },
   mounted() {
     this.getAccountData();
@@ -84,12 +90,12 @@ export default {
         .switchAccount({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
-          accountId
+          accountId,
         })
-        .then(resp => {
+        .then((resp) => {
           this.$store.commit("switchAccount", resp.data.account);
         })
-        .catch(err => {
+        .catch((err) => {
           console.warn(err);
         });
     },
@@ -103,27 +109,27 @@ export default {
         return;
       }
 
-      const requests = this.accountApplets.map(account => {
+      const requests = this.accountApplets.map((account) => {
         return new Promise((resolve, reject) => {
           api
             .getApplet({
               apiHost: this.$store.state.backend,
               token: this.$store.state.auth.authToken.token,
               allEvent: account.allEvent,
-              id: account.appletId
+              id: account.appletId,
             })
-            .then(response => {
+            .then((response) => {
               resolve(response.data);
             });
         });
       });
       Promise.all(requests)
-        .then(responses => {
+        .then((responses) => {
           this.$store.commit("setAllApplets", responses);
           this.$store.commit("updateAllApplets");
           this.status = "ready";
         })
-        .catch(e => {
+        .catch((e) => {
           this.status = "error";
         });
     },
@@ -136,7 +142,7 @@ export default {
       this.dialogText =
         "There was an error uploading your applet. Please try again or report the issue.";
       this.dialog = true;
-    }
-  }
+    },
+  },
 };
 </script>

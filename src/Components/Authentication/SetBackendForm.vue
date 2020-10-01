@@ -1,16 +1,12 @@
 <template>
   <div>
     <v-card class="elevation-12">
-      <v-toolbar
-        color="primary"
-        dark
-        flat
-      >
-        <v-toolbar-title>Set Server</v-toolbar-title>
+      <v-toolbar color="primary" dark flat>
+        <v-toolbar-title>{{ $t("setServer") }}</v-toolbar-title>
       </v-toolbar>
       <v-card-text>
         <p>
-          Select your server. This server will hold your applet configuration settings and all the data you collect.
+          {{ $t("selectYourServer") }}
         </p>
         <v-form>
           <v-combobox
@@ -23,11 +19,8 @@
           />
         </v-form>
 
-        <v-btn
-          color="primary"
-          @click="onOkay"
-        >
-          Okay
+        <v-btn color="primary" @click="onOkay">
+          {{ $t("okay") }}
         </v-btn>
       </v-card-text>
     </v-card>
@@ -35,29 +28,41 @@
 </template>
 
 <style scoped>
-  .error {
-    color: 'red';
-  }
+.error {
+  color: "red";
+}
 
-  .v-btn {
-    margin: 6px 8px;
-  }
+.v-btn {
+  margin: 6px 8px;
+}
 </style>
 
 <script>
-import api from '../Utils/api/api.vue';
-import _ from 'lodash';
+import api from "../Utils/api/api.vue";
+import _ from "lodash";
 
 export default {
   data: () => ({
-    backendServer: '',
+    backendServer: "",
     backendServers: [
-      {'name': 'MindLogger (api.mindlogger.org)', 'url': 'https://api.mindlogger.org/api/v1'},
-      {'name': 'MindLogger development (dev.mindlogger.org)', 'url': 'https://dev.mindlogger.org/api/v1'},
-      {'name': 'MindLogger testing (testing.mindlogger.org)', 'url': 'https://testing.mindlogger.org/api/v1'},
-      {'name': 'localhost (localhost:8080)', 'url': 'http://localhost:8080/api/v1'},
-      {'name': 'other', 'url': ''}
-    ]
+      {
+        name: "MindLogger (api.mindlogger.org)",
+        url: "https://api.mindlogger.org/api/v1",
+      },
+      {
+        name: "MindLogger development (dev.mindlogger.org)",
+        url: "https://dev.mindlogger.org/api/v1",
+      },
+      {
+        name: "MindLogger testing (testing.mindlogger.org)",
+        url: "https://testing.mindlogger.org/api/v1",
+      },
+      {
+        name: "localhost (localhost:8080)",
+        url: "http://localhost:8080/api/v1",
+      },
+      { name: "other", url: "" },
+    ],
   }),
 
   mounted() {
@@ -68,17 +73,19 @@ export default {
 
   methods: {
     setBackend() {
-      if (typeof this.backendServer === 'string' || this.backendServer instanceof String) {
-        this.$store.commit('setBackend', this.backendServer.trim());
+      if (
+        typeof this.backendServer === "string" ||
+        this.backendServer instanceof String
+      ) {
+        this.$store.commit("setBackend", this.backendServer.trim());
       } else {
-        this.$store.commit('setBackend', this.backendServer.url.trim());
+        this.$store.commit("setBackend", this.backendServer.url.trim());
       }
     },
     onOkay() {
       this.setBackend();
-      this.$emit('setBackend', null);
+      this.$emit("setBackend", null);
     },
-  }
-
+  },
 };
 </script>

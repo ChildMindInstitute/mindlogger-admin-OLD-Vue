@@ -5,7 +5,7 @@
       align-center
       column
     >
-      <h1>You have no active applets.</h1>
+      <h1>{{ $t("noActiveApplets") }}</h1>
     </v-layout>
     <v-layout v-else row wrap justify-center>
       <AppletCard
@@ -33,7 +33,7 @@
           <v-icon>mdi-plus</v-icon>
         </v-btn>
       </template>
-      <span>Create or upload a new applet</span>
+      <span>{{ $t("createUploadApplet") }}</span>
     </v-tooltip>
 
     <v-dialog v-model="dialog" max-width="800">

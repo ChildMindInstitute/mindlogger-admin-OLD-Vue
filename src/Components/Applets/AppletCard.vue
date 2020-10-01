@@ -45,10 +45,10 @@
                   v-on="on"
                 >
                   <span v-if="status === 'ready'">{{ $t("refresh") }}</span>
-                  <span v-else>Refreshing..</span>
+                  <span v-else>{{ $t("refreshing") }}..</span>
                 </v-btn>
               </template>
-              <span>Refreshing applets will take several minutes</span>
+              <span>{{ $t("refreshingApplets") }}</span>
             </v-tooltip>
           </div>
           <div>
@@ -63,20 +63,11 @@
                   {{ $t("delete") }}
                 </v-btn>
               </template>
-              <span>Permanantly disable this applet</span>
+              <span>{{ $t("permanantlyDisable") }}</span>
             </v-tooltip>
           </div>
           <div>
             <v-menu offset-x>
-              <!-- <router-link
-                :to="{ name: 'Builder', params: { applet: applet } }"
-              >
-                <v-list>
-                  <v-list-item>
-                    <v-list-item-title>Duplicate</v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </router-link> -->
               <template v-slot:activator="{ on }">
                 <v-btn
                   text
@@ -104,7 +95,7 @@
                   @click="onViewGeneralCalendar"
                 >
                   <v-list-item-title>
-                    {{ $t("viewCalendar") }}
+                    {{ $t("generalCalendar") }}
                   </v-list-item-title>
                 </v-list-item>
               </v-list>
@@ -116,7 +107,9 @@
           >
             <v-list>
               <v-list-item>
-                <v-list-item-title>Duplicate</v-list-item-title>
+                <v-list-item-title>
+                  {{ $t("duplicate") }}
+                </v-list-item-title>
               </v-list-item>
             </v-list>
           </router-link>

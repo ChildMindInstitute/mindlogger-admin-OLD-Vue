@@ -46,14 +46,14 @@ export default {
           resizable: true,
         },
         {
-          headerName: "First Name",
+          headerName: $t("firstName"),
           field: "firstName",
           sortable: true,
           filter: true,
           resizable: true,
         },
         {
-          headerName: "Last Name",
+          headerName: $t("lastName"),
           field: "lastName",
           sortable: true,
           filter: true,

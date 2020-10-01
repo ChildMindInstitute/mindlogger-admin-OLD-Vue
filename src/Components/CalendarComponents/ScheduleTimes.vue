@@ -79,11 +79,11 @@ export default {
         { text: singular ? this.labels.day : this.labels.days, value: "days" },
         {
           text: singular ? this.labels.week : this.labels.weeks,
-          value: "weeks",
+          value: $t("weeks"),
         },
         {
           text: singular ? this.labels.month : this.labels.months,
-          value: "months",
+          value: $t("months"),
         },
       ];
       return this.allDay ? allDay : duringDay.concat(allDay);

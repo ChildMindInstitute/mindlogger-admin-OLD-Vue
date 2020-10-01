@@ -46,7 +46,7 @@
             <v-select
               v-model="currentLanguage"
               :items="languages"
-              label="Select language"
+              :label="$t('selectLanguage')"
               item-text="label"
               item-value="value"
               hide-details
@@ -85,7 +85,7 @@ export default {
     valid: true,
     email: "",
     emailRules: [
-      (v) => !!v || "E-mail is required",
+      (v) => !!v || $t("emailRequired"),
       (v) => /.+@.+\..+/.test(v) || $t("emailMustBeValid"),
     ],
     password: "",

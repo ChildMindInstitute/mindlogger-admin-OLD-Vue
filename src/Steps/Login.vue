@@ -24,7 +24,7 @@
       <v-snackbar v-model="snackAlert" :color="color" :timeout="timeout">
         {{ text }}
         <v-btn color="white" text @click="snackAlert = false">
-          Close
+          {{ $t("close") }}
         </v-btn>
       </v-snackbar>
     </v-layout>

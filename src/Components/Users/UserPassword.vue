@@ -14,7 +14,7 @@
           />
 
           <v-btn color="primary" @click="onClickSubmitPassword">
-            Submit
+            {{ $t("submit") }}
           </v-btn>
         </template>
         <template v-else>
@@ -22,7 +22,7 @@
             {{ error }}
           </div>
           <v-btn color="primary" @click="onClickRemoveError">
-            Close
+            {{ $t("close") }}
           </v-btn>
         </template>
       </v-card-text>

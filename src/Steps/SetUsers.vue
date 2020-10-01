@@ -28,7 +28,7 @@
             <v-icon>mdi-export-variant</v-icon>
           </v-btn>
         </template>
-        <span>Export user's data</span>
+        <span>{{ $t("exportUsersData") }}</span>
       </v-tooltip>
 
       <!-- CALENDAR BUTTON -->
@@ -38,7 +38,7 @@
             <v-icon>mdi-calendar</v-icon>
           </v-btn>
         </template>
-        <span>View schedule for the selected users</span>
+        <span>{{ $t("viewSchedule") }}</span>
       </v-tooltip>
 
       <!-- DASHBOARD BUTTON -->
@@ -48,7 +48,7 @@
             <v-icon>mdi-chart-bar</v-icon>
           </v-btn>
         </template>
-        <span>View the applet dashboard for the selected users</span>
+        <span>{{ $t("viewAppletDashboard") }}</span>
       </v-tooltip>
     </div>
 

@@ -6,7 +6,7 @@
       </v-toolbar>
       <v-card-text>
         <p>
-          Create a new Mindlogger account at {{ $store.state.backend }}
+          {{ $t("createNewAccount") }} {{ $store.state.backend }}
           <v-btn icon style="margin: 0px;" @click="onSetBackend">
             <v-icon small color="primary">
               edit
@@ -24,14 +24,14 @@
           <v-text-field
             v-model="firstName"
             :rules="firstNameRules"
-            label="First Name"
+            :label="$t('firstName')"
             prepend-icon="mdi-account"
           />
 
           <v-text-field
             v-model="lastName"
             :rules="lastNameRules"
-            label="Last Name"
+            :label="$t('lastName')"
             prepend-icon="mdi-account-outline"
           />
 
@@ -76,7 +76,7 @@ export default {
   data: () => ({
     email: "",
     emailRules: [
-      (v) => !!v || "E-mail is required",
+      (v) => !!v || $t("emailRequired"),
       (v) => /.+@.+\..+/.test(v) || $t("emailMustBeValid"),
     ],
     firstName: "",

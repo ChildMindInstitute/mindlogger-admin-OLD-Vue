@@ -71,11 +71,11 @@
           </v-col>
         </v-row>
         <v-btn :disabled="!valid" color="primary" @click="submit">
-          Submit
+          {{ $t("submit") }}
         </v-btn>
 
         <v-btn color="error" @click="reset">
-          Reset Form
+          {{ $t("resetForm") }}
         </v-btn>
       </v-container>
     </v-form>
@@ -90,15 +90,15 @@ export default {
       lazy: false,
       valid: true,
       emailRules: [
-        (v) => !!v || "E-mail is required",
+        (v) => !!v || $t("emailRequired"),
         (v) =>
           /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(v) ||
           $t("emailMustBeValid"),
       ],
       firstNameRules: [(v) => !!v || $t("firstNameRequired")],
       lastNameRules: [(v) => !!v || $t("lastNameRequired")],
-      accountNameRules: [(v) => !!v || "Name is required"],
-      usersRules: [(v) => !!v || "Users are required"],
+      accountNameRules: [(v) => !!v || $t("nameRequired")],
+      usersRules: [(v) => !!v || $t("usersRequired")],
       params: {
         role: "user",
         profile: {

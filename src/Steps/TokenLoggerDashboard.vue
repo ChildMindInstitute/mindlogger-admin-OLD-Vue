@@ -40,7 +40,7 @@
     </div>
 
     <div v-else>
-      There's no data available for the selected users.
+      {{ $t("noDataAvailable") }}
     </div>
 
     <v-btn color="primary" fixed bottom left @click="$router.go(-1)">
