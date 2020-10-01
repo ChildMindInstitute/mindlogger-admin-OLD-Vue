@@ -10,7 +10,7 @@ import api from "../Components/Utils/api/api.vue";
 
 const getDefaultState = () => {
   return {
-    backend: "",
+    backend: process.env.VUE_APP_SERVER_URL,
     currentAccount: {},
     currentApplets: [],
     ownerAccount: {},
@@ -25,12 +25,16 @@ const getDefaultState = () => {
     currentUsers: [],
     userEmail: "",
     users: {},
+    currentLanguage: "",
   };
 };
 
 const state = getDefaultState();
 
 const mutations = {
+  setCurrentLanguage(state, lang) {
+    state.currentLanguage = lang;
+  },
   resetState(state) {
     Object.assign(state, getDefaultState());
   },
@@ -58,7 +62,7 @@ const mutations = {
     //   _.find(backendServers, { env: process.env.NODE_ENV }).url ||
     //   backendServers[0].url;
 
-    state.backend = process.env.VUE_APP_SERVER_URL || backend;
+    state.backend = backend || process.env.VUE_APP_SERVER_URL;
   },
   setAccounts(state, accounts) {
     state.allAccounts = accounts;
@@ -89,6 +93,32 @@ const mutations = {
       state.currentApplet = protocol;
     }
   },
+
+  setAppletPrivateKey(state, { appletId, key }) {
+    for (let applet of state.allApplets) {
+      if (applet.applet._id == appletId) {
+        if (applet.applet.encryption) {
+          applet.applet.encryption.appletPrivateKey = key;
+        }
+      }
+    }
+  },
+
+  updateAppletData(state, applet) {
+    for (let i = 0; i < state.allApplets.length; i++) {
+      if (state.allApplets[i].applet._id == applet.applet._id) {
+        state.allApplets[i] = applet;
+
+        if (
+          state.currentApplet.applet &&
+          state.currentApplet.applet._id == applet.applet._id
+        ) {
+          state.currentApplet = applet;
+        }
+      }
+    }
+  },
+
   setAllApplets(state, protocols) {
     state.allApplets = protocols;
   },
@@ -181,9 +211,7 @@ const mutations = {
   },
 };
 
-const stateCopy = (({ currentApplet, currentApplets, allApplets, ...o }) => o)(
-  state
-);
+const stateCopy = (({ allApplets, ...o }) => o)(state);
 const stateToPersist = Object.keys(stateCopy);
 
 export const storeConfig = {

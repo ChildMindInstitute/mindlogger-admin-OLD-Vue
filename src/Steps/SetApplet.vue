@@ -10,22 +10,13 @@
       @refreshAppletList="getAccountData"
       @appletUploadSuccessful="onAppletUploadSuccessful"
       @appletUploadError="onAppletUploadError"
+      @onAppletPasswordChanged="onAppletPasswordChanged"
     />
-    <v-dialog v-model="dialog">
-      <v-card>
-        <v-card-title class="headline grey lighten-2" primary-title>
-          {{ $t("uploadReceived") }}
-        </v-card-title>
-        <v-card-text>{{ dialogText }}</v-card-text>
-        <v-divider />
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="primary" text @click="dialog = false">
-            {{ $t("dismiss") }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <Information
+      v-model="dialog"
+      :dialogText="dialogText"
+      :title="dialogTitle"
+    />
   </v-container>
 </template>
 
@@ -35,6 +26,7 @@ import _ from "lodash";
 import AllApplets from "../Components/Applets/AllApplets";
 import Loading from "../Components/Utils/Loading";
 import { Parse, Day } from "dayspan";
+import Information from "../Components/Utils/dialogs/information.vue";
 import config from "../config";
 
 window.Parse = Parse;
@@ -45,6 +37,7 @@ export default {
   components: {
     AllApplets,
     Loading,
+    Information,
   },
   data: () => ({
     sampleProtocols: config.protocols,
@@ -53,6 +46,7 @@ export default {
     error: {},
     dialog: false,
     dialogText: "",
+    dialogTitle: "",
   }),
   computed: {
     currentAccount() {
@@ -133,14 +127,20 @@ export default {
           this.status = "error";
         });
     },
-    onAppletUploadSuccessful() {
-      this.dialogText =
-        "The applet is being created. Please check back in several mintutes to see it.";
+    onAppletUploadSuccessful(message) {
+      this.dialogTitle = "Upload Received";
+      this.dialogText = message;
       this.dialog = true;
     },
     onAppletUploadError() {
+      this.dialogTitle = "Upload Error";
       this.dialogText =
         "There was an error uploading your applet. Please try again or report the issue.";
+      this.dialog = true;
+    },
+    onAppletPasswordChanged() {
+      this.dialogText = "Applet password is updated successfully.";
+      this.dialogTitle = "Applet Encryption Update";
       this.dialog = true;
     },
   },

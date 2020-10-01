@@ -50,12 +50,12 @@ export default {
         url: "https://api.mindlogger.org/api/v1",
       },
       {
-        name: "MindLogger development (dev.mindlogger.org)",
-        url: "https://dev.mindlogger.org/api/v1",
+        name: "MindLogger development (api-dev.mindlogger.org)",
+        url: "https://api-dev.mindlogger.org/api/v1",
       },
       {
-        name: "MindLogger testing (testing.mindlogger.org)",
-        url: "https://testing.mindlogger.org/api/v1",
+        name: "MindLogger staging (api-staging.mindlogger.org)",
+        url: "https://api-staging.mindlogger.org/api/v1",
       },
       {
         name: "localhost (localhost:8080)",

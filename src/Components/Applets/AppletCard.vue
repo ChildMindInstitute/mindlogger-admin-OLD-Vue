@@ -32,14 +32,16 @@
       </v-card-title>
       <v-card-text>{{ appletDescription }}</v-card-text>
       <v-card-actions>
-        <div class="container">
+        <div class="d-flex flex-wrap">
           <div>
             <v-tooltip top>
               <template v-slot:activator="{ on }">
                 <v-btn
                   text
                   :disabled="
-                    status !== 'ready' || !applet.roles.includes('editor')
+                    status !== 'ready' ||
+                      !applet.roles.includes('editor') ||
+                      !applet.applet.url
                   "
                   @click="refreshApplet"
                   v-on="on"
@@ -82,6 +84,12 @@
               </template>
               <v-list>
                 <v-list-item
+                  :disabled="!applet.roles.includes('owner')"
+                  @click="onTransferOwnership"
+                >
+                  <v-list-item-title>Transfer ownership</v-list-item-title>
+                </v-list-item>
+                <v-list-item
                   :disabled="
                     !applet.roles.includes('coordinator') &&
                       !applet.roles.includes('reviewer')
@@ -101,21 +109,79 @@
               </v-list>
             </v-menu>
           </div>
-          <router-link
-            v-if="isOwner || isManager || isEditor"
-            :to="{ name: 'Builder', params: { applet: applet } }"
-          >
-            <v-list>
-              <v-list-item>
-                <v-list-item-title>
+          <div>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  text
+                  :disabled="!applet.roles.includes('editor')"
+                  @click="duplicateApplet"
+                  v-on="on"
+                >
                   {{ $t("duplicate") }}
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </router-link>
+                </v-btn>
+              </template>
+              <span>Duplicate Existing Applet</span>
+            </v-tooltip>
+          </div>
+          <div>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  text
+                  :disabled="!applet.roles.includes('editor')"
+                  @click="onEditApplet"
+                  v-on="on"
+                >
+                  Edit
+                </v-btn>
+              </template>
+              <span>Edit Existing Applet</span>
+            </v-tooltip>
+          </div>
         </div>
       </v-card-actions>
     </div>
+
+    <ConfirmationDialog
+      v-model="appletEditDialog"
+      :dialogText="editDialogText"
+      :title="'Applet Edit'"
+      @onOK="editApplet"
+    />
+    <v-dialog v-model="ownershipDialog" persistent max-width="600px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Transfer Applet Ownership</span>
+        </v-card-title>
+        <v-card-text>
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                v-model="ownershipEmail"
+                class="ownershipField"
+                label="Owner Email"
+                required
+              />
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn color="blue darken-1" text @click="ownershipDialog = false">
+            {{ $t("close") }}
+          </v-btn>
+          <v-btn
+            color="blue darken-1"
+            text
+            :disabled="!emailRules.test(ownershipEmail)"
+            @click="onSubmitOwnership"
+          >
+            {{ $t("submit") }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -135,11 +201,22 @@
   width: 33%;
   text-align: center;
 }
+.ownershipField {
+  margin: 0 12px;
+}
+.container > div > * {
+  width: 100%;
+}
 </style>
 
 <script>
+import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
+
 export default {
   name: "AppletCard",
+  components: {
+    ConfirmationDialog,
+  },
   props: {
     applet: {
       type: Object,
@@ -149,6 +226,12 @@ export default {
   data: () => ({
     status: "ready",
     cardWidth: 300,
+    appletEditDialog: false,
+    editDialogText:
+      "By editing this applet that has been downloaded from Github, any changes will only store within MindLogger and will not update GitHub with those changes.",
+    ownershipDialog: false,
+    ownershipEmail: "",
+    emailRules: /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/,
   }),
   computed: {
     isOwner() {
@@ -255,16 +338,61 @@ export default {
       }
     },
     onViewUsers() {
-      this.setSelectedApplet();
-      const appletId = this.applet.applet._id.split("applet/")[1];
-      this.$router.push(`applet/${appletId}/users`);
+      if (
+        this.applet.roles.includes("owner") &&
+        !(
+          this.applet.applet.encryption &&
+          Object.keys(this.applet.applet.encryption).length
+        )
+      ) {
+        this.$emit("onUpdateAppletPassword", this.applet);
+      } else {
+        this.setSelectedApplet();
+        const appletId = this.applet.applet._id.split("applet/")[1];
+        this.$router.push(`applet/${appletId}/users`);
+      }
+    },
+    onSubmitOwnership() {
+      this.$emit("transferOwnership", {
+        email: this.ownershipEmail,
+        applet: this.applet,
+      });
+    },
+    onTransferOwnership() {
+      this.ownershipDialog = true;
     },
     onViewGeneralCalendar() {
+      if (
+        this.applet.roles.includes("owner") &&
+        !(
+          this.applet.applet.encryption &&
+          Object.keys(this.applet.applet.encryption).length
+        )
+      ) {
+        this.$emit("onUpdateAppletPassword", this.applet);
+      } else {
+        this.setSelectedApplet();
+        const appletId = this.applet.applet._id.split("applet/")[1];
+        this.$store.commit("setCurrentUsers", []);
+        this.$router.push(`applet/${appletId}/schedule`);
+      }
+    },
+    duplicateApplet() {
+      this.$emit("duplicateApplet", this.applet);
+    },
+    onEditApplet() {
+      if (this.applet.applet.url) {
+        this.appletEditDialog = true;
+      } else {
+        this.editApplet();
+      }
+    },
+    editApplet() {
       this.setSelectedApplet();
-
-      const appletId = this.applet.applet._id.split("applet/")[1];
-      this.$store.commit("setCurrentUsers", []);
-      this.$router.push(`applet/${appletId}/schedule`);
+      this.$router.push({
+        name: "Builder",
+        params: { isEditing: true },
+      });
     },
   },
 };

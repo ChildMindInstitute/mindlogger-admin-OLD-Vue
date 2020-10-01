@@ -25,8 +25,11 @@
             :label="$t('select')"
             multiple
             chips
+            :required="currentUserRoles"
             :item-disabled="['editor']"
-            :hint="$t('targetRoles')"
+            :hint="
+              currentUserRoles.length ? '' : 'At least one role is required'
+            "
             persistent-hint
           />
           <v-combobox
@@ -52,11 +55,6 @@
     </v-dialog>
 
     <v-dialog v-model="passwordDialog" persistent max-width="450px">
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn color="primary" dark v-bind="attrs" v-on="on">
-          {{ $t("openDialog") }}
-        </v-btn>
-      </template>
       <v-card>
         <v-card-title class="edit-card-title">
           <span class="headline">Are you sure?</span>
@@ -103,6 +101,7 @@ import { AgGridVue } from "@ag-grid-community/vue";
 import { AllCommunityModules } from "@ag-grid-community/all-modules";
 import BtnCellRenderer from "./BtnCellRenderer.vue";
 import api from "../Utils/api/api.vue";
+import UserRequestCellRenderer from "./UserRequestCellRenderer";
 
 export default {
   name: "ActiveUserTable",
@@ -123,9 +122,9 @@ export default {
   },
   data() {
     return {
-      userData: [],
       currentUserList: [],
       currentUserRoles: [],
+      userData: [],
       userCellData: null,
       columnDefs: null,
       frameworkComponents: null,
@@ -145,10 +144,12 @@ export default {
   },
   computed: {
     isManager() {
-      return this.$store.state.currentAccount.applets["manager"];
+      const { manager } = this.$store.state.currentAccount.applets;
+      return manager && manager.length ? true : false;
     },
     isCoordinator() {
-      return this.$store.state.currentAccount.applets["coordinator"];
+      const { coordinator } = this.$store.state.currentAccount.applets;
+      return coordinator && coordinator.length ? true : false;
     },
     computedItems() {
       return this.userRoleData.map((item) => {
@@ -158,46 +159,49 @@ export default {
         };
       });
     },
+    currentApplet() {
+      return this.$store.state.currentApplet;
+    },
   },
   beforeMount() {
-    const { isManager, isCoordinator } = this;
     this.gridOptions = {};
+    this.userData = this.users.map((user) => {
+      let roles = [];
+      if (user.roles.length === 1 && user.roles[0] === "user") {
+        roles.push("user");
+      } else if (user.roles.includes("owner")) {
+        roles.push("owner");
+      } else if (user.roles.includes("manager")) {
+        roles.push("manager");
+      } else {
+        roles = user.roles.filter((role) => role != "user");
+      }
+      return {
+        displayName: user.displayName,
+        email: user.email,
+        mrn: user.MRN,
+        _id: user._id,
+        refreshRequest:
+          user.refreshRequest && user.refreshRequest.userPublicKey
+            ? user.refreshRequest
+            : null,
+        roles,
+      };
+    });
+    const { isManager, isCoordinator } = this;
 
-    if (isManager) {
-      this.userData = this.users.map((user) => {
-        let roles = [];
-        if (user.roles.length === 1 && user.roles[0] === "user") {
-          roles.push("user");
-        } else if (user.roles.includes("owner")) {
-          roles.push("owner");
-        } else if (user.roles.includes("manager")) {
-          roles.push("manager");
-        } else {
-          roles = user.roles.filter((role) => role != "user");
-        }
-        return {
-          displayName: user.displayName,
-          email: user.email,
-          mrn: user.MRN,
-          _id: user._id,
-          roles,
-        };
-      });
-    } else {
-      this.userData = this.users.map((user) => {
-        return {
-          displayName: user.displayName,
-          email: user.email,
-          mrn: user.MRN,
-          _id: user._id,
-          roles: ["user"],
-        };
-      });
-    }
     this.columnDefs = [
       {
         headerName: "Name",
         field: "displayName",
+        sortable: true,
+        filter: true,
+        resizable: true,
+        cellStyle: { justifyContent: "center" },
+      },
+      {
+        headerName: "Institutional ID",
+        field: "mrn",
         sortable: true,
         filter: true,
         resizable: true,
@@ -235,8 +239,26 @@ export default {
       });
     }
 
+    const encryption = this.currentApplet.applet.encryption;
+    if (
+      this.currentApplet.roles.includes("manager") &&
+      encryption &&
+      encryption.appletPrime
+    ) {
+      this.columnDefs.splice(2, 0, {
+        headerName: "",
+        field: "refreshRequest",
+        maxWidth: 200,
+        cellStyle: { display: "flex", justifyContent: "center" },
+        cellRenderer: "UserRequestCellRenderer",
+        cellRendererParams: {
+          clicked: this.onReUploadResponse,
+        },
+      });
+    }
     this.frameworkComponents = {
       btnCellRenderer: BtnCellRenderer,
+      UserRequestCellRenderer,
     };
   },
   methods: {
@@ -299,7 +321,7 @@ export default {
       const response = await this.$dialog.warning({
         title: "",
         color: "#1976d2",
-        text: "Are you sure to remove this Role?",
+        text: "Are you sure to remove this user?",
         persistent: false,
         actions: {
           No: "No",
@@ -343,6 +365,10 @@ export default {
         this.currentUserList = [];
         this.editRoleDialog = true;
       }
+    },
+
+    onReUploadResponse(user) {
+      this.$emit("reUploadResponse", user);
     },
 
     /**

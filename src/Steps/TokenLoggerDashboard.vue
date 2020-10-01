@@ -19,29 +19,35 @@
       {{ status }}
     </div>
 
-    <div v-for="activity in applet.activities" v-if="applet">
-      <h4 class="activity-header">
-        {{ activity.question.en || activity.description.en }}
-      </h4>
+    <template v-for="activity in applet.activities">
+      <div v-if="applet" :key="activity._id">
+        <h4 class="activity-header">
+          {{ activity.question.en || activity.description.en }}
+        </h4>
 
-      <v-card v-for="item in activity.items" class="chart-card">
-        <header>
-          <h5>{{ item.description.en || item.label.en }}</h5>
-        </header>
+        <v-card
+          v-for="item in activity.items"
+          :key="item['_id']"
+          class="chart-card"
+        >
+          <header>
+            <h5>{{ item.description.en || item.label.en }}</h5>
+          </header>
 
-        <token-chart
-          plot-id="token-chart"
-          :minValue="item.minValue"
-          :maxValue="item.maxValue"
-          :data="item.responses"
-          :features="item.responseOptions"
-        />
-      </v-card>
-    </div>
+          <token-chart
+            plot-id="token-chart"
+            :minValue="item.minValue"
+            :maxValue="item.maxValue"
+            :data="item.responses"
+            :features="item.responseOptions"
+          />
+        </v-card>
+      </div>
 
-    <div v-else>
-      {{ $t("noDataAvailable") }}
-    </div>
+      <div v-else :key="activity._id">
+        {{ $t("noDataAvailable") }}
+      </div>
+    </template>
 
     <v-btn color="primary" fixed bottom left @click="$router.go(-1)">
       {{ $t("back") }}
@@ -164,11 +170,16 @@ export default {
 
     try {
       this.status = "Loading applet data";
-      this.applet = await Applet.fetchById(appletId, {
-        withActivities: true,
-        withResponses: true,
-        users: Array.isArray(users) ? users : [users],
-      });
+      this.applet = await Applet.fetchById(
+        appletId,
+        {
+          withActivities: true,
+          withResponses: true,
+          users: Array.isArray(users) ? users : [users],
+        },
+        this.$store.state.currentApplet.applet.encryption
+      );
+
       this.loading = false;
     } catch (error) {
       this.status = "Oops, something went wrong. We couldn't load the applet";

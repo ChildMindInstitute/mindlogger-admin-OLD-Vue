@@ -1,6 +1,10 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
+    <v-app-bar
+      app
+      color="primary"
+      dark
+    >
       <v-toolbar-title>
         {{ $t("mindloggerAdmin") }} {{ showEnvironment }}
       </v-toolbar-title>
@@ -13,7 +17,10 @@
         right
       >
         <template v-slot:activator="{ on }">
-          <v-btn icon v-on="on">
+          <v-btn
+            icon
+            v-on="on"
+          >
             <v-icon>mdi-dots-vertical</v-icon>
           </v-btn>
         </template>

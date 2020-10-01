@@ -113,6 +113,7 @@ export default {
   methods: {
     onLanguageChange() {
       this.$i18n.locale = this.currentLanguage;
+      this.$store.commit("setCurrentLanguage", this.currentLanguage);
     },
     login() {
       if (!this.$refs.form.validate()) {
