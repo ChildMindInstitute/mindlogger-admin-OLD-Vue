@@ -278,18 +278,6 @@ export default {
   }),
 
   computed: {
-    maxFromDate: {
-      cache: false,
-      get() {
-        return moment.utc(this.focusExtent[1]).substract(1, 'day');
-      },
-    },
-    minToDate: {
-      cache: false,
-      get() {
-        return moment.utc(this.focusExtent[0]).add(1, 'day');
-      },
-    },
     fromDate: {
       cache: false,
       get() {
