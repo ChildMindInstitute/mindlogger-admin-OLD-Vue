@@ -62,13 +62,13 @@ export default {
     };
   },
   async beforeMount() {
-    const apiHost = this.$store.state.backend;
-    const token = this.$store.state.auth.authToken.token;
-    const appletId = this.currentApplet.applet._id.split('/')[1];
-
     this.versions = [];
 
     if (this.$route.params.isEditing) {
+      const apiHost = this.$store.state.backend;
+      const token = this.$store.state.auth.authToken.token;
+      const appletId = this.currentApplet.applet._id.split('/')[1];
+
       this.isEditing = true;
 
       const resp = await api.getAppletVersions({ apiHost, token, appletId });
