@@ -1,8 +1,8 @@
 <template>
   <v-content>
-    <About v-if="aboutOpen" />
+    <About v-show="aboutOpen" />
     <AppletSchemaBuilder
-      v-else
+      v-show="!aboutOpen"
       exportButton
       :initialData="(isEditing || null) && currentApplet"
       :key="componentKey"
@@ -12,6 +12,7 @@
       @updateProtocol="onUpdateProtocol"
       @prepareApplet="onPrepareApplet"
       @onUploadError="onUploadError"
+      @setLoading="setLoading"
     />
 
     <Information
@@ -153,7 +154,6 @@ export default {
       const appletId = this.currentApplet.applet._id.split('/')[1];
       const token = this.$store.state.auth.authToken.token;
       const apiHost = this.$store.state.backend;
-
       api.prepareApplet({
         apiHost, token, data: protocol, appletId
       }).then(resp => {
@@ -188,6 +188,9 @@ export default {
         appletId,
         versions
       })
+    },
+    setLoading(isLoading) {
+      this.aboutOpen = isLoading;
     }
   }
 };
