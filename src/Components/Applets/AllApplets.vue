@@ -223,10 +223,10 @@ export default {
           email: email
         })
         .then((resp) => {
-          this.$emit("refreshAppletList");
+          this.$emit("onOwnerShipInviteSuccessful", email);
         })
         .catch((err) => {
-          console.log(err);
+          this.$emit("onOwnerShipInviteError");
         })
     },
 
