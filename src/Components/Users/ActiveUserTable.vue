@@ -152,8 +152,7 @@ export default {
       return this.$store.state.currentApplet.roles.includes('manager');
     },
     isCoordinator() {
-      const { coordinator } = this.$store.state.currentAccount.applets;
-      return coordinator && coordinator.length ? true : false;
+      return this.$store.state.currentApplet.roles.includes('coordinator');
     },
     computedItems() {
       return this.userRoleData.map((item) => {
