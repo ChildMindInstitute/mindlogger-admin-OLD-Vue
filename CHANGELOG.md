@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.24] = 2020-10-05
+### Changed
+- Fix labels for the Y axis in the token chart.
+- Improve the tooltip to include a detail of every behavior and cumulative value.
+
 ## [0.3.16] = 2020-09-22
 ### Changed
 - Remove duplicated labels in the y-axis of the token chart
