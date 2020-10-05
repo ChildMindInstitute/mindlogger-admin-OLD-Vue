@@ -1,33 +1,19 @@
 <template>
   <div>
     <v-card class="elevation-12">
-      <v-toolbar
-        color="primary"
-        dark
-        flat
-      >
+      <v-toolbar color="primary" dark flat>
         <v-toolbar-title>Create Account</v-toolbar-title>
       </v-toolbar>
       <v-card-text>
         <p>
           Create a new Mindlogger account at {{ $store.state.backend }}
-          <v-btn
-            icon
-            style="margin: 0px;"
-            @click="onSetBackend"
-          >
-            <v-icon
-              small
-              color="primary"
-            >
+          <v-btn icon style="margin: 0px;" @click="onSetBackend">
+            <v-icon small color="primary">
               edit
             </v-icon>
           </v-btn>
         </p>
-        <v-form
-          ref="form"
-          lazy-validation
-        >
+        <v-form ref="form" lazy-validation>
           <v-text-field
             v-model="email"
             :rules="emailRules"
@@ -41,14 +27,14 @@
             label="First Name"
             prepend-icon="mdi-account"
           />
-          
+
           <v-text-field
             v-model="lastName"
             :rules="lastNameRules"
             label="Last Name"
             prepend-icon="mdi-account-outline"
           />
-          
+
           <v-text-field
             v-model="password"
             :rules="passwordRules"
@@ -56,24 +42,14 @@
             type="password"
             prepend-icon="lock"
           />
-          <div
-            v-if="error"
-            class="error"
-          >
+          <div v-if="error" class="error">
             {{ error }}
           </div>
 
-          <v-btn
-            outlined
-            color="primary"
-            @click="onLogin"
-          >
+          <v-btn outlined color="primary" @click="onLogin">
             Login
           </v-btn>
-          <v-btn
-            color="primary"
-            @click="createAccount"
-          >
+          <v-btn color="primary" @click="createAccount">
             Create Account
           </v-btn>
         </v-form>
@@ -83,13 +59,13 @@
 </template>
 
 <style scoped>
-  .error {
-    color: 'red';
-  }
+.error {
+  color: 'red';
+}
 
-  .v-btn {
-    margin: 6px 8px;
-  }
+.v-btn {
+  margin: 6px 8px;
+}
 </style>
 
 <script>
@@ -100,28 +76,22 @@ export default {
   data: () => ({
     email: '',
     emailRules: [
-      v => !!v || 'E-mail is required',
-      v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
+      (v) => !!v || 'E-mail is required',
+      (v) => /.+@.+\..+/.test(v) || 'E-mail must be valid',
     ],
     firstName: '',
-    firstNameRules: [
-      v => !!v || 'FirstName is required',
-    ],
+    firstNameRules: [(v) => !!v || 'FirstName is required'],
     lastName: '',
-    lastNameRules: [
-      v => !!v || 'LastName is required',
-    ],
+    lastNameRules: [(v) => !!v || 'LastName is required'],
     password: '',
-    passwordRules: [
-      v => !!v || 'Password is required',
-    ],
+    passwordRules: [(v) => !!v || 'Password is required'],
     error: '',
   }),
 
   computed: {
     apiHost() {
       return this.$store.state.backend;
-    }
+    },
   },
 
   methods: {
@@ -131,27 +101,30 @@ export default {
       }
       this.error = '';
 
-      api.signUp({
-        apiHost: this.apiHost,
-        body: {
-          email: this.email,
-          firstName: this.firstName,
-          lastName: this.lastName,
-          password: this.password
-        }
-      }).then((resp) => {
-        const auth = {
-          ...resp.data,
-          user: {
-            displayName: resp.data.displayName
-          }
-        };
+      api
+        .signUp({
+          apiHost: this.apiHost,
+          body: {
+            email: this.email,
+            firstName: this.firstName,
+            lastName: this.lastName,
+            password: this.password,
+          },
+        })
+        .then((resp) => {
+          const auth = {
+            ...resp.data,
+            user: {
+              displayName: resp.data.displayName,
+            },
+          };
 
-        this.$store.commit('setAuth', {auth, email: this.email});
-        this.setAccounts();
-      }).catch((e) => {
-        this.error = e.response.data.message;
-      });
+          this.$store.commit('setAuth', { auth, email: this.email });
+          this.setAccounts();
+        })
+        .catch((e) => {
+          this.error = e.response.data.message;
+        });
     },
     setAccounts() {
       api
@@ -168,12 +141,11 @@ export default {
         });
     },
     onLogin() {
-      this.$emit('login', null)
+      this.$emit('login', null);
     },
     onSetBackend() {
       this.$emit('setBackend', null);
     },
-  }
-
+  },
 };
 </script>
