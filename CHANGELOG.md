@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add new controls for selecting the focused time range in the dashboard
 
+## [0.3.21] = 2020-10-01
+### Changed
+- update encryption info for applets created by builder
+- update dialog text after creating new applet
+
+## [0.3.20] = 2020-10-01
+### Changed
+- fixed reviewer role issue
+
 ## [0.3.19] = 2020-09-30
 ### Changed
 - Fixed duplicated definition of userData
