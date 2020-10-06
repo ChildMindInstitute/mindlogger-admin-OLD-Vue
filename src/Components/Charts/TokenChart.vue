@@ -1,5 +1,6 @@
 <template>
   <div class="TokenChart" ref="container" >
+
     <div class="legend">
       <div 
         class="legend-item" 
@@ -58,53 +59,50 @@
       </v-menu>
     </div>
 
-    <svg :id="plotId">
-      <defs>
-        <clipPath id="clip">
-          <rect
-            width="500"
-            height="300"
-          />
-        </clipPath>
-      </defs>
-
-      <g class="y-axis" />
-      <g class="x-axis" />
-      <g
-        class="chart"
-        clip-path="url(#clip)"
-      />
-
-      <g class="context-y-axis" />
-      <g class="context-x-axis" />
-      <g
-        class="context-chart"
-        clip-path="url(#clip)"
-      />
-
-      <g
+    <div class="chart-container">
+      <div 
         class="tooltip"
         style="display: none"
       >
-        <rect
-          height="25"
-          fill="white"
-          stroke="#BBB"
-          stroke-width="0.5px"
+        <div
+          v-for="feature in features"
+          :class="feature.slug" 
+          :key="feature.slug"
+        > 
+        </div>
+
+        <div class="cumulative"></div>
+      </div>
+      <svg :id="plotId">
+        <defs>
+          <clipPath id="clip">
+            <rect
+              width="500"
+              height="300"
+            />
+          </clipPath>
+        </defs>
+
+        <g class="y-axis" />
+        <g class="x-axis" />
+        <g
+          class="chart"
+          clip-path="url(#clip)"
         />
-        <text
-          dx="8px"
-          dy="1.5em"
-          font-size="12px"
-          font-weight="bold"
+
+        <g class="context-y-axis" />
+        <g class="context-x-axis" />
+        <g
+          class="context-chart"
+          clip-path="url(#clip)"
         />
-      </g>
-    </svg>
+      </svg>
+    </div>
   </div>
 </template>
 
 
-<style>
+<style lang="scss">
 .TokenChart {
   display: inline-block;
   position: relative;
@@ -156,10 +154,14 @@
   overflow: hidden;
 }
 
-.TokenChart > svg {
+.TokenChart > .chart-container {
+  position: relative;
+}
+
+.TokenChart > .chart-container > svg {
   display: block;
   overflow: visible;
-  height: 500px;
+  height: 650px;
 }
 
 .TokenChart > svg .selection {
@@ -204,6 +206,29 @@
 
 .TokenChart .tooltip {
   z-index: 9999;
+  display: flex;
+  flex-direction: column-reverse;
+  width: fit-content;
+  position: absolute;
+  background: white;
+  border: 2px solid #e6e6e6;
+  box-shadow: 2px 5px 15px 0px rgba(black, 0.1);
+
+  * {
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+    padding: 8px 16px;
+    width: 100%;
+    box-sizing: border-box;
+
+    &:not(:first-of-type) {
+      border-bottom: 1px solid #eee;
+    }
+  }
 }
 
 .TokenChart .toDate,
@@ -216,6 +241,7 @@
 <script>
 import * as d3 from 'd3';
 import * as moment from 'moment';
+import slugify from '../../core/slugify';
 import { DaySpan, Day } from 'dayspan';
 
 
@@ -224,7 +250,7 @@ const NOW = new Date();
 const TODAY = new Date(Date.UTC(
   NOW.getFullYear(),
   NOW.getMonth(),
-  NOW.getDate(),
+  NOW.getDate() + 1,
   0,
   0,
   0,
@@ -260,24 +286,16 @@ export default {
       min: 0,
       max: 0,
     },
-    cummulativeExtent: {
-      min: 0,
-      max: 0,
-    },
     focusMargin: {
       top: 40,
       right: 50,
-      bottom: 130,
+      bottom: 180,
       left: 30,
     },
 
     contextMargin: {
-      top: 350,
-      bottom: 0,
-    },
-  }),
-
-  computed: {
+      top: 500,
+      bottom: 30,
     fromDate: {
       cache: false,
       get() {
@@ -293,6 +311,10 @@ export default {
     today() {
       return moment()
     },
+  },
+
+  created() {
+    this.features.forEach(feat => feat.slug = slugify(feat.name.en));
   },
 
   /**
@@ -434,43 +456,16 @@ export default {
 
     computeValueExtent() {
       let cummulative;
-      let positive;
-      let negative;
-      let dataPoint;
-      let feature;
       let value;
 
-      for (let i = 0; i < this.data.length; i++) {
-        positive = 0; 
-        negative = 0;
-        dataPoint = this.data[i];
+      for (let i = 0; i < this.features.length; i++) {
+        value = this.features[i].value;
 
-        for (let j = 0; j < this.features.length; j++) {
-          feature = this.features[j].name.en;
-          value = dataPoint[feature];
 
-          if (value === undefined) continue;
-
-          if (value < 0) {
-            negative += value;
-          } else {
-            positive += value;
-          }
-        }
-
-        if (positive > this.divergingExtent.max) {
-          this.divergingExtent.max = positive;
-        }
-
-        if (negative < this.divergingExtent.min) {
-          this.divergingExtent.min = negative;
-        }
-
-        if (dataPoint.cummulative < this.cummulativeExtent.min) {
-          this.cummulativeExtent.min = dataPoint.cummulative;
-        }
-        if (dataPoint.cummulative > this.cummulativeExtent.max) {
-          this.cummulativeExtent.max = dataPoint.cummulative;
+        if (value < 0) {
+          this.divergingExtent.min += value;
+        } else {
+          this.divergingExtent.max += value;
         }
       }
 
@@ -486,8 +481,8 @@ export default {
     resize() {
       const dimensions = this.$refs.container.getBoundingClientRect();
       this.width = dimensions.width - this.focusMargin.left - this.focusMargin.right;
-      this.focusHeight = 450 - this.focusMargin.top - this.focusMargin.bottom;
-      this.contextHeight = 450 - this.contextMargin.top - this.contextMargin.bottom;
+      this.focusHeight = 650 - this.focusMargin.top - this.focusMargin.bottom;
+      this.contextHeight = 650 - this.contextMargin.top - this.contextMargin.bottom;
 
       // Set dimensions.
       this.svg
@@ -562,6 +557,7 @@ export default {
         .axisBottom()
         .scale(this.x)
         .tickSize(this.focusHeight)  // Height of the tick line.
+        .ticks(d3.timeDay)
         .tickFormat(d => moment.utc(d).format('MMM D'));
       const contextXAxis = d3
         .axisBottom()
@@ -569,18 +565,20 @@ export default {
         .ticks(30)
         .tickSize(this.contextHeight)  // Height of the tick line.
         .tickFormat(d => moment.utc(d).format('M/D'));
+      const yAxisTicks = this.y.ticks().filter(Number.isInteger);
       const yAxis = d3
         .axisLeft()
         .scale(this.y)
-        .ticks(Math.abs(this.divergingExtent.min) + this.divergingExtent.max + 1)
+        .tickValues(yAxisTicks)
         .tickSize(-this.width - focusBarWidth)  // Width of the tick line.
         .ticks(this.divergingExtent.max)
         .tickFormat(d3.format('d'));
+      const contextYAxisTicks = this.contextY.ticks().filter(Number.isInteger);
       const contextYAxis = d3
         .axisLeft()
+        .tickValues(contextYAxisTicks)
         .scale(this.contextY)
         .tickSize(-this.width - focusBarWidth) // Width of the tick line.
-        .ticks(Math.abs(this.divergingExtent.min) + this.divergingExtent.max + 1)
         .tickFormat(d3.format('d'));
 
       // Append the axes.
@@ -638,13 +636,13 @@ export default {
      * @return {void}
      */
     drawFocusChart() {
-      const { svg, x, y, data, features } = this;
+      const { svg, x, y, data, focusMargin, features } = this;
       const barWidth = this.focusBarWidth();
       const stack = d3.stack()
         .keys(features.map(f => f.name.en))
         .offset(d3.stackOffsetDiverging);
       const layers = stack(data);
-      const tooltip = svg.select('.tooltip');
+      const tooltip = document.querySelector('.TokenChart .tooltip');
 
       svg
         .select('.chart')
@@ -674,7 +672,7 @@ export default {
         .join('rect')
 
         // Set the bar position and dimension.
-        .attr('x', d => x(d.data.date))
+        .attr('x', d => x(d.data.date) + barWidth/2)
         .attr('width', s => barWidth)
         .attr('y', d => y(d[1]))
         .attr('height', d => {
@@ -682,24 +680,40 @@ export default {
         })
 
         // Tooltip
-        .on('mouseover', () => tooltip.style('display', null))
-        .on('mouseout', () => tooltip.style('display', 'none'))
+        .on('mouseover', () => tooltip.style.display = 'flex')
+        .on('mouseout', () => tooltip.style.display = 'none')
         .on('mousemove', function(d) {
           const el = d3.select(this);
-          const x = d3.mouse(d3.event.currentTarget)[0];
-          const y = d3.mouse(d3.event.currentTarget)[1] - 30;
+          const xCoords = x(d.data.date) + barWidth * 1.8;
+          const yCoords = y(d.data.positive);
+          const padding = 8;
+          const cumulativeLabel = 27;
           const date = d.data.date.toLocaleDateString(
             'default',
             { day: 'numeric', month: 'short' },
           );
 
-          tooltip.attr('transform', `translate(${x}, ${y})`);
-          const text = tooltip.select('text');
-          text.text(`${d.key}: ${d[1] - d[0]} `);
+          tooltip.style.left = xCoords + 'px'; 
+          tooltip.style.top = (yCoords - padding - cumulativeLabel) + 'px';
 
-          tooltip
-            .select('rect')
-            .attr('width', text.node().getBoundingClientRect().width + 16);
+          for (let i = 0; i < features.length; i++) {
+            const text = tooltip.querySelector(`.${features[i].slug}`)
+            const name = features[i].name.en;
+            const value = d.data[name];
+
+            if (!value) {
+              text.style.display = 'none';
+              continue;
+            }
+            
+            text.innerText = `${name}: ${value}`;
+            text.style.top = y(0) - y(value) + 'px';
+            text.style.height = y(0) - y(value) + 'px';
+            text.style.display = 'flex';
+          }
+
+          const text = tooltip.querySelector(`.cumulative`)
+          text.innerText = `Cumulative: ${d.data.cummulative}`;
         });
     },
 
