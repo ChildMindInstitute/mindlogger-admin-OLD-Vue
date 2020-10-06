@@ -296,6 +296,9 @@ export default {
     contextMargin: {
       top: 500,
       bottom: 30,
+    },
+  }),
+  computed: {
     fromDate: {
       cache: false,
       get() {
