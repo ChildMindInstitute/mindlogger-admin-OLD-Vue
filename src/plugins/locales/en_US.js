@@ -6,7 +6,7 @@ export default {
   resetPassword: 'Reset Password',
   forgotPassword: 'Forgot Password',
   resetEmailSent: 'Reset email has been sent',
-  mindloggerAdmin: 'MindLogger Admin',
+  mindloggersAdmin: 'MindLogger Admin',
   logIntoAccount: 'Log into your MindLogger account',
   email: 'Email',
   createAccount: 'Create Account',

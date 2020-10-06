@@ -28,18 +28,18 @@
 </template>
 
 <script>
-import Components from "applet-schema-builder";
-import About from "./AboutBuilder";
-import PackageJson from "../../../package.json";
-import api from "../Utils/api/api.vue";
-import { cloneDeep } from "lodash";
+import Components from 'applet-schema-builder';
+import About from './AboutBuilder';
+import PackageJson from '../../../package.json';
+import api from '../Utils/api/api.vue';
+import { cloneDeep } from 'lodash';
 
-import encryption from "../Utils/encryption/encryption.vue";
-import AppletPassword from "../Utils/dialogs/AppletPassword";
-import Information from "../Utils/dialogs/information";
+import encryption from '../Utils/encryption/encryption.vue';
+import AppletPassword from '../Utils/dialogs/AppletPassword';
+import Information from '../Utils/dialogs/information';
 
 export default {
-  name: "Builder",
+  name: 'Builder',
   components: {
     ...Components,
     About,
@@ -52,8 +52,8 @@ export default {
       aboutOpen: false,
       package: PackageJson,
       dialog: false,
-      dialogText: "",
-      dialogTitle: "",
+      dialogText: '',
+      dialogTitle: '',
       appletPasswordDialog: false,
       newApplet: {},
       isEditing: false,
@@ -69,7 +69,7 @@ export default {
   async beforeMount() {
     const apiHost = this.$store.state.backend;
     const token = this.$store.state.auth.authToken.token;
-    const appletId = this.currentApplet.applet._id.split("/")[1];
+    const appletId = this.currentApplet.applet._id.split('/')[1];
 
     this.versions = [];
 
@@ -90,12 +90,25 @@ export default {
       this.appletPasswordDialog = true;
     },
     addNewApplet(appletPassword) {
-      const protocol = new FormData();
-      protocol.set("protocol", JSON.stringify(this.newApplet || {}));
+      const form = new FormData();
+      form.set('protocol', JSON.stringify(this.newApplet || {}));
+
+      const encryptionInfo = encryption.getAppletEncryptionInfo({
+        appletPassword: appletPassword,
+        accountId: this.$store.state.currentAccount.accountId,
+      });
+      form.set(
+        'encryption',
+        JSON.stringify({
+          appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
+          appletPrime: Array.from(encryptionInfo.getPrime()),
+          base: Array.from(encryptionInfo.getGenerator()),
+        })
+      );
 
       api
         .createApplet({
-          data: protocol,
+          data: form,
           email: this.$store.state.userEmail,
           token: this.$store.state.auth.authToken.token,
           apiHost: this.$store.state.backend,
@@ -110,9 +123,9 @@ export default {
     },
     onUpdateProtocol(updateData) {
       const protocol = new FormData();
-      protocol.set("protocol", JSON.stringify(updateData || {}));
+      protocol.set('protocol', JSON.stringify(updateData || {}));
 
-      const appletId = this.currentApplet.applet._id.split("/")[1];
+      const appletId = this.currentApplet.applet._id.split('/')[1];
       const token = this.$store.state.auth.authToken.token;
       const apiHost = this.$store.state.backend;
       api
@@ -123,7 +136,7 @@ export default {
           apiHost,
         })
         .then((resp) => {
-          this.$store.commit("updateAppletData", {
+          this.$store.commit('updateAppletData', {
             ...resp.data,
             roles: this.currentApplet.roles,
           });
@@ -141,9 +154,9 @@ export default {
     },
     onPrepareApplet(data) {
       const protocol = new FormData();
-      protocol.set("protocol", JSON.stringify(data || {}));
+      protocol.set('protocol', JSON.stringify(data || {}));
 
-      const appletId = this.currentApplet.applet._id.split("/")[1];
+      const appletId = this.currentApplet.applet._id.split('/')[1];
       const token = this.$store.state.auth.authToken.token;
       const apiHost = this.$store.state.backend;
 
@@ -160,21 +173,21 @@ export default {
           this.componentKey = this.componentKey + 1;
         });
     },
-    onUploadSucess() {
-      this.dialogText = "Your applet is successfully updated";
-      this.dialogTitle = "Upload Received";
+    onUploadSucess(msg) {
+      this.dialogText = msg || 'Your applet is successfully updated';
+      this.dialogTitle = 'Upload Received';
       this.dialog = true;
     },
     onUploadError(msg) {
       this.dialogText =
         msg ||
-        "There was an error uploading your applet. Please try again or report the issue.";
-      this.dialogTitle = "Upload Error";
+        'There was an error uploading your applet. Please try again or report the issue.';
+      this.dialogTitle = 'Upload Error';
       this.dialog = true;
     },
     getProtocols(versions) {
       if (!this.isEditing) return [];
-      const appletId = this.currentApplet.applet._id.split("/")[1];
+      const appletId = this.currentApplet.applet._id.split('/')[1];
 
       return api.getProtocolData({
         apiHost: this.$store.state.backend,

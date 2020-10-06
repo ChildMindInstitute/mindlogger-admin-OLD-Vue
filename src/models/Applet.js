@@ -74,7 +74,7 @@ export default class Applet {
       params: { users: JSON.stringify(users) },
     });
 
-    if( this.encryption ) {
+    if (this.encryption) {
       Applet.replaceItemValues(Applet.decryptResponses(data, this.encryption));
     }
 

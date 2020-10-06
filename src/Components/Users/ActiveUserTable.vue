@@ -142,12 +142,10 @@ export default {
   },
   computed: {
     isManager() {
-      const { manager } = this.$store.state.currentAccount.applets;
-      return manager && manager.length ? true : false;
+      return this.$store.state.currentApplet.roles.includes('manager');
     },
     isCoordinator() {
-      const { coordinator } = this.$store.state.currentAccount.applets;
-      return coordinator && coordinator.length ? true : false;
+      return this.$store.state.currentApplet.roles.includes('coordinator');
     },
     computedItems() {
       return this.userRoleData.map((item) => {
@@ -165,15 +163,18 @@ export default {
     this.gridOptions = {};
     this.userData = this.users.map((user) => {
       let roles = [];
-      if (user.roles.length === 1 && user.roles[0] === 'user') {
-        roles.push('user');
-      } else if (user.roles.includes('owner')) {
-        roles.push('owner');
-      } else if (user.roles.includes('manager')) {
-        roles.push('manager');
-      } else {
-        roles = user.roles.filter((role) => role != 'user');
+      if (user.roles) {
+        if (user.roles.length === 1 && user.roles[0] === 'user') {
+          roles.push('user');
+        } else if (user.roles.includes('owner')) {
+          roles.push('owner');
+        } else if (user.roles.includes('manager')) {
+          roles.push('manager');
+        } else {
+          roles = user.roles.filter((role) => role != 'user');
+        }
       }
+
       return {
         displayName: user.displayName,
         email: user.email,
@@ -254,6 +255,16 @@ export default {
         },
       });
     }
+
+    if (
+      !this.currentApplet.roles.includes('manager') &&
+      !this.currentApplet.roles.includes('coordinator')
+    ) {
+      this.columnDefs = this.columnDefs.filter(
+        (col) => col.headerName != 'Roles'
+      );
+    }
+
     this.frameworkComponents = {
       btnCellRenderer: BtnCellRenderer,
       UserRequestCellRenderer,

@@ -6,7 +6,7 @@ export default {
   resetPassword: 'Réinitialiser le mot de passe',
   forgotPassword: 'Mot de passe oublié',
   resetEmailSent: "L'e-mail de réinitialisation a été envoyé",
-  mindloggerAdmin: 'Administrateur MindLogger',
+  mindloggersAdmin: 'Administrateur MindLogger',
   logIntoAccount: 'Connectez-vous à votre compte MindLogger',
   email: 'E-mail',
   createAccount: 'Créer un compte',
