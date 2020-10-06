@@ -341,6 +341,7 @@ export default {
       }
     },
     onSubmitOwnership() {
+      this.ownershipDialog = false;
       this.$emit('transferOwnership', {
         email: this.ownershipEmail,
         applet: this.applet,

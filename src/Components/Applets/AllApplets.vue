@@ -223,10 +223,10 @@ export default {
           email: email
         })
         .then((resp) => {
-          this.$emit("refreshAppletList");
+          this.$emit("onOwnerShipInviteSuccessful", email);
         })
         .catch((err) => {
-          console.log(err);
+          this.$emit("onOwnerShipInviteError");
         })
     },
 
@@ -301,7 +301,8 @@ export default {
           }
         })
         .then(resp => {
-          this.$emit("refreshAppletList");
+          this.appletDuplicateDialog.visibility = false;
+          this.$emit('appletUploadSuccessful', resp.data.message);
         });
     },
   },
