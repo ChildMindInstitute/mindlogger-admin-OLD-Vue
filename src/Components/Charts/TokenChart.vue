@@ -19,9 +19,44 @@
 
     <div class="time-range">
       Showing data from
-      <span class="date">{{ fromDate }}</span>
+
+      <v-menu>
+        <template v-slot:activator="{ on }">
+          <v-btn 
+            depressed
+            class="ds-button-tall ma-0 mb-2 fromDate"
+            v-on="on"
+          >
+            {{ fromDate }}
+          </v-btn>
+        </template>
+
+        <v-date-picker 
+          no-title
+          @change="setStartDate"
+          :allowedDates="isAllowedStartDate"
+        ></v-date-picker>
+      </v-menu>
+
       to
-      <span class="date">{{ toDate }}</span>
+
+      <v-menu>
+        <template v-slot:activator="{ on }">
+          <v-btn 
+            depressed
+            class="ds-button-tall ma-0 mb-2 toDate"
+            v-on="on"
+          >
+            {{ toDate }}
+          </v-btn>
+        </template>
+
+        <v-date-picker 
+          no-title
+          @change="setEndDate"
+          :allowedDates="isAllowedEndDate"
+        ></v-date-picker>
+      </v-menu>
     </div>
 
     <div class="chart-container">
@@ -195,6 +230,11 @@
     }
   }
 }
+
+.TokenChart .toDate,
+.TokenChart .fromDate {
+  margin: 0 0.5rem !important;
+}
 </style>
 
 
@@ -202,6 +242,7 @@
 import * as d3 from 'd3';
 import * as moment from 'moment';
 import slugify from '../../core/slugify';
+import { DaySpan, Day } from 'dayspan';
 
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
@@ -255,15 +296,20 @@ export default {
     contextMargin: {
       top: 500,
       bottom: 30,
+    fromDate: {
+      cache: false,
+      get() {
+        return moment.utc(this.focusExtent[0]).format('ddd, D MMM YYYY');
+      },
     },
-  }),
-
-  computed: {
-    fromDate() {
-      return moment.utc(this.focusExtent[0]).format('ddd, D MMM YYYY');
+    toDate: {
+      cache: false,
+      get() {
+        return moment.utc(this.focusExtent[1]).format('ddd, D MMM YYYY');
+      },
     },
-    toDate() {
-      return moment.utc(this.focusExtent[1]).format('ddd, D MMM YYYY');
+    today() {
+      return moment()
     },
   },
 
@@ -293,6 +339,57 @@ export default {
    * Component methods.
    */
   methods: {
+    /**
+     * Updates the start date for the focused time range.
+     *
+     * @param {string} date the new start date.
+     * @returns {void}
+     */
+    setStartDate(date) {
+      this.focusExtent[0] = moment.utc(date).toDate();
+      this.render();
+    },
+
+    /**
+     * Updates the end date for the focused time range.
+     *
+     * @param {string} date the new end date.
+     * @returns {void}
+     */
+    setEndDate(date) {
+      this.focusExtent[1] = moment
+        .utc(date)
+        .add(15, 'hours')
+        .toDate();
+      this.render();
+    },
+
+    /**
+     * Checks whether the given date should be enabled.
+     *
+     * @param {string} date a given date.
+     * @return {boolean} whether this options should be enabled.
+     */
+    isAllowedStartDate(date) {
+      return (
+        (moment.utc(date) < this.focusExtent[1]) && 
+        (moment.utc(date) > ONE_MONTH_AGO)
+      );
+    },
+
+    /**
+     * Checks whether the given date should be enabled.
+     *
+     * @param {string} date a given date.
+     * @return {boolean} whether this options should be enabled.
+     */
+    isAllowedEndDate(date) {
+      return (
+        (moment.utc(date) > this.focusExtent[0]) && 
+        (moment.utc(date) <= moment.utc())
+      );
+    },
+
     contextBarWidth() {
       return this.width / 30 * 2/3;
     },
@@ -459,7 +556,6 @@ export default {
       const xAxis = d3
         .axisBottom()
         .scale(this.x)
-        .ticks(d3.utcDay)
         .tickSize(this.focusHeight)  // Height of the tick line.
         .ticks(d3.timeDay)
         .tickFormat(d => moment.utc(d).format('MMM D'));
@@ -475,6 +571,7 @@ export default {
         .scale(this.y)
         .tickValues(yAxisTicks)
         .tickSize(-this.width - focusBarWidth)  // Width of the tick line.
+        .ticks(this.divergingExtent.max)
         .tickFormat(d3.format('d'));
       const contextYAxisTicks = this.contextY.ticks().filter(Number.isInteger);
       const contextYAxis = d3
@@ -502,9 +599,9 @@ export default {
         .select('.x-axis')
         .append('line')
         .style('stroke', '#efefef')
-        .style('stroke-width', 3)
+        .style('stroke-width', 2)
         .attr('class', 'base-line')
-        .attr('x1', 0)
+        .attr('x1', -focusBarWidth/2)
         .attr('x2', this.width + focusBarWidth/2)
         .attr('y1', this.y(0))
         .attr('y2', this.y(0));
@@ -628,6 +725,15 @@ export default {
         .select('.context-chart')
         .selectAll('.bar')
         .remove()
+      svg
+        .select('.context-chart')
+        .selectAll('.positive-bar')
+        .remove()
+      svg
+        .select('.context-chart')
+        .selectAll('.negative-bar')
+        .remove()
+
 
       // Negative
       svg
@@ -639,7 +745,7 @@ export default {
         .attr('class', 'negative-bar')
         .attr('fill', '#ED8495')
         // Set the bar position and dimension.
-        .attr('x', d => contextX(d.date))
+        .attr('x', d => contextX(d.date) + barWidth/2)
         .attr('width', barWidth)
         .attr('y', contextY(0))
         .attr('height', d => Math.abs(contextY(d.negative) - contextY(0)))
@@ -654,7 +760,7 @@ export default {
         .attr('class', 'positive-bar')
         .attr('fill', '#BEE0AC')
         // Set the bar position and dimension.
-        .attr('x', d => contextX(d.date))
+        .attr('x', d => contextX(d.date) + barWidth/2)
         .attr('width', barWidth)
         .attr('y', d => contextY(d.positive))
         .attr('height', d => Math.abs(contextY(d.positive) - contextY(0)))
@@ -670,7 +776,7 @@ export default {
         .attr('class', 'bar')
         .attr('fill', 'black')
         // Set the bar position and dimension.
-        .attr('x', d => contextX(d.date))
+        .attr('x', d => contextX(d.date) + barWidth/2)
         .attr('width', s => barWidth)
         .attr('y', d => contextY(Math.max(0, d.cummulative)))
         .attr('height', d => Math.abs(contextY(d.cummulative) - contextY(0)))

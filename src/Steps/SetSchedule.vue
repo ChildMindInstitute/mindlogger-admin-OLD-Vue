@@ -212,7 +212,7 @@ export default {
         this.saveSuccess = false;
         this.saveError = false;
         this.loading = true;
-        const schedule = this.currentApplet.applet.schedule;
+        const schedule = this.addEventType(this.currentApplet.applet.schedule);
         const removedEvents = this.$store.state.removedEvents;
         scheduleForm.set("schedule", JSON.stringify(schedule || {}));
         scheduleForm.set("deleted", JSON.stringify(removedEvents || {}));
@@ -269,6 +269,27 @@ export default {
         this.$refs.calendar.$refs.app.clearEvents();
       }
       
+    },
+    addEventType(schedule) {
+      const appletSchedule = schedule;
+      appletSchedule.events.forEach((event, index) => {
+        for (const activityId in this.$store.state.currentApplet.activities) {
+          const activity = this.$store.state.currentApplet.activities[activityId];
+          if (event.data.URI === activity['@id'] || event.data.URI === activity['url']) {
+            appletSchedule.events[index].data.activity_id = activity['_id'].split('/')[1];
+          }
+        }
+        if (Object.keys(event.schedule).includes("dayOfWeek")) {
+          appletSchedule.events[index].data.eventType = "Weekly";
+        } else if (Object.keys(event.schedule).includes("year")) {
+          appletSchedule.events[index].data.eventType = "";
+        } else if (Object.keys(event.schedule).includes("dayOfMonth")) {
+          appletSchedule.events[index].data.eventType = "Monthly";
+        } else {
+          appletSchedule.events[index].data.eventType = "Daily";
+        }
+      });
+      return appletSchedule;
     }
   }
 };

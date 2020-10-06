@@ -28,8 +28,9 @@
             label="Select"
             multiple
             chips
+            :required="currentUserRoles"
             :item-disabled="['editor']"
-            hint="What are the target roles"
+            :hint="currentUserRoles.length ? '' : 'At least one role is required'"
             persistent-hint
           />
           <v-combobox
@@ -53,6 +54,7 @@
           </v-btn>
           <v-btn
             color="primary"
+            :disabled="!currentUserRoles.length"
             text
             @click="onSaveUserRole()"
           >
@@ -67,16 +69,6 @@
       persistent
       max-width="450px"
     >
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          color="primary"
-          dark
-          v-bind="attrs"
-          v-on="on"
-        >
-          Open Dialog
-        </v-btn>
-      </template>
       <v-card>
         <v-card-title class="edit-card-title">
           <span class="headline">Are you sure?</span>
@@ -157,6 +149,7 @@ export default {
     return {
       currentUserList: [],
       currentUserRoles: [],
+      userData: [],
       userCellData: null,
       columnDefs: null,
       frameworkComponents: null,
@@ -176,10 +169,10 @@ export default {
   },
   computed: {
     isManager() { 
-      return this.$store.state.currentAccount.applets['manager'];
+      return this.$store.state.currentApplet.roles.includes('manager');
     },
-    isCoordinator() { 
-      return this.$store.state.currentAccount.applets['coordinator'];
+    isCoordinator() {
+      return this.$store.state.currentApplet.roles.includes('coordinator');
     },
     computedItems() {
       return this.userRoleData.map((item) => {
@@ -192,50 +185,46 @@ export default {
     currentApplet() {
       return this.$store.state.currentApplet;
     },
-
-    userData() {
-      if (this.isManager) {
-        return this.users.map((user) => {
-          let roles = [];
-          if (user.roles.length === 1 && user.roles[0] === 'user') {
-            roles.push('user');
-          } else if (user.roles.includes('owner')) {
-            roles.push('owner');
-          } else if (user.roles.includes('manager')) {
-            roles.push('manager');
-          } else {
-            roles = user.roles.filter(role => role != 'user');
-          }
-          return {
-            displayName: user.displayName,
-            email: user.email,
-            mrn: user.MRN,
-            _id: user._id,
-            refreshRequest: user.refreshRequest && user.refreshRequest.userPublicKey ? user.refreshRequest : null,
-            roles
-          };
-        });
-      } else {
-        return this.users.map((user) => {
-          return {
-            displayName: user.displayName,
-            email: user.email,
-            mrn: user.MRN,
-            _id: user._id,
-            roles: ['user'],
-          };
-        });
-      }
-    }
   },
   beforeMount() {
     this.gridOptions = {};
+    this.userData = this.users.map((user) => {
+      let roles = [];
+      if (user.roles) {
+        if (user.roles.length === 1 && user.roles[0] === "user") {
+          roles.push("user");
+        } else if (user.roles.includes("owner")) {
+          roles.push("owner");
+        } else if (user.roles.includes("manager")) {
+          roles.push("manager");
+        } else {
+          roles = user.roles.filter((role) => role != "user");
+        }
+      }
+
+      return {
+        displayName: user.displayName,
+        email: user.email,
+        mrn: user.MRN,
+        _id: user._id,
+        refreshRequest: user.refreshRequest && user.refreshRequest.userPublicKey ? user.refreshRequest : null,
+        roles,
+      };
+    });
     const { isManager, isCoordinator } = this;
 
     this.columnDefs = [
       {
         headerName: "Name",
         field: "displayName",
+        sortable: true,
+        filter: true,
+        resizable: true,
+        cellStyle: { justifyContent: "center" },
+      },
+      {
+        headerName: "Institutional ID",
+        field: "mrn",
         sortable: true,
         filter: true,
         resizable: true,
@@ -286,6 +275,12 @@ export default {
         },
       });
     }
+
+    if (!this.currentApplet.roles.includes('manager') && !this.currentApplet.roles.includes('coordinator')) 
+    {
+      this.columnDefs = this.columnDefs.filter(col => col.headerName != 'Roles');
+    }
+
     this.frameworkComponents = {
       btnCellRenderer: BtnCellRenderer,
       UserRequestCellRenderer
@@ -351,7 +346,7 @@ export default {
       const response = await this.$dialog.warning({
         title: "",
         color: "#1976d2",
-        text: "Are you sure to remove this Role?",
+        text: "Are you sure to remove this user?",
         persistent: false,
         actions: {
           No: "No",
