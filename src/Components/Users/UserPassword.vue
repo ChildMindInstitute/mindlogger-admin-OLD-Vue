@@ -3,7 +3,7 @@
     <v-card>
       <v-card-text>
         <template v-if="error === ''">
-          <h3>User Password</h3>
+          <h3>{{ $t('userPassword') }}</h3>
 
           <v-text-field
             v-model="password.data"
@@ -14,7 +14,7 @@
           />
 
           <v-btn color="primary" @click="onClickSubmitPassword">
-            {{ $t("submit") }}
+            {{ $t('submit') }}
           </v-btn>
         </template>
         <template v-else>
@@ -22,7 +22,7 @@
             {{ error }}
           </div>
           <v-btn color="primary" @click="onClickRemoveError">
-            {{ $t("close") }}
+            {{ $t('close') }}
           </v-btn>
         </template>
       </v-card-text>
@@ -32,7 +32,7 @@
 
 <script>
 export default {
-  name: "UserPassword",
+  name: 'UserPassword',
   props: {
     value: {
       type: Boolean,
@@ -45,16 +45,16 @@ export default {
   },
   data: () => ({
     password: {
-      data: "",
+      data: '',
       value: true,
     },
   }),
   methods: {
     onClickSubmitPassword() {
-      this.$emit("set-password", this.password.data);
+      this.$emit('set-password', this.password.data);
     },
     onClickRemoveError() {
-      this.$emit("remove-error");
+      this.$emit('remove-error');
     },
   },
 };

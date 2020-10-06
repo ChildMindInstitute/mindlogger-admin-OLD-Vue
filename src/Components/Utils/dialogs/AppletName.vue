@@ -2,12 +2,12 @@
   <v-dialog max-width="800" :value="value" @input="$emit('input', $event)">
     <v-card>
       <v-card-text>
-        <h3>Applet Name</h3>
+        <h3>{{ $t('appletName') }}</h3>
 
         <v-text-field v-model="appletName" label="Enter Applet Name" />
 
         <v-btn color="primary" @click="onClickSubmit">
-          {{ $t("submit") }}
+          {{ $t('submit') }}
         </v-btn>
       </v-card-text>
     </v-card>
@@ -16,7 +16,7 @@
 
 <script>
 export default {
-  name: "AppletName",
+  name: 'AppletName',
   props: {
     value: {
       type: Boolean,
@@ -24,11 +24,11 @@ export default {
     },
   },
   data: () => ({
-    appletName: "",
+    appletName: '',
   }),
   methods: {
     onClickSubmit() {
-      this.$emit("set-value", this.appletName);
+      this.$emit('set-value', this.appletName);
     },
   },
 };

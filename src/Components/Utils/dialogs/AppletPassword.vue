@@ -2,7 +2,7 @@
   <v-dialog max-width="800" :value="value" @input="$emit('input', $event)">
     <v-card>
       <v-card-text>
-        <h3>Applet Password</h3>
+        <h3>{{ $t('appletPassword') }}</h3>
 
         <v-text-field
           v-model="password.data"
@@ -32,7 +32,7 @@
           :disabled="!!error"
           @click="onClickSubmitPassword"
         >
-          {{ $t("submit") }}
+          {{ $t('submit') }}
         </v-btn>
       </v-card-text>
     </v-card>
@@ -41,7 +41,7 @@
 
 <script>
 export default {
-  name: "AppletPassword",
+  name: 'AppletPassword',
   props: {
     value: {
       type: Boolean,
@@ -55,14 +55,14 @@ export default {
   },
   data: () => ({
     password: {
-      data: "",
+      data: '',
       value: true,
     },
     confirmPassword: {
-      data: "",
+      data: '',
       value: true,
     },
-    defaultErrorMsg: "",
+    defaultErrorMsg: '',
   }),
   computed: {
     error() {
@@ -80,16 +80,16 @@ export default {
         return false;
       }
 
-      return "Min. 8 characters with at least one capital letter, a number and a special character.";
+      return 'Min. 8 characters with at least one capital letter, a number and a special character.';
     },
     errorConfirmPassword(value) {
       if (value == this.password.data) {
         return false;
       }
-      return "Password does not match";
+      return 'Password does not match';
     },
     onClickSubmitPassword() {
-      this.$emit("set-password", this.password.data);
+      this.$emit('set-password', this.password.data);
     },
   },
 };
