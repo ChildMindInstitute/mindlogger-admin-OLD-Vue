@@ -1,8 +1,8 @@
 <template>
   <v-content>
-    <About v-if="aboutOpen" />
+    <About v-show="aboutOpen" />
     <AppletSchemaBuilder
-      v-else
+      v-show="!aboutOpen"
       exportButton
       :initialData="(isEditing || null) && currentApplet"
       :key="componentKey"
@@ -12,6 +12,7 @@
       @updateProtocol="onUpdateProtocol"
       @prepareApplet="onPrepareApplet"
       @onUploadError="onUploadError"
+      @setLoading="setLoading"
     />
 
     <Information
@@ -62,13 +63,13 @@ export default {
     };
   },
   async beforeMount() {
-    const apiHost = this.$store.state.backend;
-    const token = this.$store.state.auth.authToken.token;
-    const appletId = this.currentApplet.applet._id.split('/')[1];
-
     this.versions = [];
 
     if (this.$route.params.isEditing) {
+      const apiHost = this.$store.state.backend;
+      const token = this.$store.state.auth.authToken.token;
+      const appletId = this.currentApplet.applet._id.split('/')[1];
+
       this.isEditing = true;
 
       const resp = await api.getAppletVersions({ apiHost, token, appletId });
@@ -153,10 +154,16 @@ export default {
       const appletId = this.currentApplet.applet._id.split('/')[1];
       const token = this.$store.state.auth.authToken.token;
       const apiHost = this.$store.state.backend;
-
       api.prepareApplet({
         apiHost, token, data: protocol, appletId
-      }).then(resp => api.getAppletVersions({ apiHost, token, appletId })).then(resp => {
+      }).then(resp => {
+        this.$store.commit('updateAppletData', {
+          ...resp.data,
+          roles: this.currentApplet.roles
+        });
+
+        return api.getAppletVersions({ apiHost, token, appletId });
+      }).then(resp => {
         this.versions = resp.data;
         this.componentKey = this.componentKey + 1;
       });
@@ -181,6 +188,9 @@ export default {
         appletId,
         versions
       })
+    },
+    setLoading(isLoading) {
+      this.aboutOpen = isLoading;
     }
   }
 };
