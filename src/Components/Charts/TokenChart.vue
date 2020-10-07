@@ -461,15 +461,32 @@ export default {
       let cummulative;
       let value;
 
+      // Compute the maximum value of one user response.
       for (let i = 0; i < this.features.length; i++) {
         value = this.features[i].value;
-
 
         if (value < 0) {
           this.divergingExtent.min += value;
         } else {
           this.divergingExtent.max += value;
         }
+      }
+
+      let positive;
+      let negative;
+
+      // Find the maximum value for cumulative user responses.
+      for (let i = 0; i < this.data.length; i++) {
+        positive = this.data[i].positive;
+        negative = this.data[i].negative;
+
+        if (positive > this.divergingExtent.max) {
+          this.divergingExtent.max = positive;
+        }
+
+        if (negative < this.divergingExtent.min) {
+          this.divergingExtent.min = negative;
+        } 
       }
 
       if (this.divergingExtent.max % 2) {
