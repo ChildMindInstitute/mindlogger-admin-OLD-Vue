@@ -116,8 +116,14 @@ export default class Applet {
       const responses = data.responses[itemId];
 
       for (let response of responses) {
-        if (response.value && response.value.ptr !== undefined && response.value.src !== undefined) {
-          response.value = data.dataSources[response.value.src].data[response.value.ptr];
+        if (
+          Array.isArray(response.value) && 
+          response.value.length > 0  && 
+          response.value[0].ptr !== undefined && 
+          response.value[0].src !== undefined
+        ) 
+        {
+          response.value = data.dataSources[response.value[0].src].data[response.value[0].ptr];
         }
       }
     }
