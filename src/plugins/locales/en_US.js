@@ -209,4 +209,6 @@ export default {
   refreshResponse: 'Refresh response',
   doYouWant: 'Do you want to refresh ...',
   dataOnDevice: "'s data on device?",
+  yes: 'yes',
+  no: 'no',
 };

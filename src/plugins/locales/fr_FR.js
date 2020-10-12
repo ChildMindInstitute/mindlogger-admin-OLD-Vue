@@ -210,4 +210,6 @@ export default {
   refreshResponse: 'Actualiser la réponse',
   doYouWant: 'Voulez-vous actualiser ',
   dataOnDevice: "les données sur l'appareil?",
+  yes: 'oui',
+  no: 'non',
 };

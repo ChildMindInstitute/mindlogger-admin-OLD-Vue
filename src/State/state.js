@@ -1,12 +1,12 @@
-import Vue from "vue";
-import Vuex from "vuex";
+import Vue from 'vue';
+import Vuex from 'vuex';
 
 Vue.use(Vuex);
 
-import { Store } from "vuex";
-import _ from "lodash";
-import createPersistedState from "vuex-persistedstate";
-import api from "../Components/Utils/api/api.vue";
+import { Store } from 'vuex';
+import _ from 'lodash';
+import createPersistedState from 'vuex-persistedstate';
+import api from '../Components/Utils/api/api.vue';
 
 const getDefaultState = () => {
   return {
@@ -23,9 +23,9 @@ const getDefaultState = () => {
     auth: {},
     continue: {},
     currentUsers: [],
-    userEmail: "",
+    userEmail: '',
     users: {},
-    currentLanguage: "",
+    currentLanguage: 'en_US',
   };
 };
 
@@ -80,7 +80,7 @@ const mutations = {
             accounts.push({
               appletId,
               allEvent:
-                key === "manager" || key === "coordinator" ? true : false,
+                key === 'manager' || key === 'coordinator' ? true : false,
             });
           }
         });
@@ -129,14 +129,14 @@ const mutations = {
     const requests = [];
 
     protocols.forEach((protocol, i) => {
-      const appletId = protocol.applet._id.split("applet/")[1];
+      const appletId = protocol.applet._id.split('applet/')[1];
 
       state.allApplets[i].roles = [];
 
       Object.keys(currentApplets).forEach((key, index) => {
         if (currentApplets[key] && currentApplets[key].length) {
           currentApplets[key].forEach((id, index) => {
-            if (appletId === id && key !== "user") {
+            if (appletId === id && key !== 'user') {
               state.allApplets[i].roles.push(key);
             }
           });
@@ -185,8 +185,8 @@ const mutations = {
     const idx = _.findIndex(
       state.allApplets,
       (a) =>
-        a.applet["skos:prefLabel"] ==
-        state.currentApplet.applet["skos:prefLabel"]
+        a.applet['skos:prefLabel'] ==
+        state.currentApplet.applet['skos:prefLabel']
     );
     if (idx > -1) {
       state.allApplets[idx].groups = groups;
