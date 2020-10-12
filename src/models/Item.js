@@ -18,6 +18,12 @@ export default class Item {
       '#ED7465',
       '#B83A49',
       '#6A0A3D',
+      '#edd5b9',
+      '#f2d1c2',
+      '#f39a87',
+      '#c86311',
+      '#582400',
+      '#9a5c08',
     ];
     this.coldColors = [
       '#419DC5',
@@ -26,6 +32,11 @@ export default class Item {
       '#223B89',
       '#316BA7',
       '#1976D2',
+      '#6a7177',
+      '#afb3b6',
+      '#ed91b6',
+      '#e03e91',
+      '#af035b'
     ];
 
     this.data = data;
@@ -67,18 +78,18 @@ export default class Item {
       name: i18n.arrayToObject(choice['schema:name']),
       value: choice['schema:value'][0]['@value'],
       color: choice['schema:value'][0]['@value'] > 0
-        ? this.coldColors[index]
-        : this.warmColors[index],
+        ? this.coldColors.shift()
+        : this.warmColors.shift(),
     }));
   }
 
   appendResponseOption(option) {
-    const index = this.responseOptions.length;
-
     this.responseOptions.push({
       ...option,
-      color: this.coldColors[index]
+      color: option.value > 0 ? this.coldColors.shift() : this.warmColors.shift()
     })
+
+    return this.responseOptions.length - 1;
   }
 
   getChoiceByValue(value) {
@@ -94,10 +105,10 @@ export default class Item {
 
     return Number.isNaN(numericValue)
       ? this.getChoiceByName(str)
-      : this.getChoiceByValue(
-        this.valueMapping[version] && this.valueMapping[version][numericValue] !== undefined 
-          ? this.valueMapping[version][numericValue]
-          : numericValue
+      : this.valueMapping[version] && this.valueMapping[version][numericValue] !== undefined 
+      ? this.responseOptions[this.valueMapping[version][numericValue]]
+      : this.getChoiceByValue( 
+        numericValue
       );
   }
 
