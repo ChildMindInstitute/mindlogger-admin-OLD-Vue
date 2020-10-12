@@ -616,13 +616,13 @@ export default {
         .scale(this.x)
         .tickSize(this.focusHeight)  // Height of the tick line.
         .ticks(d3.timeDay)
-        .tickFormat(d => moment.utc(d).format('MMM D'));
+        .tickFormat(d => moment(d).format('MMM D'));
       const contextXAxis = d3
         .axisBottom()
         .scale(this.contextX)
         .ticks(30)
         .tickSize(this.contextHeight)  // Height of the tick line.
-        .tickFormat(d => moment.utc(d).format('M/D'));
+        .tickFormat(d => moment(d).format('M/D'));
       const yAxisTicks = this.y.ticks().filter(Number.isInteger);
       const yAxis = d3
         .axisLeft()
