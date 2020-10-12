@@ -13,6 +13,7 @@ import SKOS from '../schema/SKOS';
 import encryptionUtils from '../Components/Utils/encryption/encryption.vue'
 import { tickFormat } from 'd3';
 
+import * as moment from 'moment';
 
 export default class Applet {
   /**
@@ -93,6 +94,10 @@ export default class Applet {
 
     for (let version in data.itemReferences) {
       for (let key in data.itemReferences[version]) {
+        if (!data.itemReferences[version][key]) {
+          continue;
+        }
+
         const itemId = data.itemReferences[version][key];
         const oldItem = data.items[itemId];
 
@@ -107,17 +112,11 @@ export default class Applet {
 
         oldItem.responseOptions.forEach(oldOption => {
           const existing = currentItem.responseOptions.find(currentOption => Object.values(currentOption.name)[0] === Object.values(oldOption.name)[0]);
-
           if (!existing) {
-            const value = currentItem.responseOptions.length;
+            const index = currentItem.appendResponseOption(oldOption);
 
-            currentItem.appendResponseOption({
-              ...oldOption,
-              value
-            });
-
-            currentItem.valueMapping = currentItem.valueMapping || {};
-            currentItem.valueMapping[version][oldOption.value] = value;
+            currentItem.valueMapping[version] = currentItem.valueMapping[version] || {};
+            currentItem.valueMapping[version][oldOption.value] = index;
           }
         })
       }
@@ -179,7 +178,7 @@ export default class Applet {
 
     this.versions = data.map(d => {
       const updated = new Date(d.updated);
-      const formatted = `${updated.getFullYear()}-${(updated.getMonth()+1).toString().padStart(2, '0')}-${updated.getDate().toString().padStart(2, '0')}`;
+      const formatted = moment(updated).format("YYYY-MM-DD");
       return { 
         version: d.version, 
         formatted,
