@@ -13,10 +13,7 @@
       :domLayout="domLayout"
       @first-data-rendered="onFirstDataRendered"
     />
-    <v-dialog
-      v-model="editRoleDialog"
-      max-width="500px"
-    >
+    <v-dialog v-model="editRoleDialog" max-width="500px">
       <v-card>
         <v-card-title class="edit-card-title">
           Edit roles
@@ -30,7 +27,9 @@
             chips
             :required="currentUserRoles"
             :item-disabled="['editor']"
-            :hint="currentUserRoles.length ? '' : 'At least one role is required'"
+            :hint="
+              currentUserRoles.length ? '' : 'At least one role is required'
+            "
             persistent-hint
           />
           <v-combobox
@@ -45,11 +44,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn
-            color="primary"
-            text
-            @click="editRoleDialog = false"
-          >
+          <v-btn color="primary" text @click="editRoleDialog = false">
             Close
           </v-btn>
           <v-btn
@@ -64,11 +59,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog
-      v-model="passwordDialog"
-      persistent
-      max-width="450px"
-    >
+    <v-dialog v-model="passwordDialog" persistent max-width="450px">
       <v-card>
         <v-card-title class="edit-card-title">
           <span class="headline">Are you sure?</span>
@@ -83,10 +74,7 @@
                   type="password"
                   required
                 />
-                <div
-                  v-if="error"
-                  class="error"
-                >
+                <div v-if="error" class="error">
                   {{ error }}
                 </div>
               </v-col>
@@ -95,18 +83,10 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn
-            color="blue darken-1"
-            text
-            @click="passwordDialog = false"
-          >
+          <v-btn color="blue darken-1" text @click="passwordDialog = false">
             Close
           </v-btn>
-          <v-btn
-            color="blue darken-1"
-            text
-            @click="onConfirmPassword()"
-          >
+          <v-btn color="blue darken-1" text @click="onConfirmPassword()">
             Confirm
           </v-btn>
         </v-card-actions>
@@ -122,14 +102,14 @@
 </style>
 
 <script>
-import { AgGridVue } from "@ag-grid-community/vue";
-import { AllCommunityModules } from "@ag-grid-community/all-modules";
-import BtnCellRenderer from "./BtnCellRenderer.vue";
+import { AgGridVue } from '@ag-grid-community/vue';
+import { AllCommunityModules } from '@ag-grid-community/all-modules';
+import BtnCellRenderer from './BtnCellRenderer.vue';
 import api from '../Utils/api/api.vue';
 import UserRequestCellRenderer from './UserRequestCellRenderer';
 
 export default {
-  name: "ActiveUserTable",
+  name: 'ActiveUserTable',
   components: {
     AgGridVue,
   },
@@ -142,7 +122,7 @@ export default {
     },
     appletId: {
       type: String,
-      default: "",
+      default: '',
     },
   },
   data() {
@@ -154,21 +134,21 @@ export default {
       columnDefs: null,
       frameworkComponents: null,
       modules: AllCommunityModules,
-      domLayout: "autoHeight",
-      multiSelection: "multiple",
+      domLayout: 'autoHeight',
+      multiSelection: 'multiple',
       pagination: true,
       gridOptions: null,
       clickSelection: true,
       editRoleDialog: false,
       passwordDialog: false,
-      userRoleData: ["coordinator", "editor", "reviewer", "manager"],
-      disabledRoles: ["coordinator", "editor", "reviewer"],
-      password: "",
-      error: "",
+      userRoleData: ['coordinator', 'editor', 'reviewer', 'manager'],
+      disabledRoles: ['coordinator', 'editor', 'reviewer'],
+      password: '',
+      error: '',
     };
   },
   computed: {
-    isManager() { 
+    isManager() {
       return this.$store.state.currentApplet.roles.includes('manager');
     },
     isCoordinator() {
@@ -191,70 +171,79 @@ export default {
     this.userData = this.users.map((user) => {
       let roles = [];
       if (user.roles) {
-        if (user.roles.length === 1 && user.roles[0] === "user") {
-          roles.push("user");
-        } else if (user.roles.includes("owner")) {
-          roles.push("owner");
-        } else if (user.roles.includes("manager")) {
-          roles.push("manager");
+        if (user.roles.length === 1 && user.roles[0] === 'user') {
+          roles.push('user');
+        } else if (user.roles.includes('owner')) {
+          roles.push('owner');
+        } else if (user.roles.includes('manager')) {
+          roles.push('manager');
         } else {
-          roles = user.roles.filter((role) => role != "user");
+          roles = user.roles.filter((role) => role != 'user');
         }
       }
 
+      const email =
+        user.roles.includes('user') && user.roles.length === 1
+          ? ''
+          : user.email;
+
       return {
         displayName: user.displayName,
-        email: user.email,
+        email,
         mrn: user.MRN,
         _id: user._id,
-        refreshRequest: user.refreshRequest && user.refreshRequest.userPublicKey ? user.refreshRequest : null,
+        refreshRequest:
+          user.refreshRequest && user.refreshRequest.userPublicKey
+            ? user.refreshRequest
+            : null,
         roles,
       };
     });
+
     const { isManager, isCoordinator } = this;
 
     this.columnDefs = [
       {
-        headerName: "Name",
-        field: "displayName",
+        headerName: 'Name',
+        field: 'displayName',
         sortable: true,
         filter: true,
         resizable: true,
-        cellStyle: { justifyContent: "center" },
+        cellStyle: { justifyContent: 'center' },
       },
       {
-        headerName: "Institutional ID",
-        field: "mrn",
+        headerName: 'Institutional ID',
+        field: 'mrn',
         sortable: true,
         filter: true,
         resizable: true,
-        cellStyle: { justifyContent: "center" },
+        cellStyle: { justifyContent: 'center' },
       },
       {
-        headerName: "Roles",
-        field: "roles",
+        headerName: 'Roles',
+        field: 'roles',
         sortable: true,
         filter: true,
         resizable: true,
-        cellStyle: { justifyContent: "center" },
+        cellStyle: { justifyContent: 'center' },
       },
       {
-        headerName: "Email",
-        field: "email",
+        headerName: 'Email',
+        field: 'email',
         sortable: true,
         filter: true,
         resizable: true,
-        cellStyle: { justifyContent: "center" },
+        cellStyle: { justifyContent: 'center' },
       },
     ];
 
     if (isManager || isCoordinator) {
       this.columnDefs.push({
-        headerName: "",
-        field: "athelete",
+        headerName: '',
+        field: 'athelete',
         maxWidth: 200,
-        cellStyle: { display: "flex", justifyContent: "center" },
-        cellRenderer: "btnCellRenderer",
+        cellStyle: { display: 'flex', justifyContent: 'center' },
+        cellRenderer: 'btnCellRenderer',
         cellRendererParams: {
           clicked: this.onClickedHander,
           isManager: isManager,
@@ -263,27 +252,35 @@ export default {
     }
 
     const encryption = this.currentApplet.applet.encryption;
-    if (this.currentApplet.roles.includes('manager') && encryption && encryption.appletPrime ) {
-      this.columnDefs.splice( 2, 0, {
+    if (
+      this.currentApplet.roles.includes('manager') &&
+      encryption &&
+      encryption.appletPrime
+    ) {
+      this.columnDefs.splice(2, 0, {
         headerName: '',
         field: 'refreshRequest',
         maxWidth: 200,
-        cellStyle: {display: 'flex', justifyContent: 'center'},
+        cellStyle: { display: 'flex', justifyContent: 'center' },
         cellRenderer: 'UserRequestCellRenderer',
         cellRendererParams: {
-          clicked: this.onReUploadResponse
+          clicked: this.onReUploadResponse,
         },
       });
     }
 
-    if (!this.currentApplet.roles.includes('manager') && !this.currentApplet.roles.includes('coordinator')) 
-    {
-      this.columnDefs = this.columnDefs.filter(col => col.headerName != 'Roles');
+    if (
+      !this.currentApplet.roles.includes('manager') &&
+      !this.currentApplet.roles.includes('coordinator')
+    ) {
+      this.columnDefs = this.columnDefs.filter(
+        (col) => col.headerName != 'Roles'
+      );
     }
 
     this.frameworkComponents = {
       btnCellRenderer: BtnCellRenderer,
-      UserRequestCellRenderer
+      UserRequestCellRenderer,
     };
   },
   methods: {
@@ -298,13 +295,13 @@ export default {
       this.userCellData = JSON.parse(data);
       this.currentUserRoles = this.userCellData.roles;
 
-      if (action === "delete") {
+      if (action === 'delete') {
         await this.onDeleteRole(this.userCellData);
-      } else if (action === "edit") {
+      } else if (action === 'edit') {
         this.onEditRole(this.userCellData);
-      } else if (action === "deleteUser") {
+      } else if (action === 'deleteUser') {
         this.revokeAppletUser(this.userCellData._id, false);
-      } else if (action === "deleteData") {
+      } else if (action === 'deleteData') {
         this.passwordDialog = true;
       }
     },
@@ -316,9 +313,9 @@ export default {
      */
 
     onConfirmPassword() {
-      this.error = "";
+      this.error = '';
       if (!this.password) {
-        this.error = "No password";
+        this.error = 'No password';
       }
 
       api
@@ -332,7 +329,7 @@ export default {
           this.passwordDialog = false;
         })
         .catch((e) => {
-          this.error = "Incorrect password";
+          this.error = 'Incorrect password';
         });
     },
 
@@ -344,20 +341,20 @@ export default {
 
     async onDeleteRole(userCellData) {
       const response = await this.$dialog.warning({
-        title: "",
-        color: "#1976d2",
-        text: "Are you sure to remove this user?",
+        title: '',
+        color: '#1976d2',
+        text: 'Are you sure to remove this user?',
         persistent: false,
         actions: {
-          No: "No",
+          No: 'No',
           Yes: {
-            color: "#1976d2",
-            text: "Yes",
+            color: '#1976d2',
+            text: 'Yes',
           },
         },
       });
 
-      if (response === "Yes") {
+      if (response === 'Yes') {
         this.revokeAppletUser(this.userCellData._id);
       }
     },
@@ -370,7 +367,7 @@ export default {
 
     onEditRole(userCellData) {
       this.userCellData.userList = [];
-      if (userCellData.roles.includes("reviewer")) {
+      if (userCellData.roles.includes('reviewer')) {
         api
           .getUserList({
             apiHost: this.$store.state.backend,
@@ -404,9 +401,9 @@ export default {
 
     onSaveUserRole() {
       const roleInfo = {};
-      if (this.currentUserRoles.includes("manager")) {
+      if (this.currentUserRoles.includes('manager')) {
         this.currentUserRoles.length = 0;
-        this.currentUserRoles.push("manager");
+        this.currentUserRoles.push('manager');
       }
 
       // Add the .equals method to Array's prototype to call it on any array
@@ -427,7 +424,7 @@ export default {
         return true;
       };
       // Hide method from for-in loops
-      Object.defineProperty(Array.prototype, "equals", { enumerable: false });
+      Object.defineProperty(Array.prototype, 'equals', { enumerable: false });
 
       if (this.currentUserRoles.equals(this.userCellData.roles)) {
         const newUserList = [];
@@ -443,27 +440,27 @@ export default {
           });
         });
 
-        roleInfo["reviewer"] = newUserList;
+        roleInfo['reviewer'] = newUserList;
       } else {
         this.currentUserRoles.forEach((role) => {
           this.userCellData.roles.forEach((role) => {
             if (!this.currentUserRoles.includes(role)) {
-              if (role === "manager") {
-                if (roleInfo["coordinator"] !== 1) {
-                  roleInfo["coordinator"] = 0;
+              if (role === 'manager') {
+                if (roleInfo['coordinator'] !== 1) {
+                  roleInfo['coordinator'] = 0;
                 }
-                if (roleInfo["editor"] !== 1) {
-                  roleInfo["editor"] = 0;
+                if (roleInfo['editor'] !== 1) {
+                  roleInfo['editor'] = 0;
                 }
-                if (roleInfo["reviewer"] !== 1) {
-                  roleInfo["reviewer"] = 0;
+                if (roleInfo['reviewer'] !== 1) {
+                  roleInfo['reviewer'] = 0;
                 }
               }
               roleInfo[role] = 0;
             }
           });
           if (!this.userCellData.roles.includes(role)) {
-            if (role === "reviewer") {
+            if (role === 'reviewer') {
               const newUserList = [];
               this.currentUserList.forEach((userMrn) => {
                 this.userData.forEach((user) => {
@@ -553,7 +550,7 @@ export default {
         .map(function(val, index) {
           return val._id;
         });
-      this.$store.commit("setCurrentUsers", selectedUsers);
+      this.$store.commit('setCurrentUsers', selectedUsers);
     },
   },
 };
@@ -566,6 +563,6 @@ export default {
 }
 
 .error {
-  color: "red";
+  color: 'red';
 }
 </style>
