@@ -805,9 +805,9 @@ export default {
         .attr('fill', d => d.barColor)
         .attr('x', d => {
           if (d.formatted) {
-            const versions = this.versionsByDate[d.formatted];
+            const versions = this.versionsByDate[d.formatted] || ['oo'];
             const widthPerBar = (widthPerDate - barWidth/2) / versions.length;
-            const index = versions.findIndex(ver => Applet.compareVersions(ver, d.version) >= 0);
+            const index = versions.findIndex(ver => ver == 'oo' || Applet.compareVersions(ver, d.version) >= 0);
 
             if (index == 0) {
               return x(d.updated);

@@ -183,7 +183,7 @@ export default {
       }
 
       const email =
-        user.roles.includes('user') && user.roles.length === 1
+        user.roles && user.roles.includes('user') && user.roles.length === 1
           ? ''
           : user.email;
 
