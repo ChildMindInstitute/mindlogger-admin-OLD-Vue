@@ -5,12 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.20] = 2020-10-13
+## [0.3.28] = 2020-10-13
 ### Changed
 - Fix TL dashboard to work with accumulative values
 - Changed time range for TL chart
 - Applet-schema-builder 0.3.1 -> 0.3.3
 - Updated dialog styles
+
+## [0.3.27] = 2020-10-11
+### Changed
+- Fix encryption code in Applet#replaceItemValues method 
+
+## [0.3.26] = 2020-10-07
+### Changed
+- Make tokens cumulative
+
+## [0.3.25] = 2020-10-06
+### Changed
+- Fix merge conflict
+
+## [0.3.24] = 2020-10-05
+### Changed
+- Fix labels for the Y axis in the token chart.
+- Improve the tooltip to include a detail of every behavior and cumulative value.
+
+## [0.3.23] = 2020-10-03
+### Changed
+- show status dialog after clicking submit button in transfer ownership dialog
+- show about applet builder page when applets are being prepared
+
+## [0.3.22] = 2020-10-01
+### Changed
+- Add new controls for selecting the focused time range in the dashboard
+
+## [0.3.21] = 2020-10-01
+### Changed
+- update encryption info for applets created by builder
+- update dialog text after creating new applet
+
+## [0.3.20] = 2020-10-01
+### Changed
+- fixed reviewer role issue
 
 ## [0.3.19] = 2020-09-30
 ### Changed

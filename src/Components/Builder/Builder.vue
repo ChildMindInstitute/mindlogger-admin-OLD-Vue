@@ -1,8 +1,8 @@
 <template>
   <v-content>
-    <About v-if="aboutOpen" />
+    <About v-show="aboutOpen" />
     <AppletSchemaBuilder
-      v-else
+      v-show="!aboutOpen"
       exportButton
       :initialData="(isEditing || null) && currentApplet"
       :key="componentKey"
@@ -12,6 +12,7 @@
       @updateProtocol="onUpdateProtocol"
       @prepareApplet="onPrepareApplet"
       @onUploadError="onUploadError"
+      @setLoading="setLoading"
     />
 
     <Information
@@ -68,13 +69,13 @@ export default {
     };
   },
   async beforeMount() {
-    const apiHost = this.$store.state.backend;
-    const token = this.$store.state.auth.authToken.token;
-    const appletId = this.currentApplet.applet._id.split('/')[1];
-
     this.versions = [];
 
     if (this.$route.params.isEditing) {
+      const apiHost = this.$store.state.backend;
+      const token = this.$store.state.auth.authToken.token;
+      const appletId = this.currentApplet.applet._id.split('/')[1];
+
       this.isEditing = true;
 
       const resp = await api.getAppletVersions({ apiHost, token, appletId });
@@ -96,12 +97,22 @@ export default {
       this.appletPasswordDialog = true;
     },
     addNewApplet(appletPassword) {
-      const protocol = new FormData();
-      protocol.set("protocol", JSON.stringify(this.newApplet || {}));
+      const form = new FormData();
+      form.set("protocol", JSON.stringify(this.newApplet || {}));
+
+      const encryptionInfo = encryption.getAppletEncryptionInfo({
+        appletPassword: appletPassword,
+        accountId: this.$store.state.currentAccount.accountId
+      });
+      form.set('encryption', JSON.stringify({
+        appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
+        appletPrime: Array.from(encryptionInfo.getPrime()),
+        base: Array.from(encryptionInfo.getGenerator())
+      }));
 
       api
         .createApplet({
-          data: protocol,
+          data: form,
           email: this.$store.state.userEmail,
           token: this.$store.state.auth.authToken.token,
           apiHost: this.$store.state.backend,
@@ -149,16 +160,22 @@ export default {
       const appletId = this.currentApplet.applet._id.split('/')[1];
       const token = this.$store.state.auth.authToken.token;
       const apiHost = this.$store.state.backend;
-
       api.prepareApplet({
         apiHost, token, data: protocol, appletId
-      }).then(resp => api.getAppletVersions({ apiHost, token, appletId })).then(resp => {
+      }).then(resp => {
+        this.$store.commit('updateAppletData', {
+          ...resp.data,
+          roles: this.currentApplet.roles
+        });
+
+        return api.getAppletVersions({ apiHost, token, appletId });
+      }).then(resp => {
         this.versions = resp.data;
         this.componentKey = this.componentKey + 1;
       });
     },
-    onUploadSucess() {
-        this.dialogText = 'Your applet is successfully updated';
+    onUploadSucess(msg) {
+        this.dialogText = msg || 'Your applet is successfully updated';
         this.dialogTitle = 'Upload Received';
         this.dialog = true;
     },
@@ -177,6 +194,9 @@ export default {
         appletId,
         versions
       })
+    },
+    setLoading(isLoading) {
+      this.aboutOpen = isLoading;
     }
   }
 };

@@ -83,7 +83,7 @@
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .container {
   background: #EFEFF2;
   height: 100%;
