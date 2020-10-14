@@ -29,7 +29,7 @@
 
 <style lang="scss">
 .v-card__text {
-  padding: 16px !important;
+  padding: 16px !important; 
 }
 </style>
 
