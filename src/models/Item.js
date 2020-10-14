@@ -103,7 +103,7 @@ export default class Item {
             positive: value > 0 ? obj.positive + value : obj.positive,
             negative: value < 0 ? obj.negative + value : obj.negative,
             userActivity: true,
-            [name.en]: value,
+            [name.en]: (obj[name.en] || 0) + value,
           };
         },
         {

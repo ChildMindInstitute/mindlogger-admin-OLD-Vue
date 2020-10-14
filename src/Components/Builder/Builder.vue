@@ -27,6 +27,12 @@
   </v-content>
 </template>
 
+<style lang="scss">
+.v-card__text {
+  padding: 16px !important;
+}
+</style>
+
 <script>
 import Components from "applet-schema-builder";
 import About from "./AboutBuilder";
