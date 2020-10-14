@@ -275,7 +275,7 @@ export default {
       appletSchedule.events.forEach((event, index) => {
         for (const activityId in this.$store.state.currentApplet.activities) {
           const activity = this.$store.state.currentApplet.activities[activityId];
-          if (event.data.URI === activity['@id'] || event.data.URI === activity['url']) {
+          if (event.data.URI === activityId || event.data.URI === activity['url']) {
             appletSchedule.events[index].data.activity_id = activity['_id'].split('/')[1];
           }
         }
