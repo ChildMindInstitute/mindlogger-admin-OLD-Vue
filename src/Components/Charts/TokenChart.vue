@@ -747,7 +747,8 @@ export default {
         .on('mouseout', () => tooltip.style.display = 'none')
         .on('mousemove', function(d) {
           const el = d3.select(this);
-          const xCoords = x(d.data.date) + barWidth * 1.8;
+          const widthPerBar = (widthPerDate - barWidth/2) / d.data.bars;
+          const xCoords = x(d.data.date) + barWidth * 1.8 + widthPerBar * d.data.barIndex;
           const yCoords = y(d.data.positive);
           const padding = 8;
           const cumulativeLabel = 27;
