@@ -182,6 +182,7 @@ import AppletPassword from '../Components/Utils/dialogs/AppletPassword'
 import encryption from '../Components/Utils/encryption/encryption.vue';
 import Applet from '../models/Applet';
 import Information from '../Components/Utils/dialogs/information.vue';
+import Item from '../models/Item';
 
 export default {
   name: "SetUsers",
@@ -267,6 +268,10 @@ export default {
         this.requestedAction = this.exportUsersData.bind(this);
       }
     },
+
+    /**
+     * export user data for selected users
+     */
     exportUsersData() {
       this.$refs.userTableRef.getSelectedNodes();
 
@@ -295,13 +300,62 @@ export default {
 
           const result = [];
 
+          const currentItems = {};
+          for (let itemUrl in this.currentApplet.items) {
+            currentItems[itemUrl] = new Item(this.currentApplet.items[itemUrl]);
+          }
+
+          for (let itemId in data.items) {
+            data.items[itemId] = new Item(data.items[itemId])
+          }
+
+          for (let version in data.itemReferences) {
+            for (let key in data.itemReferences[version]) {
+              if (!data.itemReferences[version][key]) {
+                continue;
+              }
+
+              const itemId = data.itemReferences[version][key];
+              data.itemReferences[version][key] = data.items[itemId];
+            }
+          }
+
           for (let response of data.responses) {
             const { MRN, displayName, _id } = userIdToData[response.userId];
 
             for (let itemUrl in response.data) {
               let itemData = response.data[itemUrl];
+
               if (itemData.ptr !== undefined && itemData.src !== undefined) {
                 response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr];
+              }
+
+              let item = (data.itemReferences[response.version] && data.itemReferences[response.version][itemUrl])
+                             || currentItems[itemUrl];
+              if (!item) {
+                continue;
+              }
+
+              let options = [];
+              let responseData = [];
+              if (item.inputType === 'radio') {
+                options = item.responseOptions.map(option => `${Object.values(option.name)[0]}: ${option.value}`);
+                if (!Array.isArray(response.data[itemUrl])) {
+                  response.data[itemUrl] = [response.data[itemUrl]]
+                }
+
+                response.data[itemUrl].forEach(val => {
+                  if (typeof val === 'string') {
+                    let option = item.responseOptions.find(option => Object.values(option.name)[0] === val);
+                    if (option) {
+                      responseData.push(option.value);
+                    }
+                  } else {
+                    responseData.push(val);
+                  }
+                });
+              } else {
+                responseData = response.data[itemUrl]
               }
 
               result.push({
@@ -312,13 +366,15 @@ export default {
                 userId: _id,
                 activity: response.activity.name,
                 item: itemUrl,
-                response: response.data[itemUrl]
+                response: responseData,
+                options: options.join(', '),
+                version: response.version
               });
             }
           }
 
           let otc = new ObjectToCSV({ 
-            keys: ['id', 'created', 'MRN', 'displayName', 'userId', 'activity', 'item', 'response'].map(value => ({ key: value, as: value })),
+            keys: ['id', 'created', 'MRN', 'displayName', 'userId', 'activity', 'item', 'response', 'options', 'version'].map(value => ({ key: value, as: value })),
             data: result, 
           });
 
