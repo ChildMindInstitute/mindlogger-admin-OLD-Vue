@@ -42,10 +42,7 @@
           </v-col>
 
           <v-col v-if="params.role === 'user'" cols="12" sm="6" md="4">
-            <v-text-field
-              v-model="params.profile.mrn"
-              label="Institutional ID"
-            />
+            <v-text-field v-model="params.profile.mrn" label="Institutional ID" />
           </v-col>
           <v-col v-else cols="12" sm="6" md="4">
             <v-text-field
@@ -85,14 +82,10 @@
             />
           </v-col>
           <v-col cols="auto">
-            <v-btn :disabled="!valid" color="primary" @click="submit">
-              Submit
-            </v-btn>
+            <v-btn :disabled="!valid" color="primary" @click="submit">Submit</v-btn>
           </v-col>
           <v-col cols="auto">
-            <v-btn color="error" @click="reset">
-              Reset Form
-            </v-btn>
+            <v-btn color="error" @click="reset">Reset Form</v-btn>
           </v-col>
         </v-row>
       </v-container>
@@ -102,43 +95,43 @@
 
 <script>
 export default {
-  name: 'CreateInvitationForm',
+  name: "CreateInvitationForm",
   data() {
     return {
       lazy: false,
       valid: true,
       emailRules: [
-        (v) => !!v || 'E-mail is required',
-        (v) =>
+        v => !!v || "E-mail is required",
+        v =>
           /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(v) ||
-          'E-mail must be valid',
+          "E-mail must be valid"
       ],
-      firstNameRules: [(v) => !!v || 'Name is required'],
-      lastNameRules: [(v) => !!v || 'Name is required'],
-      accountNameRules: [(v) => !!v || 'Name is required'],
-      usersRules: [(v) => !!v || 'Users are required'],
+      firstNameRules: [v => !!v || "Name is required"],
+      lastNameRules: [v => !!v || "Name is required"],
+      accountNameRules: [v => !!v || "Name is required"],
+      usersRules: [v => !!v || "Users are required"],
       params: {
-        role: 'user',
+        role: "user",
         profile: {
-          firstName: '',
-          lastName: '',
-          email: '',
-          mrn: '',
+          firstName: "",
+          lastName: "",
+          email: "",
+          mrn: ""
         },
-        accountName: '',
-        users: [],
+        accountName: "",
+        users: []
       },
       languages: [
         {
-          label: 'English',
-          value: 'en_US',
+          label: "English",
+          value: "en"
         },
         {
-          label: 'French',
-          value: 'fr_FR',
-        },
+          label: "French",
+          value: "fr"
+        }
       ],
-      currentLanguage: 'en_US',
+      currentLanguage: "en"
     };
   },
   computed: {
@@ -157,14 +150,14 @@ export default {
     invitationRoles() {
       let roles = this.$store.state.currentApplet.roles;
 
-      if (roles.includes('manager') || roles.includes('owner')) {
-        return ['user', 'coordinator', 'editor', 'manager', 'reviewer'];
-      } else if (roles.includes('coordinator')) {
-        return ['user', 'reviewer'];
+      if (roles.includes("manager") || roles.includes("owner")) {
+        return ["user", "coordinator", "editor", "manager", "reviewer"];
+      } else if (roles.includes("coordinator")) {
+        return ["user", "reviewer"];
       }
 
       return [];
-    },
+    }
   },
 
   methods: {
@@ -174,14 +167,15 @@ export default {
         lastName: this.params.profile.lastName,
         email: this.params.profile.email,
         role: this.params.role,
+        lang: this.currentLanguage
       };
 
-      if (this.params.role === 'user') {
+      if (this.params.role === "user") {
         invitationOptions.MRN = this.params.profile.mrn;
       } else {
         invitationOptions.accountName = this.params.accountName;
       }
-      if (this.params.role === 'reviewer') {
+      if (this.params.role === "reviewer") {
         invitationOptions.users = [];
         let userIds = this.params.users;
         let activeUsers = this.activeUserList;
@@ -201,20 +195,20 @@ export default {
         }
       }
 
-      this.$emit('createInvitation', invitationOptions);
+      this.$emit("createInvitation", invitationOptions);
     },
 
     // eslint-disable-next-line
     reset() {
       this.params = {
-        role: 'user',
+        role: "user",
         profile: {
-          displayName: '',
-          email: '',
-        },
+          displayName: "",
+          email: ""
+        }
       };
-    },
-  },
+    }
+  }
 };
 </script>
 
