@@ -280,6 +280,7 @@ export default {
   },
 
   data: () => ({
+    formattedData: [],
     legendWidth: 150,
     focusExtent: [ONE_WEEK_AGO, TODAY],
     divergingExtent: {
@@ -328,6 +329,7 @@ export default {
   mounted() {
     this.render = this.render.bind(this);
 
+    this.formatTokenData();
     this.computeValueExtent();
     this.render();
     this.drawBrush();
@@ -342,6 +344,27 @@ export default {
    * Component methods.
    */
   methods: {
+    /**
+     * Update the token data to be formatted correctly.
+     *
+     * @returns {void}
+     */
+    formatTokenData() {
+      const { data } = this;
+
+      for (let i = 0; i < data.length; i += 1) {
+        if (!i) {
+          this.formattedData.push(data[i]);
+          continue;
+        }
+        const dataIndex = this.formattedData.findIndex(({ date }) => this.compareDates(date, data[i].date));
+        if (dataIndex === -1) {
+          this.formattedData.push(data[i]);
+        } else {
+          this.formattedData[dataIndex] = this.mergeObject(this.formattedData[dataIndex], data[i]);
+        }
+      }
+    },
     /**
      * Updates the start date for the focused time range.
      *
@@ -656,12 +679,12 @@ export default {
      * @return {void}
      */
     drawFocusChart() {
-      const { svg, x, y, data, focusMargin, features } = this;
+      const { svg, x, y, formattedData, focusMargin, features } = this;
       const barWidth = this.focusBarWidth();
       const stack = d3.stack()
         .keys(features.map(f => f.name.en))
         .offset(d3.stackOffsetDiverging);
-      const layers = stack(data);
+      const layers = stack(formattedData);
       const tooltip = document.querySelector('.TokenChart .tooltip');
 
       svg
@@ -738,7 +761,7 @@ export default {
     },
 
     drawContextChart() {
-      const { svg, contextX, contextY, data} = this;
+      const { svg, contextX, contextY, formattedData} = this;
       const barWidth = this.contextBarWidth();
 
       svg
@@ -759,7 +782,7 @@ export default {
       svg
         .select('.context-chart')
         .selectAll('.negative-bar')
-        .data(data)
+        .data(formattedData)
         .enter()
         .append('rect')
         .attr('class', 'negative-bar')
@@ -774,7 +797,7 @@ export default {
       svg
         .select('.context-chart')
         .selectAll('.positive-bar')
-        .data(data)
+        .data(formattedData)
         .enter()
         .append('rect')
         .attr('class', 'positive-bar')
@@ -790,7 +813,7 @@ export default {
         .select('.context-chart')
         .attr('transform', `translate(${-barWidth/2}, ${this.contextMargin.top})`)
         .selectAll('.bar')
-        .data(data)
+        .data(formattedData)
         .enter()
         .append('rect')
         .attr('class', 'bar')
@@ -801,6 +824,25 @@ export default {
         .attr('y', d => contextY(Math.max(0, d.cummulative)))
         .attr('height', d => Math.abs(contextY(d.cummulative) - contextY(0)))
         .attr('opacity', 0.2);
+    },
+
+    // Other Utils
+    mergeObject(acc, obj) {
+      const result = acc;
+
+      for (let [key, value] of Object.entries(obj)) {
+        if (key === "date") continue;
+        if (result[key]) {
+          result[key] += value;
+        } else {
+          result[key] = value;
+        }
+      }
+      return result;
+    },
+    compareDates(accDate, date) {
+      if (JSON.stringify(accDate) === JSON.stringify(date)) return true;
+      return false;
     }
   },
 };
