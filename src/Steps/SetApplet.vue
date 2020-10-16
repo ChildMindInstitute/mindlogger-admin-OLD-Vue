@@ -148,12 +148,12 @@ export default {
       this.dialog = true;
     },
     onOwnerShipInviteSuccessful(email) {
-      this.dialogText = `Your requeust is successfully sent to ${email}. Please wait for receiver to accept your request`;
+      this.dialogText = `Your request is successfully sent to ${email}. Please wait for receiver to accept your request`;
       this.dialogTitle = 'Request Sent';
       this.dialog = true;
     },
     onOwnerShipInviteError() {
-      this.dialogText = 'Your requeust for transfer ownership of applet is failed. Please check if user exists.';
+      this.dialogText = 'Your request for transfer ownership of applet is failed. Please check if user exists.';
       this.dialogTitle = 'Request Failed';
       this.dialog = true;
     }

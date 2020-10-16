@@ -68,18 +68,14 @@ export default {
       componentKey: 1
     };
   },
-  async beforeMount() {
+  beforeMount() {
     this.versions = [];
-
     if (this.$route.params.isEditing) {
       const apiHost = this.$store.state.backend;
       const token = this.$store.state.auth.authToken.token;
       const appletId = this.currentApplet.applet._id.split('/')[1];
-
+      this.versions = this.$route.params.versions;
       this.isEditing = true;
-
-      const resp = await api.getAppletVersions({ apiHost, token, appletId });
-      this.versions = resp.data;
     }
   },
   computed: {
