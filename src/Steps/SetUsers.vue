@@ -355,7 +355,11 @@ export default {
                   }
                 });
               } else {
-                responseData = response.data[itemUrl]
+                if (typeof response.data[itemUrl] == 'object' && response.data[itemUrl]) {
+                  responseData = Object.keys(response.data[itemUrl]).map(key => `${key}: ${response.data[itemUrl][key]}`);
+                } else {
+                  responseData = [response.data[itemUrl]];
+                }
               }
 
               result.push({
