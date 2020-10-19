@@ -153,7 +153,7 @@ export default {
       this.dialog = true;
     },
     onOwnerShipInviteError() {
-      this.dialogText = 'Your request for transfer ownership of applet is failed. Please check if user exists.';
+      this.dialogText = 'Your request for transfer ownership of applet is failed.';
       this.dialogTitle = 'Request Failed';
       this.dialog = true;
     }

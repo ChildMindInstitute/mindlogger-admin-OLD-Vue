@@ -13,7 +13,7 @@
       <h1>Active Users</h1>
       <active-user-table
         ref="userTableRef"
-        key="componentKey"
+        :key="componentKey"
         :users="activeUserList"
         :appletId="$route.params.appletId"
         @reUploadResponse="responseReUploadEvent"
@@ -355,7 +355,11 @@ export default {
                   }
                 });
               } else {
-                responseData = response.data[itemUrl]
+                if (typeof response.data[itemUrl] == 'object' && response.data[itemUrl]) {
+                  responseData = Object.keys(response.data[itemUrl]).map(key => `${key}: ${response.data[itemUrl][key]}`);
+                } else {
+                  responseData = [response.data[itemUrl]];
+                }
               }
 
               result.push({
@@ -442,6 +446,8 @@ export default {
     updateUserResponse(userData) {
       let to = new Date();
       let from = new Date();
+
+      to.setDate(to.getDate() + 1);
       from.setDate(from.getDate() - 8);
 
       const apiHost = this.$store.state.backend;
