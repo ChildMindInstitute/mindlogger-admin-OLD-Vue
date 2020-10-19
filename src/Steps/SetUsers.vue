@@ -13,7 +13,7 @@
       <h1>Active Users</h1>
       <active-user-table
         ref="userTableRef"
-        key="componentKey"
+        :key="componentKey"
         :users="activeUserList"
         :appletId="$route.params.appletId"
         @reUploadResponse="responseReUploadEvent"
@@ -446,6 +446,8 @@ export default {
     updateUserResponse(userData) {
       let to = new Date();
       let from = new Date();
+
+      to.setDate(to.getDate() + 1);
       from.setDate(from.getDate() - 8);
 
       const apiHost = this.$store.state.backend;
