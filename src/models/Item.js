@@ -47,14 +47,14 @@ export default class Item {
     this.inputType = data[ReproLib.inputType][0]['@value'];
     this.url = data['schema:url'];
     this.description = i18n.arrayToObject(data['schema:description']);
-    this.version = i18n.arrayToObject(data['schema:version']);
-    this.schemaVersion = i18n.arrayToObject(data['schema:schemaVersion']);
+    this.version = data['schema:version'] && i18n.arrayToObject(data['schema:version']);
+    this.schemaVersion = data['schema:schemaVersion'] && i18n.arrayToObject(data['schema:schemaVersion']);
     this.responseOptions = this.parseResponseOptions(data[ReproLib.responseOptions]);
     this.responses = [];
-    this.maxValue = 'schema:maxValue' in data[ReproLib.responseOptions][0]
+    this.maxValue = data[ReproLib.responseOptions] && 'schema:maxValue' in data[ReproLib.responseOptions][0]
       ? data[ReproLib.responseOptions][0]['schema:maxValue'][0]['@value']
       : 0;
-    this.minValue = 'schema:minValue' in data[ReproLib.responseOptions][0]
+    this.minValue = data[ReproLib.responseOptions] && 'schema:minValue' in data[ReproLib.responseOptions][0]
       ? data[ReproLib.responseOptions][0]['schema:minValue'][0]['@value']
       : 0;
     this.chart = {
@@ -73,6 +73,8 @@ export default class Item {
    * @return {Array} available response choices.
    */
   parseResponseOptions(responseOptions) {
+    if (!responseOptions) return null;
+
     const itemListElement = responseOptions[0]['schema:itemListElement'];
 
     return itemListElement.map((choice, index) => ({

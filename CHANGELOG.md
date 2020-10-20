@@ -5,11 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.30] = 2020-10-19
+## [0.3.32] = 2020-10-20
 ### Changed
-- Fix issues related to token value type
+- Fix issues related to token value type and response timezone
+- Implement template behaviors functionality
 
-## [0.3.29] = 2020-10-13
+## [0.3.31] = 2020-10-19
+- fix item parsing issue
+
+## [0.3.30] = 2020-10-15
+### Changed
+- include response options in user data export format
+
+## [0.3.29] = 2020-10-14
+### Changed
+- insert version controlling functionality in tokenlogger dashboard
+
+## [0.3.28] = 2020-10-13
 ### Changed
 - Fix TL dashboard to work with accumulative values
 - Changed time range for TL chart

@@ -110,7 +110,6 @@ export default {
   async beforeMount() {
     const { apiHost, token } = this;
     this.versions = [];
-
     if (this.$route.params.isEditing) {
       const appletId = this.currentApplet.applet._id.split('/')[1];
       this.isEditing = true;
