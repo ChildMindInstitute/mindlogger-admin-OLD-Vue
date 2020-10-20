@@ -878,7 +878,6 @@ export default {
         .selectAll('.negative-bar')
         .remove()
 
-      // console.log('--------->', formattedData)
       // Negative
       svg
         .select('.context-chart')
