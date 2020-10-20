@@ -58,6 +58,16 @@
         ></v-date-picker>
       </v-menu>
     </div>
+    
+    <div class="version">
+      <v-select
+        :items="appletVersions"
+        label="versions"
+        @change="versionChanged"
+        v-model="selectedVersions"
+        multiple
+      ></v-select>
+    </div>
 
     <div class="chart-container">
       <div 
@@ -113,7 +123,8 @@
   user-select: none;
 }
 
-.TokenChart .time-range {
+.TokenChart .time-range,
+.TokenChart .version {
   margin-bottom: 2rem;
   margin-left: -0.8rem;
   font-size: 0.8rem;
@@ -243,17 +254,18 @@ import * as d3 from 'd3';
 import * as moment from 'moment';
 import slugify from '../../core/slugify';
 import { DaySpan, Day } from 'dayspan';
+import Applet from '../../models/Applet';
 
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const NOW = new Date();
-const TODAY = new Date(Date.UTC(
+const TODAY = new Date(Date(
   NOW.getFullYear(),
   NOW.getMonth(),
-  NOW.getDate() + 1,
-  0,
-  0,
-  0,
+  NOW.getDate(),
+  23,
+  59,
+  59,
 ));
 const ONE_WEEK_AGO = new Date(TODAY);
 const ONE_MONTH_AGO = new Date(TODAY);
@@ -277,6 +289,8 @@ export default {
     plotId: String,
     data: Array,
     features: Array,
+    versions: Array,
+    versionsByDate: Object
   },
 
   data: () => ({
@@ -298,8 +312,14 @@ export default {
       top: 500,
       bottom: 30,
     },
+
+    selectedVersions: [],
+    versionBarWidth: 10
   }),
   computed: {
+    appletVersions() {
+      return this.versions.map(version => version.version)
+    },
     fromDate: {
       cache: false,
       get() {
@@ -319,6 +339,7 @@ export default {
 
   created() {
     this.features.forEach(feat => feat.slug = slugify(feat.name.en));
+    this.selectedVersions = this.appletVersions;
   },
 
   /**
@@ -353,17 +374,31 @@ export default {
       const { data } = this;
 
       for (let i = 0; i < data.length; i += 1) {
+        const response = {
+          ...data[i],
+          // date: moment(data[i].date).format('MMM DD')
+        }
+
         if (!i) {
-          this.formattedData.push(data[i]);
+          this.formattedData.push(response);
           continue;
         }
-        const dataIndex = this.formattedData.findIndex(({ date }) => this.compareDates(date, data[i].date));
+        const dataIndex = this.formattedData.findIndex(({ date }) => this.compareDates(date, response.date));
         if (dataIndex === -1) {
-          this.formattedData.push(data[i]);
+          this.formattedData.push(response);
         } else {
-          this.formattedData[dataIndex] = this.mergeObject(this.formattedData[dataIndex], data[i]);
+          this.formattedData[dataIndex] = this.mergeObject(this.formattedData[dataIndex], response);
         }
       }
+      console.log('formatted data-------------->', this.formattedData)
+    },
+    /**
+     * Handles change event for version filter
+     * 
+     * @return {void}
+     */
+    versionChanged() {
+      this.render();
     },
     /**
      * Updates the start date for the focused time range.
@@ -417,16 +452,22 @@ export default {
     },
 
     contextBarWidth() {
-      return this.width / 30 * 2/3;
+      return this.width / 30 / 3;
     },
     focusBarWidth() {
       const range = this.focusExtent;
       const timeDelta = range[1].getTime() - range[0].getTime();
       const numDays = Math.ceil(timeDelta / (24 * 60 * 60 * 1000));
 
-      return Math.min(this.width / numDays * 2/3, 50);
+      return Math.min(this.width / numDays /3, 40);
     },
+    widthPerDate() {
+      const range = this.focusExtent;
+      const timeDelta = range[1].getTime() - range[0].getTime();
+      const numDays = Math.ceil(timeDelta / (24 * 60 * 60 * 1000));
 
+      return this.width / numDays;
+    },
     drawBrush() {
       if (!this.brush) {
         this.brush = d3
@@ -447,6 +488,7 @@ export default {
 
             this.drawAxes();
             this.drawFocusChart();
+            this.drawVersionBars();
           });
       }
 
@@ -499,9 +541,9 @@ export default {
       let negative;
 
       // Find the maximum value for cumulative user responses.
-      for (let i = 0; i < this.data.length; i++) {
-        positive = this.data[i].positive;
-        negative = this.data[i].negative;
+      for (let i = 0; i < this.formattedData.length; i++) {
+        positive = this.formattedData[i].positive;
+        negative = this.formattedData[i].negative;
 
         if (positive > this.divergingExtent.max) {
           this.divergingExtent.max = positive;
@@ -524,6 +566,7 @@ export default {
     resize() {
       const dimensions = this.$refs.container.getBoundingClientRect();
       this.width = dimensions.width - this.focusMargin.left - this.focusMargin.right;
+      this.height = dimensions.height - this.focusMargin.top - this.focusMargin.bottom;
       this.focusHeight = 650 - this.focusMargin.top - this.focusMargin.bottom;
       this.contextHeight = 650 - this.contextMargin.top - this.contextMargin.bottom;
 
@@ -559,6 +602,7 @@ export default {
       this.drawAxes();
       this.drawBrush();
       this.drawFocusChart();
+      this.drawVersionBars();
       this.drawContextChart();
     },
 
@@ -601,13 +645,13 @@ export default {
         .scale(this.x)
         .tickSize(this.focusHeight)  // Height of the tick line.
         .ticks(d3.timeDay)
-        .tickFormat(d => moment.utc(d).format('MMM D'));
+        .tickFormat(d => moment(d).format('MMM D'));
       const contextXAxis = d3
         .axisBottom()
         .scale(this.contextX)
-        .ticks(30)
+        .ticks(d3.timeDay)
         .tickSize(this.contextHeight)  // Height of the tick line.
-        .tickFormat(d => moment.utc(d).format('M/D'));
+        .tickFormat(d => moment(d).format('M/D'));
       const yAxisTicks = this.y.ticks().filter(Number.isInteger);
       const yAxis = d3
         .axisLeft()
@@ -686,6 +730,7 @@ export default {
         .offset(d3.stackOffsetDiverging);
       const layers = stack(formattedData);
       const tooltip = document.querySelector('.TokenChart .tooltip');
+      const widthPerDate = this.widthPerDate();
 
       svg
         .select('.chart')
@@ -715,11 +760,15 @@ export default {
         .join('rect')
 
         // Set the bar position and dimension.
-        .attr('x', d => x(d.data.date) + barWidth/2)
+        .attr('x', d => {
+          const widthPerBar = (widthPerDate - barWidth/2) / d.data.bars;
+
+          return x(d.data.date) + barWidth/2 + widthPerBar * d.data.barIndex;
+        })
         .attr('width', s => barWidth)
         .attr('y', d => y(d[1]))
         .attr('height', d => {
-          return y(d[0]) - y(d[1]) || 0;
+          return this.selectedVersions.indexOf(d.data.version) >= 0 ? y(d[0]) - y(d[1]) || 0 : 0;
         })
 
         // Tooltip
@@ -760,9 +809,63 @@ export default {
         });
     },
 
+    /**
+     * Draw bars (black bar for major change, grey bar for minor change) to represent version changes
+     * 
+     * @return {void}
+     */
+    drawVersionBars() {
+      const { svg, x, y, focusMargin, versions, height } = this;
+      const barWidth = this.focusBarWidth();
+
+      const widthPerDate = this.widthPerDate();
+
+      svg
+        .select('.chart')
+        .selectAll('.version')
+        .remove()
+
+      svg
+        .select('.chart')
+        .selectAll('.version')
+        .data(versions)
+        .join('rect')
+        .attr('class', 'version')
+        .attr('fill', d => d.barColor)
+        .attr('x', d => {
+          if (d.formatted) {
+            const versions = this.versionsByDate[d.formatted] || ['oo'];
+            const widthPerBar = (widthPerDate - barWidth/2) / versions.length;
+            const index = versions.findIndex(ver => ver == 'oo' || Applet.compareVersions(ver, d.version) >= 0);
+
+            if (index == 0) {
+              return x(d.updated);
+            }
+
+            if (index < 0) {
+              index = versions.length;
+            }
+
+            return x(d.updated) + barWidth/2 + widthPerBar * index - (widthPerBar - barWidth)/2 - this.versionBarWidth/2;
+          }
+
+          return 0;
+        })
+        .attr('width', d => {
+          return d.updated ? this.versionBarWidth : 0
+        })
+        .attr('y', d => y(0) - height)
+        .attr('height', d => height)
+    },
+
+    contextWidthPerDate() {
+      return this.width / 30;
+    },
+
     drawContextChart() {
       const { svg, contextX, contextY, formattedData} = this;
       const barWidth = this.contextBarWidth();
+      const contextWidthPerDate = this.contextWidthPerDate();
 
       svg
         .select('.context-chart')
@@ -777,7 +880,7 @@ export default {
         .selectAll('.negative-bar')
         .remove()
 
-
+      // console.log('--------->', formattedData)
       // Negative
       svg
         .select('.context-chart')
@@ -788,7 +891,10 @@ export default {
         .attr('class', 'negative-bar')
         .attr('fill', '#ED8495')
         // Set the bar position and dimension.
-        .attr('x', d => contextX(d.date) + barWidth/2)
+        .attr('x', d => {
+          const widthPerBar = contextWidthPerDate / d.bars;
+          return contextX(d.date) + barWidth/2 + widthPerBar * d.barIndex;
+        })
         .attr('width', barWidth)
         .attr('y', contextY(0))
         .attr('height', d => Math.abs(contextY(d.negative) - contextY(0)))
@@ -803,7 +909,10 @@ export default {
         .attr('class', 'positive-bar')
         .attr('fill', '#BEE0AC')
         // Set the bar position and dimension.
-        .attr('x', d => contextX(d.date) + barWidth/2)
+        .attr('x', d => {
+          const widthPerBar = contextWidthPerDate / d.bars;
+          return contextX(d.date) + barWidth/2 + widthPerBar * d.barIndex;
+        })
         .attr('width', barWidth)
         .attr('y', d => contextY(d.positive))
         .attr('height', d => Math.abs(contextY(d.positive) - contextY(0)))
@@ -819,7 +928,10 @@ export default {
         .attr('class', 'bar')
         .attr('fill', 'black')
         // Set the bar position and dimension.
-        .attr('x', d => contextX(d.date) + barWidth/2)
+        .attr('x', d => {
+          const widthPerBar = contextWidthPerDate / d.bars;
+          return contextX(d.date) + barWidth/2 + widthPerBar * d.barIndex;
+        })
         .attr('width', s => barWidth)
         .attr('y', d => contextY(Math.max(0, d.cummulative)))
         .attr('height', d => Math.abs(contextY(d.cummulative) - contextY(0)))
@@ -831,7 +943,7 @@ export default {
       const result = acc;
 
       for (let [key, value] of Object.entries(obj)) {
-        if (key === "date") continue;
+        if (key === "date" || key === "version") continue;
         if (result[key]) {
           result[key] += value;
         } else {

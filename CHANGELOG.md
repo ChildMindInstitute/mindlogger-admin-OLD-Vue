@@ -5,12 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.28] = 2020-10-13
+## [0.3.30] = 2020-10-19
+### Changed
+- Fix issues related to token value type
+
+## [0.3.29] = 2020-10-13
 ### Changed
 - Fix TL dashboard to work with accumulative values
 - Changed time range for TL chart
 - Applet-schema-builder 0.3.1 -> 0.3.3
 - Updated dialog styles
+
+## [0.3.28] = 2020-10-12
+### Changed
+- insert version controlling functionality in tokenlogger dashboard
 
 ## [0.3.27] = 2020-10-11
 ### Changed

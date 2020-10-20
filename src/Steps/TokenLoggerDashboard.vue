@@ -59,6 +59,8 @@
             :maxValue="item.maxValue"
             :data="item.responses"
             :features="item.responseOptions"
+            :versionsByDate="item.dateToVersions"
+            :versions="applet.versions"
           />
         </v-card>
       </div>
@@ -206,6 +208,7 @@ export default {
         {
           withActivities: true,
           withResponses: true,
+          withVersions: true,
           users: Array.isArray(users) ? users : [users],
         },
         this.$store.state.currentApplet.applet.encryption
