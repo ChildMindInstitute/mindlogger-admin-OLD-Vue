@@ -123,7 +123,7 @@ export default class Item {
         response.value = [response.value];
       } else if (response.value.length > 0) {
         const { offset } = response;
-        date = moment(response.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format();
+        date = moment.utc(response.date).format("L");
       }
 
       return response.value.reduce(

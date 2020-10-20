@@ -390,7 +390,6 @@ export default {
           this.formattedData[dataIndex] = this.mergeObject(this.formattedData[dataIndex], response);
         }
       }
-      console.log('formatted data-------------->', this.formattedData)
     },
     /**
      * Handles change event for version filter
