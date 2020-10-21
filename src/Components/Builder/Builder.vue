@@ -166,11 +166,14 @@ export default {
         optionData.templates[0]["_id"] = this.templateId
       }
       form.set("templateInfo", JSON.stringify(optionData));
-      await api.updateItemTemplates({ 
+      const updatedTemplates = await api.updateItemTemplates({ 
         apiHost, 
         token, 
         data: form 
       });
+      if (updatedTemplates.data.length) {
+        this.templateId = updatedTemplates.data[0]["_id"];
+      }
     },
     addNewApplet(appletPassword) {
       const form = new FormData();
