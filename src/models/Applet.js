@@ -182,7 +182,7 @@ export default class Applet {
       return { 
         version: d.version, 
         formatted,
-        updated: new Date(formatted)
+        updated: moment(formatted).set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
       };
     });
   }

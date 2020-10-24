@@ -285,7 +285,8 @@ export default {
       bottom: 30,
     },
     selectedVersions: [],
-    versionBarWidth: 10
+    versionBarWidth: 10,
+    versionChangeLimitPerDay: 4
   }),
   computed: {
     appletVersions() {
@@ -392,7 +393,7 @@ export default {
       const range = this.focusExtent;
       const timeDelta = range[1].getTime() - range[0].getTime();
       const numDays = Math.ceil(timeDelta / (24 * 60 * 60 * 1000));
-      return Math.min(this.width / numDays /3, 40);
+      return Math.min(this.width / numDays / this.versionChangeLimitPerDay - this.versionBarWidth, 40);
     },
     widthPerDate() {
       const range = this.focusExtent;
@@ -657,8 +658,8 @@ export default {
         .join('rect')
         // Set the bar position and dimension.
         .attr('x', d => {
-          const widthPerBar = (widthPerDate - barWidth/2) / d.data.bars;
-          return x(d.data.date) + barWidth/2 + widthPerBar * d.data.barIndex;
+          const maxWidthPerBar = (widthPerDate - barWidth/2) / d.data.bars;
+          return x(d.data.date) + barWidth/2 + maxWidthPerBar * d.data.barIndex;
         })
         .attr('width', s => barWidth)
         .attr('y', d => y(d[1]))
@@ -670,8 +671,8 @@ export default {
         .on('mouseout', () => tooltip.style.display = 'none')
         .on('mousemove', function(d) {
           const el = d3.select(this);
-          const widthPerBar = (widthPerDate - barWidth/2) / d.data.bars;
-          const xCoords = x(d.data.date) + barWidth * 1.8 + widthPerBar * d.data.barIndex;
+          const maxWidthPerBar = (widthPerDate - barWidth/2) / d.data.bars;
+          const xCoords = x(d.data.date) + barWidth * 1.8 + maxWidthPerBar * d.data.barIndex;
           const yCoords = y(d.data.positive);
           const padding = 8;
           const cumulativeLabel = 27;
@@ -705,7 +706,7 @@ export default {
      * @return {void}
      */
     drawVersionBars() {
-      const { svg, x, y, focusMargin, versions, height } = this;
+      const { svg, x, y, focusMargin, versions, focusHeight } = this;
       const barWidth = this.focusBarWidth();
       const widthPerDate = this.widthPerDate();
       svg
@@ -715,30 +716,31 @@ export default {
       svg
         .select('.chart')
         .selectAll('.version')
-        .data(versions)
+        .data(versions.filter(version => version.barColor))
         .join('rect')
         .attr('class', 'version')
         .attr('fill', d => d.barColor)
         .attr('x', d => {
           if (d.formatted) {
             const versions = this.versionsByDate[d.formatted] || ['oo'];
-            const widthPerBar = (widthPerDate - barWidth/2) / versions.length;
-            const index = versions.findIndex(ver => ver == 'oo' || Applet.compareVersions(ver, d.version) >= 0);
+            const maxWidthPerBar = (widthPerDate - barWidth/2) / versions.length;
+            let index = versions.findIndex(ver => ver == 'oo' || Applet.compareVersions(ver, d.version) >= 0);
             if (index == 0) {
               return x(d.updated);
             }
             if (index < 0) {
               index = versions.length;
             }
-            return x(d.updated) + barWidth/2 + widthPerBar * index - (widthPerBar - barWidth)/2 - this.versionBarWidth/2;
+
+            return x(d.updated) + barWidth/2 + maxWidthPerBar * index - (maxWidthPerBar - barWidth)/2 - this.versionBarWidth/2;
           }
           return 0;
         })
         .attr('width', d => {
           return d.updated ? this.versionBarWidth : 0
         })
-        .attr('y', d => y(0) - height)
-        .attr('height', d => height)
+        .attr('y', 0)
+        .attr('height', focusHeight)
     },
     contextWidthPerDate() {
       return this.width / 30;
