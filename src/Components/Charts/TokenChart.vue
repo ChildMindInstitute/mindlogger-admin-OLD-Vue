@@ -5,14 +5,14 @@
       <div 
         class="legend-item" 
         v-for="feature in features"
-        :key="feature.name.en"
+        :key="feature.slug"
       >
         <div 
           class="color-box"
           :style="{ background: feature.color }">
         </div>
         <div class="label">
-          {{ feature.name.en }}
+          {{ `${feature.name.en} (${feature.value})` }}
         </div>
       </div>
     </div>
@@ -309,7 +309,8 @@ export default {
     },
   },
   created() {
-    this.features.forEach(feat => feat.slug = slugify(feat.name.en));
+    this.features.forEach(feat => feat.slug = slugify(feat.id));
+
     this.selectedVersions = this.appletVersions;
   },
   /**
@@ -628,7 +629,7 @@ export default {
       const { svg, x, y, data, focusMargin, features } = this;
       const barWidth = this.focusBarWidth();
       const stack = d3.stack()
-        .keys(features.map(f => f.name.en))
+        .keys(features.map(f => f.id))
         .offset(d3.stackOffsetDiverging);
       const layers = stack(data);
       const tooltip = document.querySelector('.TokenChart .tooltip');
@@ -644,7 +645,7 @@ export default {
         .join('g')
         .attr('class', 'layer')
         .attr('fill', layer => {
-          return features.find(f => layer.key === f.name.en).color
+          return features.find(f => layer.key === f.id).color
         })
         // Create the individual bars.
         .selectAll('rect')
@@ -685,7 +686,7 @@ export default {
           for (let i = 0; i < features.length; i++) {
             const text = tooltip.querySelector(`.${features[i].slug}`)
             const name = features[i].name.en;
-            const value = d.data[name];
+            const value = d.data[features[i].id];
             if (!value) {
               text.style.display = 'none';
               continue;

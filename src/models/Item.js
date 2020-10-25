@@ -83,6 +83,9 @@ export default class Item {
       color: choice['schema:value'][0]['@value'] > 0
         ? this.coldColors.shift()
         : this.warmColors.shift(),
+    })).map(choice => ({
+      ...choice,
+      id: `${Object.values(choice.name)[0]} (${choice.value})`
     }));
   }
 
@@ -107,12 +110,19 @@ export default class Item {
     const numericValue = +str;
 
     return Number.isNaN(numericValue)
-      ? this.getChoiceByName(str)
-      : this.valueMapping[version] && this.valueMapping[version][numericValue] !== undefined 
-      ? this.responseOptions[this.valueMapping[version][numericValue]]
-      : this.getChoiceByValue( 
-        numericValue
-      );
+      ? this.valueMapping[version] && 
+          this.valueMapping[version][str] !== undefined &&
+          this.responseOptions[this.valueMapping[version][str]]
+        ||
+        this.getChoiceByName(str)
+
+      : this.valueMapping[version] && 
+          this.valueMapping[version][numericValue] !== undefined && 
+          this.responseOptions[this.valueMapping[version][numericValue]]
+        ||
+        this.getChoiceByValue( 
+          numericValue
+        );
   }
 
 
@@ -139,7 +149,7 @@ export default class Item {
             positive: value > 0 ? obj.positive + value : obj.positive,
             negative: value < 0 ? obj.negative + value : obj.negative,
             userActivity: true,
-            [name.en]: (obj[name.en] || 0) + value,
+            [choice.id]: (obj[choice.id] || 0) + value,
             barIndex: response.barIndex,
             bars: this.dateToVersions[response.date].length,
             version: response.version

@@ -111,12 +111,13 @@ export default class Applet {
         }
 
         oldItem.responseOptions.forEach(oldOption => {
-          const existing = currentItem.responseOptions.find(currentOption => Object.values(currentOption.name)[0] === Object.values(oldOption.name)[0]);
+          const existing = currentItem.responseOptions.find(currentOption => currentOption.id === oldOption.id);
           if (!existing) {
             const index = currentItem.appendResponseOption(oldOption);
 
             currentItem.valueMapping[version] = currentItem.valueMapping[version] || {};
             currentItem.valueMapping[version][oldOption.value] = index;
+            currentItem.valueMapping[version][Object.values(oldOption.name)[0]] = index;
           }
         })
       }
