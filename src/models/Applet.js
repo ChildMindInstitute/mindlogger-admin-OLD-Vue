@@ -111,12 +111,13 @@ export default class Applet {
         }
 
         oldItem.responseOptions.forEach(oldOption => {
-          const existing = currentItem.responseOptions.find(currentOption => Object.values(currentOption.name)[0] === Object.values(oldOption.name)[0]);
+          const existing = currentItem.responseOptions.find(currentOption => currentOption.id === oldOption.id);
           if (!existing) {
             const index = currentItem.appendResponseOption(oldOption);
 
             currentItem.valueMapping[version] = currentItem.valueMapping[version] || {};
             currentItem.valueMapping[version][oldOption.value] = index;
+            currentItem.valueMapping[version][Object.values(oldOption.name)[0]] = index;
           }
         })
       }
@@ -182,7 +183,7 @@ export default class Applet {
       return { 
         version: d.version, 
         formatted,
-        updated: new Date(formatted)
+        updated: moment(formatted).set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
       };
     });
   }
