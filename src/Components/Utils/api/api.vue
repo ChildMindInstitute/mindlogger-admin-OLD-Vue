@@ -377,6 +377,16 @@ const getProtocolData = ({ apiHost, token, appletId, versions }) => axios({
   params: { versions: JSON.stringify(versions) },
 })
 
+
+const validateAppletName = ({ apiHost, token, name }) => axios({
+  method: 'get',
+  url: `${apiHost}/applet/validateName`,
+  headers: {
+    'Girder-Token': token
+  },
+  params: { name }
+});
+
 export default {
   signIn,
   signUp,
@@ -414,5 +424,6 @@ export default {
   getAppletVersions,
   getProtocolData,
   prepareApplet,
+  validateAppletName,
 }
 </script>
