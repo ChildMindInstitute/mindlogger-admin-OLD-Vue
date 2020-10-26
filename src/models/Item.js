@@ -1,4 +1,5 @@
 import axios from 'axios';
+import moment from 'moment';
 
 import i18n from '../core/i18n';
 import ReproLib from '../schema/ReproLib';
@@ -82,6 +83,9 @@ export default class Item {
       color: choice['schema:value'][0]['@value'] > 0
         ? this.coldColors.shift()
         : this.warmColors.shift(),
+    })).map(choice => ({
+      ...choice,
+      id: `${Object.values(choice.name)[0]} (${choice.value})`
     }));
   }
 
@@ -106,20 +110,32 @@ export default class Item {
     const numericValue = +str;
 
     return Number.isNaN(numericValue)
-      ? this.getChoiceByName(str)
-      : this.valueMapping[version] && this.valueMapping[version][numericValue] !== undefined 
-      ? this.responseOptions[this.valueMapping[version][numericValue]]
-      : this.getChoiceByValue( 
-        numericValue
-      );
+      ? this.valueMapping[version] && 
+          this.valueMapping[version][str] !== undefined &&
+          this.responseOptions[this.valueMapping[version][str]]
+        ||
+        this.getChoiceByName(str)
+
+      : this.valueMapping[version] && 
+          this.valueMapping[version][numericValue] !== undefined && 
+          this.responseOptions[this.valueMapping[version][numericValue]]
+        ||
+        this.getChoiceByValue( 
+          numericValue
+        );
   }
 
 
   appendResponses(responses) {
     this.responses = this.responses.concat(responses.map(response => {
+      let date = moment(response.date).format('YYYY-MM-DD');
+
       if (!Array.isArray(response.value)) {
         // Ensure that it is an array.
         response.value = [response.value];
+      } else if (response.value.length > 0) {
+        const { offset } = response;
+        date = moment.utc(response.date).format("L");
       }
 
       return response.value.reduce(
@@ -133,14 +149,14 @@ export default class Item {
             positive: value > 0 ? obj.positive + value : obj.positive,
             negative: value < 0 ? obj.negative + value : obj.negative,
             userActivity: true,
-            [name.en]: (obj[name.en] || 0) + value,
+            [choice.id]: (obj[choice.id] || 0) + value,
             barIndex: response.barIndex,
             bars: this.dateToVersions[response.date].length,
             version: response.version
           };
         },
         {
-          date: new Date(response.date),
+          date: new Date(date),
           cummulative: 0,
           positive: 0,
           negative: 0,

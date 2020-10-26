@@ -302,6 +302,25 @@ const getAppletInvitation = ({ apiHost, token, appletId, options }) =>
     params: { ...options, users: JSON.stringify(options.users) },
   });
 
+const updateItemTemplates = ({ apiHost, token, data }) =>
+  axios({
+    method: "PUT",
+    url: `${apiHost}/item/templates`,
+    headers: {
+      "Girder-Token": token,
+    },
+    data
+  });
+
+const getItemTemplates = ({ apiHost, token }) =>
+  axios({
+    method: "GET",
+    url: `${apiHost}/item/templates`,
+    headers: {
+      "Girder-Token": token,
+    },
+  });
+
 const getUsersData = ({ apiHost, token, appletId, options }) =>
   axios({
     method: "GET",
@@ -394,6 +413,8 @@ export default {
   getActivityByUrl,
   getUserResponses,
   getAppletInvitation,
+  getItemTemplates,
+  updateItemTemplates,
   getUsersData,
   getAppletsForUser,
   duplicateApplet,

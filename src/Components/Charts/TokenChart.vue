@@ -5,14 +5,14 @@
       <div 
         class="legend-item" 
         v-for="feature in features"
-        :key="feature.name.en"
+        :key="feature.slug"
       >
         <div 
           class="color-box"
           :style="{ background: feature.color }">
         </div>
         <div class="label">
-          {{ feature.name.en }}
+          {{ `${feature.name.en} (${feature.value})` }}
         </div>
       </div>
     </div>
@@ -122,7 +122,6 @@
   margin-bottom: 0;
   user-select: none;
 }
-
 .TokenChart .time-range,
 .TokenChart .version {
   margin-bottom: 2rem;
@@ -132,19 +131,16 @@
   color: #777;
   text-transform: uppercase;
 }
-
 .TokenChart .time-range .date {
   margin: 0 0.3rem;
   color: #1976D2;
 }
-
 .TokenChart .legend {
   display: flex;
   flex-wrap: wrap;
   font-size: 0.8rem;
   margin: 1rem 0;
 }
-
 .TokenChart .legend .legend-item {
   display: flex;
   align-items: center;
@@ -153,60 +149,49 @@
   margin-bottom: 12px;
   flex: 1 1 0px;
 }
-
 .TokenChart .legend .legend-item .color-box {
   display: inline-block;
   width: 18px;
   height: 18px;
   margin-right: 0.5rem;
 }
-
 .TokenChart .chart {
   overflow: hidden;
 }
-
 .TokenChart > .chart-container {
   position: relative;
 }
-
 .TokenChart > .chart-container > svg {
   display: block;
   overflow: visible;
   height: 650px;
 }
-
 .TokenChart > svg .selection {
   fill: rgba(0,0,0, 0.1);
   stroke: #DDD;
   stroke-width: 2;
 }
-
 .TokenChart .y-axis .tick line {
   stroke: #EAEAEA;
 }
 .TokenChart .context-y-axis .tick line {
   stroke: #EFEFEF;
 }
-
 .TokenChart .context-y-axis .tick text,
 .TokenChart .y-axis .tick text {
   transform: translate(-6px, 0) !important;
   color: #AAA;
 }
-
 .TokenChart .context-x-axis .tick line,
 .TokenChart .x-axis .tick line {
   display: none;
 }
-
-
 .TokenChart .context-x-axis .domain,
 .TokenChart .context-y-axis .domain,
 .TokenChart .y-axis .domain,
 .TokenChart .x-axis .domain {
   stroke: transparent;
 }
-
 .TokenChart .context-x-axis .tick text,
 .TokenChart .x-axis .tick text {
   color: #555;
@@ -214,7 +199,6 @@
   transform-origin: center;
   transform-box: fill-box;
 }
-
 .TokenChart .tooltip {
   z-index: 9999;
   display: flex;
@@ -224,7 +208,6 @@
   background: white;
   border: 2px solid #e6e6e6;
   box-shadow: 2px 5px 15px 0px rgba(black, 0.1);
-
   * {
     width: fit-content;
     display: flex;
@@ -235,13 +218,11 @@
     padding: 8px 16px;
     width: 100%;
     box-sizing: border-box;
-
     &:not(:first-of-type) {
       border-bottom: 1px solid #eee;
     }
   }
 }
-
 .TokenChart .toDate,
 .TokenChart .fromDate {
   margin: 0 0.5rem !important;
@@ -255,8 +236,6 @@ import * as moment from 'moment';
 import slugify from '../../core/slugify';
 import { DaySpan, Day } from 'dayspan';
 import Applet from '../../models/Applet';
-
-
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const NOW = new Date();
 const TODAY = new Date(Date.UTC(
@@ -269,17 +248,13 @@ const TODAY = new Date(Date.UTC(
 ));
 const ONE_WEEK_AGO = new Date(TODAY);
 const ONE_MONTH_AGO = new Date(TODAY);
-
 ONE_WEEK_AGO.setDate(TODAY.getDate() - 6);
 ONE_MONTH_AGO.setMonth(TODAY.getMonth() - 1);
-
-
 /**
  * TokenChart component.
  */
 export default {
   name: 'TokenChart',
-
   /**
    * Component properties.
    */
@@ -292,7 +267,6 @@ export default {
     versions: Array,
     versionsByDate: Object
   },
-
   data: () => ({
     legendWidth: 150,
     focusExtent: [ONE_WEEK_AGO, TODAY],
@@ -306,14 +280,13 @@ export default {
       bottom: 180,
       left: 30,
     },
-
     contextMargin: {
       top: 500,
       bottom: 30,
     },
-
     selectedVersions: [],
-    versionBarWidth: 10
+    versionBarWidth: 10,
+    versionChangeLimitPerDay: 4
   }),
   computed: {
     appletVersions() {
@@ -335,12 +308,11 @@ export default {
       return moment()
     },
   },
-
   created() {
-    this.features.forEach(feat => feat.slug = slugify(feat.name.en));
+    this.features.forEach(feat => feat.slug = slugify(feat.id));
+
     this.selectedVersions = this.appletVersions;
   },
-
   /**
    * Method to be executed after the component has been mounted.
    *
@@ -348,17 +320,14 @@ export default {
    */
   mounted() {
     this.render = this.render.bind(this);
-
     this.computeValueExtent();
     this.render();
     this.drawBrush();
     window.addEventListener('resize', this.render);
   },
-
   destroyed() {
     window.removeEventListener('resize', this.render);
   },
-
   /**
    * Component methods.
    */
@@ -381,7 +350,6 @@ export default {
       this.focusExtent[0] = moment.utc(date).toDate();
       this.render();
     },
-
     /**
      * Updates the end date for the focused time range.
      *
@@ -395,7 +363,6 @@ export default {
         .toDate();
       this.render();
     },
-
     /**
      * Checks whether the given date should be enabled.
      *
@@ -408,7 +375,6 @@ export default {
         (moment.utc(date) > ONE_MONTH_AGO)
       );
     },
-
     /**
      * Checks whether the given date should be enabled.
      *
@@ -421,22 +387,19 @@ export default {
         (moment.utc(date) <= moment.utc())
       );
     },
-
     contextBarWidth() {
-      return this.width / 30 / 3;
+      return this.width / 30 / this.versionChangeLimitPerDay;
     },
     focusBarWidth() {
       const range = this.focusExtent;
       const timeDelta = range[1].getTime() - range[0].getTime();
       const numDays = Math.ceil(timeDelta / (24 * 60 * 60 * 1000));
-
-      return Math.min(this.width / numDays /3, 40);
+      return Math.min(this.width / numDays / this.versionChangeLimitPerDay - this.versionBarWidth, 40);
     },
     widthPerDate() {
       const range = this.focusExtent;
       const timeDelta = range[1].getTime() - range[0].getTime();
       const numDays = Math.ceil(timeDelta / (24 * 60 * 60 * 1000));
-
       return this.width / numDays;
     },
     drawBrush() {
@@ -446,26 +409,20 @@ export default {
           .on('end', () => {
             if (!d3.event.sourceEvent) return;  // Only transition after input.
             if (!d3.event.selection) return;  // Ignore empty selections.
-
             const selection = d3.event.selection.map(this.contextX.invert);
             let fromDate = selection[0];
             let toDate = selection[1];
-
-
             this.focusExtent = [
               fromDate,
               toDate,
             ];
-
             this.drawAxes();
             this.drawFocusChart();
             this.drawVersionBars();
           });
       }
-
       d3.selectAll('.overlay').style('pointer-events', 'none');
       d3.selectAll('.handle').style('pointer-events', 'none');
-
       this.brush.extent([
         [
           0, 
@@ -476,7 +433,6 @@ export default {
           this.contextMargin.top + this.contextHeight + 5,
         ],
       ]);
-
       if (!this.brushContainer) {
         this.brushContainer = this.svg
           .append('g')
@@ -492,39 +448,31 @@ export default {
         );
       }
     },
-
     computeValueExtent() {
       let cummulative;
       let value;
-
       // Compute the maximum value of one user response.
       for (let i = 0; i < this.features.length; i++) {
         value = this.features[i].value;
-
         if (value < 0) {
           this.divergingExtent.min += value;
         } else {
           this.divergingExtent.max += value;
         }
       }
-
       let positive;
       let negative;
-
       // Find the maximum value for cumulative user responses.
       for (let i = 0; i < this.data.length; i++) {
         positive = this.data[i].positive;
         negative = this.data[i].negative;
-
         if (positive > this.divergingExtent.max) {
           this.divergingExtent.max = positive;
         }
-
         if (negative < this.divergingExtent.min) {
           this.divergingExtent.min = negative;
         } 
       }
-
       if (this.divergingExtent.max % 2) {
         this.divergingExtent.max += 1;
       }
@@ -533,26 +481,21 @@ export default {
         this.divergingExtent.min -= 1;
       }
     },
-
     resize() {
       const dimensions = this.$refs.container.getBoundingClientRect();
       this.width = dimensions.width - this.focusMargin.left - this.focusMargin.right;
       this.height = dimensions.height - this.focusMargin.top - this.focusMargin.bottom;
       this.focusHeight = 650 - this.focusMargin.top - this.focusMargin.bottom;
       this.contextHeight = 650 - this.contextMargin.top - this.contextMargin.bottom;
-
       // Set dimensions.
       this.svg
         .attr('width', dimensions.width)
         .attr('height', dimensions.height);
-
       // Set clip path.
       this.svg
         .select("#clip rect")
         .attr('width', this.width + this.focusBarWidth())
         .attr('height', dimensions.height || 500);
-
-
       if (this.brush) {
         // Set brush area.
         this.brush.extent([
@@ -568,7 +511,6 @@ export default {
      */
     render() {
       this.svg = d3.select('#' + this.plotId);
-
       this.resize();
       this.drawAxes();
       this.drawBrush();
@@ -576,7 +518,6 @@ export default {
       this.drawVersionBars();
       this.drawContextChart();
     },
-
     /**
      * Draws the axes for the histogram.
      *
@@ -585,7 +526,6 @@ export default {
     drawAxes() {
       const focusBarWidth = this.focusBarWidth();
       const contextBarWidth = this.contextBarWidth();
-
       // Scales.
       this.y = d3
         .scaleLinear()
@@ -605,11 +545,9 @@ export default {
         .nice()
         .domain([ONE_MONTH_AGO, TODAY])
         .range([0, this.width + focusBarWidth]);
-
       const range = this.focusExtent;
       const timeDelta = range[1].getTime() - range[0].getTime();
       const numDays = Math.ceil(timeDelta / (24 * 60 * 60 * 1000));
-
       // X-axis.
       const xAxis = d3
         .axisBottom()
@@ -638,21 +576,17 @@ export default {
         .scale(this.contextY)
         .tickSize(-this.width - focusBarWidth) // Width of the tick line.
         .tickFormat(d3.format('d'));
-
       // Append the axes.
       this.svg
         .select('.x-axis')
         .attr('transform', `translate(${focusBarWidth/2}, 0)`)
         .call(xAxis);
-
       this.svg
         .select('.y-axis')
         .call(yAxis)
-
       this.svg
         .selectAll('.base-line')
         .remove();
-
       this.svg
         .select('.x-axis')
         .append('line')
@@ -663,7 +597,6 @@ export default {
         .attr('x2', this.width + focusBarWidth/2)
         .attr('y1', this.y(0))
         .attr('y2', this.y(0));
-
       // Append the axes.
       this.svg
         .select('.context-x-axis')
@@ -687,7 +620,6 @@ export default {
         .attr('y1', this.contextY(0))
         .attr('y2', this.contextY(0));
     },
-
     /**
      * Draws the stacked histogram.
      *
@@ -697,17 +629,15 @@ export default {
       const { svg, x, y, data, focusMargin, features } = this;
       const barWidth = this.focusBarWidth();
       const stack = d3.stack()
-        .keys(features.map(f => f.name.en))
+        .keys(features.map(f => f.id))
         .offset(d3.stackOffsetDiverging);
       const layers = stack(data);
       const tooltip = document.querySelector('.TokenChart .tooltip');
       const widthPerDate = this.widthPerDate();
-
       svg
         .select('.chart')
         .selectAll('.layer')
         .remove()
-
       svg
         .select('.chart')
         .selectAll('.layer')
@@ -715,9 +645,8 @@ export default {
         .join('g')
         .attr('class', 'layer')
         .attr('fill', layer => {
-          return features.find(f => layer.key === f.name.en).color
+          return features.find(f => layer.key === f.id).color
         })
-
         // Create the individual bars.
         .selectAll('rect')
         .data(layer => {
@@ -725,30 +654,26 @@ export default {
             d.key = layer.key;
             return d;
           });
-
           return layer;
         })
         .join('rect')
-
         // Set the bar position and dimension.
         .attr('x', d => {
-          const widthPerBar = (widthPerDate - barWidth/2) / d.data.bars;
-
-          return x(d.data.date) + barWidth/2 + widthPerBar * d.data.barIndex;
+          const maxWidthPerBar = (widthPerDate - barWidth/2) / d.data.bars;
+          return x(d.data.date) + barWidth/2 + maxWidthPerBar * d.data.barIndex;
         })
         .attr('width', s => barWidth)
         .attr('y', d => y(d[1]))
         .attr('height', d => {
           return this.selectedVersions.indexOf(d.data.version) >= 0 ? y(d[0]) - y(d[1]) || 0 : 0;
         })
-
         // Tooltip
         .on('mouseover', () => tooltip.style.display = 'flex')
         .on('mouseout', () => tooltip.style.display = 'none')
         .on('mousemove', function(d) {
           const el = d3.select(this);
-          const widthPerBar = (widthPerDate - barWidth/2) / d.data.bars;
-          const xCoords = x(d.data.date) + barWidth * 1.8 + widthPerBar * d.data.barIndex;
+          const maxWidthPerBar = (widthPerDate - barWidth/2) / d.data.bars;
+          const xCoords = x(d.data.date) + barWidth * 1.8 + maxWidthPerBar * d.data.barIndex;
           const yCoords = y(d.data.positive);
           const padding = 8;
           const cumulativeLabel = 27;
@@ -756,15 +681,12 @@ export default {
             'default',
             { day: 'numeric', month: 'short' },
           );
-
           tooltip.style.left = xCoords + 'px'; 
           tooltip.style.top = (yCoords - padding - cumulativeLabel) + 'px';
-
           for (let i = 0; i < features.length; i++) {
             const text = tooltip.querySelector(`.${features[i].slug}`)
             const name = features[i].name.en;
-            const value = d.data[name];
-
+            const value = d.data[features[i].id];
             if (!value) {
               text.style.display = 'none';
               continue;
@@ -775,70 +697,59 @@ export default {
             text.style.height = y(0) - y(value) + 'px';
             text.style.display = 'flex';
           }
-
           const text = tooltip.querySelector(`.cumulative`)
           text.innerText = `Cumulative: ${d.data.cummulative}`;
         });
     },
-
     /**
      * Draw bars (black bar for major change, grey bar for minor change) to represent version changes
      * 
      * @return {void}
      */
     drawVersionBars() {
-      const { svg, x, y, focusMargin, versions, height } = this;
+      const { svg, x, y, focusMargin, versions, focusHeight } = this;
       const barWidth = this.focusBarWidth();
-
       const widthPerDate = this.widthPerDate();
-
       svg
         .select('.chart')
         .selectAll('.version')
         .remove()
-
       svg
         .select('.chart')
         .selectAll('.version')
-        .data(versions)
+        .data(versions.filter(d => d.barColor && this.selectedVersions.indexOf(d.version) >= 0))
         .join('rect')
         .attr('class', 'version')
         .attr('fill', d => d.barColor)
         .attr('x', d => {
           if (d.formatted) {
             const versions = this.versionsByDate[d.formatted] || ['oo'];
-            const widthPerBar = (widthPerDate - barWidth/2) / versions.length;
-            const index = versions.findIndex(ver => ver == 'oo' || Applet.compareVersions(ver, d.version) >= 0);
-
+            const maxWidthPerBar = (widthPerDate - barWidth/2) / versions.length;
+            let index = versions.findIndex(ver => ver == 'oo' || Applet.compareVersions(ver, d.version) >= 0);
             if (index == 0) {
               return x(d.updated);
             }
-
             if (index < 0) {
               index = versions.length;
             }
 
-            return x(d.updated) + barWidth/2 + widthPerBar * index - (widthPerBar - barWidth)/2 - this.versionBarWidth/2;
+            return x(d.updated) + barWidth/2 + maxWidthPerBar * index - (maxWidthPerBar - barWidth)/2 - this.versionBarWidth/2;
           }
-
           return 0;
         })
         .attr('width', d => {
           return d.updated ? this.versionBarWidth : 0
         })
-        .attr('y', d => y(0) - height)
-        .attr('height', d => height)
+        .attr('y', 0)
+        .attr('height', focusHeight)
     },
-
     contextWidthPerDate() {
       return this.width / 30;
     },
-
     drawContextChart() {
       const { svg, contextX, contextY, data} = this;
       const barWidth = this.contextBarWidth();
       const contextWidthPerDate = this.contextWidthPerDate();
-
       svg
         .select('.context-chart')
         .selectAll('.bar')
@@ -851,8 +762,6 @@ export default {
         .select('.context-chart')
         .selectAll('.negative-bar')
         .remove()
-
-
       // Negative
       svg
         .select('.context-chart')
@@ -870,7 +779,6 @@ export default {
         .attr('width', barWidth)
         .attr('y', contextY(0))
         .attr('height', d => Math.abs(contextY(d.negative) - contextY(0)))
-
       // Positive
       svg
         .select('.context-chart')
@@ -888,7 +796,6 @@ export default {
         .attr('width', barWidth)
         .attr('y', d => contextY(d.positive))
         .attr('height', d => Math.abs(contextY(d.positive) - contextY(0)))
-
       // Cummulative
       svg
         .select('.context-chart')
@@ -909,11 +816,9 @@ export default {
         .attr('height', d => Math.abs(contextY(d.cummulative) - contextY(0)))
         .attr('opacity', 0.2);
     },
-
     // Other Utils
     mergeObject(acc, obj) {
       const result = acc;
-
       for (let [key, value] of Object.entries(obj)) {
         if (key === "date") continue;
         if (result[key]) {
@@ -930,5 +835,4 @@ export default {
     }
   },
 };
-
 </script>
