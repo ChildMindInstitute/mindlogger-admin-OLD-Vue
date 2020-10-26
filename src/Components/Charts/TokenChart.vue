@@ -388,7 +388,7 @@ export default {
       );
     },
     contextBarWidth() {
-      return this.width / 30 / 3;
+      return this.width / 30 / this.versionChangeLimitPerDay;
     },
     focusBarWidth() {
       const range = this.focusExtent;
