@@ -63,10 +63,16 @@
       <v-select
         :items="appletVersions"
         label="versions"
-        @change="versionChanged"
+        @change="onVersionChanged"
         v-model="selectedVersions"
         multiple
       ></v-select>
+
+      <v-checkbox
+        v-model="hasVersionBars"
+        label="Show Version Changes"
+        @change="onVersionChanged"
+      ></v-checkbox>
     </div>
 
     <div class="chart-container">
@@ -286,7 +292,8 @@ export default {
     },
     selectedVersions: [],
     versionBarWidth: 10,
-    versionChangeLimitPerDay: 4
+    versionChangeLimitPerDay: 4,
+    hasVersionBars: true
   }),
   computed: {
     appletVersions() {
@@ -333,11 +340,11 @@ export default {
    */
   methods: {
     /*
-     * Handles change event for version filter
+     * Handles change event for options
      * 
      * @return {void}
      */
-    versionChanged() {
+    onVersionChanged() {
       this.render();
     },
     /**
@@ -714,6 +721,10 @@ export default {
         .select('.chart')
         .selectAll('.version')
         .remove()
+
+      if (!this.hasVersionBars) {
+        return ;
+      }
       svg
         .select('.chart')
         .selectAll('.version')
