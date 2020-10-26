@@ -388,7 +388,7 @@ export default {
       );
     },
     contextBarWidth() {
-      return this.width / 30 / 3;
+      return this.width / 30 / this.versionChangeLimitPerDay;
     },
     focusBarWidth() {
       const range = this.focusExtent;
@@ -717,7 +717,7 @@ export default {
       svg
         .select('.chart')
         .selectAll('.version')
-        .data(versions.filter(version => version.barColor))
+        .data(versions.filter(d => d.barColor && this.selectedVersions.indexOf(d.version) >= 0))
         .join('rect')
         .attr('class', 'version')
         .attr('fill', d => d.barColor)
