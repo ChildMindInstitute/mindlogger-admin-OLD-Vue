@@ -63,7 +63,7 @@
       <v-select
         :items="appletVersions"
         label="versions"
-        @change="optionChanged"
+        @change="onVersionChanged"
         v-model="selectedVersions"
         multiple
       ></v-select>
@@ -71,7 +71,7 @@
       <v-checkbox
         v-model="hasVersionBars"
         label="Show Version Changes"
-        @change="optionChanged"
+        @change="onVersionChanged"
       ></v-checkbox>
     </div>
 
@@ -344,7 +344,7 @@ export default {
      * 
      * @return {void}
      */
-    optionChanged() {
+    onVersionChanged() {
       this.render();
     },
     /**
