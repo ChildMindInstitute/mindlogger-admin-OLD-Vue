@@ -52,7 +52,11 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="passwordDialog" persistent max-width="450px">
+    <v-dialog
+      v-model="passwordDialog"
+      persistent
+      max-width="450px"
+    >
       <v-card>
         <v-card-title class="edit-card-title">
           <span class="headline">Are you sure?</span>
@@ -175,9 +179,14 @@ export default {
         }
       }
 
+      const email =
+        user.roles && user.roles.includes('user') && user.roles.length === 1
+          ? ''
+          : user.email;
+
       return {
         displayName: user.displayName,
-        email: user.email,
+        email,
         mrn: user.MRN,
         _id: user._id,
         refreshRequest:
@@ -187,6 +196,7 @@ export default {
         roles,
       };
     });
+
     const { isManager, isCoordinator } = this;
 
     this.columnDefs = [
