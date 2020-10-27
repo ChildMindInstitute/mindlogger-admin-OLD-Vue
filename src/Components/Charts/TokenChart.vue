@@ -238,13 +238,13 @@ import { DaySpan, Day } from 'dayspan';
 import Applet from '../../models/Applet';
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const NOW = new Date();
-const TODAY = new Date(Date.UTC(
+const TODAY = new Date(Date(
   NOW.getFullYear(),
   NOW.getMonth(),
-  NOW.getDate() + 1,
-  0,
-  0,
-  0,
+  NOW.getDate(),
+  23,
+  59,
+  59,
 ));
 const ONE_WEEK_AGO = new Date(TODAY);
 const ONE_MONTH_AGO = new Date(TODAY);
@@ -536,12 +536,12 @@ export default {
         .domain([this.divergingExtent.min, this.divergingExtent.max])
         .range([this.contextHeight, 0]);
       this.x = d3
-        .scaleUtc()
+        .scaleTime()
         .nice()
         .domain(this.focusExtent)
         .range([0, this.width]);
       this.contextX = d3
-        .scaleUtc()
+        .scaleTime()
         .nice()
         .domain([ONE_MONTH_AGO, TODAY])
         .range([0, this.width + focusBarWidth]);

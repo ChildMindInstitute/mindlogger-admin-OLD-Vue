@@ -128,15 +128,15 @@ export default class Item {
 
   appendResponses(responses) {
     this.responses = this.responses.concat(responses.map(response => {
-      let date = moment(response.date).format('YYYY-MM-DD');
+      let date = moment(response.date).format('L');
 
       if (!Array.isArray(response.value)) {
         // Ensure that it is an array.
         response.value = [response.value];
       } else if (response.value.length > 0) {
         const { offset } = response;
-        date = moment.utc(response.date).format("L");
-      }
+        date = moment(response.date).format("L");
+      } 
 
       return response.value.reduce(
         (obj, tokenValue) => {
