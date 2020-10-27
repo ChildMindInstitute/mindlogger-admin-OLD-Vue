@@ -43,43 +43,43 @@ export default {
           field: "mrn",
           sortable: true,
           filter: true,
-          resizable: true,
+          resizable: true
         },
         {
           headerName: $t("firstName"),
           field: "firstName",
           sortable: true,
           filter: true,
-          resizable: true,
+          resizable: true
         },
         {
           headerName: $t("lastName"),
           field: "lastName",
           sortable: true,
           filter: true,
-          resizable: true,
+          resizable: true
         },
         {
           headerName: $("userType"),
           field: "userType",
           sortable: true,
           filter: true,
-          resizable: true,
+          resizable: true
         },
         {
           headerName: $("invitationLink"),
           field: "invitationLink",
           sortable: true,
           filter: true,
-          resizable: true,
+          resizable: true
         },
         {
           headerName: $("dateTimeInvited"),
           field: "dateTime",
           sortable: true,
           filter: true,
-          resizable: true,
-        },
+          resizable: true
+        }
       ],
       modules: AllCommunityModules,
       gridOptions: {},

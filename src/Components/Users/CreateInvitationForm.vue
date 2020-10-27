@@ -73,7 +73,6 @@
         <v-btn :disabled="!valid" color="primary" @click="submit">
           {{ $t("submit") }}
         </v-btn>
-
         <v-btn color="error" @click="reset">
           {{ $t("resetForm") }}
         </v-btn>
@@ -105,11 +104,23 @@ export default {
           firstName: "",
           lastName: "",
           email: "",
-          mrn: "",
+          mrn: ""
         },
         accountName: "",
-        users: [],
+
+        users: []
       },
+      languages: [
+        {
+          label: "English",
+          value: "en"
+        },
+        {
+          label: "French",
+          value: "fr"
+        }
+      ],
+      currentLanguage: "en"
     };
   },
   computed: {
@@ -145,6 +156,7 @@ export default {
         lastName: this.params.profile.lastName,
         email: this.params.profile.email,
         role: this.params.role,
+        lang: this.currentLanguage
       };
 
       if (this.params.role === "user") {
@@ -157,16 +169,16 @@ export default {
         let userIds = this.params.users;
         let activeUsers = this.activeUserList;
         let userData;
-        let userId;;
+        let userId;
 
         for (let i = 0; i < userIds.length; i++) {
           userId = userIds[i];
-          
+
           for (let j = 0; j < activeUsers.length; j++) {
             userData = activeUsers[j];
-            
+
             if (userData.MRN === userId || userData._id === userId) {
-              invitationOptions.users.push(userData._id) ;
+              invitationOptions.users.push(userData._id);
             }
           }
         }
