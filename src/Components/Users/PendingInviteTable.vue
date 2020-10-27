@@ -13,77 +13,77 @@
 </template>
 
 <style scoped>
-  .container {
-    padding: 0px;
-  }
+.container {
+  padding: 0px;
+}
 </style>
 
 <script>
-import moment from 'moment';
-import {AgGridVue} from '@ag-grid-community/vue';
-import {AllCommunityModules} from '@ag-grid-community/all-modules';
+import moment from "moment";
+import { AgGridVue } from "@ag-grid-community/vue";
+import { AllCommunityModules } from "@ag-grid-community/all-modules";
 export default {
-  name: 'PendingInviteTable',
+  name: "PendingInviteTable",
   components: {
     AgGridVue
   },
   props: {
     users: {
       type: Array,
-      default: function () {
-        return []
-      },
-    },
+      default: function() {
+        return [];
+      }
+    }
   },
   data() {
     return {
       columnDefs: [
         {
-          headerName: 'Institutional ID',
-          field: 'mrn',
+          headerName: "Institutional ID",
+          field: "mrn",
           sortable: true,
           filter: true,
-          resizable: true,
+          resizable: true
         },
         {
-          headerName: 'First Name',
-          field: 'firstName',
+          headerName: "First Name",
+          field: "firstName",
           sortable: true,
           filter: true,
-          resizable: true,
+          resizable: true
         },
         {
-          headerName: 'Last Name',
-          field: 'lastName',
+          headerName: "Last Name",
+          field: "lastName",
           sortable: true,
           filter: true,
-          resizable: true,
+          resizable: true
         },
         {
-          headerName: 'User Type',
-          field: 'userType',
+          headerName: "User Type",
+          field: "userType",
           sortable: true,
           filter: true,
-          resizable: true,
+          resizable: true
         },
         {
-          headerName: 'Invitation Link',
-          field: 'invitationLink',
+          headerName: "Invitation Link",
+          field: "invitationLink",
           sortable: true,
           filter: true,
-          resizable: true,
+          resizable: true
         },
         {
-          headerName: 'Date & Time Invited',
-          field: 'dateTime',
+          headerName: "Date & Time Invited",
+          field: "dateTime",
           sortable: true,
           filter: true,
-          resizable: true,
-        },
+          resizable: true
+        }
       ],
       modules: AllCommunityModules,
       gridOptions: {},
-      domLayout: 'autoHeight',
+      domLayout: "autoHeight"
     };
   },
   computed: {
@@ -91,12 +91,12 @@ export default {
       const dat = [];
       this.users.forEach(invitation => {
         dat.push({
-          'mrn': invitation.MRN,
-          'firstName': invitation.firstName,
-          'lastName': invitation.lastName,
-          'userType': invitation.role,
-          'invitationLink': `${process.env.VUE_APP_WEB_URI}/#/invitation/${invitation._id}`,
-          'dateTime': moment(invitation.created).format('YYYY-MM-DD hh:mm:ss'),
+          mrn: invitation.MRN,
+          firstName: invitation.firstName,
+          lastName: invitation.lastName,
+          userType: invitation.role,
+          invitationLink: `${process.env.VUE_APP_WEB_URI}/#/invitation/${invitation._id}`,
+          dateTime: moment(invitation.created).format("YYYY-MM-DD hh:mm:ss")
         });
       });
       return dat;
@@ -117,6 +117,6 @@ export default {
 
       this.gridOptions.columnApi.autoSizeColumns(allColumnIds, true);
     }
-  },
-}
+  }
+};
 </script>
