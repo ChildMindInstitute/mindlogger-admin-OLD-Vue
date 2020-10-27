@@ -206,6 +206,7 @@
 
 <script>
 import ConfirmationDialog from '../Utils/dialogs/ConfirmationDialog';
+import api from "../Utils/api/api.vue";
 
 export default {
   name: "AppletCard",
@@ -341,6 +342,7 @@ export default {
       }
     },
     onSubmitOwnership() {
+      this.ownershipDialog = false;
       this.$emit('transferOwnership', {
         email: this.ownershipEmail,
         applet: this.applet,
@@ -371,10 +373,17 @@ export default {
     },
     editApplet() {
       this.setSelectedApplet();
-      this.$router.push({
-        name: 'Builder', 
-        params: { isEditing: true }
-      });
+
+      const apiHost = this.$store.state.backend;
+      const token = this.$store.state.auth.authToken.token;
+      const appletId = this.$store.state.currentApplet.applet._id.split('/')[1];
+
+      api.getAppletVersions({ apiHost, token, appletId }).then(resp => {
+        this.$router.push({
+          name: 'Builder', 
+          params: { isEditing: true, versions: resp.data }
+        });
+      })
     }
   }
 };

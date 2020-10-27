@@ -14,6 +14,8 @@
       @appletUploadSuccessful="onAppletUploadSuccessful"
       @appletUploadError="onAppletUploadError"
       @onAppletPasswordChanged="onAppletPasswordChanged"
+      @onOwnerShipInviteSuccessful="onOwnerShipInviteSuccessful"
+      @onOwnerShipInviteError="onOwnerShipInviteError"
     />
     <Information
       v-model="dialog"
@@ -143,6 +145,16 @@ export default {
     onAppletPasswordChanged() {
       this.dialogText = 'Applet password is updated successfully.';
       this.dialogTitle = 'Applet Encryption Update';
+      this.dialog = true;
+    },
+    onOwnerShipInviteSuccessful(email) {
+      this.dialogText = `Your request is successfully sent to ${email}. Please wait for receiver to accept your request`;
+      this.dialogTitle = 'Request Sent';
+      this.dialog = true;
+    },
+    onOwnerShipInviteError() {
+      this.dialogText = 'Your request for transfer ownership of applet is failed.';
+      this.dialogTitle = 'Request Failed';
       this.dialog = true;
     }
   },

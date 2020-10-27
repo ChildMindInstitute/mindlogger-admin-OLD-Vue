@@ -11,7 +11,9 @@ import Item from './Item';
 import ReproLib from '../schema/ReproLib';
 import SKOS from '../schema/SKOS';
 import encryptionUtils from '../Components/Utils/encryption/encryption.vue'
+import { tickFormat } from 'd3';
 
+import * as moment from 'moment';
 
 export default class Applet {
   /**
@@ -32,16 +34,24 @@ export default class Applet {
     //this.shuffle = data.applet[ReproLib.shuffle]['@value'];
     this.url = data.applet['url'];
     this.activities = [];
+    this.responses = {};
 
     // Load items.
     this.items = Object
       .keys(data.items)
       .reduce(
-        (items, itemId) => ({
-          [itemId]: new Item(data.items[itemId])
-        }),
+        (items, itemId) => {
+          let item = new Item(data.items[itemId]);
+          item.schemas = [itemId];
+
+          return {
+            [itemId]: item,
+          }
+        },
         {},
       );
+
+    this.versions = [];
   }
 
   /**
@@ -78,11 +88,149 @@ export default class Applet {
       Applet.replaceItemValues(Applet.decryptResponses(data, this.encryption));
     }
 
-    for (let itemId in data.responses) {
-      this.items[itemId].setResponses(data.responses[itemId]);
+    for (let itemId in data.items) {
+      data.items[itemId] = new Item(data.items[itemId])
+    }
+
+    for (let version in data.itemReferences) {
+      for (let key in data.itemReferences[version]) {
+        if (!data.itemReferences[version][key]) {
+          continue;
+        }
+
+        const itemId = data.itemReferences[version][key];
+        const oldItem = data.items[itemId];
+
+        const currentItem = Object.values(this.items).find(item => item.data._id.split('/').pop() === oldItem.data.original.screenId)
+
+        data.itemReferences[version][key] = oldItem;
+
+        if (currentItem.schemas.indexOf(key) < 0) {
+          currentItem.schemas.push(key);
+          this.items[key] = currentItem;
+        }
+
+        oldItem.responseOptions.forEach(oldOption => {
+          const existing = currentItem.responseOptions.find(currentOption => currentOption.id === oldOption.id);
+          if (!existing) {
+            const index = currentItem.appendResponseOption(oldOption);
+
+            currentItem.valueMapping[version] = currentItem.valueMapping[version] || {};
+            currentItem.valueMapping[version][oldOption.value] = index;
+            currentItem.valueMapping[version][Object.values(oldOption.name)[0]] = index;
+          }
+        })
+      }
+    }
+
+
+    let itemIDGroup = Object.keys(data.responses);
+    itemIDGroup = itemIDGroup.filter(id => id.startsWith('https://')).concat(itemIDGroup.filter(id => !id.startsWith('https://')));
+
+    for (let itemId of itemIDGroup) {
+      /** sort data responses according to date/versions */
+      data.responses[itemId].sort((resp1, resp2) => {
+        if (resp1.date < resp2.date) return -1;
+        if (resp1.date > resp2.date) return 1;
+
+        return Applet.compareVersions(resp1.version, resp2.version);
+      });
+
+      /** merge responses with same version/date */
+      let merged = [], last = null;
+
+      data.responses[itemId].forEach(resp => {
+        if (last && resp.date == last.date && resp.version == last.version) {
+          last.value.push(...resp.value);
+        } else {
+          const item = this.items[itemId];
+
+          if (resp.value.length) {
+            item.dateToVersions[resp.date] = item.dateToVersions[resp.date] || [];
+            item.dateToVersions[resp.date].push(resp.version);
+
+            resp.barIndex = item.dateToVersions[resp.date].length-1;
+          }
+
+          merged.push(resp);
+
+          last = resp;
+        }
+      });
+
+      data.responses[itemId] = merged;
+    }
+
+    for (let itemId of itemIDGroup) {
+      this.items[itemId].appendResponses(data.responses[itemId]);
+    }
+
+    this.responses = data.responses;
+  }
+
+  async fetchVersions() {
+    let appletId = this._id.split('/').pop();
+    let { data } = await axios({
+      method: 'get',
+      url: `${store.state.backend}/applet/${appletId}/versions`,
+      headers: { 'Girder-Token': store.state.auth.authToken.token },
+      params: { retrieveDate: true }
+    });
+
+    this.versions = data.map(d => {
+      const updated = new Date(d.updated);
+      const formatted = moment(updated).format("YYYY-MM-DD");
+      return { 
+        version: d.version, 
+        formatted,
+        updated: moment(formatted).set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+      };
+    });
+  }
+
+  insertInitialVersion() {
+    for (let schema in this.responses) {
+      if (!schema.startsWith('https://')) {
+        continue;
+      }
+
+      for (let response of this.responses[schema]) {
+        if (response.version && !this.versions.find(data => data.version == response.version)) {
+          this.versions.push({
+            version: response.version
+          })
+        }
+      }
     }
   }
 
+  /**
+   * Method to get version upgrade type 
+   */
+  getVersionChangeType(version1, version2) {
+    const v1 = version1.split('.').map(val => parseInt(val));
+    const v2 = version2.split('.').map(val => parseInt(val));
+    const types = ['major', 'major', 'minor'];
+
+    for (let i = 0; i < v1.length; i++) {
+      if (v1[i] != v2[i]) {
+        return types[i];
+      }
+    }
+
+    return 'None';
+  }
+
+  static compareVersions(version1, version2) {
+    const v1 = version1.split('.').map(val => parseInt(val));
+    const v2 = version2.split('.').map(val => parseInt(val));
+
+    for (let i = 0; i < v1.length; i++) {
+      if (v1[i] < v2[i]) return -1;
+      if (v1[i] > v2[i]) return 1;
+    }
+    return 0;
+  }
 
   static decryptResponses(data, encryption) {
     /** decrypt data */
@@ -170,12 +318,24 @@ export default class Applet {
       response.data.applet.encryption = encryptionInfo;
       const applet = new Applet(response.data);
 
+      if (opts.withVersions) {
+        await applet.fetchVersions();
+      }
+
       if (opts.withActivities) {
         await applet.fetchActivities();
       }
 
       if (opts.withResponses) {
         await applet.fetchResponses(opts.users);
+        applet.insertInitialVersion();
+      }
+
+      if (applet.versions) {
+        for (let i = 0; i < applet.versions.length - 1; i++) {
+          const upgradeType = applet.getVersionChangeType(applet.versions[i].version, applet.versions[i+1].version);
+          applet.versions[i].barColor = upgradeType === 'minor' ? '#808080' : '#000000';
+        }
       }
 
       return applet;

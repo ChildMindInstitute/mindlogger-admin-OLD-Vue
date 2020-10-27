@@ -223,10 +223,10 @@ export default {
           email: email
         })
         .then((resp) => {
-          this.$emit("refreshAppletList");
+          this.$emit("onOwnerShipInviteSuccessful", email);
         })
         .catch((err) => {
-          console.log(err);
+          this.$emit("onOwnerShipInviteError");
         })
     },
 
@@ -285,9 +285,17 @@ export default {
         });
     },
     duplicateApplet(applet) {
-      this.appletDuplicateDialog.visibility = true;
-      this.appletDuplicateDialog.applet = applet;
-      this.$refs.appletNameDialog.appletName = `duplicate of ${applet.applet['http://www.w3.org/2004/02/skos/core#prefLabel'][0]['@value']}`;
+      api
+        .validateAppletName({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          name: `${applet.applet['http://www.w3.org/2004/02/skos/core#prefLabel'][0]['@value']} (1)`
+        })
+        .then(resp => {
+          this.appletDuplicateDialog.visibility = true;
+          this.appletDuplicateDialog.applet = applet;
+          this.$refs.appletNameDialog.appletName = resp.data;
+        })
     },
 
     onSetAppletDuplicateName(appletName) {
@@ -301,7 +309,8 @@ export default {
           }
         })
         .then(resp => {
-          this.$emit("refreshAppletList");
+          this.appletDuplicateDialog.visibility = false;
+          this.$emit('appletUploadSuccessful', resp.data.message);
         });
     },
   },

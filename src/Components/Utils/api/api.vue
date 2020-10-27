@@ -302,6 +302,25 @@ const getAppletInvitation = ({ apiHost, token, appletId, options }) =>
     params: { ...options, users: JSON.stringify(options.users) },
   });
 
+const updateItemTemplates = ({ apiHost, token, data }) =>
+  axios({
+    method: "PUT",
+    url: `${apiHost}/item/templates`,
+    headers: {
+      "Girder-Token": token,
+    },
+    data
+  });
+
+const getItemTemplates = ({ apiHost, token }) =>
+  axios({
+    method: "GET",
+    url: `${apiHost}/item/templates`,
+    headers: {
+      "Girder-Token": token,
+    },
+  });
+
 const getUsersData = ({ apiHost, token, appletId, options }) =>
   axios({
     method: "GET",
@@ -358,6 +377,16 @@ const getProtocolData = ({ apiHost, token, appletId, versions }) => axios({
   params: { versions: JSON.stringify(versions) },
 })
 
+
+const validateAppletName = ({ apiHost, token, name }) => axios({
+  method: 'get',
+  url: `${apiHost}/applet/validateName`,
+  headers: {
+    'Girder-Token': token
+  },
+  params: { name }
+});
+
 export default {
   signIn,
   signUp,
@@ -384,6 +413,8 @@ export default {
   getActivityByUrl,
   getUserResponses,
   getAppletInvitation,
+  getItemTemplates,
+  updateItemTemplates,
   getUsersData,
   getAppletsForUser,
   duplicateApplet,
@@ -393,5 +424,6 @@ export default {
   getAppletVersions,
   getProtocolData,
   prepareApplet,
+  validateAppletName,
 }
 </script>
