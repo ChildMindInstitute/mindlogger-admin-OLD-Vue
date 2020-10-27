@@ -70,12 +70,28 @@
             />
           </v-col>
         </v-row>
-        <v-btn :disabled="!valid" color="primary" @click="submit">
-          {{ $t("submit") }}
-        </v-btn>
-        <v-btn color="error" @click="reset">
-          {{ $t("resetForm") }}
-        </v-btn>
+
+        <v-row align="center">
+          <v-col cols="auto">
+            <v-select
+                    v-model="currentLanguage"
+                    :items="languages"
+                    label="Choose Language"
+                    item-text="label"
+                    item-value="value"
+                    hide-details
+                    single-line
+                    outlined
+                    dense
+            />
+          </v-col>
+          <v-col cols="auto">
+            <v-btn :disabled="!valid" color="primary" @click="submit">{{ $t("submit") }}</v-btn>
+          </v-col>
+          <v-col cols="auto">
+            <v-btn color="error" @click="reset">{{ $t("resetForm") }}</v-btn>
+          </v-col>
+        </v-row>
       </v-container>
     </v-form>
   </div>
