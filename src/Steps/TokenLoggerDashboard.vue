@@ -1,45 +1,26 @@
 <template>
   <div class="wrapper">
-    <v-row
-      justify="space-between"
-      align="center"
-    >
+    <v-row justify="space-between" align="center">
       <!-- Breadcrumb navigation -->
-      <v-breadcrumbs
-        :items="breadcrumbs()"
-        large
-      >
+      <v-breadcrumbs :items="breadcrumbs()" large>
         <template v-slot:divider>
           <v-icon>mdi-chevron-right</v-icon>
         </template>
       </v-breadcrumbs>
 
       <!-- Export button -->
-      <v-btn
-        rounded
-        dark
-        color="deep-purple accent-4"
-        class="export-btn"
-      >
+      <v-btn rounded dark color="deep-purple accent-4" class="export-btn">
         <v-icon>import_export</v-icon>
         EXPORT
       </v-btn>
     </v-row>
 
-    <div 
-      v-if="loading"
-      class="status-message"
-    >
+    <div v-if="loading" class="status-message">
       {{ status }}
     </div>
 
-    <template
-      v-for="activity in applet.activities"
-    >
-      <div 
-        v-if="applet" 
-        :key="activity._id"
-      >
+    <template v-for="activity in applet.activities">
+      <div v-if="applet" :key="activity._id">
         <h4 class="activity-header">
           {{ activity.question.en || activity.description.en }}
         </h4>
@@ -65,29 +46,20 @@
         </v-card>
       </div>
 
-      <div 
-        v-else 
-        :key="activity._id"
-      >
-        There's no data available for the selected users.
+      <div v-else :key="activity._id">
+        {{ $t("noDataAvailable") }}
       </div>
     </template>
 
-    <v-btn
-      color="primary"
-      fixed
-      bottom
-      left
-      @click="$router.go(-1)"
-    >
-      Back
+    <v-btn color="primary" fixed bottom left @click="$router.go(-1)">
+      {{ $t("back") }}
     </v-btn>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .container {
-  background: #EFEFF2;
+  background: #efeff2;
   height: 100%;
   width: 100%;
 }
@@ -103,7 +75,7 @@
 }
 
 .v-breadcrumbs__item {
-  color: #8728FB !important;
+  color: #8728fb !important;
 }
 
 .v-breadcrumbs__item--disabled {
@@ -130,7 +102,7 @@
 .status-message {
   margin-top: 40px;
   padding: 20px;
-  border: 1px solid #CCC;
+  border: 1px solid #ccc;
 }
 
 .chart-card {
@@ -145,11 +117,10 @@
 <script>
 import _ from "lodash";
 import api from "../Components/Utils/api/api.vue";
-import Applet from '../models/Applet';
-import Activity from '../models/Activity';
-import Item from '../models/Item';
+import Applet from "../models/Applet";
+import Activity from "../models/Activity";
+import Item from "../models/Item";
 import TokenChart from "../Components/Charts/TokenChart.vue";
-
 
 export default {
   name: "TokenLoggerDashboard",
@@ -166,10 +137,10 @@ export default {
    */
   data: () => ({
     loading: true,
-    status: 'Initializing dashboard',
+    status: "Initializing dashboard",
     applet: {
-      _id: '',
-      label: { en: 'Applet' },
+      _id: "",
+      label: { en: "Applet" },
       activities: [],
     },
     charts: [],
@@ -188,9 +159,7 @@ export default {
   /**
    * Handlers to be executed each time a property changes its value.
    */
-  watch: {
-
-  },
+  watch: {},
 
   /**
    * Method to be executed after the component has been mounted.
@@ -202,7 +171,7 @@ export default {
     const { users } = this.$route.query;
 
     try {
-      this.status = 'Loading applet data';
+      this.status = "Loading applet data";
       this.applet = await Applet.fetchById(
         appletId,
         {
@@ -215,8 +184,8 @@ export default {
       );
 
       this.loading = false;
-    } catch(error) {
-      this.status = 'Oops, something went wrong. We couldn\'t load the applet';
+    } catch (error) {
+      this.status = "Oops, something went wrong. We couldn't load the applet";
       this.error = error;
       console.error(error);
     }
@@ -232,7 +201,7 @@ export default {
 
       return [
         { text: appletName, to: `/applet/${appletId}/users` },
-        { text: 'Dashboard', disabled: true },
+        { text: "Dashboard", disabled: true },
       ];
     },
   },

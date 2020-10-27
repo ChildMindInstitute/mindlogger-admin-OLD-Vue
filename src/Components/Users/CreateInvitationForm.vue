@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Create Invitation</h1>
+    <h1>{{ $t("createInvitation") }}</h1>
     <v-form ref="form" v-model="valid" :lazy-validation="lazy">
       <v-container>
         <v-row>
@@ -26,7 +26,7 @@
             <v-text-field
               v-model="params.profile.email"
               :rules="emailRules"
-              label="Email"
+              :label="$t('email')"
               required
             />
           </v-col>
@@ -36,13 +36,16 @@
               v-model="params.role"
               :items="invitationRoles"
               :rules="[(v) => !!v || 'Item is required']"
-              label="Role"
+              :label="$t('role')"
               required
             />
           </v-col>
 
           <v-col v-if="params.role === 'user'" cols="12" sm="6" md="4">
-            <v-text-field v-model="params.profile.mrn" label="Institutional ID" />
+            <v-text-field
+              v-model="params.profile.mrn"
+              :label="$t('createInvitation')"
+            />
           </v-col>
           <v-col v-else cols="12" sm="6" md="4">
             <v-text-field
@@ -67,27 +70,12 @@
             />
           </v-col>
         </v-row>
-        <v-row align="center">
-          <v-col cols="auto">
-            <v-select
-              v-model="currentLanguage"
-              :items="languages"
-              label="Choose Language"
-              item-text="label"
-              item-value="value"
-              hide-details
-              single-line
-              outlined
-              dense
-            />
-          </v-col>
-          <v-col cols="auto">
-            <v-btn :disabled="!valid" color="primary" @click="submit">Submit</v-btn>
-          </v-col>
-          <v-col cols="auto">
-            <v-btn color="error" @click="reset">Reset Form</v-btn>
-          </v-col>
-        </v-row>
+        <v-btn :disabled="!valid" color="primary" @click="submit">
+          {{ $t("submit") }}
+        </v-btn>
+        <v-btn color="error" @click="reset">
+          {{ $t("resetForm") }}
+        </v-btn>
       </v-container>
     </v-form>
   </div>
@@ -101,15 +89,15 @@ export default {
       lazy: false,
       valid: true,
       emailRules: [
-        v => !!v || "E-mail is required",
-        v =>
+        (v) => !!v || $t("emailRequired"),
+        (v) =>
           /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(v) ||
-          "E-mail must be valid"
+          $t("emailMustBeValid"),
       ],
-      firstNameRules: [v => !!v || "Name is required"],
-      lastNameRules: [v => !!v || "Name is required"],
-      accountNameRules: [v => !!v || "Name is required"],
-      usersRules: [v => !!v || "Users are required"],
+      firstNameRules: [(v) => !!v || $t("firstNameRequired")],
+      lastNameRules: [(v) => !!v || $t("lastNameRequired")],
+      accountNameRules: [(v) => !!v || $t("nameRequired")],
+      usersRules: [(v) => !!v || $t("usersRequired")],
       params: {
         role: "user",
         profile: {
@@ -119,6 +107,7 @@ export default {
           mrn: ""
         },
         accountName: "",
+
         users: []
       },
       languages: [
@@ -157,7 +146,7 @@ export default {
       }
 
       return [];
-    }
+    },
   },
 
   methods: {
@@ -204,11 +193,11 @@ export default {
         role: "user",
         profile: {
           displayName: "",
-          email: ""
-        }
+          email: "",
+        },
       };
-    }
-  }
+    },
+  },
 };
 </script>
 

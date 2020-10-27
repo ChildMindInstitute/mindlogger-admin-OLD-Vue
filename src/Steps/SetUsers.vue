@@ -1,26 +1,20 @@
 <template>
   <div>
-    <div
-      v-if="status === 'loading'"
-      class="loading"
-    >
-      <v-progress-circular
-        color="primary"
-        indeterminate
-      />
+    <div v-if="status === 'loading'" class="loading">
+      <v-progress-circular color="primary" indeterminate />
     </div>
     <div v-else>
-      <h1>Active Users</h1>
+      <h1>{{ $t('activeUsers') }}</h1>
       <active-user-table
         ref="userTableRef"
-        :key="componentKey"
+        key="componentKey"
         :users="activeUserList"
         :appletId="$route.params.appletId"
         @reUploadResponse="responseReUploadEvent"
       />
 
       <div v-if="hasRoles('manager', 'coordinator')">
-        <h1>Pending Invitations</h1>
+        <h1>{{ $t('pendingInvitations') }}</h1>
         <pending-invite-table :users="pendingInviteList" />
         <create-invitation-form @createInvitation="createInvitation" />
         <div style="height: 58px;" />
@@ -34,35 +28,23 @@
       @set-password="onClickSubmitPassword"
     />
 
-    <v-dialog
-      v-model="responseUpdateDialog.visible"
-      max-width="500px"
-    >
+    <v-dialog v-model="responseUpdateDialog.visible" max-width="500px">
       <v-card>
-        <v-card-title
-          class="headline grey lighten-2"
-          primary-title
-        >
-          Refresh response
+        <v-card-title class="headline grey lighten-2" primary-title>
+          {{ $t('refreshResponse') }}
         </v-card-title>
-        <v-card-text> 
-          Do you want to refresh {{ responseUpdateDialog.userData.displayName }}'s data on device?
+        <v-card-text>
+          {{ $t('doYouWant') }}
+          {{ responseUpdateDialog.userData.displayName }}
+          {{ $t('dataOnDevice') }}
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn
-            color="primary"
-            text
-            @click="onReuploadResponse"
-          >
-            Yes
+          <v-btn color="primary" text @click="onReuploadResponse">
+            {{ $t('yes') }}
           </v-btn>
-          <v-btn
-            color="primary"
-            text
-            @click="onDeclineReuploading"
-          >
-            No
+          <v-btn color="primary" text @click="onDeclineReuploading">
+            {{ $t('no') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -76,67 +58,40 @@
 
     <div class="tools">
       <!-- EXPORT BUTTON -->
-      <v-tooltip
-        v-if="hasRoles('owner', 'manager', 'reviewer')"
-        top
-      >
+      <v-tooltip v-if="hasRoles('owner', 'manager', 'reviewer')" top>
         <template v-slot:activator="{ on }">
-          <v-btn
-            fab
-            color="primary"
-            @click="onUserDataExport"
-            v-on="on"
-          >
+          <v-btn fab color="primary" @click="onUserDataExport" v-on="on">
             <v-icon>mdi-export-variant</v-icon>
           </v-btn>
         </template>
-        <span>Export user's data</span>
+        <span>{{ $t('exportUsersData') }}</span>
       </v-tooltip>
 
       <!-- CALENDAR BUTTON -->
-      <v-tooltip
-        v-if="hasRoles('owner', 'manager', 'coordinator')"
-        top
-      >
+      <v-tooltip v-if="hasRoles('owner', 'manager', 'coordinator')" top>
         <template v-slot:activator="{ on }">
-          <v-btn
-            fab
-            color="primary"
-            @click="viewCalendar"
-            v-on="on"
-          >
+          <v-btn fab color="primary" @click="viewCalendar" v-on="on">
             <v-icon>mdi-calendar</v-icon>
           </v-btn>
         </template>
-        <span>View schedule for the selected users</span>
+        <span>{{ $t('viewSchedule') }}</span>
       </v-tooltip>
 
       <!-- DASHBOARD BUTTON -->
-      <v-tooltip
-        v-if="dashboardEnabled"
-        top
-      >
+      <v-tooltip v-if="dashboardEnabled" top>
         <template v-slot:activator="{ on }">
-          <v-btn
-            fab
-            color="primary"
-            @click="onReviewerDashboard"
-            v-on="on"
-          >
+          <v-btn fab color="primary" @click="onReviewerDashboard" v-on="on">
             <v-icon>mdi-chart-bar</v-icon>
           </v-btn>
         </template>
-        <span>View the applet dashboard for the selected users</span>
+        <span>{{ $t('viewAppletDashboard') }}</span>
       </v-tooltip>
     </div>
 
     <footer class="footer">
       <!-- BACK BUTTON -->
-      <v-btn
-        color="primary"
-        @click="$router.go(-1)"
-      >
-        Back
+      <v-btn color="primary" @click="$router.go(-1)">
+        {{ $t('back') }}
       </v-btn>
     </footer>
   </div>
@@ -171,21 +126,21 @@
 </style>
 
 <script>
-import _ from "lodash";
-import ObjectToCSV from "object-to-csv";
+import _ from 'lodash';
+import ObjectToCSV from 'object-to-csv';
 
-import ActiveUserTable from "../Components/Users/ActiveUserTable.vue";
-import PendingInviteTable from "../Components/Users/PendingInviteTable.vue";
-import CreateInvitationForm from "../Components/Users/CreateInvitationForm.vue";
-import api from "../Components/Utils/api/api.vue";
-import AppletPassword from '../Components/Utils/dialogs/AppletPassword'
+import ActiveUserTable from '../Components/Users/ActiveUserTable.vue';
+import PendingInviteTable from '../Components/Users/PendingInviteTable.vue';
+import CreateInvitationForm from '../Components/Users/CreateInvitationForm.vue';
+import api from '../Components/Utils/api/api.vue';
+import AppletPassword from '../Components/Utils/dialogs/AppletPassword';
 import encryption from '../Components/Utils/encryption/encryption.vue';
 import Applet from '../models/Applet';
 import Information from '../Components/Utils/dialogs/information.vue';
 import Item from '../models/Item';
 
 export default {
-  name: "SetUsers",
+  name: 'SetUsers',
   components: {
     ActiveUserTable,
     PendingInviteTable,
@@ -194,25 +149,25 @@ export default {
     Information,
   },
   data: () => ({
-    status: "loading",
+    status: 'loading',
     componentKey: 0,
     userPasswordDialog: false,
-    exportError: "",
+    exportError: '',
     appletPasswordDialog: false,
     requestedAction: null,
     responseUpdateDialog: {
       visible: false,
-      userData: {}
+      userData: {},
     },
     informationDialog: false,
     informationText: '',
   }),
   computed: {
     dashboardEnabled() {
-      const hasPermission = this.hasRoles("owner", "reviewer", "manager");
-      const id = this.currentApplet.applet["@id"] || "";
+      const hasPermission = this.hasRoles('owner', 'reviewer', 'manager');
+      const id = this.currentApplet.applet['@id'] || '';
       const isTokenLogger =
-        id.includes("TokenLogger") || id.includes("TokenCollector");
+        id.includes('TokenLogger') || id.includes('TokenCollector');
 
       return isTokenLogger && hasPermission;
     },
@@ -235,18 +190,18 @@ export default {
   watch: {
     isUsersLoaded() {
       if (this.isUsersLoaded) {
-        this.status = "ready";
+        this.status = 'ready';
       } else {
-        this.status = "loading";
+        this.status = 'loading';
       }
     },
     $route(to, from) {
-      this.status = "loading";
+      this.status = 'loading';
       this.getAppletUsers();
     },
   },
   mounted() {
-    this.$store.commit("setUsers", []);
+    this.$store.commit('setUsers', []);
     this.getAppletUsers();
   },
   methods: {
@@ -261,7 +216,11 @@ export default {
     onUserDataExport() {
       const encryptionInfo = this.currentApplet.applet.encryption;
 
-      if (!encryptionInfo || !encryptionInfo.appletPrime || encryptionInfo.appletPrivateKey) {
+      if (
+        !encryptionInfo ||
+        !encryptionInfo.appletPrime ||
+        encryptionInfo.appletPrivateKey
+      ) {
         this.exportUsersData();
       } else {
         this.appletPasswordDialog = true;
@@ -277,9 +236,9 @@ export default {
 
       this.appletPasswordDialog = false;
 
-      const appletId = this.currentApplet.applet["_id"].replace("applet/", "");
+      const appletId = this.currentApplet.applet['_id'].replace('applet/', '');
       const payload = {
-        users: this.currentUsers.join(",")
+        users: this.currentUsers.join(','),
       };
 
       api
@@ -291,7 +250,8 @@ export default {
         })
         .then((resp) => {
           const { data } = resp;
-          const activeUsers = this.$store.state.users.active, userIdToData = {};
+          const activeUsers = this.$store.state.users.active,
+            userIdToData = {};
           for (let user of activeUsers) {
             userIdToData[user['_id']] = user;
           }
@@ -327,7 +287,8 @@ export default {
               let itemData = response.data[itemUrl];
 
               if (itemData.ptr !== undefined && itemData.src !== undefined) {
-                response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr];
+                response.data[itemUrl] =
+                  data.dataSources[itemData.src].data[itemData.ptr];
               }
 
               let item = (data.itemReferences[response.version] && data.itemReferences[response.version][itemUrl])
@@ -365,28 +326,37 @@ export default {
               result.push({
                 id: response._id,
                 created: response.created,
-                MRN: (MRN || null),
+                MRN: MRN || null,
                 displayName,
                 userId: _id,
                 activity: response.activity.name,
                 item: itemUrl,
-                response: responseData,
+                response: response.data[itemUrl],
                 options: options.join(', '),
                 version: response.version
               });
             }
           }
 
-          let otc = new ObjectToCSV({ 
-            keys: ['id', 'created', 'MRN', 'displayName', 'userId', 'activity', 'item', 'response', 'options', 'version'].map(value => ({ key: value, as: value })),
-            data: result, 
+          let otc = new ObjectToCSV({
+            keys: [
+              'id',
+              'created',
+              'MRN',
+              'displayName',
+              'userId',
+              'activity',
+              'item',
+              'response',
+            ].map((value) => ({ key: value, as: value })),
+            data: result,
           });
 
-          let anchor = document.createElement("a");
+          let anchor = document.createElement('a');
           anchor.href =
-            "data:text/csv;charset=utf-8," + encodeURIComponent(otc.getCSV());
-          anchor.target = "_blank";
-          anchor.download = "report.csv";
+            'data:text/csv;charset=utf-8,' + encodeURIComponent(otc.getCSV());
+          anchor.target = '_blank';
+          anchor.download = 'report.csv';
           anchor.click();
         })
         .catch((e) => {
@@ -395,18 +365,18 @@ export default {
         });
     },
     createInvitation(invitationOptions) {
-      this.status = "loading";
+      this.status = 'loading';
 
       api
         .getAppletInvitation({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
-          appletId: this.currentApplet.applet._id.split("applet/")[1],
+          appletId: this.currentApplet.applet._id.split('applet/')[1],
           options: invitationOptions,
         })
         .then((resp) => {
           if (
-            invitationOptions.role !== "user" &&
+            invitationOptions.role !== 'user' &&
             invitationOptions.accountName
           ) {
             this.setAccountName(invitationOptions.accountName);
@@ -415,7 +385,7 @@ export default {
         })
         .catch((e) => {
           this.error = e;
-          this.status = "error";
+          this.status = 'error';
         });
     },
 
@@ -433,7 +403,10 @@ export default {
         this.updateUserResponse(this.responseUpdateDialog.userData);
       } else {
         this.appletPasswordDialog = true;
-        this.requestedAction = this.updateUserResponse.bind(this, this.responseUpdateDialog.userData);
+        this.requestedAction = this.updateUserResponse.bind(
+          this,
+          this.responseUpdateDialog.userData
+        );
       }
     },
 
@@ -454,34 +427,55 @@ export default {
       const token = this.$store.state.auth.authToken.token;
       const appletId = this.$route.params.appletId;
 
-      api.getUserResponses({
-        apiHost, token, appletId,
-        users: [userData._id],
-        fromDate: from.toISOString(),
-        toDate: to.toISOString()
-      }).then(({ data }) => {
-        Applet.replaceItemValues(Applet.decryptResponses(data, this.currentApplet.applet.encryption));
-        Applet.encryptResponses(data, this.currentApplet.applet.encryption, userData.refreshRequest.userPublicKey)
-
-        const form = new FormData();
-
-        form.set('responses', JSON.stringify({ 
-          dataSources: Object.keys(data.dataSources).reduce((accumulator, responseId) => {
-            accumulator[responseId] = data.dataSources[responseId].data;
-            return accumulator;
-          }, {}), 
-          userPublicKey: userData.refreshRequest.userPublicKey
-        }));
-
-        api.replaceResponseData({
-          apiHost, token, appletId, data: form
-        }).then((msg) => {
-          this.getAppletUsers().then(() => {
-            this.informationDialog = true;
-            this.informationText = 'Refresh Complete';
-          });
+      api
+        .getUserResponses({
+          apiHost,
+          token,
+          appletId,
+          users: [userData._id],
+          fromDate: from.toISOString(),
+          toDate: to.toISOString(),
         })
-      })
+        .then(({ data }) => {
+          Applet.replaceItemValues(
+            Applet.decryptResponses(data, this.currentApplet.applet.encryption)
+          );
+          Applet.encryptResponses(
+            data,
+            this.currentApplet.applet.encryption,
+            userData.refreshRequest.userPublicKey
+          );
+
+          const form = new FormData();
+
+          form.set(
+            'responses',
+            JSON.stringify({
+              dataSources: Object.keys(data.dataSources).reduce(
+                (accumulator, responseId) => {
+                  accumulator[responseId] = data.dataSources[responseId].data;
+                  return accumulator;
+                },
+                {}
+              ),
+              userPublicKey: userData.refreshRequest.userPublicKey,
+            })
+          );
+
+          api
+            .replaceResponseData({
+              apiHost,
+              token,
+              appletId,
+              data: form,
+            })
+            .then((msg) => {
+              this.getAppletUsers().then(() => {
+                this.informationDialog = true;
+                this.informationText = 'Refresh Complete';
+              });
+            });
+        });
     },
 
     /**
@@ -497,13 +491,13 @@ export default {
           appletId: this.$route.params.appletId,
         })
         .then((resp) => {
-          this.$store.commit("setUsers", resp.data);
+          this.$store.commit('setUsers', resp.data);
           this.updateTables();
-          this.status = "ready";
+          this.status = 'ready';
         })
         .catch((e) => {
           this.error = e;
-          this.status = "error";
+          this.status = 'error';
         });
     },
 
@@ -521,7 +515,7 @@ export default {
           accountName,
         })
         .then((resp) => {
-          this.$store.commit("setAccountName", accountName);
+          this.$store.commit('setAccountName', accountName);
           console.log(resp);
         })
         .catch((err) => {
@@ -544,7 +538,11 @@ export default {
     onReviewerDashboard() {
       const encryptionInfo = this.currentApplet.applet.encryption;
 
-      if (!encryptionInfo || !encryptionInfo.appletPrime || encryptionInfo.appletPrivateKey) {
+      if (
+        !encryptionInfo ||
+        !encryptionInfo.appletPrime ||
+        encryptionInfo.appletPrivateKey
+      ) {
         this.gotoDashboard();
       } else {
         this.appletPasswordDialog = true;
@@ -560,20 +558,25 @@ export default {
         appletPassword,
         accountId: this.$store.state.currentAccount.accountId,
         prime: currentApplet.applet.encryption.appletPrime,
-        baseNumber: currentApplet.applet.encryption.base
+        baseNumber: currentApplet.applet.encryption.base,
       });
 
-      if (encryptionInfo.getPublicKey().equals(Buffer.from(currentApplet.applet.encryption.appletPublicKey))) {
+      if (
+        encryptionInfo
+          .getPublicKey()
+          .equals(Buffer.from(currentApplet.applet.encryption.appletPublicKey))
+      ) {
         this.appletPasswordDialog = false;
 
-        this.$store.commit("setAppletPrivateKey", {
-          appletId: currentApplet.applet._id, 
-          key: Array.from(encryptionInfo.getPrivateKey())
+        this.$store.commit('setAppletPrivateKey', {
+          appletId: currentApplet.applet._id,
+          key: Array.from(encryptionInfo.getPrivateKey()),
         });
 
         this.requestedAction();
       } else {
-        this.$refs.appletPasswordRef.defaultErrorMsg = 'Incorrect applet password';
+        this.$refs.appletPasswordRef.defaultErrorMsg =
+          'Incorrect applet password';
       }
     },
 
@@ -591,7 +594,7 @@ export default {
         path: `/applet/${appletId}/dashboard`,
         query: { users: this.$store.state.currentUsers },
       });
-    }
+    },
   },
 };
 </script>

@@ -16,27 +16,25 @@
     <v-dialog v-model="editRoleDialog" max-width="500px">
       <v-card>
         <v-card-title class="edit-card-title">
-          Edit roles
+          {{ $t('editRoles') }}
         </v-card-title>
         <v-card-text>
           <v-select
             v-model="currentUserRoles"
             :items="computedItems"
-            label="Select"
+            :label="$t('select')"
             multiple
             chips
             :required="currentUserRoles"
             :item-disabled="['editor']"
-            :hint="
-              currentUserRoles.length ? '' : 'At least one role is required'
-            "
+            :hint="currentUserRoles.length ? '' : $t('atLeastOneRole')"
             persistent-hint
           />
           <v-combobox
             v-if="currentUserRoles.includes('reviewer')"
             v-model="currentUserList"
-            hint="Add or remove users for reviewer role"
-            label="User list"
+            :hint="$t('addRemoveReviewer')"
+            :label="$t('userList')"
             multiple
             small-chips
             required
@@ -45,21 +43,20 @@
         <v-card-actions>
           <v-spacer />
           <v-btn color="primary" text @click="editRoleDialog = false">
-            Close
+            {{ $t('close') }}
           </v-btn>
-          <v-btn
-            color="primary"
-            :disabled="!currentUserRoles.length"
-            text
-            @click="onSaveUserRole()"
-          >
-            Save
+          <v-btn color="primary" text @click="onSaveUserRole()">
+            {{ $t('save') }}
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="passwordDialog" persistent max-width="450px">
+    <v-dialog
+      v-model="passwordDialog"
+      persistent
+      max-width="450px"
+    >
       <v-card>
         <v-card-title class="edit-card-title">
           <span class="headline">Are you sure?</span>
@@ -70,7 +67,7 @@
               <v-col cols="12">
                 <v-text-field
                   v-model="password"
-                  label="Confirm password"
+                  :label="$t('confirmPassword')"
                   type="password"
                   required
                 />
@@ -84,10 +81,10 @@
         <v-card-actions>
           <v-spacer />
           <v-btn color="blue darken-1" text @click="passwordDialog = false">
-            Close
+            {{ $t('close') }}
           </v-btn>
           <v-btn color="blue darken-1" text @click="onConfirmPassword()">
-            Confirm
+            {{ $t('confirm') }}
           </v-btn>
         </v-card-actions>
       </v-card>

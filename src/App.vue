@@ -1,12 +1,8 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
+    <v-app-bar app color="primary" dark>
       <v-toolbar-title>
-        MindLogger Admin {{ showEnvironment }}
+        {{ $t('mindloggersAdmin') }} {{ showEnvironment }}
       </v-toolbar-title>
       <v-spacer />
       <v-menu
@@ -17,10 +13,7 @@
         right
       >
         <template v-slot:activator="{ on }">
-          <v-btn
-            icon
-            v-on="on"
-          >
+          <v-btn icon v-on="on">
             <v-icon>mdi-dots-vertical</v-icon>
           </v-btn>
         </template>
@@ -28,7 +21,7 @@
           <v-list>
             <v-list-item @click="logout">
               <v-list-item-content>
-                <v-list-item-title>Logout</v-list-item-title>
+                <v-list-item-title>{{ $t('logout') }}</v-list-item-title>
               </v-list-item-content>
 
               <v-list-item-action>
@@ -65,12 +58,12 @@
 </template>
 
 <script>
-import store from "./State/state";
-import api from "./Components/Utils/api/api.vue";
-import _ from "lodash";
+import store from './State/state';
+import api from './Components/Utils/api/api.vue';
+import _ from 'lodash';
 
 export default {
-  name: "App",
+  name: 'App',
   store,
   computed: {
     isLoggedIn() {
@@ -96,12 +89,12 @@ export default {
     },
   },
   created() {
-    this.$store.commit("setBackend", null);
+    this.$store.commit('setBackend', null);
   },
   methods: {
     logout() {
-      this.$store.commit("resetState");
-      this.$router.push("/login");
+      this.$store.commit('resetState');
+      this.$router.push('/login');
     },
 
     switchAccount(accountId) {
@@ -112,9 +105,9 @@ export default {
           accountId,
         })
         .then((resp) => {
-          this.$store.commit("switchAccount", resp.data.account);
-          this.$router.push("/build");
-          this.$router.push("/applets");
+          this.$store.commit('switchAccount', resp.data.account);
+          this.$router.push('/build');
+          this.$router.push('/applets');
         })
         .catch((err) => {
           console.warn(err);
@@ -125,9 +118,9 @@ export default {
 </script>
 
 <style lang="scss">
-@import url("https://fonts.googleapis.com/css?family=IBM+Plex+Sans:300,400");
-@import "../node_modules/@ag-grid-community/all-modules/dist/styles/ag-grid.css";
-@import "../node_modules/@ag-grid-community/all-modules/dist/styles/ag-theme-balham.css";
+@import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans:300,400');
+@import '../node_modules/@ag-grid-community/all-modules/dist/styles/ag-grid.css';
+@import '../node_modules/@ag-grid-community/all-modules/dist/styles/ag-theme-balham.css';
 </style>
 
 <style>
@@ -142,7 +135,7 @@ body,
 html,
 #app,
 #dayspan {
-  font-family: "IBM Plex Sans", sans-serif !important;
+  font-family: 'IBM Plex Sans', sans-serif !important;
   width: 100%;
   height: 100%;
 }

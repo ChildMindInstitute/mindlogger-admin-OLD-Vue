@@ -33,20 +33,19 @@
 
 <style lang="scss">
 .v-card__text {
-  padding: 16px !important; 
+  padding: 16px !important;
 }
 </style>
 
 <script>
-import Components from "applet-schema-builder";
-import About from "./AboutBuilder";
-import PackageJson from "../../../package.json";
-import api from "../Utils/api/api.vue";
-import { cloneDeep } from "lodash";
-import axios from "axios";
+import Components from 'applet-schema-builder';
+import About from './AboutBuilder';
+import PackageJson from '../../../package.json';
+import api from '../Utils/api/api.vue';
+import { cloneDeep } from 'lodash';
 
 import encryption from '../Utils/encryption/encryption.vue';
-import AppletPassword from '../Utils/dialogs/AppletPassword'
+import AppletPassword from '../Utils/dialogs/AppletPassword';
 import Information from '../Utils/dialogs/information';
 
 const RESPONSE_OPTIONS = "reprolib:terms/responseOptions";
@@ -57,7 +56,7 @@ const TYPE = "@type";
 const CONTEXT = "@context";
 
 export default {
-  name: "Builder",
+  name: 'Builder',
   components: {
     ...Components,
     About,
@@ -71,14 +70,14 @@ export default {
       aboutOpen: false,
       package: PackageJson,
       dialog: false,
-      dialogText: "",
-      dialogTitle: "",
+      dialogText: '',
+      dialogTitle: '',
       appletPasswordDialog: false,
       newApplet: {},
       isEditing: false,
       versions: [],
-      itemTemplates: null,
       componentKey: 1,
+      itemTemplates: null,
       templateId: "",
       tokenTemplate: [
         {
@@ -166,10 +165,10 @@ export default {
         optionData.templates[0]["_id"] = this.templateId
       }
       form.set("templateInfo", JSON.stringify(optionData));
-      const updatedTemplates = await api.updateItemTemplates({ 
-        apiHost, 
-        token, 
-        data: form 
+      const updatedTemplates = await api.updateItemTemplates({
+        apiHost,
+        token,
+        data: form
       });
       if (updatedTemplates.data.length) {
         this.templateId = updatedTemplates.data[0]["_id"];
@@ -177,17 +176,20 @@ export default {
     },
     addNewApplet(appletPassword) {
       const form = new FormData();
-      form.set("protocol", JSON.stringify(this.newApplet || {}));
+      form.set('protocol', JSON.stringify(this.newApplet || {}));
 
       const encryptionInfo = encryption.getAppletEncryptionInfo({
         appletPassword: appletPassword,
-        accountId: this.$store.state.currentAccount.accountId
+        accountId: this.$store.state.currentAccount.accountId,
       });
-      form.set('encryption', JSON.stringify({
-        appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
-        appletPrime: Array.from(encryptionInfo.getPrime()),
-        base: Array.from(encryptionInfo.getGenerator())
-      }));
+      form.set(
+        'encryption',
+        JSON.stringify({
+          appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
+          appletPrime: Array.from(encryptionInfo.getPrime()),
+          base: Array.from(encryptionInfo.getGenerator()),
+        })
+      );
 
       api
         .createApplet({
@@ -196,7 +198,7 @@ export default {
           token: this.$store.state.auth.authToken.token,
           apiHost: this.$store.state.backend,
         })
-        .then(resp => {
+        .then((resp) => {
           this.onUploadSucess(resp.data.message);
         })
         .catch((e) => {
@@ -229,62 +231,67 @@ export default {
     },
     onUpdateProtocol(updateData) {
       const protocol = new FormData();
-      protocol.set("protocol", JSON.stringify(updateData|| {}));
+      protocol.set('protocol', JSON.stringify(updateData || {}));
 
       const appletId = this.currentApplet.applet._id.split('/')[1];
       const token = this.$store.state.auth.authToken.token;
       const apiHost = this.$store.state.backend;
-      api.updateApplet({
-        data: protocol,
-        appletId,
-        token,
-        apiHost,
-      }).then(resp => {
-        this.$store.commit('updateAppletData', {
-          ...resp.data,
-          roles: this.currentApplet.roles
-        });
+      api
+        .updateApplet({
+          data: protocol,
+          appletId,
+          token,
+          apiHost,
+        })
+        .then((resp) => {
+          this.$store.commit('updateAppletData', {
+            ...resp.data,
+            roles: this.currentApplet.roles,
+          });
 
-        api.getAppletVersions({ apiHost, token, appletId }).then(resp => {
-          this.versions = resp.data;
-          this.componentKey = this.componentKey + 1;
-        });
+          api.getAppletVersions({ apiHost, token, appletId }).then((resp) => {
+            this.versions = resp.data;
+            this.componentKey = this.componentKey + 1;
+          });
 
-        this.onUploadSucess();
-      }).catch(e => {
-        this.onUploadError();
-      })
+          this.onUploadSucess();
+        })
+        .catch((e) => {
+          this.onUploadError();
+        });
     },
     onPrepareApplet(data) {
       const protocol = new FormData();
-      protocol.set("protocol", JSON.stringify(data || {}));
+      protocol.set('protocol', JSON.stringify(data || {}));
 
       const appletId = this.currentApplet.applet._id.split('/')[1];
       const token = this.$store.state.auth.authToken.token;
       const apiHost = this.$store.state.backend;
-      api.prepareApplet({
-        apiHost, token, data: protocol, appletId
-      }).then(resp => {
-        this.$store.commit('updateAppletData', {
-          ...resp.data,
-          roles: this.currentApplet.roles
-        });
 
-        return api.getAppletVersions({ apiHost, token, appletId });
-      }).then(resp => {
-        this.versions = resp.data;
-        this.componentKey = this.componentKey + 1;
-      });
+      api
+        .prepareApplet({
+          apiHost,
+          token,
+          data: protocol,
+          appletId,
+        })
+        .then((resp) => api.getAppletVersions({ apiHost, token, appletId }))
+        .then((resp) => {
+          this.versions = resp.data;
+          this.componentKey = this.componentKey + 1;
+        });
     },
     onUploadSucess(msg) {
-        this.dialogText = msg || 'Your applet is successfully updated';
-        this.dialogTitle = 'Upload Received';
-        this.dialog = true;
+      this.dialogText = msg || 'Your applet is successfully updated';
+      this.dialogTitle = 'Upload Received';
+      this.dialog = true;
     },
     onUploadError(msg) {
-        this.dialogText = msg || "There was an error uploading your applet. Please try again or report the issue.";
-        this.dialogTitle = 'Upload Error';
-        this.dialog = true;
+      this.dialogText =
+        msg ||
+        'There was an error uploading your applet. Please try again or report the issue.';
+      this.dialogTitle = 'Upload Error';
+      this.dialog = true;
     },
     getProtocols(versions) {
       if (!this.isEditing) return [];
@@ -294,12 +301,12 @@ export default {
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
         appletId,
-        versions
-      })
+        versions,
+      });
     },
     setLoading(isLoading) {
       this.aboutOpen = isLoading;
     }
-  }
+  },
 };
 </script>

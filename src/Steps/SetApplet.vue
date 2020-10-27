@@ -1,10 +1,7 @@
 <template>
   <v-container fluid>
     <Loading v-if="status === 'loading'" />
-    <div
-      v-else-if="status === 'error'"
-      class="error"
-    >
+    <div v-else-if="status === 'error'" class="error">
       {{ error.message }}
     </div>
     <AllApplets
@@ -26,13 +23,13 @@
 </template>
 
 <script>
-import api from '../Components/Utils/api/api.vue';
-import _ from 'lodash';
-import AllApplets from '../Components/Applets/AllApplets';
-import Loading from '../Components/Utils/Loading';
-import { Parse, Day } from 'dayspan';
-import Information from '../Components/Utils/dialogs/information.vue';
-import config from '../config';
+import api from "../Components/Utils/api/api.vue";
+import _ from "lodash";
+import AllApplets from "../Components/Applets/AllApplets";
+import Loading from "../Components/Utils/Loading";
+import { Parse, Day } from "dayspan";
+import Information from "../Components/Utils/dialogs/information.vue";
+import config from "../config";
 
 window.Parse = Parse;
 window.Day = Day;
@@ -50,8 +47,8 @@ export default {
     accountsLoadingStatus: "loading",
     error: {},
     dialog: false,
-    dialogText: '',
-    dialogTitle: '',
+    dialogText: "",
+    dialogTitle: "",
   }),
   computed: {
     currentAccount() {
@@ -65,7 +62,7 @@ export default {
     },
     accountApplets() {
       return this.$store.state.currentApplets;
-    }
+    },
   },
   watch: {
     currentAccount(newAccount, oldAccount) {
@@ -73,7 +70,7 @@ export default {
     },
     accountApplets(newApplets, oldApplets) {
       this.getApplets();
-    }
+    },
   },
   mounted() {
     this.getAccountData();
@@ -89,12 +86,12 @@ export default {
         .switchAccount({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
-          accountId
+          accountId,
         })
-        .then(resp => {
+        .then((resp) => {
           this.$store.commit("switchAccount", resp.data.account);
         })
-        .catch(err => {
+        .catch((err) => {
           console.warn(err);
         });
     },
@@ -108,43 +105,44 @@ export default {
         return;
       }
 
-      const requests = this.accountApplets.map(account => {
+      const requests = this.accountApplets.map((account) => {
         return new Promise((resolve, reject) => {
           api
             .getApplet({
               apiHost: this.$store.state.backend,
               token: this.$store.state.auth.authToken.token,
               allEvent: account.allEvent,
-              id: account.appletId
+              id: account.appletId,
             })
-            .then(response => {
+            .then((response) => {
               resolve(response.data);
             });
         });
       });
       Promise.all(requests)
-        .then(responses => {
+        .then((responses) => {
           this.$store.commit("setAllApplets", responses);
           this.$store.commit("updateAllApplets");
           this.status = "ready";
         })
-        .catch(e => {
+        .catch((e) => {
           this.status = "error";
         });
     },
     onAppletUploadSuccessful(message) {
-      this.dialogTitle = 'Upload Received';
+      this.dialogTitle = "Upload Received";
       this.dialogText = message;
       this.dialog = true;
     },
     onAppletUploadError() {
-      this.dialogTitle = 'Upload Error';
-      this.dialogText = 'There was an error uploading your applet. Please try again or report the issue.'
+      this.dialogTitle = "Upload Error";
+      this.dialogText =
+        "There was an error uploading your applet. Please try again or report the issue.";
       this.dialog = true;
     },
     onAppletPasswordChanged() {
-      this.dialogText = 'Applet password is updated successfully.';
-      this.dialogTitle = 'Applet Encryption Update';
+      this.dialogText = "Applet password is updated successfully.";
+      this.dialogTitle = "Applet Encryption Update";
       this.dialog = true;
     },
     onOwnerShipInviteSuccessful(email) {
@@ -158,5 +156,5 @@ export default {
       this.dialog = true;
     }
   },
-}
+};
 </script>

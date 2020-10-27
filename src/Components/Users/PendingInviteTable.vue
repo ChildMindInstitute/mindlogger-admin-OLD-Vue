@@ -25,56 +25,56 @@ import { AllCommunityModules } from "@ag-grid-community/all-modules";
 export default {
   name: "PendingInviteTable",
   components: {
-    AgGridVue
+    AgGridVue,
   },
   props: {
     users: {
       type: Array,
       default: function() {
         return [];
-      }
-    }
+      },
+    },
   },
   data() {
     return {
       columnDefs: [
         {
-          headerName: "Institutional ID",
+          headerName: $t("institutionalID"),
           field: "mrn",
           sortable: true,
           filter: true,
           resizable: true
         },
         {
-          headerName: "First Name",
+          headerName: $t("firstName"),
           field: "firstName",
           sortable: true,
           filter: true,
           resizable: true
         },
         {
-          headerName: "Last Name",
+          headerName: $t("lastName"),
           field: "lastName",
           sortable: true,
           filter: true,
           resizable: true
         },
         {
-          headerName: "User Type",
+          headerName: $("userType"),
           field: "userType",
           sortable: true,
           filter: true,
           resizable: true
         },
         {
-          headerName: "Invitation Link",
+          headerName: $("invitationLink"),
           field: "invitationLink",
           sortable: true,
           filter: true,
           resizable: true
         },
         {
-          headerName: "Date & Time Invited",
+          headerName: $("dateTimeInvited"),
           field: "dateTime",
           sortable: true,
           filter: true,
@@ -83,24 +83,26 @@ export default {
       ],
       modules: AllCommunityModules,
       gridOptions: {},
-      domLayout: "autoHeight"
+      domLayout: "autoHeight",
     };
   },
   computed: {
     rowData: function() {
       const dat = [];
-      this.users.forEach(invitation => {
+      this.users.forEach((invitation) => {
         dat.push({
           mrn: invitation.MRN,
           firstName: invitation.firstName,
           lastName: invitation.lastName,
           userType: invitation.role,
-          invitationLink: `${process.env.VUE_APP_WEB_URI}/#/invitation/${invitation._id}`,
-          dateTime: moment(invitation.created).format("YYYY-MM-DD hh:mm:ss")
+          invitationLink: `${process.env.VUE_APP_WEB_URI}/#/invitation/${
+            invitation._id
+          }`,
+          dateTime: moment(invitation.created).format("YYYY-MM-DD hh:mm:ss"),
         });
       });
       return dat;
-    }
+    },
   },
   mounted() {
     this.autoSizeAll();
@@ -116,7 +118,7 @@ export default {
       });
 
       this.gridOptions.columnApi.autoSizeColumns(allColumnIds, true);
-    }
-  }
+    },
+  },
 };
 </script>
