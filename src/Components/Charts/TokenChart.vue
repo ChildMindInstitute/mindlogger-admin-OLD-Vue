@@ -254,7 +254,7 @@ const TODAY = new Date(Date(
 ));
 const ONE_WEEK_AGO = new Date(TODAY);
 const ONE_MONTH_AGO = new Date(TODAY);
-ONE_WEEK_AGO.setDate(TODAY.getDate() - 6);
+ONE_WEEK_AGO.setDate(TODAY.getDate() - 7);
 ONE_MONTH_AGO.setMonth(TODAY.getMonth() - 1);
 /**
  * TokenChart component.
@@ -293,7 +293,7 @@ export default {
     selectedVersions: [],
     versionBarWidth: 10,
     versionChangeLimitPerDay: 4,
-    hasVersionBars: true
+    hasVersionBars: false
   }),
   computed: {
     appletVersions() {
