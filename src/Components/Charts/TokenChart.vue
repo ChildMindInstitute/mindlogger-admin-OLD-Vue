@@ -271,7 +271,8 @@ export default {
     data: Array,
     features: Array,
     versions: Array,
-    versionsByDate: Object
+    versionsByDate: Object,
+    timezone: String, /** format +05:00 */
   },
   data: () => ({
     legendWidth: 150,
@@ -298,6 +299,24 @@ export default {
   computed: {
     appletVersions() {
       return this.versions.map(version => version.version)
+    },
+    /** date in versions array doesn't consider timezone (all are set as UTC) and we need to convert updated times as user's timezone */
+    formattedVersions() {
+      let offset = `${this.timezone[0] === '+' ? '-' : '+'}${this.timezone.substr(1)}`;
+
+      return this.versions.map(version => {
+        /**
+         * input => yy-mm-10T23:30:30+00:00 = yy-mm-11T04:30:30+05:00
+         * output=> yy-mm-11
+         */
+        const formatted = moment(new Date(version.updated.slice(0, -6) + offset).toISOString()).format("YYYY-MM-DD");
+        return {
+          version: version.version,
+          barColor: version.barColor,
+          formatted,
+          updated: moment(formatted).set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+        }
+      })
     },
     fromDate: {
       cache: false,
@@ -714,9 +733,11 @@ export default {
      * @return {void}
      */
     drawVersionBars() {
-      const { svg, x, y, focusMargin, versions, focusHeight } = this;
+      const { svg, x, y, focusMargin, focusHeight } = this;
       const barWidth = this.focusBarWidth();
       const widthPerDate = this.widthPerDate();
+      const formattedVersions = this.formattedVersions;
+
       svg
         .select('.chart')
         .selectAll('.version')
@@ -728,7 +749,7 @@ export default {
       svg
         .select('.chart')
         .selectAll('.version')
-        .data(versions.filter(d => d.barColor && this.selectedVersions.indexOf(d.version) >= 0))
+        .data(formattedVersions.filter(d => d.barColor && this.selectedVersions.indexOf(d.version) >= 0))
         .join('rect')
         .attr('class', 'version')
         .attr('fill', d => d.barColor)

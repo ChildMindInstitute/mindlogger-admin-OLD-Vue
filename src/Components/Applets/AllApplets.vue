@@ -280,13 +280,17 @@ export default {
         });
     },
     duplicateApplet(applet) {
-      this.appletDuplicateDialog.visibility = true;
-      this.appletDuplicateDialog.applet = applet;
-      this.$refs.appletNameDialog.appletName = `duplicate of ${
-        applet.applet["http://www.w3.org/2004/02/skos/core#prefLabel"][0][
-          "@value"
-        ]
-      }`;
+      api
+        .validateAppletName({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          name: `${applet.applet['http://www.w3.org/2004/02/skos/core#prefLabel'][0]['@value']} (1)`
+        })
+        .then(resp => {
+          this.appletDuplicateDialog.visibility = true;
+          this.appletDuplicateDialog.applet = applet;
+          this.$refs.appletNameDialog.appletName = resp.data;
+        })
     },
 
     onSetAppletDuplicateName(appletName) {

@@ -140,6 +140,10 @@ export default class Applet {
       let merged = [], last = null;
 
       data.responses[itemId].forEach(resp => {
+        this.items[itemId].timezoneStr = resp.date.substr(-6);
+
+        resp.date = resp.date.substr(0, 10);
+
         if (last && resp.date == last.date && resp.version == last.version) {
           last.value.push(...resp.value);
         } else {
@@ -177,15 +181,7 @@ export default class Applet {
       params: { retrieveDate: true }
     });
 
-    this.versions = data.map(d => {
-      const updated = new Date(d.updated);
-      const formatted = moment(updated).format("YYYY-MM-DD");
-      return { 
-        version: d.version, 
-        formatted,
-        updated: moment(formatted).set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-      };
-    });
+    this.versions = data;
   }
 
   insertInitialVersion() {
