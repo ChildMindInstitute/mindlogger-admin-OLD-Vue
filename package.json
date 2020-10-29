@@ -1,6 +1,6 @@
 {
   "name": "mindlogger-admin",
-  "version": "0.3.33",
+  "version": "0.3.35",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --mode local",
