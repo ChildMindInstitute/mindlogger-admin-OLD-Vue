@@ -65,6 +65,10 @@ import _ from 'lodash';
 export default {
   name: 'App',
   store,
+
+  /**
+   * Define here all computed properties.
+   */
   computed: {
     isLoggedIn() {
       return !_.isEmpty(this.$store.state.auth);
@@ -88,9 +92,20 @@ export default {
       return accounts;
     },
   },
+
+  /**
+   * This method gets executed when the VNode has been created.
+   *
+   * @returns {void}
+   */
   created() {
+    this.$store.commit('setCurrentLanguage', this.$route.query.lang || 'en_US');
     this.$store.commit('setBackend', null);
   },
+
+  /**
+   * Define here all methods that will be available in the scope of the template.
+   */
   methods: {
     logout() {
       this.$store.commit('resetState');

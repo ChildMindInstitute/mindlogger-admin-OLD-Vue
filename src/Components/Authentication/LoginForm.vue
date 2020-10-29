@@ -110,6 +110,10 @@ export default {
     },
   },
 
+  created() {
+    this.currentLanguage = this.$store.state.currentLanguage;
+  },
+
   methods: {
     onLanguageChange() {
       this.$i18n.locale = this.currentLanguage;
