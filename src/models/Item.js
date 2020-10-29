@@ -51,6 +51,7 @@ export default class Item {
     this.schemaVersion = data['schema:schemaVersion'] && i18n.arrayToObject(data['schema:schemaVersion']);
     this.responseOptions = this.parseResponseOptions(data[ReproLib.responseOptions]);
     this.responses = [];
+    this.timezoneStr = '+00:00';
     this.maxValue = data[ReproLib.responseOptions] && 'schema:maxValue' in data[ReproLib.responseOptions][0]
       ? data[ReproLib.responseOptions][0]['schema:maxValue'][0]['@value']
       : 0;

@@ -42,6 +42,7 @@
             :features="item.responseOptions"
             :versionsByDate="item.dateToVersions"
             :versions="applet.versions"
+            :timezone="item.timezoneStr"
           />
         </v-card>
       </div>

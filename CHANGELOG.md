@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.35] = 2020-10-29
 - fix applet naming for duplicated applets
 
+## [0.3.34] = 2020-10-29
+- show reviewer dashboard as user's timezone
+
 ## [0.3.33] = 2020-10-23
 - insert option to show/hide version bars
 
