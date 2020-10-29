@@ -3,6 +3,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import { cloneDeep } from 'lodash';
 import AppletCard from '../../src/Components/Applets/AppletCard.vue';
 import { storeConfig } from '../../src/State/state.js';
+import i18n from '../../src/plugins/language'
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -30,7 +31,8 @@ test('AppletCard\'s \'currentApplet\' computed property', () => {
     localVue,
     propsData: {
       applet: sampleApplet2,
-    }
+    },
+    i18n
   });
 
   // Set the app's current applet to sampletApplet1
