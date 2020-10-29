@@ -211,7 +211,12 @@ const mutations = {
   },
 };
 
-const stateCopy = (({ allApplets, ...o }) => o)(state);
+const stateCopy = (({ 
+  // Excluded properties.
+  allApplets, 
+  currentLanguage,
+  ...o
+}) => o)(state);
 const stateToPersist = Object.keys(stateCopy);
 
 export const storeConfig = {

@@ -1,34 +1,46 @@
+// Third-party libraries.
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
-import store from '../State/state';
 import _ from 'lodash';
 
+// Local.
+import store from '../State/state';
+
+// Translations.
 import en_US from './locales/en_US';
 import fr_FR from './locales/fr_FR';
 
+
 Vue.use(VueI18n);
 
-// detect browser language
-const browserLanguage = (() => {
+/**
+ * Detects the browser langauge.
+ *
+ * @returns {string} the current browser language.
+ */
+const getBrowserLanguage = () => {
   const language = navigator.language || navigator.userLanguage;
 
-  if (
-    ['fr', 'fr-BE', 'fr-CA', 'fr-CH', 'fr-FR', 'fr-LU', 'fr-MC'].includes(
-      language
-    )
-  ) {
+  if (language.startsWith('fr')) { 
     return 'fr_FR';
   }
 
   return 'en_US';
-})();
+};
 
-// check if a language setting is stored already
-const locale = _.get(store, 'state.currentLanguage', browserLanguage);
+// Detect language in the URL.
+const queryString = window.location.hash.split('?').pop();
+const urlParams = new URLSearchParams(queryString);
+const urlLanguage = urlParams.get('lang');
 
-// new instance
+
+// Initialize the extended Vue instance. 
 export default new VueI18n({
-  locale,
+  locale: (
+    urlLanguage || 
+    _.get(store, 'state.currentLanguage') ||
+    getBrowserLanguage()
+  ),
   messages: {
     en_US,
     fr_FR,
