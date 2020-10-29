@@ -108,7 +108,7 @@ export default {
   props: {
     applets: {
       type: Array,
-      required: true,
+      required: true, 
     },
   },
   data: () => ({
