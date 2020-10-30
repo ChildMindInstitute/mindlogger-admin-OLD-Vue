@@ -19,7 +19,7 @@ const environment = process.env.NODE_ENV || "development";
 
 // Avoid using sentry for development since it is not needed and it would waste
 // the log entries quota.
-if (environment !== "development") {
+if (environment !== "development" && environment !== "local") {
   Sentry.init({
     environment,
     dsn:
