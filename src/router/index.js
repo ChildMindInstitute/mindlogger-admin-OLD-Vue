@@ -71,27 +71,26 @@ let router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  const isNotLoggedIn = _.isEmpty(store.state.auth);
-  if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (isNotLoggedIn) {
-      next({
-        path: "/login",
-        params: { nextUrl: to.fullPath },
-      });
-    } else {
-      next();
-    }
-  } else if (to.matched.some((record) => record.meta.guest)) {
-    if (isNotLoggedIn) {
-      next();
-    } else {
-      next({
-        path: "/applets",
-      });
-    }
-  } else {
-    next();
-  }
+  const isLoggedIn = !_.isEmpty(store.state.auth);
+  const isPrivatePage = to.matched.some((record) => record.meta.requiresAuth);
+  const isGuestPage = to.matched.some((record) => record.meta.guest);
+
+  // Redirect unauthenticated users to the login page if they are trying to
+  // access a page that requires authentication.
+  if (isPrivatePage && !isLoggedIn) {
+    return next({
+      path: "/login",
+      params: { nextUrl: to.fullPath },
+    });
+  } 
+
+  // Prevent users from accessing the login page if they are already
+  // authenticated.
+  if (isGuestPage && isLoggedIn) {
+    return next({ path: "/applets" });
+  } 
+
+  next();
 });
 
 export default router;
