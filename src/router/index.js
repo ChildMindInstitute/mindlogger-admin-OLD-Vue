@@ -74,21 +74,32 @@ router.beforeEach((to, from, next) => {
   const isLoggedIn = !_.isEmpty(store.state.auth);
   const isPrivatePage = to.matched.some((record) => record.meta.requiresAuth);
   const isGuestPage = to.matched.some((record) => record.meta.guest);
+  const lang = (from.query.lang || store.state.currentLanguage || 'en');
 
   // Redirect unauthenticated users to the login page if they are trying to
   // access a page that requires authentication.
   if (isPrivatePage && !isLoggedIn) {
     return next({
       path: "/login",
-      params: { nextUrl: to.fullPath },
+      query: { nextUrl: to.fullPath, lang },
     });
   } 
 
   // Prevent users from accessing the login page if they are already
   // authenticated.
   if (isGuestPage && isLoggedIn) {
-    return next({ path: "/applets" });
+    return next({ path: "/applets", query: { lang }});
   } 
+
+  // When navigating to a page, make sure that the current language is persisted
+  // in the URL.
+  if (to && !to.query.lang) {
+    return next({
+      path: to.path, 
+      query: { ...to.query, lang },
+      params: to.params,
+    });
+  }
 
   next();
 });
