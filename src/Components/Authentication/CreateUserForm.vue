@@ -75,22 +75,30 @@ import _ from "lodash";
 export default {
   data: () => ({
     email: "",
-    emailRules: [
-      (v) => !!v || $t("emailRequired"),
-      (v) => /.+@.+\..+/.test(v) || $t("emailMustBeValid"),
-    ],
     firstName: "",
-    firstNameRules: [(v) => !!v || $t("firstNameRequired")],
     lastName: "",
-    lastNameRules: [(v) => !!v || $t("lastNameRequired")],
     password: "",
-    passwordRules: [(v) => !!v || $t("passwordRequired")],
     error: "",
   }),
 
   computed: {
     apiHost() {
       return this.$store.state.backend;
+    },
+    emailRules() {
+      return [
+        (v) => !!v || this.$t("emailRequired"),
+        (v) => /.+@.+\..+/.test(v) || this.$t("emailMustBeValid"),
+      ];
+    },
+    firstNameRules() {
+      return [(v) => !!v || this.$t("firstNameRequired")];
+    },
+    lastNameRules() {
+      return [(v) => !!v || this.$t("lastNameRequired")];
+    },
+    passwordRules() {
+      return [(v) => !!v || this.$t("passwordRequired")];
     },
   },
 
