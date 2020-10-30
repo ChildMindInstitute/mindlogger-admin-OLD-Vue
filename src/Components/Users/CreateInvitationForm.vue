@@ -105,15 +105,23 @@ export default {
       lazy: false,
       valid: true,
       emailRules: [
-        (v) => !!v || $t("emailRequired"),
+        (v) => !!v || this.$i18n.t("emailRequired"),
         (v) =>
           /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(v) ||
-          $t("emailMustBeValid"),
+          this.$i18n.t("emailMustBeValid"),
       ],
-      firstNameRules: [(v) => !!v || $t("firstNameRequired")],
-      lastNameRules: [(v) => !!v || $t("lastNameRequired")],
-      accountNameRules: [(v) => !!v || $t("nameRequired")],
-      usersRules: [(v) => !!v || $t("usersRequired")],
+      firstNameRules: [
+        (v) => !!v || this.$i18n.t("firstNameRequired")
+      ],
+      lastNameRules: [
+        (v) => !!v || this.$i18n.t("lastNameRequired")
+      ],
+      accountNameRules: [
+        (v) => !!v || this.$i18n.t("nameRequired")
+      ],
+      usersRules: [
+        (v) => !!v || this.$i18n.t("usersRequired")
+      ],
       params: {
         role: "user",
         profile: {

@@ -81,29 +81,30 @@ import api from "../Utils/api/api.vue";
 import _ from "lodash";
 
 export default {
-  data: () => ({
-    valid: true,
-    email: "",
-    emailRules: [
-      (v) => !!v || $t("emailRequired"),
-      (v) => /.+@.+\..+/.test(v) || $t("emailMustBeValid"),
-    ],
-    password: "",
-    passwordRules: [(v) => !!v || $t("passwordRequired")],
-    error: "",
-    languages: [
-      {
-        label: "English",
-        value: "en_US",
-      },
-      {
-        label: "French",
-        value: "fr_FR",
-      },
-    ],
-    currentLanguage: "en_US",
-  }),
-
+  data() {
+    return {
+      valid: true,
+      email: "",
+      emailRules: [
+        (v) => !!v || this.$i18n.t("emailRequired"),
+        (v) => /.+@.+\..+/.test(v) || this.$i18n.t("emailMustBeValid"),
+      ],
+      password: "",
+      passwordRules: [(v) => !!v || this.$i18n.t("passwordRequired")],
+      error: "",
+      languages: [
+        {
+          label: "English",
+          value: "en_US",
+        },
+        {
+          label: "French",
+          value: "fr_FR",
+        },
+      ],
+      currentLanguage: "en_US",
+    }
+  },
   computed: {
     apiHost() {
       return this.$store.state.backend;

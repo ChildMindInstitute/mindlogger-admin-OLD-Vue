@@ -309,6 +309,10 @@ export default {
          * input => yy-mm-10T23:30:30+00:00 = yy-mm-11T04:30:30+05:00
          * output=> yy-mm-11
          */
+        if (!version.updated) {
+          return version;
+        }
+
         const formatted = moment(new Date(version.updated.slice(0, -6) + offset).toISOString()).format("YYYY-MM-DD");
         return {
           version: version.version,

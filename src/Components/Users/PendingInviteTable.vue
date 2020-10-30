@@ -39,42 +39,42 @@ export default {
     return {
       columnDefs: [
         {
-          headerName: $t("institutionalID"),
+          headerName: this.$i18n.t("institutionalID"),
           field: "mrn",
           sortable: true,
           filter: true,
           resizable: true
         },
         {
-          headerName: $t("firstName"),
+          headerName: this.$i18n.t("firstName"),
           field: "firstName",
           sortable: true,
           filter: true,
           resizable: true
         },
         {
-          headerName: $t("lastName"),
+          headerName: this.$i18n.t("lastName"),
           field: "lastName",
           sortable: true,
           filter: true,
           resizable: true
         },
         {
-          headerName: $("userType"),
+          headerName: this.$i18n.t("userType"),
           field: "userType",
           sortable: true,
           filter: true,
           resizable: true
         },
         {
-          headerName: $("invitationLink"),
+          headerName: this.$i18n.t("invitationLink"),
           field: "invitationLink",
           sortable: true,
           filter: true,
           resizable: true
         },
         {
-          headerName: $("dateTimeInvited"),
+          headerName: this.$i18n.t("dateTimeInvited"),
           field: "dateTime",
           sortable: true,
           filter: true,

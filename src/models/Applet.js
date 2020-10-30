@@ -129,21 +129,25 @@ export default class Applet {
 
     for (let itemId of itemIDGroup) {
       /** sort data responses according to date/versions */
+      data.responses[itemId].forEach(resp => {
+        if (resp.value.length) {
+          this.items[itemId].timezoneStr = resp.date.substr(-6);
+        }
+
+        resp.date = resp.date.substr(0, 10);
+      });
+
       data.responses[itemId].sort((resp1, resp2) => {
         if (resp1.date < resp2.date) return -1;
         if (resp1.date > resp2.date) return 1;
 
-        return Applet.compareVersions(resp1.version, resp2.version);
+        return resp1.version && resp2.version && Applet.compareVersions(resp1.version, resp2.version);
       });
 
       /** merge responses with same version/date */
       let merged = [], last = null;
 
       data.responses[itemId].forEach(resp => {
-        this.items[itemId].timezoneStr = resp.date.substr(-6);
-
-        resp.date = resp.date.substr(0, 10);
-
         if (last && resp.date == last.date && resp.version == last.version) {
           last.value.push(...resp.value);
         } else {
