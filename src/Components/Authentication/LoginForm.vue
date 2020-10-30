@@ -105,14 +105,15 @@ export default {
       currentLanguage: "en_US",
     }
   },
+
+  created() {
+    this.currentLanguage = this.$route.query.lang || this.$store.state.currentLanguage;
+  },
+
   computed: {
     apiHost() {
       return this.$store.state.backend;
     },
-  },
-
-  created() {
-    this.currentLanguage = this.$store.state.currentLanguage;
   },
 
   methods: {
