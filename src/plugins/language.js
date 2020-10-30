@@ -21,7 +21,7 @@ const DEFAULT_LANG = 'en_US';
  * @param {string} any language code.
  * @returns {string} the full language ISO code.
  */
-const getLanguageCode = (language) => {
+export const getLanguageCode = (language) => {
   if (!language) return DEFAULT_LANG;
 
   if (language.startsWith('fr')) { 
