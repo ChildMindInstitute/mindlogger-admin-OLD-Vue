@@ -119,6 +119,7 @@ export default {
     onLanguageChange() {
       this.$i18n.locale = this.currentLanguage;
       this.$store.commit("setCurrentLanguage", this.currentLanguage);
+      this.$router.replace({ query: { lang: this.currentLanguage }})
     },
     login() {
       if (!this.$refs.form.validate()) {
