@@ -275,7 +275,14 @@ export default {
           data: protocol,
           appletId,
         })
-        .then((resp) => api.getAppletVersions({ apiHost, token, appletId }))
+        .then((resp) => {
+          this.$store.commit("updateAppletData", {
+            ...resp.data,
+            roles: this.currentApplet.roles,
+          });
+
+          return api.getAppletVersions({ apiHost, token, appletId })
+        })
         .then((resp) => {
           this.versions = resp.data;
           this.componentKey = this.componentKey + 1;
