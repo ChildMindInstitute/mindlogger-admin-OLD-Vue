@@ -5,8 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
 ## [0.3.39] = 2020-10-30
 - update store after prepare applet for editing
+
+## [0.3.38] = 2020-10-30
+- fix user data export format
 
 ## [0.3.37] = 2020-10-30
 - define data as normal function
