@@ -331,7 +331,7 @@ export default {
                 userId: _id,
                 activity: response.activity.name,
                 item: itemUrl,
-                response: response.data[itemUrl],
+                response: responseData,
                 options: options.join(', '),
                 version: response.version
               });
@@ -348,6 +348,8 @@ export default {
               'activity',
               'item',
               'response',
+              'options',
+              'version'
             ].map((value) => ({ key: value, as: value })),
             data: result,
           });
