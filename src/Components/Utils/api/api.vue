@@ -254,6 +254,7 @@ const createApplet = ({ apiHost, token, email, data }) =>
     },
     params: {
       email,
+      lang: store.state.currentLanguage,
     },
     data,
   });

@@ -1,5 +1,6 @@
 import Vue from "vue";
 import DaySpanVuetify from "dayspan-vuetify-2";
+import fr from 'dayspan-vuetify-2/src/locales/fr';
 import VuetifyDialog from "vuetify-dialog";
 import * as Sentry from "@sentry/browser";
 import { Vue as VueIntegration } from "@sentry/integrations";
@@ -36,6 +37,8 @@ Vue.use(DaySpanVuetify, {
     getDefaultEventColor: () => "#1976d2",
   },
 });
+
+Vue.$dayspan.addLocales(['fr', 'fr_CA', 'fr_BE', 'fr_CH', 'fr_FR', 'fr_LU', 'fr_MC'], fr);
 
 Vue.use(VuetifyDialog, {
   context: {

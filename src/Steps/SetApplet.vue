@@ -130,7 +130,7 @@ export default {
         });
     },
     onAppletUploadSuccessful(message) {
-      this.dialogTitle = "Upload Received";
+      this.dialogTitle = this.$t('uploadReceived');
       this.dialogText = message;
       this.dialog = true;
     },

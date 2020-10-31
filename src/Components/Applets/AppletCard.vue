@@ -162,7 +162,7 @@
               <v-text-field
                 v-model="ownershipEmail"
                 class="ownershipField"
-                label="Owner Email"
+                :label="$t('ownerEmail')"
                 required
               />
             </v-col>
