@@ -54,7 +54,8 @@ export default {
   timeout: 'Timeout ',
   oneTimeCompletion: 'One-time completion ',
   extendedPastDue: 'Extended Past Due ',
-  extendedPastDue: 'Extended Time ',
+  extendedTime: 'Extended Time ',
+  onlyScheduledDay: 'Only scheduled day',
   idleTime: 'Idle Time',
   allDay: 'All day ',
   startTime: 'Start Time',
@@ -222,4 +223,5 @@ export default {
   invalidAppletPasswordFormat: 'Min. 8 characters with at least one capital letter, a number and a special character.',
   pageOf: 'Page {current} of {total}',
   shownResultsRange: '{from} to {to} of {total}',
+  confirmRemoveAllEvents: 'Are you sure you want to remove all events from calendar?',
 };

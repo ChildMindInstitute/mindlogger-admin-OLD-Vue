@@ -57,6 +57,7 @@ export default {
   oneTimeCompletion: 'Exécution ponctuelle',
   extendedPastDue: 'Échéance prolongée',
   extendedTime: 'Durée prolongée ',
+  onlyScheduledDay: 'Jour prévu seulement',
   idleTime: "Temps d'inactivité",
   allDay: 'Toute la journée ',
   startTime: 'Heure de début',
@@ -223,4 +224,5 @@ export default {
   invalidAppletPasswordFormat: 'Min. 8 caractères avec au moins une majuscule, un chiffre et un caractère spécial.',
   pageOf: 'Page {current} sur {total}',
   shownResultsRange: '{from} à {to} sur {total}',
+  confirmRemoveAllEvents: 'Êtes-vous sûr de vouloir supprimer tous les événements du calendrier ?',
 };

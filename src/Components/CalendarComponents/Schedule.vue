@@ -33,7 +33,7 @@
           <v-checkbox
             v-model="scheduledDay"
             @change="handleScheduledDay"
-            label="Only scheduled day"
+            :label="$t('onlyScheduledDay')"
           />
 
           <v-checkbox

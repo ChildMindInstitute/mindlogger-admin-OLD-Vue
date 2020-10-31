@@ -216,13 +216,13 @@ export default {
       const res = await this.$dialog.warning({
         title: "Alert",
         color: "#1976d2",
-        text: "Are you sure you want to remove all events from calendar?",
+        text: this.$t('confirmRemoveAllEvents'),
         persistent: false,
         actions: {
-          No: "No",
+          No: this.$t('no'),
           Yes: {
             color: "#1976d2",
-            text: "Yes",
+            text: this.$t('yes'),
           },
         },
       });
