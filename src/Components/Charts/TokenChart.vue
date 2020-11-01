@@ -294,7 +294,7 @@ export default {
     selectedVersions: [],
     versionBarWidth: 10,
     versionChangeLimitPerDay: 4,
-    hasVersionBars: true
+    hasVersionBars: false
   }),
   computed: {
     appletVersions() {
