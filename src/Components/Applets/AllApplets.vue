@@ -5,16 +5,11 @@
       align-center
       column
     >
-      <h1>You have no active applets.</h1>
+      <h1>{{ $t("noActiveApplets") }}</h1>
     </v-layout>
-    <v-layout
-      v-else
-      row
-      wrap
-      justify-center
-    >
+    <v-layout v-else row wrap justify-center>
       <AppletCard
-        v-for="(applet,i) in applets"
+        v-for="(applet, i) in applets"
         :key="`i${i + baseKey}`"
         :applet="applet"
         @deleteApplet="deleteApplet"
@@ -41,53 +36,40 @@
           <v-icon>mdi-plus</v-icon>
         </v-btn>
       </template>
-      <span>Create or upload a new applet</span>
+      <span>{{ $t("createUploadApplet") }}</span>
     </v-tooltip>
 
-    <v-dialog
-      v-model="appletUploadDialog"
-      max-width="800"
-    >
+    <v-dialog v-model="appletUploadDialog" max-width="800">
       <v-card>
         <v-card-text>
-          <h3>Upload an activity set</h3>
+          <h3>{{ $t("uploadActivitySet") }}</h3>
           <v-text-field
             v-model="newProtocolURL"
-            label="activity set url"
+            :label="$t('activitySetUrl')"
           />
           <v-btn
             color="primary"
             :disabled="!newProtocolURL"
             @click="onClickAdd"
           >
-            Add
+            {{ $t("add") }}
           </v-btn>
-          <h3>Quick Add</h3>
+          <h3>{{ $t("quickAdd") }}</h3>
           <p>
-            Below are a list of activity sets you can add. These are JSON-LD
-            files that describe the questions of your applet. Eventually, there
-            will be a library of questions and you will be able to create your
-            own.
+            {{ $t("jsonLdFiles") }}
           </p>
-          <p
-            v-for="activityInfo in sampleProtocols"
-            :key="activityInfo.name"
-          >
+          <p v-for="activityInfo in sampleProtocols" :key="activityInfo.name">
             <a @click="newProtocolURL = activityInfo.url">
               {{ activityInfo.name }}
             </a>
           </p>
-          <h3>Build a new activity Set</h3>
+          <h3>{{ $t("buildNewActivity") }}</h3>
           <p>
-            Build a new activity set from scratch and download the schema files.
-            Currently, this feature only supports radio items and text items.
+            {{ $t("buildNewActivityScratch") }}
           </p>
-          <router-link
-            to="/build"
-            target="_blank"
-          >
+          <router-link to="/build" target="_blank">
             <v-btn color="primary">
-              Launch Builder
+              {{ $t("launchBuilder") }}
             </v-btn>
           </router-link>
         </v-card-text>
@@ -101,20 +83,20 @@
     />
 
     <AppletName
+      ref="appletNameDialog"
       v-model="appletDuplicateDialog.visibility"
       @set-value="onSetAppletDuplicateName"
-      ref="appletNameDialog"
     />
   </div>
 </template>
 
 <script>
-import AppletCard from './AppletCard.vue';
-import api from '../Utils/api/api.vue';
-import config from '../../config';
-import encryption from '../Utils/encryption/encryption.vue';
-import AppletPassword from '../Utils/dialogs/AppletPassword'
-import AppletName from '../Utils/dialogs/AppletName';
+import AppletCard from "./AppletCard.vue";
+import api from "../Utils/api/api.vue";
+import config from "../../config";
+import encryption from "../Utils/encryption/encryption.vue";
+import AppletPassword from "../Utils/dialogs/AppletPassword";
+import AppletName from "../Utils/dialogs/AppletName";
 
 export default {
   name: "AllApplets",
@@ -132,17 +114,17 @@ export default {
   data: () => ({
     sampleProtocols: config.protocols,
     appletUploadDialog: false,
-    newProtocolURL: '',
+    newProtocolURL: "",
     appletPasswordDialog: false,
     requestedAction: null,
     baseKey: 0,
     appletDuplicateDialog: {
       visibility: false,
-      applet: null
+      applet: null,
     },
     appletEditDialog: {
       visibility: false,
-      applet: null
+      applet: null,
     },
   }),
   computed: {
@@ -189,25 +171,32 @@ export default {
       let token = this.$store.state.auth.authToken.token;
       let appletId = applet.applet._id.split("applet/")[1];
 
-      api.setAppletEncryption({
-        token,
-        apiHost,
-        data: this.getEncryptionForm(appletPassword),
-        appletId
-      }).then(() => api.getApplet({
-        token,
-        apiHost,
-        id: appletId,
-        allEvent: this.accountApplets.find(value => value.appletId == appletId).allEvent
-      })).then((resp) => {
-        this.$store.commit('updateAppletData', {
-          ...resp.data,
-          roles: applet.roles
-        });
+      api
+        .setAppletEncryption({
+          token,
+          apiHost,
+          data: this.getEncryptionForm(appletPassword),
+          appletId,
+        })
+        .then(() =>
+          api.getApplet({
+            token,
+            apiHost,
+            id: appletId,
+            allEvent: this.accountApplets.find(
+              (value) => value.appletId == appletId
+            ).allEvent,
+          })
+        )
+        .then((resp) => {
+          this.$store.commit("updateAppletData", {
+            ...resp.data,
+            roles: applet.roles,
+          });
 
-        this.baseKey = this.baseKey + 1;
-        this.$emit('onAppletPasswordChanged');
-      })
+          this.baseKey = this.baseKey + 1;
+          this.$emit("onAppletPasswordChanged");
+        });
     },
 
     onClickSubmitPassword(appletPassword) {
@@ -220,45 +209,51 @@ export default {
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
           appletId: applet.applet._id.split("applet/")[1],
-          email: email
+          email: email,
         })
         .then((resp) => {
-          this.$emit("onOwnerShipInviteSuccessful", email);
+          this.$emit("refreshAppletList");
         })
         .catch((err) => {
-          this.$emit("onOwnerShipInviteError");
-        })
+          console.log(err);
+        });
     },
 
     getEncryptionForm(appletPassword) {
       const encryptionInfo = encryption.getAppletEncryptionInfo({
         appletPassword: appletPassword,
-        accountId: this.$store.state.currentAccount.accountId
+        accountId: this.$store.state.currentAccount.accountId,
       });
 
       const encryptionForm = new FormData();
-      encryptionForm.set('encryption', JSON.stringify({
-            appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
-            appletPrime: Array.from(encryptionInfo.getPrime()),
-            base: Array.from(encryptionInfo.getGenerator())
-      }));
+      encryptionForm.set(
+        "encryption",
+        JSON.stringify({
+          appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
+          appletPrime: Array.from(encryptionInfo.getPrime()),
+          base: Array.from(encryptionInfo.getGenerator()),
+        })
+      );
 
       return encryptionForm;
     },
 
     addNewApplet(appletPassword) {
-      api.addNewApplet({
-        protocolUrl: this.newProtocolURL,
-        email: this.$store.state.userEmail,
-        token: this.$store.state.auth.authToken.token,
-        apiHost: this.$store.state.backend,
-        data: this.getEncryptionForm(appletPassword)
-      }).then((resp) => {
-        this.newProtocolURL = '';
-        this.$emit('appletUploadSuccessful', resp.data.message);
-      }).catch((e) => {
-        this.$emit('appletUploadError');
-      });
+      api
+        .addNewApplet({
+          protocolUrl: this.newProtocolURL,
+          email: this.$store.state.userEmail,
+          token: this.$store.state.auth.authToken.token,
+          apiHost: this.$store.state.backend,
+          data: this.getEncryptionForm(appletPassword),
+        })
+        .then((resp) => {
+          this.newProtocolURL = "";
+          this.$emit("appletUploadSuccessful", resp.data.message);
+        })
+        .catch((e) => {
+          this.$emit("appletUploadError");
+        });
     },
 
     deleteApplet(applet) {
@@ -303,14 +298,13 @@ export default {
         .duplicateApplet({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
-          appletId: this.appletDuplicateDialog.applet.applet._id.split('/')[1],
+          appletId: this.appletDuplicateDialog.applet.applet._id.split("/")[1],
           options: {
             name: appletName,
-          }
+          },
         })
-        .then(resp => {
-          this.appletDuplicateDialog.visibility = false;
-          this.$emit('appletUploadSuccessful', resp.data.message);
+        .then((resp) => {
+          this.$emit("refreshAppletList");
         });
     },
   },

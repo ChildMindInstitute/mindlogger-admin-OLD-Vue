@@ -22,7 +22,7 @@
         <v-select
           v-model="details.title"
           :items="activityNames"
-          placeholder="Select Activity"
+          :placeholder="$t('selectActivity')"
           dense
           outlined
         />
@@ -547,7 +547,7 @@ export default {
           },
         },
       });
-      if(res === 'Yes') {
+      if (res === "Yes") {
         let ev = this.getEvent("save");
         this.$emit("remove", ev);
 
@@ -580,9 +580,7 @@ export default {
                 return ev;
               });
               state.events = events;
-            } else if (
-              oldStateEvents.length > newStateEvents.length
-            ) {
+            } else if (oldStateEvents.length > newStateEvents.length) {
               let index = 0;
               const events = newStateEvents.map((event) => {
                 const ev = event;
@@ -601,8 +599,8 @@ export default {
                 index += 1;
                 return ev;
               });
-              state.events = events; 
-              this.$store.commit("addRemovedEventId", eventId)
+              state.events = events;
+              this.$store.commit("addRemovedEventId", eventId);
             }
           }
           this.$store.commit("setSchedule", state);

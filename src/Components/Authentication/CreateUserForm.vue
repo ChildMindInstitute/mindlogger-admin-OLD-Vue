@@ -1,33 +1,19 @@
 <template>
   <div>
     <v-card class="elevation-12">
-      <v-toolbar
-        color="primary"
-        dark
-        flat
-      >
-        <v-toolbar-title>Create Account</v-toolbar-title>
+      <v-toolbar color="primary" dark flat>
+        <v-toolbar-title> {{ $t("createAccount") }}</v-toolbar-title>
       </v-toolbar>
       <v-card-text>
         <p>
-          Create a new Mindlogger account at {{ $store.state.backend }}
-          <v-btn
-            icon
-            style="margin: 0px;"
-            @click="onSetBackend"
-          >
-            <v-icon
-              small
-              color="primary"
-            >
+          {{ $t("createNewAccount") }} {{ $store.state.backend }}
+          <v-btn icon style="margin: 0px;" @click="onSetBackend">
+            <v-icon small color="primary">
               edit
             </v-icon>
           </v-btn>
         </p>
-        <v-form
-          ref="form"
-          lazy-validation
-        >
+        <v-form ref="form" lazy-validation>
           <v-text-field
             v-model="email"
             :rules="emailRules"
@@ -38,43 +24,33 @@
           <v-text-field
             v-model="firstName"
             :rules="firstNameRules"
-            label="First Name"
+            :label="$t('firstName')"
             prepend-icon="mdi-account"
           />
-          
+
           <v-text-field
             v-model="lastName"
             :rules="lastNameRules"
-            label="Last Name"
+            :label="$t('lastName')"
             prepend-icon="mdi-account-outline"
           />
-          
+
           <v-text-field
             v-model="password"
             :rules="passwordRules"
-            label="Password"
+            :label="$t('password')"
             type="password"
             prepend-icon="lock"
           />
-          <div
-            v-if="error"
-            class="error"
-          >
+          <div v-if="error" class="error">
             {{ error }}
           </div>
 
-          <v-btn
-            outlined
-            color="primary"
-            @click="onLogin"
-          >
-            Login
+          <v-btn outlined color="primary" @click="onLogin">
+            {{ $t("login") }}
           </v-btn>
-          <v-btn
-            color="primary"
-            @click="createAccount"
-          >
-            Create Account
+          <v-btn color="primary" @click="createAccount">
+            {{ $t("createAccount") }}
           </v-btn>
         </v-form>
       </v-card-text>
@@ -83,45 +59,39 @@
 </template>
 
 <style scoped>
-  .error {
-    color: 'red';
-  }
+.error {
+  color: "red";
+}
 
-  .v-btn {
-    margin: 6px 8px;
-  }
+.v-btn {
+  margin: 6px 8px;
+}
 </style>
 
 <script>
-import api from '../Utils/api/api.vue';
-import _ from 'lodash';
+import api from "../Utils/api/api.vue";
+import _ from "lodash";
 
 export default {
   data: () => ({
-    email: '',
+    email: "",
     emailRules: [
-      v => !!v || 'E-mail is required',
-      v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
+      (v) => !!v || $t("emailRequired"),
+      (v) => /.+@.+\..+/.test(v) || $t("emailMustBeValid"),
     ],
-    firstName: '',
-    firstNameRules: [
-      v => !!v || 'FirstName is required',
-    ],
-    lastName: '',
-    lastNameRules: [
-      v => !!v || 'LastName is required',
-    ],
-    password: '',
-    passwordRules: [
-      v => !!v || 'Password is required',
-    ],
-    error: '',
+    firstName: "",
+    firstNameRules: [(v) => !!v || $t("firstNameRequired")],
+    lastName: "",
+    lastNameRules: [(v) => !!v || $t("lastNameRequired")],
+    password: "",
+    passwordRules: [(v) => !!v || $t("passwordRequired")],
+    error: "",
   }),
 
   computed: {
     apiHost() {
       return this.$store.state.backend;
-    }
+    },
   },
 
   methods: {
@@ -129,29 +99,32 @@ export default {
       if (!this.$refs.form.validate()) {
         return;
       }
-      this.error = '';
+      this.error = "";
 
-      api.signUp({
-        apiHost: this.apiHost,
-        body: {
-          email: this.email,
-          firstName: this.firstName,
-          lastName: this.lastName,
-          password: this.password
-        }
-      }).then((resp) => {
-        const auth = {
-          ...resp.data,
-          user: {
-            displayName: resp.data.displayName
-          }
-        };
+      api
+        .signUp({
+          apiHost: this.apiHost,
+          body: {
+            email: this.email,
+            firstName: this.firstName,
+            lastName: this.lastName,
+            password: this.password,
+          },
+        })
+        .then((resp) => {
+          const auth = {
+            ...resp.data,
+            user: {
+              displayName: resp.data.displayName,
+            },
+          };
 
-        this.$store.commit('setAuth', {auth, email: this.email});
-        this.setAccounts();
-      }).catch((e) => {
-        this.error = e.response.data.message;
-      });
+          this.$store.commit("setAuth", { auth, email: this.email });
+          this.setAccounts();
+        })
+        .catch((e) => {
+          this.error = e.response.data.message;
+        });
     },
     setAccounts() {
       api
@@ -160,20 +133,19 @@ export default {
           token: this.$store.state.auth.authToken.token,
         })
         .then((resp) => {
-          this.$store.commit('setAccounts', resp.data);
-          this.$router.push('/applets');
+          this.$store.commit("setAccounts", resp.data);
+          this.$router.push("/applets");
         })
         .catch((err) => {
           console.warn(err);
         });
     },
     onLogin() {
-      this.$emit('login', null)
+      this.$emit("login", null);
     },
     onSetBackend() {
-      this.$emit('setBackend', null);
+      this.$emit("setBackend", null);
     },
-  }
-
+  },
 };
 </script>

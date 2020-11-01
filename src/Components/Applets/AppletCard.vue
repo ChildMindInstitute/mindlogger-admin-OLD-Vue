@@ -1,8 +1,5 @@
 <template>
-  <v-card
-    class="appletCard"
-    :width="cardWidth"
-  >
+  <v-card class="appletCard" :width="cardWidth">
     <v-layout
       v-if="currentApplet"
       class="selectedApplet"
@@ -10,10 +7,7 @@
       justify-center
       column
     >
-      <v-icon
-        size="72"
-        color="primary"
-      >
+      <v-icon size="72" color="primary">
         mdi-check
       </v-icon>
       <v-card-title primary-title>
@@ -38,23 +32,25 @@
       </v-card-title>
       <v-card-text>{{ appletDescription }}</v-card-text>
       <v-card-actions>
-        <div class="container">
+        <div class="d-flex flex-wrap">
           <div>
             <v-tooltip top>
               <template v-slot:activator="{ on }">
                 <v-btn
                   text
                   :disabled="
-                    status !== 'ready' || !applet.roles.includes('editor') || !applet.applet.url
+                    status !== 'ready' ||
+                      !applet.roles.includes('editor') ||
+                      !applet.applet.url
                   "
                   @click="refreshApplet"
                   v-on="on"
                 >
-                  <span v-if="status === 'ready'">Refresh</span>
-                  <span v-else>Refreshing..</span>
+                  <span v-if="status === 'ready'">{{ $t('refresh') }}</span>
+                  <span v-else>{{ $t('refreshing') }}..</span>
                 </v-btn>
               </template>
-              <span>Refreshing applets will take several minutes</span>
+              <span>{{ $t('refreshingApplets') }}</span>
             </v-tooltip>
           </div>
           <div>
@@ -66,10 +62,10 @@
                   @click="deleteApplet"
                   v-on="on"
                 >
-                  Delete
+                  {{ $t('delete') }}
                 </v-btn>
               </template>
-              <span>Permanantly disable this applet</span>
+              <span>{{ $t('permanantlyDisable') }}</span>
             </v-tooltip>
           </div>
           <div>
@@ -80,10 +76,10 @@
                   :disabled="
                     !applet.roles.includes('coordinator') &&
                       !applet.roles.includes('reviewer')
-                  " 
+                  "
                   v-on="on"
                 >
-                  Select
+                  {{ $t('select') }}
                 </v-btn>
               </template>
               <v-list>
@@ -91,7 +87,9 @@
                   :disabled="!applet.roles.includes('owner')"
                   @click="onTransferOwnership"
                 >
-                  <v-list-item-title>Transfer ownership</v-list-item-title>
+                  <v-list-item-title>
+                    {{ $t('transferOwnership') }}
+                  </v-list-item-title>
                 </v-list-item>
                 <v-list-item
                   :disabled="
@@ -100,13 +98,15 @@
                   "
                   @click="onViewUsers"
                 >
-                  <v-list-item-title>View Users</v-list-item-title>
+                  <v-list-item-title>{{ $t('viewUsers') }}</v-list-item-title>
                 </v-list-item>
-                <v-list-item 
+                <v-list-item
                   :disabled="!applet.roles.includes('coordinator')"
                   @click="onViewGeneralCalendar"
                 >
-                  <v-list-item-title>View General Calendar</v-list-item-title>
+                  <v-list-item-title>
+                    {{ $t('generalCalendar') }}
+                  </v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
@@ -120,10 +120,10 @@
                   @click="duplicateApplet"
                   v-on="on"
                 >
-                  Duplicate
+                  {{ $t('duplicate') }}
                 </v-btn>
               </template>
-              <span>Duplicate Existing Applet</span>
+              <span>{{ $t('duplicateExisting') }}</span>
             </v-tooltip>
           </div>
           <div>
@@ -135,10 +135,10 @@
                   @click="onEditApplet"
                   v-on="on"
                 >
-                  Edit
+                  {{ $t('edit') }}
                 </v-btn>
               </template>
-              <span>Edit Existing Applet</span>
+              <span>{{ $t('editExisting') }}</span>
             </v-tooltip>
           </div>
         </div>
@@ -154,25 +154,32 @@
     <v-dialog v-model="ownershipDialog" persistent max-width="600px">
       <v-card>
         <v-card-title>
-          <span class="headline">Transfer Applet Ownership</span>
+          <span class="headline">{{ $t('transferAppletOwnership') }}</span>
         </v-card-title>
         <v-card-text>
           <v-row>
             <v-col cols="12">
-              <v-text-field v-model="ownershipEmail" class="ownershipField" label="Owner Email" required></v-text-field>
+              <v-text-field
+                v-model="ownershipEmail"
+                class="ownershipField"
+                label="Owner Email"
+                required
+              />
             </v-col>
           </v-row>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="ownershipDialog = false">Close</v-btn>
-          <v-btn 
-            color="blue darken-1" 
-            text 
-            @click="onSubmitOwnership" 
+          <v-spacer />
+          <v-btn color="blue darken-1" text @click="ownershipDialog = false">
+            {{ $t('close') }}
+          </v-btn>
+          <v-btn
+            color="blue darken-1"
+            text
             :disabled="!emailRules.test(ownershipEmail)"
+            @click="onSubmitOwnership"
           >
-            Submit
+            {{ $t('submit') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -206,10 +213,9 @@
 
 <script>
 import ConfirmationDialog from '../Utils/dialogs/ConfirmationDialog';
-import api from "../Utils/api/api.vue";
 
 export default {
-  name: "AppletCard",
+  name: 'AppletCard',
   components: {
     ConfirmationDialog,
   },
@@ -220,49 +226,50 @@ export default {
     },
   },
   data: () => ({
-    status: "ready",
+    status: 'ready',
     cardWidth: 300,
     appletEditDialog: false,
-    editDialogText: 'By editing this applet that has been downloaded from Github, any changes will only store within MindLogger and will not update GitHub with those changes.',
+    editDialogText:
+      'By editing this applet that has been downloaded from Github, any changes will only store within MindLogger and will not update GitHub with those changes.',
     ownershipDialog: false,
-    ownershipEmail: "",
-    emailRules: /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
+    ownershipEmail: '',
+    emailRules: /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/,
   }),
   computed: {
     isOwner() {
       const roles = this.applet.roles;
       return (
-        roles.includes("coordinator") &&
-        roles.includes("editor") &&
-        roles.includes("manager") &&
-        roles.includes("owner") &&
-        roles.includes("reviewer")
+        roles.includes('coordinator') &&
+        roles.includes('editor') &&
+        roles.includes('manager') &&
+        roles.includes('owner') &&
+        roles.includes('reviewer')
       );
     },
     isManager() {
       const roles = this.applet.roles;
       return (
-        roles.includes("coordinator") &&
-        roles.includes("editor") &&
-        roles.includes("manager") &&
-        roles.includes("reviewer")
+        roles.includes('coordinator') &&
+        roles.includes('editor') &&
+        roles.includes('manager') &&
+        roles.includes('reviewer')
       );
     },
     isCoordinator() {
       const roles = this.applet.roles;
-      return roles.includes("coordinator") && roles.length === 1;
+      return roles.includes('coordinator') && roles.length === 1;
     },
     isEditor() {
       const roles = this.applet.roles;
-      return roles.includes("editor") && roles.length === 1;
+      return roles.includes('editor') && roles.length === 1;
     },
     isReviewer() {
       const roles = this.applet.roles;
-      return roles.includes("reviewer") && roles.length === 1;
+      return roles.includes('reviewer') && roles.length === 1;
     },
     isUser() {
       return (
-        (this.applet.roles.includes("user") &&
+        (this.applet.roles.includes('user') &&
           this.applet.roles.length === 1) ||
         !this.applet.roles.length
       );
@@ -273,41 +280,41 @@ export default {
     appletPrefLabel() {
       if (
         typeof this.applet.applet[
-          "http://www.w3.org/2004/02/skos/core#prefLabel"
-        ] === "string"
+          'http://www.w3.org/2004/02/skos/core#prefLabel'
+        ] === 'string'
       ) {
         return this.applet.applet[
-          "http://www.w3.org/2004/02/skos/core#prefLabel"
+          'http://www.w3.org/2004/02/skos/core#prefLabel'
         ];
       } else if (
         typeof this.applet.applet[
-          "http://www.w3.org/2004/02/skos/core#prefLabel"
-        ] === "object"
+          'http://www.w3.org/2004/02/skos/core#prefLabel'
+        ] === 'object'
       ) {
         return this.applet.applet[
-          "http://www.w3.org/2004/02/skos/core#prefLabel"
-        ][0]["@value"];
-      } else if (typeof this.applet.applet["skos:prefLabel"] === "string") {
-        return this.applet.applet["skos:prefLabel"];
-      } else if (typeof this.applet.applet["skos:prefLabel"] === "object") {
-        return this.applet.applet["skos:prefLabel"][0]["@value"];
+          'http://www.w3.org/2004/02/skos/core#prefLabel'
+        ][0]['@value'];
+      } else if (typeof this.applet.applet['skos:prefLabel'] === 'string') {
+        return this.applet.applet['skos:prefLabel'];
+      } else if (typeof this.applet.applet['skos:prefLabel'] === 'object') {
+        return this.applet.applet['skos:prefLabel'][0]['@value'];
       } else {
         return null;
       }
     },
     appletDescription() {
-      if (typeof this.applet.applet["schema:description"] === "string") {
-        return this.applet.applet["schema:description"];
-      } else if (typeof this.applet.applet["schema:description"] === "object") {
-        return this.applet.applet["schema:description"][0]["@value"];
+      if (typeof this.applet.applet['schema:description'] === 'string') {
+        return this.applet.applet['schema:description'];
+      } else if (typeof this.applet.applet['schema:description'] === 'object') {
+        return this.applet.applet['schema:description'][0]['@value'];
       } else if (
-        typeof this.applet.applet["http://schema.org/description"] === "string"
+        typeof this.applet.applet['http://schema.org/description'] === 'string'
       ) {
-        return this.applet.applet["http://schema.org/description"];
+        return this.applet.applet['http://schema.org/description'];
       } else if (
-        typeof this.applet.applet["http://schema.org/description"] === "object"
+        typeof this.applet.applet['http://schema.org/description'] === 'object'
       ) {
-        return this.applet.applet["http://schema.org/description"][0]["@value"];
+        return this.applet.applet['http://schema.org/description'][0]['@value'];
       } else {
         return null;
       }
@@ -315,29 +322,35 @@ export default {
   },
   methods: {
     refreshApplet() {
-      this.$emit("refreshApplet", this.applet);
+      this.$emit('refreshApplet', this.applet);
     },
     deleteApplet() {
-      this.$emit("deleteApplet", this.applet);
+      this.$emit('deleteApplet', this.applet);
     },
     setSelectedApplet() {
-      this.$store.commit("setCurrentApplet", this.applet);
+      this.$store.commit('setCurrentApplet', this.applet);
 
       if (this.applet.applet && this.applet.applet.schedule) {
         this.$store.commit(
-          "setCachedEvents",
+          'setCachedEvents',
           this.applet.applet.schedule.events
         );
       } else {
-        this.$store.commit("setCachedEvents", []);
+        this.$store.commit('setCachedEvents', []);
       }
     },
     onViewUsers() {
-      if (this.applet.roles.includes('owner') && !(this.applet.applet.encryption && Object.keys(this.applet.applet.encryption).length)) {
+      if (
+        this.applet.roles.includes('owner') &&
+        !(
+          this.applet.applet.encryption &&
+          Object.keys(this.applet.applet.encryption).length
+        )
+      ) {
         this.$emit('onUpdateAppletPassword', this.applet);
       } else {
         this.setSelectedApplet();
-        const appletId = this.applet.applet._id.split("applet/")[1];
+        const appletId = this.applet.applet._id.split('applet/')[1];
         this.$router.push(`applet/${appletId}/users`);
       }
     },
@@ -352,12 +365,18 @@ export default {
       this.ownershipDialog = true;
     },
     onViewGeneralCalendar() {
-      if (this.applet.roles.includes('owner') && !(this.applet.applet.encryption && Object.keys(this.applet.applet.encryption).length)) {
+      if (
+        this.applet.roles.includes('owner') &&
+        !(
+          this.applet.applet.encryption &&
+          Object.keys(this.applet.applet.encryption).length
+        )
+      ) {
         this.$emit('onUpdateAppletPassword', this.applet);
       } else {
         this.setSelectedApplet();
-        const appletId = this.applet.applet._id.split("applet/")[1];
-        this.$store.commit("setCurrentUsers", []);
+        const appletId = this.applet.applet._id.split('applet/')[1];
+        this.$store.commit('setCurrentUsers', []);
         this.$router.push(`applet/${appletId}/schedule`);
       }
     },
@@ -373,19 +392,12 @@ export default {
     },
     editApplet() {
       this.setSelectedApplet();
-
-      const apiHost = this.$store.state.backend;
-      const token = this.$store.state.auth.authToken.token;
-      const appletId = this.$store.state.currentApplet.applet._id.split('/')[1];
-
-      api.getAppletVersions({ apiHost, token, appletId }).then(resp => {
-        this.$router.push({
-          name: 'Builder', 
-          params: { isEditing: true, versions: resp.data }
-        });
-      })
-    }
-  }
+      this.$router.push({
+        name: 'Builder',
+        params: { isEditing: true },
+      });
+    },
+  },
 };
 </script>
 

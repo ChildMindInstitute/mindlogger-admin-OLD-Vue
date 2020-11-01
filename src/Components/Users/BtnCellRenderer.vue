@@ -1,8 +1,5 @@
 <template>
-  <span
-    v-if="!params.data.roles.includes('owner')"
-    class="btn-align"
-  >
+  <span v-if="!params.data.roles.includes('owner')" class="btn-align">
     <v-btn
       v-if="params.data.roles != 'user' && isManager"
       icon
@@ -24,36 +21,24 @@
       <v-icon>delete</v-icon>
     </v-btn>
 
-    <v-menu 
-      v-if="params.data.roles == 'user'"
-      offset-y
-    >
+    <v-menu v-if="params.data.roles == 'user'" offset-y>
       <template v-slot:activator="{ attrs, on }">
-        <v-btn
-          icon
-          small
-          color=""
-          v-bind="attrs"
-          v-on="on"
-        >
+        <v-btn icon small color="" v-bind="attrs" v-on="on">
           <v-icon>delete</v-icon>
         </v-btn>
       </template>
 
       <v-list>
-        <v-list-item
-          link
-          @click="btnDeletedHandler('deleteUser')"
-        >
-          <v-list-item-title> Remove user </v-list-item-title>
+        <v-list-item link @click="btnDeletedHandler('deleteUser')">
+          <v-list-item-title> {{ $t("removeUser") }} </v-list-item-title>
         </v-list-item>
 
-        <v-list-item 
+        <v-list-item
           v-if="params.isManager"
           link
           @click="btnDeletedHandler('deleteData')"
         >
-          <v-list-item-title> Remove user & data </v-list-item-title>
+          <v-list-item-title> {{ $t("removeUserData") }} </v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>
@@ -64,12 +49,11 @@
 import Vue from "vue";
 
 export default Vue.extend({
-
   computed: {
     isManager() {
       const { manager } = this.$store.state.currentAccount.applets;
-      return (manager && manager.length) ? true : false;
-    }
+      return manager && manager.length ? true : false;
+    },
   },
   methods: {
     /**
@@ -77,46 +61,46 @@ export default Vue.extend({
      *
      * @return {void}
      */
-    
+
     btnEditedHandler(event) {
-      if (this.params.data.roles != 'user') {
+      if (this.params.data.roles != "user") {
         this.params.clicked({
-          data: JSON.stringify(this.params.data), 
-          action: 'edit'
+          data: JSON.stringify(this.params.data),
+          action: "edit",
         });
       } else {
         this.params.clicked({
-          data: JSON.stringify(this.params.data), 
-          action: 'userEdit'
+          data: JSON.stringify(this.params.data),
+          action: "userEdit",
         });
       }
     },
-    
+
     /**
      * Delete action handler
      *
      * @return {void}
      */
-    
-    btnDeletedHandler(action = 'delete') {
+
+    btnDeletedHandler(action = "delete") {
       this.params.clicked({
-        data: JSON.stringify(this.params.data), 
+        data: JSON.stringify(this.params.data),
         action,
       });
 
       // if (this.params.data.roles != 'user') {
       //   this.params.clicked({
-      //     data: JSON.stringify(this.params.data), 
+      //     data: JSON.stringify(this.params.data),
       //     action: 'delete'
       //   });
       // } else {
       //   this.params.clicked({
-      //     data: JSON.stringify(this.params.data), 
+      //     data: JSON.stringify(this.params.data),
       //     action: 'userDelete'
       //   });
       // }
-    }
-  }
+    },
+  },
 });
 </script>
 

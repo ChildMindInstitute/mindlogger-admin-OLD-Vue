@@ -10,7 +10,7 @@
         <v-select
           v-model="details.title"
           :items="activityNames"
-          placeholder="Select Activity"
+          :placeholder="$t('selectActivity')"
         />
       </v-toolbar-title>
 
@@ -87,20 +87,20 @@ export default {
   props: {
     activities: {
       required: true,
-      type: Array
+      type: Array,
     },
     calendarEvent: {
       required: true,
-      type: CalendarEvent
+      type: CalendarEvent,
     },
 
     calendar: {
       required: true,
-      type: Calendar
+      type: Calendar,
     },
 
     close: {
-      type: Function
+      type: Function,
     },
 
     formats: {
@@ -109,7 +109,7 @@ export default {
       },
       default() {
         return this.$dsDefaults().formats;
-      }
+      },
     },
 
     icons: {
@@ -118,7 +118,7 @@ export default {
       },
       default() {
         return this.$dsDefaults().icons;
-      }
+      },
     },
 
     labels: {
@@ -127,7 +127,7 @@ export default {
       },
       default() {
         return this.$dsDefaults().labels;
-      }
+      },
     },
 
     prompts: {
@@ -136,19 +136,19 @@ export default {
       },
       default() {
         return this.$dsDefaults().prompts;
-      }
+      },
     },
 
     busyOptions: {
       type: Array,
       default() {
         return this.$dsDefaults().busyOptions;
-      }
-    }
+      },
+    },
   },
 
-  data: vm => ({
-    details: vm.buildDetails()
+  data: (vm) => ({
+    details: vm.buildDetails(),
   }),
 
   computed: {
@@ -156,33 +156,33 @@ export default {
       return this.details.title;
     },
     activityNames() {
-      return _.map(this.activities, a => a.name);
+      return _.map(this.activities, (a) => a.name);
     },
     slotData() {
       return {
         calendarEvent: this.calendarEvent,
         calendar: this.calendar,
         close: this.close,
-        details: this.details
+        details: this.details,
       };
     },
 
     classes() {
       return {
-        "ds-event-cancelled": this.calendarEvent.cancelled
+        "ds-event-cancelled": this.calendarEvent.cancelled,
       };
     },
 
     styleHeader() {
       return {
         backgroundColor: this.details.color,
-        color: this.details.forecolor
+        color: this.details.forecolor,
       };
     },
 
     styleText() {
       return {
-        color: this.details.forecolor
+        color: this.details.forecolor,
       };
     },
 
@@ -209,18 +209,20 @@ export default {
         this.labels,
         this.formats
       );
-    }
+    },
   },
 
   watch: {
     title() {
-      const res = _.filter(this.activities, a => a.name === this.title);
+      const res = _.filter(this.activities, (a) => a.name === this.title);
       const color = res[0].color;
-      const hexColor = _.filter(this.$dayspan.colors, c => c.text === color)[0]
-        .value;
+      const hexColor = _.filter(
+        this.$dayspan.colors,
+        (c) => c.text === color
+      )[0].value;
       this.details.color = hexColor;
       this.details.URI = res[0].URI;
-    }
+    },
   },
 
   methods: {
@@ -292,8 +294,8 @@ export default {
         minute: 59 - this.calendarEvent.start.minute,
         access: false,
         allow: false,
-      }
-    
+      };
+
       if (this.$store.state.currentUsers.length) {
         evDetails.users = this.$store.state.currentUsers;
       }
@@ -308,12 +310,12 @@ export default {
           added: false,
           refresh: true,
           $vm: this,
-          $element: this.$el
+          $element: this.$el,
         },
         extra
       );
-    }
-  }
+    },
+  },
 };
 </script>
 

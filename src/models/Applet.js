@@ -129,11 +129,19 @@ export default class Applet {
 
     for (let itemId of itemIDGroup) {
       /** sort data responses according to date/versions */
+      data.responses[itemId].forEach(resp => {
+        if (resp.value.length) {
+          this.items[itemId].timezoneStr = resp.date.substr(-6);
+        }
+
+        resp.date = resp.date.substr(0, 10);
+      });
+
       data.responses[itemId].sort((resp1, resp2) => {
         if (resp1.date < resp2.date) return -1;
         if (resp1.date > resp2.date) return 1;
 
-        return Applet.compareVersions(resp1.version, resp2.version);
+        return resp1.version && resp2.version && Applet.compareVersions(resp1.version, resp2.version);
       });
 
       /** merge responses with same version/date */
@@ -177,15 +185,7 @@ export default class Applet {
       params: { retrieveDate: true }
     });
 
-    this.versions = data.map(d => {
-      const updated = new Date(d.updated);
-      const formatted = moment(updated).format("YYYY-MM-DD");
-      return { 
-        version: d.version, 
-        formatted,
-        updated: moment(formatted).set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-      };
-    });
+    this.versions = data;
   }
 
   insertInitialVersion() {

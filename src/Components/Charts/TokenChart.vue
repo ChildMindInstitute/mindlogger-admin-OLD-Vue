@@ -244,17 +244,17 @@ import { DaySpan, Day } from 'dayspan';
 import Applet from '../../models/Applet';
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const NOW = new Date();
-const TODAY = new Date(Date(
+const TODAY = new Date(Date.UTC(
   NOW.getFullYear(),
   NOW.getMonth(),
-  NOW.getDate(),
-  23,
-  59,
-  59,
+  NOW.getDate() + 1,
+  0,
+  0,
+  0,
 ));
 const ONE_WEEK_AGO = new Date(TODAY);
 const ONE_MONTH_AGO = new Date(TODAY);
-ONE_WEEK_AGO.setDate(TODAY.getDate() - 7);
+ONE_WEEK_AGO.setDate(TODAY.getDate() - 6);
 ONE_MONTH_AGO.setMonth(TODAY.getMonth() - 1);
 /**
  * TokenChart component.
@@ -271,7 +271,8 @@ export default {
     data: Array,
     features: Array,
     versions: Array,
-    versionsByDate: Object
+    versionsByDate: Object,
+    timezone: String, /** format +05:00 */
   },
   data: () => ({
     legendWidth: 150,
@@ -293,11 +294,31 @@ export default {
     selectedVersions: [],
     versionBarWidth: 10,
     versionChangeLimitPerDay: 4,
-    hasVersionBars: false
+    hasVersionBars: true
   }),
   computed: {
     appletVersions() {
       return this.versions.map(version => version.version)
+    },
+    /** date in versions array doesn't consider timezone (all are set as UTC) and we need to convert updated times as user's timezone */
+    formattedVersions() {
+      let offset = `${this.timezone[0] === '+' ? '-' : '+'}${this.timezone.substr(1)}`;
+      return this.versions.map(version => {
+        /**
+         * input => yy-mm-10T23:30:30+00:00 = yy-mm-11T04:30:30+05:00
+         * output=> yy-mm-11
+         */
+        if (!version.updated) {
+          return version;
+        }
+        const formatted = moment(new Date(version.updated.slice(0, -6) + offset).toISOString()).format("YYYY-MM-DD");
+        return {
+          version: version.version,
+          barColor: version.barColor,
+          formatted,
+          updated: moment(formatted).set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+        }
+      })
     },
     fromDate: {
       cache: false,
@@ -317,7 +338,6 @@ export default {
   },
   created() {
     this.features.forEach(feat => feat.slug = slugify(feat.id));
-
     this.selectedVersions = this.appletVersions;
   },
   /**
@@ -543,12 +563,12 @@ export default {
         .domain([this.divergingExtent.min, this.divergingExtent.max])
         .range([this.contextHeight, 0]);
       this.x = d3
-        .scaleTime()
+        .scaleUtc()
         .nice()
         .domain(this.focusExtent)
         .range([0, this.width]);
       this.contextX = d3
-        .scaleTime()
+        .scaleUtc()
         .nice()
         .domain([ONE_MONTH_AGO, TODAY])
         .range([0, this.width + focusBarWidth]);
@@ -714,21 +734,21 @@ export default {
      * @return {void}
      */
     drawVersionBars() {
-      const { svg, x, y, focusMargin, versions, focusHeight } = this;
+      const { svg, x, y, focusMargin, focusHeight } = this;
       const barWidth = this.focusBarWidth();
       const widthPerDate = this.widthPerDate();
+      const formattedVersions = this.formattedVersions;
       svg
         .select('.chart')
         .selectAll('.version')
         .remove()
-
       if (!this.hasVersionBars) {
         return ;
       }
       svg
         .select('.chart')
         .selectAll('.version')
-        .data(versions.filter(d => d.barColor && this.selectedVersions.indexOf(d.version) >= 0))
+        .data(formattedVersions.filter(d => d.barColor && this.selectedVersions.indexOf(d.version) >= 0))
         .join('rect')
         .attr('class', 'version')
         .attr('fill', d => d.barColor)
@@ -743,7 +763,6 @@ export default {
             if (index < 0) {
               index = versions.length;
             }
-
             return x(d.updated) + barWidth/2 + maxWidthPerBar * index - (maxWidthPerBar - barWidth)/2 - this.versionBarWidth/2;
           }
           return 0;

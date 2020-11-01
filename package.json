@@ -1,6 +1,6 @@
 {
   "name": "mindlogger-admin",
-  "version": "0.3.34",
+  "version": "0.3.40",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --mode local",
@@ -19,7 +19,7 @@
     "@ag-grid-community/vue": "^22.1.2",
     "@sentry/browser": "^5.19.0",
     "@sentry/integrations": "^5.19.0",
-    "applet-schema-builder": "^0.3.6",
+    "applet-schema-builder": "^0.3.10",
     "axios": "^0.19.2",
     "babel-loader": "^7.1.5",
     "crypto": "^1.0.1",
@@ -29,6 +29,7 @@
     "object-to-csv": "^1.0.5",
     "protocol-builder": "^0.1.20",
     "vue": "2.6.10",
+    "vue-i18n": "^8.21.1",
     "vue-property-decorator": "^8.4.0",
     "vue-router": "^3.1.6",
     "vuetify": "^2.2.31",

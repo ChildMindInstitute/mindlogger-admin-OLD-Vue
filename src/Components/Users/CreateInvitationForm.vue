@@ -1,18 +1,10 @@
 <template>
   <div>
-    <h1>Create Invitation</h1>
-    <v-form
-      ref="form"
-      v-model="valid"
-      :lazy-validation="lazy"
-    >
+    <h1>{{ $t("createInvitation") }}</h1>
+    <v-form ref="form" v-model="valid" :lazy-validation="lazy">
       <v-container>
         <v-row>
-          <v-col 
-            cols="12" 
-            sm="6" 
-            md="6"
-          >
+          <v-col cols="12" sm="6" md="6">
             <v-text-field
               v-model="params.profile.firstName"
               label="FirstName"
@@ -21,11 +13,7 @@
             />
           </v-col>
 
-          <v-col 
-            cols="12" 
-            sm="6" 
-            md="6"
-          >
+          <v-col cols="12" sm="6" md="6">
             <v-text-field
               v-model="params.profile.lastName"
               label="LastName"
@@ -34,64 +22,43 @@
             />
           </v-col>
 
-          <v-col 
-            cols="12" 
-            sm="6" 
-            md="4"
-          >
+          <v-col cols="12" sm="6" md="4">
             <v-text-field
               v-model="params.profile.email"
               :rules="emailRules"
-              label="Email"
+              :label="$t('email')"
               required
             />
           </v-col>
 
-          <v-col 
-            cols="12" 
-            sm="6" 
-            md="4"
-          >
+          <v-col cols="12" sm="6" md="4">
             <v-select
               v-model="params.role"
               :items="invitationRoles"
-              :rules="[v => !!v || 'Item is required']"
-              label="Role"
+              :rules="[(v) => !!v || 'Item is required']"
+              :label="$t('role')"
               required
             />
           </v-col>
 
-          <v-col 
-            v-if="params.role === 'user'"
-            cols="12" 
-            sm="6" 
-            md="4"
-          >
+          <v-col v-if="params.role === 'user'" cols="12" sm="6" md="4">
             <v-text-field
               v-model="params.profile.mrn"
-              label="Institutional ID"
+              :label="$t('institutionalID')"
             />
           </v-col>
-          <v-col 
-            v-else
-            cols="12" 
-            sm="6" 
-            md="4"
-          >
+          <v-col v-else cols="12" sm="6" md="4">
             <v-text-field
-              v-if="username === currentAccountName && appletRoles.includes('owner')"
+              v-if="
+                username === currentAccountName && appletRoles.includes('owner')
+              "
               v-model="params.accountName"
               label="AccountName"
               :rules="accountNameRules"
               required
             />
           </v-col>
-          <v-col 
-            v-if="params.role === 'reviewer'"
-            cols="12" 
-            sm="12" 
-            md="12"
-          >
+          <v-col v-if="params.role === 'reviewer'" cols="12" sm="12" md="12">
             <v-combobox
               v-model="params.users"
               hint="Press enter to add a user"
@@ -103,20 +70,28 @@
             />
           </v-col>
         </v-row>
-        <v-btn
-          :disabled="!valid"
-          color="primary"
-          @click="submit"
-        >
-          Submit
-        </v-btn>
 
-        <v-btn
-          color="error"
-          @click="reset"
-        >
-          Reset Form
-        </v-btn>
+        <v-row align="center">
+          <v-col cols="auto">
+            <v-select
+                    v-model="currentLanguage"
+                    :items="languages"
+                    label="Choose Language"
+                    item-text="label"
+                    item-value="value"
+                    hide-details
+                    single-line
+                    outlined
+                    dense
+            />
+          </v-col>
+          <v-col cols="auto">
+            <v-btn :disabled="!valid" color="primary" @click="submit">{{ $t("submit") }}</v-btn>
+          </v-col>
+          <v-col cols="auto">
+            <v-btn color="error" @click="reset">{{ $t("resetForm") }}</v-btn>
+          </v-col>
+        </v-row>
       </v-container>
     </v-form>
   </div>
@@ -130,20 +105,22 @@ export default {
       lazy: false,
       valid: true,
       emailRules: [
-        v => !!v || 'E-mail is required',
-        v => /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(v) || 'E-mail must be valid',
+        (v) => !!v || this.$i18n.t("emailRequired"),
+        (v) =>
+          /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(v) ||
+          this.$i18n.t("emailMustBeValid"),
       ],
       firstNameRules: [
-        v => !!v || 'Name is required',
+        (v) => !!v || this.$i18n.t("firstNameRequired")
       ],
       lastNameRules: [
-        v => !!v || 'Name is required',
+        (v) => !!v || this.$i18n.t("lastNameRequired")
       ],
       accountNameRules: [
-        v => !!v || 'Name is required',
+        (v) => !!v || this.$i18n.t("nameRequired")
       ],
       usersRules: [
-        v => !!v || 'Users are required',
+        (v) => !!v || this.$i18n.t("usersRequired")
       ],
       params: {
         role: "user",
@@ -151,11 +128,23 @@ export default {
           firstName: "",
           lastName: "",
           email: "",
-          mrn: "",
+          mrn: ""
         },
         accountName: "",
-        users: [],
-      }
+
+        users: []
+      },
+      languages: [
+        {
+          label: "English",
+          value: "en"
+        },
+        {
+          label: "French",
+          value: "fr"
+        }
+      ],
+      currentLanguage: "en"
     };
   },
   computed: {
@@ -172,16 +161,16 @@ export default {
       return this.$store.state.users.active;
     },
     invitationRoles() {
-      let roles =  this.$store.state.currentApplet.roles;
+      let roles = this.$store.state.currentApplet.roles;
 
-      if (roles.includes('manager') || roles.includes('owner')) {
+      if (roles.includes("manager") || roles.includes("owner")) {
         return ["user", "coordinator", "editor", "manager", "reviewer"];
-      } else if (roles.includes('coordinator')) {
-        return ['user', 'reviewer'];
+      } else if (roles.includes("coordinator")) {
+        return ["user", "reviewer"];
       }
 
       return [];
-    }
+    },
   },
 
   methods: {
@@ -190,9 +179,10 @@ export default {
         firstName: this.params.profile.firstName,
         lastName: this.params.profile.lastName,
         email: this.params.profile.email,
-        role: this.params.role
+        role: this.params.role,
+        lang: this.currentLanguage
       };
-      
+
       if (this.params.role === "user") {
         invitationOptions.MRN = this.params.profile.mrn;
       } else {
@@ -203,16 +193,16 @@ export default {
         let userIds = this.params.users;
         let activeUsers = this.activeUserList;
         let userData;
-        let userId;;
+        let userId;
 
         for (let i = 0; i < userIds.length; i++) {
           userId = userIds[i];
-          
+
           for (let j = 0; j < activeUsers.length; j++) {
             userData = activeUsers[j];
-            
+
             if (userData.MRN === userId || userData._id === userId) {
-              invitationOptions.users.push(userData._id) ;
+              invitationOptions.users.push(userData._id);
             }
           }
         }
@@ -227,11 +217,11 @@ export default {
         role: "user",
         profile: {
           displayName: "",
-          email: ""
-        }
+          email: "",
+        },
       };
-    }
-  }
+    },
+  },
 };
 </script>
 
