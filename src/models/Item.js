@@ -111,37 +111,37 @@ export default class Item {
     const numericValue = +str;
 
     return Number.isNaN(numericValue)
-      ? this.valueMapping[version] && 
-          this.valueMapping[version][str] !== undefined &&
-          this.responseOptions[this.valueMapping[version][str]]
-        ||
-        this.getChoiceByName(str)
+      ? this.valueMapping[version] &&
+      this.valueMapping[version][str] !== undefined &&
+      this.responseOptions[this.valueMapping[version][str]]
+      ||
+      this.getChoiceByName(str)
 
-      : this.valueMapping[version] && 
-          this.valueMapping[version][numericValue] !== undefined && 
-          this.responseOptions[this.valueMapping[version][numericValue]]
-        ||
-        this.getChoiceByValue( 
-          numericValue
-        );
+      : this.valueMapping[version] &&
+      this.valueMapping[version][numericValue] !== undefined &&
+      this.responseOptions[this.valueMapping[version][numericValue]]
+      ||
+      this.getChoiceByValue(
+        numericValue
+      );
   }
 
 
   appendResponses(responses) {
     this.responses = this.responses.concat(responses.map(response => {
-      let date = moment(response.date).format('L');
+      let date = moment(response.date).format('YYYY-MM-DD');
 
       if (!Array.isArray(response.value)) {
         // Ensure that it is an array.
         response.value = [response.value];
       } else if (response.value.length > 0) {
         const { offset } = response;
-        date = moment(response.date).format("L");
-      } 
+        date = moment.utc(response.date).format("L");
+      }
 
       return response.value.reduce(
         (obj, tokenValue) => {
-          const choice =  this.getChoice(tokenValue, response.version);
+          const choice = this.getChoice(tokenValue, response.version);
           const { value, name } = choice;
 
           return {
