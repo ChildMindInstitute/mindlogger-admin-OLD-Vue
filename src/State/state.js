@@ -164,14 +164,7 @@ const mutations = {
   setSchedule(state, schedule) {
     if (!_.isEmpty(state.currentApplet)) {
       // TODO: this sucks.
-      const idx = _.findIndex(
-        state.allApplets,
-        (a) => a.applet._id == state.currentApplet.applet._id
-      );
-      if (idx > -1) {
-        state.allApplets[idx].applet.schedule = schedule;
-        state.currentApplet = state.allApplets[idx];
-      }
+      state.currentApplet.applet.schedule = schedule;
       // update this in the copy too.
       //state.currentApplet = {...state.currentApplet, schedule };
     }
