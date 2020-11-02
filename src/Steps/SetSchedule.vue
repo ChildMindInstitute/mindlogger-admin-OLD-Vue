@@ -250,7 +250,8 @@ export default {
           ];
           if (
             event.data.URI === activity["@id"] ||
-            event.data.URI === activity["url"]
+            event.data.URI === activity["url"] ||
+            event.data.URI === activity["_id"].split("/")[1]
           ) {
             appletSchedule.events[index].data.activity_id = activity[
               "_id"
