@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.43] = 2020-11-02
 - fix scheduling for applets created by builder
+- Fixed an issue with route params
 
 ## [0.3.42] = 2020-11-02
 - updated strategy for showing view dashboard button
