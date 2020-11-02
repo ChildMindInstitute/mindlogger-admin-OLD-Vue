@@ -294,7 +294,7 @@ export default {
     selectedVersions: [],
     versionBarWidth: 10,
     versionChangeLimitPerDay: 4,
-    hasVersionBars: true
+    hasVersionBars: false
   }),
   computed: {
     appletVersions() {
@@ -303,7 +303,6 @@ export default {
     /** date in versions array doesn't consider timezone (all are set as UTC) and we need to convert updated times as user's timezone */
     formattedVersions() {
       let offset = `${this.timezone[0] === '+' ? '-' : '+'}${this.timezone.substr(1)}`;
-
       return this.versions.map(version => {
         /**
          * input => yy-mm-10T23:30:30+00:00 = yy-mm-11T04:30:30+05:00
@@ -312,7 +311,6 @@ export default {
         if (!version.updated) {
           return version;
         }
-
         const formatted = moment(new Date(version.updated.slice(0, -6) + offset).toISOString()).format("YYYY-MM-DD");
         return {
           version: version.version,
@@ -340,7 +338,6 @@ export default {
   },
   created() {
     this.features.forEach(feat => feat.slug = slugify(feat.id));
-
     this.selectedVersions = this.appletVersions;
   },
   /**
@@ -741,12 +738,10 @@ export default {
       const barWidth = this.focusBarWidth();
       const widthPerDate = this.widthPerDate();
       const formattedVersions = this.formattedVersions;
-
       svg
         .select('.chart')
         .selectAll('.version')
         .remove()
-
       if (!this.hasVersionBars) {
         return ;
       }
@@ -768,7 +763,6 @@ export default {
             if (index < 0) {
               index = versions.length;
             }
-
             return x(d.updated) + barWidth/2 + maxWidthPerBar * index - (maxWidthPerBar - barWidth)/2 - this.versionBarWidth/2;
           }
           return 0;
