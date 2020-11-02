@@ -13,19 +13,22 @@ import fr_FR from './locales/fr_FR';
 
 Vue.use(VueI18n);
 
+const DEFAULT_LANG = 'en_US';
+
 /**
- * Detects the browser langauge.
+ * Returns the full ISO code for the language;
  *
- * @returns {string} the current browser language.
+ * @param {string} any language code.
+ * @returns {string} the full language ISO code.
  */
-const getBrowserLanguage = () => {
-  const language = navigator.language || navigator.userLanguage;
+export const getLanguageCode = (language) => {
+  if (!language) return DEFAULT_LANG;
 
   if (language.startsWith('fr')) { 
     return 'fr_FR';
   }
 
-  return 'en_US';
+  return DEFAULT_LANG;
 };
 
 // Detect language in the URL.
@@ -37,9 +40,9 @@ const urlLanguage = urlParams.get('lang');
 // Initialize the extended Vue instance. 
 export default new VueI18n({
   locale: (
-    urlLanguage || 
+    getLanguageCode(urlLanguage) ||
     _.get(store, 'state.currentLanguage') ||
-    getBrowserLanguage()
+    getLanguageCode(navigator.language || navigator.userLanguage)
   ),
   messages: {
     en_US,

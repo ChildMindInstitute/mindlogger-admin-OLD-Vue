@@ -105,20 +105,22 @@ export default {
       currentLanguage: "en_US",
     }
   },
+
+  created() {
+    this.currentLanguage = this.$route.query.lang || this.$store.state.currentLanguage;
+  },
+
   computed: {
     apiHost() {
       return this.$store.state.backend;
     },
   },
 
-  created() {
-    this.currentLanguage = this.$store.state.currentLanguage;
-  },
-
   methods: {
     onLanguageChange() {
       this.$i18n.locale = this.currentLanguage;
       this.$store.commit("setCurrentLanguage", this.currentLanguage);
+      this.$router.replace({ query: { lang: this.currentLanguage }})
     },
     login() {
       if (!this.$refs.form.validate()) {
