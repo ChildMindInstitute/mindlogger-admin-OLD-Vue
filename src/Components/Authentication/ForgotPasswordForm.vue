@@ -40,14 +40,16 @@
 import api from "../Utils/api/api.vue";
 import _ from "lodash";
 export default {
-  data: () => ({
-    email: "",
-    emailRules: [
-      (v) => !!v || $t("emailRequired"),
-      (v) => /.+@.+\..+/.test(v) || $t("emailMustBeValid"),
-    ],
-    error: "",
-  }),
+  data() {
+    return {
+      email: "",
+      emailRules: [
+        (v) => !!v || this.$i18n.t("emailRequired"),
+        (v) => /.+@.+\..+/.test(v) || this.$i18n.t("emailMustBeValid"),
+      ],
+      error: "",
+    }
+  },
   methods: {
     createAccount() {
       if (!this.$refs.form.validate()) {
