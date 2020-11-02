@@ -153,7 +153,7 @@ export default class Applet {
         } else {
           const item = this.items[itemId];
 
-          if (resp.value.length) {
+          if (resp.version) {
             item.dateToVersions[resp.date] = item.dateToVersions[resp.date] || [];
             item.dateToVersions[resp.date].push(resp.version);
 

@@ -165,11 +165,12 @@ export default {
   computed: {
     dashboardEnabled() {
       const hasPermission = this.hasRoles('owner', 'reviewer', 'manager');
-      const id = this.currentApplet.applet['@id'] || '';
-      const isTokenLogger =
-        id.includes('TokenLogger') || id.includes('TokenCollector');
+      const currentApplet = this.$store.state.currentApplet;
+      const items = Object.values(currentApplet.items);
 
-      return isTokenLogger && hasPermission;
+      return hasPermission && 
+              items.length === 1 && 
+              new Item(items[0]).inputType == 'radio';
     },
     isUsersLoaded() {
       return !_.isEmpty(this.$store.state.users);
