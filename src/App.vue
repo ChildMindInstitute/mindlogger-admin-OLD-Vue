@@ -109,7 +109,7 @@ export default {
   methods: {
     logout() {
       this.$store.commit('resetState');
-      this.$router.push('/login');
+      this.$router.push('/login').catch(err => {});
     },
 
     switchAccount(accountId) {
@@ -121,8 +121,8 @@ export default {
         })
         .then((resp) => {
           this.$store.commit('switchAccount', resp.data.account);
-          this.$router.push('/build');
-          this.$router.push('/applets');
+          this.$router.push('/build').catch(err => {});
+          this.$router.push('/applets').catch(err => {});
         })
         .catch((err) => {
           console.warn(err);
