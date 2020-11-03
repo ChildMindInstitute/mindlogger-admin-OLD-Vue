@@ -224,4 +224,11 @@ export default {
   pageOf: 'Page {current} of {total}',
   shownResultsRange: '{from} to {to} of {total}',
   confirmRemoveAllEvents: 'Are you sure you want to remove all events from calendar?',
+  appletUploadError: 'There was an error uploading your applet. Please try again or report this issue.',
+  appletPasswordUpdated: 'Applet password is updated successfully.',
+  appletEncryptionUpdate: 'Applet Encryption Update',
+  requestSent: 'Request Sent',
+  requestSuccess: 'Your request is successfully sent to {email}. Please wait for receiver to accept your request',
+  requestTransferFailed: 'Your request for transfer ownership of applet is failed.',
+  requestFailed: 'Request Failed',
 };
