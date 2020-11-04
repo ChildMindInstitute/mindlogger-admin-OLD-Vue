@@ -33,7 +33,7 @@
           <v-checkbox
             v-model="scheduledDay"
             @change="handleScheduledDay"
-            label="Only scheduled day"
+            :label="$t('onlyScheduledDay')"
           />
 
           <v-checkbox
@@ -42,7 +42,7 @@
             :label="$t('timeout')"
           />
           <!-- <label>-- {{ access }} </label> -->
-          <label v-if="scheduledTimeout.allow">Timeout : </label>
+          <label v-if="scheduledTimeout.allow">{{ $t('timeout') }} : </label>
 
           <div v-if="scheduledTimeout.allow" class="ds-timeout-body">
             <div class="ds-timeout-units">
@@ -59,7 +59,7 @@
                 solo
                 flat
               />
-              <div class="ds-timeout-unit">days</div>
+              <div class="ds-timeout-unit">{{ $t('days') }}</div>
             </div>
 
             <div class="ds-timeout-units">
@@ -76,7 +76,7 @@
                 solo
                 flat
               />
-              <div class="ds-timeout-unit">hours</div>
+              <div class="ds-timeout-unit">{{ $t('hours') }}</div>
             </div>
 
             <div class="ds-timeout-units">
@@ -93,7 +93,7 @@
                 solo
                 flat
               />
-              <div class="ds-timeout-unit">minutes</div>
+              <div class="ds-timeout-unit">{{ $t('minutes') }}</div>
             </div>
           </div>
 
@@ -112,7 +112,7 @@
             :label="$t('extendedPastDue')"
           />
           <!-- <label>-- {{ access }} </label> -->
-          <label v-if="scheduledExtendedTime.allow">Extended Time : </label>
+          <label v-if="scheduledExtendedTime.allow">{{ $t('extendedTime') }}: </label>
 
           <div v-if="scheduledExtendedTime.allow" class="ds-timeout-body">
             <div class="ds-timeout-units">
@@ -129,7 +129,7 @@
                 solo
                 flat
               />
-              <div class="ds-timeout-unit">days</div>
+              <div class="ds-timeout-unit">{{ $t('days') }}</div>
             </div>
           </div>
           <div v-if="isTimeoutValid === false" class="error">
@@ -142,7 +142,7 @@
             :label="$t('idleTime')"
           />
           <!-- <label>-- {{ access }} </label> -->
-          <label v-if="scheduledIdleTime.allow">Idle Time : </label>
+          <label v-if="scheduledIdleTime.allow">{{ $t('idleTime') }} : </label>
 
           <div v-if="scheduledIdleTime.allow" class="ds-timeout-body">
             <div class="ds-timeout-units">
@@ -159,7 +159,7 @@
                 solo
                 flat
               />
-              <div class="ds-timeout-unit">minutes</div>
+              <div class="ds-timeout-unit">{{ $t('minutes') }}</div>
             </div>
           </div>
 

@@ -6,7 +6,7 @@
 
         <v-text-field
           v-model="password.data"
-          label="Enter password"
+          :label="$t('enterPassword')"
           :append-icon="password.value ? 'mdi-eye' : 'mdi-eye-off'"
           :type="password.value ? 'password' : 'text'"
           @click:append="() => (password.value = !password.value)"
@@ -16,7 +16,7 @@
         <v-text-field
           v-if="hasConfirmPassword"
           v-model="confirmPassword.data"
-          label="Confirm password"
+          :label="$t('confirmPassword')"
           :append-icon="confirmPassword.value ? 'mdi-eye' : 'mdi-eye-off'"
           :type="confirmPassword.value ? 'password' : 'text'"
           @click:append="() => (confirmPassword.value = !confirmPassword.value)"
@@ -80,13 +80,14 @@ export default {
         return false;
       }
 
-      return 'Min. 8 characters with at least one capital letter, a number and a special character.';
+      return this.$t('invalidAppletPasswordFormat');
     },
     errorConfirmPassword(value) {
       if (value == this.password.data) {
         return false;
       }
-      return 'Password does not match';
+
+      return this.$t('passwordDontMatch');
     },
     onClickSubmitPassword() {
       this.$emit('set-password', this.password.data);
