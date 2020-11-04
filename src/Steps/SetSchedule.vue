@@ -1,36 +1,21 @@
 <template>
   <div>
-    <Calendar
-      ref="calendar"
-      :activities="activities"
-    />
+    <Calendar ref="calendar" :activities="activities" />
 
-    <v-dialog
-      v-model="dialog"
-      width="500"
-    >
+    <v-dialog v-model="dialog" width="500">
       <v-card>
-        <v-card-title
-          class="headline grey lighten-2"
-          primary-title
-        >
-          Saving Schedule
+        <v-card-title class="headline grey lighten-2" primary-title>
+          {{ $t("savingSchedule") }}
         </v-card-title>
 
         <v-card-text v-if="loading">
-          <v-layout
-            align-center
-            column
-          >
-            <v-progress-circular
-              color="primary"
-              indeterminate
-            />
+          <v-layout align-center column>
+            <v-progress-circular color="primary" indeterminate />
           </v-layout>
         </v-card-text>
 
         <v-card-text v-else-if="saveSuccess">
-          Please wait several minutes.
+          {{ $t("waitSeveralMinutes") }}
         </v-card-text>
 
         <v-card-text v-else-if="saveError">
@@ -41,24 +26,14 @@
 
         <v-card-actions>
           <v-spacer />
-          <v-btn
-            color="primary"
-            text
-            @click="dialog = false"
-          >
-            Close
+          <v-btn color="primary" text @click="dialog = false">
+            {{ $t("close") }}
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-btn
-      color="primary"
-      fixed
-      bottom
-      left
-      @click="$router.go(-1)"
-    >
-      Back
+    <v-btn color="primary" fixed bottom left @click="$router.go(-1)">
+      {{ $t("back") }}
     </v-btn>
 
     <template>
@@ -71,38 +46,32 @@
               @click="clearSchedule"
               v-on="on"
             >
-              Clear
+              {{ $t("clear") }}
             </v-btn>
           </template>
-          <span>Clear all scheduled activities</span>
+          <span>{{ $t("clearActivities") }}</span>
         </v-tooltip>
 
         <v-tooltip top>
           <template v-slot:activator="{ on }">
-            <v-btn
-              color="primary"
-              class="ms-4"
-              @click="saveSchedule"
-              v-on="on"
-            >
-              Save
+            <v-btn color="primary" class="ms-4" @click="saveSchedule" v-on="on">
+              {{ $t("save") }}
             </v-btn>
           </template>
-          <span>Save all scheduled activities</span>
+          <span>{{ $t("saveActivities") }}</span>
         </v-tooltip>
       </div>
     </template>
   </div>
 </template>
 
-
 <style scoped>
-  .tools {
-    position: fixed;
-    bottom: 16px;
-    text-align: right;
-    right: 32px;
-  }
+.tools {
+  position: fixed;
+  bottom: 16px;
+  text-align: right;
+  right: 32px;
+}
 </style>
 
 <script>
@@ -113,7 +82,7 @@ import api from "../Components/Utils/api/api.vue";
 export default {
   name: "Schedule",
   components: {
-    Calendar
+    Calendar,
   },
   data: () => ({
     /**
@@ -139,13 +108,13 @@ export default {
       "Blue",
       "Purple",
       "Lime",
-      "Deep Orange"
+      "Deep Orange",
     ],
     dialog: false,
     loading: false,
     saveSuccess: false,
     saveError: false,
-    errorMessage: ""
+    errorMessage: "",
   }),
   computed: {
     /**
@@ -169,7 +138,7 @@ export default {
             name,
             color,
             visibility: 1,
-            URI
+            URI,
           };
         });
       }
@@ -185,12 +154,12 @@ export default {
         }
       }
       return {};
-    }
+    },
   },
   watch: {
     $route(to, from) {
       // If user modifies url during session, redirect to applets screen
-      this.$router.push('/applets');
+      this.$router.push("/applets").catch(err => {});
     },
   },
   mounted() {
@@ -212,7 +181,7 @@ export default {
         this.saveSuccess = false;
         this.saveError = false;
         this.loading = true;
-        const schedule = this.currentApplet.applet.schedule;
+        const schedule = this.addEventType(this.currentApplet.applet.schedule);
         const removedEvents = this.$store.state.removedEvents;
         scheduleForm.set("schedule", JSON.stringify(schedule || {}));
         scheduleForm.set("deleted", JSON.stringify(removedEvents || {}));
@@ -221,18 +190,21 @@ export default {
             apiHost: this.$store.state.backend,
             id: this.currentApplet.applet._id.split("applet/")[1],
             token: this.$store.state.auth.authToken.token,
-            data: scheduleForm
-          }) 
-          .then(response => {
+            data: scheduleForm,
+          })
+          .then((response) => {
             const applet = this.currentApplet.applet;
             applet.schedule = response.data.applet.schedule;
-            this.$store.commit('setApplet', applet);
-            this.$store.commit('resetUpdatedEventId');
-            this.$store.commit('setCachedEvents', response.data.applet.schedule.events);
+            this.$store.commit("setApplet", applet);
+            this.$store.commit("resetUpdatedEventId");
+            this.$store.commit(
+              "setCachedEvents",
+              response.data.applet.schedule.events
+            );
             this.loading = false;
             this.saveSuccess = true;
           })
-          .catch(e => {
+          .catch((e) => {
             this.errorMessage = `Save Unsuccessful. ${e}`;
             this.loading = false;
             this.saveError = true;
@@ -244,32 +216,60 @@ export default {
       const res = await this.$dialog.warning({
         title: "Alert",
         color: "#1976d2",
-        text: "Are you sure you want to remove all events from calendar?",
+        text: this.$t('confirmRemoveAllEvents'),
         persistent: false,
         actions: {
-          No: "No",
+          No: this.$t('no'),
           Yes: {
             color: "#1976d2",
-            text: "Yes",
+            text: this.$t('yes'),
           },
         },
       });
-      if (res === 'Yes') {
+      if (res === "Yes") {
         const schedule = this.currentApplet.applet.schedule;
         for (let event of schedule.events) {
-          if (event['id']) {
-            this.$store.commit('addRemovedEventId', event['id']);
+          if (event["id"]) {
+            this.$store.commit("addRemovedEventId", event["id"]);
           }
         }
-        schedule.events = []
+        schedule.events = [];
 
-        this.$store.commit('setSchedule', schedule);
-        this.$store.commit('setCachedEvents', schedule.events);
+        this.$store.commit("setSchedule", schedule);
+        this.$store.commit("setCachedEvents", schedule.events);
 
         this.$refs.calendar.$refs.app.clearEvents();
       }
-      
-    }
-  }
+    },
+    addEventType(schedule) {
+      const appletSchedule = schedule;
+      appletSchedule.events.forEach((event, index) => {
+        for (const activityId in this.$store.state.currentApplet.activities) {
+          const activity = this.$store.state.currentApplet.activities[
+            activityId
+          ];
+          if (
+            event.data.URI === activity["@id"] ||
+            event.data.URI === activity["url"] ||
+            event.data.URI === activity["_id"].split("/")[1]
+          ) {
+            appletSchedule.events[index].data.activity_id = activity[
+              "_id"
+            ].split("/")[1];
+          }
+        }
+        if (Object.keys(event.schedule).includes("dayOfWeek")) {
+          appletSchedule.events[index].data.eventType = "Weekly";
+        } else if (Object.keys(event.schedule).includes("year")) {
+          appletSchedule.events[index].data.eventType = "";
+        } else if (Object.keys(event.schedule).includes("dayOfMonth")) {
+          appletSchedule.events[index].data.eventType = "Monthly";
+        } else {
+          appletSchedule.events[index].data.eventType = "Daily";
+        }
+      });
+      return appletSchedule;
+    },
+  },
 };
 </script>

@@ -22,7 +22,7 @@
         <v-select
           v-model="details.title"
           :items="activityNames"
-          placeholder="Select Activity"
+          :placeholder="$t('selectActivity')"
           dense
           outlined
         />
@@ -78,13 +78,17 @@
           <my-schedule
             @onTimeout="handleTimeout"
             @onIdleTime="handleIdleTime"
+            @onExtendedTime="handleExtendedTime"
             @onCompletion="handleCompletion"
+            @onScheduledDay="handleScheduledDay"
             :completion="completion"
+            :onlyScheduledDay="scheduledDay"
             :timeout="timeout"
             :idle-time="idleTime"
             :schedule="schedule"
             :day="day"
             :read-only="readOnly"
+            :extended-time="extendedTime"
             :is-timeout-valid="isTimeoutValid"
           />
         </slot>
@@ -361,6 +365,8 @@ export default {
     schedule: new Schedule(),
     details: vm.$dayspan.getDefaultEventDetails(),
     oneTimeCompletion: false,
+    onlyScheduledDay: false,
+    scheduledExtendedTime: {},
     scheduledTimeout: {},
     scheduledIdleTime: {},
   }),
@@ -372,6 +378,9 @@ export default {
     completion() {
       return this.details.completion || false;
     },
+    scheduledDay() {
+      return this.details.onlyScheduledDay || false;
+    },
     timeout() {
       return (
         this.details.timeout || {
@@ -379,6 +388,14 @@ export default {
           hour: 12,
           minute: 0,
           access: false,
+          allow: false,
+        }
+      );
+    },
+    extendedTime() {
+      return (
+        this.details.extendedTime || {
+          days: 7,
           allow: false,
         }
       );
@@ -405,7 +422,9 @@ export default {
         details: this.details,
         timeout: this.details.timeout,
         completion: this.details.completion,
+        scheduledDay: this.details.onlyScheduledDay,
         idleTime: this.details.idleTime,
+        extendedTime: this.details.extendedTime,
         busyOptions: this.busyOptions,
         day: this.day,
         calendar: this.calendar,
@@ -528,7 +547,7 @@ export default {
           },
         },
       });
-      if(res === 'Yes') {
+      if (res === "Yes") {
         let ev = this.getEvent("save");
         this.$emit("remove", ev);
 
@@ -561,9 +580,7 @@ export default {
                 return ev;
               });
               state.events = events;
-            } else if (
-              oldStateEvents.length > newStateEvents.length
-            ) {
+            } else if (oldStateEvents.length > newStateEvents.length) {
               let index = 0;
               const events = newStateEvents.map((event) => {
                 const ev = event;
@@ -582,8 +599,8 @@ export default {
                 index += 1;
                 return ev;
               });
-              state.events = events; 
-              this.$store.commit("addRemovedEventId", eventId)
+              state.events = events;
+              this.$store.commit("addRemovedEventId", eventId);
             }
           }
           this.$store.commit("setSchedule", state);
@@ -600,6 +617,14 @@ export default {
 
     handleIdleTime(scheduledIdleTime) {
       this.scheduledIdleTime = scheduledIdleTime;
+    },
+
+    handleExtendedTime(scheduledExtendedTime) {
+      this.scheduledExtendedTime = scheduledExtendedTime;
+    },
+
+    handleScheduledDay(onlyScheduledDay) {
+      this.onlyScheduledDay = onlyScheduledDay;
     },
 
     handleCompletion(oneTimeCompletion) {
@@ -630,7 +655,6 @@ export default {
           ev.created = this.$dayspan.createEvent(ev.details, ev.schedule);
           if (ev.calendar) {
             ev.calendar.addEvent(ev.created);
-            console.log("_________event_________", ev.calendar);
             ev.added = true;
           }
 
@@ -672,10 +696,28 @@ export default {
     getEvent(type, extra = {}) {
       const evDetails = this.details;
 
-      if(this.oneTimeCompletion) {
+      if (this.oneTimeCompletion) {
         evDetails.completion = true;
       } else {
         evDetails.completion = false;
+      }
+
+      if (this.onlyScheduledDay) {
+        evDetails.onlyScheduledDay = true;
+      } else {
+        evDetails.onlyScheduledDay = false;
+      }
+
+      if (!this.scheduledExtendedTime.hasOwnProperty("allow")) {
+        this.scheduledExtendedTime = this.extendedTime;
+      }
+      if (!this.scheduledExtendedTime.allow) {
+        evDetails.extendedTime = {
+          minute: 1,
+          allow: this.scheduledExtendedTime.allow,
+        };
+      } else {
+        evDetails.extendedTime = this.scheduledExtendedTime;
       }
 
       if (!this.scheduledTimeout.hasOwnProperty("allow")) {

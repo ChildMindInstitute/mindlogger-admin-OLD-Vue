@@ -1,12 +1,12 @@
-import Vue from "vue";
-import Vuex from "vuex";
+import Vue from 'vue';
+import Vuex from 'vuex';
 
 Vue.use(Vuex);
 
-import { Store } from "vuex";
-import _ from "lodash";
-import createPersistedState from "vuex-persistedstate";
-import api from "../Components/Utils/api/api.vue";
+import { Store } from 'vuex';
+import _ from 'lodash';
+import createPersistedState from 'vuex-persistedstate';
+import api from '../Components/Utils/api/api.vue';
 
 const getDefaultState = () => {
   return {
@@ -23,14 +23,18 @@ const getDefaultState = () => {
     auth: {},
     continue: {},
     currentUsers: [],
-    userEmail: "",
+    userEmail: '',
     users: {},
+    currentLanguage: 'en_US',
   };
 };
 
 const state = getDefaultState();
 
 const mutations = {
+  setCurrentLanguage(state, lang) {
+    state.currentLanguage = lang;
+  },
   resetState(state) {
     Object.assign(state, getDefaultState());
   },
@@ -45,30 +49,39 @@ const mutations = {
     state.updatedEvents = [];
   },
   setBackend(state, backend) {
-    const backendServers = [
-      { url: "https://api-prod.mindlogger.org/api/v1", env: "production" },
-      { url: "https://api-staging.mindlogger.org/api/v1", env: "development" },
-      { url: "https://api-test.mindlogger.org/api/v1", env: "staging" },
-      { url: "http://localhost:8080/api/v1", env: "local" },
-      { url: process.env.CUSTOM_URL || "", env: "other" },
-    ];
-    state.backend =
-      backend ||
-      _.find(backendServers, { env: process.env.NODE_ENV }).url ||
-      backendServers[0].url;
+    // const backendServers = [
+    //   { url: "https://api-prod.mindlogger.org/api/v1", env: "production" },
+    //   { url: "https://api-staging.mindlogger.org/api/v1", env: "development" },
+    //   { url: "https://api-test.mindlogger.org/api/v1", env: "staging" },
+    //   { url: "http://localhost:8080/api/v1", env: "local" },
+    //   { url: process.env.CUSTOM_URL || "", env: "other" },
+    // ];
+
+    // state.backend =
+    //   backend ||
+    //   _.find(backendServers, { env: process.env.NODE_ENV }).url ||
+    //   backendServers[0].url;
+
+    state.backend = backend || process.env.VUE_APP_SERVER_URL;
   },
   setAccounts(state, accounts) {
     state.allAccounts = accounts;
   },
   switchAccount(state, account) {
     const accounts = [];
+    const appletIdArray = [];
     state.currentAccount = account;
 
     Object.keys(account.applets).forEach((key, index) => {
       if (account.applets[key] && account.applets[key].length) {
         account.applets[key].forEach((appletId, index) => {
-          if (!accounts.includes(appletId, 0)) {
-            accounts.push(appletId);
+          if (!appletIdArray.includes(appletId, 0)) {
+            appletIdArray.push(appletId);
+            accounts.push({
+              appletId,
+              allEvent:
+                key === 'manager' || key === 'coordinator' ? true : false,
+            });
           }
         });
       }
@@ -80,7 +93,33 @@ const mutations = {
       state.currentApplet = protocol;
     }
   },
-  setAllApplets(state, protocols) { 
+
+  setAppletPrivateKey(state, { appletId, key }) {
+    for (let applet of state.allApplets) {
+      if (applet.applet._id == appletId) {
+        if (applet.applet.encryption) {
+          applet.applet.encryption.appletPrivateKey = key;
+        }
+      }
+    }
+  },
+
+  updateAppletData(state, applet) {
+    for (let i = 0; i < state.allApplets.length; i++) {
+      if (state.allApplets[i].applet._id == applet.applet._id) {
+        state.allApplets[i] = applet;
+
+        if (
+          state.currentApplet.applet &&
+          state.currentApplet.applet._id == applet.applet._id
+        ) {
+          state.currentApplet = applet;
+        }
+      }
+    }
+  },
+
+  setAllApplets(state, protocols) {
     state.allApplets = protocols;
   },
 
@@ -90,27 +129,19 @@ const mutations = {
     const requests = [];
 
     protocols.forEach((protocol, i) => {
-      const appletId = protocol.applet._id.split("applet/")[1];
-      let roleValue = 0;
+      const appletId = protocol.applet._id.split('applet/')[1];
+
+      state.allApplets[i].roles = [];
 
       Object.keys(currentApplets).forEach((key, index) => {
         if (currentApplets[key] && currentApplets[key].length) {
           currentApplets[key].forEach((id, index) => {
-            if (
-              appletId === id &&
-              key !== "user"
-            ) {
-              state.allApplets[i].role = key;
-              roleValue ++;
+            if (appletId === id && key !== 'user') {
+              state.allApplets[i].roles.push(key);
             }
           });
         }
       });
-      if (roleValue === 4) {
-        state.allApplets[i].role = "manager";
-      } else if (roleValue === 5) {
-        state.allApplets[i].role = "owner";
-      }
     });
     Promise.all(requests).then();
   },
@@ -129,7 +160,6 @@ const mutations = {
     }
     state.userEmail = userData.email;
   },
-
   setCachedEvents(state, events) {
     if (events) {
       state.cachedEvents = events;
@@ -138,14 +168,7 @@ const mutations = {
   setSchedule(state, schedule) {
     if (!_.isEmpty(state.currentApplet)) {
       // TODO: this sucks.
-      const idx = _.findIndex(
-        state.allApplets,
-        (a) => a.applet._id == state.currentApplet.applet._id
-      );
-      if (idx > -1) {
-        state.allApplets[idx].applet.schedule = schedule;
-        state.currentApplet = state.allApplets[idx];
-      }
+      state.currentApplet.applet.schedule = schedule;
       // update this in the copy too.
       //state.currentApplet = {...state.currentApplet, schedule };
     }
@@ -155,8 +178,8 @@ const mutations = {
     const idx = _.findIndex(
       state.allApplets,
       (a) =>
-        a.applet["skos:prefLabel"] ==
-        state.currentApplet.applet["skos:prefLabel"]
+        a.applet['skos:prefLabel'] ==
+        state.currentApplet.applet['skos:prefLabel']
     );
     if (idx > -1) {
       state.allApplets[idx].groups = groups;
@@ -181,13 +204,25 @@ const mutations = {
   },
 };
 
+const stateCopy = (({ 
+  // Excluded properties.
+  allApplets, 
+  currentLanguage,
+  ...o
+}) => o)(state);
+const stateToPersist = Object.keys(stateCopy);
+
 export const storeConfig = {
   state,
   mutations,
-  plugins: [createPersistedState({ storage: window.sessionStorage })],
+  plugins: [
+    createPersistedState({
+      storage: window.sessionStorage,
+      paths: stateToPersist,
+    }),
+  ],
 };
 
 const store = new Store(storeConfig);
 
 export default store;
-

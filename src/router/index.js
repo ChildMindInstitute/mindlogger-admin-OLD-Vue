@@ -1,91 +1,114 @@
-import Vue from 'vue';
-import Router from 'vue-router';
-import Builder from '@/Components/Builder/Builder.vue';
-import Login from '../Steps/Login';
-import SetApplet from '../Steps/SetApplet';
-import SetUsers from '../Steps/SetUsers';
-import SetSchedule from '../Steps/SetSchedule';
+import Vue from "vue";
+import Router from "vue-router";
+import Builder from "@/Components/Builder/Builder.vue";
+import Login from "../Steps/Login";
+import SetApplet from "../Steps/SetApplet";
+import SetUsers from "../Steps/SetUsers";
+import SetSchedule from "../Steps/SetSchedule";
+import TokenLoggerDashboard from "../Steps/TokenLoggerDashboard";
+import { getLanguageCode } from '../plugins/language';
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import store from '../State/state';
-
+import store from "../State/state";
 
 Vue.use(Router);
 
 let router = new Router({
   routes: [
     {
-      path: '/build',
-      name: 'Builder',
+      path: "/build",
+      name: "Builder",
       component: Builder,
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
       },
     },
     {
-      path: '/login',
-      name: 'Login',
+      path: "/login",
+      name: "Login",
       component: Login,
       meta: {
-          guest: true
-      }
+        guest: true,
+      },
     },
     {
-      path: '/applets',
-      name: 'SetApplet',
+      path: "/applets",
+      name: "SetApplet",
       component: SetApplet,
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
       },
     },
     {
-      path: '/applet/:appletId/users',
-      name: 'SetUsers',
+      path: "/applet/:appletId/users",
+      name: "SetUsers",
       component: SetUsers,
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
       },
     },
     {
-      path: '/applet/:appletId/schedule',
-      name: 'SetSchedule',
+      path: "/applet/:appletId/schedule",
+      name: "SetSchedule",
       component: SetSchedule,
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
       },
     },
     {
-      path: '/',
-      redirect: '/login',
+      path: "/applet/:appletId/dashboard",
+      name: "TokenLoggerDashboard",
+      component: TokenLoggerDashboard,
+      meta: {
+        requiresAuth: true,
+      },
     },
-  ]
+    {
+      path: "/",
+      redirect: "/login",
+    },
+  ],
 });
 
-
 router.beforeEach((to, from, next) => {
-  const isNotLoggedIn = _.isEmpty(store.state.auth);
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-      if (isNotLoggedIn) {
-          next({
-              path: '/login',
-              params: { nextUrl: to.fullPath },
-          });
-      } else {
-          next();
-      }
-  } else if (to.matched.some(record => record.meta.guest)) {
-      if (isNotLoggedIn) {
-          next();
-      }
-      else {
-          next({
-            path: '/applets',
-          });
-      }
-  } else {
-      next();
-  }
-})
+  const isLoggedIn = !_.isEmpty(store.state.auth);
+  const isPrivatePage = to.matched.some((record) => record.meta.requiresAuth);
+  const isGuestPage = to.matched.some((record) => record.meta.guest);
+  const lang = getLanguageCode(
+    from.query.lang || store.state.currentLanguage || 'en'
+  );
 
-export default router
+  // Redirect unauthenticated users to the login page if they are trying to
+  // access a page that requires authentication.
+  if (isPrivatePage && !isLoggedIn) {
+    return next({
+      path: "/login",
+      query: { nextUrl: to.fullPath, lang },
+    });
+  } 
+
+  // Prevent users from accessing the login page if they are already
+  // authenticated.
+  if (isGuestPage && isLoggedIn) {
+    return next({ path: "/applets", query: { lang }});
+  } 
+
+  // Evaluates to true if the lang parameter is set to just 'en' instead of
+  // 'en_US'.
+  const isShortLangCode =  to.query.lang && to.query.lang.length < 5;
+  
+  // When navigating to a page, make sure that the current language is persisted
+  // in the URL.
+  if (to && !to.query.lang || isShortLangCode) {
+    return next({
+      ...to,
+      path: to.path,
+      query: { ...to.query, lang },
+      params: to.params,
+    });
+  } 
+  return next();
+});
+
+export default router;

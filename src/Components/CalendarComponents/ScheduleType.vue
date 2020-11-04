@@ -64,13 +64,29 @@ export default {
         if (!this.day) {
           return []
         }
-        return Patterns
+        const eventTypes = [];
+        Patterns
         .filter((pattern) => pattern.listed)
-        .slice(0, 3)
-        .map((pattern, index) => ({
-          label: pattern.describe(this.day),
-          value: pattern.name
-        }))
+        .slice(0, 8)
+        .forEach((pattern, index) => {
+          if (index < 2) {
+            eventTypes.push({
+              label: pattern.describe(this.day),
+              value: pattern.name
+            });
+          } else if (index === 2) {
+            eventTypes.push({
+              label: this.$t('weekly'),
+              value: pattern.name
+            });
+          } else if (index === 7) {
+            eventTypes.push({
+              label: this.$t('monthly'),
+              value: pattern.name
+            });
+          }
+        });
+        return eventTypes;
       },
       customIcon () {
         return this.type === 'custom' ? 'edit' : ''
