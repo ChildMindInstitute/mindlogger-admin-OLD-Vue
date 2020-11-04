@@ -8,6 +8,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.45] = 2020-11-02
 - Add more translations
 
+## [0.3.43] = 2020-11-02
+- fix scheduling for applets created by builder
+- Fixed an issue with route params
+
+## [0.3.42] = 2020-11-02
+- updated strategy for showing view dashboard button
+
+## [0.3.41] = 2020-11-01
+- Fixed scheduling settings
+- Fixed All day option
+- Set version bar off
+
+## [0.3.40] = 2020-10-30
+- fix language being reset after the page is reloaded
+
+## [0.3.39] = 2020-10-30
+- update store after prepare applet for editing
+
+## [0.3.38] = 2020-10-30
+- fix user data export format
+
 ## [0.3.37] = 2020-10-30
 - define data as normal function
 

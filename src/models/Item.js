@@ -111,19 +111,19 @@ export default class Item {
     const numericValue = +str;
 
     return Number.isNaN(numericValue)
-      ? this.valueMapping[version] && 
-          this.valueMapping[version][str] !== undefined &&
-          this.responseOptions[this.valueMapping[version][str]]
-        ||
-        this.getChoiceByName(str)
+      ? this.valueMapping[version] &&
+      this.valueMapping[version][str] !== undefined &&
+      this.responseOptions[this.valueMapping[version][str]]
+      ||
+      this.getChoiceByName(str)
 
-      : this.valueMapping[version] && 
-          this.valueMapping[version][numericValue] !== undefined && 
-          this.responseOptions[this.valueMapping[version][numericValue]]
-        ||
-        this.getChoiceByValue( 
-          numericValue
-        );
+      : this.valueMapping[version] &&
+      this.valueMapping[version][numericValue] !== undefined &&
+      this.responseOptions[this.valueMapping[version][numericValue]]
+      ||
+      this.getChoiceByValue(
+        numericValue
+      );
   }
 
 
@@ -141,7 +141,7 @@ export default class Item {
 
       return response.value.reduce(
         (obj, tokenValue) => {
-          const choice =  this.getChoice(tokenValue, response.version);
+          const choice = this.getChoice(tokenValue, response.version);
           const { value, name } = choice;
 
           return {

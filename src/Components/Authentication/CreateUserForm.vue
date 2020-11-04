@@ -73,13 +73,22 @@ import api from "../Utils/api/api.vue";
 import _ from "lodash";
 
 export default {
-  data: () => ({
-    email: "",
-    firstName: "",
-    lastName: "",
-    password: "",
-    error: "",
-  }),
+  data() {
+    return {
+      email: "",
+      emailRules: [
+        (v) => !!v || this.$i18n.t("emailRequired"),
+        (v) => /.+@.+\..+/.test(v) || this.$i18n.t("emailMustBeValid"),
+      ],
+      firstName: "",
+      firstNameRules: [(v) => !!v || this.$i18n.t("firstNameRequired")],
+      lastName: "",
+      lastNameRules: [(v) => !!v || this.$i18n.t("lastNameRequired")],
+      password: "",
+      passwordRules: [(v) => !!v || this.$i18n.t("passwordRequired")],
+      error: "",
+    }
+  },
 
   computed: {
     apiHost() {
