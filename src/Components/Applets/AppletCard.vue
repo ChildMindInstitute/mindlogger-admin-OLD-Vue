@@ -351,7 +351,7 @@ export default {
       } else {
         this.setSelectedApplet();
         const appletId = this.applet.applet._id.split('applet/')[1];
-        this.$router.push(`applet/${appletId}/users`);
+        this.$router.push(`applet/${appletId}/users`).catch(err => {});
       }
     },
     onSubmitOwnership() {
@@ -377,7 +377,7 @@ export default {
         this.setSelectedApplet();
         const appletId = this.applet.applet._id.split('applet/')[1];
         this.$store.commit('setCurrentUsers', []);
-        this.$router.push(`applet/${appletId}/schedule`);
+        this.$router.push(`applet/${appletId}/schedule`).catch(err => {});
       }
     },
     duplicateApplet() {
@@ -395,7 +395,7 @@ export default {
       this.$router.push({
         name: 'Builder',
         params: { isEditing: true },
-      });
+      }).catch(err => {});
     },
   },
 };
