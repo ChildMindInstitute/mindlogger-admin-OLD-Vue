@@ -159,7 +159,7 @@ export default {
   watch: {
     $route(to, from) {
       // If user modifies url during session, redirect to applets screen
-      this.$router.push("/applets");
+      this.$router.push("/applets").catch(err => {});
     },
   },
   mounted() {

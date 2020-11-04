@@ -535,7 +535,7 @@ export default {
       const { appletId } = this.$route.params;
 
       this.$refs.userTableRef.getSelectedNodes();
-      this.$router.push(`/applet/${appletId}/schedule`);
+      this.$router.push(`/applet/${appletId}/schedule`).catch(err => {});
     },
 
     onReviewerDashboard() {
@@ -596,7 +596,7 @@ export default {
       this.$router.push({
         path: `/applet/${appletId}/dashboard`,
         query: { users: this.$store.state.currentUsers },
-      });
+      }).catch(err => {});
     },
   },
 };

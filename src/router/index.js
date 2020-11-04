@@ -103,13 +103,12 @@ router.beforeEach((to, from, next) => {
   if (to && !to.query.lang || isShortLangCode) {
     return next({
       ...to,
-      path: to.path, 
+      path: to.path,
       query: { ...to.query, lang },
       params: to.params,
     });
-  }
-
-  next();
+  } 
+  return next();
 });
 
 export default router;
