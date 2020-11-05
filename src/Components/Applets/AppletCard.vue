@@ -59,7 +59,7 @@
                 <v-btn
                   text
                   :disabled="!applet.roles.includes('manager')"
-                  @click="deleteApplet"
+                  @click="displayDeleteAppletDialog"
                   v-on="on"
                 >
                   {{ $t('delete') }}
@@ -146,6 +146,13 @@
     </div>
 
     <ConfirmationDialog
+      v-model="showDeleteAppletDialog"
+      :dialogText="deleteAppletDialogText"
+      :title="deleteAppletDialogTitle"
+      @onOK="deleteApplet"
+    />
+
+    <ConfirmationDialog
       v-model="appletEditDialog"
       :dialogText="editDialogText"
       :title="'Applet Edit'"
@@ -228,14 +235,20 @@ export default {
   data: () => ({
     status: 'ready',
     cardWidth: 300,
+    showDeleteAppletDialog: false,
     appletEditDialog: false,
-    editDialogText:
-      'By editing this applet that has been downloaded from Github, any changes will only store within MindLogger and will not update GitHub with those changes.',
+    editDialogText: 'By editing this applet that has been downloaded from Github, any changes will only store within MindLogger and will not update GitHub with those changes.',
     ownershipDialog: false,
     ownershipEmail: '',
     emailRules: /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/,
   }),
   computed: {
+    deleteAppletDialogTitle() {
+      return this.$t('deleteApplet');
+    },
+    deleteAppletDialogText() {
+      return this.$t('deleteAppletConfirmation');
+    },
     isOwner() {
       const roles = this.applet.roles;
       return (
@@ -323,6 +336,9 @@ export default {
   methods: {
     refreshApplet() {
       this.$emit('refreshApplet', this.applet);
+    },
+    displayDeleteAppletDialog() {
+      this.showDeleteAppletDialog = true;
     },
     deleteApplet() {
       this.$emit('deleteApplet', this.applet);
