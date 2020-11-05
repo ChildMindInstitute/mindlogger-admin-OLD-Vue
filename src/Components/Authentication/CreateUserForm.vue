@@ -94,6 +94,21 @@ export default {
     apiHost() {
       return this.$store.state.backend;
     },
+    emailRules() {
+      return [
+        (v) => !!v || this.$t("emailRequired"),
+        (v) => /.+@.+\..+/.test(v) || this.$t("emailMustBeValid"),
+      ];
+    },
+    firstNameRules() {
+      return [(v) => !!v || this.$t("firstNameRequired")];
+    },
+    lastNameRules() {
+      return [(v) => !!v || this.$t("lastNameRequired")];
+    },
+    passwordRules() {
+      return [(v) => !!v || this.$t("passwordRequired")];
+    },
   },
 
   methods: {
@@ -136,7 +151,7 @@ export default {
         })
         .then((resp) => {
           this.$store.commit("setAccounts", resp.data);
-          this.$router.push("/applets");
+          this.$router.push("/applets").catch(err => {});
         })
         .catch((err) => {
           console.warn(err);

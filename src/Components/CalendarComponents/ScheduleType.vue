@@ -76,12 +76,12 @@ export default {
             });
           } else if (index === 2) {
             eventTypes.push({
-              label: "Weekly",
+              label: this.$t('weekly'),
               value: pattern.name
             });
           } else if (index === 7) {
             eventTypes.push({
-              label: "Monthly",
+              label: this.$t('monthly'),
               value: pattern.name
             });
           }

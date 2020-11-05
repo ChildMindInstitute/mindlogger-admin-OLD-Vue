@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.47] = 2020-11-04
 - update "Skip" option language
 
+## [0.3.45] = 2020-11-02
+- Add more translations
+
+## [0.3.44] = 2020-11-02
+- Fixed issues on navigation failing
+
 ## [0.3.43] = 2020-11-02
 - fix scheduling for applets created by builder
 - Fixed an issue with route params

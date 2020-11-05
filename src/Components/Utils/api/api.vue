@@ -3,12 +3,16 @@
  * Admin-panel API routes
  */
 import axios from "axios";
+import store from '../../../State/state';
 
 const signIn = ({ apiHost, user, password }) =>
   axios({
     method: "get",
     url: `${apiHost}/user/authentication`,
     headers: { "Girder-Authorization": `Basic ${btoa(`${user}:${password}`)}` },
+    params: {
+      lang: store.state.currentLanguage,
+    },
   });
 
 const signUp = ({ apiHost, body }) =>
@@ -250,6 +254,7 @@ const createApplet = ({ apiHost, token, email, data }) =>
     },
     params: {
       email,
+      lang: store.state.currentLanguage,
     },
     data,
   });

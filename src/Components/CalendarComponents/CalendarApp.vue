@@ -85,7 +85,7 @@
           <v-flex xs2>
             <div>
               <div class="px-3">
-                <h3 class="mb-3 mt-3 pb-3">Activities</h3>
+                <h3 class="mb-3 mt-3 pb-3">{{ $t('activities') }}</h3>
                 <div
                   v-for="act in activities"
                   :key="act.name"

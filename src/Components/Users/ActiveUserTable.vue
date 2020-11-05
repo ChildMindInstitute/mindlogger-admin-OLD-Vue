@@ -201,7 +201,7 @@ export default {
 
     this.columnDefs = [
       {
-        headerName: 'Name',
+        headerName: this.$t('name'),
         field: 'displayName',
         sortable: true,
         filter: true,
@@ -209,7 +209,7 @@ export default {
         cellStyle: { justifyContent: 'center' },
       },
       {
-        headerName: 'Institutional ID',
+        headerName: this.$t('institutionalID'),
         field: 'mrn',
         sortable: true,
         filter: true,
@@ -217,7 +217,7 @@ export default {
         cellStyle: { justifyContent: 'center' },
       },
       {
-        headerName: 'Roles',
+        headerName: this.$t('roles'),
         field: 'roles',
         sortable: true,
         filter: true,
@@ -225,7 +225,7 @@ export default {
         cellStyle: { justifyContent: 'center' },
       },
       {
-        headerName: 'Email',
+        headerName: this.$t('email'),
         field: 'email',
         sortable: true,
         filter: true,
