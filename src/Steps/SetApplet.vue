@@ -130,29 +130,28 @@ export default {
         });
     },
     onAppletUploadSuccessful(message) {
-      this.dialogTitle = "Upload Received";
+      this.dialogTitle = this.$t('uploadReceived');
       this.dialogText = message;
       this.dialog = true;
     },
     onAppletUploadError() {
-      this.dialogTitle = "Upload Error";
-      this.dialogText =
-        "There was an error uploading your applet. Please try again or report the issue.";
+      this.dialogTitle = this.$t('uploadError');
+      this.dialogText = this.$t('appletUploadError');
       this.dialog = true;
     },
     onAppletPasswordChanged() {
-      this.dialogText = "Applet password is updated successfully.";
-      this.dialogTitle = "Applet Encryption Update";
+      this.dialogText = this.$t('appletPasswordUpdated');
+      this.dialogTitle = this.$t('appletEncryptionUpdate');
       this.dialog = true;
     },
     onOwnerShipInviteSuccessful(email) {
-      this.dialogText = `Your request is successfully sent to ${email}. Please wait for receiver to accept your request`;
-      this.dialogTitle = 'Request Sent';
+      this.dialogText = this.$t('requestSuccess', { email });
+      this.dialogTitle = this.$t('requestSent');
       this.dialog = true;
     },
     onOwnerShipInviteError() {
-      this.dialogText = 'Your request for transfer ownership of applet is failed.';
-      this.dialogTitle = 'Request Failed';
+      this.dialogText = this.$t('requestTransferFailed',);
+      this.dialogTitle = this.$t('requestFailed');
       this.dialog = true;
     }
   },

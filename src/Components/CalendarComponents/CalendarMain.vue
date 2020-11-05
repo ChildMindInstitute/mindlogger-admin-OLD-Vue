@@ -118,6 +118,12 @@ export default {
     }
   },
 
+  created() {
+    const currentLang = this.$store.state.currentLanguage;
+
+    this.$dayspan.setLocale(currentLang);
+  },
+
   mounted() {
     window.app = this.$refs.app;
 
