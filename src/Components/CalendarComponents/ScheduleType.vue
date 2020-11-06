@@ -69,9 +69,14 @@ export default {
         .filter((pattern) => pattern.listed)
         .slice(0, 8)
         .forEach((pattern, index) => {
-          if (index < 2) {
+          if (index < 1) {
             eventTypes.push({
-              label: pattern.describe(this.day),
+              label: this.$t('doesNotRepeat'),
+              value: pattern.name
+            });
+          } else if (index === 1) {
+            eventTypes.push({
+              label: this.$t(pattern.describe(this.day).toLocaleLowerCase()),
               value: pattern.name
             });
           } else if (index === 2) {

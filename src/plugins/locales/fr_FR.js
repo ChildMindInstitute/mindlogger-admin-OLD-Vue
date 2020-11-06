@@ -1,4 +1,7 @@
 export default {
+  en: 'Anglais',
+  fr: 'Français',
+  dashboard: 'Tableau de bord',
   login: 'Connexion',
   password: 'Mot de passe',
   submit: 'Soumettre',
@@ -43,7 +46,6 @@ export default {
   invitationLink: "Lien vers l'invitation",
   dateTimeInvited: "Date et heure de l'invitation",
   today: "Aujourd'hui ",
-  activities: 'Activités',
   clear: 'Effacer le contenu',
   save: 'Sauvegarder',
   back: 'Retour',
@@ -224,6 +226,8 @@ export default {
   invalidAppletPasswordFormat: 'Min. 8 caractères avec au moins une majuscule, un chiffre et un caractère spécial.',
   pageOf: 'Page {current} sur {total}',
   shownResultsRange: '{from} à {to} sur {total}',
+  showingDataFrom: 'Affichage des données de',
+  showVersionChanges: 'Afficher les changements de version',
   confirmRemoveAllEvents: 'Êtes-vous sûr de vouloir supprimer tous les événements du calendrier ?',
   appletUploadError: 'Il y a eu une erreur lors du téléchargement de votre applet. Veuillez réessayer ou signaler le problème.',
   appletPasswordUpdated: 'Le mot de passe de l\'applet a été mis à jour avec succès.',
@@ -232,4 +236,7 @@ export default {
   requestSuccess: 'Votre demande est envoyée avec succès à {email}. Veuillez attendre que le destinataire accepte votre demande.',
   transferRequestFailed: 'Votre demande de transfert de propriété de l\'applet est rejetée.',
   requestFailed: 'Échec de la demande',
+  to: 'à',
+  versions: 'les versions',
+  refreshRequest: 'Demande de rafraîchissement'
 };

@@ -92,28 +92,40 @@ export default {
       password: "",
       passwordRules: [(v) => !!v || this.$i18n.t("passwordRequired")],
       error: "",
-      languages: [
-        {
-          label: "English",
-          value: "en_US",
-        },
-        {
-          label: "French",
-          value: "fr_FR",
-        },
-      ],
+      // languages: [
+      //   {
+      //     label: this.$i18n.t('en'),
+      //     value: "en_US",
+      //   },
+      //   {
+      //     label: this.$i18n.t('fr'),
+      //     value: "fr_FR",
+      //   },
+      // ],
       currentLanguage: "en_US",
     }
-  },
-
-  created() {
-    this.currentLanguage = this.$route.query.lang || this.$store.state.currentLanguage;
   },
 
   computed: {
     apiHost() {
       return this.$store.state.backend;
     },
+    languages() {
+      return [
+        {
+          label: this.$i18n.t('en'),
+          value: "en_US",
+        },
+        {
+          label: this.$i18n.t('fr'),
+          value: "fr_FR",
+        },
+      ]
+    }
+  },
+
+  created() {
+    this.currentLanguage = this.$route.query.lang || this.$store.state.currentLanguage;
   },
 
   methods: {
