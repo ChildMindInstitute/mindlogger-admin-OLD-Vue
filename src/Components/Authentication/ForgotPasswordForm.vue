@@ -50,6 +50,11 @@ export default {
       error: "",
     }
   },
+  computed: {
+    currentLanguage() {
+      return this.$store.state.currentLanguage;
+    }
+  },
   methods: {
     createAccount() {
       if (!this.$refs.form.validate()) {
@@ -62,6 +67,7 @@ export default {
           apiHost: this.$store.state.backend,
           body: {
             email: this.email,
+            lang: this.currentLanguage.slice(0, 2)
           },
         })
         .then((resp) => {
