@@ -87,7 +87,7 @@ export default {
   preamble: 'preamble',
   editActivity: 'Edit Activity',
   schuffleItemOrder: 'Shuffle item order',
-  allowSkip: 'Allow items to be skipped',
+  allowSkip: 'Allow users to skip all items',
   items: 'Items',
   blankItem: 'Blank Item',
   uploadGithub: 'Upload from GitHub ',
