@@ -235,5 +235,8 @@ export default {
   requestFailed: 'Request Failed',
   to: 'to',
   versions: 'versions',
-  refreshRequest: 'Refresh Request'
+  refreshRequest: 'Refresh Request',
+  noRowsToShow: 'No rows to show',
+  refreshComplete: 'Refresh Complete',
+  refreshDeclined: 'Refresh Declined',
 };

@@ -53,7 +53,7 @@
     <Information
       v-model="informationDialog"
       :dialogText="informationText"
-      :title="'Refresh Response'"
+      :title="$t('refreshResponse')"
     />
 
     <div class="tools">
@@ -416,7 +416,7 @@ export default {
     onDeclineReuploading() {
       this.responseUpdateDialog.visible = false;
       this.informationDialog = true;
-      this.informationText = 'Refresh Declined';
+      this.informationText = this.$i18n.t('refreshDeclined');
     },
 
     updateUserResponse(userData) {
@@ -475,7 +475,7 @@ export default {
             .then((msg) => {
               this.getAppletUsers().then(() => {
                 this.informationDialog = true;
-                this.informationText = 'Refresh Complete';
+                this.informationText = this.$i18n.t('refreshComplete');
               });
             });
         });

@@ -238,5 +238,8 @@ export default {
   requestFailed: 'Échec de la demande',
   to: 'à',
   versions: 'les versions',
-  refreshRequest: 'Demande de rafraîchissement'
+  refreshRequest: 'Demande de rafraîchissement',
+  noRowsToShow: 'Aucune ligne à afficher',
+  refreshComplete: 'Actualisation terminée',
+  refreshDeclined: 'Actualisation refusée',
 };
