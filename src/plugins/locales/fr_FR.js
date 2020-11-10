@@ -232,4 +232,6 @@ export default {
   requestSuccess: 'Votre demande est envoyée avec succès à {email}. Veuillez attendre que le destinataire accepte votre demande.',
   transferRequestFailed: 'Votre demande de transfert de propriété de l\'applet est rejetée.',
   requestFailed: 'Échec de la demande',
+  deleteAppletConfirmation: 'Are you sure that you want to delete this applet?',
+  deleteApplet: 'Delete Applet',
 };

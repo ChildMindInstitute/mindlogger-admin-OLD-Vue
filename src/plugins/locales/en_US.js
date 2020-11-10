@@ -87,7 +87,7 @@ export default {
   preamble: 'preamble',
   editActivity: 'Edit Activity',
   schuffleItemOrder: 'Shuffle item order',
-  allowSkip: 'Allow items to be skipped',
+  allowSkip: 'Allow users to skip all items',
   items: 'Items',
   blankItem: 'Blank Item',
   uploadGithub: 'Upload from GitHub ',
@@ -231,4 +231,6 @@ export default {
   requestSuccess: 'Your request is successfully sent to {email}. Please wait for receiver to accept your request',
   requestTransferFailed: 'Your request for transfer ownership of applet is failed.',
   requestFailed: 'Request Failed',
+  deleteAppletConfirmation: 'Are you sure that you want to delete this applet?',
+  deleteApplet: 'Delete Applet',
 };

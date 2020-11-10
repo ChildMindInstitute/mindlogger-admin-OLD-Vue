@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.49] = 2020-11-07
 - update forgot password functionality to send lang field to backend
 
+## [0.3.48] = 2020-11-04
+- Show a confirmation dialog when deleting an applet
+
+## [0.3.47] = 2020-11-04
+- update "Skip" option language
+
+## [0.3.46] = 2020-11-04
+- Minor fixes for saved templates
+
 ## [0.3.45] = 2020-11-02
 - Add more translations
 
