@@ -244,5 +244,7 @@ export default {
   refreshDeclined: 'Actualisation refusée',
   areYouSureRemoveUser: 'Êtes-vous sûr de vouloir supprimer cet utilisateur?',
   areYouSureRemoveEvent: 'Voulez-vous vraiment supprimer cet événement?',
-  areYouSure: 'Êtes-vous sûr?'
+  areYouSure: 'Êtes-vous sûr?',
+  deleteAppletConfirmation: 'Are you sure that you want to delete this applet?',
+  deleteApplet: 'Delete Applet',
 };
