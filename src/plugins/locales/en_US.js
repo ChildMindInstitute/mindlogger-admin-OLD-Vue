@@ -239,4 +239,7 @@ export default {
   noRowsToShow: 'No rows to show',
   refreshComplete: 'Refresh Complete',
   refreshDeclined: 'Refresh Declined',
+  areYouSureRemoveUser: 'Are you sure to remove this user?',
+  areYouSureRemoveEvent: 'Are you sure you want to remove this event?',
+  areYouSure: 'Are you sure?'
 };

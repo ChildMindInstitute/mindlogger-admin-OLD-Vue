@@ -59,7 +59,7 @@
     >
       <v-card>
         <v-card-title class="edit-card-title">
-          <span class="headline">Are you sure?</span>
+          <span class="headline">{{ $t('areYouSure') }}</span>
         </v-card-title>
         <v-card-text>
           <v-container>
@@ -340,13 +340,13 @@ export default {
       const response = await this.$dialog.warning({
         title: '',
         color: '#1976d2',
-        text: 'Are you sure to remove this user?',
+        text: this.$i18n.t("areYouSureRemoveUser"),
         persistent: false,
         actions: {
-          No: 'No',
+          No: this.$i18n.t("no"),
           Yes: {
             color: '#1976d2',
-            text: 'Yes',
+            text: this.$i18n.t("yes"),
           },
         },
       });

@@ -242,4 +242,7 @@ export default {
   noRowsToShow: 'Aucune ligne à afficher',
   refreshComplete: 'Actualisation terminée',
   refreshDeclined: 'Actualisation refusée',
+  areYouSureRemoveUser: 'Êtes-vous sûr de vouloir supprimer cet utilisateur?',
+  areYouSureRemoveEvent: 'Voulez-vous vraiment supprimer cet événement?',
+  areYouSure: 'Êtes-vous sûr?'
 };
