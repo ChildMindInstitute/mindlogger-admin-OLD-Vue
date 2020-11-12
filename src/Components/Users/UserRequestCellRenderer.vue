@@ -4,7 +4,7 @@
     class="btn-user-request"
     @click="userRequestHandler"
   >
-    Refresh Request
+    {{ $t('refreshRequest') }}
   </span>
 </template>
 

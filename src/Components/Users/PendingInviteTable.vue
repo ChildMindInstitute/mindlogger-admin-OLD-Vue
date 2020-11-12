@@ -82,7 +82,9 @@ export default {
         }
       ],
       modules: AllCommunityModules,
-      gridOptions: {},
+      gridOptions: {
+        localeText: { noRowsToShow: this.$i18n.t("noRowsToShow") }
+      },
       domLayout: "autoHeight",
     };
   },

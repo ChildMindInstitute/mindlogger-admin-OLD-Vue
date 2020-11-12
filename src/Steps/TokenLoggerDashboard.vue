@@ -202,7 +202,7 @@ export default {
 
       return [
         { text: appletName, to: `/applet/${appletId}/users` },
-        { text: "Dashboard", disabled: true },
+        { text: this.$t('dashboard'), disabled: true },
       ];
     },
   },

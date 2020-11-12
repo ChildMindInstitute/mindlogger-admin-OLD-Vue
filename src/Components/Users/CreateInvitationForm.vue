@@ -7,7 +7,7 @@
           <v-col cols="12" sm="6" md="6">
             <v-text-field
               v-model="params.profile.firstName"
-              label="FirstName"
+              :label="$t('firstName')"
               :rules="firstNameRules"
               required
             />
@@ -16,7 +16,7 @@
           <v-col cols="12" sm="6" md="6">
             <v-text-field
               v-model="params.profile.lastName"
-              label="LastName"
+              :label="$t('lastName')"
               :rules="lastNameRules"
               required
             />
@@ -136,11 +136,11 @@ export default {
       },
       languages: [
         {
-          label: "English",
+          label: this.$i18n.t('en'),
           value: "en"
         },
         {
-          label: "French",
+          label: this.$i18n.t('fr'),
           value: "fr"
         }
       ],
@@ -164,9 +164,9 @@ export default {
       let roles = this.$store.state.currentApplet.roles;
 
       if (roles.includes("manager") || roles.includes("owner")) {
-        return ["user", "coordinator", "editor", "manager", "reviewer"];
+        return [this.$t("user"), this.$t("coordinator"), this.$t("editor"), this.$t("manager"), this.$t("reviewer")];
       } else if (roles.includes("coordinator")) {
-        return ["user", "reviewer"];
+        return [this.$t("user"), this.$t("reviewer")];
       }
 
       return [];

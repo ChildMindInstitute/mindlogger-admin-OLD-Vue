@@ -18,7 +18,7 @@
     </div>
 
     <div class="time-range">
-      Showing data from
+      {{ $t('showingDataFrom') }}
 
       <v-menu>
         <template v-slot:activator="{ on }">
@@ -31,14 +31,15 @@
           </v-btn>
         </template>
 
-        <v-date-picker 
+        <v-date-picker
+          :locale="$i18n.locale.slice(0, 2)"
           no-title
-          @change="setStartDate"
           :allowedDates="isAllowedStartDate"
+          @change="setStartDate"
         ></v-date-picker>
       </v-menu>
 
-      to
+      {{ $t('to') }}
 
       <v-menu>
         <template v-slot:activator="{ on }">
@@ -51,26 +52,27 @@
           </v-btn>
         </template>
 
-        <v-date-picker 
+        <v-date-picker
+          :locale="$i18n.locale.slice(0, 2)"
           no-title
-          @change="setEndDate"
           :allowedDates="isAllowedEndDate"
+          @change="setEndDate"
         ></v-date-picker>
       </v-menu>
     </div>
     
     <div class="version">
       <v-select
-        :items="appletVersions"
-        label="versions"
-        @change="onVersionChanged"
         v-model="selectedVersions"
+        :items="appletVersions"
+        :label="$t('versions')"
         multiple
+        @change="onVersionChanged"
       ></v-select>
 
       <v-checkbox
         v-model="hasVersionBars"
-        label="Show Version Changes"
+        :label="$t('showVersionChanges')"
         @change="onVersionChanged"
       ></v-checkbox>
     </div>

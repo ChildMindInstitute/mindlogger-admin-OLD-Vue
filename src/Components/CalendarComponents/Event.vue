@@ -537,7 +537,7 @@ export default {
       const res = await this.$dialog.warning({
         title: "",
         color: "#1976d2",
-        text: "Are you sure you want to remove this event?",
+        text: this.$i18n.t("areYouSureRemoveEvent"),
         persistent: false,
         actions: {
           No: "No",

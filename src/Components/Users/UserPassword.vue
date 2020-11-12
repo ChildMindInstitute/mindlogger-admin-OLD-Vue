@@ -7,7 +7,7 @@
 
           <v-text-field
             v-model="password.data"
-            label="Enter password"
+            :label="$t('enterPassword')"
             :append-icon="password.value ? 'mdi-eye' : 'mdi-eye-off'"
             :type="password.value ? 'password' : 'text'"
             @click:append="() => (password.value = !password.value)"
