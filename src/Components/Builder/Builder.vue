@@ -10,7 +10,7 @@
       :versions="versions"
       :templates="itemTemplates"
       @removeTemplate="onRemoveTemplate"
-      @updateTemplates="onUpdateTemplates"
+      @updateTemplates="onAddTemplate"
       @uploadProtocol="onUploadProtocol"
       @updateProtocol="onUpdateProtocol"
       @prepareApplet="onPrepareApplet"
@@ -43,6 +43,7 @@ import About from './AboutBuilder';
 import PackageJson from '../../../package.json';
 import api from '../Utils/api/api.vue';
 import { cloneDeep } from 'lodash';
+import axios from 'axios';
 
 import encryption from '../Utils/encryption/encryption.vue';
 import AppletPassword from '../Utils/dialogs/AppletPassword';
@@ -138,9 +139,12 @@ export default {
       this.newApplet = newApplet;
       this.appletPasswordDialog = true;
     },
+    async onAddTemplate(option) {
+      this.itemTemplates = [...this.itemTemplates, option]
+      await this.onUpdateTemplates(option)
+    },
     async onRemoveTemplate(option) {
-      const { itemTemplates } = this;
-      const updatedItems = itemTemplates.filter(({ text, value }) => text !== option.text || value !== option.value)
+      const updatedItems = this.itemTemplates.filter(({ text, value }) => text !== option.text || value !== option.value)
       this.itemTemplates = [...updatedItems]
       await this.onUpdateTemplates(option)
     },
