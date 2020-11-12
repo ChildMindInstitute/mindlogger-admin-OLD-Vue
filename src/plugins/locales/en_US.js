@@ -29,7 +29,7 @@ export default {
   displayName: 'Display Name',
   role: 'Role',
   roles: 'Roles',
-  user: 'User',
+  user: 'user',
   coordinator: 'coordinator',
   reviewer: 'reviewer',
   editor: 'editor',
