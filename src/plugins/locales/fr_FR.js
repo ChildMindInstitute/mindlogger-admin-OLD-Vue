@@ -30,7 +30,7 @@ export default {
   displayName: 'Afficher le nom',
   role: 'Rôle',
   roles: 'Rôles',
-  user: 'Utilisateur',
+  user: 'utilisateur',
   coordinator: 'coordinateur',
   reviewer: 'évaluateur',
   editor: 'éditeur',

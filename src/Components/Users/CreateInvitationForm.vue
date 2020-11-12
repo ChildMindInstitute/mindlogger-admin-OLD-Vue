@@ -36,6 +36,8 @@
               v-model="params.role"
               :items="invitationRoles"
               :rules="[(v) => !!v || 'Item is required']"
+              item-text="title"
+              item-value="name"
               :label="$t('role')"
               required
             />
@@ -98,8 +100,11 @@
 </template>
 
 <script>
+import { rolesMixin } from './rolesMixin';
+
 export default {
   name: "CreateInvitationForm",
+  mixins: [rolesMixin],
   data() {
     return {
       lazy: false,
@@ -164,15 +169,18 @@ export default {
       let roles = this.$store.state.currentApplet.roles;
 
       if (roles.includes("manager") || roles.includes("owner")) {
-        return [this.$t("user"), this.$t("coordinator"), this.$t("editor"), this.$t("manager"), this.$t("reviewer")];
+        // return [this.$t("user"), this.$t("coordinator"), this.$t("editor"), this.$t("manager"), this.$t("reviewer")];
+        return this.localizedRoles;
       } else if (roles.includes("coordinator")) {
-        return [this.$t("user"), this.$t("reviewer")];
+        // return [this.$t("user"), this.$t("reviewer")];
+        return this.localizedRoles.filter(role => {
+          return role.name === 'user' || role.name === 'reviewer';
+        })
       }
 
       return [];
     },
   },
-
   methods: {
     submit() {
       const invitationOptions = {
