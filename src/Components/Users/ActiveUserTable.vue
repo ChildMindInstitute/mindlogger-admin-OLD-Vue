@@ -1,18 +1,33 @@
 <template>
   <v-container>
-    <ag-grid-vue
-      class="ag-theme-balham"
-      :gridOptions="gridOptions"
-      :frameworkComponents="frameworkComponents"
-      :columnDefs="columnDefs"
-      :rowSelection="multiSelection"
-      :rowMultiSelectWithClick="clickSelection"
-      :pagination="pagination"
-      :rowData="userData"
-      :modules="modules"
-      :domLayout="domLayout"
-      @first-data-rendered="onFirstDataRendered"
+      <ag-grid-vue
+        class="ag-theme-balham"
+        :gridOptions="gridOptions"
+        :frameworkComponents="frameworkComponents"
+        :columnDefs="columnDefs"
+        :rowSelection="multiSelection"
+        :rowMultiSelectWithClick="clickSelection"
+        :pagination="pagination"
+        :rowData="userData"
+        :modules="modules"
+        :domLayout="domLayout"
+        @first-data-rendered="onFirstDataRendered"
+      />
+      <v-tooltip v-if="isManager || isOwner" top>
+        <template v-slot:activator="{ on }">
+          <v-btn color="primary" @click="dataRetentionSettingsDialog = true" v-on="on">
+            <span>{{ $t('dataRetentionSettings') }}</span>
+          </v-btn>
+        </template>
+        <span>{{ $t('dataRetentionSettings') }}</span>
+      </v-tooltip>
+      
+    <DataRetentionSettings
+      v-model="dataRetentionSettingsDialog"
+      @set-settings="onSaveRetentionSettings"
+      @settings-close="dataRetentionSettingsDialog = false"
     />
+    
     <v-dialog v-model="editRoleDialog" max-width="500px">
       <v-card>
         <v-card-title class="edit-card-title">
@@ -104,11 +119,13 @@ import { AllCommunityModules } from '@ag-grid-community/all-modules';
 import BtnCellRenderer from './BtnCellRenderer.vue';
 import api from '../Utils/api/api.vue';
 import UserRequestCellRenderer from './UserRequestCellRenderer';
+import DataRetentionSettings from '../Utils/dialogs/DataRetentionSettings';
 
 export default {
   name: 'ActiveUserTable',
   components: {
     AgGridVue,
+    DataRetentionSettings,
   },
   props: {
     users: {
@@ -142,6 +159,7 @@ export default {
       disabledRoles: ['coordinator', 'editor', 'reviewer'],
       password: '',
       error: '',
+      dataRetentionSettingsDialog: false,
     };
   },
   computed: {
@@ -150,6 +168,9 @@ export default {
     },
     isCoordinator() {
       return this.$store.state.currentApplet.roles.includes('coordinator');
+    },
+    isOwner() {
+      return this.$store.state.currentApplet.roles.includes('owner');
     },
     computedItems() {
       return this.userRoleData.map((item) => {
@@ -281,6 +302,9 @@ export default {
     };
   },
   methods: {
+    onSaveRetentionSettings() {
+      
+    },
     /**
      * Edit/delete action handler
      * @param {obj} data Data of the cell
