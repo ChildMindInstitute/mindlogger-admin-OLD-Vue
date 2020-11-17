@@ -287,7 +287,7 @@ export default {
             for (let itemUrl in response.data) {
               let itemData = response.data[itemUrl];
 
-              if (itemData.ptr !== undefined && itemData.src !== undefined) {
+              if (itemData && itemData.ptr !== undefined && itemData.src !== undefined) {
                 response.data[itemUrl] =
                   data.dataSources[itemData.src].data[itemData.ptr];
               }
@@ -300,7 +300,10 @@ export default {
 
               let options = [];
               let responseData = [];
-              if (item.inputType === 'radio') {
+
+              if (!response.data[itemUrl]) {
+                responseData = null;
+              } else if (item.inputType === 'radio') {
                 options = item.responseOptions.map(option => `${Object.values(option.name)[0]}: ${option.value}`);
                 if (!Array.isArray(response.data[itemUrl])) {
                   response.data[itemUrl] = [response.data[itemUrl]]
@@ -318,7 +321,7 @@ export default {
                 });
               } else {
                 if (typeof response.data[itemUrl] == 'object' && response.data[itemUrl]) {
-                  responseData = Object.keys(response.data[itemUrl]).map(key => `${key}: ${response.data[itemUrl][key]}`);
+                  responseData = Object.keys(response.data[itemUrl]).map(key => `${key}: ${JSON.stringify(response.data[itemUrl][key]).replace(/[,"]/g, ' ')}`);
                 } else {
                   responseData = [response.data[itemUrl]];
                 }
