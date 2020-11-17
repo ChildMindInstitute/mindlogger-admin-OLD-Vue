@@ -10,6 +10,7 @@
         key="componentKey"
         :users="activeUserList"
         :appletId="$route.params.appletId"
+        :retentionSettings="currentApplet.applet.retentionSettings"
         @reUploadResponse="responseReUploadEvent"
       />
 

@@ -13,7 +13,7 @@
         :domLayout="domLayout"
         @first-data-rendered="onFirstDataRendered"
       />
-      <v-tooltip v-if="isManager || isOwner" top>
+      <v-tooltip v-if="retentionSettings && retentionSettings.enabled && (isManager || isOwner)" top>
         <template v-slot:activator="{ on }">
           <v-btn color="primary" @click="dataRetentionSettingsDialog = true" v-on="on">
             <span>{{ $t('dataRetentionSettings') }}</span>
@@ -23,7 +23,10 @@
       </v-tooltip>
       
     <DataRetentionSettings
+      v-if="retentionSettings && retentionSettings.enabled && dataRetentionSettingsDialog"
       v-model="dataRetentionSettingsDialog"
+      :retentionSettings="retentionSettings"
+      :error="errorMsg"
       @set-settings="onSaveRetentionSettings"
       @settings-close="dataRetentionSettingsDialog = false"
     />
@@ -138,6 +141,12 @@ export default {
       type: String,
       default: '',
     },
+    retentionSettings: {
+      type: Object,
+      default: function() {
+        return null;
+      }
+    }
   },
   data() {
     return {
@@ -160,6 +169,7 @@ export default {
       password: '',
       error: '',
       dataRetentionSettingsDialog: false,
+      errorMsg: '',
     };
   },
   computed: {
@@ -302,8 +312,28 @@ export default {
     };
   },
   methods: {
-    onSaveRetentionSettings() {
-      
+    onSaveRetentionSettings(settings) {
+      this.dataRetentionSettingsDialog = false;
+
+      const { period, retention } = settings;
+
+      api.updateRetainingSettings({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        appletId: this.appletId,
+        options: {
+          id: this.appletId,
+          period,
+          retention,
+        },
+      })
+      .then((resp) => {
+        this.errorMsg = '';
+      })
+      .catch(err => {
+        this.dataRetentionSettingsDialog = true;
+        this.errorMsg = err.response.data.message;
+      });
     },
     /**
      * Edit/delete action handler

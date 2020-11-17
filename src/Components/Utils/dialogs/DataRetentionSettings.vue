@@ -7,12 +7,22 @@
 
           <div class="input-controls">
             <span> {{ $t('userDataStoredFor') }} </span>
-            <div class="input-number">
               <v-text-field
+                class="input-amount"
                 type="number"
-                v-model="settings"
+                v-model="settings.period"
               />
-            </div>
+              <v-select
+                class="input-period"
+                v-model="settings.retention"
+                :items="periods"
+                item-text="name"
+                item-value="value"
+              />
+          </div>
+          
+          <div v-if="error" class="error mb-4">
+            {{ error }}
           </div>
         </template>
       </v-card-text>
@@ -37,16 +47,41 @@ export default {
       type: Boolean,
       required: true,
     },
+    retentionSettings: {
+      type: Object,
+      required: true,
+    },
+    error: {
+      type: String,
+      required: false,
+    }
+  },
+  computed: {
+    settings() {
+      return this.retentionSettings;
+    }
   },
   data: () => ({
-    settings: 5,
+    periods: [{
+      name: 'Days',
+      value: 'day'
+    }, {
+      name: 'Weeks',
+      value: 'week'
+    }, {
+      name: 'Months',
+      value: 'month'
+    }, {
+      name: 'Years',
+      value: 'year'
+    }],
   }),
   methods: {
     onClickClose() {
       this.$emit('settings-close');
     },
     onClickSubmitSettings() {
-      this.$emit('set-settings', this.settings.data);
+      this.$emit('set-settings', this.settings);
     },
   },
 };
@@ -56,10 +91,20 @@ export default {
   .input-controls {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    width: 56%;
+
+    span {
+      flex: 2;
+    }
     
-    .input-number {
-      margin-left: 15px;
-      width: 100px;
+    .input-amount {
+      flex: 1;
+    }
+    
+    .input-period {
+      flex: 1;
+      margin-left: 20px;
     }
   }
 </style>
