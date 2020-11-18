@@ -19,7 +19,7 @@
           text
           @click="onOK"
         >
-          OK
+          {{ $t('ok') }}
         </v-btn>
 
         <v-btn
@@ -27,7 +27,7 @@
           text
           @click="onCancel"
         >
-          Cancel
+          {{ $t('cancel') }}
         </v-btn>
       </v-card-actions>
     </v-card>
