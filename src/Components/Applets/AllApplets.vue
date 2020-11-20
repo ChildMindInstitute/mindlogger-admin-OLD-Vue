@@ -67,7 +67,7 @@
           <p>
             {{ $t("buildNewActivityScratch") }}
           </p>
-          <router-link to="/build" target="_blank">
+          <router-link to="/build">
             <v-btn color="primary">
               {{ $t("launchBuilder") }}
             </v-btn>
