@@ -244,4 +244,6 @@ export default {
   areYouSure: 'Are you sure?',
   deleteAppletConfirmation: 'Are you sure that you want to delete this applet?',
   deleteApplet: 'Delete Applet',
+  remove: 'Remove',
+  cancel: 'Cancel'
 };

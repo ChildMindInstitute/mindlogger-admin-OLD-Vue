@@ -138,6 +138,7 @@ const addNewApplet = ({ apiHost, token, protocolUrl, email, data }) =>
     params: {
       protocolUrl,
       email,
+      lang: store.state.currentLanguage,
     },
     data,
   });
