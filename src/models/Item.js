@@ -77,6 +77,7 @@ export default class Item {
     if (!responseOptions) return null;
 
     const itemListElement = responseOptions[0]['schema:itemListElement'];
+    if (!itemListElement) return null;
 
     return itemListElement.map((choice, index) => ({
       name: i18n.arrayToObject(choice['schema:name']),
