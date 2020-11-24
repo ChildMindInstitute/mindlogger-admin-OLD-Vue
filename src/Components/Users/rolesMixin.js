@@ -12,9 +12,6 @@ export const rolesMixin = {
                 name: 'manager',
                 title: this.$t('manager')
             }, {
-                name: 'owner',
-                title: this.$t('owner')
-            }, {
                 name: 'coordinator',
                 title: this.$t('coordinator')
             }, {

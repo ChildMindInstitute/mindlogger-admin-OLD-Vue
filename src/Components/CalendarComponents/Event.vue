@@ -62,7 +62,7 @@
               color="primary"
               @click.stop="remove(calendarEvent.event.id)"
               depressed
-              >Remove</v-btn
+              >{{ $t('remove') }}</v-btn
             >
           </schedule-actions>
         </slot>
@@ -540,10 +540,10 @@ export default {
         text: this.$i18n.t("areYouSureRemoveEvent"),
         persistent: false,
         actions: {
-          No: "No",
+          No: this.$i18n.t("no"),
           Yes: {
             color: "#1976d2",
-            text: "Yes",
+            text: this.$i18n.t("yes"),
           },
         },
       });
@@ -843,6 +843,7 @@ export default {
   .ds-event-actions {
     margin-left: 5px;
     float: right;
+    display: flex;
 
     > * {
       display: inline-block;

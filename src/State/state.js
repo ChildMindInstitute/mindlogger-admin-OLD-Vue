@@ -26,6 +26,7 @@ const getDefaultState = () => {
     userEmail: '',
     users: {},
     currentLanguage: 'en_US',
+    currentRetentions: null,
   };
 };
 
@@ -202,6 +203,9 @@ const mutations = {
   continue(state, params) {
     state.continue[params.component] = params.continue;
   },
+  setCurrentRetentionSettings(state, settings) {
+    state.currentRetentions = settings;
+  }
 };
 
 const stateCopy = (({ 

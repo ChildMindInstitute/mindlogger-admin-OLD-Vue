@@ -245,8 +245,10 @@ export default {
   areYouSureRemoveUser: 'Êtes-vous sûr de vouloir supprimer cet utilisateur?',
   areYouSureRemoveEvent: 'Voulez-vous vraiment supprimer cet événement?',
   areYouSure: 'Êtes-vous sûr?',
-  deleteAppletConfirmation: 'Are you sure that you want to delete this applet?',
-  deleteApplet: 'Delete Applet',
   dataRetentionSettings: 'Paramètres de conservation des données',
-  userDataStoredFor: 'Les données utilisateur seront stockées pendant'
+  userDataStoredFor: 'Les données utilisateur seront stockées pendant',
+  deleteAppletConfirmation: 'Êtes-vous sûr de vouloir supprimer cette applet?',
+  deleteApplet: "Supprimer l'applet",
+  remove: 'Retirer',
+  cancel: 'Annuler'
 };

@@ -154,7 +154,7 @@ export default {
 				var ev = this.getEvent('end', {end})
 				this.$emit('end', ev)
 				if (!ev.handled && ev.schedule) {
-					ev.schedule.end = ev.end
+					ev.schedule.end = ev.end.add(2, 'hours')
 					ev.handled = true
 				}
 				this.endMenu = false

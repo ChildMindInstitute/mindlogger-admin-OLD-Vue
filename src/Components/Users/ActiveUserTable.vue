@@ -28,7 +28,7 @@
       :retentionSettings="retentionSettings"
       :error="errorMsg"
       @set-settings="onSaveRetentionSettings"
-      @settings-close="dataRetentionSettingsDialog = false"
+      @settings-close="onRetentionSettingsClose()"
     />
     
     <v-dialog v-model="editRoleDialog" max-width="500px">
@@ -141,12 +141,12 @@ export default {
       type: String,
       default: '',
     },
-    retentionSettings: {
-      type: Object,
-      default: function() {
-        return null;
-      }
-    }
+    // retentionSettings: {
+    //   type: Object,
+    //   default: function() {
+    //     return null;
+    //   }
+    // }
   },
   data() {
     return {
@@ -170,9 +170,13 @@ export default {
       error: '',
       dataRetentionSettingsDialog: false,
       errorMsg: '',
+      retentionSettingsInitial: null,
     };
   },
   computed: {
+    retentionSettings() {
+      return this.$store.state.currentRetentions;
+    },
     isManager() {
       return this.$store.state.currentApplet.roles.includes('manager');
     },
@@ -193,6 +197,11 @@ export default {
     currentApplet() {
       return this.$store.state.currentApplet;
     },
+  },
+  created() {
+    // if (!this.retentionSettings) return;
+
+    // this.retentionSettingsInitial =  Object.assign({}, this.retentionSettings);
   },
   beforeMount() {
     this.gridOptions = {};
@@ -312,6 +321,9 @@ export default {
     };
   },
   methods: {
+    onRetentionSettingsClose() {
+      this.dataRetentionSettingsDialog = false;
+    },
     onSaveRetentionSettings(settings) {
       this.dataRetentionSettingsDialog = false;
 
@@ -328,6 +340,7 @@ export default {
         },
       })
       .then((resp) => {
+        this.$store.commit('setCurrentRetentionSettings', settings);
         this.errorMsg = '';
       })
       .catch(err => {
