@@ -77,12 +77,14 @@
           <!-- absolute scheduling options below -->
           <my-schedule
             @onTimeout="handleTimeout"
+            @onTimedActivity="handleTimedActivity"
             @onIdleTime="handleIdleTime"
             @onExtendedTime="handleExtendedTime"
             @onCompletion="handleCompletion"
             @onScheduledDay="handleScheduledDay"
             :completion="completion"
             :onlyScheduledDay="scheduledDay"
+            :initial-timed-activity="initialTimedActivity"
             :timeout="timeout"
             :idle-time="idleTime"
             :schedule="schedule"
@@ -368,6 +370,7 @@ export default {
     onlyScheduledDay: false,
     scheduledExtendedTime: {},
     scheduledTimeout: {},
+    timedActivity: {},
     scheduledIdleTime: {},
   }),
 
@@ -380,6 +383,16 @@ export default {
     },
     scheduledDay() {
       return this.details.onlyScheduledDay || false;
+    },
+    initialTimedActivity() {
+      return (
+        this.details.timedActivity || {
+          hour: 0,
+          minute: 59,
+          second: 59,
+          allow: false,
+        }
+      );
     },
     timeout() {
       return (
@@ -421,6 +434,7 @@ export default {
         schedule: this.schedule,
         details: this.details,
         timeout: this.details.timeout,
+        initialTimedActivity: this.details.timedActivity,
         completion: this.details.completion,
         scheduledDay: this.details.onlyScheduledDay,
         idleTime: this.details.idleTime,
@@ -615,6 +629,10 @@ export default {
       this.scheduledTimeout = scheduledTimeout;
     },
 
+    handleTimedActivity(timedActivity) {
+      this.timedActivity = timedActivity;
+    },
+
     handleIdleTime(scheduledIdleTime) {
       this.scheduledIdleTime = scheduledIdleTime;
     },
@@ -718,6 +736,20 @@ export default {
         };
       } else {
         evDetails.extendedTime = this.scheduledExtendedTime;
+      }
+
+      if (!this.timedActivity.hasOwnProperty("allow")) {
+        this.timedActivity = this.initialTimedActivity;
+      }
+      if (!this.timedActivity.allow) {
+        evDetails.timedActivity = {
+          hour: 0,
+          minute: 59,
+          second: 59,
+          allow: this.timedActivity.allow,
+        };
+      } else {
+        evDetails.timedActivity = this.timedActivity;
       }
 
       if (!this.scheduledTimeout.hasOwnProperty("allow")) {
