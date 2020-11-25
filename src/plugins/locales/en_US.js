@@ -66,7 +66,7 @@ export default {
   hours: 'hours',
   minutes: 'minutes',
   turnOnNotifs: 'turn on notifications',
-  startNotifAt: 'start norification at',
+  startNotifAt: 'start notification at',
   randomNotif: 'random notificaton ',
   randomizeEnds: 'randomize ends at ',
   uploadActivitySet: 'Upload an activity set ',
@@ -245,5 +245,6 @@ export default {
   deleteAppletConfirmation: 'Are you sure that you want to delete this applet?',
   deleteApplet: 'Delete Applet',
   remove: 'Remove',
-  cancel: 'Cancel'
+  cancel: 'Cancel',
+  assessmentConfirmation: 'User is ready to take an assessment'
 };

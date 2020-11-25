@@ -248,5 +248,6 @@ export default {
   deleteAppletConfirmation: 'Êtes-vous sûr de vouloir supprimer cette applet?',
   deleteApplet: "Supprimer l'applet",
   remove: 'Retirer',
-  cancel: 'Annuler'
+  cancel: 'Annuler',
+  assessmentConfirmation: 'L\'utilisateur est prêt à passer une évaluation'
 };

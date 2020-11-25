@@ -25,6 +25,8 @@
           />
         </div>
 
+        <v-checkbox v-model="notification.assessmentConfirmation" :label="$t('assessmentConfirmation')" />
+
         <v-checkbox v-model="notification.random" :label="$t('randomNotif')" />
 
         <label>{{ $t("randomizeEnds") }}</label>
