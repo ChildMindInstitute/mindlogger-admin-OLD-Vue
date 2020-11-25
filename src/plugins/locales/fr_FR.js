@@ -56,6 +56,7 @@ export default {
   monthly: 'Mensuel',
   accessBefore: "Accès avant l'horaire prévu",
   timeout: 'Expiration',
+  timedActivity: 'Activité chronométrée',
   oneTimeCompletion: 'Exécution ponctuelle',
   extendedPastDue: 'Échéance prolongée',
   extendedTime: 'Durée prolongée ',
@@ -66,6 +67,7 @@ export default {
   days: 'jours',
   hours: 'heures',
   minutes: 'minutes',
+  seconds: 'secondes',
   turnOnNotifs: 'activer les notifications',
   startNotifAt: 'notification de début à',
   randomNotif: 'notification aléatoire ',
@@ -245,6 +247,10 @@ export default {
   areYouSureRemoveUser: 'Êtes-vous sûr de vouloir supprimer cet utilisateur?',
   areYouSureRemoveEvent: 'Voulez-vous vraiment supprimer cet événement?',
   areYouSure: 'Êtes-vous sûr?',
-  deleteAppletConfirmation: 'Are you sure that you want to delete this applet?',
-  deleteApplet: 'Delete Applet',
+  dataRetentionSettings: 'Paramètres de conservation des données',
+  userDataStoredFor: 'Les données utilisateur seront stockées pendant',
+  deleteAppletConfirmation: 'Êtes-vous sûr de vouloir supprimer cette applet?',
+  deleteApplet: "Supprimer l'applet",
+  remove: 'Retirer',
+  cancel: 'Annuler'
 };

@@ -54,6 +54,7 @@ export default {
   weekly: 'Weekly',
   monthly: 'Monthly',
   accessBefore: 'Access before scheduled time',
+  timedActivity: 'Timed activity',
   timeout: 'Timeout ',
   oneTimeCompletion: 'One-time completion ',
   extendedPastDue: 'Extended Past Due ',
@@ -65,6 +66,7 @@ export default {
   days: 'days',
   hours: 'hours',
   minutes: 'minutes',
+  seconds: 'seconds',
   turnOnNotifs: 'turn on notifications',
   startNotifAt: 'start norification at',
   randomNotif: 'random notificaton ',
@@ -244,4 +246,8 @@ export default {
   areYouSure: 'Are you sure?',
   deleteAppletConfirmation: 'Are you sure that you want to delete this applet?',
   deleteApplet: 'Delete Applet',
+  dataRetentionSettings: 'Data Retention Settings',
+  userDataStoredFor: 'User data will be stored for',
+  remove: 'Remove',
+  cancel: 'Cancel'
 };
