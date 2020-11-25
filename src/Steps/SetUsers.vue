@@ -12,7 +12,7 @@
         :appletId="$route.params.appletId"
         @reUploadResponse="responseReUploadEvent"
       />
-
+      
       <div v-if="hasRoles('manager', 'coordinator')">
         <h1>{{ $t('pendingInvitations') }}</h1>
         <pending-invite-table :users="pendingInviteList" />
@@ -202,6 +202,7 @@ export default {
     },
   },
   mounted() {
+    this.$store.commit('setCurrentRetentionSettings', this.$store.state.currentApplet.applet.retentionSettings);
     this.$store.commit('setUsers', []);
     this.getAppletUsers();
   },

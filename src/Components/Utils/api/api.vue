@@ -393,6 +393,16 @@ const validateAppletName = ({ apiHost, token, name }) => axios({
   params: { name }
 });
 
+const updateRetainingSettings = ({ apiHost, token, appletId, options }) =>
+  axios({
+    method: "POST",
+    url: `${apiHost}/applet/${appletId}/setRetention`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: options,
+  });
+
 export default {
   signIn,
   signUp,
@@ -431,5 +441,6 @@ export default {
   getProtocolData,
   prepareApplet,
   validateAppletName,
+  updateRetainingSettings,
 }
 </script>

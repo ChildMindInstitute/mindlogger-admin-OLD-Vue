@@ -1,18 +1,36 @@
 <template>
   <v-container>
-    <ag-grid-vue
-      class="ag-theme-balham"
-      :gridOptions="gridOptions"
-      :frameworkComponents="frameworkComponents"
-      :columnDefs="columnDefs"
-      :rowSelection="multiSelection"
-      :rowMultiSelectWithClick="clickSelection"
-      :pagination="pagination"
-      :rowData="userData"
-      :modules="modules"
-      :domLayout="domLayout"
-      @first-data-rendered="onFirstDataRendered"
+      <ag-grid-vue
+        class="ag-theme-balham"
+        :gridOptions="gridOptions"
+        :frameworkComponents="frameworkComponents"
+        :columnDefs="columnDefs"
+        :rowSelection="multiSelection"
+        :rowMultiSelectWithClick="clickSelection"
+        :pagination="pagination"
+        :rowData="userData"
+        :modules="modules"
+        :domLayout="domLayout"
+        @first-data-rendered="onFirstDataRendered"
+      />
+      <v-tooltip v-if="retentionSettings && retentionSettings.enabled && (isManager || isOwner)" top>
+        <template v-slot:activator="{ on }">
+          <v-btn color="primary" @click="dataRetentionSettingsDialog = true" v-on="on">
+            <span>{{ $t('dataRetentionSettings') }}</span>
+          </v-btn>
+        </template>
+        <span>{{ $t('dataRetentionSettings') }}</span>
+      </v-tooltip>
+      
+    <DataRetentionSettings
+      v-if="retentionSettings && retentionSettings.enabled && dataRetentionSettingsDialog"
+      v-model="dataRetentionSettingsDialog"
+      :retentionSettings="retentionSettings"
+      :error="errorMsg"
+      @set-settings="onSaveRetentionSettings"
+      @settings-close="onRetentionSettingsClose()"
     />
+    
     <v-dialog v-model="editRoleDialog" max-width="500px">
       <v-card>
         <v-card-title class="edit-card-title">
@@ -104,11 +122,13 @@ import { AllCommunityModules } from '@ag-grid-community/all-modules';
 import BtnCellRenderer from './BtnCellRenderer.vue';
 import api from '../Utils/api/api.vue';
 import UserRequestCellRenderer from './UserRequestCellRenderer';
+import DataRetentionSettings from '../Utils/dialogs/DataRetentionSettings';
 
 export default {
   name: 'ActiveUserTable',
   components: {
     AgGridVue,
+    DataRetentionSettings,
   },
   props: {
     users: {
@@ -121,6 +141,12 @@ export default {
       type: String,
       default: '',
     },
+    // retentionSettings: {
+    //   type: Object,
+    //   default: function() {
+    //     return null;
+    //   }
+    // }
   },
   data() {
     return {
@@ -142,14 +168,23 @@ export default {
       disabledRoles: ['coordinator', 'editor', 'reviewer'],
       password: '',
       error: '',
+      dataRetentionSettingsDialog: false,
+      errorMsg: '',
+      retentionSettingsInitial: null,
     };
   },
   computed: {
+    retentionSettings() {
+      return this.$store.state.currentRetentions;
+    },
     isManager() {
       return this.$store.state.currentApplet.roles.includes('manager');
     },
     isCoordinator() {
       return this.$store.state.currentApplet.roles.includes('coordinator');
+    },
+    isOwner() {
+      return this.$store.state.currentApplet.roles.includes('owner');
     },
     computedItems() {
       return this.userRoleData.map((item) => {
@@ -162,6 +197,11 @@ export default {
     currentApplet() {
       return this.$store.state.currentApplet;
     },
+  },
+  created() {
+    // if (!this.retentionSettings) return;
+
+    // this.retentionSettingsInitial =  Object.assign({}, this.retentionSettings);
   },
   beforeMount() {
     this.gridOptions = {};
@@ -281,6 +321,33 @@ export default {
     };
   },
   methods: {
+    onRetentionSettingsClose() {
+      this.dataRetentionSettingsDialog = false;
+    },
+    onSaveRetentionSettings(settings) {
+      this.dataRetentionSettingsDialog = false;
+
+      const { period, retention } = settings;
+
+      api.updateRetainingSettings({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        appletId: this.appletId,
+        options: {
+          id: this.appletId,
+          period,
+          retention,
+        },
+      })
+      .then((resp) => {
+        this.$store.commit('setCurrentRetentionSettings', settings);
+        this.errorMsg = '';
+      })
+      .catch(err => {
+        this.dataRetentionSettingsDialog = true;
+        this.errorMsg = err.response.data.message;
+      });
+    },
     /**
      * Edit/delete action handler
      * @param {obj} data Data of the cell

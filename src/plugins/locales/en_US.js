@@ -246,6 +246,8 @@ export default {
   areYouSure: 'Are you sure?',
   deleteAppletConfirmation: 'Are you sure that you want to delete this applet?',
   deleteApplet: 'Delete Applet',
+  dataRetentionSettings: 'Data Retention Settings',
+  userDataStoredFor: 'User data will be stored for',
   remove: 'Remove',
   cancel: 'Cancel'
 };
