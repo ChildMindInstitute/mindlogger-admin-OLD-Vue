@@ -74,7 +74,12 @@ export default class Item {
    * @return {Array} available response choices.
    */
   parseResponseOptions(responseOptions) {
-    if (!responseOptions) return null;
+    if (
+      !responseOptions || !Array.isArray(responseOptions) || 
+      typeof(responseOptions[0]) != 'object' || !responseOptions[0]['schema:itemListElement']
+    ) {
+      return null;
+    }
 
     const itemListElement = responseOptions[0]['schema:itemListElement'];
 
