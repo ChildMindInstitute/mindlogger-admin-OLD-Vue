@@ -1,6 +1,10 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
+    <v-app-bar
+      app
+      color="primary"
+      dark
+    >
       <v-toolbar-title>
         {{ $t('mindloggersAdmin') }} {{ showEnvironment }}
       </v-toolbar-title>
@@ -13,7 +17,10 @@
         right
       >
         <template v-slot:activator="{ on }">
-          <v-btn icon v-on="on">
+          <v-btn
+            icon
+            v-on="on"
+          >
             <v-icon>mdi-dots-vertical</v-icon>
           </v-btn>
         </template>
@@ -143,9 +150,10 @@ export default {
   background-color: #005fa3 !important;
   border-color: #005fa3 !important;
 }
-.v-application {
-  background-color: #ffffff !important;
+.v-application > .v-application--wrap > .v-content {
+  background-color: rgb(239,239,243) !important;
 }
+
 body,
 html,
 #app,
@@ -153,10 +161,6 @@ html,
   font-family: 'IBM Plex Sans', sans-serif !important;
   width: 100%;
   height: 100%;
-}
-
-.application--wrap {
-  background-color: white;
 }
 
 div.ag-root .ag-cell-focus {
