@@ -403,6 +403,29 @@ const updateRetainingSettings = ({ apiHost, token, appletId, options }) =>
     params: options,
   });
 
+const getAccountUserList = ({ apiHost, token, appletId, role, MRN, pagination, sort }) => axios({
+  method: 'get',
+  url: `${apiHost}/account/users`,
+  headers: {
+    'Girder-Token': token
+  },
+  params: {
+    appletId, role, MRN, pagination, sort
+  },
+})
+
+
+const updatePin = ({ apiHost, token, profileId, newState }) => axios({
+  method: 'put',
+  url: `${apiHost}/account/manage/pin`,
+  headers: {
+    'Girder-Token': token
+  },
+  params: {
+    profileId, newState
+  }
+})
+
 export default {
   signIn,
   signUp,
@@ -442,5 +465,7 @@ export default {
   prepareApplet,
   validateAppletName,
   updateRetainingSettings,
+  getAccountUserList,
+  updatePin,
 }
 </script>
