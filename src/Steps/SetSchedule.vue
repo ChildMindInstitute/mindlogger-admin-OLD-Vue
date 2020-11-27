@@ -1,16 +1,31 @@
 <template>
   <div>
-    <Calendar ref="calendar" :activities="activities" />
+    <Calendar
+      ref="calendar"
+      :activities="activities"
+    />
 
-    <v-dialog v-model="dialog" width="500">
+    <v-dialog
+      v-model="dialog"
+      width="500"
+    >
       <v-card>
-        <v-card-title class="headline grey lighten-2" primary-title>
+        <v-card-title
+          class="headline grey lighten-2"
+          primary-title
+        >
           {{ $t("savingSchedule") }}
         </v-card-title>
 
         <v-card-text v-if="loading">
-          <v-layout align-center column>
-            <v-progress-circular color="primary" indeterminate />
+          <v-layout
+            align-center
+            column
+          >
+            <v-progress-circular
+              color="primary"
+              indeterminate
+            />
           </v-layout>
         </v-card-text>
 
@@ -26,13 +41,23 @@
 
         <v-card-actions>
           <v-spacer />
-          <v-btn color="primary" text @click="dialog = false">
+          <v-btn
+            color="primary"
+            text
+            @click="dialog = false"
+          >
             {{ $t("close") }}
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-btn color="primary" fixed bottom left @click="$router.go(-1)">
+    <v-btn
+      color="primary"
+      fixed
+      bottom
+      left
+      @click="$router.go(-1)"
+    >
       {{ $t("back") }}
     </v-btn>
 
@@ -54,7 +79,12 @@
 
         <v-tooltip top>
           <template v-slot:activator="{ on }">
-            <v-btn color="primary" class="ms-4" @click="saveSchedule" v-on="on">
+            <v-btn
+              color="primary"
+              class="ms-4"
+              @click="saveSchedule"
+              v-on="on"
+            >
               {{ $t("save") }}
             </v-btn>
           </template>
@@ -78,12 +108,14 @@
 import _ from "lodash";
 import Calendar from "../Components/CalendarComponents/CalendarMain";
 import api from "../Components/Utils/api/api.vue";
+import { AppletMixin } from '../Components/Applets/appletMixin';
 
 export default {
   name: "Schedule",
   components: {
     Calendar,
   },
+  mixins: [AppletMixin],
   data: () => ({
     /**
      * colors for the activities, to show on the left hand bar
@@ -111,25 +143,20 @@ export default {
       "Deep Orange",
     ],
     dialog: false,
-    loading: false,
+    loading: true,
     saveSuccess: false,
     saveError: false,
     errorMessage: "",
+
   }),
   computed: {
-    /**
-     * shortcut to current applet in store
-     */
-    currentApplet() {
-      return this.$store.state.currentApplet;
-    },
     /**
      * format the activities in a way that's needed to render the calendar
      */
     activities() {
-      if (this.currentApplet) {
+      if (this.currentAppletData) {
         let index = 0;
-        return _.map(this.currentApplet.activities, (a, URI) => {
+        return _.map(this.currentAppletData.activities, (a, URI) => {
           const name =
             a["http://www.w3.org/2004/02/skos/core#prefLabel"][0]["@value"];
           const color = this.colors[index];
@@ -148,9 +175,9 @@ export default {
      * if there is a selected applet, grab its schedule from the store
      */
     schedule() {
-      if (this.currentApplet) {
-        if (this.$store.state.currentApplet.applet.schedule) {
-          return this.$store.state.currentApplet.applet.schedule;
+      if (this.currentAppletData) {
+        if (this.$store.state.currentAppletData.applet.schedule) {
+          return this.$store.state.currentAppletData.applet.schedule;
         }
       }
       return {};
@@ -163,9 +190,25 @@ export default {
     },
   },
   mounted() {
-    this.$refs.calendar.loadState();
-    this.$refs.calendar.$refs.app.setDefaultType();
-    this.$refs.calendar.$refs.app.setToday();
+    let process;
+    if (!this.isLatestApplet(this.currentAppletMeta)) {
+      process = this.loadApplet(this.currentAppletMeta.id).then(data => data.applet.schedule);
+    } else {
+      process = api.getSchedule({
+        apiHost: this.apiHost,
+        token: this.token,
+        id: this.currentAppletMeta.id,
+      }).then(resp => resp.data);
+    }
+
+    process.then(schedule => {
+      this.updateCachedSchedule(schedule);
+      this.loading = false;
+
+      this.$refs.calendar.loadState();
+      this.$refs.calendar.$refs.app.setDefaultType();
+      this.$refs.calendar.$refs.app.setToday();
+    })
   },
   methods: {
     saveSchedule() {
@@ -173,36 +216,27 @@ export default {
 
       const scheduleForm = new FormData();
       if (
-        this.currentApplet &&
-        this.currentApplet.applet &&
-        this.currentApplet.applet.schedule
+        this.currentAppletData &&
+        this.currentAppletData.applet &&
+        this.currentAppletData.applet.schedule
       ) {
         this.dialog = true;
         this.saveSuccess = false;
         this.saveError = false;
         this.loading = true;
-        const schedule = this.addEventType(this.currentApplet.applet.schedule);
+        const schedule = this.addEventType(this.currentAppletData.applet.schedule);
         const removedEvents = this.$store.state.removedEvents;
         scheduleForm.set("schedule", JSON.stringify(schedule || {}));
         scheduleForm.set("deleted", JSON.stringify(removedEvents || {}));
         api
           .setSchedule({
             apiHost: this.$store.state.backend,
-            id: this.currentApplet.applet._id.split("applet/")[1],
+            id: this.currentAppletMeta.id,
             token: this.$store.state.auth.authToken.token,
             data: scheduleForm,
           })
           .then((response) => {
-            const applet = this.currentApplet.applet;
-            applet.schedule = response.data.applet.schedule;
-            this.$store.commit("setApplet", applet);
-            this.$store.commit("resetUpdatedEventId");
-            this.$store.commit(
-              "setCachedEvents",
-              response.data.applet.schedule.events
-            );
-            this.loading = false;
-            this.saveSuccess = true;
+            this.updateCachedSchedule(response.data);
           })
           .catch((e) => {
             this.errorMessage = `Save Unsuccessful. ${e}`;
@@ -210,6 +244,19 @@ export default {
             this.saveError = true;
           });
       }
+    },
+
+    updateCachedSchedule(schedule) {
+      const applet = this.currentAppletData.applet;
+      applet.schedule = schedule;
+      this.$store.commit("setApplet", applet);
+      this.$store.commit("resetUpdatedEventId");
+      this.$store.commit(
+        "setCachedEvents",
+        schedule.events
+      );
+      this.loading = false;
+      this.saveSuccess = true;
     },
 
     async clearSchedule() {
@@ -227,7 +274,7 @@ export default {
         },
       });
       if (res === "Yes") {
-        const schedule = this.currentApplet.applet.schedule;
+        const schedule = this.currentAppletData.applet.schedule;
         for (let event of schedule.events) {
           if (event["id"]) {
             this.$store.commit("addRemovedEventId", event["id"]);
@@ -244,8 +291,8 @@ export default {
     addEventType(schedule) {
       const appletSchedule = schedule;
       appletSchedule.events.forEach((event, index) => {
-        for (const activityId in this.$store.state.currentApplet.activities) {
-          const activity = this.$store.state.currentApplet.activities[
+        for (const activityId in this.$store.state.currentAppletData.activities) {
+          const activity = this.$store.state.currentAppletData.activities[
             activityId
           ];
           if (

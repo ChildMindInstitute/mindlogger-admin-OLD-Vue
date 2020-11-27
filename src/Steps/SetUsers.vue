@@ -1,7 +1,13 @@
 <template>
-  <div>
-    <div v-if="status === 'loading'" class="loading">
-      <v-progress-circular color="primary" indeterminate />
+  <div class="users">
+    <div
+      v-if="status === 'loading'"
+      class="loading"
+    >
+      <v-progress-circular
+        color="primary"
+        indeterminate
+      />
     </div>
     <div v-else>
       <h1>{{ $t('activeUsers') }}</h1>
@@ -28,9 +34,15 @@
       @set-password="onClickSubmitPassword"
     />
 
-    <v-dialog v-model="responseUpdateDialog.visible" max-width="500px">
+    <v-dialog
+      v-model="responseUpdateDialog.visible"
+      max-width="500px"
+    >
       <v-card>
-        <v-card-title class="headline grey lighten-2" primary-title>
+        <v-card-title
+          class="headline grey lighten-2"
+          primary-title
+        >
           {{ $t('refreshResponse') }}
         </v-card-title>
         <v-card-text>
@@ -40,10 +52,18 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="primary" text @click="onReuploadResponse">
+          <v-btn
+            color="primary"
+            text
+            @click="onReuploadResponse"
+          >
             {{ $t('yes') }}
           </v-btn>
-          <v-btn color="primary" text @click="onDeclineReuploading">
+          <v-btn
+            color="primary"
+            text
+            @click="onDeclineReuploading"
+          >
             {{ $t('no') }}
           </v-btn>
         </v-card-actions>
@@ -58,9 +78,17 @@
 
     <div class="tools">
       <!-- EXPORT BUTTON -->
-      <v-tooltip v-if="hasRoles('owner', 'manager', 'reviewer')" top>
+      <v-tooltip
+        v-if="hasRoles('owner', 'manager', 'reviewer')"
+        top
+      >
         <template v-slot:activator="{ on }">
-          <v-btn fab color="primary" @click="onUserDataExport" v-on="on">
+          <v-btn
+            fab
+            color="primary"
+            @click="onUserDataExport"
+            v-on="on"
+          >
             <v-icon>mdi-export-variant</v-icon>
           </v-btn>
         </template>
@@ -68,9 +96,17 @@
       </v-tooltip>
 
       <!-- CALENDAR BUTTON -->
-      <v-tooltip v-if="hasRoles('owner', 'manager', 'coordinator')" top>
+      <v-tooltip
+        v-if="hasRoles('owner', 'manager', 'coordinator')"
+        top
+      >
         <template v-slot:activator="{ on }">
-          <v-btn fab color="primary" @click="viewCalendar" v-on="on">
+          <v-btn
+            fab
+            color="primary"
+            @click="viewCalendar"
+            v-on="on"
+          >
             <v-icon>mdi-calendar</v-icon>
           </v-btn>
         </template>
@@ -78,9 +114,17 @@
       </v-tooltip>
 
       <!-- DASHBOARD BUTTON -->
-      <v-tooltip v-if="dashboardEnabled" top>
+      <v-tooltip
+        v-if="dashboardEnabled"
+        top
+      >
         <template v-slot:activator="{ on }">
-          <v-btn fab color="primary" @click="onReviewerDashboard" v-on="on">
+          <v-btn
+            fab
+            color="primary"
+            @click="onReviewerDashboard"
+            v-on="on"
+          >
             <v-icon>mdi-chart-bar</v-icon>
           </v-btn>
         </template>
@@ -90,7 +134,10 @@
 
     <footer class="footer">
       <!-- BACK BUTTON -->
-      <v-btn color="primary" @click="$router.go(-1)">
+      <v-btn
+        color="primary"
+        @click="$router.go(-1)"
+      >
         {{ $t('back') }}
       </v-btn>
     </footer>
@@ -98,6 +145,10 @@
 </template>
 
 <style scoped>
+.users {
+  background-color: white !important;
+  padding: 20px;
+}
 .loading {
   text-align: center;
 }
@@ -138,6 +189,7 @@ import encryption from '../Components/Utils/encryption/encryption.vue';
 import Applet from '../models/Applet';
 import Information from '../Components/Utils/dialogs/information.vue';
 import Item from '../models/Item';
+import { AppletMixin } from '../Components/Applets/appletMixin';
 
 export default {
   name: 'SetUsers',
@@ -148,6 +200,7 @@ export default {
     AppletPassword,
     Information,
   },
+  mixins: [AppletMixin],
   data: () => ({
     status: 'loading',
     componentKey: 0,
@@ -164,16 +217,18 @@ export default {
   }),
   computed: {
     dashboardEnabled() {
+      if (this.status !== 'ready') {
+        return false;
+      }
+
       const hasPermission = this.hasRoles('owner', 'reviewer', 'manager');
-      const currentApplet = this.$store.state.currentApplet;
+      const currentApplet = this.$store.state.currentAppletData;
+
       const items = Object.values(currentApplet.items);
 
       return hasPermission && 
               items.length === 1 && 
               new Item(items[0]).inputType == 'radio';
-    },
-    isUsersLoaded() {
-      return !_.isEmpty(this.$store.state.users);
     },
     activeUserList() {
       return this.$store.state.users.active;
@@ -181,42 +236,51 @@ export default {
     pendingInviteList() {
       return this.$store.state.users.pending;
     },
-    currentApplet() {
-      return this.$store.state.currentApplet;
-    },
+
     currentUsers() {
       return this.$store.state.currentUsers;
     },
   },
   watch: {
-    isUsersLoaded() {
-      if (this.isUsersLoaded) {
-        this.status = 'ready';
-      } else {
-        this.status = 'loading';
-      }
-    },
     $route(to, from) {
       this.status = 'loading';
-      this.getAppletUsers();
+      this.getAppletUsers().then(() => {
+        if (!this.isLatestApplet(this.currentAppletMeta)) {
+          return this.loadApplet(this.currentAppletMeta.id)
+        }
+
+        return Promise.resolve();
+      }).then( () => {
+        this.status = 'ready'
+      })
     },
   },
   mounted() {
-    this.$store.commit('setCurrentRetentionSettings', this.$store.state.currentApplet.applet.retentionSettings);
     this.$store.commit('setUsers', []);
-    this.getAppletUsers();
+
+    this.getAppletUsers().then(() => {
+      if (!this.isLatestApplet(this.currentAppletMeta)) {
+        return this.loadApplet(this.currentAppletMeta.id);
+      }
+
+      return Promise.resolve();
+    }).then( () => {
+      this.status = 'ready';
+
+      this.$store.commit('setCurrentRetentionSettings', this.$store.state.currentAppletData.applet.retentionSettings);
+    })
   },
   methods: {
     hasRoles() {
       return [].some.call(arguments, (role) =>
-        this.currentApplet.roles.includes(role)
+        this.currentAppletMeta.roles.includes(role)
       );
     },
     updateTables() {
       this.componentKey += 1;
     },
     onUserDataExport() {
-      const encryptionInfo = this.currentApplet.applet.encryption;
+      const encryptionInfo = this.currentAppletData.applet.encryption;
 
       if (
         !encryptionInfo ||
@@ -238,7 +302,7 @@ export default {
 
       this.appletPasswordDialog = false;
 
-      const appletId = this.currentApplet.applet['_id'].replace('applet/', '');
+      const appletId = this.currentAppletMeta.id;
       const payload = {
         users: this.currentUsers.join(','),
       };
@@ -258,13 +322,13 @@ export default {
             userIdToData[user['_id']] = user;
           }
 
-          Applet.decryptResponses(data, this.currentApplet.applet.encryption);
+          Applet.decryptResponses(data, this.currentAppletData.applet.encryption);
 
           const result = [];
 
           const currentItems = {};
-          for (let itemUrl in this.currentApplet.items) {
-            currentItems[itemUrl] = new Item(this.currentApplet.items[itemUrl]);
+          for (let itemUrl in this.currentAppletData.items) {
+            currentItems[itemUrl] = new Item(this.currentAppletData.items[itemUrl]);
           }
 
           for (let itemId in data.items) {
@@ -378,7 +442,7 @@ export default {
         .getAppletInvitation({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
-          appletId: this.currentApplet.applet._id.split('applet/')[1],
+          appletId: this.currentAppletMeta.id,
           options: invitationOptions,
         })
         .then((resp) => {
@@ -388,7 +452,9 @@ export default {
           ) {
             this.setAccountName(invitationOptions.accountName);
           }
-          this.getAppletUsers();
+          return this.getAppletUsers()
+        }).then(() => {
+          this.status = 'ready';
         })
         .catch((e) => {
           this.error = e;
@@ -402,7 +468,7 @@ export default {
     },
 
     onReuploadResponse() {
-      const encryptionInfo = this.currentApplet.applet.encryption;
+      const encryptionInfo = this.currentAppletData.applet.encryption;
 
       this.responseUpdateDialog.visible = false;
 
@@ -445,11 +511,11 @@ export default {
         })
         .then(({ data }) => {
           Applet.replaceItemValues(
-            Applet.decryptResponses(data, this.currentApplet.applet.encryption)
+            Applet.decryptResponses(data, this.currentAppletData.applet.encryption)
           );
           Applet.encryptResponses(
             data,
-            this.currentApplet.applet.encryption,
+            this.currentAppletData.applet.encryption,
             userData.refreshRequest.userPublicKey
           );
 
@@ -500,7 +566,6 @@ export default {
         .then((resp) => {
           this.$store.commit('setUsers', resp.data);
           this.updateTables();
-          this.status = 'ready';
         })
         .catch((e) => {
           this.error = e;
@@ -543,7 +608,7 @@ export default {
     },
 
     onReviewerDashboard() {
-      const encryptionInfo = this.currentApplet.applet.encryption;
+      const encryptionInfo = this.currentAppletData.applet.encryption;
 
       if (
         !encryptionInfo ||
@@ -559,7 +624,7 @@ export default {
 
     /** check applet password */
     onClickSubmitPassword(appletPassword) {
-      const currentApplet = this.currentApplet;
+      const currentApplet = this.currentAppletData;
 
       const encryptionInfo = encryption.getAppletEncryptionInfo({
         appletPassword,
@@ -576,7 +641,7 @@ export default {
         this.appletPasswordDialog = false;
 
         this.$store.commit('setAppletPrivateKey', {
-          appletId: currentApplet.applet._id,
+          appletId: currentApplet.applet._id.split("/")[1],
           key: Array.from(encryptionInfo.getPrivateKey()),
         });
 

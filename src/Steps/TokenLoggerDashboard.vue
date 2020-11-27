@@ -1,26 +1,43 @@
 <template>
   <div class="wrapper">
-    <v-row justify="space-between" align="center">
+    <v-row
+      justify="space-between"
+      align="center"
+    >
       <!-- Breadcrumb navigation -->
-      <v-breadcrumbs :items="breadcrumbs()" large>
+      <v-breadcrumbs
+        :items="breadcrumbs()"
+        large
+      >
         <template v-slot:divider>
           <v-icon>mdi-chevron-right</v-icon>
         </template>
       </v-breadcrumbs>
 
       <!-- Export button -->
-      <v-btn rounded dark color="deep-purple accent-4" class="export-btn">
+      <v-btn
+        rounded
+        dark
+        color="deep-purple accent-4"
+        class="export-btn"
+      >
         <v-icon>import_export</v-icon>
         EXPORT
       </v-btn>
     </v-row>
 
-    <div v-if="loading" class="status-message">
+    <div
+      v-if="loading"
+      class="status-message"
+    >
       {{ status }}
     </div>
 
     <template v-for="activity in applet.activities">
-      <div v-if="applet" :key="activity._id">
+      <div
+        v-if="applet"
+        :key="activity._id"
+      >
         <h4 class="activity-header">
           {{ activity.question.en || activity.description.en }}
         </h4>
@@ -47,12 +64,21 @@
         </v-card>
       </div>
 
-      <div v-else :key="activity._id">
+      <div
+        v-else
+        :key="activity._id"
+      >
         {{ $t("noDataAvailable") }}
       </div>
     </template>
 
-    <v-btn color="primary" fixed bottom left @click="$router.go(-1)">
+    <v-btn
+      color="primary"
+      fixed
+      bottom
+      left
+      @click="$router.go(-1)"
+    >
       {{ $t("back") }}
     </v-btn>
   </div>
@@ -153,7 +179,7 @@ export default {
    */
   computed: {
     currentApplet() {
-      return this.$store.state.currentApplet;
+      return this.$store.state.currentAppletData;
     },
   },
 
@@ -181,7 +207,7 @@ export default {
           withVersions: true,
           users: Array.isArray(users) ? users : [users],
         },
-        this.$store.state.currentApplet.applet.encryption
+        this.$store.state.currentAppletMeta.encryption
       );
 
       this.loading = false;
