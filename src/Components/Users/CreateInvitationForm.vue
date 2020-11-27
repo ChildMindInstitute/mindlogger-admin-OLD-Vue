@@ -1,10 +1,18 @@
 <template>
   <div>
     <h1>{{ $t("createInvitation") }}</h1>
-    <v-form ref="form" v-model="valid" :lazy-validation="lazy">
+    <v-form
+      ref="form"
+      v-model="valid"
+      :lazy-validation="lazy"
+    >
       <v-container>
         <v-row>
-          <v-col cols="12" sm="6" md="6">
+          <v-col
+            cols="12"
+            sm="6"
+            md="6"
+          >
             <v-text-field
               v-model="params.profile.firstName"
               :label="$t('firstName')"
@@ -13,7 +21,11 @@
             />
           </v-col>
 
-          <v-col cols="12" sm="6" md="6">
+          <v-col
+            cols="12"
+            sm="6"
+            md="6"
+          >
             <v-text-field
               v-model="params.profile.lastName"
               :label="$t('lastName')"
@@ -22,7 +34,11 @@
             />
           </v-col>
 
-          <v-col cols="12" sm="6" md="4">
+          <v-col
+            cols="12"
+            sm="6"
+            md="4"
+          >
             <v-text-field
               v-model="params.profile.email"
               :rules="emailRules"
@@ -31,7 +47,11 @@
             />
           </v-col>
 
-          <v-col cols="12" sm="6" md="4">
+          <v-col
+            cols="12"
+            sm="6"
+            md="4"
+          >
             <v-select
               v-model="params.role"
               :items="invitationRoles"
@@ -43,13 +63,23 @@
             />
           </v-col>
 
-          <v-col v-if="params.role === 'user'" cols="12" sm="6" md="4">
+          <v-col
+            v-if="params.role === 'user'"
+            cols="12"
+            sm="6"
+            md="4"
+          >
             <v-text-field
               v-model="params.profile.mrn"
               :label="$t('institutionalID')"
             />
           </v-col>
-          <v-col v-else cols="12" sm="6" md="4">
+          <v-col
+            v-else
+            cols="12"
+            sm="6"
+            md="4"
+          >
             <v-text-field
               v-if="
                 username === currentAccountName && appletRoles.includes('owner')
@@ -60,7 +90,12 @@
               required
             />
           </v-col>
-          <v-col v-if="params.role === 'reviewer'" cols="12" sm="12" md="12">
+          <v-col
+            v-if="params.role === 'reviewer'"
+            cols="12"
+            sm="12"
+            md="12"
+          >
             <v-combobox
               v-model="params.users"
               hint="Press enter to add a user"
@@ -76,22 +111,33 @@
         <v-row align="center">
           <v-col cols="auto">
             <v-select
-                    v-model="currentLanguage"
-                    :items="languages"
-                    label="Choose Language"
-                    item-text="label"
-                    item-value="value"
-                    hide-details
-                    single-line
-                    outlined
-                    dense
+              v-model="currentLanguage"
+              :items="languages"
+              label="Choose Language"
+              item-text="label"
+              item-value="value"
+              hide-details
+              single-line
+              outlined
+              dense
             />
           </v-col>
           <v-col cols="auto">
-            <v-btn :disabled="!valid" color="primary" @click="submit">{{ $t("submit") }}</v-btn>
+            <v-btn
+              :disabled="!valid"
+              color="primary"
+              @click="submit"
+            >
+              {{ $t("submit") }}
+            </v-btn>
           </v-col>
           <v-col cols="auto">
-            <v-btn color="error" @click="reset">{{ $t("resetForm") }}</v-btn>
+            <v-btn
+              color="error"
+              @click="reset"
+            >
+              {{ $t("resetForm") }}
+            </v-btn>
           </v-col>
         </v-row>
       </v-container>
@@ -160,13 +206,13 @@ export default {
       return this.$store.state.auth.user.displayName;
     },
     appletRoles() {
-      return this.$store.state.currentApplet.roles;
+      return this.$store.state.currentAppletMeta.roles;
     },
     activeUserList() {
       return this.$store.state.users.active;
     },
     invitationRoles() {
-      let roles = this.$store.state.currentApplet.roles;
+      let roles = this.$store.state.currentAppletMeta.roles;
 
       if (roles.includes("manager") || roles.includes("owner")) {
         // return [this.$t("user"), this.$t("coordinator"), this.$t("editor"), this.$t("manager"), this.$t("reviewer")];

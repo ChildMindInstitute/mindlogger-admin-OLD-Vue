@@ -1,5 +1,9 @@
 <template>
-  <v-dialog max-width="800" :value="value" @input="$emit('input', $event)">
+  <v-dialog
+    max-width="800"
+    :value="value"
+    @input="$emit('input', $event)"
+  >
     <v-card>
       <v-card-text>
         <template v-if="error === ''">
@@ -13,15 +17,24 @@
             @click:append="() => (password.value = !password.value)"
           />
 
-          <v-btn color="primary" @click="onClickSubmitPassword">
+          <v-btn
+            color="primary"
+            @click="onClickSubmitPassword"
+          >
             {{ $t('submit') }}
           </v-btn>
         </template>
         <template v-else>
-          <div v-if="error" class="mb-4">
+          <div
+            v-if="error"
+            class="mb-4"
+          >
             {{ error }}
           </div>
-          <v-btn color="primary" @click="onClickRemoveError">
+          <v-btn
+            color="primary"
+            @click="onClickRemoveError"
+          >
             {{ $t('close') }}
           </v-btn>
         </template>

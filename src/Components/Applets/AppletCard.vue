@@ -1,5 +1,8 @@
 <template>
-  <v-card class="appletCard" :width="cardWidth">
+  <v-card
+    class="appletCard"
+    :width="cardWidth"
+  >
     <v-layout
       v-if="currentApplet"
       class="selectedApplet"
@@ -7,7 +10,10 @@
       justify-center
       column
     >
-      <v-icon size="72" color="primary">
+      <v-icon
+        size="72"
+        color="primary"
+      >
         mdi-check
       </v-icon>
       <v-card-title primary-title>
@@ -158,7 +164,11 @@
       :title="'Applet Edit'"
       @onOK="editApplet"
     />
-    <v-dialog v-model="ownershipDialog" persistent max-width="600px">
+    <v-dialog
+      v-model="ownershipDialog"
+      persistent
+      max-width="600px"
+    >
       <v-card>
         <v-card-title>
           <span class="headline">{{ $t('transferAppletOwnership') }}</span>
@@ -177,7 +187,11 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="blue darken-1" text @click="ownershipDialog = false">
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="ownershipDialog = false"
+          >
             {{ $t('close') }}
           </v-btn>
           <v-btn

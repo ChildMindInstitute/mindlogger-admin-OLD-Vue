@@ -7,7 +7,12 @@
     >
       <h1>{{ $t("noActiveApplets") }}</h1>
     </v-layout>
-    <v-layout v-else row wrap justify-center>
+    <v-layout
+      v-else
+      row
+      wrap
+      justify-center
+    >
       <AppletCard
         v-for="(applet, i) in applets"
         :key="`i${i + baseKey}`"
@@ -39,7 +44,10 @@
       <span>{{ $t("createUploadApplet") }}</span>
     </v-tooltip>
 
-    <v-dialog v-model="appletUploadDialog" max-width="800">
+    <v-dialog
+      v-model="appletUploadDialog"
+      max-width="800"
+    >
       <v-card>
         <v-card-text>
           <h3>{{ $t("uploadActivitySet") }}</h3>
@@ -58,7 +66,10 @@
           <p>
             {{ $t("jsonLdFiles") }}
           </p>
-          <p v-for="activityInfo in sampleProtocols" :key="activityInfo.name">
+          <p
+            v-for="activityInfo in sampleProtocols"
+            :key="activityInfo.name"
+          >
             <a @click="newProtocolURL = activityInfo.url">
               {{ activityInfo.name }}
             </a>

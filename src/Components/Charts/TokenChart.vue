@@ -1,16 +1,18 @@
 <template>
-  <div class="TokenChart" ref="container" >
-
+  <div
+    ref="container"
+    class="TokenChart"
+  >
     <div class="legend">
       <div 
-        class="legend-item" 
-        v-for="feature in features"
+        v-for="feature in features" 
         :key="feature.slug"
+        class="legend-item"
       >
         <div 
           class="color-box"
-          :style="{ background: feature.color }">
-        </div>
+          :style="{ background: feature.color }"
+        />
         <div class="label">
           {{ `${feature.name.en} (${feature.value})` }}
         </div>
@@ -36,7 +38,7 @@
           no-title
           :allowedDates="isAllowedStartDate"
           @change="setStartDate"
-        ></v-date-picker>
+        />
       </v-menu>
 
       {{ $t('to') }}
@@ -57,7 +59,7 @@
           no-title
           :allowedDates="isAllowedEndDate"
           @change="setEndDate"
-        ></v-date-picker>
+        />
       </v-menu>
     </div>
     
@@ -68,13 +70,13 @@
         :label="$t('versions')"
         multiple
         @change="onVersionChanged"
-      ></v-select>
+      />
 
       <v-checkbox
         v-model="hasVersionBars"
         :label="$t('showVersionChanges')"
         @change="onVersionChanged"
-      ></v-checkbox>
+      />
     </div>
 
     <div class="chart-container">
@@ -84,12 +86,11 @@
       >
         <div
           v-for="feature in features"
-          :class="feature.slug" 
-          :key="feature.slug"
-        > 
-        </div>
+          :key="feature.slug" 
+          :class="feature.slug"
+        />
 
-        <div class="cumulative"></div>
+        <div class="cumulative" />
       </div>
       <svg :id="plotId">
         <defs>

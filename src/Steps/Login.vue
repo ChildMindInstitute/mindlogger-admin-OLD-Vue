@@ -1,8 +1,21 @@
 <template>
-  <v-container fluid fill-height>
-    <v-layout align-center justify-center>
-      <v-flex xs12 sm8 md4>
-        <SetBackendForm v-if="setBackend" @setBackend="toggleSetBackend" />
+  <v-container
+    fluid
+    fill-height
+  >
+    <v-layout
+      align-center
+      justify-center
+    >
+      <v-flex
+        xs12
+        sm8
+        md4
+      >
+        <SetBackendForm
+          v-if="setBackend"
+          @setBackend="toggleSetBackend"
+        />
         <LoginForm
           v-else-if="!createAccount && !forgotPassword"
           @createAccount="toggleCreateAccount"
@@ -21,9 +34,17 @@
         />
       </v-flex>
 
-      <v-snackbar v-model="snackAlert" :color="color" :timeout="timeout">
+      <v-snackbar
+        v-model="snackAlert"
+        :color="color"
+        :timeout="timeout"
+      >
         {{ text }}
-        <v-btn color="white" text @click="snackAlert = false">
+        <v-btn
+          color="white"
+          text
+          @click="snackAlert = false"
+        >
           {{ $t("close") }}
         </v-btn>
       </v-snackbar>

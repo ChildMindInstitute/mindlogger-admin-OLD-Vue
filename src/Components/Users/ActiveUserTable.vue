@@ -1,26 +1,33 @@
 <template>
   <v-container>
-      <ag-grid-vue
-        class="ag-theme-balham"
-        :gridOptions="gridOptions"
-        :frameworkComponents="frameworkComponents"
-        :columnDefs="columnDefs"
-        :rowSelection="multiSelection"
-        :rowMultiSelectWithClick="clickSelection"
-        :pagination="pagination"
-        :rowData="userData"
-        :modules="modules"
-        :domLayout="domLayout"
-        @first-data-rendered="onFirstDataRendered"
-      />
-      <v-tooltip v-if="retentionSettings && retentionSettings.enabled && (isManager || isOwner)" top>
-        <template v-slot:activator="{ on }">
-          <v-btn color="primary" @click="dataRetentionSettingsDialog = true" v-on="on">
-            <span>{{ $t('dataRetentionSettings') }}</span>
-          </v-btn>
-        </template>
-        <span>{{ $t('dataRetentionSettings') }}</span>
-      </v-tooltip>
+    <ag-grid-vue
+      class="ag-theme-balham"
+      :gridOptions="gridOptions"
+      :frameworkComponents="frameworkComponents"
+      :columnDefs="columnDefs"
+      :rowSelection="multiSelection"
+      :rowMultiSelectWithClick="clickSelection"
+      :pagination="pagination"
+      :rowData="userData"
+      :modules="modules"
+      :domLayout="domLayout"
+      @first-data-rendered="onFirstDataRendered"
+    />
+    <v-tooltip
+      v-if="retentionSettings && retentionSettings.enabled && (isManager || isOwner)"
+      top
+    >
+      <template v-slot:activator="{ on }">
+        <v-btn
+          color="primary"
+          @click="dataRetentionSettingsDialog = true"
+          v-on="on"
+        >
+          <span>{{ $t('dataRetentionSettings') }}</span>
+        </v-btn>
+      </template>
+      <span>{{ $t('dataRetentionSettings') }}</span>
+    </v-tooltip>
       
     <DataRetentionSettings
       v-if="retentionSettings && retentionSettings.enabled && dataRetentionSettingsDialog"
@@ -31,7 +38,10 @@
       @settings-close="onRetentionSettingsClose()"
     />
     
-    <v-dialog v-model="editRoleDialog" max-width="500px">
+    <v-dialog
+      v-model="editRoleDialog"
+      max-width="500px"
+    >
       <v-card>
         <v-card-title class="edit-card-title">
           {{ $t('editRoles') }}
@@ -60,10 +70,18 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="primary" text @click="editRoleDialog = false">
+          <v-btn
+            color="primary"
+            text
+            @click="editRoleDialog = false"
+          >
             {{ $t('close') }}
           </v-btn>
-          <v-btn color="primary" text @click="onSaveUserRole()">
+          <v-btn
+            color="primary"
+            text
+            @click="onSaveUserRole()"
+          >
             {{ $t('save') }}
           </v-btn>
         </v-card-actions>
@@ -89,7 +107,10 @@
                   type="password"
                   required
                 />
-                <div v-if="error" class="error">
+                <div
+                  v-if="error"
+                  class="error"
+                >
                   {{ error }}
                 </div>
               </v-col>
@@ -98,10 +119,18 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="blue darken-1" text @click="passwordDialog = false">
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="passwordDialog = false"
+          >
             {{ $t('close') }}
           </v-btn>
-          <v-btn color="blue darken-1" text @click="onConfirmPassword()">
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="onConfirmPassword()"
+          >
             {{ $t('confirm') }}
           </v-btn>
         </v-card-actions>
@@ -178,10 +207,10 @@ export default {
       return this.$store.state.currentRetentions;
     },
     isManager() {
-      return this.$store.state.currentApplet.roles.includes('manager');
+      return this.$store.state.currentAppletMeta.roles.includes('manager');
     },
     isCoordinator() {
-      return this.$store.state.currentApplet.roles.includes('coordinator');
+      return this.$store.state.currentAppletMeta.roles.includes('coordinator');
     },
     isOwner() {
       return this.$store.state.currentApplet.roles.includes('owner');
@@ -195,7 +224,10 @@ export default {
       });
     },
     currentApplet() {
-      return this.$store.state.currentApplet;
+      return this.$store.state.currentAppletMeta;
+    },
+    currentAppletData() {
+      return this.$store.state.allApplets[this.$store.state.currentAppletMeta.id] || null;
     },
   },
   created() {
@@ -225,7 +257,7 @@ export default {
           : user.email;
 
       return {
-        displayName: user.displayName,
+        displayName: user.firstName,
         email,
         mrn: user.MRN,
         _id: user._id,
@@ -288,7 +320,7 @@ export default {
       });
     }
 
-    const encryption = this.currentApplet.applet.encryption;
+    const encryption = this.currentAppletData.applet.encryption;
     if (
       this.currentApplet.roles.includes('manager') &&
       encryption &&
@@ -499,7 +531,7 @@ export default {
         this.currentUserList.forEach((userMrn) => {
           this.userData.forEach((user) => {
             if (user.mrn === userMrn) {
-              newUserList.push(user._id);
+              newUserList.push(userMrn);
             }
           });
         });
@@ -529,7 +561,7 @@ export default {
               this.currentUserList.forEach((userMrn) => {
                 this.userData.forEach((user) => {
                   if (user.mrn === userMrn) {
-                    newUserList.push(user._id);
+                    newUserList.push(userMrn);
                   }
                 });
               });

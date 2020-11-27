@@ -1,5 +1,9 @@
 <template>
-  <v-dialog max-width="800" :value="value" @input="$emit('input', $event)">
+  <v-dialog
+    max-width="800"
+    :value="value"
+    @input="$emit('input', $event)"
+  >
     <v-card>
       <v-card-text>
         <template>
@@ -7,31 +11,42 @@
 
           <div class="input-controls">
             <span> {{ $t('userDataStoredFor') }} </span>
-              <v-text-field
-                class="input-amount"
-                type="number"
-                v-model="settings.period"
-              />
-              <v-select
-                class="input-period"
-                v-model="settings.retention"
-                :items="periods"
-                item-text="name"
-                item-value="value"
-              />
+            <v-text-field
+              v-model="settings.period"
+              class="input-amount"
+              type="number"
+            />
+            <v-select
+              v-model="settings.retention"
+              class="input-period"
+              :items="periods"
+              item-text="name"
+              item-value="value"
+            />
           </div>
           
-          <div v-if="error" class="error mb-4">
+          <div
+            v-if="error"
+            class="error mb-4"
+          >
             {{ error }}
           </div>
         </template>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn color="primary" text @click="onClickClose()">
+        <v-btn
+          color="primary"
+          text
+          @click="onClickClose()"
+        >
           {{ $t('close') }}
         </v-btn>
-        <v-btn color="primary" text @click="onClickSubmitSettings()">
+        <v-btn
+          color="primary"
+          text
+          @click="onClickSubmitSettings()"
+        >
           {{ $t('save') }}
         </v-btn>
       </v-card-actions>      
@@ -56,11 +71,6 @@ export default {
       required: false,
     }
   },
-  computed: {
-    settings() {
-      return this.retentionSettings;
-    }
-  },
   data: () => ({
     periods: [{
       name: 'Days',
@@ -76,6 +86,11 @@ export default {
       value: 'year'
     }],
   }),
+  computed: {
+    settings() {
+      return this.retentionSettings;
+    }
+  },
   methods: {
     onClickClose() {
       this.$emit('settings-close');
