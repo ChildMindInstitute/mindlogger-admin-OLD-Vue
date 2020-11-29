@@ -182,7 +182,7 @@ window.Parse = Parse;
 window.Day = Day;
 
 export default {
-  name: "Applet",
+  name: "Dashboard",
   components: {
     Loading,
     Information,

@@ -182,7 +182,7 @@ export default {
         })
         .then((resp) => {
           this.$store.commit("setAccounts", resp.data);
-          this.$router.push("/applets").catch(err => {});
+          this.$router.push("/dashboard").catch(err => {});
         })
         .catch((err) => {
           console.warn(err);

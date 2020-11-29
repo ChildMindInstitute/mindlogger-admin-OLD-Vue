@@ -2,7 +2,7 @@ import Vue from "vue";
 import Router from "vue-router";
 import Builder from "@/Components/Builder/Builder.vue";
 import Login from "../Steps/Login";
-import SetApplet from "../Steps/SetApplet";
+import Dashboard from "../Steps/Dashboard";
 import SetUsers from "../Steps/SetUsers";
 import SetSchedule from "../Steps/SetSchedule";
 import TokenLoggerDashboard from "../Steps/TokenLoggerDashboard";
@@ -33,9 +33,9 @@ let router = new Router({
       },
     },
     {
-      path: "/applets",
+      path: "/dashboard",
       name: "SetApplet",
-      component: SetApplet,
+      component: Dashboard,
       meta: {
         requiresAuth: true,
       },
@@ -91,7 +91,7 @@ router.beforeEach((to, from, next) => {
   // Prevent users from accessing the login page if they are already
   // authenticated.
   if (isGuestPage && isLoggedIn) {
-    return next({ path: "/applets", query: { lang }});
+    return next({ path: "/dashboard", query: { lang }});
   } 
 
   // Evaluates to true if the lang parameter is set to just 'en' instead of

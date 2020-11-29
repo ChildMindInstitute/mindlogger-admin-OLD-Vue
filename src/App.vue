@@ -129,7 +129,7 @@ export default {
         .then((resp) => {
           this.$store.commit('switchAccount', resp.data.account);
           this.$router.push('/build').catch(err => {});
-          this.$router.push('/applets').catch(err => {});
+          this.$router.push('/dashboard').catch(err => {});
         })
         .catch((err) => {
           console.warn(err);
