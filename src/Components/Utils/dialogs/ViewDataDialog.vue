@@ -37,6 +37,7 @@
     width: 100%;
     text-transform: none;
     text-align: left;
+    margin: 5px 0px;
   }
 
   .title, .sub-title {

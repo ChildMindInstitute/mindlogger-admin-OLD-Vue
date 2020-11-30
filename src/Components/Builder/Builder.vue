@@ -1,5 +1,5 @@
 <template>
-  <v-content>
+  <v-content class="builder">
     <About v-if="loading" />
     <AppletSchemaBuilder
       v-if="!loading"
@@ -34,6 +34,10 @@
 <style lang="scss">
 .v-card__text {
   padding: 16px !important;
+}
+
+.builder {
+  background: white;
 }
 </style>
 
