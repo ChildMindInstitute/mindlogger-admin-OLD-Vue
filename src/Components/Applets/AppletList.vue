@@ -9,7 +9,7 @@
         outlined
       />
 
-      <span>Search</span>
+      <span>{{$t('search')}}</span>
     </div>
 
     <v-data-table

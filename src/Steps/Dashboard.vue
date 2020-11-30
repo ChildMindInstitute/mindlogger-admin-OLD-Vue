@@ -21,7 +21,7 @@
               :key="tab"
               @click="onSwitchTab(tab)"
             >
-              {{ tab }}
+              {{ $t(tab) }}
             </v-tab>
           </template>
         </v-tabs>
@@ -52,7 +52,7 @@
           :key="tab"
         >
           <v-card
-            v-if="tab == 'Applets'"
+            v-if="tab == 'applets'"
             flat
           >
             <AppletList
@@ -65,7 +65,7 @@
             />
           </v-card>
           <v-card
-            v-else-if="tab == 'Users'"
+            v-else-if="tab == 'users'"
             flat
           >
             <UserList
@@ -203,11 +203,11 @@ export default {
     tabs: [],
     appletUploadEnabled: false,
     tabNameToRole: {
-      Users: 'user',
-      Reviewers: 'reviewer',
-      Editors: 'editor',
-      Coordinators: 'coordinator',
-      Managers: 'manager'
+      users: 'user',
+      reviewers: 'reviewer',
+      editors: 'editor',
+      coordinators: 'coordinator',
+      managers: 'manager'
     },
     tabData: {},
     appletUploadDialog: false,
@@ -232,18 +232,18 @@ export default {
       this.appletUploadEnabled = false;
 
       if (newApplets.length) {
-        availableTabs.push('Applets');
+        availableTabs.push('applets');
       }
 
       for (let applet of newApplets) {
         /** managers can view others */
         if (applet.roles.includes('manager')) {
-          availableTabs.push('Users', 'Reviewers', 'Editors', 'Coordinators', 'Managers');
+          availableTabs.push('users', 'reviewers', 'editors', 'coordinators', 'managers');
         }
 
         /** reviewers can view users */
         if (applet.roles.includes('reviewer') || applet.roles.includes('coordinator')) {
-          availableTabs.push('Users');
+          availableTabs.push('users');
         }
 
         /** manager and editors can view applets */
@@ -253,7 +253,7 @@ export default {
       }
 
       this.tabs = [];
-      for (let tab of ['Applets', 'Users', 'Reviewers', 'Editors', 'Coordinators', 'Managers']) {
+      for (let tab of ['applets', 'users', 'reviewers', 'editors', 'coordinators', 'managers']) {
         if (availableTabs.indexOf(tab) >= 0) {
           this.tabs.push(tab);
         }
@@ -265,7 +265,7 @@ export default {
     },
   },
   mounted() {
-    for (let tab of ['Applets', 'Users', 'Reviewers', 'Editors', 'Coordinators', 'Managers']) {
+    for (let tab of ['applets', 'users', 'reviewers', 'editors', 'coordinators', 'managers']) {
       this.$set(this.tabData, tab, {
         loading: false,
         list: [],
@@ -276,7 +276,7 @@ export default {
   },
   methods: {
     onSwitchTab(tab) {
-      if (tab == 'Applets') {
+      if (tab == 'applets') {
         this.getAccountData();
       } else {
         const role = this.tabNameToRole[tab];
@@ -312,7 +312,7 @@ export default {
     getAccountData() {
       const accountId = this.$store.state.currentAccount.accountId;
 
-      this.tabData.Applets.loading = true;
+      this.tabData['applets'].loading = true;
 
       if (!accountId) {
         this.status = "ready";
@@ -329,7 +329,7 @@ export default {
           this.$store.commit("switchAccount", resp.data.account);
           this.status = "ready";
 
-          this.$set(this.tabData, 'Applets', {
+          this.$set(this.tabData, 'applets', {
             list: resp.data.account.applets,
             loading: false
           });

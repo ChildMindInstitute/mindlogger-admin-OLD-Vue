@@ -28,6 +28,7 @@ export default {
   createInvitation: 'Créer une invitation ',
   id: 'Identifiant',
   displayName: 'Afficher le nom',
+  applets: 'Applets',
   role: 'Rôle',
   roles: 'Rôles',
   user: 'utilisateur',
