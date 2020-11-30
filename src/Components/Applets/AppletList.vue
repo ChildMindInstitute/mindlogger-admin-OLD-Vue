@@ -381,14 +381,14 @@ export default {
       requestedAction: null,
       headers: [
         {
-          text: 'Applet Name',
+          text: this.$i18n.t('appletName'),
           align: 'center',
           sortable: true,
           value: 'name',
           width: '25%',
         },
         {
-          text: 'Last Edit',
+          text: this.$i18n.t('lastEdit'),
           align: 'center',
           sortable: true,
           value: 'updated',
