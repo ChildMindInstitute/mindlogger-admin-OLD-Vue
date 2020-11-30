@@ -292,5 +292,7 @@ export default {
   removeAccessToAppletAndData: `Supprimer les données de {user} et son accès à`,
   viewData: `Voir les données`,
   selectAppletToViewData: `Veuillez sélectionner l'applet pour voir les données de l'utilisateur:`,
-  all: 'All'
+  all: 'All',
+  organizerRoleUpdate: `Mise à jour du rôle de l'organisateur`,
+  organizerRoleUpdateSuccess: `Les rôles des organisateurs ont été mis à jour correctement.`,
 };

@@ -295,8 +295,8 @@ export default {
     onEditRoleSuccessfull() {
       this.onSwitchTab(this.tabs[this.selectedTab]).then((resp) => {
         this.dialog = true;
-        this.dialogText = 'Employer roles are updated successfully';
-        this.dialogTitle = 'Employer Role Update';
+        this.dialogText = this.$t('organizerRoleUpdateSuccess');
+        this.dialogTitle = this.$t('organizerRoleUpdate');
       })
     },
     getUserList(role, filter='', pagination={ allow: false }, sort={ allow: false }) {

@@ -286,5 +286,7 @@ export default {
   removeAccessToAppletAndData: `Remove {user}'s data and access to applet`,
   viewData: 'View Data',
   selectAppletToViewData: 'Please select applet to view User data:',
-  all: 'All'
+  all: 'All',
+  organizerRoleUpdate: 'Organizer Role Update',
+  organizerRoleUpdateSuccess: 'Organizer roles are updated successfully.',
 };
