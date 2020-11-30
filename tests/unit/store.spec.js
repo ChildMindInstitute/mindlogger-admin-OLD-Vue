@@ -26,7 +26,7 @@ test('sets "currentApplet" value when "setCurrentApplet" is committed', () => {
     } 
   }; 
   store.commit('setCurrentApplet', sampleApplet); 
-  expect(store.state.currentApplet).toBe(sampleApplet); 
+  expect(store.state.currentAppletMeta).toBe(sampleApplet); 
 }); 
 
 test('sets "auth" value when "setAuth" is committed', () => { 
