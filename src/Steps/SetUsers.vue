@@ -302,7 +302,7 @@ export default {
               let options = [];
               let responseData = [];
 
-              if (!response.data[itemUrl]) {
+              if (response.data[itemUrl] === null ) {
                 responseData = null;
               } else if (item.inputType === 'radio') {
                 options = item.responseOptions.map(option => `${Object.values(option.name)[0]}: ${option.value}`);
