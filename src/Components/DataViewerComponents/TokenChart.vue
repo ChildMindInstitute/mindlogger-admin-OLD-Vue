@@ -160,11 +160,13 @@
       border-bottom: 1px solid #eee;
     }
   }
+  max-width: 300px;
 }
 .TokenChart .toDate,
 .TokenChart .fromDate {
   margin: 0 0.5rem !important;
 }
+
 </style>
 
 
@@ -583,6 +585,7 @@ export default {
     drawFocusChart() {
       const { svg, x, y, data, focusMargin, features, plotId } = this;
       const barWidth = this.focusBarWidth();
+
       const stack = d3.stack()
         .keys(features.map(f => f.id))
         .offset(d3.stackOffsetDiverging);
@@ -641,7 +644,9 @@ export default {
           for (let i = 0; i < features.length; i++) {
             const text = tooltip.querySelector(`.${features[i].slug}`)
             const name = features[i].name.en;
-            const value = d.data[features[i].id];
+            const responseOptValue = features[i].value;
+            const value = d.data[features[i].id] * responseOptValue;
+
             if (!value) {
               text.style.display = 'none';
               continue;
@@ -649,11 +654,12 @@ export default {
             
             text.innerText = `${name}: ${value}`;
             text.style.top = y(0) - y(value) + 'px';
-            text.style.height = y(0) - y(value) + 'px';
+            // text.style.height = y(0) - y(value) + 'px';
             text.style.display = 'flex';
           }
+
           const text = tooltip.querySelector(`.cumulative`)
-          text.innerText = `Cumulative: ${d.data.cummulative}`;
+          text.innerText = `Cumulative: ${d.data.cummulative }`;
         });
     },
     /**
