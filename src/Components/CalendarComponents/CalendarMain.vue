@@ -18,6 +18,7 @@
       <template slot="eventCreatePopover" slot-scope="{placeholder, calendar, close}">
         <calendar-event-create-popover
           :calendar-event="placeholder"
+          :move-to-dialog="true"
           :calendar="calendar"
           :close="$refs.app.$refs.calendar.clearPlaceholder"
           :activities="activities"
@@ -84,6 +85,10 @@ export default {
     },
     events: {
       type: Array
+    },
+    isGroupSchedule: {
+      type: Boolean,
+      required: true
     }
   },
 
@@ -225,7 +230,6 @@ export default {
       if (!state.events || !state.events.length) {
         state.events = this.defaultEvents;
       }
-
       state.events.forEach(ev => {
         let defaults = this.$dayspan.getDefaultEventDetails();
 

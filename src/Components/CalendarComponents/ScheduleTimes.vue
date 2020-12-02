@@ -1,31 +1,29 @@
 <template>
-  <div class="ds-schedule-times">
-    <div class="ds-time-row">
-      <div class="ds-time-allow"></div>
-      <div>
-        <v-checkbox
-          ref="allDayCheckbox"
-          hide-details
-          :label="$t('allDay')"
-          :readonly="isReadOnly"
-          v-model="allDay"
-        ></v-checkbox>
-        <div v-for="(time, index) in schedule.times" :key="index">
-          <schedule-time
-            class="ds-time-cell double"
-            :index="index"
-            :show-add="isLastTime(index)"
-            :show-remove="hasTimes"
-            :value="schedule.times[index]"
-            :key="index"
-            :read-only="readOnly"
-            @add="addTime"
-            @remove="removeTime"
-            @change="changeTime"
-          ></schedule-time>
-        </div>
+  <div>
+      <h3 class="mb-5">{{$t('activityAccessOptions')}}</h3>
+      <div style="display:flex">
+        <h3 >{{$t('activityAvailable')}}</h3>
+        <v-switch :label="$t('allDay')" 
+                  :readonly="isReadOnly" 
+                  v-model="allDay"
+                  flat
+                  class="mx-6"></v-switch>
       </div>
-    </div>
+     
+      <div v-for="(time, index) in schedule.times" :key="index">
+        <schedule-time
+          class="ds-time-cell double"
+          :index="index"
+          :show-add="isLastTime(index)"
+          :show-remove="hasTimes"
+          :value="schedule.times[index]"
+          :key="index"
+          :read-only="readOnly"
+          @add="addTime"
+          @remove="removeTime"
+          @change="changeTime"
+        ></schedule-time>
+      </div>
   </div>
 </template>
 
@@ -170,20 +168,4 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
-.ds-schedule-times {
-  .ds-time-row {
-    display: flex;
-    .ds-time-allow {
-      width: 34.8%;
-    }
-    .ds-time-cell {
-      // padding-right: 8px;
-      // flex: 1 0 0px;
-      padding-top: 15px;
-      padding-right: 16px;
-      flex: 2 0 0px;
-    }
-  }
-}
-</style>
+<style scoped lang="scss"></style>

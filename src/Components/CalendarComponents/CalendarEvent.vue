@@ -1,19 +1,14 @@
 <template>
-	<div class="ds-calendar-event-menu">
+	<div class="ds-calendar-event-menu" >
 		<v-menu
 				:content-class="contentClass"
 				:disabled="!hasPopover"
 				v-model="menu"
 				v-bind="popoverProps">
-			<template v-slot:activator="{ on }">
+			<template v-slot:activator={}>
 				<div class="ds-calendar-event"
-					 v-on="on"
 					 :style="style"
-					 @click.stop="editCheck"
-					 @mouseenter="mouseEnterEvent"
-					 @mouseleave="mouseLeaveEvent"
-					 @mousedown="mouseDownEvent"
-					 @mouseup="mouseUpEvent">
+					 @click.stop="openEventDialog">
 
 						<span v-if="showName">
 							<slot name="eventTitle" v-bind="{calendarEvent, hasPrefix, getPrefix, details}">
@@ -159,14 +154,9 @@ export default {
 				}
 			},
 
-			editCheck ($event) {
-				if (this.handlesEvents($event)) {
-					if (!this.hasPopover) {
-						this.edit()
-					} else {
-						this.menu = !this.menu
-					}
-				}
+			openEventDialog ($event) {
+				$event.stopPropagation();
+				this.edit();
 			},
 
 			mouseEnterEvent ($event) {
@@ -182,15 +172,15 @@ export default {
 			},
 
 			mouseDownEvent ($event) {
-				if (this.handlesEvents($event)) {
-					this.$emit('mouse-down-event', this.getEvent('mouse-down-event', $event))
-				}
+				// if (this.handlesEvents($event)) {
+				// 	this.$emit('mouse-down-event', this.getEvent('mouse-down-event', $event))
+				// }
 			},
 
 			mouseUpEvent ($event) {
-				if (this.handlesEvents($event)) {
-					this.$emit('mouse-up-event', this.getEvent('mouse-up-event', $event))
-				}
+				// if (this.handlesEvents($event)) {
+				// 	this.$emit('mouse-up-event', this.getEvent('mouse-up-event', $event))
+				// }
 			},
 
 			handlesEvents ($event) {

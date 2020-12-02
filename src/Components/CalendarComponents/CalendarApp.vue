@@ -1,7 +1,13 @@
 <template>
   <div class="ds-expand ds-calendar-app">
-    <v-content class="ds-expand">
+    <v-content class="ds-expand pt-0">
+      <div class="calendar-header text-center pa-1">
+        <h4>{{$t(ownerType+"Schedule")}} - {{appletName}} {{ownerType === 'Group' ? "" : `for &nbsp;"${userCode}"` }}</h4>
+      </div>
+
+      <v-btn color="secondary" class="lighten-3 my-4">{{$t('setIndividualSchedule')}}</v-btn>
       <v-container fluid class="ds-calendar-container" style="height: 100%;">
+
         <!-- top controls -->
         <div class="top-controls">
           <v-tooltip bottom color="secondary">
@@ -262,6 +268,10 @@ export default {
   },
 
   props: {
+    ownerType: {
+      type: String,
+      default: "individual"
+    },
     activities: {
       type: Array
     },
@@ -355,7 +365,15 @@ export default {
       },
       set(type) {
         this.rebuild(undefined, true, type);
-      }
+      },
+    },
+
+    appletName() {
+      return this.$store.state.currentApplet.applet.displayName;
+    },
+
+    userCode() {
+      return "User code";
     },
 
     summary() {
@@ -782,5 +800,9 @@ export default {
   display: flex;
   height: 50px;
   align-items: center;
+}
+
+.calendar-header {
+  border:2px solid #ccc;
 }
 </style>

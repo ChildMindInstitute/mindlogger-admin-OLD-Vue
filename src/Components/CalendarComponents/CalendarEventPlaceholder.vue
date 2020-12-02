@@ -16,6 +16,7 @@
             :calendar="calendar"
             :index="index"
           ></ds-calendar-event>
+          
         </template>
 
         <slot name="eventCreatePopover" v-bind="{placeholder, calendar, day, index, close}"></slot>
