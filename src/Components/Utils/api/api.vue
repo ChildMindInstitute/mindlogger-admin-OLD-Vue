@@ -412,7 +412,15 @@ const getAccountUserList = ({ apiHost, token, appletId, role, MRN, pagination, s
   params: {
     appletId, role, MRN, pagination, sort
   },
-})
+});
+
+const getInvitations = ({ apiHost, token, appletId }) => axios({
+  method: 'get',
+  url: `${apiHost}/applet/${appletId}/invitations`,
+  headers: {
+    'Girder-Token': token,
+  },
+});
 
 
 const updatePin = ({ apiHost, token, profileId, newState }) => axios({
@@ -467,5 +475,6 @@ export default {
   updateRetainingSettings,
   getAccountUserList,
   updatePin,
+  getInvitations,
 }
 </script>
