@@ -107,7 +107,7 @@ const mutations = {
 
     state.allApplets[appletID] = applet;
 
-    if (appletID === state.currentAppletMeta.id) {
+    if (state.currentAppletMeta && appletID === state.currentAppletMeta.id) {
       state.currentAppletData = applet;
     }
   },
@@ -134,7 +134,7 @@ const mutations = {
     }
   },
   setSchedule(state, schedule) {
-    if (!_.isEmpty(state.currentAppletMeta)) {
+    if (state.currentAppletMeta && !_.isEmpty(state.currentAppletMeta)) {
       state.currentAppletData.applet.schedule = schedule;
     }
   },

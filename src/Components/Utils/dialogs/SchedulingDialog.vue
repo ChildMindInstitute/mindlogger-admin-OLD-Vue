@@ -23,7 +23,7 @@
       </v-card-text>
     </v-card>
     <v-card v-else>
-      <v-card-title>
+      <v-card-title class="alert-content">
         {{ $t('individualScheduleAlert', { MRN: selectedProfile.MRN || selectedProfile.email })}}
       </v-card-title>
 
@@ -52,6 +52,10 @@
   }
   .sub-title {
     font-size: smaller;
+  }
+
+  .alert-content {
+    word-break: break-word;
   }
 </style>
 
