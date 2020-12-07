@@ -146,11 +146,11 @@
 </template>
 
 <script>
-import { rolesMixin } from './rolesMixin';
+import { RolesMixin } from '../Utils/mixins/RolesMixin';
 
 export default {
   name: "CreateInvitationForm",
-  mixins: [rolesMixin],
+  mixins: [RolesMixin],
   data() {
     return {
       lazy: false,

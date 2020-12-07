@@ -51,6 +51,9 @@
               </v-tooltip>
 
             </span>
+            <span v-else-if="header.value == 'roles'">
+              {{ item[header.value].join(', ') }}
+            </span>
             <span v-else>{{ item[header.value] }}</span>
           </td>
         </tr>
@@ -110,9 +113,11 @@
 import api from "../Utils/api/api.vue";
 import config from "../../config";
 import EditRoleDialog from "../Utils/dialogs/EditRoleDialog";
+import { RolesMixin } from '../Utils/mixins/RolesMixin';
 
 export default {
   name: "EmployerList",
+  mixins: [RolesMixin],
   components: {
     EditRoleDialog,
   },
@@ -150,7 +155,7 @@ export default {
         value: 'lastName',
       },
       {
-        text: 'Roles',
+        text: this.$i18n.t('roles'),
         align: 'center',
         sortable: false,
         value: 'roles',
@@ -216,7 +221,7 @@ export default {
             firstName: data.firstName,
             lastName: data.lastName,
             email: data.email,
-            roles: data.roles,
+            roles: this.localizedRoles.filter(role => role.name != 'user' && data.roles.includes(role.name)).map(role => role.title),
             editable,
             id: i
           });

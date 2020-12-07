@@ -48,11 +48,11 @@ import PackageJson from '../../../package.json';
 import api from '../Utils/api/api.vue';
 import { cloneDeep } from 'lodash';
 import axios from 'axios';
-import { AppletMixin } from '../Applets/appletMixin';
+import { AppletMixin } from '../Utils/mixins/AppletMixin';
 
 import encryption from '../Utils/encryption/encryption.vue';
 import AppletPassword from '../Utils/dialogs/AppletPassword';
-import Information from '../Utils/dialogs/information';
+import Information from '../Utils/dialogs/InformationDialog.vue';
 
 const RESPONSE_OPTIONS = "reprolib:terms/responseOptions";
 const ITEM_LIST_ELEMENT = "schema:itemListElement";

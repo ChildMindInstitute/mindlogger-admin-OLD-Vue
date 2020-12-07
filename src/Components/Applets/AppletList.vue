@@ -235,8 +235,8 @@
 
     <ConfirmationDialog
       v-model="appletEditDialog"
-      :dialogText="editDialogText"
-      :title="'Applet Edit'"
+      :dialogText="$t('appletEditAlert')"
+      :title="$t('appletEdit')"
       @onOK="editApplet"
     />
 
@@ -405,7 +405,6 @@ export default {
       appletDuplicateDialog: false,
       appletEditDialog: false,
       appletDeleteDialog: false,
-      editDialogText: 'By editing this applet that has been downloaded from Github, any changes will only store within MindLogger and will not update GitHub with those changes.',
       ownershipDialog: false,
       ownershipEmail: '',
       emailRules: /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/,
@@ -453,7 +452,7 @@ export default {
     setAppletPassword(appletPassword) {
       let apiHost = this.$store.state.backend;
       let token = this.$store.state.auth.authToken.token;
-      let appletId = this.currentApplet.id;
+      let appletId = this.selectedRow;
 
       const encryptionInfo = encryption.getAppletEncryptionInfo({
         appletPassword: appletPassword,
@@ -498,7 +497,7 @@ export default {
         .transferOwnership({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
-          appletId: this.currentApplet.id,
+          appletId: this.selectedRow,
           email: this.ownershipEmail,
         })
         .then((resp) => {
@@ -515,7 +514,7 @@ export default {
         .deleteApplet({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
-          appletId: this.currentApplet.id,
+          appletId: this.selectedRow,
         })
         .then((resp) => {
           this.$emit("refreshAppletList");
@@ -523,6 +522,7 @@ export default {
     },
 
     editApplet() {
+      this.currentApplet = this.formattedApplets.find(applet => applet.id === this.selectedRow);
       this.$router.push({
         name: 'Builder',
         params: { isEditing: true },
@@ -539,14 +539,14 @@ export default {
         .duplicateApplet({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
-          appletId: this.currentApplet.id,
+          appletId: this.selectedRow,
           options: {
             name: appletName,
           },
         })
         .then((resp) => {
-          this.$emit("refreshAppletList");
           this.appletDuplicateDialog = false;
+          this.$emit('onDuplicateRequestReceived', resp.data.message);
         });
     },
     onUpdateAppletPassword() {
@@ -554,54 +554,47 @@ export default {
       this.requestedAction = this.setAppletPassword.bind(this);
     },
     onTransferOwnership(applet) {
-      this.currentApplet = applet;
       this.ownershipDialog = true;
     },
     onViewUsers(applet) {
-      this.currentApplet = applet;
-
       if (
-        this.currentApplet.roles.includes('owner') &&
-        !this.currentApplet.encryption
+        applet.roles.includes('owner') &&
+        !applet.encryption
       ) {
         this.onUpdateAppletPassword();
       } else {
+        this.currentApplet = applet;
         this.$router.push(`applet/${this.currentApplet.id}/users`).catch(err => {});
       }
     },
     onDeleteApplet(applet) {
-      this.currentApplet = applet;
       this.appletDeleteDialog = true;
     },
     onEditApplet(applet) {
-      this.currentApplet = applet;
-
-      if (this.currentApplet.hasUrl) {
+      if (applet.hasUrl) {
         this.appletEditDialog = true;
       } else {
         this.editApplet();
       }
     },
     onViewGeneralCalendar(applet) {
-      this.currentApplet = applet;
-
       if (
-        this.currentApplet.roles.includes('owner') && !this.currentApplet.encryption
+        applet.roles.includes('owner') && !applet.encryption
       ) {
         this.onUpdateAppletPassword();
       } else {
-        this.$store.commit('setCurrentUsers', []);
+        this.currentApplet = applet;
+
+        this.$store.commit('setCurrentUsers', {});
         this.$router.push(`applet/${this.currentApplet.id}/schedule`).catch(err => {});
       }
     },
     onDuplicateApplet(applet) {
-      this.currentApplet = applet;
-
       api
         .validateAppletName({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
-          name: `${this.currentApplet.name} (1)`
+          name: `${applet.name} (1)`
         })
         .then(resp => {
           this.appletDuplicateDialog = true;
