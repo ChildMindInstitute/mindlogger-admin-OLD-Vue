@@ -1,61 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
-      <v-toolbar-title>
-        {{ $t('mindloggersAdmin') }} {{ showEnvironment }}
-      </v-toolbar-title>
-      <v-spacer />
-      <v-menu
-        v-if="isLoggedIn"
-        :offset-y="true"
-        :nudge-width="150"
-        bottom
-        right
-      >
-        <template v-slot:activator="{ on }">
-          <v-btn
-            icon
-            v-on="on"
-          >
-            <v-icon>mdi-dots-vertical</v-icon>
-          </v-btn>
-        </template>
-        <v-card>
-          <v-list>
-            <v-list-item @click="logout">
-              <v-list-item-content>
-                <v-list-item-title>{{ $t('logout') }}</v-list-item-title>
-              </v-list-item-content>
-
-              <v-list-item-action>
-                <v-icon>mdi-logout</v-icon>
-              </v-list-item-action>
-            </v-list-item>
-          </v-list>
-
-          <v-divider />
-
-          <v-list>
-            <v-list-item>
-              <v-list-item-title @click="switchAccount(ownerAccountId)">
-                {{ ownerAccountName }}
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item
-              v-for="(account, index) in accounts"
-              :key="index"
-              @click="switchAccount(account.accountId)"
-            >
-              <v-list-item-title>{{ account.accountName }}</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-card>
-      </v-menu>
-    </v-app-bar>
+    <Header/>
     <v-content>
       <v-container fluid>
         <router-view />
@@ -67,37 +12,14 @@
 <script>
 import store from './State/state';
 import api from './Components/Utils/api/api.vue';
+import Header from './Components/Utils/header/header.vue';
 import _ from 'lodash';
 
 export default {
   name: 'App',
   store,
-
-  /**
-   * Define here all computed properties.
-   */
-  computed: {
-    isLoggedIn() {
-      return !_.isEmpty(this.$store.state.auth);
-    },
-    showEnvironment() {
-      return process.env.VUE_APP_TITLE_ENV;
-    },
-    ownerAccountName() {
-      return this.$store.state.ownerAccount.accountName;
-    },
-    ownerAccountId() {
-      return this.$store.state.ownerAccount.accountId;
-    },
-    accounts() {
-      const accounts = [];
-      this.$store.state.allAccounts.forEach((account) => {
-        if (!account.owned) {
-          accounts.push(account);
-        }
-      });
-      return accounts;
-    },
+  components: {
+    Header,
   },
 
   /**
@@ -108,33 +30,6 @@ export default {
   created() {
     this.$store.commit('setCurrentLanguage', this.$route.query.lang || 'en_US');
     this.$store.commit('setBackend', null);
-  },
-
-  /**
-   * Define here all methods that will be available in the scope of the template.
-   */
-  methods: {
-    logout() {
-      this.$store.commit('resetState');
-      this.$router.push('/login').catch(err => {});
-    },
-
-    switchAccount(accountId) {
-      api
-        .switchAccount({
-          apiHost: this.$store.state.backend,
-          token: this.$store.state.auth.authToken.token,
-          accountId,
-        })
-        .then((resp) => {
-          this.$store.commit('switchAccount', resp.data.account);
-          this.$router.push('/build').catch(err => {});
-          this.$router.push('/dashboard').catch(err => {});
-        })
-        .catch((err) => {
-          console.warn(err);
-        });
-    },
   },
 };
 </script>
@@ -152,6 +47,10 @@ export default {
 }
 .v-application > .v-application--wrap > .v-content {
   background-color: rgb(239,239,243) !important;
+}
+
+.export-icon {
+  transform: rotate(90deg) translateX(2px);
 }
 
 body,
