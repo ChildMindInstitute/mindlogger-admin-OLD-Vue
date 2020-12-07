@@ -6,7 +6,6 @@ Vue.use(Vuex);
 import { Store } from 'vuex';
 import _ from 'lodash';
 import createPersistedState from 'vuex-persistedstate';
-import api from '../Components/Utils/api/api.vue';
 
 const getDefaultState = () => {
   return {
@@ -23,7 +22,7 @@ const getDefaultState = () => {
     updatedEvents: [],
     auth: {},
     continue: {},
-    currentUsers: [],
+    currentUsers: {},
     userEmail: '',
     users: {},
     pinned: {
@@ -78,7 +77,7 @@ const mutations = {
     Object.keys(state.allApplets).forEach(appletId => {
       if (state.allApplets[appletId].accountId === account.accountId) {
         if (!account.applets.some((applet) => applet.id === appletId)) {
-          delete allApplets[appletId];
+          delete state.allApplets[appletId];
         }
       }
     })
@@ -89,6 +88,9 @@ const mutations = {
       if (applet.id && state.allApplets[applet.id]) {
         state.currentAppletData = state.allApplets[applet.id];
       }
+    } else {
+      state.currentAppletMeta = null;
+      state.currentAppletData = null;
     }
   },
 
@@ -141,6 +143,14 @@ const mutations = {
   },
   setCurrentUsers(state, users) {
     state.currentUsers = users;
+  },
+  selectUser(state, user) {
+    state.currentUsers[user['_id']] = user;
+  },
+  unSelectUser(state, user) {
+    if (state.currentUsers[user['_id']]) {
+      delete state.currentUsers[user['_id']];
+    }
   },
   setUsers(state, newUsers) {
     state.users = newUsers;

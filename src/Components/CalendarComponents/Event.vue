@@ -789,8 +789,8 @@ export default {
         evDetails.idleTime = this.scheduledIdleTime;
       }
 
-      if (this.$store.state.currentUsers.length) {
-        evDetails.users = this.$store.state.currentUsers;
+      if (Object.keys(this.$store.state.currentUsers).length) {
+        evDetails.users = Object.keys(this.$store.state.currentUsers);
       }
       return fn.extend(
         {

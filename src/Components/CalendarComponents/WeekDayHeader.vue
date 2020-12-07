@@ -125,12 +125,15 @@ export default {
                   this.placeholder.event === calendarEvent.event) {
                   return false
                 }
-                if (!this.$store.state.currentUsers.length && !calendarEvent.event.data.users) {
-                  return true;
-                }
-                if (JSON.stringify(calendarEvent.event.data.users) !== JSON.stringify(this.$store.state.currentUsers)) {
-                  return false
-                }
+				const userIds = Object.keys(this.$store.state.currentUsers);
+
+				if (!userIds.length && !calendarEvent.event.data.users) {
+					return true;
+				}
+
+				if (!calendarEvent.event.data.users || calendarEvent.event.data.users.some(user => !userIds.includes(user))) {
+					return false
+				}
                 return true
             },
             add () {
