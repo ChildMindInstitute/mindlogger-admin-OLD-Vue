@@ -34,7 +34,7 @@ let router = new Router({
     },
     {
       path: "/dashboard",
-      name: "SetApplet",
+      name: "Dashboard",
       component: Dashboard,
       meta: {
         requiresAuth: true,
