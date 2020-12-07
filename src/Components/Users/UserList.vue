@@ -411,7 +411,7 @@ export default {
         {
           sortBy: this.options.sortBy[0],
           sortDesc: this.options.sortDesc[0],
-          allow: this.options.length > 0
+          allow: this.options.sortBy.length > 0
         }
       ).then((resp) => {
         this.loading = false;
