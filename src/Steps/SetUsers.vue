@@ -32,7 +32,9 @@
             <UserList
               :getUserList="getAppletUsers"
               :multiSelectionEnabled="true"
+              :reloading="tabData[tab].loading"
               @onReuploadResponse="responseReUploadEvent"
+              @userDataReloaded="tabData[tab].loading = false"
             />
           </v-card>
           <v-card
@@ -196,7 +198,7 @@ export default {
       this.$set(this.tabData, tab, {
         loading: false,
         list: [],
-        total: 0
+        total: 0,
       });
     }
 
@@ -234,6 +236,9 @@ export default {
             total: resp.data.length
           })
         });
+      } else if (tab == 'users') {
+        this.tabData[tab].loading = true;
+        return ;
       }
 
       const role = this.tabNameToRole[tab];

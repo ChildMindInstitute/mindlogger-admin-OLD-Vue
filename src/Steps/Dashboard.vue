@@ -72,6 +72,8 @@
             <UserList
               :getUserList="getUserList"
               :multiSelectionEnabled="false"
+              :reloading="tabData[tab].loading"
+              @userDataReloaded="tabData[tab].loading = false"
             />
           </v-card>
           <v-card
@@ -270,7 +272,7 @@ export default {
       this.$set(this.tabData, tab, {
         loading: false,
         list: [],
-        total: 0
+        total: 0,
       });
     }
     this.getAccountData();
@@ -279,6 +281,8 @@ export default {
     onSwitchTab(tab) {
       if (tab == 'applets') {
         this.getAccountData();
+      } else if (tab == 'users') {
+        this.tabData[tab].loading = true;
       } else {
         const role = this.tabNameToRole[tab];
 

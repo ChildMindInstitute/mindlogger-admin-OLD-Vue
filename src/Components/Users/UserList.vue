@@ -243,7 +243,12 @@ export default {
     getUserList: {
       type: Function,
       required: true,
-    }
+    },
+    reloading: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
 
   created() {
@@ -389,6 +394,11 @@ export default {
       },
       deep: true,
     },
+    reloading: function(reloading) {
+      if (reloading) {
+        this.updateUserList();
+      }
+    },
   },
 
   beforeMount() {
@@ -413,6 +423,8 @@ export default {
         this.totalUsers = resp.total;
 
         this.formattedUsers = this.getFormattedUsers();
+
+        this.$emit('userDataReloaded');
       })
     }, 270);
 
