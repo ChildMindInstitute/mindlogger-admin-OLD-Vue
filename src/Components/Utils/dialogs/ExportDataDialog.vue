@@ -4,19 +4,21 @@
     max-width="500px"
     @input="$emit('input', $event)"
   >
-    <v-card class="pa-4">
+    <v-card
+      class="pa-4"
+    >
       <div class="title">
-        {{ $t('viewData') }}
+        {{ $t('exportData') }}
       </div>
 
-      <div class="sub-title"> {{ $t('selectAppletToViewData') }} </div>
+      <div class="sub-title"> {{ $t('selectAppletToExportData') }} </div>
 
       <v-card-text>
         <v-btn
           v-for="profile in profileList"
           :key="profile.appletId"
           class="view-btn"
-          @click="onViewData(profile)"
+          @click="onExportData(profile)"
         >
           {{ profile.identifier }}
         </v-btn>
@@ -83,13 +85,13 @@
       }
     },
     methods: {
-      onViewData(profile) {
-        this.$emit('onViewData', {
+      onExportData(profile) {
+        this.$emit('onExportData', {
           appletId: profile.appletId,
           profile: this.user[profile.appletId],
-          viewing: true
+          viewing: false
         });
-      },
+      }
     }
   }
 </script>

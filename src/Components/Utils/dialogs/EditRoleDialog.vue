@@ -113,7 +113,7 @@
 </style>
 
 <script>
-  import { rolesMixin } from '../../Users/rolesMixin';
+  import { RolesMixin } from '../mixins/RolesMixin';
   import MRNSelectionDialog from './MRNSelectionDialog';
   import api from "../api/api";
 
@@ -124,7 +124,7 @@
     components: {
       MRNSelectionDialog
     },
-    mixins: [rolesMixin],
+    mixins: [RolesMixin],
     props: {
       employer: {
         type: Object,

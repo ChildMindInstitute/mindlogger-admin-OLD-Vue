@@ -1,26 +1,40 @@
 <template>
   <v-dialog
     :value="value"
-    max-width="500px"
+    max-width="600px"
     @input="$emit('input', $event)"
   >
-    <v-card class="pa-4">
+    <v-card class="pa-4" v-if="!selectedProfile">
       <div class="title">
-        {{ $t('viewData') }}
+        {{ $t('individualScheduleSetup') }}
       </div>
 
-      <div class="sub-title"> {{ $t('selectAppletToViewData') }} </div>
+      <div class="sub-title"> {{ $t('selectAppletForSchedule') }} </div>
 
       <v-card-text>
         <v-btn
           v-for="profile in profileList"
           :key="profile.appletId"
           class="view-btn"
-          @click="onViewData(profile)"
+          @click="onViewCalendar(profile)"
         >
           {{ profile.identifier }}
         </v-btn>
       </v-card-text>
+    </v-card>
+    <v-card v-else>
+      <v-card-title>
+        {{ $t('individualScheduleAlert', { MRN: selectedProfile.MRN || selectedProfile.email })}}
+      </v-card-title>
+
+      <v-card-actions class="d-flex justify-space-around">
+        <v-btn @click="viewCalendar">
+          {{ $t('Yes') }}
+        </v-btn>
+        <v-btn @click="onCancel">
+          {{ $t('No') }}
+        </v-btn>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
@@ -45,7 +59,7 @@
   import api from "../api/api";
 
   export default {
-    name: 'ViewDataDialog',
+    name: 'SchedulingDialog',
     props: {
       user: {
         type: Object,
@@ -59,7 +73,7 @@
     data() {
       return {
         profileList: [],
-        dialog: false,
+        selectedProfile: null,
       }
     },
     computed: {
@@ -81,15 +95,30 @@
           identifier: `${applet.name} (${MRN ? 'MRN: ' + MRN : 'email: ' + profile.email})`
         });
       }
+      if (this.profileList.length === 1) {
+        this.selectedProfile = this.profileList[0];
+      }
     },
     methods: {
-      onViewData(profile) {
-        this.$emit('onViewData', {
-          appletId: profile.appletId,
-          profile: this.user[profile.appletId],
-          viewing: true
+      onViewCalendar(profile) {
+        this.selectedProfile = profile;
+        if (profile.hasIndividualEvent) {
+          this.viewCalendar();
+        }
+      },
+      viewCalendar() {
+        this.$emit('onViewCalendar', {
+          appletId: this.selectedProfile.appletId,
+          profile: this.user[this.selectedProfile.appletId]
         });
       },
+      onCancel() {
+        if (this.profileList.length > 1) {
+          this.selectedProfile = null;
+        } else {
+          this.$emit('input', false);
+        }
+      }
     }
   }
 </script>

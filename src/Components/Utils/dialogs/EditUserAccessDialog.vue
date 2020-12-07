@@ -85,7 +85,7 @@
       AppletPassword,
     },
     props: {
-      employer: {
+      user: {
         type: Object,
         required: true,
       },
@@ -109,9 +109,9 @@
     },
     beforeMount() {
       this.profileList = [];
-      for (let appletId in this.employer) {
+      for (let appletId in this.user) {
         const applet = this.currentAccount.applets.find(applet => applet.id === appletId);
-        const profile = this.employer[appletId];
+        const profile = this.user[appletId];
 
         this.profileList.push({
           ...profile,
