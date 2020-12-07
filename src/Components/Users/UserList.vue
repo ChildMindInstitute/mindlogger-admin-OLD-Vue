@@ -420,7 +420,7 @@ export default {
         this.loading = false;
 
         this.users = resp.data.items;
-        this.totalUsers = resp.total;
+        this.totalUsers = resp.data.total;
 
         this.formattedUsers = this.getFormattedUsers();
 
