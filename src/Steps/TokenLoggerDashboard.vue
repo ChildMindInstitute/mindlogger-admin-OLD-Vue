@@ -1,31 +1,5 @@
 <template>
   <div class="wrapper">
-    <v-row
-      justify="space-between"
-      align="center"
-    >
-      <!-- Breadcrumb navigation -->
-      <v-breadcrumbs
-        :items="breadcrumbs()"
-        large
-      >
-        <template v-slot:divider>
-          <v-icon>mdi-chevron-right</v-icon>
-        </template>
-      </v-breadcrumbs>
-
-      <!-- Export button -->
-      <v-btn
-        rounded
-        dark
-        color="deep-purple accent-4"
-        class="export-btn"
-      >
-        <v-icon>import_export</v-icon>
-        EXPORT
-      </v-btn>
-    </v-row>
-
     <div
       v-if="loading"
       class="status-message"
@@ -95,18 +69,6 @@
   width: 90%;
   max-width: 1024px;
   margin: 2rem auto;
-}
-
-.v-breadcrumbs {
-  padding-left: 12px !important;
-}
-
-.v-breadcrumbs__item {
-  color: #8728fb !important;
-}
-
-.v-breadcrumbs__item--disabled {
-  color: #333 !important;
 }
 
 .v-card {
@@ -222,15 +184,7 @@ export default {
    * Component methods.
    */
   methods: {
-    breadcrumbs() {
-      const appletName = this.applet.label.en;
-      const appletId = this.$route.params.appletId;
 
-      return [
-        { text: appletName, to: `/applet/${appletId}/users` },
-        { text: this.$t('dashboard'), disabled: true },
-      ];
-    },
   },
 };
 </script>
