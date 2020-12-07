@@ -650,7 +650,7 @@ export default {
         formattedUsers.push({
           MRN: MRNs.filter(function(item, pos){
             return MRNs.indexOf(item) == pos; 
-          }).join(','),
+          }).join(', '),
           timeAgo: updated && this.timeAgo.format(new Date(updated), 'round'),
           currentScheduleStatus: hasIndividualEvent ? this.$t('individualSchedule') : this.$t('generalSchedule'),
           updated,
