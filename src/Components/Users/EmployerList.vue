@@ -8,8 +8,6 @@
         class="search-input"
         outlined
       />
-
-      <span>{{ $t("search") }}</span>
     </div>
 
     <v-data-table

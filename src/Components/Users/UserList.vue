@@ -12,8 +12,6 @@
           @change="updateFilter"
           @input="updateFilter"
         />
-
-        <span>{{ $t("search") }}</span>
       </div>
       <v-btn
         v-if="multiSelectionEnabled"
@@ -157,7 +155,6 @@
 
   .reset-selection {
     margin-right: 10px;
-    text-transform: none;
   }
   .filter {
     width: 50%;
