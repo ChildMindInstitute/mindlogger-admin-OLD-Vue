@@ -207,7 +207,7 @@ export default {
           withVersions: true,
           users: Array.isArray(users) ? users : [users],
         },
-        this.$store.state.currentAppletMeta.encryption
+        this.$store.state.currentAppletData.applet.encryption
       );
 
       this.loading = false;

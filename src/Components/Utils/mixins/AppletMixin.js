@@ -67,7 +67,6 @@ export const AppletMixin = {
       })
       .then((resp) => {
         const { data } = resp;
-        const userIdToData = this.$store.state.currentUsers;
         const appletData = this.$store.state.allApplets[appletId];
 
         Applet.decryptResponses(data, appletData.applet.encryption);
@@ -95,7 +94,7 @@ export const AppletMixin = {
         }
 
         for (let response of data.responses) {
-          const { MRN, _id } = userIdToData[response.userId];
+          const _id = response.userId, MRN = response.MRN;
 
           for (let itemUrl in response.data) {
             let itemData = response.data[itemUrl];

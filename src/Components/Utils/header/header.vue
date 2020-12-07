@@ -253,8 +253,7 @@ export default {
           .getPublicKey()
           .equals(Buffer.from(applet.encryption.appletPublicKey))
       ) {
-        this.dialog = false;
-
+        this.appletPasswordDialog = false;
         this.exportUserData(applet, Array.from(encryptionInfo.getPrivateKey()));
       } else {
         this.$refs.appletPasswordDialog.defaultErrorMsg = this.$t('incorrectAppletPassword');
