@@ -62,6 +62,7 @@
               @onAppletPasswordChanged="onAppletPasswordChanged"
               @onOwnerShipInviteSuccessful="onOwnerShipInviteSuccessful"
               @onOwnerShipInviteError="onOwnerShipInviteError"
+              @onDuplicateRequestReceived="onDuplicateRequestReceived"
             />
           </v-card>
           <v-card
@@ -168,7 +169,7 @@ import api from "../Components/Utils/api/api.vue";
 import _ from "lodash";
 import Loading from "../Components/Utils/Loading";
 import { Parse, Day } from "dayspan";
-import Information from "../Components/Utils/dialogs/information.vue";
+import Information from "../Components/Utils/dialogs/InformationDialog.vue";
 
 import config from "../config";
 import AppletList from "../Components/Applets/AppletList";
@@ -405,6 +406,11 @@ export default {
     onOwnerShipInviteError() {
       this.dialogText = this.$t('requestTransferFailed',);
       this.dialogTitle = this.$t('requestFailed');
+      this.dialog = true;
+    },
+    onDuplicateRequestReceived(message) {
+      this.dialogText = message;
+      this.dialogTitle = this.$t('appletDuplication');
       this.dialog = true;
     }
   },

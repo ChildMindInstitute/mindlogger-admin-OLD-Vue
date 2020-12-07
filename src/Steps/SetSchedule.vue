@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="schedule">
     <Calendar
       ref="calendar"
       :activities="activities"
@@ -51,15 +51,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-btn
-      color="primary"
-      fixed
-      bottom
-      left
-      @click="$router.go(-1)"
-    >
-      {{ $t("back") }}
-    </v-btn>
 
     <template>
       <div class="tools">
@@ -102,13 +93,18 @@
   text-align: right;
   right: 32px;
 }
+
+.schedule {
+  padding: 10px;
+  background-color: white;
+}
 </style>
 
 <script>
 import _ from "lodash";
 import Calendar from "../Components/CalendarComponents/CalendarMain";
 import api from "../Components/Utils/api/api.vue";
-import { AppletMixin } from '../Components/Applets/appletMixin';
+import { AppletMixin } from '../Components/Utils/mixins/AppletMixin';
 
 export default {
   name: "Schedule",

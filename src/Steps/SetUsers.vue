@@ -1,204 +1,125 @@
 <template>
-  <div class="users">
-    <div
-      v-if="status === 'loading'"
-      class="loading"
-    >
-      <v-progress-circular
-        color="primary"
-        indeterminate
-      />
-    </div>
-    <div v-else>
-      <h1>{{ $t('activeUsers') }}</h1>
-      <active-user-table
-        ref="userTableRef"
-        key="componentKey"
-        :users="activeUserList"
-        :appletId="$route.params.appletId"
-        @reUploadResponse="responseReUploadEvent"
-      />
-      
-      <div v-if="hasRoles('manager', 'coordinator')">
-        <h1>{{ $t('pendingInvitations') }}</h1>
-        <pending-invite-table :users="pendingInviteList" />
-        <create-invitation-form @createInvitation="createInvitation" />
-        <div style="height: 58px;" />
-      </div>
-    </div>
-
-    <AppletPassword
-      ref="appletPasswordRef"
-      v-model="appletPasswordDialog"
-      :hasConfirmPassword="false"
-      @set-password="onClickSubmitPassword"
-    />
-
-    <v-dialog
-      v-model="responseUpdateDialog.visible"
-      max-width="500px"
-    >
-      <v-card>
-        <v-card-title
-          class="headline grey lighten-2"
-          primary-title
+  <v-container fluid>
+    <v-card class="users">
+      <div class="tabs">
+        <v-tabs
+          v-model="selectedTab"
+          background-color="white"
+          color="black"
+          light
+          left
         >
-          {{ $t('refreshResponse') }}
-        </v-card-title>
-        <v-card-text>
-          {{ $t('doYouWant') }}
-          {{ responseUpdateDialog.userData.displayName }}
-          {{ $t('dataOnDevice') }}
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            color="primary"
-            text
-            @click="onReuploadResponse"
+          <template v-for="tab in tabs">
+            <v-tab
+              :key="tab"
+              @click="onSwitchTab(tab)"
+            >
+              {{ $t(tab) }}
+            </v-tab>
+          </template>
+        </v-tabs>
+      </div>
+
+      <v-tabs-items v-model="selectedTab">
+        <v-tab-item
+          v-for="tab in tabs"
+          :key="tab"
+        >
+          <v-card
+            v-if="tab == 'users'"
+            flat
           >
-            {{ $t('yes') }}
-          </v-btn>
-          <v-btn
-            color="primary"
-            text
-            @click="onDeclineReuploading"
+            <UserList
+              :getUserList="getAppletUsers"
+              :multiSelectionEnabled="true"
+              @onReuploadResponse="responseReUploadEvent"
+            />
+          </v-card>
+          <v-card
+            v-else-if="tab == 'invitation'"
+            class="pa-4"
           >
-            {{ $t('no') }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+            <h1>{{ $t('pendingInvitations') }}</h1>
+            <pending-invite-table :users="tabData[tab].list" :loading="tabData[tab].loading" />
+            <create-invitation-form @createInvitation="createInvitation" :key="invitationFormKey"/>
+            <div style="height: 58px;" />
+          </v-card>
+          <v-card
+            v-else
+            flat
+          >
+            <EmployerList
+              :loading="tabData[tab].loading"
+              :employers="tabData[tab].list"
+              :role="tabNameToRole[tab]"
+              :hasRoleColumn="true"
+              @onEditRoleSuccessfull="onEditRoleSuccessfull"
+            />
+          </v-card>
+        </v-tab-item>
+      </v-tabs-items>
+    </v-card>
 
     <Information
       v-model="informationDialog"
       :dialogText="informationText"
-      :title="$t('refreshResponse')"
+      :title="informationTitle"
     />
 
-    <div class="tools">
-      <!-- EXPORT BUTTON -->
-      <v-tooltip
-        v-if="hasRoles('owner', 'manager', 'reviewer')"
-        top
-      >
-        <template v-slot:activator="{ on }">
-          <v-btn
-            fab
-            color="primary"
-            @click="onUserDataExport"
-            v-on="on"
-          >
-            <v-icon>mdi-export-variant</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $t('exportUsersData') }}</span>
-      </v-tooltip>
+    <AppletPassword
+      v-model="appletPasswordDialog"
+      :hasConfirmPassword="false"
+      @set-password="onClickSubmitPassword"
+      ref="appletPasswordRef"
+    />
 
-      <!-- CALENDAR BUTTON -->
-      <v-tooltip
-        v-if="hasRoles('owner', 'manager', 'coordinator')"
-        top
-      >
-        <template v-slot:activator="{ on }">
-          <v-btn
-            fab
-            color="primary"
-            @click="viewCalendar"
-            v-on="on"
-          >
-            <v-icon>mdi-calendar</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $t('viewSchedule') }}</span>
-      </v-tooltip>
-
-      <!-- DASHBOARD BUTTON -->
-      <v-tooltip
-        v-if="dashboardEnabled"
-        top
-      >
-        <template v-slot:activator="{ on }">
-          <v-btn
-            fab
-            color="primary"
-            @click="onReviewerDashboard"
-            v-on="on"
-          >
-            <v-icon>mdi-chart-bar</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $t('viewAppletDashboard') }}</span>
-      </v-tooltip>
-    </div>
-
-    <footer class="footer">
-      <!-- BACK BUTTON -->
-      <v-btn
-        color="primary"
-        @click="$router.go(-1)"
-      >
-        {{ $t('back') }}
-      </v-btn>
-    </footer>
-  </div>
+    <ResponseUpdateDialog
+      v-model="responseUpdateDialog.visible"
+      :userData="responseUpdateDialog.userData"
+      :key="responseUpdateDialog.key"
+      @onReuploadResponse="onReuploadResponse"
+      @onDeclineReuploading="onDeclineReuploading"
+    />
+  </v-container>
 </template>
 
 <style scoped>
 .users {
   background-color: white !important;
-  padding: 20px;
 }
 .loading {
   text-align: center;
 }
 
-.tools {
-  position: fixed;
-  bottom: 70px;
-  right: 70px;
-  left: auto;
-
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-.tools > *:not(:last-of-type) {
-  margin-right: 0.5rem;
-}
-
-.footer {
-  position: fixed;
-  bottom: 16px;
-  left: 16px;
-  right: auto;
-}
 </style>
 
 <script>
 import _ from 'lodash';
-import ObjectToCSV from 'object-to-csv';
 
-import ActiveUserTable from '../Components/Users/ActiveUserTable.vue';
+import EmployerList from "../Components/Users/EmployerList";
+import UserList from "../Components/Users/UserList";
+
 import PendingInviteTable from '../Components/Users/PendingInviteTable.vue';
 import CreateInvitationForm from '../Components/Users/CreateInvitationForm.vue';
 import api from '../Components/Utils/api/api.vue';
 import AppletPassword from '../Components/Utils/dialogs/AppletPassword';
 import encryption from '../Components/Utils/encryption/encryption.vue';
 import Applet from '../models/Applet';
-import Information from '../Components/Utils/dialogs/information.vue';
+import Information from '../Components/Utils/dialogs/InformationDialog.vue';
+import ResponseUpdateDialog from '../Components/Utils/dialogs/ResponseUpdateDialog.vue';
 import Item from '../models/Item';
-import { AppletMixin } from '../Components/Applets/appletMixin';
+import { AppletMixin } from '../Components/Utils/mixins/AppletMixin';
 
 export default {
   name: 'SetUsers',
   components: {
-    ActiveUserTable,
     PendingInviteTable,
     CreateInvitationForm,
     AppletPassword,
     Information,
+    EmployerList,
+    UserList,
+    ResponseUpdateDialog,
   },
   mixins: [AppletMixin],
   data: () => ({
@@ -211,9 +132,24 @@ export default {
     responseUpdateDialog: {
       visible: false,
       userData: {},
+      key: 0,
     },
+
     informationDialog: false,
     informationText: '',
+    informationTitle: '',
+
+    tabs: [],
+    tabNameToRole: {
+      users: 'user',
+      reviewers: 'reviewer',
+      editors: 'editor',
+      coordinators: 'coordinator',
+      managers: 'manager'
+    },
+    tabData: {},
+    selectedTab: null,
+    invitationFormKey: 0,
   }),
   computed: {
     dashboardEnabled() {
@@ -244,11 +180,11 @@ export default {
   watch: {
     $route(to, from) {
       this.status = 'loading';
-      this.getAppletUsers().then(() => {
+
+      Promise.resolve().then(() => {
         if (!this.isLatestApplet(this.currentAppletMeta)) {
           return this.loadApplet(this.currentAppletMeta.id)
         }
-
         return Promise.resolve();
       }).then( () => {
         this.status = 'ready'
@@ -256,9 +192,15 @@ export default {
     },
   },
   mounted() {
-    this.$store.commit('setUsers', []);
+    for (let tab of ['users', 'reviewers', 'editors', 'coordinators', 'managers', 'invitation']) {
+      this.$set(this.tabData, tab, {
+        loading: false,
+        list: [],
+        total: 0
+      });
+    }
 
-    this.getAppletUsers().then(() => {
+    Promise.resolve().then(() => {
       if (!this.isLatestApplet(this.currentAppletMeta)) {
         return this.loadApplet(this.currentAppletMeta.id);
       }
@@ -268,173 +210,81 @@ export default {
       this.status = 'ready';
 
       this.$store.commit('setCurrentRetentionSettings', this.$store.state.currentAppletData.applet.retentionSettings);
+
+      if (this.hasRoles('manager', 'coordinator', 'reviewer')) {
+        this.tabs.push('users');
+      }
+      if (this.hasRoles('manager')) {
+        this.tabs.push('reviewers', 'editors', 'coordinators', 'managers');
+      }
+      if (this.hasRoles('manager', 'coordinator')) {
+        this.tabs.push('invitation');
+      }
     })
   },
   methods: {
+    onSwitchTab(tab) {
+      this.tabData[tab].loading = true;
+
+      if (tab == 'invitation') {
+        return this.getInvitations().then(resp => {
+          this.$set(this.tabData, tab, {
+            loading: false,
+            list: resp.data,
+            total: resp.data.length
+          })
+        });
+      }
+
+      const role = this.tabNameToRole[tab];
+
+      return this.getAppletUsers(role).then(resp => {
+        this.$set(this.tabData, tab, {
+          loading: false,
+          list: resp.data.items,
+          total: resp.data.total
+        });
+      });
+    },
+    /**
+     * Fetches the listing of users for the current applet.
+     *
+     * @return {void}
+     */
+    getAppletUsers(role, filter='', pagination={ allow: false }, sort={ allow: false }) {
+      return api.getAccountUserList({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        appletId: this.currentAppletMeta.id,
+        role,
+        MRN: filter,
+        pagination,
+        sort
+      });
+    },
+
+    getInvitations() {
+      return api.getInvitations({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        appletId: this.currentAppletMeta.id,
+      });
+    },
+
     hasRoles() {
       return [].some.call(arguments, (role) =>
         this.currentAppletMeta.roles.includes(role)
       );
     },
-    updateTables() {
-      this.componentKey += 1;
-    },
-    onUserDataExport() {
-      const encryptionInfo = this.currentAppletData.applet.encryption;
 
-      if (
-        !encryptionInfo ||
-        !encryptionInfo.appletPrime ||
-        encryptionInfo.appletPrivateKey
-      ) {
-        this.exportUsersData();
-      } else {
-        this.appletPasswordDialog = true;
-        this.requestedAction = this.exportUsersData.bind(this);
-      }
+    onEditRoleSuccessfull() {
+      this.onSwitchTab(this.tabs[this.selectedTab]).then((resp) => {
+        this.informationDialog = true;
+        this.informationText = this.$t('organizerRoleUpdate');
+        this.informationTitle = this.$t('organizerRoleUpdateSuccess');
+      })
     },
 
-    /**
-     * export user data for selected users
-     */
-    exportUsersData() {
-      this.$refs.userTableRef.getSelectedNodes();
-
-      this.appletPasswordDialog = false;
-
-      const appletId = this.currentAppletMeta.id;
-      const payload = {
-        users: this.currentUsers.join(','),
-      };
-
-      api
-        .getUsersData({
-          apiHost: this.$store.state.backend,
-          token: this.$store.state.auth.authToken.token,
-          appletId: appletId,
-          options: payload,
-        })
-        .then((resp) => {
-          const { data } = resp;
-          const activeUsers = this.$store.state.users.active,
-            userIdToData = {};
-          for (let user of activeUsers) {
-            userIdToData[user['_id']] = user;
-          }
-
-          Applet.decryptResponses(data, this.currentAppletData.applet.encryption);
-
-          const result = [];
-
-          const currentItems = {};
-          for (let itemUrl in this.currentAppletData.items) {
-            currentItems[itemUrl] = new Item(this.currentAppletData.items[itemUrl]);
-          }
-
-          for (let itemId in data.items) {
-            data.items[itemId] = new Item(data.items[itemId])
-          }
-
-          for (let version in data.itemReferences) {
-            for (let key in data.itemReferences[version]) {
-              if (!data.itemReferences[version][key]) {
-                continue;
-              }
-
-              const itemId = data.itemReferences[version][key];
-              data.itemReferences[version][key] = data.items[itemId];
-            }
-          }
-
-          for (let response of data.responses) {
-            const { MRN, displayName, _id } = userIdToData[response.userId];
-
-            for (let itemUrl in response.data) {
-              let itemData = response.data[itemUrl];
-
-              if (itemData && itemData.ptr !== undefined && itemData.src !== undefined) {
-                response.data[itemUrl] =
-                  data.dataSources[itemData.src].data[itemData.ptr];
-              }
-
-              let item = (data.itemReferences[response.version] && data.itemReferences[response.version][itemUrl])
-                             || currentItems[itemUrl];
-              if (!item) {
-                continue;
-              }
-
-              let options = [];
-              let responseData = [];
-
-              if (response.data[itemUrl] === null ) {
-                responseData = null;
-              } else if (item.inputType === 'radio') {
-                options = item.responseOptions.map(option => `${Object.values(option.name)[0]}: ${option.value}`);
-                if (!Array.isArray(response.data[itemUrl])) {
-                  response.data[itemUrl] = [response.data[itemUrl]]
-                }
-
-                response.data[itemUrl].forEach(val => {
-                  if (typeof val === 'string') {
-                    let option = item.responseOptions.find(option => Object.values(option.name)[0] === val);
-                    if (option) {
-                      responseData.push(option.value);
-                    }
-                  } else {
-                    responseData.push(val);
-                  }
-                });
-              } else {
-                if (typeof response.data[itemUrl] == 'object' && response.data[itemUrl]) {
-                  responseData = Object.keys(response.data[itemUrl]).map(key => `${key}: ${JSON.stringify(response.data[itemUrl][key]).replace(/[,"]/g, ' ')}`);
-                } else {
-                  responseData = [response.data[itemUrl]];
-                }
-              }
-
-              result.push({
-                id: response._id,
-                created: response.created,
-                MRN: MRN || null,
-                displayName,
-                userId: _id,
-                activity: response.activity.name,
-                item: itemUrl,
-                response: responseData,
-                options: options.join(', '),
-                version: response.version
-              });
-            }
-          }
-
-          let otc = new ObjectToCSV({
-            keys: [
-              'id',
-              'created',
-              'MRN',
-              'displayName',
-              'userId',
-              'activity',
-              'item',
-              'response',
-              'options',
-              'version'
-            ].map((value) => ({ key: value, as: value })),
-            data: result,
-          });
-
-          let anchor = document.createElement('a');
-          anchor.href =
-            'data:text/csv;charset=utf-8,' + encodeURIComponent(otc.getCSV());
-          anchor.target = '_blank';
-          anchor.download = 'report.csv';
-          anchor.click();
-        })
-        .catch((e) => {
-          this.exportError = e.message;
-          this.userPasswordDialog = true;
-        });
-    },
     createInvitation(invitationOptions) {
       this.status = 'loading';
 
@@ -452,9 +302,10 @@ export default {
           ) {
             this.setAccountName(invitationOptions.accountName);
           }
-          return this.getAppletUsers()
+          return this.onSwitchTab(this.tabs[this.selectedTab])
         }).then(() => {
           this.status = 'ready';
+          this.invitationFormKey++;
         })
         .catch((e) => {
           this.error = e;
@@ -463,8 +314,11 @@ export default {
     },
 
     responseReUploadEvent(user) {
-      this.responseUpdateDialog.userData = user;
-      this.responseUpdateDialog.visible = true;
+      this.$set(this, 'responseUpdateDialog', {
+        userData: user,
+        visible: true,
+        key: this.responseUpdateDialog.key + 1
+      });
     },
 
     onReuploadResponse() {
@@ -487,6 +341,7 @@ export default {
       this.responseUpdateDialog.visible = false;
       this.informationDialog = true;
       this.informationText = this.$i18n.t('refreshDeclined');
+      this.informationTitle = this.$i18n.t('refreshResponse');
     },
 
     updateUserResponse(userData) {
@@ -543,33 +398,12 @@ export default {
               data: form,
             })
             .then((msg) => {
-              this.getAppletUsers().then(() => {
+              this.onSwitchTab(this.tabs[this.selectedTab]).then(() => {
                 this.informationDialog = true;
                 this.informationText = this.$i18n.t('refreshComplete');
+                this.informationTitle = this.$i18n.t('refreshResponse');
               });
             });
-        });
-    },
-
-    /**
-     * Fetches the listing of users for the current applet.
-     *
-     * @return {void}
-     */
-    getAppletUsers() {
-      return api
-        .getAppletUsers({
-          apiHost: this.$store.state.backend,
-          token: this.$store.state.auth.authToken.token,
-          appletId: this.$route.params.appletId,
-        })
-        .then((resp) => {
-          this.$store.commit('setUsers', resp.data);
-          this.updateTables();
-        })
-        .catch((e) => {
-          this.error = e;
-          this.status = 'error';
         });
     },
 
@@ -593,33 +427,6 @@ export default {
         .catch((err) => {
           console.warn(err);
         });
-    },
-
-    /**
-     * Navigates to the applet schedule calendar.
-     *
-     * @return {void}
-     */
-    viewCalendar() {
-      const { appletId } = this.$route.params;
-
-      this.$refs.userTableRef.getSelectedNodes();
-      this.$router.push(`/applet/${appletId}/schedule`).catch(err => {});
-    },
-
-    onReviewerDashboard() {
-      const encryptionInfo = this.currentAppletData.applet.encryption;
-
-      if (
-        !encryptionInfo ||
-        !encryptionInfo.appletPrime ||
-        encryptionInfo.appletPrivateKey
-      ) {
-        this.gotoDashboard();
-      } else {
-        this.appletPasswordDialog = true;
-        this.requestedAction = this.gotoDashboard.bind(this);
-      }
     },
 
     /** check applet password */
@@ -650,22 +457,6 @@ export default {
         this.$refs.appletPasswordRef.defaultErrorMsg =
           'Incorrect applet password';
       }
-    },
-
-    /**
-     * Navigates to the token dashboard page.
-     *
-     * @return {void}
-     */
-    gotoDashboard() {
-      const { appletId } = this.$route.params;
-
-      // Update the app state with the selected users.
-      this.$refs.userTableRef.getSelectedNodes();
-      this.$router.push({
-        path: `/applet/${appletId}/dashboard`,
-        query: { users: this.$store.state.currentUsers },
-      }).catch(err => {});
     },
   },
 };
