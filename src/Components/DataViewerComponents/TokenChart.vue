@@ -644,8 +644,7 @@ export default {
           for (let i = 0; i < features.length; i++) {
             const text = tooltip.querySelector(`.${features[i].slug}`)
             const name = features[i].name.en;
-            const responseOptValue = features[i].value;
-            const value = d.data[features[i].id] * responseOptValue;
+            const value = d.data[features[i].id] ;
 
             if (!value) {
               text.style.display = 'none';
