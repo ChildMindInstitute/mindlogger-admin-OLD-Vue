@@ -423,7 +423,7 @@ export default {
       const range = this.focusExtent;
       const timeDelta = range[1].getTime() - range[0].getTime();
       const numDays = Math.ceil(timeDelta / (24 * 60 * 60 * 1000));
-      return Math.min(this.width / numDays / this.versionChangeLimitPerDay - this.versionBarWidth, 40);
+      return Math.min(this.width / numDays / this.versionChangeLimitPerDay, 20);
     },
     widthPerDate() {
       const range = this.focusExtent;
@@ -770,7 +770,10 @@ export default {
           return 0;
         })
         .attr('width', d => {
-          return d.updated ? this.versionBarWidth : 0
+          const range = this.focusExtent;
+          const timeDelta = range[1].getTime() - range[0].getTime();
+          const numDays = Math.ceil(timeDelta / (24 * 60 * 60 * 1000));
+          return d.updated ? this.versionBarWidth / numDays * 5 : 0
         })
         .attr('y', 0)
         .attr('height', focusHeight)
