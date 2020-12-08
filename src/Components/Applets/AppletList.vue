@@ -35,7 +35,7 @@
               <span class="laptop-only">
                 <!-- view users -->
                 <v-tooltip
-                  v-if="item.roles.includes('reviewer') || item.roles.includes('manager')"
+                  v-if="item.roles.includes('coordinator') || item.roles.includes('reviewer') || item.roles.includes('manager')"
                   top
                 >
                   <template v-slot:activator="{ on }">
