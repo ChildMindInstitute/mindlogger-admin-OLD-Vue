@@ -243,23 +243,7 @@ export default {
         invitationOptions.accountName = this.params.accountName;
       }
       if (this.params.role === "reviewer") {
-        invitationOptions.users = [];
-        let userIds = this.params.users;
-        let activeUsers = this.activeUserList;
-        let userData;
-        let userId;
-
-        for (let i = 0; i < userIds.length; i++) {
-          userId = userIds[i];
-
-          for (let j = 0; j < activeUsers.length; j++) {
-            userData = activeUsers[j];
-
-            if (userData.MRN === userId || userData._id === userId) {
-              invitationOptions.users.push(userData._id);
-            }
-          }
-        }
+        invitationOptions.users = this.params.users;
       }
 
       this.$emit("createInvitation", invitationOptions);

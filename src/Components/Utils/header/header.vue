@@ -12,40 +12,72 @@
         {{ currentApplet.name }} 
       </v-btn>
 
-      <v-btn
+      <v-tooltip
         v-if="currentApplet && hasRoles('reviewer', 'manager', 'coordinator')"
-        :color="routeName == 'SetUsers' ? 'black' : 'primary'"
-        class="toolbar-btn"
-        @click="viewUsers"
+        bottom
       >
-        <v-icon>mdi-account-multiple</v-icon>
-      </v-btn>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            v-on="on"
+            :color="routeName == 'SetUsers' ? 'black' : 'primary'"
+            class="toolbar-btn"
+            @click="viewUsers"
+          >
+            <v-icon>mdi-account-multiple</v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $t('viewUsers') }}</span>
+      </v-tooltip>
 
-      <v-btn
+      <v-tooltip
         v-if="currentApplet && hasRoles('manager', 'coordinator')"
-        :color="routeName == 'SetSchedule' ? 'black' : 'primary'"
-        class="toolbar-btn"
-        @click="viewCalendar"
+        bottom
       >
-        <v-icon>mdi-calendar-month</v-icon>
-      </v-btn>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            v-on="on"
+            :color="routeName == 'SetSchedule' ? 'black' : 'primary'"
+            class="toolbar-btn"
+            @click="viewCalendar"
+          >
+            <v-icon>mdi-calendar-month</v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $t('viewCalendar') }}</span>
+      </v-tooltip>
 
-      <v-btn
+      <v-tooltip
         v-if="currentApplet && hasRoles('editor', 'manager')"
-        :color="routeName == 'Builder' ? 'black' : 'primary'"
-        class="toolbar-btn"
-        @click="onEditApplet"
+        bottom
       >
-        <v-icon>mdi-square-edit-outline</v-icon>
-      </v-btn>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            v-on="on"
+            :color="routeName == 'Builder' ? 'black' : 'primary'"
+            class="toolbar-btn"
+            @click="onEditApplet"
+          >
+            <v-icon>mdi-square-edit-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>{{$t('editApplet')}}</span>
+      </v-tooltip>
 
-      <v-btn
+      <v-tooltip
         v-if="currentApplet && hasRoles('reviewer', 'manager')"
-        class="toolbar-btn primary"
-        @click="onExportData"
+        bottom
       >
-        <v-icon class="export-icon">mdi-export</v-icon>
-      </v-btn>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            v-on="on"
+            class="toolbar-btn primary"
+            @click="onExportData"
+          >
+            <v-icon class="export-icon">mdi-export</v-icon>
+          </v-btn>
+        </template>
+        <span>{{$t('exportData')}}</span>
+      </v-tooltip>
 
       <v-spacer />
 

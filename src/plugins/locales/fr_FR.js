@@ -308,6 +308,9 @@ export default {
   individualScheduleAlert: `{MRN} est un membre du calendrier général. Souhaitez-vous établir un calendrier individuel avec des notifications pour {MRN} ?`,
   incorrectAppletPassword: `Mot de passe de l'applet incorrect`,
   resetSelection: `Réinitialiser la sélection`,
-  exportData: `Exportation des données utilisateur`,
+  exportUserData: `Exportation des données utilisateur`,
+  exportData: 'Export Data',
   selectAppletToExportData: `Veuillez sélectionner l'applet à partir duquel vous souhaitez exporter des données :`,
+  responses: 'Responses',
+  tokens: 'Tokens',
 };

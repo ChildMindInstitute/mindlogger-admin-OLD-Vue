@@ -304,6 +304,9 @@ export default {
   individualScheduleAlert: '{MRN} is a member of general schedule. Do you want to set an individual schedule with notifications for {MRN}?',
   incorrectAppletPassword: 'Incorrect applet password',
   resetSelection: 'Reset Selection',
-  exportData: 'User Data Export',
+  exportUserData: 'User Data Export',
+  exportData: 'Export Data',
   selectAppletToExportData: 'Please select applet to export data from: ',
+  responses: 'Responses',
+  tokens: 'Tokens',
 };

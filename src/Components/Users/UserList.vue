@@ -47,33 +47,66 @@
             class="cell"
           >
             <span v-if="header.value == 'manage' && item.selected">
-              <v-btn
+              <v-tooltip
                 v-if="item.scheduling.length > 0"
-                @click.stop="onViewCalendar(item)"
+                top
               >
-                <v-icon> mdi-calendar-month </v-icon>
-              </v-btn>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    v-on="on"
+                    @click.stop="onViewCalendar(item)"
+                  >
+                    <v-icon> mdi-calendar-month </v-icon>
+                  </v-btn>
+                </template>
+                <span>{{ $t('viewCalendar') }}</span>
+              </v-tooltip>
 
-              <v-btn
+              <v-tooltip
                 v-if="item.viewable.length > 0"
-                @click.stop="onViewUser(item)"
+                top
               >
-                <v-icon> mdi-chart-bar </v-icon>
-              </v-btn>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    v-on="on"
+                    @click.stop="onViewUser(item)"
+                  >
+                    <v-icon> mdi-chart-bar </v-icon>
+                  </v-btn>
+                </template>
+                <span>{{ $t('viewData') }}</span>
+              </v-tooltip>
 
-              <v-btn
+
+              <v-tooltip
                 v-if="item.viewable.length"
-                @click.stop="onExportUserData(item)"
+                top
               >
-                <v-icon class="export-icon">mdi-export</v-icon>
-              </v-btn>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    v-on="on"
+                    @click.stop="onExportUserData(item)"
+                  >
+                    <v-icon class="export-icon">mdi-export</v-icon>
+                  </v-btn>
+                </template>
+                <span>{{ $t('exportData') }}</span>
+              </v-tooltip>
 
-              <v-btn
+              <v-tooltip
                 v-if="item.editable.length > 0"
-                @click.stop="editUser(item)"
+                top
               >
-                <v-icon> mdi-delete </v-icon>
-              </v-btn>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    v-on="on"
+                    @click.stop="editUser(item)"
+                  >
+                    <v-icon> mdi-delete </v-icon>
+                  </v-btn>
+                </template>
+                <span>{{ $t('editAccess') }}</span>
+              </v-tooltip>
             </span>
             <span v-else-if="header.value == 'pinned'">
               <v-btn @click="switchPin(item, !item[header.value])">

@@ -8,7 +8,7 @@
       class="pa-4"
     >
       <div class="title">
-        {{ $t('exportData') }}
+        {{ $t('exportUserData') }}
       </div>
 
       <div class="sub-title"> {{ $t('selectAppletToExportData') }} </div>
