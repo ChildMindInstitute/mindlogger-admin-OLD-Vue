@@ -154,7 +154,7 @@
     beforeMount() {
       const currentAccount = this.$store.state.currentAccount;
 
-      this.allRoles = this.localizedRoles.filter(role => role.name != 'owner').map(role => ({
+      this.allRoles = this.localizedRoles.filter(role => role.name != 'owner' && role.name != 'user').map(role => ({
         text: role.title,
         ...role
       }));
@@ -167,7 +167,7 @@
           editable: !this.employer[appletId].roles.includes('manager') || applet.roles.includes('owner'),
           appletName: applet.name,
           ...this.employer[appletId],
-          roles: this.employer[appletId].roles.map(role => this.allRoles.find(localized => localized.name === role))
+          roles: this.employer[appletId].roles.filter(role => role != 'user').map(role => this.allRoles.find(localized => localized.name === role))
         });
       }
     },
