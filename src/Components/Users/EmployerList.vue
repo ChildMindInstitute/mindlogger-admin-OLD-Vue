@@ -215,14 +215,20 @@ export default {
         }
 
         if (data.firstName.includes(this.searchText) || data.lastName.includes(this.searchText) || data.email.includes(this.searchText)) {
-          formatted.push({
+          const formattedInfo = {
             firstName: data.firstName,
             lastName: data.lastName,
             email: data.email,
             roles: this.localizedRoles.filter(role => role.name != 'user' && data.roles.includes(role.name)).map(role => role.title),
             editable,
             id: i
-          });
+          };
+
+          if (data.roles.includes('owner')) {
+            formattedInfo.roles = [this.$t('owner')];
+          }
+
+          formatted.push(formattedInfo);
         }
       }
 
