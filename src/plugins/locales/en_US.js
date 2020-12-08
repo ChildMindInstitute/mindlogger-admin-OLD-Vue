@@ -218,7 +218,7 @@ export default {
   editExisting: 'Edit Existing Applet',
   duplicateExisting: 'Duplicate Existing Applet',
   appletName: 'Applet Name',
-  transferOwnership: 'Transfer ownership',
+  transferOwnership: 'Transfer Ownership',
   transferAppletOwnership: 'Transfer Applet Ownership',
   ownerEmail: 'Owner email',
   userPassword: 'User Password',
