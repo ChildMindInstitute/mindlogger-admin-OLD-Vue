@@ -419,6 +419,11 @@ export default {
     },
     resize() {
       const dimensions = this.$refs.container.getBoundingClientRect();
+
+      if (!dimensions.width && !dimensions.height) {
+        return false;
+      }
+
       this.width = dimensions.width - this.focusMargin.left - this.focusMargin.right;
       this.height = dimensions.height - this.focusMargin.top - this.focusMargin.bottom;
       this.focusHeight = 650 - this.focusMargin.top - this.focusMargin.bottom;
@@ -439,6 +444,8 @@ export default {
           [this.width + this.focusBarWidth(), this.contextMargin.top + this.contextHeight],
         ]);
       }
+
+      return true;
     },
     /**
      * Renders the histogram with the plotted data.
@@ -447,12 +454,13 @@ export default {
      */
     render() {
       this.svg = d3.select('#' + this.plotId);
-      this.resize();
-      this.drawAxes();
-      this.drawBrush();
-      this.drawFocusChart();
-      this.drawVersionBars();
-      this.drawContextChart();
+      if (this.resize()) {
+        this.drawAxes();
+        this.drawBrush();
+        this.drawFocusChart();
+        this.drawVersionBars();
+        this.drawContextChart();
+      }
     },
     /**
      * Draws the axes for the histogram.
