@@ -28,7 +28,7 @@
         />
       </slot>
 
-      <div class="ds-event-actions">
+      <div class="ds-event-actions" style="display: flex">
         <!-- Save -->
         <slot name="scheduleSave" v-bind="{ hasSave, save, labels, readOnly }">
           <v-btn

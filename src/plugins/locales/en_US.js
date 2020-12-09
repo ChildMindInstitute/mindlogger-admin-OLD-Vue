@@ -19,6 +19,7 @@ export default {
   lastNameRequired: 'Last Name is required',
   passwordRequired: 'Password is required',
   refresh: 'Refresh',
+  repeatOptions:'Repeat Options',
   delete: 'Delete',
   select: 'Select ',
   viewUsers: 'View Users',
@@ -46,7 +47,7 @@ export default {
   sendLinkPswdHosted: 'Send a link to reset your password hosted at ',
   loadingApplets: 'Loading Your Applets',
   appletIs:
-    'An applet is a collection of reusable surveys along with study-specific settings, like your usres and schedule',
+    'An applet is a collection of reusable surveys along with study-specific settings, like your users and schedule',
   userType: 'User type',
   invitationLink: 'Invitation Link',
   dateTimeInvited: 'Date & Time Invited',
@@ -81,6 +82,8 @@ export default {
   uploadActivitySet: 'Upload an activity set ',
   activitySetUrl: 'activity set url',
   add: 'Add',
+  activityAccessOptions: "Activity Access Options",
+  activityAvailable: "Activity Available",
   quickAdd: 'Quick Add',
   jsonLdFiles:
     'Below are a list of activity sets you can add. These are JSON-LD files that describe the questions of your applet. Eventually, there will be a library of questions and you will be able to create your own.',
@@ -150,8 +153,6 @@ export default {
     'You were invited by Owner to be a coordinator of *app name* applet on MindLogger.',
   acceptInvitation: 'Accept Invitation ',
   declineInvitation: 'Decline Invitation',
-  invitedToBeUser:
-    'You were invited by +15 to be a user of AppletName (1) ( single-file ) applet on MindLogger.',
   belowUsersAccess: 'Below are users that have access to your data',
   usersWhoCanSee: 'Users who can see your data for this applet:',
   usersChangeIncluding:
