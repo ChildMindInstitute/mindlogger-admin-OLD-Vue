@@ -1,75 +1,88 @@
 <template>
   <div class="ds-schedule" :class="classes">
-    <div v-if="showRange" class="ds-schedule-span">
-      <!-- Span -->
-
-      <slot name="scheduleSpan" v-bind="{ schedule, day }">
-        <schedule-span :schedule="schedule" :day="day" :read-only="readOnly" />
-      </slot>
-    </div>
-
-
     <schedule-times :schedule="schedule" :read-only="readOnly"  />
-
+    <br/>
     <div class="px-5">
+      <!-- Type -->
+      <v-row>
+        <div v-if="showRange" class="ds-schedule-span">
+          <!-- Span -->
+          <slot name="scheduleSpan" v-bind="{ schedule, day }">
+            <schedule-span :schedule="schedule" :day="day" :read-only="readOnly" />
+          </slot>
+        </div>
+      </v-row>
+      <v-row>
+        <div class="ds-schedule-type-select">
+          <slot name="scheduleType" v-bind="{ schedule, day, setType, custom }">
+            <schedule-type
+                :day="day"
+                :schedule="schedule"
+                :read-only="readOnly"
+                @change="setType"
+                @custom="custom"
+            />
+          </slot>
+        </div>
+      </v-row>
       <slot name="scheduleTimes" v-bind="{ schedule, day }" >
-          <v-row>
-            <v-col cols="8" class="d-flex child-flex">
+        <v-row>
+          <v-col cols="8" class="d-flex child-flex">
             <v-checkbox
-              :hide-details="true"
-              v-model="scheduledTimeout.allow"
-              @change="handleAccess"
-              :label="$t('timeout')"
+                :hide-details="true"
+                v-model="scheduledTimeout.allow"
+                @change="handleAccess"
+                :label="$t('timeout')"
             />
 
             <div v-if="scheduledTimeout.allow" class="ds-timeout-body">
               <div class="ds-timeout-units">
                 <v-text-field
-                  type="number"
-                  v-model="scheduledTimeout.day"
-                  :value="scheduledTimeoutDecimal.day"
-                  @change="onChangeDays"
-                  class="ds-schedule-timeout"
-                  single-line
-                  hide-details
-                  max="30"
-                  min="0"
-                  solo
-                  flat
+                    type="number"
+                    v-model="scheduledTimeout.day"
+                    :value="scheduledTimeoutDecimal.day"
+                    @change="onChangeDays"
+                    class="ds-schedule-timeout"
+                    single-line
+                    hide-details
+                    max="30"
+                    min="0"
+                    solo
+                    flat
                 />
                 <div class="ds-timeout-unit">{{ $t('days') }}</div>
               </div>
 
               <div class="ds-timeout-units">
                 <v-text-field
-                  type="number"
-                  v-model="scheduledTimeout.hour"
-                  :value="scheduledTimeoutDecimal.hour"
-                  @change="onChangeHours"
-                  class="ds-schedule-timeout"
-                  single-line
-                  hide-details
-                  max="23"
-                  min="00"
-                  solo
-                  flat
+                    type="number"
+                    v-model="scheduledTimeout.hour"
+                    :value="scheduledTimeoutDecimal.hour"
+                    @change="onChangeHours"
+                    class="ds-schedule-timeout"
+                    single-line
+                    hide-details
+                    max="23"
+                    min="00"
+                    solo
+                    flat
                 />
                 <div class="ds-timeout-unit">{{ $t('hours') }}</div>
               </div>
 
               <div class="ds-timeout-units">
                 <v-text-field
-                  type="number"
-                  v-model="scheduledTimeout.minute"
-                  :value="scheduledTimeoutDecimal.minute"
-                  @change="onChangeMinutes"
-                  class="ds-schedule-timeout"
-                  single-line
-                  hide-details
-                  max="59"
-                  min="00"
-                  solo
-                  flat
+                    type="number"
+                    v-model="scheduledTimeout.minute"
+                    :value="scheduledTimeoutDecimal.minute"
+                    @change="onChangeMinutes"
+                    class="ds-schedule-timeout"
+                    single-line
+                    hide-details
+                    max="59"
+                    min="00"
+                    solo
+                    flat
                 />
                 <div class="ds-timeout-unit">{{ $t('minutes') }}</div>
               </div>
@@ -79,78 +92,78 @@
               Timeout invalid: timeout should be non-zero.
             </div>
 
-            </v-col>
+          </v-col>
 
-            <v-col>
+          <v-col>
 
-             <v-checkbox 
-              :hide-details="true"
-              style="display: inline"
-              v-model="scheduledTimeout.access"
-              @change="handleAccess"
-              :label="$t('accessBefore')" />
-            </v-col>
+            <v-checkbox
+                :hide-details="true"
+                style="display: inline"
+                v-model="scheduledTimeout.access"
+                @change="handleAccess"
+                :label="$t('accessBefore')" />
+          </v-col>
 
-          </v-row>
+        </v-row>
 
-         
-           <v-row>
-            <v-col cols="8" class="d-flex child-flex">
-                <v-checkbox
-                    :hide-details="true"
-                    v-model="scheduledIdleTime.allow"
-                    @change="handleIdleTimeAccess"
-                    :label="$t('idleTime')"
-                  />
-     
 
-                <div v-if="scheduledIdleTime.allow" class="ds-timeout-body">
-                  <div class="ds-timeout-units">
-                    <v-text-field
-                      type="number"
-                      v-model="scheduledIdleTime.minute"
-                      :value="scheduledTimeoutDecimal.minute"
-                      @change="onChangeMinutes"
-                      class="ds-schedule-timeout"
-                      single-line
-                      hide-details
-                      max="59"
-                      min="00"
-                      solo
-                      flat
-                    />
-                    <div class="ds-timeout-unit">{{ $t('minutes') }}</div>
-                  </div>
-                </div>
+        <v-row>
+          <v-col cols="8" class="d-flex child-flex">
+            <v-checkbox
+                :hide-details="true"
+                v-model="scheduledIdleTime.allow"
+                @change="handleIdleTimeAccess"
+                :label="$t('idleTime')"
+            />
 
-                <div v-if="isTimeoutValid === false" class="error">
-                  Idle Time invalid: Idle Time should be non-zero.
-                </div>
-            </v-col>
-            
-            <v-col>
+
+            <div v-if="scheduledIdleTime.allow" class="ds-timeout-body">
+              <div class="ds-timeout-units">
+                <v-text-field
+                    type="number"
+                    v-model="scheduledIdleTime.minute"
+                    :value="scheduledTimeoutDecimal.minute"
+                    @change="onChangeMinutes"
+                    class="ds-schedule-timeout"
+                    single-line
+                    hide-details
+                    max="59"
+                    min="00"
+                    solo
+                    flat
+                />
+                <div class="ds-timeout-unit">{{ $t('minutes') }}</div>
+              </div>
+            </div>
+
+            <div v-if="isTimeoutValid === false" class="error">
+              Idle Time invalid: Idle Time should be non-zero.
+            </div>
+          </v-col>
+
+          <v-col>
 
             <v-checkbox
                 :hide-details="true"
                 v-model="scheduledDay"
                 @change="handleScheduledDay"
                 :label="$t('onlyScheduledDay')" />
-              </v-col>
-          </v-row>
+          </v-col>
+        </v-row>
 
 
 
-         <v-row>
-            <v-col cols="8" class="d-flex child-flex">
-              <v-checkbox
+        <v-row>
+          <v-col cols="8" class="d-flex child-flex">
+            <v-checkbox
                 :hide-details="true"
                 v-model="scheduledExtendedTime.allow"
                 @change="handleExtendedTimeAccess"
                 :label="$t('extendedPastDue')" />
 
-              <div v-if="scheduledExtendedTime.allow" class="ds-timeout-body">
-                <div class="ds-timeout-units">
-                  <v-text-field
+            <div v-if="scheduledExtendedTime.allow" class="ds-timeout-body">
+              <div class="ds-timeout-units">
+                <v-text-field
                     type="number"
                     v-model="scheduledExtendedTime.days"
                     :value="scheduledExtendedTimeDecimal.days"
@@ -162,23 +175,23 @@
                     min="00"
                     solo
                     flat
-                  />
-                </div>
+                />
+              </div>
 
-                <div class="ds-timeout-unit">{{ $t('days') }}</div>
-              </div>
-              
-              <div v-if="isTimeoutValid === false" class="error">
-                Extended Time invalid: Extended Time should be non-zero.
-              </div>
-            </v-col>
-            <v-col>
-                <v-checkbox
-                    :hide-details="true"
-                    v-model="oneTimeCompletion"
-                    @change="handleOneTimeCompletion"
-                    :label="$t('oneTimeCompletion')" />
-            </v-col>
+              <div class="ds-timeout-unit">{{ $t('days') }}</div>
+            </div>
+
+            <div v-if="isTimeoutValid === false" class="error">
+              Extended Time invalid: Extended Time should be non-zero.
+            </div>
+          </v-col>
+          <v-col>
+            <v-checkbox
+                :hide-details="true"
+                v-model="oneTimeCompletion"
+                @change="handleOneTimeCompletion"
+                :label="$t('oneTimeCompletion')" />
+          </v-col>
         </v-row>
       </slot>
     </div>
@@ -189,8 +202,8 @@
 
         <!-- Custom -->
         <ds-schedule-type-custom-dialog
-          ref="customScheduler"
-          v-bind="{ $scopedSlots }"
+            ref="customScheduler"
+            v-bind="{ $scopedSlots }"
         />
       </v-flex>
     </v-layout>
