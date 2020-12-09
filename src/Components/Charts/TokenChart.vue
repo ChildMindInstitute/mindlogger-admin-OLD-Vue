@@ -800,7 +800,9 @@ export default {
         .enter()
         .append('rect')
         .attr('class', 'negative-bar')
-        .attr('fill', '#ED8495')
+        .attr('opacity', d => this.getTokenValuePercent(d.negative))
+        .attr('file-opacity', d => this.getTokenValuePercent(d.negative))
+        .attr('fill', 'red')
         // Set the bar position and dimension.
         .attr('x', d => {
           const widthPerBar = contextWidthPerDate / d.bars;
@@ -817,7 +819,9 @@ export default {
         .enter()
         .append('rect')
         .attr('class', 'positive-bar')
-        .attr('fill', '#BEE0AC')
+        .attr('opacity', d => this.getTokenValuePercent(d.positive))
+        .attr('file-opacity', d => this.getTokenValuePercent(d.positive))
+        .attr('fill', 'green')
         // Set the bar position and dimension.
         .attr('x', d => {
           const widthPerBar = contextWidthPerDate / d.bars;
@@ -858,6 +862,13 @@ export default {
         }
       }
       return result;
+    },
+    getTokenValuePercent(value){
+      if (value > 0 && this.divergingExtent.max === 0 || value < 0 && this.divergingExtent.min === 0)
+      {
+        return 1;
+      }
+      return Math.abs(value) / (value > 0? this.divergingExtent.max : Math.abs(this.divergingExtent.min));
     },
     compareDates(accDate, date) {
       if (JSON.stringify(accDate) === JSON.stringify(date)) return true;
