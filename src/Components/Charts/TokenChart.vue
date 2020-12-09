@@ -2,14 +2,14 @@
   <div class="TokenChart" ref="container" >
 
     <div class="legend">
-      <div 
-        class="legend-item" 
-        v-for="feature in features"
-        :key="feature.slug"
+      <div
+          class="legend-item"
+          v-for="feature in features"
+          :key="feature.slug"
       >
-        <div 
-          class="color-box"
-          :style="{ background: feature.color }">
+        <div
+            class="color-box"
+            :style="{ background: feature.color }">
         </div>
         <div class="label">
           {{ `${feature.name.en} (${feature.value})` }}
@@ -18,73 +18,75 @@
     </div>
 
     <div class="time-range">
-      Showing data from
+      {{ $t('showingDataFrom') }}
 
       <v-menu>
         <template v-slot:activator="{ on }">
-          <v-btn 
-            depressed
-            class="ds-button-tall ma-0 mb-2 fromDate"
-            v-on="on"
+          <v-btn
+              depressed
+              class="ds-button-tall ma-0 mb-2 fromDate"
+              v-on="on"
           >
             {{ fromDate }}
           </v-btn>
         </template>
 
-        <v-date-picker 
-          no-title
-          @change="setStartDate"
-          :allowedDates="isAllowedStartDate"
+        <v-date-picker
+            :locale="$i18n.locale.slice(0, 2)"
+            no-title
+            :allowedDates="isAllowedStartDate"
+            @change="setStartDate"
         ></v-date-picker>
       </v-menu>
 
-      to
+      {{ $t('to') }}
 
       <v-menu>
         <template v-slot:activator="{ on }">
-          <v-btn 
-            depressed
-            class="ds-button-tall ma-0 mb-2 toDate"
-            v-on="on"
+          <v-btn
+              depressed
+              class="ds-button-tall ma-0 mb-2 toDate"
+              v-on="on"
           >
             {{ toDate }}
           </v-btn>
         </template>
 
-        <v-date-picker 
-          no-title
-          @change="setEndDate"
-          :allowedDates="isAllowedEndDate"
+        <v-date-picker
+            :locale="$i18n.locale.slice(0, 2)"
+            no-title
+            :allowedDates="isAllowedEndDate"
+            @change="setEndDate"
         ></v-date-picker>
       </v-menu>
     </div>
-    
+
     <div class="version">
       <v-select
-        :items="appletVersions"
-        label="versions"
-        @change="onVersionChanged"
-        v-model="selectedVersions"
-        multiple
+          v-model="selectedVersions"
+          :items="appletVersions"
+          :label="$t('versions')"
+          multiple
+          @change="onVersionChanged"
       ></v-select>
 
       <v-checkbox
-        v-model="hasVersionBars"
-        label="Show Version Changes"
-        @change="onVersionChanged"
+          v-model="hasVersionBars"
+          :label="$t('showVersionChanges')"
+          @change="onVersionChanged"
       ></v-checkbox>
     </div>
 
     <div class="chart-container">
-      <div 
-        class="tooltip"
-        style="display: none"
+      <div
+          class="tooltip"
+          style="display: none"
       >
         <div
-          v-for="feature in features"
-          :class="feature.slug" 
-          :key="feature.slug"
-        > 
+            v-for="feature in features"
+            :class="feature.slug"
+            :key="feature.slug"
+        >
         </div>
 
         <div class="cumulative"></div>
@@ -93,24 +95,34 @@
         <defs>
           <clipPath id="clip">
             <rect
-              width="500"
-              height="300"
+                width="500"
+                height="300"
             />
           </clipPath>
+          <marker id="arrowhead" markerWidth="7" markerHeight="5"
+                  refX="0" refY="2.5" orient="auto">
+            <polygon points="0 0, 7 2.5, 0 5" fill="gray"/>
+          </marker>
         </defs>
 
         <g class="y-axis" />
         <g class="x-axis" />
         <g
-          class="chart"
-          clip-path="url(#clip)"
-        />
+            class="chart"
+            clip-path="url(#clip)">
+
+          <g class="token-accumulation" />
+          <text v-for="(accumulation, i) in accumulations" class="accumulation-value" :key="i"
+                :x="accumulation.x" :y="accumulation.y" fill="gray">{{accumulation.text}} </text>
+
+        </g>
+
 
         <g class="context-y-axis" />
         <g class="context-x-axis" />
         <g
-          class="context-chart"
-          clip-path="url(#clip)"
+            class="context-chart"
+            clip-path="url(#clip)"
         />
       </svg>
     </div>
@@ -146,6 +158,10 @@
   flex-wrap: wrap;
   font-size: 0.8rem;
   margin: 1rem 0;
+}
+
+.accumulation-value {
+  font-size: 0.7em;
 }
 .TokenChart .legend .legend-item {
   display: flex;
@@ -228,13 +244,11 @@
       border-bottom: 1px solid #eee;
     }
   }
-  max-width: 300px;
 }
 .TokenChart .toDate,
 .TokenChart .fromDate {
   margin: 0 0.5rem !important;
 }
-
 </style>
 
 
@@ -247,12 +261,12 @@ import Applet from '../../models/Applet';
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const NOW = new Date();
 const TODAY = new Date(Date.UTC(
-  NOW.getFullYear(),
-  NOW.getMonth(),
-  NOW.getDate() + 1,
-  0,
-  0,
-  0,
+    NOW.getFullYear(),
+    NOW.getMonth(),
+    NOW.getDate() + 1,
+    0,
+    0,
+    0,
 ));
 const ONE_WEEK_AGO = new Date(TODAY);
 const ONE_MONTH_AGO = new Date(TODAY);
@@ -289,6 +303,7 @@ export default {
       bottom: 180,
       left: 30,
     },
+    accumulations: [],
     contextMargin: {
       top: 500,
       bottom: 30,
@@ -363,7 +378,7 @@ export default {
   methods: {
     /*
      * Handles change event for options
-     * 
+     *
      * @return {void}
      */
     onVersionChanged() {
@@ -387,9 +402,9 @@ export default {
      */
     setEndDate(date) {
       this.focusExtent[1] = moment
-        .utc(date)
-        .add(15, 'hours')
-        .toDate();
+          .utc(date)
+          .add(15, 'hours')
+          .toDate();
       this.render();
     },
     /**
@@ -400,8 +415,8 @@ export default {
      */
     isAllowedStartDate(date) {
       return (
-        (moment.utc(date) < this.focusExtent[1]) && 
-        (moment.utc(date) > ONE_MONTH_AGO)
+          (moment.utc(date) < this.focusExtent[1]) &&
+          (moment.utc(date) > ONE_MONTH_AGO)
       );
     },
     /**
@@ -412,8 +427,8 @@ export default {
      */
     isAllowedEndDate(date) {
       return (
-        (moment.utc(date) > this.focusExtent[0]) && 
-        (moment.utc(date) <= moment.utc())
+          (moment.utc(date) > this.focusExtent[0]) &&
+          (moment.utc(date) <= moment.utc())
       );
     },
     contextBarWidth() {
@@ -434,46 +449,46 @@ export default {
     drawBrush() {
       if (!this.brush) {
         this.brush = d3
-          .brushX()
-          .on('end', () => {
-            if (!d3.event.sourceEvent) return;  // Only transition after input.
-            if (!d3.event.selection) return;  // Ignore empty selections.
-            const selection = d3.event.selection.map(this.contextX.invert);
-            let fromDate = selection[0];
-            let toDate = selection[1];
-            this.focusExtent = [
-              fromDate,
-              toDate,
-            ];
-            this.drawAxes();
-            this.drawFocusChart();
-            this.drawVersionBars();
-          });
+            .brushX()
+            .on('end', () => {
+              if (!d3.event.sourceEvent) return;  // Only transition after input.
+              if (!d3.event.selection) return;  // Ignore empty selections.
+              const selection = d3.event.selection.map(this.contextX.invert);
+              let fromDate = selection[0];
+              let toDate = selection[1];
+              this.focusExtent = [
+                fromDate,
+                toDate,
+              ];
+              this.drawAxes();
+              this.drawFocusChart();
+              this.drawVersionBars();
+            });
       }
       d3.selectAll('.overlay').style('pointer-events', 'none');
       d3.selectAll('.handle').style('pointer-events', 'none');
       this.brush.extent([
         [
-          0, 
+          0,
           this.contextMargin.top - 5,
         ],
         [
-          this.width + this.focusBarWidth(), 
+          this.width + this.focusBarWidth(),
           this.contextMargin.top + this.contextHeight + 5,
         ],
       ]);
       if (!this.brushContainer) {
         this.brushContainer = this.svg
-          .append('g')
-          .call(this.brush)
-          .call(
-            this.brush.move, 
-            [ONE_WEEK_AGO, TODAY].map(this.contextX),
-          );
+            .append('g')
+            .call(this.brush)
+            .call(
+                this.brush.move,
+                [ONE_WEEK_AGO, TODAY].map(this.contextX),
+            );
       } else {
         this.brushContainer.call(
-          this.brush.move,
-          this.focusExtent.map(this.contextX),
+            this.brush.move,
+            this.focusExtent.map(this.contextX),
         );
       }
     },
@@ -491,21 +506,25 @@ export default {
       }
       let positive;
       let negative;
+      let cumulativePositiveToken = 0
       // Find the maximum value for cumulative user responses.
       for (let i = 0; i < this.data.length; i++) {
         positive = this.data[i].positive;
+        cumulativePositiveToken += positive;
         negative = this.data[i].negative;
         if (positive > this.divergingExtent.max) {
           this.divergingExtent.max = positive;
         }
         if (negative < this.divergingExtent.min) {
           this.divergingExtent.min = negative;
-        } 
+        }
       }
+      this.divergingExtent.max = cumulativePositiveToken;
+
       if (this.divergingExtent.max % 2) {
         this.divergingExtent.max += 1;
       }
-      
+
       if (this.divergingExtent.min % 2) {
         this.divergingExtent.min -= 1;
       }
@@ -518,13 +537,13 @@ export default {
       this.contextHeight = 650 - this.contextMargin.top - this.contextMargin.bottom;
       // Set dimensions.
       this.svg
-        .attr('width', dimensions.width)
-        .attr('height', dimensions.height);
+          .attr('width', dimensions.width)
+          .attr('height', dimensions.height);
       // Set clip path.
       this.svg
-        .select("#clip rect")
-        .attr('width', this.width + this.focusBarWidth())
-        .attr('height', dimensions.height || 500);
+          .select("#clip rect")
+          .attr('width', this.width + this.focusBarWidth())
+          .attr('height', dimensions.height || 500);
       if (this.brush) {
         // Set brush area.
         this.brush.extent([
@@ -557,97 +576,99 @@ export default {
       const contextBarWidth = this.contextBarWidth();
       // Scales.
       this.y = d3
-        .scaleLinear()
-        .domain([this.divergingExtent.min, this.divergingExtent.max])
-        .range([this.focusHeight, 0]);
+          .scaleLinear()
+          .domain([this.divergingExtent.min, this.divergingExtent.max])
+          .range([this.focusHeight, 0]);
+
+
       this.contextY = d3
-        .scaleLinear()
-        .domain([this.divergingExtent.min, this.divergingExtent.max])
-        .range([this.contextHeight, 0]);
+          .scaleLinear()
+          .domain([this.divergingExtent.min, this.divergingExtent.max])
+          .range([this.contextHeight, 0]);
       this.x = d3
-        .scaleUtc()
-        .nice()
-        .domain(this.focusExtent)
-        .range([0, this.width]);
+          .scaleUtc()
+          .nice()
+          .domain(this.focusExtent)
+          .range([0, this.width]);
       this.contextX = d3
-        .scaleUtc()
-        .nice()
-        .domain([ONE_MONTH_AGO, TODAY])
-        .range([0, this.width + focusBarWidth]);
+          .scaleUtc()
+          .nice()
+          .domain([ONE_MONTH_AGO, TODAY])
+          .range([0, this.width + focusBarWidth]);
       const range = this.focusExtent;
       const timeDelta = range[1].getTime() - range[0].getTime();
       const numDays = Math.ceil(timeDelta / (24 * 60 * 60 * 1000));
       // X-axis.
       const xAxis = d3
-        .axisBottom()
-        .scale(this.x)
-        .tickSize(this.focusHeight)  // Height of the tick line.
-        .ticks(d3.timeDay)
-        .tickFormat(d => moment(d).format('MMM D'));
+          .axisBottom()
+          .scale(this.x)
+          .tickSize(this.focusHeight)  // Height of the tick line.
+          .ticks(d3.timeDay)
+          .tickFormat(d => moment(d).format('MMM D'));
       const contextXAxis = d3
-        .axisBottom()
-        .scale(this.contextX)
-        .ticks(30)
-        .tickSize(this.contextHeight)  // Height of the tick line.
-        .tickFormat(d => moment(d).format('M/D'));
+          .axisBottom()
+          .scale(this.contextX)
+          .ticks(30)
+          .tickSize(this.contextHeight)  // Height of the tick line.
+          .tickFormat(d => moment(d).format('M/D'));
       const yAxisTicks = this.y.ticks().filter(Number.isInteger);
       const yAxis = d3
-        .axisLeft()
-        .scale(this.y)
-        .tickValues(yAxisTicks)
-        .tickSize(-this.width - focusBarWidth)  // Width of the tick line.
-        .ticks(this.divergingExtent.max)
-        .tickFormat(d3.format('d'));
+          .axisLeft()
+          .scale(this.y)
+          .tickValues(yAxisTicks)
+          .tickSize(-this.width - focusBarWidth)  // Width of the tick line.
+          .ticks(this.divergingExtent.max)
+          .tickFormat(d3.format('d'));
       const contextYAxisTicks = this.contextY.ticks().filter(Number.isInteger);
       const contextYAxis = d3
-        .axisLeft()
-        .tickValues(contextYAxisTicks)
-        .scale(this.contextY)
-        .tickSize(-this.width - focusBarWidth) // Width of the tick line.
-        .tickFormat(d3.format('d'));
+          .axisLeft()
+          .tickValues(contextYAxisTicks)
+          .scale(this.contextY)
+          .tickSize(-this.width - focusBarWidth) // Width of the tick line.
+          .tickFormat(d3.format('d'));
       // Append the axes.
       this.svg
-        .select('.x-axis')
-        .attr('transform', `translate(${focusBarWidth/2}, 0)`)
-        .call(xAxis);
+          .select('.x-axis')
+          .attr('transform', `translate(${focusBarWidth/2}, 0)`)
+          .call(xAxis);
       this.svg
-        .select('.y-axis')
-        .call(yAxis)
+          .select('.y-axis')
+          .call(yAxis)
       this.svg
-        .selectAll('.base-line')
-        .remove();
+          .selectAll('.base-line')
+          .remove();
       this.svg
-        .select('.x-axis')
-        .append('line')
-        .style('stroke', '#efefef')
-        .style('stroke-width', 2)
-        .attr('class', 'base-line')
-        .attr('x1', -focusBarWidth/2)
-        .attr('x2', this.width + focusBarWidth/2)
-        .attr('y1', this.y(0))
-        .attr('y2', this.y(0));
+          .select('.x-axis')
+          .append('line')
+          .style('stroke', '#efefef')
+          .style('stroke-width', 2)
+          .attr('class', 'base-line')
+          .attr('x1', -focusBarWidth/2)
+          .attr('x2', this.width + focusBarWidth/2)
+          .attr('y1', this.y(0))
+          .attr('y2', this.y(0));
       // Append the axes.
       this.svg
-        .select('.context-x-axis')
-        .attr('transform', `translate(0, ${this.contextMargin.top})`)
-        .call(contextXAxis);
+          .select('.context-x-axis')
+          .attr('transform', `translate(0, ${this.contextMargin.top})`)
+          .call(contextXAxis);
       this.svg
-        .select('.context-y-axis')
-        .attr(
-          'transform',
-          `translate(0, ${this.contextMargin.top})`
-        )
-        .call(contextYAxis);
+          .select('.context-y-axis')
+          .attr(
+              'transform',
+              `translate(0, ${this.contextMargin.top})`
+          )
+          .call(contextYAxis);
       this.svg
-        .select('.context-x-axis')
-        .append('line')
-        .style('stroke', '#efefef')
-        .style('stroke-width', 2)
-        .attr('class', 'base-line')
-        .attr('x1', -contextBarWidth/2)
-        .attr('x2', this.width + focusBarWidth)
-        .attr('y1', this.contextY(0))
-        .attr('y2', this.contextY(0));
+          .select('.context-x-axis')
+          .append('line')
+          .style('stroke', '#efefef')
+          .style('stroke-width', 2)
+          .attr('class', 'base-line')
+          .attr('x1', -contextBarWidth/2)
+          .attr('x2', this.width + focusBarWidth)
+          .attr('y1', this.contextY(0))
+          .attr('y2', this.contextY(0));
     },
     /**
      * Draws the stacked histogram.
@@ -655,88 +676,133 @@ export default {
      * @return {void}
      */
     drawFocusChart() {
+      this.accumulations = [];
       const { svg, x, y, data, focusMargin, features } = this;
-      const barWidth = this.focusBarWidth();
 
+
+      const barWidth = this.focusBarWidth();
       const stack = d3.stack()
-        .keys(features.map(f => f.id))
-        .offset(d3.stackOffsetDiverging);
+          .keys(features.map(f => f.id))
+          .offset(d3.stackOffsetDiverging);
       const layers = stack(data);
       const tooltip = document.querySelector('.TokenChart .tooltip');
       const widthPerDate = this.widthPerDate();
       svg
-        .select('.chart')
-        .selectAll('.layer')
-        .remove()
+          .select('.chart')
+          .selectAll('.layer')
+          .remove()
       svg
-        .select('.chart')
-        .selectAll('.layer')
-        .data(layers)
-        .join('g')
-        .attr('class', 'layer')
-        .attr('fill', layer => {
-          return features.find(f => layer.key === f.id).color
-        })
-        // Create the individual bars.
-        .selectAll('rect')
-        .data(layer => {
-          layer.forEach(d => {
-            d.key = layer.key;
-            return d;
-          });
-          return layer;
-        })
-        .join('rect')
-        // Set the bar position and dimension.
-        .attr('x', d => {
-          const maxWidthPerBar = (widthPerDate - barWidth/2) / d.data.bars;
-          return x(d.data.date) + barWidth/2 + maxWidthPerBar * d.data.barIndex;
-        })
-        .attr('width', s => barWidth)
-        .attr('y', d => y(d[1]))
-        .attr('height', d => {
-          return this.selectedVersions.indexOf(d.data.version) >= 0 ? y(d[0]) - y(d[1]) || 0 : 0;
-        })
-        // Tooltip
-        .on('mouseover', () => tooltip.style.display = 'flex')
-        .on('mouseout', () => tooltip.style.display = 'none')
-        .on('mousemove', function(d) {
-          const el = d3.select(this);
-          const maxWidthPerBar = (widthPerDate - barWidth/2) / d.data.bars;
-          const xCoords = x(d.data.date) + barWidth * 1.8 + maxWidthPerBar * d.data.barIndex;
-          const yCoords = y(d.data.positive);
-          const padding = 8;
-          const cumulativeLabel = 27;
-          const date = d.data.date.toLocaleDateString(
-            'default',
-            { day: 'numeric', month: 'short' },
-          );
-          tooltip.style.left = xCoords + 'px'; 
-          tooltip.style.top = (yCoords - padding - cumulativeLabel) + 'px';
-          for (let i = 0; i < features.length; i++) {
-            const text = tooltip.querySelector(`.${features[i].slug}`)
-            const name = features[i].name.en;
-            const responseOptValue = features[i].value;
-            const value = d.data[features[i].id] * responseOptValue;
+          .select('.token-accumulation')
+          .selectAll('path')
+          .remove()
+      svg
+          .select('.chart')
+          .selectAll('.layer')
+          .data(layers)
+          .join('g')
+          .attr('class', 'layer')
+          .attr('fill', layer => {
+            return features.find(f => layer.key === f.id).color
+          })
+          // Create the individual bars.
+          .selectAll('rect')
+          .data(layer => {
+            layer.forEach(d => {
+              d.key = layer.key;
+              return d;
+            });
+            return layer;
+          })
+          .join('rect')
+          // Set the bar position and dimension.
+          .attr('x', d => {
+            const maxWidthPerBar = (widthPerDate - barWidth/2) / d.data.bars;
+            return x(d.data.date) + barWidth/2 + maxWidthPerBar * d.data.barIndex;
+          })
+          .attr('width', s => barWidth)
+          .attr('y', d => y(d[1]))
+          .attr('height', d => {
+            return this.selectedVersions.indexOf(d.data.version) >= 0 ? y(d[0]) - y(d[1]) || 0 : 0;
+          })
+          // Tooltip
+          .on('mouseover', () => tooltip.style.display = 'flex')
+          .on('mouseout', () => tooltip.style.display = 'none')
+          .on('mousemove', function(d) {
+            const el = d3.select(this);
+            const maxWidthPerBar = (widthPerDate - barWidth/2) / d.data.bars;
+            const xCoords = x(d.data.date) + barWidth * 1.8 + maxWidthPerBar * d.data.barIndex;
+            const yCoords = y(d.data.positive);
+            const padding = 8;
+            const cumulativeLabel = 27;
+            const date = d.data.date.toLocaleDateString(
+                'default',
+                { day: 'numeric', month: 'short' },
+            );
+            tooltip.style.left = xCoords + 'px';
+            tooltip.style.top = (yCoords - padding - cumulativeLabel) + 'px';
+            for (let i = 0; i < features.length; i++) {
+              const text = tooltip.querySelector(`.${features[i].slug}`)
+              const name = features[i].name.en;
+              const value = d.data[features[i].id];
+              if (!value) {
+                text.style.display = 'none';
+                continue;
+              }
 
-            if (!value) {
-              text.style.display = 'none';
-              continue;
+              text.innerText = `${name}: ${value}`;
+              text.style.top = y(0) - y(value) + 'px';
+              text.style.height = y(0) - y(value) + 'px';
+              text.style.display = 'flex';
             }
-            
-            text.innerText = `${name}: ${value}`;
-            text.style.top = y(0) - y(value) + 'px';
-            // text.style.height = y(0) - y(value) + 'px';
-            text.style.display = 'flex';
-          }
+            const text = tooltip.querySelector(`.cumulative`)
+            text.innerText = `Cumulative: ${d.data.cummulative}`;
+          });
 
-          const text = tooltip.querySelector(`.cumulative`)
-          text.innerText = `Cumulative: ${d.data.cummulative }`;
-        });
+      if (data.length < 1) {
+
+        return;
+      }
+      let normalisedx = x(data[0].date)
+      normalisedx += (0.5 * this.focusBarWidth()) - 5;
+      let normalisedy = this.y(data[0].positive)
+
+      let pathString = `M ${normalisedx} ${normalisedy}`;
+
+      let accumulation = data[0].positive;
+
+      for (var i = 1; i <= data.length - 1; i++) {
+        const step = data[i]
+        const positive = step.positive;
+        normalisedx = x(step.date)
+        normalisedx += (0.5 * this.focusBarWidth()) - 5;
+        normalisedy = this.y(accumulation)
+
+        if (positive != 0){
+          pathString += ` L ${normalisedx + 3} ${normalisedy}`
+          accumulation = positive + accumulation;
+          normalisedy = this.y(accumulation)
+          pathString += ` L ${normalisedx + 3} ${normalisedy}`
+          this.accumulations.push({text: accumulation, x: normalisedx + (0.5 * this.focusBarWidth()), y: normalisedy -3})
+
+        } else {
+          pathString += ` L ${normalisedx} ${normalisedy}`
+        }
+
+      }
+
+      this.svg
+          .select('.token-accumulation')
+          .append('path')
+          .style('stroke', 'gray')
+          .attr('fill', 'transparent')
+          .style('stroke-width', 2)
+          .attr('d', pathString)
+          .attr('marker-end', "url(#arrowhead)");
+
     },
     /**
      * Draw bars (black bar for major change, grey bar for minor change) to represent version changes
-     * 
+     *
      * @return {void}
      */
     drawVersionBars() {
@@ -745,39 +811,39 @@ export default {
       const widthPerDate = this.widthPerDate();
       const formattedVersions = this.formattedVersions;
       svg
-        .select('.chart')
-        .selectAll('.version')
-        .remove()
+          .select('.chart')
+          .selectAll('.version')
+          .remove()
       if (!this.hasVersionBars) {
         return ;
       }
       svg
-        .select('.chart')
-        .selectAll('.version')
-        .data(formattedVersions.filter(d => d.barColor && this.selectedVersions.indexOf(d.version) >= 0))
-        .join('rect')
-        .attr('class', 'version')
-        .attr('fill', d => d.barColor)
-        .attr('x', d => {
-          if (d.formatted) {
-            const versions = this.versionsByDate[d.formatted] || ['oo'];
-            const maxWidthPerBar = (widthPerDate - barWidth/2) / versions.length;
-            let index = versions.findIndex(ver => ver == 'oo' || Applet.compareVersions(ver, d.version) >= 0);
-            if (index == 0) {
-              return x(d.updated);
+          .select('.chart')
+          .selectAll('.version')
+          .data(formattedVersions.filter(d => d.barColor && this.selectedVersions.indexOf(d.version) >= 0))
+          .join('rect')
+          .attr('class', 'version')
+          .attr('fill', d => d.barColor)
+          .attr('x', d => {
+            if (d.formatted) {
+              const versions = this.versionsByDate[d.formatted] || ['oo'];
+              const maxWidthPerBar = (widthPerDate - barWidth/2) / versions.length;
+              let index = versions.findIndex(ver => ver == 'oo' || Applet.compareVersions(ver, d.version) >= 0);
+              if (index == 0) {
+                return x(d.updated);
+              }
+              if (index < 0) {
+                index = versions.length;
+              }
+              return x(d.updated) + barWidth/2 + maxWidthPerBar * index - (maxWidthPerBar - barWidth)/2 - this.versionBarWidth/2;
             }
-            if (index < 0) {
-              index = versions.length;
-            }
-            return x(d.updated) + barWidth/2 + maxWidthPerBar * index - (maxWidthPerBar - barWidth)/2 - this.versionBarWidth/2;
-          }
-          return 0;
-        })
-        .attr('width', d => {
-          return d.updated ? this.versionBarWidth : 0
-        })
-        .attr('y', 0)
-        .attr('height', focusHeight)
+            return 0;
+          })
+          .attr('width', d => {
+            return d.updated ? this.versionBarWidth : 0
+          })
+          .attr('y', 0)
+          .attr('height', focusHeight)
     },
     contextWidthPerDate() {
       return this.width / 30;
@@ -787,70 +853,72 @@ export default {
       const barWidth = this.contextBarWidth();
       const contextWidthPerDate = this.contextWidthPerDate();
       svg
-        .select('.context-chart')
-        .selectAll('.bar')
-        .remove()
+          .select('.context-chart')
+          .selectAll('.bar')
+          .remove()
       svg
-        .select('.context-chart')
-        .selectAll('.positive-bar')
-        .remove()
+          .select('.context-chart')
+          .selectAll('.positive-bar')
+          .remove()
       svg
-        .select('.context-chart')
-        .selectAll('.negative-bar')
-        .remove()
+          .select('.context-chart')
+          .selectAll('.negative-bar')
+          .remove()
+
+
       // Negative
       svg
-        .select('.context-chart')
-        .selectAll('.negative-bar')
-        .data(data)
-        .enter()
-        .append('rect')
-        .attr('class', 'negative-bar')
-        .attr('fill', '#ED8495')
-        // Set the bar position and dimension.
-        .attr('x', d => {
-          const widthPerBar = contextWidthPerDate / d.bars;
-          return contextX(d.date) + barWidth/2 + widthPerBar * d.barIndex;
-        })
-        .attr('width', barWidth)
-        .attr('y', contextY(0))
-        .attr('height', d => Math.abs(contextY(d.negative) - contextY(0)))
+          .select('.context-chart')
+          .selectAll('.negative-bar')
+          .data(data)
+          .enter()
+          .append('rect')
+          .attr('class', 'negative-bar')
+          .attr('fill', '#ED8495')
+          // Set the bar position and dimension.
+          .attr('x', d => {
+            const widthPerBar = contextWidthPerDate / d.bars;
+            return contextX(d.date) + barWidth/2 + widthPerBar * d.barIndex;
+          })
+          .attr('width', barWidth)
+          .attr('y', contextY(0))
+          .attr('height', d => Math.abs(contextY(d.negative) - contextY(0)))
       // Positive
       svg
-        .select('.context-chart')
-        .selectAll('.positive-bar')
-        .data(data)
-        .enter()
-        .append('rect')
-        .attr('class', 'positive-bar')
-        .attr('fill', '#BEE0AC')
-        // Set the bar position and dimension.
-        .attr('x', d => {
-          const widthPerBar = contextWidthPerDate / d.bars;
-          return contextX(d.date) + barWidth/2 + widthPerBar * d.barIndex;
-        })
-        .attr('width', barWidth)
-        .attr('y', d => contextY(d.positive))
-        .attr('height', d => Math.abs(contextY(d.positive) - contextY(0)))
+          .select('.context-chart')
+          .selectAll('.positive-bar')
+          .data(data)
+          .enter()
+          .append('rect')
+          .attr('class', 'positive-bar')
+          .attr('fill', '#BEE0AC')
+          // Set the bar position and dimension.
+          .attr('x', d => {
+            const widthPerBar = contextWidthPerDate / d.bars;
+            return contextX(d.date) + barWidth/2 + widthPerBar * d.barIndex;
+          })
+          .attr('width', barWidth)
+          .attr('y', d => contextY(d.positive))
+          .attr('height', d => Math.abs(contextY(d.positive) - contextY(0)))
       // Cummulative
       svg
-        .select('.context-chart')
-        .attr('transform', `translate(${-barWidth/2}, ${this.contextMargin.top})`)
-        .selectAll('.bar')
-        .data(data)
-        .enter()
-        .append('rect')
-        .attr('class', 'bar')
-        .attr('fill', 'black')
-        // Set the bar position and dimension.
-        .attr('x', d => {
-          const widthPerBar = contextWidthPerDate / d.bars;
-          return contextX(d.date) + barWidth/2 + widthPerBar * d.barIndex;
-        })
-        .attr('width', s => barWidth)
-        .attr('y', d => contextY(Math.max(0, d.cummulative)))
-        .attr('height', d => Math.abs(contextY(d.cummulative) - contextY(0)))
-        .attr('opacity', 0.2);
+          .select('.context-chart')
+          .attr('transform', `translate(${-barWidth/2}, ${this.contextMargin.top})`)
+          .selectAll('.bar')
+          .data(data)
+          .enter()
+          .append('rect')
+          .attr('class', 'bar')
+          .attr('fill', 'black')
+          // Set the bar position and dimension.
+          .attr('x', d => {
+            const widthPerBar = contextWidthPerDate / d.bars;
+            return contextX(d.date) + barWidth/2 + widthPerBar * d.barIndex;
+          })
+          .attr('width', s => barWidth)
+          .attr('y', d => contextY(Math.max(0, d.cummulative)))
+          .attr('height', d => Math.abs(contextY(d.cummulative) - contextY(0)))
+          .attr('opacity', 0.2);
     },
     // Other Utils
     mergeObject(acc, obj) {
