@@ -63,6 +63,7 @@
               @onOwnerShipInviteSuccessful="onOwnerShipInviteSuccessful"
               @onOwnerShipInviteError="onOwnerShipInviteError"
               @onDuplicateRequestReceived="onDuplicateRequestReceived"
+              @onRefreshAppletRequestReceived="onRefreshAppletRequestReceived"
             />
           </v-card>
           <v-card
@@ -415,6 +416,11 @@ export default {
     onDuplicateRequestReceived(message) {
       this.dialogText = message;
       this.dialogTitle = this.$t('appletDuplication');
+      this.dialog = true;
+    },
+    onRefreshAppletRequestReceived(message) {
+      this.dialogText = message;
+      this.dialogTitle = this.$t('refreshing');
       this.dialog = true;
     }
   },

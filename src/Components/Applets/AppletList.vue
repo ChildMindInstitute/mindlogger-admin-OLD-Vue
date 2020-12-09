@@ -599,15 +599,15 @@ export default {
           this.$refs.appletNameDialog.appletName = resp.data;
         })
     },
-    onRefreshApplet() {
+    onRefreshApplet(applet) {
       api
         .refreshApplet({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
-          appletId: this.currentApplet.id,
+          appletId: applet.id,
         })
         .then((resp) => {
-          this.$emit("refreshAppletList");
+          this.$emit("onRefreshAppletRequestReceived", resp.data.message);
         });
     },
   },
