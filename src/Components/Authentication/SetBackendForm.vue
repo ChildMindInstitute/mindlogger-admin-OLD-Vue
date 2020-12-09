@@ -68,6 +68,10 @@ export default {
         name: "localhost (localhost:8080)",
         url: "http://localhost:8080/api/v1",
       },
+      {
+        name: "admin new",
+        url: "https://api-new.mindlogger.org/api/v1"
+      },
       { name: "other", url: "" },
     ],
   }),

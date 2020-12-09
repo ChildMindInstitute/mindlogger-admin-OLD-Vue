@@ -47,6 +47,7 @@ export default class Item {
     this.inputType = data[ReproLib.inputType][0]['@value'];
     this.url = data['schema:url'];
     this.description = i18n.arrayToObject(data['schema:description']);
+    this.question = i18n.arrayToObject(data['schema:question']);
     this.version = data['schema:version'] && i18n.arrayToObject(data['schema:version']);
     this.schemaVersion = data['schema:schemaVersion'] && i18n.arrayToObject(data['schema:schemaVersion']);
     this.responseOptions = this.parseResponseOptions(data[ReproLib.responseOptions]);
@@ -64,6 +65,8 @@ export default class Item {
     this.dateToVersions = {};
     this.schemas = [];
     this.valueMapping = {};
+    this.isTokenItem = data[ReproLib.responseOptions] && 'reprolib:terms/valueType' in data[ReproLib.responseOptions][0]
+      ? data[ReproLib.responseOptions][0]['reprolib:terms/valueType'][0]['@id'].includes('#token') : false;
   }
 
   /**

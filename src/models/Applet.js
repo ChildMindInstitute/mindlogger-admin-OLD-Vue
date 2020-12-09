@@ -45,6 +45,7 @@ export default class Applet {
           item.schemas = [itemId];
 
           return {
+            ...items,
             [itemId]: item,
           }
         },

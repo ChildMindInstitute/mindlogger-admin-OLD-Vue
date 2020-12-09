@@ -5,7 +5,7 @@ import Login from "../Steps/Login";
 import Dashboard from "../Steps/Dashboard";
 import SetUsers from "../Steps/SetUsers";
 import SetSchedule from "../Steps/SetSchedule";
-import TokenLoggerDashboard from "../Steps/TokenLoggerDashboard";
+import ReviewerDashboard from "../Steps/ReviewerDashboard";
 import { getLanguageCode } from '../plugins/language';
 
 import _ from "lodash";
@@ -58,8 +58,8 @@ let router = new Router({
     },
     {
       path: "/applet/:appletId/dashboard",
-      name: "TokenLoggerDashboard",
-      component: TokenLoggerDashboard,
+      name: "ReviewerDashboard",
+      component: ReviewerDashboard,
       meta: {
         requiresAuth: true,
       },

@@ -2,6 +2,7 @@
   <div
     ref="container"
     class="TokenChart"
+    :class="`TokenChart-${plotId}`"
   >
     <div class="legend">
       <div 
@@ -17,66 +18,6 @@
           {{ `${feature.name.en} (${feature.value})` }}
         </div>
       </div>
-    </div>
-
-    <div class="time-range">
-      {{ $t('showingDataFrom') }}
-
-      <v-menu>
-        <template v-slot:activator="{ on }">
-          <v-btn 
-            depressed
-            class="ds-button-tall ma-0 mb-2 fromDate"
-            v-on="on"
-          >
-            {{ fromDate }}
-          </v-btn>
-        </template>
-
-        <v-date-picker
-          :locale="$i18n.locale.slice(0, 2)"
-          no-title
-          :allowedDates="isAllowedStartDate"
-          @change="setStartDate"
-        />
-      </v-menu>
-
-      {{ $t('to') }}
-
-      <v-menu>
-        <template v-slot:activator="{ on }">
-          <v-btn 
-            depressed
-            class="ds-button-tall ma-0 mb-2 toDate"
-            v-on="on"
-          >
-            {{ toDate }}
-          </v-btn>
-        </template>
-
-        <v-date-picker
-          :locale="$i18n.locale.slice(0, 2)"
-          no-title
-          :allowedDates="isAllowedEndDate"
-          @change="setEndDate"
-        />
-      </v-menu>
-    </div>
-    
-    <div class="version">
-      <v-select
-        v-model="selectedVersions"
-        :items="appletVersions"
-        :label="$t('versions')"
-        multiple
-        @change="onVersionChanged"
-      />
-
-      <v-checkbox
-        v-model="hasVersionBars"
-        :label="$t('showVersionChanges')"
-        @change="onVersionChanged"
-      />
     </div>
 
     <div class="chart-container">
@@ -131,19 +72,7 @@
   margin-bottom: 0;
   user-select: none;
 }
-.TokenChart .time-range,
-.TokenChart .version {
-  margin-bottom: 2rem;
-  margin-left: -0.8rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #777;
-  text-transform: uppercase;
-}
-.TokenChart .time-range .date {
-  margin: 0 0.3rem;
-  color: #1976D2;
-}
+
 .TokenChart .legend {
   display: flex;
   flex-wrap: wrap;
@@ -268,18 +197,27 @@ export default {
    * Component properties.
    */
   props: {
-    maxValue: Number,
-    minValue: Number,
     plotId: String,
     data: Array,
     features: Array,
     versions: Array,
     versionsByDate: Object,
     timezone: String, /** format +05:00 */
+    focusExtent: {
+      type: Array,
+      required: true
+    },
+    hasVersionBars: {
+      type: Boolean,
+      required: true,
+    },
+    selectedVersions: {
+      type: Array,
+      required: true,
+    }
   },
   data: () => ({
     legendWidth: 150,
-    focusExtent: [ONE_WEEK_AGO, TODAY],
     divergingExtent: {
       min: 0,
       max: 0,
@@ -294,15 +232,10 @@ export default {
       top: 500,
       bottom: 30,
     },
-    selectedVersions: [],
     versionBarWidth: 10,
     versionChangeLimitPerDay: 4,
-    hasVersionBars: false
   }),
   computed: {
-    appletVersions() {
-      return this.versions.map(version => version.version)
-    },
     /** date in versions array doesn't consider timezone (all are set as UTC) and we need to convert updated times as user's timezone */
     formattedVersions() {
       let offset = `${this.timezone[0] === '+' ? '-' : '+'}${this.timezone.substr(1)}`;
@@ -341,8 +274,32 @@ export default {
   },
   created() {
     this.features.forEach(feat => feat.slug = slugify(feat.id));
-    this.selectedVersions = this.appletVersions;
   },
+
+  /**
+   * Handlers to be executed each time a property changes its value.
+   */
+  watch: {
+    focusExtent: {
+      deep: true,
+      handler() {
+        this.render();
+      }
+    },
+    selectedVersions: {
+      deep: true,
+      handler() {
+        this.render();
+      }
+    },
+    hasVersionBars: {
+      deep: false,
+      handler() {
+        this.render();
+      }
+    }
+  },
+
   /**
    * Method to be executed after the component has been mounted.
    *
@@ -370,53 +327,6 @@ export default {
     onVersionChanged() {
       this.render();
     },
-    /**
-     * Updates the start date for the focused time range.
-     *
-     * @param {string} date the new start date.
-     * @returns {void}
-     */
-    setStartDate(date) {
-      this.focusExtent[0] = moment.utc(date).toDate();
-      this.render();
-    },
-    /**
-     * Updates the end date for the focused time range.
-     *
-     * @param {string} date the new end date.
-     * @returns {void}
-     */
-    setEndDate(date) {
-      this.focusExtent[1] = moment
-        .utc(date)
-        .add(15, 'hours')
-        .toDate();
-      this.render();
-    },
-    /**
-     * Checks whether the given date should be enabled.
-     *
-     * @param {string} date a given date.
-     * @return {boolean} whether this options should be enabled.
-     */
-    isAllowedStartDate(date) {
-      return (
-        (moment.utc(date) < this.focusExtent[1]) && 
-        (moment.utc(date) > ONE_MONTH_AGO)
-      );
-    },
-    /**
-     * Checks whether the given date should be enabled.
-     *
-     * @param {string} date a given date.
-     * @return {boolean} whether this options should be enabled.
-     */
-    isAllowedEndDate(date) {
-      return (
-        (moment.utc(date) > this.focusExtent[0]) && 
-        (moment.utc(date) <= moment.utc())
-      );
-    },
     contextBarWidth() {
       return this.width / 30 / this.versionChangeLimitPerDay;
     },
@@ -440,15 +350,11 @@ export default {
             if (!d3.event.sourceEvent) return;  // Only transition after input.
             if (!d3.event.selection) return;  // Ignore empty selections.
             const selection = d3.event.selection.map(this.contextX.invert);
-            let fromDate = selection[0];
-            let toDate = selection[1];
-            this.focusExtent = [
-              fromDate,
-              toDate,
-            ];
-            this.drawAxes();
-            this.drawFocusChart();
-            this.drawVersionBars();
+
+            this.$emit('onUpdateFocusExtent', [
+              selection[0],
+              selection[1]
+            ])
           });
       }
       d3.selectAll('.overlay').style('pointer-events', 'none');
@@ -656,13 +562,13 @@ export default {
      * @return {void}
      */
     drawFocusChart() {
-      const { svg, x, y, data, focusMargin, features } = this;
+      const { svg, x, y, data, focusMargin, features, plotId } = this;
       const barWidth = this.focusBarWidth();
       const stack = d3.stack()
         .keys(features.map(f => f.id))
         .offset(d3.stackOffsetDiverging);
       const layers = stack(data);
-      const tooltip = document.querySelector('.TokenChart .tooltip');
+      const tooltip = document.querySelector(`.TokenChart.TokenChart-${plotId} .tooltip`);
       const widthPerDate = this.widthPerDate();
       svg
         .select('.chart')
