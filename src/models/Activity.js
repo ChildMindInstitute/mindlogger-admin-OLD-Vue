@@ -23,7 +23,7 @@ export default class Activity {
     this.schemaVersion = i18n.arrayToObject(data['schema:schemaVersion']);
     this.url = data['schema:url'];
     this.items = [];
-    this.chartData = [];
+    this.responseDates = [];
   }
 
 

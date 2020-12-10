@@ -103,12 +103,23 @@
               >
                 <v-expansion-panel
                   v-if="applet"
-                  :key="activity._id"
+                  :key="activity.id"
                 >
                   <v-expansion-panel-header>
                     {{ activity.label.en || activity.description.en }}
                   </v-expansion-panel-header>
                   <v-expansion-panel-content>
+                    <ActivitySummary
+                      v-if="tab!='tokens'"
+                      :plot-id="`Activity-Summary-${activity.id}`"
+                      :versions="applet.versions"
+                      :focus-extent="focusExtent"
+                      :selected-versions="selectedVersions"
+                      :has-version-bars="hasVersionBars"
+                      :data="activity.responses"
+                    />
+
+                    <h2> {{ $t('responseOptions') }} </h2>
                     <div
                       v-for="item in activity.items"
                       :key="item['id']"
@@ -120,16 +131,24 @@
 
                       <token-chart
                         v-if="tab=='tokens' && item.isTokenItem"
-                        :plot-id="item['id']"
-                        :data="item.responses"
-                        :features="item.responseOptions"
-                        :versions-by-date="item.dateToVersions"
-                        :versions="applet.versions"
+                        :plot-id="`Token-${item['id']}`"
+                        :item="item"
                         :timezone="item.timezoneStr"
+                        :versions="applet.versions"
                         :focus-extent="focusExtent"
                         :selected-versions="selectedVersions"
                         :has-version-bars="hasVersionBars"
                         @onUpdateFocusExtent="onUpdateFocusExtent"
+                      />
+
+                      <RadioSlider
+                        v-if="tab=='responses' && item.isRadioSlider()"
+                        :plot-id="`RadioSlider-${item['id']}`"
+                        :item="item"
+                        :versions="applet.versions"
+                        :focus-extent="focusExtent"
+                        :selected-versions="selectedVersions"
+                        :has-version-bars="hasVersionBars"
                       />
                     </div>
                   </v-expansion-panel-content>
@@ -229,7 +248,9 @@ import api from "../Components/Utils/api/api.vue";
 import Applet from "../models/Applet";
 import Activity from "../models/Activity";
 import Item from "../models/Item";
-import TokenChart from "../Components/Charts/TokenChart.vue";
+import TokenChart from "../Components/DataViewerComponents/TokenChart.vue";
+import ActivitySummary from "../Components/DataViewerComponents/ActivitySummary.vue";
+import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue";
 import * as moment from 'moment';
 
 export default {
@@ -240,6 +261,8 @@ export default {
    */
   components: {
     TokenChart,
+    ActivitySummary,
+    RadioSlider,
   },
 
   /**

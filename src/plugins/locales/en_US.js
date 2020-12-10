@@ -310,4 +310,5 @@ export default {
   selectAppletToExportData: 'Please select applet to export data from: ',
   responses: 'Responses',
   tokens: 'Tokens',
+  responseOptions: 'Response Options',
 };

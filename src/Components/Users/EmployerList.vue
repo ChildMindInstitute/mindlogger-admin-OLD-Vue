@@ -98,6 +98,7 @@
 
   tr {
     cursor: pointer;
+    user-select: none;
   }
   tr:hover {
     background-color: #f0f0f0;

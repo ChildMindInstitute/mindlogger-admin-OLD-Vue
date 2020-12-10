@@ -171,9 +171,10 @@
 <script>
 import * as d3 from 'd3';
 import * as moment from 'moment';
-import slugify from '../../core/slugify';
 import { DaySpan, Day } from 'dayspan';
 import Applet from '../../models/Applet';
+import Item from '../../models/Item';
+
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const NOW = new Date();
 const TODAY = new Date(Date.UTC(
@@ -197,15 +198,25 @@ export default {
    * Component properties.
    */
   props: {
-    plotId: String,
-    data: Array,
-    features: Array,
-    versions: Array,
-    versionsByDate: Object,
-    timezone: String, /** format +05:00 */
+    plotId: {
+      type: String,
+      required: true,
+    },
     focusExtent: {
       type: Array,
       required: true
+    },
+    item: {
+      type: Object,
+      required: true,
+    },
+    versions: {
+      type: Array,
+      required: true,
+    },
+    timezone: {
+      type: String, /** format +05:00 */
+      required: true,
     },
     hasVersionBars: {
       type: Boolean,
@@ -214,48 +225,31 @@ export default {
     selectedVersions: {
       type: Array,
       required: true,
+    },
+  },
+  data: function() {
+    return {
+      legendWidth: 150,
+      divergingExtent: {
+        min: 0,
+        max: 0,
+      },
+      focusMargin: {
+        top: 40,
+        right: 50,
+        bottom: 180,
+        left: 30,
+      },
+      contextMargin: {
+        top: 500,
+        bottom: 30,
+      },
+      versionBarWidth: 10,
+      versionChangeLimitPerDay: 4,
+      ...this.item.getFormattedTokenData(),
     }
   },
-  data: () => ({
-    legendWidth: 150,
-    divergingExtent: {
-      min: 0,
-      max: 0,
-    },
-    focusMargin: {
-      top: 40,
-      right: 50,
-      bottom: 180,
-      left: 30,
-    },
-    contextMargin: {
-      top: 500,
-      bottom: 30,
-    },
-    versionBarWidth: 10,
-    versionChangeLimitPerDay: 4,
-  }),
   computed: {
-    /** date in versions array doesn't consider timezone (all are set as UTC) and we need to convert updated times as user's timezone */
-    formattedVersions() {
-      let offset = `${this.timezone[0] === '+' ? '-' : '+'}${this.timezone.substr(1)}`;
-      return this.versions.map(version => {
-        /**
-         * input => yy-mm-10T23:30:30+00:00 = yy-mm-11T04:30:30+05:00
-         * output=> yy-mm-11
-         */
-        if (!version.updated) {
-          return version;
-        }
-        const formatted = moment(new Date(version.updated.slice(0, -6) + offset).toISOString()).format("YYYY-MM-DD");
-        return {
-          version: version.version,
-          barColor: version.barColor,
-          formatted,
-          updated: moment(formatted).set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-        }
-      })
-    },
     fromDate: {
       cache: false,
       get() {
@@ -271,9 +265,26 @@ export default {
     today() {
       return moment()
     },
-  },
-  created() {
-    this.features.forEach(feat => feat.slug = slugify(feat.id));
+    /** date in versions array doesn't consider timezone (all are set as UTC) and we need to convert updated times as user's timezone */
+    formattedVersions() {
+      let offset = `${this.timezone[0] === '+' ? '-' : '+'}${this.timezone.substr(1)}`;
+      return this.versions.map(version => {
+        /**
+         * input => yy-mm-10T23:30:30+00:00 = yy-mm-11T04:30:30+05:00
+         * output=> yy-mm-11
+         */
+        if (!version.updated) {
+            return version;
+        }
+        const formatted = moment(new Date(version.updated.slice(0, -6) + offset).toISOString()).format("YYYY-MM-DD");
+        return {
+          version: version.version,
+          barColor: version.barColor,
+          formatted,
+          updated: moment.utc(formatted).set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+        }
+      })
+    },
   },
 
   /**
@@ -662,6 +673,7 @@ export default {
       if (!this.hasVersionBars) {
         return ;
       }
+
       svg
         .select('.chart')
         .selectAll('.version')

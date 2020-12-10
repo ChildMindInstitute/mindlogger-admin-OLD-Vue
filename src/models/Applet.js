@@ -90,7 +90,10 @@ export default class Applet {
     }
 
     for (let itemId in data.items) {
-      data.items[itemId] = new Item(data.items[itemId])
+      data.items[itemId] = new Item({
+        ...data.items[itemId],
+        _id: `screen/${data.items[itemId].original.screenId}`
+      });
     }
 
     for (let version in data.itemReferences) {
@@ -104,23 +107,54 @@ export default class Applet {
 
         const currentItem = Object.values(this.items).find(item => item.data._id.split('/').pop() === oldItem.data.original.screenId)
 
-        data.itemReferences[version][key] = oldItem;
+        if (!currentItem) {
+          /** in case item was removed by editor */
 
-        if (currentItem.schemas.indexOf(key) < 0) {
-          currentItem.schemas.push(key);
-          this.items[key] = currentItem;
-        }
+          this.items[key] = oldItem;
 
-        oldItem.responseOptions.forEach(oldOption => {
-          const existing = currentItem.responseOptions.find(currentOption => currentOption.id === oldOption.id);
-          if (!existing) {
-            const index = currentItem.appendResponseOption(oldOption);
+          this.items[key].schemas = [key];
+          
+          let currentActivity = this.activities.find(activity => activity.data._id.split('/').pop() === oldItem.data.original.activityId);
 
-            currentItem.valueMapping[version] = currentItem.valueMapping[version] || {};
-            currentItem.valueMapping[version][oldOption.value] = index;
-            currentItem.valueMapping[version][Object.values(oldOption.name)[0]] = index;
+          if (currentActivity) {
+            /** in case activity exists but only item was removed */
+            currentActivity.items.push(this.items[key]);
+          } else {
+            /** in case activity was removed by editor */
+            let activity = data.activities[oldItem.data.activityId];
+
+            currentActivity = new Activity({
+              ...activity,
+              _id: `activity/${activity.original.activityId}`
+            });
+
+            currentActivity.items.push(oldItem);
+
+            this.activities.push(currentActivity);
           }
-        })
+        } else {
+          /** in case item was updated by editor */
+
+          data.itemReferences[version][key] = oldItem;
+
+          if (currentItem.schemas.indexOf(key) < 0) {
+            currentItem.schemas.push(key);
+            this.items[key] = currentItem;
+          }
+  
+          if (oldItem.responseOptions) {
+            oldItem.responseOptions.forEach(oldOption => {
+              const existing = currentItem.responseOptions.find(currentOption => currentOption.id === oldOption.id);
+              if (!existing) {
+                const index = currentItem.appendResponseOption(oldOption);
+    
+                currentItem.valueMapping[version] = currentItem.valueMapping[version] || {};
+                currentItem.valueMapping[version][oldOption.value] = index;
+                currentItem.valueMapping[version][Object.values(oldOption.name)[0]] = index;
+              }
+            })
+          }
+        }
       }
     }
 
@@ -136,7 +170,7 @@ export default class Applet {
           this.items[itemId].timezoneStr = resp.date.substr(-6);
         }
 
-        resp.date = resp.date.substr(0, 10);
+        resp.date = resp.date.slice(0, -6);
       });
 
       data.responses[itemId].sort((resp1, resp2) => {
@@ -145,34 +179,29 @@ export default class Applet {
 
         return resp1.version && resp2.version && Applet.compareVersions(resp1.version, resp2.version);
       });
-
-      /** merge responses with same version/date */
-      let merged = [], last = null;
-
-      data.responses[itemId].forEach(resp => {
-        if (last && resp.date == last.date && resp.version == last.version) {
-          last.value.push(...resp.value);
-        } else {
-          const item = this.items[itemId];
-
-          if (resp.version) {
-            item.dateToVersions[resp.date] = item.dateToVersions[resp.date] || [];
-            item.dateToVersions[resp.date].push(resp.version);
-
-            resp.barIndex = item.dateToVersions[resp.date].length-1;
-          }
-
-          merged.push(resp);
-
-          last = resp;
-        }
-      });
-
-      data.responses[itemId] = merged;
     }
 
     for (let itemId of itemIDGroup) {
       this.items[itemId].appendResponses(data.responses[itemId]);
+    }
+
+    for (let activity of this.activities) {
+      activity.responses = [];
+
+      for (let item of activity.items) {
+        activity.responses.push(...item.responses.map(response => ({
+          date: response.date,
+          version: response.version
+        })));
+      }
+      activity.responses.sort((resp1, resp2) => {
+        if (resp1.date < resp2.date) return -1;
+        if (resp1.date > resp2.date) return 1;
+
+        return 0;
+      })
+
+      activity.responses = activity.responses.filter((resp, index) => activity.responses.findIndex(value => value.date.toString() == resp.date.toString() && value.version == resp.version) == index);
     }
 
     this.responses = data.responses;
