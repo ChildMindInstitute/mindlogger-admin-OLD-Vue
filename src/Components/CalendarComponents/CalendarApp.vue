@@ -4,8 +4,6 @@
       <div class="calendar-header text-center pa-1">
         <h4>{{$t(ownerType+"Schedule")}} - {{appletName}} {{ownerType === 'Group' ? "" : `for &nbsp;"${userCode}"` }}</h4>
       </div>
-
-      <v-btn color="secondary" class="lighten-3 my-4">{{$t('setIndividualSchedule')}}</v-btn>
       <v-container fluid class="ds-calendar-container" style="height: 100%;">
 
         <!-- top controls -->
