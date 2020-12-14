@@ -2,7 +2,7 @@
   <div class="ds-expand ds-calendar-app">
     <v-content class="ds-expand pt-0">
       <div class="calendar-header text-center pa-1">
-        <h4>{{$t(ownerType+"Schedule")}} - {{appletName}} {{ownerType === 'Group' ? "" : `for &nbsp;"${userCode}"` }}</h4>
+        <h4>{{$t(ownerType+"Schedule")}} - {{appletName}} {{ownerType === 'Group' ? "" : `for ${userCode}` }}</h4>
       </div>
       <v-container fluid class="ds-calendar-container" style="height: 100%;">
 
@@ -266,10 +266,6 @@ export default {
   },
 
   props: {
-    ownerType: {
-      type: String,
-      default: "individual"
-    },
     activities: {
       type: Array
     },
@@ -351,6 +347,9 @@ export default {
   }),
 
   computed: {
+    ownerType() {
+      return Object.keys(this.$store.state.currentUsers).length ? 'individual' : 'Group';
+    },
     currentType: {
       get() {
         return (
@@ -367,11 +366,11 @@ export default {
     },
 
     appletName() {
-      return this.$store.state.currentApplet.applet.displayName;
+      return this.$store.state.currentAppletMeta.name;
     },
 
     userCode() {
-      return "User code";
+      return Object.values(this.$store.state.currentUsers).map(user => user.MRN).join(', ');
     },
 
     summary() {

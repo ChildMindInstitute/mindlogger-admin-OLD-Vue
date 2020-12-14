@@ -85,10 +85,6 @@ export default {
     },
     events: {
       type: Array
-    },
-    isGroupSchedule: {
-      type: Boolean,
-      required: true
     }
   },
 
