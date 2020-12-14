@@ -150,6 +150,9 @@ const refreshApplet = ({ apiHost, token, appletId }) =>
     headers: {
       "Girder-Token": token,
     },
+    params: {
+      lang: store.state.currentLanguage,
+    }
   });
 
 const revokeAppletUser = ({
@@ -344,7 +347,10 @@ const duplicateApplet = ({ apiHost, token, appletId, options }) =>
     headers: {
       "Girder-Token": token,
     },
-    params: options,
+    params: {
+      ...options,
+      lang: store.state.currentLanguage,
+    },
   });
 
 
