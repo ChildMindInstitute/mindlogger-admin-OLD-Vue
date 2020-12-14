@@ -359,6 +359,31 @@ export default {
         header.value != 'currentScheduleStatus' && 
         header.value != 'selected'
       );
+    } else {
+      let currentApplet = this.$store.state.currentAppletMeta;
+
+      if (
+        !currentApplet || !(
+          currentApplet.roles.includes('coordinator') || 
+          currentApplet.roles.includes('manager') ||
+          currentApplet.roles.includes('owner')
+        )
+      ) {
+        headers = headers.filter((header) => 
+          header.value != 'currentScheduleStatus'
+        )
+      }
+
+      if (
+        !currentApplet || !(
+          currentApplet.roles.includes('manager') ||
+          currentApplet.roles.includes('owner')
+        )
+      ) {
+        headers = headers.filter(header =>
+          header.value != 'refreshRequest'
+        );
+      }
     }
 
     return {
