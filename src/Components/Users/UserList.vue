@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="d-flex justify-space-between">
+    <div class="d-flex justify-space-between pt-5">
       <div class="filter">
         <v-text-field
           v-model="searchText"

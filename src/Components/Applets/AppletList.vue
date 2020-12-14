@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="filter">
+    <div class="filter pt-5">
       <v-text-field
         v-model="searchText"
         :label="$t('searchApplets')"
