@@ -32,7 +32,11 @@
     text-align: left;
     margin: 5px 0px;
   }
-
+  /deep/ .v-btn__content {
+    width: 100%;
+    white-space: break-spaces;
+    text-align: center;
+  }
   .title, .sub-title {
     text-align: center;
   }
