@@ -309,8 +309,8 @@ export default {
   incorrectAppletPassword: `Mot de passe de l'applet incorrect`,
   resetSelection: `Réinitialiser la sélection`,
   exportUserData: `Exportation des données utilisateur`,
-  exportData: 'Export Data',
+  exportData: `Exporter des données`,
   selectAppletToExportData: `Veuillez sélectionner l'applet à partir duquel vous souhaitez exporter des données :`,
-  responses: 'Responses',
+  responses: `Réponses`,
   tokens: 'Tokens',
 };
