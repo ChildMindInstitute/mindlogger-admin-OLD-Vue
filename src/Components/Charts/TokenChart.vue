@@ -97,30 +97,20 @@
               height="300"
             />
           </clipPath>
-          <marker id="arrowhead" markerWidth="7" markerHeight="5"
-                  refX="0" refY="2.5" orient="auto">
-            <polygon points="0 0, 7 2.5, 0 5" fill="gray"/>
-          </marker>
         </defs>
 
         <g class="y-axis" />
         <g class="x-axis" />
         <g
-            class="chart"
-            clip-path="url(#clip)">
-
-          <g class="token-accumulation" />
-          <text v-for="(accumulation, i) in accumulations" class="accumulation-value" :key="i"
-                :x="accumulation.x" :y="accumulation.y" fill="gray">{{accumulation.text}} </text>
-
-        </g>
-
+          class="chart"
+          clip-path="url(#clip)"
+        />
 
         <g class="context-y-axis" />
         <g class="context-x-axis" />
         <g
-            class="context-chart"
-            clip-path="url(#clip)"
+          class="context-chart"
+          clip-path="url(#clip)"
         />
       </svg>
     </div>
@@ -238,13 +228,11 @@
       border-bottom: 1px solid #eee;
     }
   }
-  max-width: 300px;
 }
 .TokenChart .toDate,
 .TokenChart .fromDate {
   margin: 0 0.5rem !important;
 }
-
 </style>
 
 
@@ -299,7 +287,6 @@ export default {
       bottom: 180,
       left: 30,
     },
-    accumulations: [],
     contextMargin: {
       top: 500,
       bottom: 30,
@@ -502,11 +489,9 @@ export default {
       }
       let positive;
       let negative;
-      let cumulativePositiveToken = 0
       // Find the maximum value for cumulative user responses.
       for (let i = 0; i < this.data.length; i++) {
         positive = this.data[i].positive;
-        cumulativePositiveToken += positive;
         negative = this.data[i].negative;
         if (positive > this.divergingExtent.max) {
           this.divergingExtent.max = positive;
@@ -515,8 +500,6 @@ export default {
           this.divergingExtent.min = negative;
         } 
       }
-      this.divergingExtent.max = cumulativePositiveToken;
-
       if (this.divergingExtent.max % 2) {
         this.divergingExtent.max += 1;
       }
@@ -670,7 +653,6 @@ export default {
      * @return {void}
      */
     drawFocusChart() {
-      this.accumulations = [];
       const { svg, x, y, data, focusMargin, features } = this;
       const barWidth = this.focusBarWidth();
       const stack = d3.stack()
@@ -683,10 +665,6 @@ export default {
         .select('.chart')
         .selectAll('.layer')
         .remove()
-      svg
-          .select('.token-accumulation')
-          .selectAll('path')
-          .remove()
       svg
         .select('.chart')
         .selectAll('.layer')
@@ -749,46 +727,6 @@ export default {
           const text = tooltip.querySelector(`.cumulative`)
           text.innerText = `Cumulative: ${d.data.cummulative}`;
         });
-      if (data.length < 1) {
-          return;
-      }
-      let normalisedx = x(data[0].date)
-      normalisedx += (0.5 * this.focusBarWidth()) - 5;
-      let normalisedy = this.y(data[0].positive)
-
-      let pathString = `M ${normalisedx} ${normalisedy}`;
-
-      let accumulation = data[0].positive;
-
-      for (var i = 1; i <= data.length - 1; i++) {
-        const step = data[i]
-        const positive = step.positive;
-        normalisedx = x(step.date)
-        normalisedx += (0.5 * this.focusBarWidth()) - 5;
-        normalisedy = this.y(accumulation)
-
-        if (positive != 0){
-          pathString += ` L ${normalisedx + 3} ${normalisedy}`
-          accumulation = positive + accumulation;
-          normalisedy = this.y(accumulation)
-          pathString += ` L ${normalisedx + 3} ${normalisedy}`
-          this.accumulations.push({text: accumulation, x: normalisedx + (0.5 * this.focusBarWidth()), y: normalisedy -3})
-
-        } else {
-          pathString += ` L ${normalisedx} ${normalisedy}`
-        }
-
-      }
-
-      this.svg
-          .select('.token-accumulation')
-          .append('path')
-          .style('stroke', 'gray')
-          .attr('fill', 'transparent')
-          .style('stroke-width', 2)
-          .attr('d', pathString)
-          .attr('marker-end', "url(#arrowhead)");
-
     },
     /**
      * Draw bars (black bar for major change, grey bar for minor change) to represent version changes
