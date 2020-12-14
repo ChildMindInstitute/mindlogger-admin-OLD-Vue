@@ -49,7 +49,6 @@
       ref="appletPasswordDialog"
       v-model="dialog"
       :hasConfirmPassword="false"
-      :defaultTitle="$t('areYouSure')"
       @set-password="onAppletPassword"
     />
   </v-dialog>
