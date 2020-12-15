@@ -1,7 +1,6 @@
 <template>
   <div
     class="activity-summary"
-    ref="wrapper"
   >
     <svg :id="plotId" :width="width + 20" :height="height + padding.top + padding.bottom">
       <g class="x-axis" />
@@ -16,9 +15,8 @@
 .activity-summary {
   display: inline-block;
   position: relative;
-  width: calc(100% - 40px);
   user-select: none;
-  margin: 40px 20px 20px 20px;
+  margin: 20px 20px 20px 20px;
 }
 
 </style>
@@ -44,19 +42,13 @@ export default {
   data: function() {
     return {
       height: 35,
+      width: this.parentWidth - 60,
     }
   },
   mounted() {
-    const dimensions = this.$refs.wrapper.getBoundingClientRect();
-    
-    this.render = this.render.bind(this);
-    this.width = dimensions.width;
-
-    this.render();
-  },
-
-  destroyed() {
-    window.addEventListener('resize', this.render);
+    this.$nextTick(() => {
+      this.render();
+    });
   },
 
   /**
@@ -78,6 +70,13 @@ export default {
     hasVersionBars: {
       deep: false,
       handler() {
+        this.render();
+      }
+    },
+    parentWidth: {
+      deep: false,
+      handler(newValue) {
+        this.width = newValue - 60;
         this.render();
       }
     }
@@ -131,6 +130,6 @@ export default {
         .attr('cy', this.radius + this.padding.top)
         .attr('r', this.radius);
     },
-  }
+  },
 }
 </script>

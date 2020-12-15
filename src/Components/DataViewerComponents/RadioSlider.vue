@@ -1,7 +1,6 @@
 <template>
   <div
     class="radio-slider"
-    ref="wrapper"
   >
     <svg :id="plotId" :width="width + 20" :height="height + padding.top + padding.bottom">
       <g class="x-axis" />
@@ -44,19 +43,13 @@ export default {
   data: function() {
     return {
       height: 35,
+      width: this.parentWidth - 60,
     }
   },
   mounted() {
-    const dimensions = this.$refs.wrapper.getBoundingClientRect();
-
-    this.render = this.render.bind(this);
-    this.width = dimensions.width;
-
-    this.render();
-  },
-
-  destroyed() {
-    window.addEventListener('resize', this.render);
+    this.$nextTick(() => {
+      this.render();
+    });
   },
 
   /**
@@ -78,6 +71,13 @@ export default {
     hasVersionBars: {
       deep: false,
       handler() {
+        this.render();
+      }
+    },
+    parentWidth: {
+      deep: false,
+      handler(newValue) {
+        this.width = newValue - 60;
         this.render();
       }
     }

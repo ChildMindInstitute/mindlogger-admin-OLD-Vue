@@ -21,18 +21,22 @@ export const DrawingMixin = {
       type: Array,
       required: true,
     },
+    parentWidth: {
+      type: Number,
+      required: true,
+    }
   },
-  data: () => ({
-    height: 0,
-    width: 0,
-    padding: {
-      top: 10,
-      bottom: 10,
-    },
-    versionBarWidth: 2,
-    radius: 7,
-    tickHeight: 6,
-  }),
+  data: function() {
+    return {
+      padding: {
+        top: 10,
+        bottom: 10,
+      },
+      versionBarWidth: 2,
+      radius: 7,
+      tickHeight: 6,
+    }
+  },
   methods: {
     drawVersions() {
       this.svg

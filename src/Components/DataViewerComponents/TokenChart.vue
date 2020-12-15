@@ -1,6 +1,5 @@
 <template>
   <div
-    ref="container"
     class="TokenChart"
     :class="`TokenChart-${plotId}`"
   >
@@ -228,6 +227,10 @@ export default {
       type: Array,
       required: true,
     },
+    parentWidth: {
+      type: Number,
+      required: true,
+    }
   },
   data: function() {
     return {
@@ -238,9 +241,9 @@ export default {
       },
       focusMargin: {
         top: 40,
-        right: 50,
+        right: 70,
         bottom: 180,
-        left: 30,
+        left: 50,
       },
       contextMargin: {
         top: 500,
@@ -310,6 +313,12 @@ export default {
       handler() {
         this.render();
       }
+    },
+    parentWidth: {
+      deep: false,
+      handler(newValue) {
+        this.render();
+      }
     }
   },
 
@@ -320,9 +329,11 @@ export default {
    */
   mounted() {
     this.render = this.render.bind(this);
-    this.computeValueExtent();
-    this.render();
-    this.drawBrush();
+    this.$nextTick(() => {
+      this.computeValueExtent();
+      this.render();
+      this.drawBrush();
+    });
     window.addEventListener('resize', this.render);
   },
   destroyed() {
@@ -431,25 +442,18 @@ export default {
       }
     },
     resize() {
-      const dimensions = this.$refs.container.getBoundingClientRect();
+      this.width = this.parentWidth - this.focusMargin.left - this.focusMargin.right;
 
-      if (!dimensions.width && !dimensions.height) {
-        return false;
-      }
-
-      this.width = dimensions.width - this.focusMargin.left - this.focusMargin.right;
-      this.height = dimensions.height - this.focusMargin.top - this.focusMargin.bottom;
       this.focusHeight = 650 - this.focusMargin.top - this.focusMargin.bottom;
       this.contextHeight = 650 - this.contextMargin.top - this.contextMargin.bottom;
       // Set dimensions.
       this.svg
-        .attr('width', dimensions.width)
-        .attr('height', dimensions.height);
+        .attr('width', this.parentWidth.width);
       // Set clip path.
       this.svg
         .select("#clip rect")
         .attr('width', this.width + this.focusBarWidth())
-        .attr('height', dimensions.height || 500);
+        .attr('height', 500);
       if (this.brush) {
         // Set brush area.
         this.brush.extent([
@@ -457,8 +461,6 @@ export default {
           [this.width + this.focusBarWidth(), this.contextMargin.top + this.contextHeight],
         ]);
       }
-
-      return true;
     },
     /**
      * Renders the histogram with the plotted data.
@@ -467,13 +469,13 @@ export default {
      */
     render() {
       this.svg = d3.select('#' + this.plotId);
-      if (this.resize()) {
-        this.drawAxes();
-        this.drawBrush();
-        this.drawFocusChart();
-        this.drawVersionBars();
-        this.drawContextChart();
-      }
+
+      this.resize();
+      this.drawAxes();
+      this.drawBrush();
+      this.drawFocusChart();
+      this.drawVersionBars();
+      this.drawContextChart();
     },
     /**
      * Draws the axes for the histogram.

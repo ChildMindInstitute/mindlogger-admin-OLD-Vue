@@ -88,83 +88,88 @@
         </div>
       </v-card>
 
-      <v-tabs-items v-model="selectedTab">
-        <v-tab-item
-          v-for="tab in tabs"
-          :key="tab"
-        >
-          <v-card>
-            <v-expansion-panels
-              v-model="panel"
-              focusable
-            >
-              <template
-                v-for="activity in applet.activities"
+      <div ref="panels">
+        <v-tabs-items v-model="selectedTab">
+          <v-tab-item
+            v-for="tab in tabs"
+            :key="tab"
+          >
+            <v-card>
+              <v-expansion-panels
+                v-model="panel"
+                focusable
               >
-                <v-expansion-panel
-                  v-if="applet"
-                  :key="activity.id"
+                <template
+                  v-for="activity in applet.activities"
                 >
-                  <v-expansion-panel-header>
-                    {{ activity.label.en || activity.description.en }}
-                  </v-expansion-panel-header>
-                  <v-expansion-panel-content>
-                    <ActivitySummary
-                      v-if="tab!='tokens'"
-                      :plot-id="`Activity-Summary-${activity.id}`"
-                      :versions="applet.versions"
-                      :focus-extent="focusExtent"
-                      :selected-versions="selectedVersions"
-                      :has-version-bars="hasVersionBars"
-                      :data="activity.responses"
-                    />
-
-                    <h2> {{ $t('responseOptions') }} </h2>
-                    <div
-                      v-for="item in activity.items"
-                      :key="item['id']"
-                      class="chart-card"
-                    >
-                      <header>
-                        <h3> - {{ item.question.en || item.description.en }}</h3>
-                      </header>
-
-                      <token-chart
-                        v-if="tab=='tokens' && item.isTokenItem"
-                        :plot-id="`Token-${item['id']}`"
-                        :item="item"
-                        :timezone="item.timezoneStr"
+                  <v-expansion-panel
+                    v-if="applet"
+                    :key="activity.id"
+                  >
+                    <v-expansion-panel-header>
+                      {{ activity.label.en || activity.description.en }}
+                    </v-expansion-panel-header>
+                    <v-expansion-panel-content>
+                      <ActivitySummary
+                        v-if="tab!='tokens'"
+                        :plot-id="`Activity-Summary-${activity.id}`"
                         :versions="applet.versions"
                         :focus-extent="focusExtent"
                         :selected-versions="selectedVersions"
                         :has-version-bars="hasVersionBars"
-                        @onUpdateFocusExtent="onUpdateFocusExtent"
+                        :data="activity.responses"
+                        :parent-width="panelWidth"
                       />
 
-                      <RadioSlider
-                        v-if="tab=='responses' && item.isRadioSlider()"
-                        :plot-id="`RadioSlider-${item['id']}`"
-                        :item="item"
-                        :versions="applet.versions"
-                        :focus-extent="focusExtent"
-                        :selected-versions="selectedVersions"
-                        :has-version-bars="hasVersionBars"
-                      />
-                    </div>
-                  </v-expansion-panel-content>
-                </v-expansion-panel>
+                      <h2> {{ $t('responseOptions') }} </h2>
+                      <div
+                        v-for="item in activity.items"
+                        :key="item['id']"
+                        class="chart-card"
+                      >
+                        <header v-if="tab=='tokens' && item.isTokenItem || tab == 'responses'">
+                          <h3> - {{ item.question.en || item.description.en }}</h3>
+                        </header>
 
-                <v-expansion-panel
-                  v-else
-                  :key="activity._id"
-                >
-                    {{ $t("noDataAvailable") }}
-                </v-expansion-panel>
-              </template>
-            </v-expansion-panels>
-          </v-card>
-        </v-tab-item>
-      </v-tabs-items>
+                        <token-chart
+                          v-if="tab=='tokens' && item.isTokenItem"
+                          :plot-id="`Token-${item['id']}`"
+                          :item="item"
+                          :timezone="item.timezoneStr"
+                          :versions="applet.versions"
+                          :focus-extent="focusExtent"
+                          :selected-versions="selectedVersions"
+                          :has-version-bars="hasVersionBars"
+                          :parent-width="panelWidth - 50"
+                          @onUpdateFocusExtent="onUpdateFocusExtent"
+                        />
+
+                        <RadioSlider
+                          v-if="tab=='responses' && item.isRadioSlider()"
+                          :plot-id="`RadioSlider-${item['id']}`"
+                          :item="item"
+                          :versions="applet.versions"
+                          :focus-extent="focusExtent"
+                          :selected-versions="selectedVersions"
+                          :has-version-bars="hasVersionBars"
+                          :parent-width="panelWidth - 50"
+                        />
+                      </div>
+                    </v-expansion-panel-content>
+                  </v-expansion-panel>
+
+                  <v-expansion-panel
+                    v-else
+                    :key="activity.id"
+                  >
+                      {{ $t("noDataAvailable") }}
+                  </v-expansion-panel>
+                </template>
+              </v-expansion-panels>
+            </v-card>
+          </v-tab-item>
+        </v-tabs-items>
+      </div>
     </div>
   </v-card>
 </template>
@@ -298,6 +303,7 @@ export default {
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
       hasVersionBars: false,
+      panelWidth: 1024,
     }
   },
 
@@ -349,6 +355,10 @@ export default {
       this.selectedVersions = this.appletVersions;
 
       this.loading = false;
+
+      this.onResize = this.onResize.bind(this);
+      this.$nextTick(this.onResize);
+      window.addEventListener('resize', this.onResize);
     } catch (error) {
       this.status = "Oops, something went wrong. We couldn't load the applet";
       this.error = error;
@@ -356,10 +366,18 @@ export default {
     }
   },
 
+  destroyed() {
+    window.removeEventListener('resize', this.onResize);
+  },
+
   /**
    * Component methods.
    */
   methods: {
+    onResize() {
+      const dimensions = this.$refs.panels.getBoundingClientRect();
+      this.panelWidth = dimensions.width;
+    },
     /**
      * Checks whether the given date should be enabled.
      *
@@ -377,9 +395,11 @@ export default {
      * @return {boolean} whether this options should be enabled.
      */
     isAllowedEndDate(date) {
+      let NOW = new Date();
+      NOW.setDate(NOW.getDate() + 1);
       return (
         (moment.utc(date) > this.focusExtent[0]) && 
-        (moment.utc(date) <= moment.utc())
+        (moment.utc(date) <= moment.utc(NOW))
       );
     },
     /**

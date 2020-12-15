@@ -11,9 +11,6 @@ import Item from './Item';
 import ReproLib from '../schema/ReproLib';
 import SKOS from '../schema/SKOS';
 import encryptionUtils from '../Components/Utils/encryption/encryption.vue'
-import { tickFormat } from 'd3';
-
-import * as moment from 'moment';
 
 export default class Applet {
   /**
