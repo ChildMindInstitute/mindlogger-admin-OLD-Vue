@@ -334,10 +334,6 @@ export default {
       this.render();
       this.drawBrush();
     });
-    window.addEventListener('resize', this.render);
-  },
-  destroyed() {
-    window.removeEventListener('resize', this.render);
   },
   /**
    * Component methods.
