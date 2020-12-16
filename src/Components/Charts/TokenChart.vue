@@ -915,6 +915,13 @@ export default {
       }
       return result;
     },
+    getTokenValuePercent(value){
+      if (value > 0 && this.divergingExtent.max === 0 || value < 0 && this.divergingExtent.min === 0)
+      {
+        return 1;
+      }
+      return Math.abs(value) / (value > 0? this.divergingExtent.max : Math.abs(this.divergingExtent.min));
+    },
     compareDates(accDate, date) {
       if (JSON.stringify(accDate) === JSON.stringify(date)) return true;
       return false;
