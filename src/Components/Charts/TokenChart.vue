@@ -764,16 +764,15 @@ export default {
         normalisedx += (0.5 * this.focusBarWidth()) - 5;
         normalisedy = this.y(accumulation)
 
-        if (positive > 0){
-          console.log(positive)
+        if (positive > 0) {
           pathString += ` L ${normalisedx + 3} ${normalisedy}`
           accumulation = positive + accumulation;
           normalisedy = this.y(accumulation)
           pathString += ` L ${normalisedx + 3} ${normalisedy}`
           this.accumulations.push({text: accumulation, x: normalisedx + (0.5 * this.focusBarWidth()), y: normalisedy -3})
         }
-        if (i === data.length -1){
-          pathString += ` L ${normalisedx} ${normalisedy}`
+        if (i === data.length -1) {
+          pathString += ` L ${normalisedx + 20} ${normalisedy}`
         }
       }
       this.svg
