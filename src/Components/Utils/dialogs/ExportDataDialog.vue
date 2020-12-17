@@ -11,7 +11,9 @@
         {{ $t('exportUserData') }}
       </div>
 
-      <div class="sub-title"> {{ $t('selectAppletToExportData') }} </div>
+      <div class="sub-title">
+        {{ $t('selectAppletToExportData') }}
+      </div>
 
       <v-card-text>
         <v-btn

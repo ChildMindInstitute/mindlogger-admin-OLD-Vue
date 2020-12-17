@@ -1,142 +1,160 @@
 <template>
-    <v-app-bar
-      app
+  <v-app-bar
+    app
+    color="primary"
+    dark
+  >
+    <v-btn
       color="primary"
-      dark
+      class="toolbar-btn"
+      @click="onDashboard"
     >
-      <v-btn color="primary" class="toolbar-btn" @click="onDashboard">
-        {{ $t('mindloggerDashboard') }}
-      </v-btn>
+      {{ $t('mindloggerDashboard') }}
+    </v-btn>
 
-      <v-btn color="primary" class="toolbar-btn" v-if="currentApplet">
-        {{ currentApplet.name }} 
-      </v-btn>
+    <v-btn
+      v-if="currentApplet"
+      color="primary"
+      class="toolbar-btn"
+    >
+      {{ currentApplet.name }} 
+    </v-btn>
 
-      <v-tooltip
-        v-if="currentApplet && hasRoles('reviewer', 'manager', 'coordinator')"
-        bottom
-      >
-        <template v-slot:activator="{ on }">
-          <v-btn
-            v-on="on"
-            :color="routeName == 'SetUsers' ? 'black' : 'primary'"
-            class="toolbar-btn"
-            @click="viewUsers"
+    <v-btn
+      v-if="routeName == 'ReviewerDashboard'"
+      color="primary"
+      class="toolbar-btn"
+    >
+      {{ currentUsers }}'s Overview
+    </v-btn>
+
+    <v-tooltip
+      v-if="currentApplet && hasRoles('reviewer', 'manager', 'coordinator')"
+      bottom
+    >
+      <template v-slot:activator="{ on }">
+        <v-btn
+          :color="routeName == 'SetUsers' ? 'black' : 'primary'"
+          class="toolbar-btn"
+          v-on="on"
+          @click="viewUsers"
+        >
+          <v-icon>mdi-account-multiple</v-icon>
+        </v-btn>
+      </template>
+      <span>{{ $t('viewUsers') }}</span>
+    </v-tooltip>
+
+    <v-tooltip
+      v-if="currentApplet && hasRoles('manager', 'coordinator')"
+      bottom
+    >
+      <template v-slot:activator="{ on }">
+        <v-btn
+          :color="routeName == 'SetSchedule' ? 'black' : 'primary'"
+          class="toolbar-btn"
+          v-on="on"
+          @click="viewCalendar"
+        >
+          <v-icon>mdi-calendar-month</v-icon>
+        </v-btn>
+      </template>
+      <span>{{ $t('viewCalendar') }}</span>
+    </v-tooltip>
+
+    <v-tooltip
+      v-if="currentApplet && hasRoles('editor', 'manager')"
+      bottom
+    >
+      <template v-slot:activator="{ on }">
+        <v-btn
+          :color="routeName == 'Builder' ? 'black' : 'primary'"
+          class="toolbar-btn"
+          v-on="on"
+          @click="onEditApplet"
+        >
+          <v-icon>mdi-square-edit-outline</v-icon>
+        </v-btn>
+      </template>
+      <span>{{ $t('editApplet') }}</span>
+    </v-tooltip>
+
+    <v-tooltip
+      v-if="currentApplet && hasRoles('reviewer', 'manager')"
+      bottom
+    >
+      <template v-slot:activator="{ on }">
+        <v-btn
+          class="toolbar-btn primary"
+          v-on="on"
+          @click="onExportData"
+        >
+          <v-icon class="export-icon">
+            mdi-export
+          </v-icon>
+        </v-btn>
+      </template>
+      <span>{{ $t('exportData') }}</span>
+    </v-tooltip>
+
+    <v-spacer />
+
+    <v-menu
+      v-if="isLoggedIn"
+      :offset-y="true"
+      :nudge-width="150"
+      bottom
+      right
+    >
+      <template v-slot:activator="{ on }">
+        <v-btn
+          icon
+          v-on="on"
+        >
+          <v-icon>mdi-account-switch</v-icon>
+        </v-btn>
+      </template>
+      <v-card>
+        <v-list>
+          <v-list-item>
+            <v-list-item-title @click="switchAccount(ownerAccountId)">
+              {{ ownerAccountName }}
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            v-for="(account, index) in accounts"
+            :key="index"
+            @click="switchAccount(account.accountId)"
           >
-            <v-icon>mdi-account-multiple</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $t('viewUsers') }}</span>
-      </v-tooltip>
+            <v-list-item-title>{{ account.accountName }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </v-menu>
 
-      <v-tooltip
-        v-if="currentApplet && hasRoles('manager', 'coordinator')"
-        bottom
-      >
-        <template v-slot:activator="{ on }">
-          <v-btn
-            v-on="on"
-            :color="routeName == 'SetSchedule' ? 'black' : 'primary'"
-            class="toolbar-btn"
-            @click="viewCalendar"
-          >
-            <v-icon>mdi-calendar-month</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $t('viewCalendar') }}</span>
-      </v-tooltip>
+    <v-btn
+      v-if="isLoggedIn"
+      class="toolbar-btn logout"
+      color="primary"
+      @click="logout"
+    >
+      {{ $t('logout') }}
+    </v-btn>
 
-      <v-tooltip
-        v-if="currentApplet && hasRoles('editor', 'manager')"
-        bottom
-      >
-        <template v-slot:activator="{ on }">
-          <v-btn
-            v-on="on"
-            :color="routeName == 'Builder' ? 'black' : 'primary'"
-            class="toolbar-btn"
-            @click="onEditApplet"
-          >
-            <v-icon>mdi-square-edit-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>{{$t('editApplet')}}</span>
-      </v-tooltip>
+    <ConfirmationDialog
+      v-model="appletEditDialog"
+      :dialogText="$t('appletEditAlert')"
+      :title="$t('appletEdit')"
+      @onOK="editApplet"
+    />
 
-      <v-tooltip
-        v-if="currentApplet && hasRoles('reviewer', 'manager')"
-        bottom
-      >
-        <template v-slot:activator="{ on }">
-          <v-btn
-            v-on="on"
-            class="toolbar-btn primary"
-            @click="onExportData"
-          >
-            <v-icon class="export-icon">mdi-export</v-icon>
-          </v-btn>
-        </template>
-        <span>{{$t('exportData')}}</span>
-      </v-tooltip>
-
-      <v-spacer />
-
-      <v-menu
-        v-if="isLoggedIn"
-        :offset-y="true"
-        :nudge-width="150"
-        bottom
-        right
-      >
-        <template v-slot:activator="{ on }">
-          <v-btn
-            icon
-            v-on="on"
-          >
-            <v-icon>mdi-account-switch</v-icon>
-          </v-btn>
-        </template>
-        <v-card>
-          <v-list>
-            <v-list-item>
-              <v-list-item-title @click="switchAccount(ownerAccountId)">
-                {{ ownerAccountName }}
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item
-              v-for="(account, index) in accounts"
-              :key="index"
-              @click="switchAccount(account.accountId)"
-            >
-              <v-list-item-title>{{ account.accountName }}</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-card>
-      </v-menu>
-
-      <v-btn
-        v-if="isLoggedIn"
-        @click="logout"
-        class="toolbar-btn logout"
-        color="primary"
-      >
-        {{ $t('logout') }}
-      </v-btn>
-
-      <ConfirmationDialog
-        v-model="appletEditDialog"
-        :dialogText="$t('appletEditAlert')"
-        :title="$t('appletEdit')"
-        @onOK="editApplet"
-      />
-
-      <AppletPassword
-        v-model="appletPasswordDialog"
-        :hasConfirmPassword="false"
-        @set-password="onAppletPassword"
-        ref="appletPasswordDialog"
-      />
-    </v-app-bar>
+    <AppletPassword
+      ref="appletPasswordDialog"
+      v-model="appletPasswordDialog"
+      :hasConfirmPassword="false"
+      @set-password="onAppletPassword"
+    />
+  </v-app-bar>
 </template>
 
 <style scoped>
@@ -161,11 +179,11 @@ import encryption from '../encryption/encryption.vue';
 
 export default {
   name: "Header",
-  mixins: [AppletMixin],
   components: {
     ConfirmationDialog,
     AppletPassword,
   },
+  mixins: [AppletMixin],
   data() {
     return {
       appletEditDialog: false,
@@ -206,6 +224,9 @@ export default {
     },
     routeName() {
       return this.$route.name;
+    },
+    currentUsers() {
+      return Object.values(this.$store.state.currentUsers).map(user => user.MRN).join(', ');
     }
   },
   /**

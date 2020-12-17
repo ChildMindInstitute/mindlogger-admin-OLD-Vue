@@ -52,10 +52,10 @@
                       {{ item.title }}
                     </span>
                     <span v-else>
-                      {{$t('reviewerFor')}}: <span
+                      {{ $t('reviewerFor') }}: <span
                         class="reviewer-button"
                         @click.stop="onOpenReviewerDialog"
-                      >{{$t('clickHere')}}</span>
+                      >{{ $t('clickHere') }}</span>
                     </span>
                     <v-icon
                       small

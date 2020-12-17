@@ -6,7 +6,7 @@
   >
     <v-card>
       <v-card-title>
-        {{$t('editAppletAccess')}}
+        {{ $t('editAppletAccess') }}
       </v-card-title>
 
       <v-card-text>
@@ -28,7 +28,7 @@
                   class="manage-button"
                   @click="onRemoveUser(profile)"
                 >
-                  {{$t('removeAccessToApplet', { user: (profile.MRN || profile.email) })}}
+                  {{ $t('removeAccessToApplet', { user: (profile.MRN || profile.email) }) }}
                 </button>
 
                 <button
@@ -36,7 +36,7 @@
                   class="manage-button"
                   @click="onRemoveUserAndData(profile)"
                 >
-                  {{ $t('removeAccessToAppletAndData', { user:  profile.MRN || profile.email }) }}
+                  {{ $t('removeAccessToAppletAndData', { user: profile.MRN || profile.email }) }}
                 </button>
               </div>
             </v-expansion-panel-content>

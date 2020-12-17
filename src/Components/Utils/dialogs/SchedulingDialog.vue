@@ -4,12 +4,17 @@
     max-width="600px"
     @input="$emit('input', $event)"
   >
-    <v-card class="pa-4" v-if="!selectedProfile">
+    <v-card
+      v-if="!selectedProfile"
+      class="pa-4"
+    >
       <div class="title">
         {{ $t('individualScheduleSetup') }}
       </div>
 
-      <div class="sub-title"> {{ $t('selectAppletForSchedule') }} </div>
+      <div class="sub-title">
+        {{ $t('selectAppletForSchedule') }}
+      </div>
 
       <v-card-text>
         <v-btn
@@ -24,7 +29,7 @@
     </v-card>
     <v-card v-else>
       <v-card-title class="alert-content">
-        {{ $t('individualScheduleAlert', { MRN: selectedProfile.MRN || selectedProfile.email })}}
+        {{ $t('individualScheduleAlert', { MRN: selectedProfile.MRN || selectedProfile.email }) }}
       </v-card-title>
 
       <v-card-actions class="d-flex justify-space-around">

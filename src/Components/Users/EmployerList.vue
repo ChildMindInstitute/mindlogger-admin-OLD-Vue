@@ -116,10 +116,10 @@ import { RolesMixin } from '../Utils/mixins/RolesMixin';
 
 export default {
   name: "EmployerList",
-  mixins: [RolesMixin],
   components: {
     EditRoleDialog,
   },
+  mixins: [RolesMixin],
   props: {
     loading: {
       type: Boolean,

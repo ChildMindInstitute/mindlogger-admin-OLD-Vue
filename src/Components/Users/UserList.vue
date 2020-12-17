@@ -125,9 +125,9 @@
             </span>
             <span v-else-if="header.value == 'refreshRequest'">
               <span
+                v-if="item.refreshRequest"
                 class="btn-user-request"
                 @click="userRequestHandler(item)"
-                v-if="item.refreshRequest"
               >
                 {{ $t('refreshRequest') }}
               </span>
@@ -146,29 +146,29 @@
 
     <EditUserAccessDialog
       :key="`edit-${userEditDialog.key}`"
-      :user="userEditDialog.user"
       v-model="userEditDialog.visible"
+      :user="userEditDialog.user"
       @refreshUserList="updateUserList"
     />
 
     <SchedulingDialog
       :key="`scheduling-${userScheduleDialog.key}`"
-      :user="userScheduleDialog.user"
       v-model="userScheduleDialog.visible"
+      :user="userScheduleDialog.user"
       @onViewCalendar="viewCalendar"
     />
 
     <ExportDataDialog
       :key="`export-${userExportDialog.key}`"
-      :user="userExportDialog.user"
       v-model="userExportDialog.visible"
+      :user="userExportDialog.user"
       @onExportData="onDataRequest"
     />
 
     <ViewDataDialog
       :key="`view-${userViewDialog.key}`"
-      :user="userViewDialog.user"
       v-model="userViewDialog.visible"
+      :user="userViewDialog.user"
       @onViewData="onDataRequest"
     />
 
@@ -280,27 +280,6 @@ export default {
       required: false,
       default: false,
     },
-  },
-
-  created() {
-    if (this.multiSelectionEnabled) {
-      const self = this;
-      self.keyDownHandler = function ({ key }) {
-        if (key == "Shift") self.shiftKeyOn = true;
-      };
-      self.keyUpHandler = function ({ key }) {
-        if (key == "Shift") self.shiftKeyOn = false;
-      };
-      window.addEventListener("keydown", this.keyDownHandler);
-      window.addEventListener("keyup", this.keyUpHandler);
-    }
-  },
-
-  beforeDestroy() {
-    if (this.multiSelectionEnabled) {
-      window.removeEventListener("keydown", this.keyDownHandler);
-      window.removeEventListener("keyup", this.keyUpHandler);
-    }
   },
 
   data() {
@@ -455,6 +434,27 @@ export default {
         this.updateUserList();
       }
     },
+  },
+
+  created() {
+    if (this.multiSelectionEnabled) {
+      const self = this;
+      self.keyDownHandler = function ({ key }) {
+        if (key == "Shift") self.shiftKeyOn = true;
+      };
+      self.keyUpHandler = function ({ key }) {
+        if (key == "Shift") self.shiftKeyOn = false;
+      };
+      window.addEventListener("keydown", this.keyDownHandler);
+      window.addEventListener("keyup", this.keyUpHandler);
+    }
+  },
+
+  beforeDestroy() {
+    if (this.multiSelectionEnabled) {
+      window.removeEventListener("keydown", this.keyDownHandler);
+      window.removeEventListener("keyup", this.keyUpHandler);
+    }
   },
 
   beforeMount() {

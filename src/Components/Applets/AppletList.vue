@@ -78,7 +78,7 @@
                       <v-icon>mdi-square-edit-outline</v-icon>
                     </v-btn>
                   </template>
-                  <span>{{$t('editApplet')}}</span>
+                  <span>{{ $t('editApplet') }}</span>
                 </v-tooltip>
 
                 <!-- delete applet -->
@@ -110,7 +110,7 @@
                       <v-icon>mdi-content-duplicate</v-icon>
                     </v-btn>
                   </template>
-                  <span>{{$t('duplicateApplet')}}</span>
+                  <span>{{ $t('duplicateApplet') }}</span>
                 </v-tooltip>
 
                 <!-- refresh applet -->
@@ -126,7 +126,7 @@
                       <v-icon>mdi-refresh</v-icon>
                     </v-btn>
                   </template>
-                  <span>{{$t('refreshApplet')}}</span>
+                  <span>{{ $t('refreshApplet') }}</span>
                 </v-tooltip>
 
                 <!-- transfer ownership -->
@@ -163,28 +163,28 @@
                       v-if="item.roles.includes('reviewer') || item.roles.includes('manager')"
                       @click="onViewUsers(item)"
                     >
-                      <v-list-item-title>{{$t('viewUsers')}}</v-list-item-title>
+                      <v-list-item-title>{{ $t('viewUsers') }}</v-list-item-title>
                     </v-list-item>
 
                     <v-list-item
                       v-if="item.roles.includes('coordinator') || item.roles.includes('manager')"
                       @click="onViewGeneralCalendar(item)"
                     >
-                      <v-list-item-title>{{$t('viewCalendar')}}</v-list-item-title>
+                      <v-list-item-title>{{ $t('viewCalendar') }}</v-list-item-title>
                     </v-list-item>
 
                     <v-list-item
                       v-if="item.roles.includes('editor') || item.roles.includes('manager')"
                       @click="onEditApplet(item)"
                     >
-                      <v-list-item-title>{{$t('editApplet')}}</v-list-item-title>
+                      <v-list-item-title>{{ $t('editApplet') }}</v-list-item-title>
                     </v-list-item>
 
                     <v-list-item
                       v-if="item.roles.includes('manager')"
                       @click="onDeleteApplet(item)"
                     >
-                      <v-list-item-title>{{$t('deleteApplet')}}</v-list-item-title>
+                      <v-list-item-title>{{ $t('deleteApplet') }}</v-list-item-title>
                     </v-list-item>
 
                     <v-list-item
@@ -205,7 +205,7 @@
                       v-if="item.roles.includes('owner')"
                       @click="onTransferOwnership(item)"
                     >
-                      <v-list-item-title>{{$t('transferOwnership')}}</v-list-item-title>
+                      <v-list-item-title>{{ $t('transferOwnership') }}</v-list-item-title>
                     </v-list-item>
                   </v-list>
                 </v-menu>

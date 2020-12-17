@@ -42,8 +42,14 @@
             class="pa-4"
           >
             <h1>{{ $t('pendingInvitations') }}</h1>
-            <pending-invite-table :users="tabData[tab].list" :loading="tabData[tab].loading" />
-            <create-invitation-form @createInvitation="createInvitation" :key="invitationFormKey"/>
+            <pending-invite-table
+              :users="tabData[tab].list"
+              :loading="tabData[tab].loading"
+            />
+            <create-invitation-form
+              :key="invitationFormKey"
+              @createInvitation="createInvitation"
+            />
             <div style="height: 58px;" />
           </v-card>
           <v-card
@@ -69,16 +75,16 @@
     />
 
     <AppletPassword
+      ref="appletPasswordRef"
       v-model="appletPasswordDialog"
       :hasConfirmPassword="false"
       @set-password="onClickSubmitPassword"
-      ref="appletPasswordRef"
     />
 
     <ResponseUpdateDialog
+      :key="responseUpdateDialog.key"
       v-model="responseUpdateDialog.visible"
       :userData="responseUpdateDialog.userData"
-      :key="responseUpdateDialog.key"
       @onReuploadResponse="onReuploadResponse"
       @onDeclineReuploading="onDeclineReuploading"
     />

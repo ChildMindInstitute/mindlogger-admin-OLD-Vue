@@ -9,7 +9,9 @@
         {{ $t('viewData') }}
       </div>
 
-      <div class="sub-title"> {{ $t('selectAppletToViewData') }} </div>
+      <div class="sub-title">
+        {{ $t('selectAppletToViewData') }}
+      </div>
 
       <v-card-text>
         <v-btn
