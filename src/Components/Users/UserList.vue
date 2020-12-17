@@ -47,66 +47,7 @@
             class="cell"
           >
             <span v-if="header.value == 'manage' && item.selected">
-              <v-tooltip
-                v-if="item.scheduling.length > 0"
-                top
-              >
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    v-on="on"
-                    @click.stop="onViewCalendar(item)"
-                  >
-                    <v-icon> mdi-calendar-month </v-icon>
-                  </v-btn>
-                </template>
-                <span>{{ $t('viewCalendar') }}</span>
-              </v-tooltip>
-
-              <v-tooltip
-                v-if="item.viewable.length > 0"
-                top
-              >
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    v-on="on"
-                    @click.stop="onViewUser(item)"
-                  >
-                    <v-icon> mdi-chart-bar </v-icon>
-                  </v-btn>
-                </template>
-                <span>{{ $t('viewData') }}</span>
-              </v-tooltip>
-
-
-              <v-tooltip
-                v-if="item.viewable.length"
-                top
-              >
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    v-on="on"
-                    @click.stop="onExportUserData(item)"
-                  >
-                    <v-icon class="export-icon">mdi-export</v-icon>
-                  </v-btn>
-                </template>
-                <span>{{ $t('exportData') }}</span>
-              </v-tooltip>
-
-              <v-tooltip
-                v-if="item.editable.length > 0"
-                top
-              >
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    v-on="on"
-                    @click.stop="editUser(item)"
-                  >
-                    <v-icon> mdi-delete </v-icon>
-                  </v-btn>
-                </template>
-                <span>{{ $t('editAccess') }}</span>
-              </v-tooltip>
+              <user-table-actions :item="item" :users="selectedUsers" :refreshUserRequest="updateUserList"></user-table-actions>
             </span>
             <span v-else-if="header.value == 'pinned'">
               <v-btn @click="switchPin(item, !item[header.value])">
@@ -143,41 +84,6 @@
         {{ pageStart }} - {{ pageStop }} {{ $t('of') }} {{ itemsLength }}
       </template>
     </v-data-table>
-
-    <EditUserAccessDialog
-      :key="`edit-${userEditDialog.key}`"
-      v-model="userEditDialog.visible"
-      :user="userEditDialog.user"
-      @refreshUserList="updateUserList"
-    />
-
-    <SchedulingDialog
-      :key="`scheduling-${userScheduleDialog.key}`"
-      v-model="userScheduleDialog.visible"
-      :user="userScheduleDialog.user"
-      @onViewCalendar="viewCalendar"
-    />
-
-    <ExportDataDialog
-      :key="`export-${userExportDialog.key}`"
-      v-model="userExportDialog.visible"
-      :user="userExportDialog.user"
-      @onExportData="onDataRequest"
-    />
-
-    <ViewDataDialog
-      :key="`view-${userViewDialog.key}`"
-      v-model="userViewDialog.visible"
-      :user="userViewDialog.user"
-      @onViewData="onDataRequest"
-    />
-
-    <AppletPassword
-      ref="appletPasswordDialog"
-      v-model="appletPasswordDialog.visible"
-      :hasConfirmPassword="false"
-      @set-password="onAppletPassword"
-    />
   </div>
 </template>
 
@@ -239,16 +145,11 @@ import api from "../Utils/api/api.vue";
 import config from "../../config";
 import debounce from "debounce-promise";
 import { AppletMixin } from "../Utils/mixins/AppletMixin";
-import EditUserAccessDialog from "../Utils/dialogs/EditUserAccessDialog";
-import ViewDataDialog from "../Utils/dialogs/ViewDataDialog";
-import SchedulingDialog from "../Utils/dialogs/SchedulingDialog";
-import ExportDataDialog from "../Utils/dialogs/ExportDataDialog";
-import AppletPassword from "../Utils/dialogs/AppletPassword";
-import encryption from "../Utils/encryption/encryption";
 
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import fr from 'javascript-time-ago/locale/fr';
+import UserTableActions from "@/Components/Users/UserTableActions";
 
 TimeAgo.addLocale(en);
 TimeAgo.addLocale(fr);
@@ -258,11 +159,7 @@ const timeAgo = new TimeAgo('en-US');
 export default {
   name: "UserList",
   components: {
-    EditUserAccessDialog,
-    ViewDataDialog,
-    SchedulingDialog,
-    ExportDataDialog,
-    AppletPassword,
+    UserTableActions,
   },
   mixins: [AppletMixin],
   props: {
@@ -372,38 +269,11 @@ export default {
       loading: true,
       options: {},
       totalUsers: 0,
+      updateUserList: null,
       users: [],
       formattedUsers: [],
-      updateUserList: null,
       timeAgo: new TimeAgo(this.$i18n.locale.replace('_', '-')),
-
-      userEditDialog: {
-        visible: false,
-        user: {},
-        key: 0
-      },
-      userViewDialog: {
-        visible: false,
-        user: {},
-        key: 0
-      },
-      userExportDialog: {
-        visible: false,
-        user: {},
-        key: 0,
-      },
-      userScheduleDialog: {
-        visible: false,
-        user: {},
-        key: 0
-      },
-      appletPasswordDialog: {
-        visible: false,
-        profile: {},
-        appletId: null,
-        requestedAction: null,
-      },
-
+      selectedUsers: [], // consider when user multi select.
       shiftKeyOn: false,
       startRow: -1,
       previousEndRow: -1,
@@ -492,7 +362,6 @@ export default {
   methods: {
     rowClicked(row) {
       const rowId = row.id;
-
       if (this.startRow < 0 || !this.shiftKeyOn) {
         if (this.multiSelectionEnabled || !row.selected) {
           this.invertSelection(row);
@@ -526,7 +395,7 @@ export default {
     invertSelection(row) {
       let user = this.users[row.id];
       let profile = Object.values(user)[0];
-
+      this.selectedUsers[row.id] = this.users[row.id]
       if (row.selected) {
         row.selected = false;
 
@@ -562,84 +431,6 @@ export default {
       }).then(() => {
         this.updateUserList();
       })
-    },
-
-    onViewUser(row) {
-      if (row.viewable.length > 1) {
-        this.$set(this, 'userViewDialog', {
-          visible: true,
-          user: row.viewable.reduce((data, appletId) => ({
-            ...data,
-            [appletId]: this.users[row.id][appletId]
-          }), {}),
-          key: this.userViewDialog.key + 1
-        });
-      } else {
-        this.onDataRequest({
-          appletId: row.viewable[0],
-          profile: this.users[row.id][row.viewable[0]],
-          viewing: true
-        });
-      }
-    },
-
-    onExportUserData(row) {
-      if (row.viewable.length > 1) {
-        this.$set(this, 'userExportDialog', {
-          visible: true,
-          user: row.viewable.reduce((data, appletId) => ({
-            ...data,
-            [appletId]: this.users[row.id][appletId]
-          }), {}),
-          key: this.userExportDialog.key + 1
-        });
-      } else {
-        this.onDataRequest({
-          appletId: row.viewable[0],
-          profile: this.users[row.id][row.viewable[0]],
-          viewing: false
-        });
-      }
-    },
-
-    onViewCalendar(row) {
-      if (row.scheduling.length === 1 && this.users[row.id][row.scheduling[0]].hasIndividualEvent) {
-        this.viewCalendar({
-          appletId: row.scheduling[0],
-          profile: this.users[row.id][row.scheduling[0]],
-        })
-      } else {
-        this.$set(this, 'userScheduleDialog', {
-          visible: true,
-          user: row.scheduling.reduce((data, appletId) => ({
-            ...data,
-            [appletId]: this.users[row.id][appletId]
-          }), {}),
-          key: this.userScheduleDialog.key + 1
-        });
-      }
-    },
-
-    viewCalendar({ appletId, profile }) {
-      const applet = this.currentAccount.applets.find(applet => applet.id === appletId);
-
-      this.$store.commit('setCurrentApplet', applet);
-      this.$store.commit('setCurrentUsers', {
-        [profile['_id']]: profile
-      });
-
-      this.$router.push(`/applet/${applet.id}/schedule`).catch(err => {});
-    },
-
-    editUser(row) {
-      this.$set(this, 'userEditDialog', {
-        visible: true,
-        user: row.editable.reduce((data, appletId) => ({
-          ...data,
-          [appletId]: this.users[row.id][appletId]
-        }), {}),
-        key: this.userEditDialog.key + 1
-      });
     },
 
     customSort(items, sortBy, sortDesc, locale) {
@@ -731,87 +522,7 @@ export default {
       for (let user of this.formattedUsers) {
         user.selected = false;
       }
-    },
-
-    onDataRequest({ appletId, profile, viewing }) {
-      const appletMeta = this.accountApplets.find(applet => applet.id === appletId);
-
-      let preprocess = !this.isLatestApplet(appletMeta) ? this.loadApplet(appletId) : Promise.resolve();
-
-      preprocess.then(() => {
-        const appletData = this.$store.state.allApplets[appletId];
-
-        const encryptionInfo = appletData.applet.encryption;
-
-        this.$set(this, 'appletPasswordDialog', {
-          visible: false,
-          appletId,
-          profile,
-          requestedAction: viewing ? this.gotoDashboard.bind(this) : this.exportData.bind(this),
-        });
-
-        if (
-          !encryptionInfo ||
-          !encryptionInfo.appletPrime ||
-          encryptionInfo.appletPrivateKey
-        ) {
-          this.appletPasswordDialog.requestedAction();
-        } else {
-          this.appletPasswordDialog.visible = true;
-        }
-      })
-    },
-
-    gotoDashboard() {
-      const applet = this.accountApplets.find(applet => applet.id === this.appletPasswordDialog.appletId);
-
-      let profile = this.appletPasswordDialog.profile;
-
-      this.$store.commit('setCurrentApplet', applet);
-      this.$store.commit('setCurrentUsers', {
-        [profile['_id']]: profile
-      });
-
-      this.$router.push({
-        path: `/applet/${applet.id}/dashboard`,
-        query: { users: [profile['_id']] },
-      }).catch(err => {});
-    },
-
-    exportData() {
-      const applet = this.accountApplets.find(applet => applet.id === this.appletPasswordDialog.appletId);
-
-      this.exportUserData(applet);
-    },
-
-    onAppletPassword(appletPassword) {
-      const applet = this.accountApplets.find(applet => applet.id === this.appletPasswordDialog.appletId);
-
-      const encryptionInfo = encryption.getAppletEncryptionInfo({
-        appletPassword,
-        accountId: this.currentAccount.accountId,
-        prime: applet.encryption.appletPrime,
-        baseNumber: applet.encryption.base,
-      });
-
-      if (
-        encryptionInfo
-          .getPublicKey()
-          .equals(Buffer.from(applet.encryption.appletPublicKey))
-      ) {
-        this.$store.commit('setAppletPrivateKey', {
-          appletId: this.appletPasswordDialog.appletId,
-          key: Array.from(encryptionInfo.getPrivateKey()),
-        });
-
-        this.appletPasswordDialog.requestedAction();
-
-        this.appletPasswordDialog.visible = false;
-      } else {
-        this.$refs.appletPasswordDialog.defaultErrorMsg 
-          = this.$t('incorrectAppletPassword');
-      }
-    },
-  },
+    }
+  }
 };
 </script>
