@@ -1,3 +1,5 @@
+import * as moment from 'moment';
+
 export const DrawingMixin = { 
   props: {
     focusExtent: {
@@ -24,6 +26,10 @@ export const DrawingMixin = {
     parentWidth: {
       type: Number,
       required: true,
+    },
+    timezone: {
+      type: String,
+      required: true,
     }
   },
   data: function() {
@@ -35,6 +41,23 @@ export const DrawingMixin = {
       versionBarWidth: 2,
       radius: 7,
       tickHeight: 6,
+    }
+  },
+  computed: {
+    formattedVersions() {
+      let offset = `${this.timezone[0] === '+' ? '-' : '+'}${this.timezone.substr(1)}`;
+      return this.versions.map(version => {
+        if (!version.updated) {
+          return version;
+        }
+
+        const formatted = new Date(version.updated.slice(0, -6) + offset).toISOString();
+        return {
+          version: version.version,
+          barColor: version.barColor,
+          updated: new Date(formatted.slice(0, -5))
+        }
+      })
     }
   },
   methods: {
@@ -51,15 +74,17 @@ export const DrawingMixin = {
       this.svg
         .select('.versions')
         .selectAll('rect')
-        .data(this.versions.filter(d => this.selectedVersions.indexOf(d.version) >= 0 ))
+        .data(this.formattedVersions.filter(d => this.selectedVersions.indexOf(d.version) >= 0 ))
         .join('rect')
         .attr('fill', d => d.barColor)
         .attr('x', d => {
-          return this.x(new Date(d.updated));
+          return this.x(d.updated);
         })
         .attr('y', 0)
         .attr('width', this.versionBarWidth)
-        .attr('height', this.height + this.padding.top + this.padding.bottom);
-    }
+        .attr('height', d => {
+          return this.x(d.updated) >= 0 ? this.height + this.padding.top + this.padding.bottom : 0
+        });
+    },
   }
 }
