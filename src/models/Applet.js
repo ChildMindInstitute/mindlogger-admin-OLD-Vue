@@ -12,6 +12,12 @@ import ReproLib from '../schema/ReproLib';
 import SKOS from '../schema/SKOS';
 import encryptionUtils from '../Components/Utils/encryption/encryption.vue'
 
+const RESPONSE_COLORS = [
+  '#1C7AB3',
+  '#FF7F1F',
+  '#41A549'
+];
+
 export default class Applet {
   /**
    * Initialize the Applet instance with the given data.
@@ -30,6 +36,7 @@ export default class Applet {
     this.landingPage = i18n.arrayToObject(data.applet[ReproLib.landingPage]);
     //this.shuffle = data.applet[ReproLib.shuffle]['@value'];
     this.url = data.applet['url'];
+    this.timezoneStr = '+00:00';
     this.activities = [];
     this.responses = {};
 
@@ -86,6 +93,11 @@ export default class Applet {
       Applet.replaceItemValues(Applet.decryptResponses(data, this.encryption));
     }
 
+    this.responses = data.responses;
+
+    this.insertInitialVersion();
+    this.initMultipleChoiceStatus();
+
     for (let itemId in data.items) {
       data.items[itemId] = new Item({
         ...data.items[itemId],
@@ -93,6 +105,7 @@ export default class Applet {
       });
     }
 
+    /** manage version controlling ( handle updated items, removed/added items and activites) */
     for (let version in data.itemReferences) {
       for (let key in data.itemReferences[version]) {
         if (!data.itemReferences[version][key]) {
@@ -110,7 +123,7 @@ export default class Applet {
           this.items[key] = oldItem;
 
           this.items[key].schemas = [key];
-          
+
           let currentActivity = this.activities.find(activity => activity.data._id.split('/').pop() === oldItem.data.original.activityId);
 
           if (currentActivity) {
@@ -129,6 +142,8 @@ export default class Applet {
 
             this.activities.push(currentActivity);
           }
+
+          oldItem.multiChoiceStatusByVersion[version] = oldItem.isMultipleChoice;
         } else {
           /** in case item was updated by editor */
 
@@ -138,33 +153,37 @@ export default class Applet {
             currentItem.schemas.push(key);
             this.items[key] = currentItem;
           }
-  
+
           if (oldItem.responseOptions) {
+            currentItem.responseOptions = currentItem.responseOptions || [];
+
             oldItem.responseOptions.forEach(oldOption => {
               const existing = currentItem.responseOptions.find(currentOption => currentOption.id === oldOption.id);
+
               if (!existing) {
                 const index = currentItem.appendResponseOption(oldOption);
-    
+
                 currentItem.valueMapping[version] = currentItem.valueMapping[version] || {};
                 currentItem.valueMapping[version][oldOption.value] = index;
                 currentItem.valueMapping[version][Object.values(oldOption.name)[0]] = index;
               }
             })
+
+            currentItem.multiChoiceStatusByVersion[version] = oldItem.isMultipleChoice;
           }
         }
       }
     }
 
-
+    /** sort data responses according to date/versions */
     let itemIDGroup = Object.keys(data.responses);
     itemIDGroup = itemIDGroup.filter(id => id.startsWith('https://')).concat(itemIDGroup.filter(id => !id.startsWith('https://')));
 
     for (let itemId of itemIDGroup) {
       data.responses[itemId] = data.responses[itemId].filter(resp => resp.value);
-      /** sort data responses according to date/versions */
       data.responses[itemId].forEach(resp => {
         if (resp.value.length) {
-          this.items[itemId].timezoneStr = resp.date.substr(-6);
+          this.timezoneStr = resp.date.substr(-6);
         }
 
         resp.date = resp.date.slice(0, -6);
@@ -178,10 +197,34 @@ export default class Applet {
       });
     }
 
+    /** append responses */
     for (let itemId of itemIDGroup) {
       this.items[itemId].appendResponses(data.responses[itemId]);
     }
 
+    for (let itemId of itemIDGroup) {
+      let previousStatus = null;
+      let status = this.items[itemId].multiChoiceStatusByVersion;
+
+      for (let i = 0; i < this.versions.length; i++) {
+        let version = this.versions[i].version;
+
+        if (status[version] !== undefined) {
+          previousStatus = status[version];
+        } else if (previousStatus !== null) {
+          status[version] = previousStatus;
+        }
+      }
+    }
+
+    for (let i = 0; i < itemIDGroup.length; i++) {
+      this.items[itemIDGroup[i]].dataColor = RESPONSE_COLORS[i % RESPONSE_COLORS.length];
+    }
+    for (let i = 0; i < this.activities.length; i++) {
+      this.activities[i].dataColor = RESPONSE_COLORS[i % RESPONSE_COLORS.length];
+    }
+
+    /** save responses in activity model */
     for (let activity of this.activities) {
       activity.responses = [];
 
@@ -191,6 +234,7 @@ export default class Applet {
           version: response.version
         })));
       }
+
       activity.responses.sort((resp1, resp2) => {
         if (resp1.date < resp2.date) return -1;
         if (resp1.date > resp2.date) return 1;
@@ -200,8 +244,6 @@ export default class Applet {
 
       activity.responses = activity.responses.filter((resp, index) => activity.responses.findIndex(value => value.date.toString() == resp.date.toString() && value.version == resp.version) == index);
     }
-
-    this.responses = data.responses;
   }
 
   async fetchVersions() {
@@ -229,6 +271,14 @@ export default class Applet {
           })
         }
       }
+    }
+  }
+
+  initMultipleChoiceStatus() {
+    for (let itemId in this.items) {
+      this.items[itemId].multiChoiceStatusByVersion[
+        this.versions[0].version
+      ] = this.items[itemId].isMultipleChoice;
     }
   }
 
@@ -356,7 +406,6 @@ export default class Applet {
 
       if (opts.withResponses) {
         await applet.fetchResponses(opts.users);
-        applet.insertInitialVersion();
       }
 
       if (applet.versions) {

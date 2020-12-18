@@ -24,6 +24,8 @@ export default class Activity {
     this.url = data['schema:url'];
     this.items = [];
     this.responseDates = [];
+
+    this.dataColor = '#8076B2';
   }
 
 

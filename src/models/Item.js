@@ -52,7 +52,6 @@ export default class Item {
     this.schemaVersion = data['schema:schemaVersion'] && i18n.arrayToObject(data['schema:schemaVersion']);
     this.responseOptions = this.parseResponseOptions(data[ReproLib.responseOptions]);
     this.responses = [];
-    this.timezoneStr = '+00:00';
     this.maxValue = data[ReproLib.responseOptions] && 'schema:maxValue' in data[ReproLib.responseOptions][0]
       ? data[ReproLib.responseOptions][0]['schema:maxValue'][0]['@value']
       : 0;
@@ -63,12 +62,15 @@ export default class Item {
       data: [],
     };
     this.dateToVersions = {};
+    this.multiChoiceStatusByVersion = {};
     this.schemas = [];
     this.valueMapping = {};
     this.isTokenItem = data[ReproLib.responseOptions] && ReproLib.valueType in data[ReproLib.responseOptions][0]
       ? data[ReproLib.responseOptions][0][ReproLib.valueType][0]['@id'].includes('#token') : false;
     this.isMultipleChoice = data[ReproLib.responseOptions] && ReproLib.multipleChoice in data[ReproLib.responseOptions][0]
       ? data[ReproLib.responseOptions][0][ReproLib.multipleChoice][0]['@value'] : false;
+    
+    this.dataColor = '#8076B2';
   }
 
   /**
