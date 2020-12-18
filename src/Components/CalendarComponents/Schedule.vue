@@ -73,22 +73,6 @@
               />
               <div class="ds-timeout-unit">{{ $t('minutes') }}</div>
             </div>
-
-            <div class="ds-timeout-units">
-              <v-text-field
-                type="number"
-                v-model="timedActivity.second"
-                @change="onChangeTimedSecond"
-                class="ds-schedule-timeout"
-                single-line
-                hide-details
-                max="59"
-                min="00"
-                solo
-                flat
-              />
-              <div class="ds-timeout-unit">{{ $t('seconds') }}</div>
-            </div>
           </div>
           
           <v-checkbox
