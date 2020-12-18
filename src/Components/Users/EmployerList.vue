@@ -200,12 +200,14 @@ export default {
       for (let applet of this.accountApplets) {
         appletRoles[applet.id] = applet.roles;
       }
-
       for (let i = 0; i < this.employers.length; i++) {
         const employer = this.employers[i];
         const data = Object.values(employer)[0];
         let editable = [];
-
+        if (!data.roles.includes(this.role)) // need to filter based on the selected user role. It might need to be adjusted on back end.
+        {
+          continue;
+        }
         for (let appletId in employer) {
           let profile = employer[appletId];
 
@@ -232,7 +234,6 @@ export default {
           formatted.push(formattedInfo);
         }
       }
-
       return formatted;
     },
   },
