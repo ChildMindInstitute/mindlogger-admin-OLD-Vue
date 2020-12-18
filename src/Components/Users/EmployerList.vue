@@ -204,7 +204,7 @@ export default {
         const employer = this.employers[i];
         const data = Object.values(employer)[0];
         let editable = [];
-        if (!data.roles.includes(this.role)) // need to filter based on the selected user role. It might need to be adjusted on back end.
+        if (!data.roles.includes(this.role))
         {
           continue;
         }
