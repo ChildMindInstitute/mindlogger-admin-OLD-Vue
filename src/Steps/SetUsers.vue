@@ -168,9 +168,7 @@ export default {
       const currentApplet = this.$store.state.currentApplet;
       const items = Object.values(currentApplet.items);
 
-      return hasPermission && 
-              items.length === 1 && 
-              new Item(items[0]).inputType == 'radio';
+      return hasPermission;
     },
     isUsersLoaded() {
       return !_.isEmpty(this.$store.state.users);
