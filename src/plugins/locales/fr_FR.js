@@ -317,5 +317,5 @@ export default {
   selectAppletToExportData: `Veuillez sélectionner l'applet à partir duquel vous souhaitez exporter des données :`,
   responses: `Réponses`,
   tokens: 'Tokens',
-  responseOptions: 'Response Options',
+  responseOptions: 'Options de réponse',
 };
