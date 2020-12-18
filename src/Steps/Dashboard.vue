@@ -87,6 +87,7 @@
               :role="tabNameToRole[tab]"
               :hasRoleColumn="false"
               @onEditRoleSuccessfull="onEditRoleSuccessfull"
+              @onEmployerListChanged="onEmployerListChanged"
             />
           </v-card>
         </v-tab-item>
@@ -304,6 +305,10 @@ export default {
         this.dialogText = this.$t('organizerRoleUpdateSuccess');
         this.dialogTitle = this.$t('organizerRoleUpdate');
       })
+    },
+    onEmployerListChanged()
+    {
+      return this.onSwitchTab(this.tabs[this.selectedTab]);
     },
     getUserList(role, filter='', pagination={ allow: false }, sort={ allow: false }) {
       return api.getAccountUserList({

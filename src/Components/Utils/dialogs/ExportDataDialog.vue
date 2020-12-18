@@ -76,7 +76,15 @@
       for (let appletId in this.user) {
         const applet = this.currentAccount.applets.find(applet => applet.id === appletId);
         const profile = this.user[appletId];
-        const MRN = profile.MRN.match(/None \(.*\)/) ? null : profile.MRN;
+        let MRN = null;
+        if (profile.MRN && !profile.MRN.match(/None \(.*\)/))
+        {
+          MRN = profile.MRN;
+        }
+        else if (!profile.MRN)
+        {
+          MRN = profile.email // assume that selected user is an organizer.
+        }
 
         this.profileList.push({
           ...profile,

@@ -29,7 +29,7 @@
     </v-card>
     <v-card v-else>
       <v-card-title class="alert-content">
-        {{ $t('individualScheduleAlert', { MRN: selectedProfile.MRN || selectedProfile.email }) }}
+        {{ $t('individualScheduleAlert', { MRN: selectedProfile.MRN || selectedProfile.firstName + ' '+ selectedProfile.lastName })}}
       </v-card-title>
 
       <v-card-actions class="d-flex justify-space-around">
@@ -95,13 +95,21 @@
       for (let appletId in this.user) {
         const applet = this.currentAccount.applets.find(applet => applet.id === appletId);
         const profile = this.user[appletId];
-        const MRN = profile.MRN.match(/None \(.*\)/) ? null : profile.MRN;
+        let MRN = null;
+        if (profile.MRN && !profile.MRN.match(/None \(.*\)/))
+        {
+          MRN = profile.MRN;
+        }
+        else if (!profile.MRN)
+        {
+          MRN = profile.email // assume that selected user is an organizer.
+        }
 
         this.profileList.push({
           ...profile,
           appletId,
           MRN,
-          identifier: `${applet.name} (${MRN ? 'MRN: ' + MRN : 'email: ' + profile.email})`
+          identifier: `${applet.name} (${MRN ? 'MRN: ' + MRN : 'email: ' + profile.email})`,
         });
       }
       if (this.profileList.length === 1) {
