@@ -1,190 +1,225 @@
 <template>
-  <v-card class="container">
-    <div
-      v-if="loading"
-      class="status-message"
-    >
-      {{ status }}
-    </div>
-
-    <div
-      v-else
-    >
-      <v-card>
-        <v-tabs
-          v-model="selectedTab"
-          background-color="white"
-          color="black"
-          light
-          left
-        >
-          <template v-for="tab in tabs">
-            <v-tab
-              :key="tab"
-            >
-              {{ $t(tab) }}
-            </v-tab>
-          </template>
-        </v-tabs>
-
-        <div class="time-range">
-          {{ $t('showingDataFrom') }}
-
-          <v-menu>
-            <template v-slot:activator="{ on }">
-              <v-btn 
-                depressed
-                class="ds-button-tall ma-0 mb-2 fromDate"
-                v-on="on"
-              >
-                {{ fromDate }}
-              </v-btn>
-            </template>
-
-            <v-date-picker
-              :locale="$i18n.locale.slice(0, 2)"
-              no-title
-              :allowedDates="isAllowedStartDate"
-              @change="setStartDate"
-            />
-          </v-menu>
-
-          {{ $t('to') }}
-
-          <v-menu>
-            <template v-slot:activator="{ on }">
-              <v-btn 
-                depressed
-                class="ds-button-tall ma-0 mb-2 toDate"
-                v-on="on"
-              >
-                {{ toDate }}
-              </v-btn>
-            </template>
-
-            <v-date-picker
-              :locale="$i18n.locale.slice(0, 2)"
-              no-title
-              :allowedDates="isAllowedEndDate"
-              @change="setEndDate"
-            />
-          </v-menu>
-        </div>
-
-        <div class="version">
-          <v-select
-            class="version-list"
-            v-model="selectedVersions"
-            :items="appletVersions"
-            :label="$t('versions')"
-            multiple
-          />
-
-          <v-checkbox
-            class="version-bar"
-            v-model="hasVersionBars"
-            :label="$t('showVersionChanges')"
-          />
-        </div>
-      </v-card>
-
-      <div ref="panels">
-        <v-tabs-items v-model="selectedTab">
-          <v-tab-item
-            v-for="tab in tabs"
-            :key="tab"
-          >
-            <v-card>
-              <v-expansion-panels
-                v-model="panel"
-                focusable
-              >
-                <template
-                  v-for="activity in applet.activities"
-                >
-                  <v-expansion-panel
-                    v-if="applet"
-                    :key="activity.id"
-                  >
-                    <v-expansion-panel-header>
-                      {{ activity.label.en || activity.description.en }}
-                    </v-expansion-panel-header>
-                    <v-expansion-panel-content>
-                      <ActivitySummary
-                        v-if="tab!='tokens'"
-                        :plot-id="`Activity-Summary-${activity.id}`"
-                        :versions="applet.versions"
-                        :focus-extent="focusExtent"
-                        :selected-versions="selectedVersions"
-                        :has-version-bars="hasVersionBars"
-                        :data="activity.responses"
-                        :parent-width="panelWidth"
-                      />
-
-                      <h2> {{ $t('responseOptions') }} </h2>
-                      <div
-                        v-for="item in activity.items"
-                        :key="item['id']"
-                        class="chart-card"
-                      >
-                        <header v-if="tab=='tokens' && item.isTokenItem || tab == 'responses'">
-                          <h3> - {{ item.question.en || item.description.en }}</h3>
-                        </header>
-
-                        <token-chart
-                          v-if="tab=='tokens' && item.isTokenItem"
-                          :plot-id="`Token-${item['id']}`"
-                          :item="item"
-                          :timezone="item.timezoneStr"
-                          :versions="applet.versions"
-                          :focus-extent="focusExtent"
-                          :selected-versions="selectedVersions"
-                          :has-version-bars="hasVersionBars"
-                          :parent-width="panelWidth - 50"
-                          @onUpdateFocusExtent="onUpdateFocusExtent"
-                        />
-
-                        <RadioSlider
-                          v-if="tab=='responses' && item.isRadioSlider()"
-                          :plot-id="`RadioSlider-${item['id']}`"
-                          :item="item"
-                          :versions="applet.versions"
-                          :focus-extent="focusExtent"
-                          :selected-versions="selectedVersions"
-                          :has-version-bars="hasVersionBars"
-                          :parent-width="panelWidth - 50"
-                        />
-                      </div>
-                    </v-expansion-panel-content>
-                  </v-expansion-panel>
-
-                  <v-expansion-panel
-                    v-else
-                    :key="activity.id"
-                  >
-                      {{ $t("noDataAvailable") }}
-                  </v-expansion-panel>
-                </template>
-              </v-expansion-panels>
-            </v-card>
-          </v-tab-item>
-        </v-tabs-items>
+  <div class="container">
+    <v-card class="dashboard">
+      <div
+        v-if="loading"
+        class="status-message"
+      >
+        {{ status }}
       </div>
-    </div>
-  </v-card>
+
+      <div
+        v-else
+      >
+        <div>
+          <v-tabs
+            v-model="selectedTab"
+            background-color="white"
+            class="tabs"
+            hide-slider
+            light
+            left
+          >
+            <template v-for="tab in tabs">
+              <v-tab
+                :key="tab"
+              >
+                {{ $t(tab) }}
+              </v-tab>
+            </template>
+          </v-tabs>
+        </div>
+
+        <div class="content">
+          <div>
+            <div class="time-range">
+              {{ $t('showingDataFrom') }}
+
+              <v-menu>
+                <template v-slot:activator="{ on }">
+                  <v-btn 
+                    depressed
+                    class="ds-button-tall ma-0 mb-2 fromDate"
+                    v-on="on"
+                  >
+                    {{ fromDate }}
+                  </v-btn>
+                </template>
+
+                <v-date-picker
+                  :locale="$i18n.locale.slice(0, 2)"
+                  no-title
+                  :allowedDates="isAllowedStartDate"
+                  @change="setStartDate"
+                />
+              </v-menu>
+
+              {{ $t('to') }}
+
+              <v-menu>
+                <template v-slot:activator="{ on }">
+                  <v-btn 
+                    depressed
+                    class="ds-button-tall ma-0 mb-2 toDate"
+                    v-on="on"
+                  >
+                    {{ toDate }}
+                  </v-btn>
+                </template>
+
+                <v-date-picker
+                  :locale="$i18n.locale.slice(0, 2)"
+                  no-title
+                  :allowedDates="isAllowedEndDate"
+                  @change="setEndDate"
+                />
+              </v-menu>
+            </div>
+
+            <div class="version">
+              <v-select
+                v-model="selectedVersions"
+                class="version-list"
+                :items="appletVersions"
+                :label="$t('versions')"
+                multiple
+              />
+
+              <v-checkbox
+                v-model="hasVersionBars"
+                class="version-bar"
+                :label="$t('showVersionChanges')"
+              />
+            </div>
+          </div>
+
+          <div ref="panels">
+            <v-tabs-items v-model="selectedTab">
+              <v-tab-item
+                v-for="tab in tabs"
+                :key="tab"
+              >
+                <v-card class="mb-0">
+                  <v-expansion-panels
+                    v-model="panel"
+                    focusable
+                  >
+                    <template
+                      v-for="activity in applet.activities"
+                    >
+                      <v-expansion-panel
+                        v-if="applet"
+                        :key="activity.id"
+                      >
+                        <v-expansion-panel-header>
+                          <ActivitySummary
+                            :plot-id="`Activity-Summary-${activity.id}-${tab}`"
+                            :versions="applet.versions"
+                            :focus-extent="focusExtent"
+                            :selected-versions="selectedVersions"
+                            :has-version-bars="hasVersionBars"
+                            :timezone="applet.timezoneStr"
+                            :data="activity.responses"
+                            :label="activity.label.en || activity.description.en"
+                            :color="activity.dataColor"
+                            :parent-width="panelWidth"
+                            :item-padding="itemPadding"
+                          />
+                        </v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                          <h2 class="mt-4"> {{ $t('responseOptions') }} </h2>
+                          <div
+                            v-for="item in activity.items"
+                            :key="item['id']"
+                            class="chart-card"
+                          >
+                            <header v-if="tab=='tokens' && item.isTokenItem || tab == 'responses'">
+                              <h3> - {{ item.question.en || item.description.en }}</h3>
+                            </header>
+
+                            <token-chart
+                              v-if="tab=='tokens' && item.isTokenItem"
+                              :plot-id="`Token-${item['id']}`"
+                              :item="item"
+                              :timezone="applet.timezoneStr"
+                              :versions="applet.versions"
+                              :focus-extent="focusExtent"
+                              :selected-versions="selectedVersions"
+                              :has-version-bars="hasVersionBars"
+                              :parent-width="panelWidth"
+                              @onUpdateFocusExtent="onUpdateFocusExtent"
+                            />
+
+                            <RadioSlider
+                              v-if="tab == 'responses' && item.responseOptions"
+                              :plot-id="`RadioSlider-${item['id']}`"
+                              :item="item"
+                              :versions="applet.versions"
+                              :focus-extent="focusExtent"
+                              :selected-versions="selectedVersions"
+                              :timezone="applet.timezoneStr"
+                              :has-version-bars="hasVersionBars"
+                              :parent-width="panelWidth"
+                              :color="item.dataColor"
+                            />
+                          </div>
+                        </v-expansion-panel-content>
+                      </v-expansion-panel>
+
+                      <v-expansion-panel
+                        v-else
+                        :key="activity.id"
+                      >
+                        {{ $t("noDataAvailable") }}
+                      </v-expansion-panel>
+                    </template>
+                  </v-expansion-panels>
+                </v-card>
+              </v-tab-item>
+            </v-tabs-items>
+          </div>
+        </div>
+      </div>
+    </v-card>
+  </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .container {
-  max-height: calc(100vh - 120px);
+  padding: 15px 15px 0px 15px;
+  border: 4px solid black;
+  margin: auto;
+}
+
+.dashboard {
+  max-height: calc(100vh - 150px);
+  padding: 15px;
   overflow-y: scroll;
   background-color: white;
-  padding: 20px;
+}
+
+.v-tab--active {
+  border: 2px solid black;
+  border-bottom: 2px solid white;
+}
+
+/deep/ .v-slide-group__content.v-tabs-bar__content::before {
+  position: absolute;
+  content: '';
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  border-bottom: 2px solid black;
+}
+
+.content {
+  padding-top: 20px;
+  border: 2px solid black;
+  border-top: none;
 }
 
 .time-range,
 .version {
-  margin-top: 0.8rem;
   margin-left: 0.8rem;
   font-size: 0.8rem;
   font-weight: 600;
@@ -192,17 +227,13 @@
   text-transform: uppercase;
 }
 
-.version {
-  .version-list, .version-bar {
-    display: inline-block;
-  }
-
-  .version-list {
-    width: 50%;
-  }
-  .version-bar {
-    margin-left: 20px;
-  }
+.version .version-list {
+  display: inline-block;
+  width: 50%;
+}
+.version .version-bar {
+  display: inline-block;
+  margin-left: 20px;
 }
 
 .time-range .date {
@@ -303,7 +334,9 @@ export default {
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
       hasVersionBars: false,
-      panelWidth: 1024,
+      panelWidth: 974,
+      margin: 50,
+      itemPadding: 44
     }
   },
 
@@ -376,7 +409,7 @@ export default {
   methods: {
     onResize() {
       const dimensions = this.$refs.panels.getBoundingClientRect();
-      this.panelWidth = dimensions.width;
+      this.panelWidth = dimensions.width - this.margin;
     },
     /**
      * Checks whether the given date should be enabled.
