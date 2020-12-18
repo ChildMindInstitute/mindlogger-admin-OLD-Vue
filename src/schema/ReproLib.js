@@ -10,4 +10,5 @@ export default {
   shuffle: 'reprolib:terms/shuffle',
   preable: 'reprolib:terms/preable',
   timeUnit: 'reprolib:terms/timeUnit',
+  scoring: 'reprolib:terms/scoring',
 };

@@ -261,6 +261,7 @@ export default {
           Applet.decryptResponses(data, this.currentApplet.applet.encryption);
 
           const result = [];
+          const subScaleNames = [];
 
           const currentItems = {};
           for (let itemUrl in this.currentApplet.items) {
@@ -285,6 +286,20 @@ export default {
           for (let response of data.responses) {
             const { MRN, displayName, _id } = userIdToData[response.userId];
 
+            for (let subScaleName in response.subScales) {
+              let subScale = response.subScales[subScaleName];
+
+              if (subScale && subScale.ptr !== undefined && subScale.src !== undefined) {
+                response.subScales[subScaleName] = data.subScaleSources[subScale.src].data[subScale.ptr];
+              }
+
+              if (subScaleNames.indexOf(subScaleName) < 0) {
+                subScaleNames.push(subScaleName);
+              }
+            }
+
+            let isSubScaleExported = false;
+
             for (let itemUrl in response.data) {
               let itemData = response.data[itemUrl];
 
@@ -301,11 +316,14 @@ export default {
 
               let options = [];
               let responseData = [];
+              let scores = [];
 
               if (response.data[itemUrl] === null ) {
                 responseData = null;
-              } else if (item.inputType === 'radio') {
-                options = item.responseOptions.map(option => `${Object.values(option.name)[0]}: ${option.value}`);
+              } else if (item.inputType === 'radio' || item.inputType == 'slider') {
+                options = item.responseOptions.map(option => 
+                  `${Object.values(option.name)[0]}: ${option.value} ${item.scoring ? '(score: ' + option.score + ')' : ''}`
+                );
                 if (!Array.isArray(response.data[itemUrl])) {
                   response.data[itemUrl] = [response.data[itemUrl]]
                 }
@@ -315,9 +333,19 @@ export default {
                     let option = item.responseOptions.find(option => Object.values(option.name)[0] === val);
                     if (option) {
                       responseData.push(option.value);
+                      if (item.scoring) {
+                        scores.push(option.score);
+                      }
                     }
                   } else {
                     responseData.push(val);
+
+                    if (item.scoring) {
+                      let option = item.responseOptions.find(option => option.value === val);
+                      if (option) {
+                        scores.push(option.score);
+                      }
+                    }
                   }
                 });
               } else {
@@ -338,8 +366,18 @@ export default {
                 item: itemUrl,
                 response: responseData,
                 options: options.join(', '),
-                version: response.version
+                version: response.version,
+                rawScore: !isSubScaleExported ? scores.reduce((accumulated, current) => current + accumulated, 0) : '',
+                ... (!isSubScaleExported ? response.subScales : {})
               });
+
+              isSubScaleExported = true;
+            }
+          }
+
+          for (let row of result) {
+            for (let subScaleName of subScaleNames) {
+              row[subScaleName] = row[subScaleName] || '';
             }
           }
 
@@ -354,8 +392,9 @@ export default {
               'item',
               'response',
               'options',
-              'version'
-            ].map((value) => ({ key: value, as: value })),
+              'version',
+              'rawScore'
+            ].concat(subScaleNames).map((value) => ({ key: value, as: value })),
             data: result,
           });
 
