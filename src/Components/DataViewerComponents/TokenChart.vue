@@ -249,7 +249,7 @@ export default {
         top: 500,
         bottom: 30,
       },
-      versionBarWidth: 10,
+      versionBarWidth: 4,
       versionChangeLimitPerDay: 4,
       ...this.item.getFormattedTokenData(),
     }

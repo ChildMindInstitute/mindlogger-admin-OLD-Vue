@@ -2,10 +2,31 @@
   <div
     class="activity-summary"
   >
-    <svg :id="plotId" :width="width + 20" :height="height + padding.top + padding.bottom">
-      <g class="x-axis" />
-      <g class="responses" />
-      <g class="versions" />
+    <svg
+      :id="plotId"
+      :width="width + itemPadding + 20"
+      :height="height"
+    >
+      <g class="labels">
+        <text
+          :y="padding.top + radius + 15/2"
+          :x="labelWidth/2"
+          :font-size="15"
+          text-anchor="middle"
+          font-weight="bold"
+        >
+          {{ label }}
+        </text>
+      </g>
+
+      <g
+        class="content"
+        :transform="`translate(${labelWidth + itemPadding}, 0)`"
+      >
+        <g class="x-axis" />
+        <g class="versions" />
+        <g class="responses" />
+      </g>
     </svg>
   </div>
 </template>
@@ -16,7 +37,6 @@
   display: inline-block;
   position: relative;
   user-select: none;
-  margin: 20px 20px 20px 20px;
 }
 
 </style>
@@ -37,18 +57,26 @@ export default {
     data: {
       type: Array,
       required: true
-    }
+    },
+    label: {
+      type: String,
+      required: false,
+    },
+    itemPadding: {
+      type: Number,
+      required: true,
+    },
   },
   data: function() {
+    let margin = { left: 20, right: 60 };
+    let width = this.parentWidth - margin.left - margin.right;
+
     return {
       height: 35,
-      width: this.parentWidth - 60,
+      margin,
+      width,
+      labelWidth: width / 4,
     }
-  },
-  mounted() {
-    this.$nextTick(() => {
-      this.render();
-    });
   },
 
   /**
@@ -76,19 +104,24 @@ export default {
     parentWidth: {
       deep: false,
       handler(newValue) {
-        this.width = newValue - 60;
+        this.width = newValue - this.margin.left - this.margin.right;
+        this.labelWidth = this.width / 4;
         this.render();
       }
     }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.render();
+    });
   },
   methods: {
     render() {
       this.svg = d3.select('#' + this.plotId);
 
       this.drawAxes();
-      this.drawResponses();
-
       this.drawVersions();
+      this.drawResponses();
     },
 
     drawAxes() {
@@ -96,14 +129,14 @@ export default {
         .scaleUtc()
         .nice()
         .domain(this.focusExtent)
-        .range([0, this.width]);
+        .range([0, this.width - this.labelWidth]);
 
       const xAxis = d3
         .axisBottom()
         .scale(this.x)
         .tickSize(this.tickHeight)  // Height of the tick line.
         .ticks(d3.timeDay)
-        .tickFormat(d => moment(d).format('MMM D'));
+        .tickFormat(d => moment(d).format('MMM-D'));
 
       this.svg
         .select('.x-axis')
@@ -128,7 +161,7 @@ export default {
           return this.x(d.date);
         })
         .attr('cy', this.radius + this.padding.top)
-        .attr('r', this.radius);
+        .attr('r', d => this.x(d.date) >= 0 ? this.radius : 0);
     },
   },
 }

@@ -2,10 +2,31 @@
   <div
     class="radio-slider"
   >
-    <svg :id="plotId" :width="width + 20" :height="height + padding.top + padding.bottom">
-      <g class="x-axis" />
-      <g class="responses" />
-      <g class="versions" />
+    <svg
+      :id="plotId"
+      :width="width + 20"
+      :height="height + padding.top + padding.bottom"
+    >
+      <g class="labels">
+        <text
+          v-for="feature in features"
+          :key="feature.slug"
+          :y="radius * 2 + padding.top + heightPerFeature * feature.index"
+          :x="labelWidth/2"
+          :font-size="15"
+          text-anchor="middle"
+        >
+          {{ feature.name.en }}
+        </text>
+      </g>
+      <g
+        class="content"
+        :transform="`translate(${labelWidth}, 0)`"
+      >
+        <g class="x-axis" />
+        <g class="versions" />
+        <g class="responses" />
+      </g>
     </svg>
   </div>
 </template>
@@ -17,7 +38,7 @@
   position: relative;
   width: calc(100% - 40px);
   user-select: none;
-  margin: 40px 20px 20px 20px;
+  margin: 0px 20px;
 }
 
 </style>
@@ -41,15 +62,25 @@ export default {
     },
   },
   data: function() {
+    let margin = { left: 20, right: 60 };
+    let heightPerFeature = 35;
+
+    let { data, features } = this.item.getFormattedResponseData();
+
+    let width = this.parentWidth - margin.left - margin.right;
+
     return {
-      height: 35,
-      width: this.parentWidth - 60,
+      height: features.length * heightPerFeature,
+      heightPerFeature,
+      margin,
+      width,
+      labelWidth: width / 4,
+      data,
+      features: features.map((feature, index) => ({
+        ...feature,
+        index
+      })),
     }
-  },
-  mounted() {
-    this.$nextTick(() => {
-      this.render();
-    });
   },
 
   /**
@@ -77,19 +108,26 @@ export default {
     parentWidth: {
       deep: false,
       handler(newValue) {
-        this.width = newValue - 60;
+        this.width = newValue - this.margin.left - this.margin.right;
+        this.labelWidth = this.width / 4;
+
         this.render();
       }
     }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.render();
+    });
   },
   methods: {
     render() {
       this.svg = d3.select('#' + this.plotId);
 
       this.drawAxes();
-      this.drawResponses();
 
       this.drawVersions();
+      this.drawResponses();
     },
 
     drawAxes() {
@@ -97,49 +135,92 @@ export default {
         .scaleUtc()
         .nice()
         .domain(this.focusExtent)
-        .range([0, this.width]);
+        .range([0, this.width - this.labelWidth]);
 
       const xAxis = d3
         .axisBottom()
         .scale(this.x)
         .tickSize(this.tickHeight)  // Height of the tick line.
-        .ticks(d3.timeDay)
-        .tickFormat(d => moment(d).format('MMM D'));
+        .ticks(d3.timeDay);
 
       this.svg
         .select('.x-axis')
-        .style('stroke-width', 2)
-        .attr('transform', `translate(0, ${this.radius + this.padding.top})`)
-        .call(xAxis);
+        .selectAll('.feature-axis')
+        .remove();
+
+      for (let i = 0; i < this.features.length; i++) {
+        let feature = this.features[i];
+
+        this.svg
+          .select('.x-axis')
+          .append('g')
+          .attr('class', 'feature-axis')
+          .style('stroke-width', 2)
+          .attr('transform', d => `translate(0, ${this.radius + this.padding.top + this.heightPerFeature * i})`)
+          .call(
+            xAxis.tickFormat(d => i == this.features.length - 1 ? moment(d).format('MMM-D') : '')
+          );
+      }
     },
 
     drawResponses() {
-
-    },
-
-    drawVersions() {
       this.svg
-        .select('.versions')
-        .selectAll('rect')
+        .select('.responses')
+        .selectAll('*')
         .remove();
 
-      if (!this.hasVersionBars) {
-        return;
-      }
+      let prevX = -1, prevY = -1;
 
-      this.svg
-        .select('.versions')
-        .selectAll('rect')
-        .data(this.versions.filter(d => this.selectedVersions.indexOf(d.version) >= 0 ))
-        .join('rect')
-        .attr('fill', d => d.barColor)
-        .attr('x', d => {
-          return this.x(new Date(d.updated));
-        })
-        .attr('y', 0)
-        .attr('width', this.versionBarWidth)
-        .attr('height', this.height + this.padding.top + this.padding.bottom);
-    }
+      for (let response of this.data) {
+        let x = -1, y = -1;
+        for (let feature of this.features) {
+          if (response[feature.slug]) {
+            x = this.x(response.date);
+            y = this.radius + this.padding.top + this.heightPerFeature * feature.index;
+
+            if (x < 0) {
+              continue;
+            }
+
+            this.svg
+              .select('.responses')
+              .append('circle')
+              .attr('fill', this.color)
+              .attr('cx', x)
+              .attr('cy', y)
+              .attr('r', this.radius)
+          }
+        }
+
+        if (this.item.multiChoiceStatusByVersion[response.version]) {
+          x = y = -1;
+        }
+
+        if (x >= 0 && prevX >= 0) {
+          let delta = this.radius + 2;
+          let dx = x - prevX, 
+              dy = y - prevY;
+
+          let r = Math.sqrt(dx * dx + dy * dy);
+
+          dx /= r, dy /= r;
+
+          if (r >= this.radius * 2) {
+            this.svg
+              .select('.responses')
+              .append('line')
+              .attr('x1', prevX + dx * delta)
+              .attr('y1', prevY + dy * delta)
+              .attr('x2', x - dx * delta)
+              .attr('y2', y - dy * delta)
+              .attr('stroke', 'black')
+          }
+        }
+
+        prevX = x;
+        prevY = y;
+      }
+    },
   }
 }
 </script>
