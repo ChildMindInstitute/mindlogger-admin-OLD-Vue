@@ -105,7 +105,7 @@
                     focusable
                   >
                     <template
-                      v-for="activity in applet.activities"
+                      v-for="(activity, index) in applet.activities"
                     >
                       <v-expansion-panel
                         v-if="applet"
@@ -128,41 +128,45 @@
                         </v-expansion-panel-header>
                         <v-expansion-panel-content>
                           <h2 class="mt-4"> {{ $t('responseOptions') }} </h2>
-                          <div
+                          <template
                             v-for="item in activity.items"
-                            :key="item['id']"
-                            class="chart-card"
                           >
-                            <header v-if="tab=='tokens' && item.isTokenItem || tab == 'responses'">
-                              <h3> - {{ item.question.en || item.description.en }}</h3>
-                            </header>
+                            <div
+                              :key="item['id']"
+                              class="chart-card"
+                              v-if="tab != 'tokens' || item.isTokenItem"
+                            >
+                              <header v-if="tab=='tokens' && item.isTokenItem || tab == 'responses'">
+                                <h3> - {{ item.getFormattedQuestion() }}</h3>
+                              </header>
 
-                            <token-chart
-                              v-if="tab=='tokens' && item.isTokenItem"
-                              :plot-id="`Token-${item['id']}`"
-                              :item="item"
-                              :timezone="applet.timezoneStr"
-                              :versions="applet.versions"
-                              :focus-extent="focusExtent"
-                              :selected-versions="selectedVersions"
-                              :has-version-bars="hasVersionBars"
-                              :parent-width="panelWidth"
-                              @onUpdateFocusExtent="onUpdateFocusExtent"
-                            />
+                              <token-chart
+                                v-if="tab=='tokens' && item.isTokenItem && panel == index"
+                                :plot-id="`Token-${item['id']}`"
+                                :item="item"
+                                :timezone="applet.timezoneStr"
+                                :versions="applet.versions"
+                                :focus-extent="focusExtent"
+                                :selected-versions="selectedVersions"
+                                :has-version-bars="hasVersionBars"
+                                :parent-width="panelWidth"
+                                @onUpdateFocusExtent="onUpdateFocusExtent"
+                              />
 
-                            <RadioSlider
-                              v-if="tab == 'responses' && item.responseOptions"
-                              :plot-id="`RadioSlider-${item['id']}`"
-                              :item="item"
-                              :versions="applet.versions"
-                              :focus-extent="focusExtent"
-                              :selected-versions="selectedVersions"
-                              :timezone="applet.timezoneStr"
-                              :has-version-bars="hasVersionBars"
-                              :parent-width="panelWidth"
-                              :color="item.dataColor"
-                            />
-                          </div>
+                              <RadioSlider
+                                v-if="tab == 'responses' && item.responseOptions && panel == index"
+                                :plot-id="`RadioSlider-${item['id']}`"
+                                :item="item"
+                                :versions="applet.versions"
+                                :focus-extent="focusExtent"
+                                :selected-versions="selectedVersions"
+                                :timezone="applet.timezoneStr"
+                                :has-version-bars="hasVersionBars"
+                                :parent-width="panelWidth"
+                                :color="item.dataColor"
+                              />
+                            </div>
+                          </template>
                         </v-expansion-panel-content>
                       </v-expansion-panel>
 

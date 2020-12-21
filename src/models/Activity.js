@@ -71,10 +71,4 @@ export default class Activity {
       console.error(error);
     }
   }
-
-  getTimeSeries() {
-    let dates = [];
-    let activity = [];
-    let currentDate;
-  }
 }

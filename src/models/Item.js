@@ -255,4 +255,9 @@ export default class Item {
       features: features.filter((feature, index) => features.findIndex(value => value.slug == feature.slug) == index),
     }
   }
+
+  getFormattedQuestion() {
+    const imageRE = new RegExp(/[\r\n]*\!\[.*\]\(.*=.*\)[\r\n]*/i);
+    return this.question.en.replace(imageRE, '').replace(/\*\*/g, '');  // Remove the image from the question.
+  }
 }

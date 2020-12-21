@@ -64,11 +64,11 @@ export default class Applet {
    *
    * @return {void}.
    */
-  async fetchActivities() {
+  addActivites() {
     let activity = null;
 
     for (let activityId in this.data.activities) {
-      activity = await Activity.fetchById(this.data.activities[activityId]._id);
+      activity = new Activity(this.data.activities[activityId]);
       activity.items = activity.order.map(itemId => this.items[itemId]);
 
       this.activities.push(activity);
@@ -199,7 +199,9 @@ export default class Applet {
 
     /** append responses */
     for (let itemId of itemIDGroup) {
-      this.items[itemId].appendResponses(data.responses[itemId]);
+      if (this.items[itemId].responseOptions) {
+        this.items[itemId].appendResponses(data.responses[itemId]);
+      }
     }
 
     for (let itemId of itemIDGroup) {
@@ -401,7 +403,7 @@ export default class Applet {
       }
 
       if (opts.withActivities) {
-        await applet.fetchActivities();
+        applet.addActivites();
       }
 
       if (opts.withResponses) {
