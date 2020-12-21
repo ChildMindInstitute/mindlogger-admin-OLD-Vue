@@ -234,7 +234,7 @@ export default {
     onSwitchTab(tab) {
       this.tabData[tab].loading = true;
 
-      if (tab == 'invitation') {
+      if (tab === 'invitation') {
         return this.getInvitations().then(resp => {
           this.$set(this.tabData, tab, {
             loading: false,
@@ -242,6 +242,9 @@ export default {
             total: resp.data.length
           })
         });
+      } else if (tab === 'users') {
+        this.tabData[tab].loading = true;
+        return Promise.resolve();
       }
       const role = this.tabNameToRole[tab];
 
