@@ -285,7 +285,7 @@ export default {
     types: {
       type: Array,
       default() {
-        return this.$dsDefaults().types;
+        return this.$dsDefaults().types.filter((type) => type.shortcut !== 'S' && type.shortcut !== 'X');
       }
     },
     allowsAddToday: {
