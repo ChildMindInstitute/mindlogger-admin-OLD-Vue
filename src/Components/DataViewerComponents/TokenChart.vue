@@ -25,14 +25,11 @@
           style="display: none"
       >
         <div
-          class="cumulative"
-        />
-        <div
           v-for="feature in features"
           :key="feature.slug" 
           :class="feature.slug"
         />
-
+        <div class="cumulative"></div>
       </div>
       <svg :id="plotId">
         <defs>
@@ -500,7 +497,7 @@ export default {
       // Scales.
       this.y = d3
           .scaleLinear()
-          .domain([this.divergingExtent.min, this.divergingExtent.max+ 100]) // to show top cumulative number.
+          .domain([this.divergingExtent.min - 10, this.divergingExtent.max+ 100]) // to show top cumulative number.
           .range([this.focusHeight, 0]);
       this.contextY = d3
           .scaleLinear()
@@ -681,28 +678,31 @@ export default {
       if (data.length < 1) {
         return;
       }
-      let normalisedx = x(data[0].date)
-      normalisedx += (0.5 * this.focusBarWidth()) - 5;
-      let normalisedy = this.y(data[0].positive)
-      let pathString = `M ${normalisedx} ${normalisedy}`;
-      let accumulation = data[0].positive;
 
-      for (var i = 1; i <= data.length - 1; i++) {
+      let normalisedx = x(new Date(0))
+      normalisedx += (0.5 * this.focusBarWidth()) - 5;
+
+      let normalisedy = this.y(0) - 2;
+      let pathString = `M ${normalisedx} ${normalisedy}`;
+      let accumulation = 0;
+
+      for (var i = 0; i < data.length; i++) {
         const step = data[i]
         const positive = step.positive;
         normalisedx = x(step.date)
         normalisedx += (0.5 * this.focusBarWidth()) - 5;
-        normalisedy = this.y(accumulation)
+        normalisedy = this.y(accumulation) - 2
 
         if (positive > 0){
           pathString += ` L ${normalisedx + 3} ${normalisedy}`
           accumulation = positive + accumulation;
           normalisedy = this.y(accumulation)
+
           pathString += ` L ${normalisedx + 3} ${normalisedy}`
           this.accumulations.push({text: accumulation, x: normalisedx + (0.5 * this.focusBarWidth()), y: normalisedy -3})
         }
         if (i === data.length -1){
-          pathString += ` L ${normalisedx} ${normalisedy}`
+          pathString += ` L ${normalisedx + this.focusBarWidth()/2} ${normalisedy}`
         }
       }
       this.svg
