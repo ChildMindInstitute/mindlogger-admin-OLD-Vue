@@ -181,6 +181,7 @@ export default class Applet {
 
     for (let itemId of itemIDGroup) {
       data.responses[itemId] = data.responses[itemId].filter(resp => resp.value);
+      /** sort data responses according to date/versions */
       data.responses[itemId].forEach(resp => {
         if (resp.value.length) {
           this.timezoneStr = resp.date.substr(-6);
