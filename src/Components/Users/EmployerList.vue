@@ -204,7 +204,7 @@ export default {
         const employer = this.employers[i];
         const data = Object.values(employer)[0];
         let editable = [];
-        if (!data.roles.includes(this.role))
+        if (!data.roles.includes(this.role) && (this.role !== 'manager' || !data.roles.includes('owner')))
         {
           continue;
         }
