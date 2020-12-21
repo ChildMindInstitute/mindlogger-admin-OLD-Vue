@@ -387,9 +387,9 @@ export default {
     initialTimedActivity() {
       return (
         this.details.timedActivity || {
-          hour: 0,
-          minute: 59,
-          second: 59,
+          hour: 1,
+          minute: 0,
+          second: 0,
           allow: false,
         }
       );
