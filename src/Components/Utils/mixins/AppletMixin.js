@@ -93,8 +93,23 @@ export const AppletMixin = {
           }
         }
 
+        let subScaleNames = [];
         for (let response of data.responses) {
           const _id = response.userId, MRN = response.MRN;
+
+          for (let subScaleName in response.subScales) {
+            let subScale = response.subScales[subScaleName];
+
+            if (subScale && subScale.ptr !== undefined && subScale.src !== undefined) {
+              response.subScales[subScaleName] = data.subScaleSources[subScale.src].data[subScale.ptr];
+            }
+
+            if (subScaleNames.indexOf(subScaleName) < 0) {
+              subScaleNames.push(subScaleName);
+            }
+          }
+
+          let isSubScaleExported = false;
 
           for (let itemUrl in response.data) {
             let itemData = response.data[itemUrl];
@@ -115,8 +130,11 @@ export const AppletMixin = {
 
             if (response.data[itemUrl] === null ) {
               responseData = null;
-            } else if (item.inputType === 'radio') {
-              options = item.responseOptions.map(option => `${Object.values(option.name)[0]}: ${option.value}`);
+            } else if (item.inputType === 'radio' || item.inputType === 'slider') {
+              options = item.responseOptions.map(option => 
+                `${Object.values(option.name)[0]}: ${option.value} ${item.scoring ? '(score: ' + option.score + ')' : ''}`
+              );
+
               if (!Array.isArray(response.data[itemUrl])) {
                 response.data[itemUrl] = [response.data[itemUrl]]
               }
@@ -126,9 +144,19 @@ export const AppletMixin = {
                   let option = item.responseOptions.find(option => Object.values(option.name)[0] === val);
                   if (option) {
                     responseData.push(option.value);
+                    if (item.scoring) {
+                      scores.push(option.score);
+                    }
                   }
                 } else {
                   responseData.push(val);
+
+                  if (item.scoring) {
+                    let option = item.responseOptions.find(option => option.value === val);
+                    if (option) {
+                      scores.push(option.score);
+                    }
+                  }
                 }
               });
             } else {
@@ -148,8 +176,12 @@ export const AppletMixin = {
               item: itemUrl,
               response: responseData,
               options: options.join(', '),
-              version: response.version
+              version: response.version,
+              rawScore: !isSubScaleExported ? scores.reduce((accumulated, current) => current + accumulated, 0) : '',
+              ... (!isSubScaleExported ? response.subScales : {})
             });
+
+            isSubScaleExported = true;
           }
         }
 
@@ -164,7 +196,7 @@ export const AppletMixin = {
             'response',
             'options',
             'version'
-          ].map((value) => ({ key: value, as: value })),
+          ].concat(subScaleNames).map((value) => ({ key: value, as: value })),
           data: result,
         });
 

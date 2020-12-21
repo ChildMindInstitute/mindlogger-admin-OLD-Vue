@@ -21,39 +21,55 @@
 
     <div class="chart-container">
       <div
-          class="tooltip"
-          style="display: none"
+        class="tooltip"
+        style="display: none"
       >
         <div
           v-for="feature in features"
           :key="feature.slug" 
           :class="feature.slug"
         />
-        <div class="cumulative"></div>
+        <div class="cumulative" />
       </div>
       <svg :id="plotId">
         <defs>
           <clipPath id="clip">
             <rect
-                width="500"
-                height="300"
+              width="500"
+              height="300"
             />
           </clipPath>
-          <marker id="arrowhead" markerWidth="7" markerHeight="5"
-                  refX="0" refY="2.5" orient="auto">
-            <polygon points="0 0, 7 2.5, 0 5" fill="gray"/>
+          <marker
+            id="arrowhead"
+            markerWidth="7"
+            markerHeight="5"
+            refX="0"
+            refY="2.5"
+            orient="auto"
+          >
+            <polygon
+              points="0 0, 7 2.5, 0 5"
+              fill="gray"
+            />
           </marker>
         </defs>
 
         <g class="y-axis" />
         <g class="x-axis" />
         <g
-            class="chart"
-            clip-path="url(#clip)">
+          class="chart"
+          clip-path="url(#clip)"
+        >
 
           <g class="token-accumulation" />
-          <text v-for="(accumulation, i) in accumulations" class="accumulation-value" :key="i"
-                :x="accumulation.x" :y="accumulation.y" fill="gray">{{accumulation.text}} </text>
+          <text
+            v-for="(accumulation, i) in accumulations"
+            :key="i"
+            class="accumulation-value"
+            :x="accumulation.x"
+            :y="accumulation.y"
+            fill="gray"
+          >{{ accumulation.text }} </text>
 
         </g>
 
@@ -61,8 +77,8 @@
         <g class="context-y-axis" />
         <g class="context-x-axis" />
         <g
-            class="context-chart"
-            clip-path="url(#clip)"
+          class="context-chart"
+          clip-path="url(#clip)"
         />
       </svg>
     </div>

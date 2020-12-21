@@ -61,6 +61,7 @@ export default {
     label: {
       type: String,
       required: false,
+      default: '',
     },
     itemPadding: {
       type: Number,

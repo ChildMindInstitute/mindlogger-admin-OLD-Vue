@@ -325,15 +325,21 @@ export default class Applet {
       ));
     }
 
-    for (let responseId in data.dataSources) {
-      const source = data.dataSources[responseId];
-      try {
-        source.data = JSON.parse(encryptionUtils.decryptData({
-          text: source.data,
-          key: data.AESKeys[source.key]
-        }));
-      } catch (e) {
-        source.data = {};
+    for (let dataSourceName of ['dataSources', 'subScaleSources']) {
+      if (!data[dataSourceName]) {
+        continue;
+      }
+
+      for (let responseId in data[dataSourceName]) {
+        const source = data[dataSourceName][responseId];
+        try {
+          source.data = JSON.parse(encryptionUtils.decryptData({
+            text: source.data,
+            key: data.AESKeys[source.key]
+          }));
+        } catch (e) {
+          source.data = {};
+        }
       }
     }
 

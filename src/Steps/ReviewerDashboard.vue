@@ -127,14 +127,16 @@
                           />
                         </v-expansion-panel-header>
                         <v-expansion-panel-content>
-                          <h2 class="mt-4"> {{ $t('responseOptions') }} </h2>
+                          <h2 class="mt-4">
+                            {{ $t('responseOptions') }}
+                          </h2>
                           <template
                             v-for="item in activity.items"
                           >
                             <div
+                              v-if="tab != 'tokens' || item.isTokenItem"
                               :key="item['id']"
                               class="chart-card"
-                              v-if="tab != 'tokens' || item.isTokenItem"
                             >
                               <header v-if="tab=='tokens' && item.isTokenItem || tab == 'responses'">
                                 <h3> - {{ item.getFormattedQuestion() }}</h3>

@@ -58,6 +58,8 @@ export default class Item {
     this.minValue = data[ReproLib.responseOptions] && 'schema:minValue' in data[ReproLib.responseOptions][0]
       ? data[ReproLib.responseOptions][0]['schema:minValue'][0]['@value']
       : 0;
+    this.scoring = data[ReproLib.responseOptions] && ReproLib.scoring in data[ReproLib.responseOptions][0]
+      && data[ReproLib.responseOptions][0][ReproLib.scoring][0]['@value'];
     this.chart = {
       data: [],
     };
@@ -94,6 +96,7 @@ export default class Item {
     return itemListElement.map((choice, index) => ({
       name: i18n.arrayToObject(choice['schema:name']),
       value: choice['schema:value'][0]['@value'],
+      score: Array.isArray(choice['schema:score']) && choice['schema:score'][0] && choice['schema:score'][0]['@value'],
       color: choice['schema:value'][0]['@value'] > 0
         ? this.coldColors.shift()
         : this.warmColors.shift(),
