@@ -25,6 +25,9 @@
           style="display: none"
       >
         <div
+          class="cumulative"
+        />
+        <div
           v-for="feature in features"
           :key="feature.slug" 
           :class="feature.slug"
@@ -603,6 +606,8 @@ export default {
       const layers = stack(data);
       const tooltip = document.querySelector(`.TokenChart.TokenChart-${plotId} .tooltip`);
       const widthPerDate = this.widthPerDate();
+
+      this.accumulations = [];
       svg
           .select('.chart')
           .selectAll('.layer')
