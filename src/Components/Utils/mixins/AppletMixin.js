@@ -125,7 +125,7 @@ export const AppletMixin = {
               continue;
             }
 
-            let options = [];
+            let options = [], scores = [];
             let responseData = [];
 
             if (response.data[itemUrl] === null ) {
@@ -185,6 +185,12 @@ export const AppletMixin = {
           }
         }
 
+        for (let row of result) {
+          for (let subScaleName of subScaleNames) {
+            row[subScaleName] = row[subScaleName] || '';
+          }
+        }
+
         let otc = new ObjectToCSV({
           keys: [
             'id',
@@ -195,7 +201,8 @@ export const AppletMixin = {
             'item',
             'response',
             'options',
-            'version'
+            'version',
+            'rawScore',
           ].concat(subScaleNames).map((value) => ({ key: value, as: value })),
           data: result,
         });
