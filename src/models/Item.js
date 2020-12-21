@@ -157,6 +157,11 @@ export default class Item {
       return response.value.reduce(
         (obj, tokenValue) => {
           const choice = this.getChoice(tokenValue, response.version);
+
+          if (!choice) {
+            return obj;
+          }
+
           const { value, name } = choice;
 
           return {
