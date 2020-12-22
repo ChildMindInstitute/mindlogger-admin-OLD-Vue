@@ -367,7 +367,7 @@ export default {
                 response: responseData,
                 options: options.join(', '),
                 version: response.version,
-                rawScore: !isSubScaleExported ? scores.reduce((accumulated, current) => current + accumulated, 0) : '',
+                rawScore: scores.reduce((accumulated, current) => current + accumulated, 0),
                 ... (!isSubScaleExported ? response.subScales : {})
               });
 
