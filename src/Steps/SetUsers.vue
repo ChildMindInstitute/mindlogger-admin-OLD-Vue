@@ -234,7 +234,7 @@ export default {
     onSwitchTab(tab) {
       this.tabData[tab].loading = true;
 
-      if (tab == 'invitation') {
+      if (tab === 'invitation') {
         return this.getInvitations().then(resp => {
           this.$set(this.tabData, tab, {
             loading: false,
@@ -242,11 +242,10 @@ export default {
             total: resp.data.length
           })
         });
-      } else if (tab == 'users') {
+      } else if (tab === 'users') {
         this.tabData[tab].loading = true;
-        return ;
+        return Promise.resolve();
       }
-
       const role = this.tabNameToRole[tab];
 
       return this.getAppletUsers(role).then(resp => {
@@ -365,7 +364,6 @@ export default {
       const apiHost = this.$store.state.backend;
       const token = this.$store.state.auth.authToken.token;
       const appletId = this.$route.params.appletId;
-
       api
         .getUserResponses({
           apiHost,
@@ -408,7 +406,7 @@ export default {
               appletId,
               data: form,
             })
-            .then((msg) => {
+            .then(({message}) => {
               this.onSwitchTab(this.tabs[this.selectedTab]).then(() => {
                 this.informationDialog = true;
                 this.informationText = this.$i18n.t('refreshComplete');
