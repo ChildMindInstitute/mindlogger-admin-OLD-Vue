@@ -717,8 +717,8 @@ export default {
           pathString += ` L ${normalisedx + 3} ${normalisedy}`
           this.accumulations.push({text: accumulation, x: normalisedx + (0.5 * this.focusBarWidth()), y: normalisedy -3})
         }
-        if (i === data.length -1){
-          pathString += ` L ${normalisedx + this.focusBarWidth()/2} ${normalisedy}`
+        if (i === data.length -1) {
+          pathString += ` L ${normalisedx + (0.5 * this.focusBarWidth() + 10)} ${normalisedy}`
         }
       }
       this.svg
