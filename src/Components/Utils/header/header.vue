@@ -226,7 +226,7 @@ export default {
       return this.$route.name;
     },
     currentUsers() {
-      return Object.values(this.$store.state.currentUsers).map(user => user.MRN).join(', ');
+      return Object.values(this.$store.state.currentUsers).map(user => user.MRN || user.email).join(', ');
     }
   },
   /**
