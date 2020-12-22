@@ -673,6 +673,7 @@ export default {
                 { day: 'numeric', month: 'short' },
             );
             tooltip.style.left = xCoords + 'px';
+            tooltip.style.padding ='5px';
             tooltip.style.top = (yCoords - padding - cumulativeLabel) + 'px';
             for (let i = 0; i < features.length; i++) {
               const text = tooltip.querySelector(`.${features[i].slug}`)
@@ -685,7 +686,7 @@ export default {
 
               text.innerText = `${name}: ${value}`;
               text.style.top = y(0) - y(value) + 'px';
-              text.style.height = y(0) - y(value) + 'px';
+              text.style.height = 'inherit';
               text.style.display = 'flex';
             }
             const text = tooltip.querySelector(`.cumulative`)
