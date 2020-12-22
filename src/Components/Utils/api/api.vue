@@ -354,13 +354,16 @@ const duplicateApplet = ({ apiHost, token, appletId, options }) =>
   });
 
 
-const replaceResponseData = ({ apiHost, token, appletId, data }) => axios({
+const replaceResponseData = ({ apiHost, token, appletId, user, data }) => axios({
   method: 'put',
   url: `${apiHost}/response/${appletId}`,
   headers: {
     'Girder-Token': token,
   },
-  data
+  data,
+  params: {
+    user
+  }
 });
 
 const setAppletEncryption = ({ apiHost, token, appletId, data }) => axios({
