@@ -33,6 +33,7 @@
                 v-model="scheduledTimeout.allow"
                 @change="handleAccess"
                 :label="$t('timeout')"
+                :disabled="timedActivity.allow"
             />
 
             <div v-if="scheduledTimeout.allow" class="ds-timeout-body">
@@ -114,6 +115,7 @@
                 v-model="scheduledIdleTime.allow"
                 @change="handleIdleTimeAccess"
                 :label="$t('idleTime')"
+                :disabled="timedActivity.allow"
             />
 
 
@@ -159,7 +161,9 @@
                 :hide-details="true"
                 v-model="scheduledExtendedTime.allow"
                 @change="handleExtendedTimeAccess"
-                :label="$t('extendedPastDue')" />
+                :label="$t('extendedPastDue')" 
+                :disabled="timedActivity.allow"
+            />
 
             <div v-if="scheduledExtendedTime.allow" class="ds-timeout-body">
               <div class="ds-timeout-units">
@@ -191,6 +195,49 @@
                 v-model="oneTimeCompletion"
                 @change="handleOneTimeCompletion"
                 :label="$t('oneTimeCompletion')" />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="8" class="d-flex child-flex">
+            <v-checkbox
+              :hide-details="true"
+              v-model="timedActivity.allow"
+              @change="onTimedActivity"
+              :label="$t('timedActivity')"
+            />
+            <div v-if="timedActivity.allow" class="ds-timeout-body">
+              <div class="ds-timeout-units">
+                <v-text-field
+                  type="number"
+                  v-model="timedActivity.hour"
+                  @change="onChangeTimedHour"
+                  class="ds-schedule-timeout"
+                  single-line
+                  hide-details
+                  max="23"
+                  min="0"
+                  solo
+                  flat
+                />
+                <div class="ds-timeout-unit">{{ $t('hours') }}</div>
+              </div>
+
+              <div class="ds-timeout-units">
+                <v-text-field
+                  type="number"
+                  v-model="timedActivity.minute"
+                  @change="onChangeTimedMinute"
+                  class="ds-schedule-timeout"
+                  single-line
+                  hide-details
+                  max="59"
+                  min="00"
+                  solo
+                  flat
+                />
+                <div class="ds-timeout-unit">{{ $t('minutes') }}</div>
+              </div>
+            </div>
           </v-col>
         </v-row>
       </slot>
@@ -228,6 +275,9 @@ export default {
       type: Schedule,
     },
     extendedTime: {
+      required: false,
+    },
+    initialTimedActivity: {
       required: false,
     },
     timeout: {
@@ -308,6 +358,9 @@ export default {
     handleAccess() {
       this.$emit("onTimeout", this.scheduledTimeout);
     },
+    handleTimedActivity() {
+      this.$emit("onTimedActivity", this.timedActivity);
+    },
     handleScheduledDay() {
       this.$emit("onScheduledDay", this.scheduledDay);
     },
@@ -323,6 +376,18 @@ export default {
     setType(type) {
       this.$emit("type", type);
     },
+    onTimedActivity() {
+      if (this.timedActivity.allow) {
+        this.scheduledExtendedTime.allow = false;
+        this.scheduledIdleTime.allow = false;
+        this.scheduledTimeout.allow = false;
+
+        this.handleExtendedTimeAccess();
+        this.handleIdleTimeAccess();
+        this.handleAccess();
+      }
+      this.handleTimedActivity();
+    },
     onChangeExtendedDays(newVal) {
       // Convert to integer
       this.scheduledExtendedTimeDecimal.days = Math.round(newVal);
@@ -335,6 +400,20 @@ export default {
       this.scheduledExtendedTime.days = this.scheduledExtendedTimeDecimal.days;
       // Emit updated form
       this.handleExtendedTimeAccess();
+    },
+    onChangeTimedHour(newVal) {
+      this.timedActivity.hour = newVal < 0 ? 0 : Math.round(newVal);
+      this.handleTimedActivity();
+    },
+
+    onChangeTimedMinute(newVal) {
+      this.timedActivity.minute = newVal < 0 ? 0 : Math.round(newVal);
+      this.handleTimedActivity();
+    },
+
+    onChangeTimedSecond(newVal) {
+      this.timedActivity.second = newVal < 0 ? 0 : Math.round(newVal);
+      this.handleTimedActivity();
     },
     onChangeDays(newVal) {
       // Convert to integer
