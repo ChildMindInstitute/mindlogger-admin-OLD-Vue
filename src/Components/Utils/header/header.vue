@@ -12,13 +12,24 @@
       {{ $t('mindloggerDashboard') }}
     </v-btn>
 
+    <v-icon 
+      v-if="currentApplet" 
+      medium
+    > mdi-chevron-right </v-icon>
+    
     <v-btn
       v-if="currentApplet"
       color="primary"
       class="toolbar-btn"
+      @click="viewUsers"
     >
       {{ currentApplet.name }} 
     </v-btn>
+
+    <v-icon 
+      v-if="routeName == 'ReviewerDashboard'" 
+      medium
+    > mdi-chevron-right </v-icon>
 
     <v-btn
       v-if="routeName == 'ReviewerDashboard'"
