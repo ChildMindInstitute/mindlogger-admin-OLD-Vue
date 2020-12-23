@@ -3,21 +3,7 @@
     class="TokenChart"
     :class="`TokenChart-${plotId}`"
   >
-    <div class="legend">
-      <div 
-        v-for="feature in features" 
-        :key="feature.slug"
-        class="legend-item"
-      >
-        <div 
-          class="color-box"
-          :style="{ background: feature.color }"
-        />
-        <div class="label">
-          {{ `${feature.name.en} (${feature.value})` }}
-        </div>
-      </div>
-    </div>
+
 
     <div class="chart-container">
       <div
