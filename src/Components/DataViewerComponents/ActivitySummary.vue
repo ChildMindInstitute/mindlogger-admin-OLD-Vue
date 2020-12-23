@@ -4,15 +4,15 @@
   >
     <svg
       :id="plotId"
-      :width="width + itemPadding + 20"
+      :width="width"
       :height="height"
     >
       <g class="labels">
         <text
           :y="padding.top + radius + 15/2"
-          :x="labelWidth/2"
-          :font-size="15"
-          text-anchor="middle"
+          :x="15"
+          :font-size="itemPadding"
+          text-anchor="left"
           font-weight="bold"
         >
           {{ label }}
