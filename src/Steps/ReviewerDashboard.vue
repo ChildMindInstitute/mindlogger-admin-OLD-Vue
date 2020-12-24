@@ -273,6 +273,7 @@
 
 .time-range,
 .version {
+  display: flex;
   margin-left: 0.8rem;
   font-size: 0.8rem;
   font-weight: 600;
