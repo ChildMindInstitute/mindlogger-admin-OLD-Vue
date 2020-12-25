@@ -93,8 +93,8 @@
     beforeMount() {
       this.profileList = [];
       for (let appletId in this.user) {
+        const profile = Object.values(this.user)[0];
         const applet = this.currentAccount.applets.find(applet => applet.id === appletId);
-        const profile = this.user[appletId];
         let MRN = null;
         if (profile.MRN && !profile.MRN.match(/None \(.*\)/))
         {

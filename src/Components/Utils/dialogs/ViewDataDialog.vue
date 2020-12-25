@@ -83,11 +83,6 @@
         {
           MRN = profile.MRN;
         }
-        else if (!profile.MRN)
-        {
-          MRN = profile.email // assume that selected user is an organizer.
-        }
-
         this.profileList.push({
           ...profile,
           appletId,

@@ -72,7 +72,7 @@
           >
             <UserList
               :getUserList="getUserList"
-              :multiSelectionEnabled="false"
+              :multiSelectionEnabled="true"
               :reloading="tabData[tab].loading"
               @userDataReloaded="tabData[tab].loading = false"
             />
@@ -80,16 +80,13 @@
           <v-card
             v-else
             flat
-          >
-            <EmployerList
+          > 
+            <DashboardRoleViewer
               :loading="tabData[tab].loading"
-              :employers="tabData[tab].list"
-              :role="tabNameToRole[tab]"
-              :hasRoleColumn="false"
+              :employees="tabData[tab].list"
               @onEditRoleSuccessfull="onEditRoleSuccessfull"
-              @onEmployerListChanged="onEmployerListChanged"
-            />
-          </v-card>
+              :roleType="roleTypeMapping[tab]" />
+          </v-card> 
         </v-tab-item>
       </v-tabs-items>
     </v-card>
@@ -174,15 +171,14 @@ import _ from "lodash";
 import Loading from "../Components/Utils/Loading";
 import { Parse, Day } from "dayspan";
 import Information from "../Components/Utils/dialogs/InformationDialog.vue";
-
+import DashboardRoleViewer from "@/Components/Dashboard/DashboardRoleViewer.vue";
 import config from "../config";
 import AppletList from "../Components/Applets/AppletList";
-import EmployerList from "../Components/Users/EmployerList";
 import UserList from "../Components/Users/UserList";
 import AppletUpload from "../Components/Utils/dialogs/AppletUpload.vue";
 import AppletPassword from "../Components/Utils/dialogs/AppletPassword.vue";
 import encryption from "../Components/Utils/encryption/encryption.vue";
-
+import { AppletMixin } from '@/Components/Utils/mixins/AppletMixin';
 window.Parse = Parse;
 window.Day = Day;
 
@@ -192,11 +188,12 @@ export default {
     Loading,
     Information,
     AppletList,
-    EmployerList,
     AppletUpload,
     AppletPassword,
     UserList,
+    DashboardRoleViewer
   },
+  mixins: [AppletMixin],
   data: () => ({
     sampleProtocols: config.protocols,
     status: "loading",
@@ -228,7 +225,7 @@ export default {
     },
     accountApplets() {
       return this.$store.state.currentAccount.applets;
-    },
+    }
   },
   watch: {
     accountApplets(newApplets, oldApplets) {
@@ -427,7 +424,7 @@ export default {
       this.dialogText = message;
       this.dialogTitle = this.$t('refreshing');
       this.dialog = true;
-    }
+    },
   },
 };
 </script>

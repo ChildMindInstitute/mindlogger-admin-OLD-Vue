@@ -33,8 +33,8 @@
               :getUserList="getAppletUsers"
               :multiSelectionEnabled="true"
               :reloading="tabData[tab].loading"
-              @onReuploadResponse="responseReUploadEvent"
               @userDataReloaded="tabData[tab].loading = false"
+              @onReuploadResponse="responseReUploadEvent"
             />
           </v-card>
           <v-card
@@ -56,13 +56,11 @@
             v-else
             flat
           >
-            <EmployerList
+            <DashboardRoleViewer
               :loading="tabData[tab].loading"
-              :employers="tabData[tab].list"
-              :role="tabNameToRole[tab]"
-              :hasRoleColumn="true"
+              :employees="tabData[tab].list"
               @onEditRoleSuccessfull="onEditRoleSuccessfull"
-            />
+              :roleType="roleTypeMapping[tab]" />
           </v-card>
         </v-tab-item>
       </v-tabs-items>
@@ -102,11 +100,8 @@
 </style>
 
 <script>
-import _ from 'lodash';
-
-import EmployerList from "../Components/Users/EmployerList";
 import UserList from "../Components/Users/UserList";
-
+import DashboardRoleViewer from "@/Components/Dashboard/DashboardRoleViewer";
 import PendingInviteTable from '../Components/Users/PendingInviteTable.vue';
 import CreateInvitationForm from '../Components/Users/CreateInvitationForm.vue';
 import api from '../Components/Utils/api/api.vue';
@@ -116,7 +111,7 @@ import Applet from '../models/Applet';
 import Information from '../Components/Utils/dialogs/InformationDialog.vue';
 import ResponseUpdateDialog from '../Components/Utils/dialogs/ResponseUpdateDialog.vue';
 import Item from '../models/Item';
-import { AppletMixin } from '../Components/Utils/mixins/AppletMixin';
+import { AppletMixin } from '@/Components/Utils/mixins/AppletMixin';
 
 export default {
   name: 'SetUsers',
@@ -125,7 +120,7 @@ export default {
     CreateInvitationForm,
     AppletPassword,
     Information,
-    EmployerList,
+    DashboardRoleViewer,
     UserList,
     ResponseUpdateDialog,
   },

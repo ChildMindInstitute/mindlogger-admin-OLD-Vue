@@ -146,7 +146,7 @@
         });
 
         if (response === 'Yes') {
-          this.deleteAppletUser(profile.appletId, profile['_id']);
+          this.deleteAppletUser(profile.appletId, profile.id);
         }
       },
       onRemoveUserAndData(profile) {
@@ -156,7 +156,7 @@
           this.dialog = true;
           this.selectedProfile = profile;
         } else {
-          this.deleteAppletUser(profile.appletId, profile['_id'], true);
+          this.deleteAppletUser(profile.appletId, profile.id, true);
         }
       },
 
@@ -175,7 +175,7 @@
             .equals(Buffer.from(applet.encryption.appletPublicKey))
         ) {
           this.dialog = false;
-          this.deleteAppletUser(applet.id, this.selectedProfile['_id'], true);
+          this.deleteAppletUser(applet.id, this.selectedProfile.id, true);
         } else {
           this.$refs.appletPasswordDialog.defaultErrorMsg =
             'Incorrect applet password';
@@ -190,7 +190,7 @@
           profileId,
           deleteResponse,
         }).then(() => {
-          this.profileList = this.profileList.filter(profile => profile['_id'] != profileId);
+          this.profileList = this.profileList.filter(profile => profile.id != profileId);
           this.panel = -1;
 
           this.$emit('refreshUserList');

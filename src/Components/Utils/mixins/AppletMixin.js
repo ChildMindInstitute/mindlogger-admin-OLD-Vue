@@ -17,6 +17,15 @@ export const AppletMixin = {
     token() {
       return this.$store.state.auth.authToken.token;
     },
+    roleTypeMapping(){
+      return {
+        "reviewers": "reviewer",
+        "users": "user",
+        "managers": "manager",
+        "editors": "editor",
+        "coordinators": "coordinator"
+      }
+    }
   },
   methods: {
     loadApplet(appletId) {
