@@ -6,7 +6,7 @@
 				v-model="menu"
 				v-bind="popoverProps">
 			<template v-slot:activator={}>
-				<div class="ds-calendar-event"
+				<v-card class="ds-calendar-event" dark flat
 					 :style="style"
 					 @click.stop="openEventDialog">
 
@@ -32,7 +32,7 @@
 							<slot name="eventEmpty" v-bind="{calendarEvent, details}">&nbsp;</slot>
 						</span>
 
-				</div>
+				</v-card>
 			</template>
 
 			<slot name="eventPopover" v-bind="{calendarEvent, calendar, edit, details, close}"></slot>
@@ -43,7 +43,8 @@
 </template>
 
 <script>
-import { CalendarEvent, Calendar, Day, Functions as fn } from 'dayspan'
+import {Calendar, CalendarEvent, Day, Functions as fn} from 'dayspan'
+import {getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
 
 export default {
 
@@ -96,6 +97,11 @@ export default {
 				if (newStyle.right) {
 					newStyle.right = 0
 				}
+				const activityColor = getEventColor(this.details.activity_id)
+				if (activityColor)
+        {
+          newStyle.background = this.getHexColor(activityColor);
+        }
 				return newStyle;
 			},
 
@@ -147,6 +153,10 @@ export default {
 			close () {
 				this.menu = false
 			},
+
+      getHexColor(colorName) {
+        return _.filter(this.$dayspan.colors, c => c.text === colorName)[0].value;
+      },
 
 			edit () {
 				if (this.handlesEvents()) {
