@@ -52,7 +52,8 @@ export default {
 .export-icon {
   transform: rotate(90deg) translateX(2px);
 }
-
+.v-data-table td {text-align: left}
+.v-data-table th {   border-right: 1px solid #eee !important }
 body,
 html,
 #app,

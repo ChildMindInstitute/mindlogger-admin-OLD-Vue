@@ -181,7 +181,7 @@
   </div>
 </template>
 
-<style scoped>
+<style>
   .cell {
     text-align: center;
   }
@@ -286,46 +286,46 @@ export default {
     let headers = [
       {
         text: '',
-        align: 'center',
+        align: 'left',
         sortable: false,
         value: 'selected',
         width: 20,
       },
       {
         text: this.$i18n.t('pinStatus'),
-        align: 'center',
+        align: 'left',
         sortable: false,
         value: 'pinned',
         width: 20,
       },
       {
         text: this.$i18n.t('userCode'),
-        align: 'center',
+        align: 'left',
         sortable: true,
         value: 'MRN',
       },
       {
         text: this.$i18n.t('updated'),
-        align: 'center',
+        align: 'left',
         sortable: true,
         value: 'updated',
       },
       {
         text: this.$i18n.t('currentScheduleStatus'),
-        align: 'center',
+        align: 'left',
         sortable: false,
         value: 'currentScheduleStatus',
       },
       {
         text: '',
-        align: 'center',
+        align: 'left',
         sortable: false,
         value: 'refreshRequest',
         width: '10%',
       },
       {
         text: '',
-        align: 'center',
+        align: 'left',
         sortable: false,
         value: 'manage',
         width: '20%'

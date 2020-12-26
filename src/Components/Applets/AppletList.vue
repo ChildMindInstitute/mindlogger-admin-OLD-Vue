@@ -294,7 +294,7 @@
   </div>
 </template>
 
-<style scoped>
+<style >
   .cell {
     text-align: center;
   }
@@ -308,7 +308,6 @@
     font-weight: 600;
     margin-left: 20px;
   }
-
   @media only screen and (max-width: 767px) {
     .filter .search-input {
       width: 80%;
@@ -381,21 +380,21 @@ export default {
       headers: [
         {
           text: this.$i18n.t('appletName'),
-          align: 'center',
+          align: 'left',
           sortable: true,
           value: 'name',
           width: '25%',
         },
         {
           text: this.$i18n.t('lastEdit'),
-          align: 'center',
+          align: 'left',
           sortable: true,
           value: 'updated',
           width: '30%'
         },
         {
           text: '',
-          align: 'center',
+          align: 'left',
           sortable: false,
           value: 'manage'
         }

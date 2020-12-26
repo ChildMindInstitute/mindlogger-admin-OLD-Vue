@@ -10,7 +10,7 @@ export default {
   forgotPassword: 'Forgot Password',
   resetEmailSent: 'Reset email has been sent',
   mindloggersAdmin: 'MindLogger Admin',
-  mindloggerDashboard: 'Mindlogger Dashboard',
+  mindloggerDashboard: 'MindLogger Dashboard',
   logIntoAccount: 'Log into your MindLogger account',
   email: 'Email',
   createAccount: 'Create Account',
@@ -191,7 +191,7 @@ export default {
   noActiveApplets: 'You have no active applets',
   createUploadApplet: 'Create or upload a new applet',
   duplicate: 'Duplicate',
-  createNewAccount: 'Create a new Mindlogger account at',
+  createNewAccount: 'Create a new MindLogger account at',
   selectLanguage: 'Select language',
   selectYourServer:
     'Select your server. This server will hold your applet configuration settings and all the data you collect.',
