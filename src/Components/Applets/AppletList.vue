@@ -139,7 +139,7 @@
                       v-on="on"
                       @click="onTransferOwnership(item)"
                     >
-                      <v-icon>mdi-transfer</v-icon>
+                      <img height="24" src="@/assets/transfer-ownership.png" />
                     </v-btn>
                   </template>
                   <span>{{ $t('transferOwnership') }}</span>
