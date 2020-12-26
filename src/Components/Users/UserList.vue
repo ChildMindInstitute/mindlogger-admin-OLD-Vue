@@ -23,52 +23,57 @@
     </div>
 
         <v-data-table
-            :headers="headers"
-            :items="formattedUsers"
-            :options.sync="options"
-            :server-items-length="totalUsers"
-            :loading="reloading"
-            :show-select="multiSelectionEnabled"
-            :single-select="!multiSelectionEnabled"
-            :custom-sort="customSort"
-            :footer-props="{
-              itemsPerPageText: $t('rowsPerPage'),
-              itemsPerPageAllText: $t('all')
-            }"
-            >
-        <template v-slot:item.pinned="{ item }">
-          <v-btn icon small depressed @click="switchPin(item, !item.pinned)">
-            <v-icon color="primary" v-if="item.pinned">mdi-pin</v-icon>
-            <v-icon color="#474747" v-else >mdi-pin-off</v-icon>
-          </v-btn>  
-        </template> 
+          :headers="headers"
+          :items="formattedUsers"
+          :options.sync="options"
+          :server-items-length="totalUsers"
+          :loading="reloading"
+          :show-select="multiSelectionEnabled"
+          :single-select="!multiSelectionEnabled"
+          :custom-sort="customSort"
+          :footer-props="{
+            itemsPerPageText: $t('rowsPerPage'),
+            itemsPerPageAllText: $t('all')
+          }"
+          >
+            <template v-slot:item.data-table-select="{item}">
+              <v-checkbox
+                  v-model="selectedUsers[item.id]"
+                  @click:item="rowClicked(item)"
+              ></v-checkbox>
+            </template>
+            <template v-slot:item.pinned="{ item }">
+              <v-btn icon small depressed @click="switchPin(item, !item.pinned)">
+                <v-icon color="primary" v-if="item.pinned">mdi-pin</v-icon>
+                <v-icon color="#474747" v-else >mdi-pin-off</v-icon>
+              </v-btn>
+            </template>
+            <template v-slot:item.updated="{ item }">
+              <span>
+                {{ item['timeAgo'] }}
+              </span>
+            </template>
 
-        <template v-slot:item.updated="{ item }">
-          <span>
-            {{ item['timeAgo'] }}
-          </span>
+            <template v-slot:item.refreshRequest="{ item }">
+              <span v-if="item.refreshRequest"
+                    class="btn-user-request"
+                    @click="userRequestHandler(item)">
+                    {{ $t('refreshRequest') }}
+              </span>
+            </template>
+
+            <template v-slot:item.manage="{ item }" >
+              <table-actions :user="item"
+                 v-if="selectedUsers[item.id]"
+                 @openCalendar="openCalendar"
+                 @viewUser="viewUser"
+                 @exportData="onExportUserData"
+                 @editAppletAccess="editAppletAccess">
+              </table-actions>
+            </template>
+        <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
+          {{ pageStart }} - {{ pageStop }} {{ $t('of') }} {{ itemsLength }}
         </template>
-
-        <template v-slot:item.refreshRequest="{ item }">
-          <span v-if="item.refreshRequest"
-                class="btn-user-request"
-                @click="userRequestHandler(item)">
-                {{ $t('refreshRequest') }}
-          </span>
-        </template>
-
-        <template v-slot:item.manage="{ item }">
-          <table-actions :user="item" 
-             @openCalendar="openCalendar"
-             @viewUser="viewUser"
-             @exportData="onExportUserData"
-             @editAppletAccess="editAppletAccess">
-
-          </table-actions>
-        </template>
-      <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
-        {{ pageStart }} - {{ pageStop }} {{ $t('of') }} {{ itemsLength }}
-      </template>
     </v-data-table>
 
 
@@ -90,7 +95,7 @@
         ref="appletPasswordDialog"
         v-model="appletPasswordDialog.visible"
         :hasConfirmPassword="false"
-        @set-password="onAppletPassword"/> 
+        @set-password="onAppletPassword"/>
      <EditUserAccessDialog
        v-if="userEditDialog.visible"
         :user="userEditDialog.user"
@@ -135,7 +140,7 @@
     justify-content: center;
     cursor: pointer;
     font-size: 14px;
-  } 
+  }
   .btn-user-request:hover {
     color: rgb(100, 0, 0);
   }
@@ -256,9 +261,9 @@ export default {
 
     if (!this.multiSelectionEnabled) {
       /** hide some headers in dashboard page */
-      headers = headers.filter((header) => 
-        header.value != 'refreshRequest' && 
-        header.value != 'currentScheduleStatus' && 
+      headers = headers.filter((header) =>
+        header.value != 'refreshRequest' &&
+        header.value != 'currentScheduleStatus' &&
         header.value != 'selected'
       );
     } else {
@@ -266,12 +271,12 @@ export default {
 
       if (
         !currentApplet || !(
-          currentApplet.roles.includes('coordinator') || 
+          currentApplet.roles.includes('coordinator') ||
           currentApplet.roles.includes('manager') ||
           currentApplet.roles.includes('owner')
         )
       ) {
-        headers = headers.filter((header) => 
+        headers = headers.filter((header) =>
           header.value != 'currentScheduleStatus'
         )
       }
@@ -311,7 +316,7 @@ export default {
       },
       appletPasswordDialog: {
         visible: false,
-        profile: {},
+        selectedRow: {}, // to consider multi-users assigned in one applet
         appletId: null,
         requestedAction: null,
       },
@@ -406,7 +411,7 @@ export default {
     };
   },
   methods: {
-    rowClicked(row) {
+    rowClicked(row, item) {
       const rowId = row.id;
       if (this.startRow < 0 || !this.shiftKeyOn) {
         if (this.multiSelectionEnabled || !row.selected) {
@@ -444,7 +449,6 @@ export default {
       this.selectedUsers[row.id] = this.users[row.id]
       if (row.selected) {
         row.selected = false;
-
         if (this.currentAppletMeta) {
           this.$store.commit('unSelectUser', profile);
         }
@@ -468,7 +472,6 @@ export default {
     switchPin(row, newState) {
       let user = this.users[row.id];
       let profile = Object.values(user)[0];
-
       api.updatePin({
         apiHost: this.apiHost,
         token: this.token,
@@ -521,7 +524,7 @@ export default {
           if (
             applet.roles.includes('coordinator') && !profile.roles.includes('owner') &&
             (
-              applet.roles.includes('owner') || 
+              applet.roles.includes('owner') ||
               (!applet.roles.includes('manager') && profile.roles.length == 1 || applet.roles.includes('manager') && !profile.roles.includes('manager'))
             )
           ) {
@@ -558,7 +561,6 @@ export default {
           id: i
         })
       }
-
       return formattedUsers;
     },
 
@@ -584,19 +586,15 @@ export default {
     routeToCalendar(appletId, user) {
         const applet = this.currentAccount.applets.find(applet => applet.id === appletId);
         this.$store.commit('setCurrentApplet', applet);
-        this.$store.commit('setCurrentUsers', {
-          [user.id]: user
-        });
+        this.updateCurrentUser(user)
         this.$router.push(`/applet/${applet.id}/schedule`).catch(err => {});
     },
 
 
     viewCalendar({ appletId, profile }) {
+      this.updateCurrentUser(profile)
       const applet = this.currentAccount.applets.find(applet => applet.id === appletId);
       this.$store.commit('setCurrentApplet', applet);
-      this.$store.commit('setCurrentUsers', {
-        [profile['_id']]: profile
-      });
       this.$router.push(`/applet/${applet.id}/schedule`).catch(err => {});
     },
 
@@ -618,14 +616,7 @@ export default {
     },
 
     onExportUserData(user) {
-      if (user.profiles.length)
-      {
-        user.profiles.forEach((profile) => {
-          this.$store.commit('setCurrentUsers', {
-            [profile['_id']]: profile
-          });
-        })
-      }
+      this.updateCurrentUser(user)
       if (user.viewable.length > 1) {
         this.userExportDialog.visible = true;
         this.userExportDialog.user = user.scheduling.reduce((data, appletId) => ({
@@ -642,17 +633,19 @@ export default {
     },
     gotoDashboard() {
       const applet = this.accountApplets.find(applet => applet.id === this.appletPasswordDialog.appletId);
-
-      let profile = this.appletPasswordDialog.profile;
-
+      let row = this.appletPasswordDialog.selectedRow; //profile
       this.$store.commit('setCurrentApplet', applet);
-      this.$store.commit('setCurrentUsers', {
-        [profile['_id']]: profile
-      });
-
+      this.updateCurrentUser(row)
+      let userIds = [];
+      if (row.profiles && Array.isArray(row.profiles))
+      {
+        row.profiles.forEach((profile) => {
+          userIds.push(profile['_id'])
+        })
+      }
       this.$router.push({
         path: `/applet/${applet.id}/dashboard`,
-        query: { users: [profile['_id']] },
+        query: { users: userIds },
       }).catch(err => {});
     },
 
@@ -683,6 +676,7 @@ export default {
     },
 
     onDataRequest({ appletId, profile, viewing }) {
+
       const appletMeta = this.accountApplets.find(applet => applet.id === appletId);
       let preprocess = !this.isLatestApplet(appletMeta) ? this.loadApplet(appletId) : Promise.resolve();
       preprocess.then(() => {
@@ -691,7 +685,7 @@ export default {
 
         this.appletPasswordDialog.visible = false;
         this.appletPasswordDialog.appletId = appletId;
-        this.appletPasswordDialog.profile = profile;
+        this.appletPasswordDialog.selectedRow = profile;
         this.appletPasswordDialog.requestedAction = viewing ? this.gotoDashboard.bind(this) : this.exportData.bind(this);
 
         if (
@@ -735,6 +729,17 @@ export default {
       }
     },
 
+    updateCurrentUser(user)
+    {
+      if (user.profiles.length)
+      {
+        user.profiles.forEach((profile) => {
+          this.$store.commit('setCurrentUsers', {
+            [profile['_id']]: profile
+          });
+        })
+      }
+    },
 
     resetSelection() {
       this.$store.commit('setCurrentUsers', {});

@@ -130,7 +130,7 @@ export default {
             scheduling,
             selected,
             refreshRequest,
-            id: data._id
+            _id: data._id
           };
           if (data.roles.includes('owner')) {
             formattedInfo.roles = [this.$t('owner')];
@@ -156,7 +156,6 @@ export default {
     openCalendar(user) {
       const canGoToCalendar = user.scheduling.length === 1 && user.hasIndividualEvent //better variable name that explains the reason for this comparison will help
       const appletId = user.scheduling[0];
-
       if (canGoToCalendar) {
         this.routeToCalendar(appletId, user);
       } else {
@@ -235,7 +234,7 @@ export default {
 
     onExportUserData(user) {
       this.$store.commit('setCurrentUsers', {
-        [user.id]: user
+        [user._id]: user
       });
       if (user.viewable.length > 1) {
         this.userExportDialog.visible = true;
@@ -321,14 +320,14 @@ export default {
         const applet = this.currentAccount.applets.find(applet => applet.id === appletId);
         this.$store.commit('setCurrentApplet', applet);
         this.$store.commit('setCurrentUsers', {
-          [user.id]: user
+          [user._id]: user
         });
         this.$router.push(`/applet/${applet.id}/schedule`).catch(err => {});
     },
 
     isPinnedStatusChanged(user) {
       const newState = !user.pinned;
-      const profileId = user.id
+      const profileId = user._id
       this.beginLoading(`${this.$t('pinUpdateMessage')} ${user.firstName} ${user.lastName} ${this.$t('pleaseWait')}`)
 
       const updatePayload = {

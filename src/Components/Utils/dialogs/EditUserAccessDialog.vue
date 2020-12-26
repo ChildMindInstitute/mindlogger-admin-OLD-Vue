@@ -116,10 +116,6 @@
         {
           MRN = profile.MRN;
         }
-        else if (!profile.MRN)
-        {
-          MRN = profile.email // assume that selected user is an organizer.
-        }
         this.profileList.push({
           ...profile,
           appletId,
@@ -146,17 +142,17 @@
         });
 
         if (response === 'Yes') {
-          this.deleteAppletUser(profile.appletId, profile.id);
+          this.deleteAppletUser(profile.appletId, profile['_id']);
         }
       },
       onRemoveUserAndData(profile) {
+        console.log(profile)
         const applet = this.currentAccount.applets.find(applet => applet.id === profile.appletId);
-
         if (applet.encryption) {
           this.dialog = true;
           this.selectedProfile = profile;
         } else {
-          this.deleteAppletUser(profile.appletId, profile.id, true);
+          this.deleteAppletUser(profile.appletId, profile['_id'], true);
         }
       },
 
@@ -175,7 +171,7 @@
             .equals(Buffer.from(applet.encryption.appletPublicKey))
         ) {
           this.dialog = false;
-          this.deleteAppletUser(applet.id, this.selectedProfile.id, true);
+          this.deleteAppletUser(applet.id, this.selectedProfile['_id'], true);
         } else {
           this.$refs.appletPasswordDialog.defaultErrorMsg =
             'Incorrect applet password';
@@ -190,7 +186,7 @@
           profileId,
           deleteResponse,
         }).then(() => {
-          this.profileList = this.profileList.filter(profile => profile.id != profileId);
+          this.profileList = this.profileList.filter(profile => profile['_id'] != profileId);
           this.panel = -1;
 
           this.$emit('refreshUserList');

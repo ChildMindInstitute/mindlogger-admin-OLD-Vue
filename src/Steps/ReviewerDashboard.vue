@@ -401,7 +401,6 @@ export default {
     } catch (error) {
       this.status = "Oops, something went wrong. We couldn't load the applet";
       this.error = error;
-      console.error(error);
     }
   },
 

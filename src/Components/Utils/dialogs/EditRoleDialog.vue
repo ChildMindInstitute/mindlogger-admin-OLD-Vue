@@ -185,6 +185,7 @@
             ...roleInfo,
             [role]: role != 'reviewer' ? 1 : (profile.userList || []),
           }), {});
+
           for (let role of oldRoles) {
             if (roleInfo[role] !== undefined) {
               delete roleInfo[role];
@@ -198,7 +199,7 @@
           }
 
           if (Object.keys(roleInfo).length) {
-            tasks.push(api.updateUserRoles({ apiHost, token, appletId: profile.appletId, userId: profile.id, roleInfo }));
+            tasks.push(api.updateUserRoles({ apiHost, token, appletId: profile.appletId, userId: profile['_id'], roleInfo }));
           }
         }
 

@@ -59,7 +59,8 @@
             <DashboardRoleViewer
               :loading="tabData[tab].loading"
               :employees="tabData[tab].list"
-              @onEditRoleSuccessfull="onEditRoleSuccessfull"
+              @onEditRoleSuccessfull="onRefreshUserList"
+              @onRefreshUserList="onRefreshUserList"
               :roleType="roleTypeMapping[tab]" />
           </v-card>
         </v-tab-item>
@@ -282,7 +283,7 @@ export default {
       );
     },
 
-    onEditRoleSuccessfull() {
+    onRefreshUserList() {
       this.onSwitchTab(this.tabs[this.selectedTab]).then((resp) => {
         this.informationDialog = true;
         this.informationText = this.$t('organizerRoleUpdate');

@@ -84,7 +84,8 @@
             <DashboardRoleViewer
               :loading="tabData[tab].loading"
               :employees="tabData[tab].list"
-              @onEditRoleSuccessfull="onEditRoleSuccessfull"
+              @onEditRoleSuccessfull="onRefreshUserList"
+              @refreshUserList="onRefreshUserList"
               :roleType="roleTypeMapping[tab]" />
           </v-card> 
         </v-tab-item>
@@ -296,16 +297,12 @@ export default {
         });
       }
     },
-    onEditRoleSuccessfull() {
+    onRefreshUserList() {
       this.onSwitchTab(this.tabs[this.selectedTab]).then((resp) => {
         this.dialog = true;
         this.dialogText = this.$t('organizerRoleUpdateSuccess');
         this.dialogTitle = this.$t('organizerRoleUpdate');
       })
-    },
-    onEmployerListChanged()
-    {
-      return this.onSwitchTab(this.tabs[this.selectedTab]);
     },
     getUserList(role, filter='', pagination={ allow: false }, sort={ allow: false }) {
       return api.getAccountUserList({
