@@ -234,7 +234,7 @@ import ScheduleModifier from "./ScheduleModifier";
 import ScheduleForecast from "./ScheduleForecast";
 import ScheduleActions from "./ScheduleActions";
 import mySchedule from "./Schedule";
-
+import { addActivityColor } from "@/Components/CalendarComponents/activityColorPalette.js";
 export default {
   name: "dsEvent",
 
@@ -538,7 +538,11 @@ export default {
     },
     title() {
       const res = _.filter(this.activities, (a) => a.name === this.title);
-      this.details.URI = res[0].URI;
+      if (res.length)
+      {
+        this.details.URI = res[0].URI;
+        addActivityColor(res[0].id, res[0].color)
+      }
     },
   },
 
