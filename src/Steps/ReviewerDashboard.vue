@@ -135,7 +135,7 @@
                           </h2>
 
                           <template
-                            v-if="tab != 'tokens'"
+                            v-if="tab != 'tokens' && activity.subScales.length"
                           >
                             <SubScaleLineChart
                               v-if="activity.getResponseCount(focusExtent, selectedVersions) > 1"
@@ -197,7 +197,7 @@
                                       </header>
 
                                       <RadioSlider
-                                        v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites == index"
+                                        v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
                                         :plot-id="`RadioSlider-${subScale.variableName}-${item['id']}`"
                                         :item="item"
                                         :versions="applet.versions"
@@ -229,7 +229,7 @@
                               </header>
 
                               <token-chart
-                                v-if="tab=='tokens' && item.isTokenItem && applet.selectedActivites == index"
+                                v-if="tab=='tokens' && item.isTokenItem && applet.selectedActivites.includes(index)"
                                 :plot-id="`Token-${item['id']}`"
                                 :item="item"
                                 :timezone="applet.timezoneStr"
@@ -242,7 +242,7 @@
                               />
 
                               <RadioSlider
-                                v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites == index"
+                                v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
                                 :plot-id="`RadioSlider-${item['id']}`"
                                 :item="item"
                                 :versions="applet.versions"
