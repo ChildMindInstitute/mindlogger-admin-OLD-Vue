@@ -41,6 +41,7 @@ export const DrawingMixin = {
       versionBarWidth: 2,
       radius: 7,
       tickHeight: 6,
+      tickWidth: 6,
     }
   },
   computed: {
@@ -85,6 +86,10 @@ export const DrawingMixin = {
         .attr('height', d => {
           return this.x(d.updated) >= 0 ? this.height + this.padding.top + this.padding.bottom : 0
         });
+    },
+
+    getChartHeight(width) {
+      return width >= 1024 ? 250 : width >= 768 ? 200 : 150;
     },
   }
 }

@@ -5,17 +5,27 @@
     <svg
       :id="plotId"
       :width="width + itemPadding + 20"
-      :height="height"
+      :height="height + 16"
     >
       <g class="labels">
         <text
-          :y="padding.top + radius + 15/2"
+          :y="padding.top + radius + 16/2"
           :x="labelWidth/2"
-          :font-size="15"
+          :font-size="16"
           text-anchor="middle"
           font-weight="bold"
         >
           {{ label }}
+        </text>
+
+        <text
+          :y="padding.top + radius + 16/2 + 16"
+          :x="labelWidth/2"
+          :font-size="10"
+          text-anchor="middle"
+          font-weight="bold"
+        >
+          ( Lastest Score: {{latestScore}}, Frequency: {{ frequency }} )
         </text>
       </g>
 
@@ -67,6 +77,14 @@ export default {
       type: Number,
       required: true,
     },
+    latestScore: {
+      type: Number,
+      required: true,
+    },
+    frequency: {
+      type: String,
+      required: true,
+    }
   },
   data: function() {
     let margin = { left: 20, right: 60 };
