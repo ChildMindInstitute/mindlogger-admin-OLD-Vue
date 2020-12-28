@@ -80,6 +80,21 @@
                   </template>
                   <span>{{ $t('editApplet') }}</span>
                 </v-tooltip>
+                <!-- duplicate applet -->
+                <v-tooltip
+                    v-if="item.roles.includes('editor') || item.roles.includes('manager')"
+                    top
+                >
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                        v-on="on"
+                        @click="onDuplicateApplet(item)"
+                    >
+                      <img height="24" src="@/assets/copy-clipart.png" />
+                    </v-btn>
+                  </template>
+                  <span>{{ $t('duplicateApplet') }}</span>
+                </v-tooltip>
 
                 <!-- delete applet -->
                 <v-tooltip
@@ -97,21 +112,6 @@
                   <span>{{ $t('deleteApplet') }}</span>
                 </v-tooltip>
 
-                <!-- duplicate applet -->
-                <v-tooltip
-                  v-if="item.roles.includes('editor') || item.roles.includes('manager')"
-                  top
-                >
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      v-on="on"
-                      @click="onDuplicateApplet(item)"
-                    >
-                      <v-icon>mdi-content-duplicate</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>{{ $t('duplicateApplet') }}</span>
-                </v-tooltip>
 
                 <!-- refresh applet -->
                 <v-tooltip
