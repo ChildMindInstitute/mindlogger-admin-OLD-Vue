@@ -31,7 +31,7 @@
 
       <g
         class="content"
-        :transform="`translate(${labelWidth + itemPadding}, 0)`"
+        :transform="`translate(${labelWidth + itemPadding - 20}, 0)`"
       >
         <g class="x-axis" />
         <g class="versions" />
