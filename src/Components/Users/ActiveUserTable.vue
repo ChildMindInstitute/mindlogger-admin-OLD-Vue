@@ -341,6 +341,7 @@ export default {
       })
       .then((resp) => {
         this.$store.commit('setCurrentRetentionSettings', settings);
+        this.$emit('retentionSettingsUpdate');
         this.errorMsg = '';
       })
       .catch(err => {

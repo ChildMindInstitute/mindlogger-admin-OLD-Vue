@@ -252,5 +252,11 @@ export default {
   deleteAppletConfirmation: 'Êtes-vous sûr de vouloir supprimer cette applet?',
   deleteApplet: "Supprimer l'applet",
   remove: 'Retirer',
-  cancel: 'Annuler'
+  cancel: 'Annuler',
+  dataRetentionSettingUpdate: 'Mise à jour des paramètres de conservation des données',
+  dataRetentionSettingUpdateSuccess: 'Le paramètre de conservation des données a été mis à jour avec succès.',
+  days: 'Jours',
+  weeks: 'Semaines',
+  months: 'Mois',
+  years: 'Années',
 };
