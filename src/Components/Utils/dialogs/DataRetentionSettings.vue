@@ -1,9 +1,5 @@
 <template>
-  <v-dialog
-    max-width="800"
-    :value="value"
-    @input="$emit('input', $event)"
-  >
+  <v-dialog max-width="800" :value="value" @input="$emit('input', $event)">
     <v-card>
       <v-card-text>
         <template>
@@ -11,42 +7,32 @@
 
           <div class="input-controls">
             <span> {{ $t('userDataStoredFor') }} </span>
-            <v-text-field
-              v-model="settings.period"
-              class="input-amount"
-              type="number"
-            />
-            <v-select
-              v-model="settings.retention"
-              class="input-period"
-              :items="periods"
-              item-text="name"
-              item-value="value"
-            />
+              <v-text-field
+                class="input-amount"
+                type="number"
+                v-model="settings.period"
+                :min="1"
+              />
+              <v-select
+                class="input-period"
+                v-model="settings.retention"
+                :items="periods"
+                item-text="name"
+                item-value="value"
+              />
           </div>
           
-          <div
-            v-if="error"
-            class="error mb-4"
-          >
+          <div v-if="error" class="error mb-4">
             {{ error }}
           </div>
         </template>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn
-          color="primary"
-          text
-          @click="onClickClose()"
-        >
+        <v-btn color="primary" text @click="onClickClose()">
           {{ $t('close') }}
         </v-btn>
-        <v-btn
-          color="primary"
-          text
-          @click="onClickSubmitSettings()"
-        >
+        <v-btn color="primary" text @click="onClickSubmitSettings()" :disabled="settings.period <= 0">
           {{ $t('save') }}
         </v-btn>
       </v-card-actions>      
@@ -71,24 +57,26 @@ export default {
       required: false,
     }
   },
-  data: () => ({
-    periods: [{
-      name: 'Days',
-      value: 'day'
-    }, {
-      name: 'Weeks',
-      value: 'week'
-    }, {
-      name: 'Months',
-      value: 'month'
-    }, {
-      name: 'Years',
-      value: 'year'
-    }],
-  }),
   computed: {
     settings() {
       return this.retentionSettings;
+    }
+  },
+  data: function() {
+    return {
+      periods: [{
+        name: this.$i18n.t('days'),
+        value: 'day'
+      }, {
+        name: this.$i18n.t('weeks'),
+        value: 'week'
+      }, {
+        name: this.$i18n.t('months'),
+        value: 'month'
+      }, {
+        name: this.$i18n.t('years'),
+        value: 'year'
+      }],
     }
   },
   methods: {
@@ -107,7 +95,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 56%;
+    width: 80%;
 
     span {
       flex: 2;

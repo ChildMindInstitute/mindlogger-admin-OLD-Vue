@@ -18,6 +18,21 @@
             </v-tab>
           </template>
         </v-tabs>
+
+        <v-tooltip v-if="retentionSettings && retentionSettings.enabled && isManager" top>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              color="primary"
+              small
+              style="margin: auto;"
+              @click="dataRetentionSettingsDialog = true"
+              v-on="on"
+            >
+              <span>{{ $t('dataRetentionSettings') }}</span>
+            </v-btn>
+          </template>
+          <span>{{ $t('dataRetentionSettings') }}</span>
+        </v-tooltip>
       </div>
 
       <v-tabs-items v-model="selectedTab">
@@ -68,6 +83,15 @@
       </v-tabs-items>
     </v-card>
 
+    <DataRetentionSettings
+      v-if="retentionSettings && retentionSettings.enabled && dataRetentionSettingsDialog"
+      v-model="dataRetentionSettingsDialog"
+      :retentionSettings="retentionSettings"
+      :error="errorMsg"
+      @set-settings="onSaveRetentionSettings"
+      @settings-close="onRetentionSettingsClose()"
+    />
+
     <Information
       v-model="informationDialog"
       :dialogText="informationText"
@@ -99,6 +123,10 @@
   text-align: center;
 }
 
+.tabs {
+  display: flex;
+  padding-right: 20px;
+}
 </style>
 
 <script>
@@ -115,6 +143,7 @@ import encryption from '../Components/Utils/encryption/encryption.vue';
 import Applet from '../models/Applet';
 import Information from '../Components/Utils/dialogs/InformationDialog.vue';
 import ResponseUpdateDialog from '../Components/Utils/dialogs/ResponseUpdateDialog.vue';
+import DataRetentionSettings from '../Components/Utils/dialogs/DataRetentionSettings';
 import Item from '../models/Item';
 import { AppletMixin } from '../Components/Utils/mixins/AppletMixin';
 
@@ -128,6 +157,7 @@ export default {
     EmployerList,
     UserList,
     ResponseUpdateDialog,
+    DataRetentionSettings,
   },
   mixins: [AppletMixin],
   data: () => ({
@@ -158,6 +188,9 @@ export default {
     tabData: {},
     selectedTab: null,
     invitationFormKey: 0,
+    dataRetentionSettingsDialog: false,
+    retentionSettingsInitial: null,
+    errorMsg: '',
   }),
   computed: {
     dashboardEnabled() {
@@ -184,6 +217,18 @@ export default {
     currentUsers() {
       return this.$store.state.currentUsers;
     },
+
+    retentionSettings() {
+      return this.$store.state.currentRetentions;
+    },
+
+    isManager() {
+      if (this.status !== 'ready') {
+        return false;
+      }
+
+      return this.hasRoles('owner', 'manager');
+    }
   },
   watch: {
     $route(to, from) {
@@ -231,6 +276,38 @@ export default {
     })
   },
   methods: {
+    onRetentionSettingsClose() {
+      this.dataRetentionSettingsDialog = false;
+    },
+    onSaveRetentionSettings(settings) {
+      this.dataRetentionSettingsDialog = false;
+
+      const { period, retention } = settings;
+
+      api.updateRetainingSettings({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        appletId: this.currentAppletMeta.id,
+        options: {
+          id: this.currentAppletMeta.id,
+          period,
+          retention,
+        },
+      })
+      .then((resp) => {
+        this.$store.commit('setCurrentRetentionSettings', settings);
+
+        this.informationTitle = this.$i18n.t('dataRetentionSettingUpdate');
+        this.informationText  = this.$i18n.t('dataRetentionSettingUpdateSuccess');
+        this.informationDialog =true;
+
+        this.errorMsg = '';
+      })
+      .catch(err => {
+        this.dataRetentionSettingsDialog = true;
+        this.errorMsg = err.response.data.message;
+      });
+    },
     onSwitchTab(tab) {
       this.tabData[tab].loading = true;
 

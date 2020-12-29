@@ -312,4 +312,10 @@ export default {
   responses: 'Responses',
   tokens: 'Tokens',
   responseOptions: 'Response Options',
+  dataRetentionSettingUpdate: 'Data Retention Setting Update',
+  dataRetentionSettingUpdateSuccess: 'Data Retention Setting was updated successfully.',
+  days: 'Days',
+  weeks: 'Weeks',
+  months: 'Months',
+  years: 'Years',  
 };
