@@ -10,6 +10,7 @@
         key="componentKey"
         :users="activeUserList"
         :appletId="$route.params.appletId"
+        @retentionSettingsUpdate="onRetentionSettingsUpdate"
         @reUploadResponse="responseReUploadEvent"
       />
       
@@ -53,7 +54,7 @@
     <Information
       v-model="informationDialog"
       :dialogText="informationText"
-      :title="$t('refreshResponse')"
+      :title="informationTitle"
     />
 
     <div class="tools">
@@ -161,6 +162,7 @@ export default {
     },
     informationDialog: false,
     informationText: '',
+    informationTitle: ''
   }),
   computed: {
     dashboardEnabled() {
@@ -440,6 +442,12 @@ export default {
       this.responseUpdateDialog.visible = true;
     },
 
+    onRetentionSettingsUpdate() {
+      this.informationTitle = this.$i18n.t('dataRetentionSettingUpdate');
+      this.informationText  = this.$i18n.t('dataRetentionSettingUpdateSuccess');
+      this.informationDialog =true;
+    },
+
     onReuploadResponse() {
       const encryptionInfo = this.currentApplet.applet.encryption;
 
@@ -460,6 +468,7 @@ export default {
       this.responseUpdateDialog.visible = false;
       this.informationDialog = true;
       this.informationText = this.$i18n.t('refreshDeclined');
+      this.informationTitle= this.$i18n.t('refreshResponse');
     },
 
     updateUserResponse(userData) {
@@ -519,6 +528,7 @@ export default {
               this.getAppletUsers().then(() => {
                 this.informationDialog = true;
                 this.informationText = this.$i18n.t('refreshComplete');
+                this.informationTitle= this.$i18n.t('refreshResponse');
               });
             });
         });

@@ -11,6 +11,7 @@
                 class="input-amount"
                 type="number"
                 v-model="settings.period"
+                :min="1"
               />
               <v-select
                 class="input-period"
@@ -31,7 +32,7 @@
         <v-btn color="primary" text @click="onClickClose()">
           {{ $t('close') }}
         </v-btn>
-        <v-btn color="primary" text @click="onClickSubmitSettings()">
+        <v-btn color="primary" text @click="onClickSubmitSettings()" :disabled="settings.period <= 0">
           {{ $t('save') }}
         </v-btn>
       </v-card-actions>      
@@ -61,21 +62,23 @@ export default {
       return this.retentionSettings;
     }
   },
-  data: () => ({
-    periods: [{
-      name: 'Days',
-      value: 'day'
-    }, {
-      name: 'Weeks',
-      value: 'week'
-    }, {
-      name: 'Months',
-      value: 'month'
-    }, {
-      name: 'Years',
-      value: 'year'
-    }],
-  }),
+  data: function() {
+    return {
+      periods: [{
+        name: this.$i18n.t('days'),
+        value: 'day'
+      }, {
+        name: this.$i18n.t('weeks'),
+        value: 'week'
+      }, {
+        name: this.$i18n.t('months'),
+        value: 'month'
+      }, {
+        name: this.$i18n.t('years'),
+        value: 'year'
+      }],
+    }
+  },
   methods: {
     onClickClose() {
       this.$emit('settings-close');
@@ -92,7 +95,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 56%;
+    width: 80%;
 
     span {
       flex: 2;

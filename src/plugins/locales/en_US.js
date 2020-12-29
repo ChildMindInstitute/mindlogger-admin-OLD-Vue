@@ -249,5 +249,11 @@ export default {
   dataRetentionSettings: 'Data Retention Settings',
   userDataStoredFor: 'User data will be stored for',
   remove: 'Remove',
-  cancel: 'Cancel'
+  cancel: 'Cancel',
+  dataRetentionSettingUpdate: 'Data Retention Setting Update',
+  dataRetentionSettingUpdateSuccess: 'Data Retention Setting was updated successfully.',
+  days: 'Days',
+  weeks: 'Weeks',
+  months: 'Months',
+  years: 'Years',  
 };
