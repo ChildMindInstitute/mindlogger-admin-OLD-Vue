@@ -234,7 +234,7 @@ import ScheduleModifier from "./ScheduleModifier";
 import ScheduleForecast from "./ScheduleForecast";
 import ScheduleActions from "./ScheduleActions";
 import mySchedule from "./Schedule";
-
+import {addActivityColor, getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
 export default {
   name: "dsEvent",
 
@@ -538,11 +538,22 @@ export default {
     },
     title() {
       const res = _.filter(this.activities, (a) => a.name === this.title);
-      this.details.URI = res[0].URI;
+      if (res.length)
+      {
+        this.details.URI = res[0].URI;
+        const activityColor = getEventColor(res[0].id)
+        if(activityColor)
+        {
+          this.details.color = this.getHexColor(activityColor)
+        }
+      }
     },
   },
 
   methods: {
+    getHexColor(colorName) {
+      return _.filter(this.$dayspan.colors, c => c.text === colorName)[0].value;
+    },
     async remove(eventId) {
       const res = await this.$dialog.warning({
         title: "",

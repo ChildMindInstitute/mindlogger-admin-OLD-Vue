@@ -164,6 +164,7 @@ export default {
             color,
             visibility: 1,
             URI,
+            id:a._id
           };
         });
       }
