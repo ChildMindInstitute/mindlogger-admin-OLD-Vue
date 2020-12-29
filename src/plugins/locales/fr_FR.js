@@ -318,4 +318,10 @@ export default {
   responses: `Réponses`,
   tokens: 'Tokens',
   responseOptions: 'Options de réponse',
+  dataRetentionSettingUpdate: 'Mise à jour des paramètres de conservation des données',
+  dataRetentionSettingUpdateSuccess: 'Le paramètre de conservation des données a été mis à jour avec succès.',
+  days: 'Jours',
+  weeks: 'Semaines',
+  months: 'Mois',
+  years: 'Années',
 };
