@@ -104,8 +104,8 @@
 import _ from "lodash";
 import Calendar from "../Components/CalendarComponents/CalendarMain";
 import api from "../Components/Utils/api/api.vue";
-import { AppletMixin } from '../Components/Utils/mixins/AppletMixin';
-
+import { AppletMixin } from '@/Components/Utils/mixins/AppletMixin';
+import { addActivityColor } from "@/Components/CalendarComponents/activityColorPalette.js";
 export default {
   name: "Schedule",
   components: {
@@ -151,17 +151,20 @@ export default {
      */
     activities() {
       if (this.currentAppletData) {
+        const activityTypeColorMap = {}
         let index = 0;
         return _.map(this.currentAppletData.activities, (a, URI) => {
           const name =
             a["http://www.w3.org/2004/02/skos/core#prefLabel"][0]["@value"];
           const color = this.colors[index];
           index += 1;
+          addActivityColor(a._id, color); // add the activity color
           return {
             name,
             color,
             visibility: 1,
             URI,
+            id:a._id
           };
         });
       }

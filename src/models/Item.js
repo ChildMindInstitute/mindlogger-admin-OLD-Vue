@@ -73,6 +73,7 @@ export default class Item {
       ? data[ReproLib.responseOptions][0][ReproLib.multipleChoice][0]['@value'] : false;
     
     this.dataColor = '#8076B2';
+    this.partOfSubScale = false;
   }
 
   /**
@@ -266,6 +267,6 @@ export default class Item {
 
   getFormattedQuestion() {
     const imageRE = new RegExp(/[\r\n]*\!\[.*\]\(.*=.*\)[\r\n]*/i);
-    return this.question.en.replace(imageRE, '').replace(/\*\*/g, '');  // Remove the image from the question.
+    return this.question.en.replace(imageRE, '').replace(/\*\*/g, '') || this.label.en;  // Remove the image from the question.
   }
 }

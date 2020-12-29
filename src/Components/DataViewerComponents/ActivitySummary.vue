@@ -17,6 +17,16 @@
         >
           {{ label }}
         </text>
+
+        <text
+          :y="padding.top + radius + 16/2 + 16"
+          :x="labelWidth/2"
+          :font-size="10"
+          text-anchor="middle"
+          font-weight="bold"
+        >
+          ( Lastest Score: {{latestScore}}, Frequency: {{ frequency }} )
+        </text>
       </g>
 
       <g
@@ -67,13 +77,21 @@ export default {
       type: Number,
       required: true,
     },
+    latestScore: {
+      type: Number,
+      required: true,
+    },
+    frequency: {
+      type: String,
+      required: true,
+    }
   },
   data: function() {
     let margin = { left: 20, right: 60 };
     let width = this.parentWidth - margin.left - margin.right;
 
     return {
-      height: 35,
+      height: 50,
       margin,
       width,
       labelWidth: width / 4,

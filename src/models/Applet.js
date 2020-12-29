@@ -12,7 +12,7 @@ import ReproLib from '../schema/ReproLib';
 import SKOS from '../schema/SKOS';
 import encryptionUtils from '../Components/Utils/encryption/encryption.vue'
 
-const RESPONSE_COLORS = [
+export const RESPONSE_COLORS = [
   '#1C7AB3',
   '#FF7F1F',
   '#41A549'
@@ -39,6 +39,9 @@ export default class Applet {
     this.timezoneStr = '+00:00';
     this.activities = [];
     this.responses = {};
+    this.subScales = {};
+
+    this.selectedActivites = [];
 
     // Load items.
     this.items = Object
@@ -91,9 +94,22 @@ export default class Applet {
 
     if (this.encryption) {
       Applet.replaceItemValues(Applet.decryptResponses(data, this.encryption));
+
+      for (let activityId in data.subScales) {
+        for (let subScaleName in data.subScales[activityId]) {
+          let subScales = data.subScales[activityId][subScaleName];
+
+          for (let subScale of subScales) {
+            if (subScale.value && subScale.value.ptr !== undefined && subScale.value.src !== undefined) {
+              subScale.value = data.subScaleSources[subScale.value.src].data[subScale.value.ptr];
+            }
+          }
+        }
+      }
     }
 
     this.responses = data.responses;
+    this.subScales = data.subScales;
 
     this.insertInitialVersion();
     this.initMultipleChoiceStatus();
@@ -247,6 +263,13 @@ export default class Applet {
 
       activity.responses = activity.responses.filter((resp, index) => activity.responses.findIndex(value => value.date.toString() == resp.date.toString() && value.version == resp.version) == index);
     }
+
+    for (let activity of this.activities) {
+      activity.initSubScaleItems();
+
+      const activityId = activity.data._id.split('/')[1];
+      activity.addSubScaleValues(this.subScales[activityId]);
+    }
   }
 
   async fetchVersions() {
@@ -259,6 +282,10 @@ export default class Applet {
     });
 
     this.versions = data;
+
+    this.versions = this.versions.filter((version, index) => 
+      this.versions.findIndex(d => d.version == version.version) === index
+    );
   }
 
   insertInitialVersion() {

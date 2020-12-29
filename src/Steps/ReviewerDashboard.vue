@@ -155,6 +155,8 @@
                             :data="activity.responses"
                             :label="activity.label.en || activity.description.en"
                             :color="activity.dataColor"
+                            :latest-score="activity.getLatestActivityScore(focusExtent, selectedVersions)"
+                            :frequency="activity.getFrequency(focusExtent, selectedVersions)"
                             :parent-width="panelWidth"
                             :item-padding="itemPadding"
                           />
@@ -163,11 +165,94 @@
                           <h2 class="mt-4">
                             {{ $t('responseOptions') }}
                           </h2>
+
+                          <template
+                            v-if="tab != 'tokens' && activity.subScales.length"
+                          >
+                            <SubScaleLineChart
+                              v-if="activity.getResponseCount(focusExtent, selectedVersions) > 1"
+                              :plot-id="`subscale-line-chart-${activity.id}`"
+                              :versions="applet.versions"
+                              :focus-extent="focusExtent"
+                              :selected-versions="selectedVersions"
+                              :has-version-bars="hasVersionBars"
+                              :timezone="applet.timezoneStr"
+                              :activity="activity"
+                              :parent-width="panelWidth"
+                            />
+
+                            <SubScaleBarChart
+                              v-if="activity.getResponseCount(focusExtent, selectedVersions) == 1"
+                              :plot-id="`subscale-bar-chart-${activity.id}`"
+                              :versions="applet.versions"
+                              :focus-extent="focusExtent"
+                              :selected-versions="selectedVersions"
+                              :has-version-bars="false"
+                              :timezone="applet.timezoneStr"
+                              :activity="activity"
+                              :parent-width="panelWidth"
+                            />
+                          </template>
+
+                          <v-expansion-panels
+                            v-if="tab != 'tokens'"
+                            v-model="activity.selectedSubScales"
+                            class="mt-4 sub-scale"
+                            focusable
+                            multiple
+                          >
+                            <template
+                              v-for="(subScale) in activity.subScales"
+                            >
+                              <v-expansion-panel
+                                v-if="applet"
+                                :key="subScale.variableName"
+                              >
+                                <v-expansion-panel-header>
+                                  <h4>
+                                    {{ subScale.variableName }}
+                                    ( latest score: {{ activity.getLatestSubScaleScore(subScale, focusExtent, selectedVersions) }} )
+                                  </h4>
+                                </v-expansion-panel-header>
+
+                                <v-expansion-panel-content>
+                                  <div>
+                                  <template
+                                    v-for="item in subScale.items"
+                                  >
+                                    <div
+                                      class="chart-card"
+                                      :key="item['id']"
+                                    >
+                                      <header>
+                                        <h3> - {{ item.getFormattedQuestion() }}</h3>
+                                      </header>
+
+                                      <RadioSlider
+                                        v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
+                                        :plot-id="`RadioSlider-${subScale.variableName}-${item['id']}`"
+                                        :item="item"
+                                        :versions="applet.versions"
+                                        :focus-extent="focusExtent"
+                                        :selected-versions="selectedVersions"
+                                        :timezone="applet.timezoneStr"
+                                        :has-version-bars="hasVersionBars"
+                                        :parent-width="panelWidth"
+                                        :color="item.dataColor"
+                                      />
+                                    </div>
+                                  </template>
+                                  </div>
+                                </v-expansion-panel-content>
+                              </v-expansion-panel>
+                            </template>
+                          </v-expansion-panels>
+
                           <template
                             v-for="item in activity.items"
                           >
                             <div
-                              v-if="tab != 'tokens' || item.isTokenItem"
+                              v-if="(tab == 'tokens' || !item.partOfSubScale) && (tab != 'tokens' || item.isTokenItem)"
                               :key="item['id']"
                               class="chart-card"
                             >
@@ -250,7 +335,7 @@
   border-bottom: 2px solid white;
 }
 
-/deep/ .v-slide-group__content.v-tabs-bar__content::before {
+.dashboard /deep/ .v-slide-group__content.v-tabs-bar__content::before {
   position: absolute;
   content: '';
   width: 100%;
@@ -324,11 +409,15 @@
 }
 
 .chart-card {
-  padding: 1.5rem;
+  padding: 24px;
+}
+
+.sub-scale .chart-card {
+  padding: 24px 0px;
 }
 
 .activity-header {
-  margin: 1.5rem 0;
+  margin: 24px 0;
 }
 </style>
 
@@ -347,6 +436,9 @@ import Item from "../models/Item";
 import TokenChart from "../Components/DataViewerComponents/TokenChart.vue";
 import ActivitySummary from "../Components/DataViewerComponents/ActivitySummary.vue";
 import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue";
+import SubScaleLineChart from "../Components/DataViewerComponents/SubScaleLineChart";
+import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChart";
+
 import * as moment from 'moment';
 
 export default {
@@ -359,6 +451,8 @@ export default {
     TokenChart,
     ActivitySummary,
     RadioSlider,
+    SubScaleLineChart,
+    SubScaleBarChart,
   },
 
   /**
