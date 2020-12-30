@@ -3,8 +3,6 @@
     class="TokenChart"
     :class="`TokenChart-${plotId}`"
   >
-
-
     <div class="chart-container">
       <div
         class="tooltip"

@@ -27,13 +27,12 @@
             <div
               class="sub-scale-title"
             >
-              {{subScale.variableName}}
+              {{ subScale.variableName }}
             </div>
             <div
               class="sub-scale-color"
               :style="{ background: subScale.dataColor }"
-            >
-            </div>
+            />
           </div>
         </div>
       </foreignObject>

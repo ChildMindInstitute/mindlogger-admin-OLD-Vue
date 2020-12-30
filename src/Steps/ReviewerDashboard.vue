@@ -104,125 +104,133 @@
                     v-model="panel"
                     multiple
                   >
+                    <v-expansion-panel
+                      v-for="(activity, index) in applet.activities"
+                      :key="index"
+                    >
+                      <v-expansion-panel-header>
+                        <div 
+                          v-if="!allExpanded"
+                          class="ds-expand-action"
+                          @click.stop="onAllExpand"
+                        >
+                          <v-icon 
+                            v-show="index === 0"
+                            class="ds-expand-all" 
+                            medium
+                          >
+                            mdi-chevron-up
+                          </v-icon>
+                          <v-icon 
+                            v-show="index === 0"
+                            class="ds-expand-all" 
+                            medium
+                          >
+                            mdi-chevron-down
+                          </v-icon>
+                        </div>
 
-                      <v-expansion-panel
-                        v-if="applet"
-                        v-for="(activity, index) in applet.activities"
-                        :key="index"
+                        <div 
+                          v-if="allExpanded"
+                          class="ds-expand-action"
+                          @click.stop="onAllCollapsed"
+                        >
+                          <v-icon 
+                            v-show="index === 0"
+                            class="ds-expand-all" 
+                            medium
+                          >
+                            mdi-chevron-down
+                          </v-icon>
+                          <v-icon 
+                            v-show="index === 0"
+                            class="ds-expand-all" 
+                            medium
+                          >
+                            mdi-chevron-up
+                          </v-icon>
+                        </div>
+
+                        <ActivitySummary
+                          :plot-id="`Activity-Summary-${activity.id}-${tab}`"
+                          :versions="applet.versions"
+                          :focus-extent="focusExtent"
+                          :selected-versions="selectedVersions"
+                          :has-version-bars="hasVersionBars"
+                          :timezone="applet.timezoneStr"
+                          :data="activity.responses"
+                          :label="activity.label.en || activity.description.en"
+                          :color="activity.dataColor"
+                          :latest-score="activity.getLatestActivityScore(focusExtent, selectedVersions)"
+                          :frequency="activity.getFrequency(focusExtent, selectedVersions)"
+                          :parent-width="panelWidth"
+                          :item-padding="itemPadding"
+                        />
+                      </v-expansion-panel-header>
+                      <v-expansion-panel-content
+                        v-if="activity.responses && activity.responses.length"
                       >
-                        <v-expansion-panel-header>
-                          <div 
-                            v-if="!allExpanded"
-                            class="ds-expand-action"
-                            @click.stop="onAllExpand"
-                          >
-                            <v-icon 
-                              class="ds-expand-all"
-                              v-show="index === 0" 
-                              medium
-                            > mdi-chevron-up </v-icon>
-                            <v-icon 
-                              class="ds-expand-all"
-                              v-show="index === 0" 
-                              medium
-                            > mdi-chevron-down </v-icon>
-                          </div>
+                        <h2 class="mt-4">
+                          {{ $t('responseOptions') }}
+                        </h2>
 
-                          <div 
-                            v-if="allExpanded"
-                            class="ds-expand-action"
-                            @click.stop="onAllCollapsed"
-                          >
-                            <v-icon 
-                              class="ds-expand-all"
-                              v-show="index === 0" 
-                              medium
-                            > mdi-chevron-down </v-icon>
-                            <v-icon 
-                              class="ds-expand-all"
-                              v-show="index === 0" 
-                              medium
-                            > mdi-chevron-up </v-icon>
-                          </div>
-
-                          <ActivitySummary
-                            :plot-id="`Activity-Summary-${activity.id}-${tab}`"
+                        <template
+                          v-if="tab != 'tokens' && activity.subScales.length"
+                        >
+                          <SubScaleLineChart
+                            v-if="activity.getResponseCount(focusExtent, selectedVersions) > 1"
+                            :plot-id="`subscale-line-chart-${activity.id}`"
                             :versions="applet.versions"
                             :focus-extent="focusExtent"
                             :selected-versions="selectedVersions"
                             :has-version-bars="hasVersionBars"
                             :timezone="applet.timezoneStr"
-                            :data="activity.responses"
-                            :label="activity.label.en || activity.description.en"
-                            :color="activity.dataColor"
-                            :latest-score="activity.getLatestActivityScore(focusExtent, selectedVersions)"
-                            :frequency="activity.getFrequency(focusExtent, selectedVersions)"
+                            :activity="activity"
                             :parent-width="panelWidth"
-                            :item-padding="itemPadding"
                           />
-                        </v-expansion-panel-header>
-                        <v-expansion-panel-content>
-                          <h2 class="mt-4">
-                            {{ $t('responseOptions') }}
-                          </h2>
 
+                          <SubScaleBarChart
+                            v-if="activity.getResponseCount(focusExtent, selectedVersions) == 1"
+                            :plot-id="`subscale-bar-chart-${activity.id}`"
+                            :versions="applet.versions"
+                            :focus-extent="focusExtent"
+                            :selected-versions="selectedVersions"
+                            :has-version-bars="false"
+                            :timezone="applet.timezoneStr"
+                            :activity="activity"
+                            :parent-width="panelWidth"
+                          />
+                        </template>
+
+                        <v-expansion-panels
+                          v-if="tab != 'tokens'"
+                          v-model="activity.selectedSubScales"
+                          class="mt-4 sub-scale"
+                          focusable
+                          multiple
+                        >
                           <template
-                            v-if="tab != 'tokens' && activity.subScales.length"
+                            v-for="(subScale) in activity.subScales"
                           >
-                            <SubScaleLineChart
-                              v-if="activity.getResponseCount(focusExtent, selectedVersions) > 1"
-                              :plot-id="`subscale-line-chart-${activity.id}`"
-                              :versions="applet.versions"
-                              :focus-extent="focusExtent"
-                              :selected-versions="selectedVersions"
-                              :has-version-bars="hasVersionBars"
-                              :timezone="applet.timezoneStr"
-                              :activity="activity"
-                              :parent-width="panelWidth"
-                            />
-
-                            <SubScaleBarChart
-                              v-if="activity.getResponseCount(focusExtent, selectedVersions) == 1"
-                              :plot-id="`subscale-bar-chart-${activity.id}`"
-                              :versions="applet.versions"
-                              :focus-extent="focusExtent"
-                              :selected-versions="selectedVersions"
-                              :has-version-bars="false"
-                              :timezone="applet.timezoneStr"
-                              :activity="activity"
-                              :parent-width="panelWidth"
-                            />
-                          </template>
-
-                          <v-expansion-panels
-                            v-if="tab != 'tokens'"
-                            v-model="activity.selectedSubScales"
-                            class="mt-4 sub-scale"
-                            focusable
-                            multiple
-                          >
-                            <template
-                              v-for="(subScale) in activity.subScales"
+                            <v-expansion-panel
+                              v-if="applet"
+                              :key="subScale.variableName"
                             >
-                              <v-expansion-panel
-                                v-if="applet"
-                                :key="subScale.variableName"
-                              >
-                                <v-expansion-panel-header>
-                                  <h4>
-                                    {{ subScale.variableName }}
-                                    ( latest score: {{ activity.getLatestSubScaleScore(subScale, focusExtent, selectedVersions) }} )
-                                  </h4>
-                                </v-expansion-panel-header>
+                              <v-expansion-panel-header>
+                                <h4>
+                                  {{ subScale.variableName }}
+                                  ( latest score: {{ activity.getLatestSubScaleScore(subScale, focusExtent, selectedVersions) }} )
+                                </h4>
+                              </v-expansion-panel-header>
 
-                                <v-expansion-panel-content>
-                                  <div>
+                              <v-expansion-panel-content>
+                                <div>
                                   <template
                                     v-for="item in subScale.items"
                                   >
                                     <div
-                                      class="chart-card"
                                       :key="item['id']"
+                                      class="chart-card"
                                     >
                                       <header>
                                         <h3> - {{ item.getFormattedQuestion() }}</h3>
@@ -242,61 +250,60 @@
                                       />
                                     </div>
                                   </template>
-                                  </div>
-                                </v-expansion-panel-content>
-                              </v-expansion-panel>
-                            </template>
-                          </v-expansion-panels>
-
-                          <template
-                            v-for="item in activity.items"
-                          >
-                            <div
-                              v-if="(tab == 'tokens' || !item.partOfSubScale) && (tab != 'tokens' || item.isTokenItem)"
-                              :key="item['id']"
-                              class="chart-card"
-                            >
-                              <header v-if="tab=='tokens' && item.isTokenItem || tab == 'responses'">
-                                <h3> - {{ item.getFormattedQuestion() }}</h3>
-                              </header>
-
-                              <token-chart
-                                v-if="tab=='tokens' && item.isTokenItem"
-                                :plot-id="`Token-${item['id']}`"
-                                :item="item"
-                                :timezone="applet.timezoneStr"
-                                :versions="applet.versions"
-                                :focus-extent="focusExtent"
-                                :selected-versions="selectedVersions"
-                                :has-version-bars="hasVersionBars"
-                                :parent-width="panelWidth"
-                                @onUpdateFocusExtent="onUpdateFocusExtent"
-                              />
-
-                              <RadioSlider
-                                v-if="tab == 'responses' && item.responseOptions"
-                                :plot-id="`RadioSlider-${item['id']}`"
-                                :item="item"
-                                :versions="applet.versions"
-                                :focus-extent="focusExtent"
-                                :selected-versions="selectedVersions"
-                                :timezone="applet.timezoneStr"
-                                :has-version-bars="hasVersionBars"
-                                :parent-width="panelWidth"
-                                :color="item.dataColor"
-                              />
-                            </div>
+                                </div>
+                              </v-expansion-panel-content>
+                            </v-expansion-panel>
                           </template>
-                        </v-expansion-panel-content>
-                      </v-expansion-panel>
+                        </v-expansion-panels>
 
-                      <v-expansion-panel
+                        <template
+                          v-for="item in activity.items"
+                        >
+                          <div
+                            v-if="(tab == 'tokens' || !item.partOfSubScale) && (tab != 'tokens' || item.isTokenItem)"
+                            :key="item['id']"
+                            class="chart-card"
+                          >
+                            <header v-if="tab=='tokens' && item.isTokenItem || tab == 'responses'">
+                              <h3> - {{ item.getFormattedQuestion() }}</h3>
+                            </header>
+
+                            <token-chart
+                              v-if="tab=='tokens' && item.isTokenItem"
+                              :plot-id="`Token-${item['id']}`"
+                              :item="item"
+                              :timezone="applet.timezoneStr"
+                              :versions="applet.versions"
+                              :focus-extent="focusExtent"
+                              :selected-versions="selectedVersions"
+                              :has-version-bars="hasVersionBars"
+                              :parent-width="panelWidth"
+                              @onUpdateFocusExtent="onUpdateFocusExtent"
+                            />
+
+                            <RadioSlider
+                              v-if="tab == 'responses' && item.responseOptions"
+                              :plot-id="`RadioSlider-${item['id']}`"
+                              :item="item"
+                              :versions="applet.versions"
+                              :focus-extent="focusExtent"
+                              :selected-versions="selectedVersions"
+                              :timezone="applet.timezoneStr"
+                              :has-version-bars="hasVersionBars"
+                              :parent-width="panelWidth"
+                              :color="item.dataColor"
+                            />
+                          </div>
+                        </template>
+                      </v-expansion-panel-content>
+                      <v-expansion-panel-content
                         v-else
-                        :key="activity.id"
                       >
-                        {{ $t("noDataAvailable") }}
-                      </v-expansion-panel>
-
+                        <h4 class="ma-4">
+                          {{ $t("noDataAvailable") }}
+                        </h4>
+                      </v-expansion-panel-content>
+                    </v-expansion-panel>
                   </v-expansion-panels>
                 </v-card>
               </v-tab-item>
@@ -419,9 +426,7 @@
 .activity-header {
   margin: 24px 0;
 }
-</style>
 
-<style lang="scss">  // Just for overriding styles
 .v-expansion-panel-header {
   flex-direction: row-reverse;
 }
@@ -529,7 +534,7 @@ export default {
     const { users } = this.$route.query;
 
     try {
-      this.status = "Loading applet data";
+      this.status = this.$i18n.t('loadingAppletData');
       this.applet = await Applet.fetchById(
         appletId,
         {

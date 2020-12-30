@@ -1,5 +1,9 @@
 <template>
-  <v-dialog max-width="800" :value="value" @input="$emit('input', $event)">
+  <v-dialog
+    max-width="800"
+    :value="value"
+    @input="$emit('input', $event)"
+  >
     <v-card>
       <v-card-text>
         <template>
@@ -7,32 +11,44 @@
 
           <div class="input-controls">
             <span> {{ $t('userDataStoredFor') }} </span>
-              <v-text-field
-                class="input-amount"
-                type="number"
-                v-model="settings.period"
-                :min="1"
-              />
-              <v-select
-                class="input-period"
-                v-model="settings.retention"
-                :items="periods"
-                item-text="name"
-                item-value="value"
-              />
+            <v-text-field
+              v-model="settings.period"
+              class="input-amount"
+              type="number"
+              :min="1"
+            />
+            <v-select
+              v-model="settings.retention"
+              class="input-period"
+              :items="periods"
+              item-text="name"
+              item-value="value"
+            />
           </div>
           
-          <div v-if="error" class="error mb-4">
+          <div
+            v-if="error"
+            class="error mb-4"
+          >
             {{ error }}
           </div>
         </template>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn color="primary" text @click="onClickClose()">
+        <v-btn
+          color="primary"
+          text
+          @click="onClickClose()"
+        >
           {{ $t('close') }}
         </v-btn>
-        <v-btn color="primary" text @click="onClickSubmitSettings()" :disabled="settings.period <= 0">
+        <v-btn
+          color="primary"
+          text
+          :disabled="settings.period <= 0"
+          @click="onClickSubmitSettings()"
+        >
           {{ $t('save') }}
         </v-btn>
       </v-card-actions>      
@@ -55,11 +71,7 @@ export default {
     error: {
       type: String,
       required: false,
-    }
-  },
-  computed: {
-    settings() {
-      return this.retentionSettings;
+      default: '',
     }
   },
   data: function() {
@@ -77,6 +89,11 @@ export default {
         name: this.$i18n.t('years'),
         value: 'year'
       }],
+    }
+  },
+  computed: {
+    settings() {
+      return this.retentionSettings;
     }
   },
   methods: {

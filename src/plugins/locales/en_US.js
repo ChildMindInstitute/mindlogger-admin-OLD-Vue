@@ -318,4 +318,5 @@ export default {
   weeks: 'Weeks',
   months: 'Months',
   years: 'Years',  
+  loadingAppletData: 'Loading applet data',
 };

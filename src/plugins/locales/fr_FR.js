@@ -324,4 +324,5 @@ export default {
   weeks: 'Semaines',
   months: 'Mois',
   years: 'Années',
+  loadingAppletData: `Chargement des données de l'applet`,
 };

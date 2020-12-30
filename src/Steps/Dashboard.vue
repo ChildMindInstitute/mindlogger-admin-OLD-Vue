@@ -73,6 +73,7 @@
             <UserList
               :getUserList="getUserList"
               :multiSelectionEnabled="false"
+              :currentRole="tabNameToRole[tab]"
               :reloading="tabData[tab].loading"
               @userDataReloaded="tabData[tab].loading = false"
             />
@@ -81,11 +82,12 @@
             v-else
             flat
           >
-            <EmployerList
-              :loading="tabData[tab].loading"
-              :employers="tabData[tab].list"
-              :role="tabNameToRole[tab]"
-              :hasRoleColumn="false"
+            <UserList
+              :getUserList="getUserList"
+              :multiSelectionEnabled="false"
+              :currentRole="tabNameToRole[tab]"
+              :reloading="tabData[tab].loading"
+              @userDataReloaded="tabData[tab].loading = false"
               @onEditRoleSuccessfull="onEditRoleSuccessfull"
             />
           </v-card>
@@ -176,7 +178,6 @@ import Information from "../Components/Utils/dialogs/InformationDialog.vue";
 
 import config from "../config";
 import AppletList from "../Components/Applets/AppletList";
-import EmployerList from "../Components/Users/EmployerList";
 import UserList from "../Components/Users/UserList";
 import AppletUpload from "../Components/Utils/dialogs/AppletUpload.vue";
 import AppletPassword from "../Components/Utils/dialogs/AppletPassword.vue";
@@ -191,7 +192,6 @@ export default {
     Loading,
     Information,
     AppletList,
-    EmployerList,
     AppletUpload,
     AppletPassword,
     UserList,
@@ -282,20 +282,8 @@ export default {
     onSwitchTab(tab) {
       if (tab == 'applets') {
         this.getAccountData();
-      } else if (tab == 'users') {
-        this.tabData[tab].loading = true;
       } else {
-        const role = this.tabNameToRole[tab];
-
         this.tabData[tab].loading = true;
-
-        return this.getUserList(role).then(resp => {
-          this.$set(this.tabData, tab, {
-            loading: false,
-            list: resp.data.items,
-            total: resp.data.total
-          });
-        });
       }
     },
     onEditRoleSuccessfull() {

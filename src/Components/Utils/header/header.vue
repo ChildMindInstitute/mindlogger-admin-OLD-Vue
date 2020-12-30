@@ -15,7 +15,9 @@
     <v-icon 
       v-if="currentApplet" 
       medium
-    > mdi-chevron-right </v-icon>
+    >
+      mdi-chevron-right
+    </v-icon>
     
     <v-btn
       v-if="currentApplet"
@@ -29,7 +31,9 @@
     <v-icon 
       v-if="routeName == 'ReviewerDashboard'" 
       medium
-    > mdi-chevron-right </v-icon>
+    >
+      mdi-chevron-right
+    </v-icon>
 
     <v-btn
       v-if="routeName == 'ReviewerDashboard'"

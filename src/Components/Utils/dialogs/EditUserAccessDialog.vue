@@ -115,7 +115,7 @@
         this.profileList.push({
           ...profile,
           appletId,
-          MRN: profile.MRN.match(/None \(.*\)/) ? null : profile.MRN,
+          MRN: profile.MRN || null,
           appletName: applet.name,
           manageable: applet.roles.includes('manager')
         });

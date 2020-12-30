@@ -52,7 +52,7 @@ export default {
   },
   data() {
     return {
-      user: this.userData.MRN && this.userData.MRN.match(/None \(.*\)/) ? this.userData.email : this.userData.MRN
+      user: !this.userData.MRN ? this.userData.email : this.userData.MRN
     }
   }
 };

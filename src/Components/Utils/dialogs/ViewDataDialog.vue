@@ -34,7 +34,7 @@
     text-align: left;
     margin: 5px 0px;
   }
-  /deep/ .v-btn__content {
+  .view-btn /deep/ .v-btn__content {
     width: 100%;
     white-space: break-spaces;
     text-align: center;
@@ -78,7 +78,7 @@
       for (let appletId in this.user) {
         const applet = this.currentAccount.applets.find(applet => applet.id === appletId);
         const profile = this.user[appletId];
-        const MRN = profile.MRN.match(/None \(.*\)/) ? null : profile.MRN;
+        const MRN = profile.MRN || null;
 
         this.profileList.push({
           ...profile,

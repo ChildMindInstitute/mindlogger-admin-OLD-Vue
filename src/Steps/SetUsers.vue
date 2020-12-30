@@ -19,7 +19,10 @@
           </template>
         </v-tabs>
 
-        <v-tooltip v-if="retentionSettings && retentionSettings.enabled && isManager" top>
+        <v-tooltip
+          v-if="retentionSettings && retentionSettings.enabled && isManager"
+          top
+        >
           <template v-slot:activator="{ on }">
             <v-btn
               color="primary"
@@ -71,11 +74,12 @@
             v-else
             flat
           >
-            <EmployerList
-              :loading="tabData[tab].loading"
-              :employers="tabData[tab].list"
-              :role="tabNameToRole[tab]"
-              :hasRoleColumn="true"
+            <UserList
+              :getUserList="getAppletUsers"
+              :multiSelectionEnabled="true"
+              :currentRole="tabNameToRole[tab]"
+              :reloading="tabData[tab].loading"
+              @userDataReloaded="tabData[tab].loading = false"
               @onEditRoleSuccessfull="onEditRoleSuccessfull"
             />
           </v-card>
@@ -132,7 +136,6 @@
 <script>
 import _ from 'lodash';
 
-import EmployerList from "../Components/Users/EmployerList";
 import UserList from "../Components/Users/UserList";
 
 import PendingInviteTable from '../Components/Users/PendingInviteTable.vue';
@@ -154,7 +157,6 @@ export default {
     CreateInvitationForm,
     AppletPassword,
     Information,
-    EmployerList,
     UserList,
     ResponseUpdateDialog,
     DataRetentionSettings,
@@ -319,19 +321,10 @@ export default {
             total: resp.data.length
           })
         });
-      } else if (tab === 'users') {
+      } else {
         this.tabData[tab].loading = true;
         return Promise.resolve();
       }
-      const role = this.tabNameToRole[tab];
-
-      return this.getAppletUsers(role).then(resp => {
-        this.$set(this.tabData, tab, {
-          loading: false,
-          list: resp.data.items,
-          total: resp.data.total
-        });
-      });
     },
     /**
      * Fetches the listing of users for the current applet.

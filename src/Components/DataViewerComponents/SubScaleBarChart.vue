@@ -23,12 +23,12 @@
         :transform="`translate(${(width - chartWidth) / 2}, 0)`"
       >
         <g class="x-axis">
-          <g class="main-axis"/>
-          <g class="other-axis"/>
+          <g class="main-axis" />
+          <g class="other-axis" />
         </g>
         <g class="y-axis">
-          <g class="main-axis"/>
-          <g class="other-axis"/>
+          <g class="main-axis" />
+          <g class="other-axis" />
         </g>
 
         <g class="responses" />

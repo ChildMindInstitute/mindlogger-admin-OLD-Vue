@@ -112,6 +112,7 @@ export default class Applet {
     this.subScales = data.subScales;
 
     this.insertInitialVersion();
+
     this.initMultipleChoiceStatus();
 
     for (let itemId in data.items) {
@@ -301,6 +302,12 @@ export default class Applet {
           })
         }
       }
+    }
+
+    if (!this.versions.length) {
+      this.versions.push({
+        version: '0.0.1'
+      })
     }
   }
 
