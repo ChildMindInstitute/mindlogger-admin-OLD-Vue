@@ -392,7 +392,7 @@ export default {
     margin-right: 5%;
   }
   .ds-schedule-timeout {
-    width: 50px;
+    width: 70px;
     margin-right: 0%;
   }
   .ds-timeout-body {
