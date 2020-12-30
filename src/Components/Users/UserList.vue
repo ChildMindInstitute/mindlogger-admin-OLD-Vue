@@ -4,7 +4,7 @@
       <div class="filter">
         <v-text-field
           v-model="searchText"
-          :label="$t('searchUsers')"
+          :label="currentRole == 'user' ? $t('searchUsers') : $t('searchOrganizers')"
           prepend-inner-icon="mdi-magnify"
           class="search-input"
           outlined
@@ -570,7 +570,13 @@ export default {
     },
 
     updateFilter() {
-      this.updateUserList();
+      if (this.currentRole === 'user') {
+        this.updateUserList();
+      } else {
+        this.startRow = -1;
+        this.previousEndRow = -1;
+        this.formattedUsers = this.getFormattedEmployers();
+      }
     },
 
     switchPin(row, newState) {
