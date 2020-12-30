@@ -370,7 +370,7 @@ export default {
     },
 
     userCode() {
-      return Object.values(this.$store.state.currentUsers).map(user => user.MRN).join(', ');
+      return Object.values(this.$store.state.currentUsers).map(user => user.MRN || user.email).join(', ');
     },
 
     summary() {
