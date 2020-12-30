@@ -31,7 +31,7 @@
         </div>
 
         <div class="content">
-          <div>
+          <div class="content-header">
             <div class="time-range">
               {{ $t('showingDataFrom') }}
 
@@ -101,18 +101,50 @@
               >
                 <v-card class="mb-0">
                   <v-expansion-panels
-                    v-model="applet.selectedActivites"
-                    focusable
+                    v-model="panel"
                     multiple
                   >
-                    <template
-                      v-for="(activity, index) in applet.activities"
-                    >
+
                       <v-expansion-panel
                         v-if="applet"
-                        :key="activity.id"
+                        v-for="(activity, index) in applet.activities"
+                        :key="index"
                       >
                         <v-expansion-panel-header>
+                          <div 
+                            v-if="!allExpanded"
+                            class="ds-expand-action"
+                            @click.stop="onAllExpand"
+                          >
+                            <v-icon 
+                              class="ds-expand-all"
+                              v-show="index === 0" 
+                              medium
+                            > mdi-chevron-up </v-icon>
+                            <v-icon 
+                              class="ds-expand-all"
+                              v-show="index === 0" 
+                              medium
+                            > mdi-chevron-down </v-icon>
+                          </div>
+
+                          <div 
+                            v-if="allExpanded"
+                            class="ds-expand-action"
+                            @click.stop="onAllCollapsed"
+                          >
+                            <v-icon 
+                              class="ds-expand-all"
+                              v-show="index === 0" 
+                              medium
+                            > mdi-chevron-down </v-icon>
+                            <v-icon 
+                              class="ds-expand-all"
+                              v-show="index === 0" 
+                              medium
+                            > mdi-chevron-up </v-icon>
+                          </div>
+
                           <ActivitySummary
                             :plot-id="`Activity-Summary-${activity.id}-${tab}`"
                             :versions="applet.versions"
@@ -229,7 +261,7 @@
                               </header>
 
                               <token-chart
-                                v-if="tab=='tokens' && item.isTokenItem && applet.selectedActivites.includes(index)"
+                                v-if="tab=='tokens' && item.isTokenItem"
                                 :plot-id="`Token-${item['id']}`"
                                 :item="item"
                                 :timezone="applet.timezoneStr"
@@ -242,7 +274,7 @@
                               />
 
                               <RadioSlider
-                                v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
+                                v-if="tab == 'responses' && item.responseOptions"
                                 :plot-id="`RadioSlider-${item['id']}`"
                                 :item="item"
                                 :versions="applet.versions"
@@ -264,7 +296,7 @@
                       >
                         {{ $t("noDataAvailable") }}
                       </v-expansion-panel>
-                    </template>
+
                   </v-expansion-panels>
                 </v-card>
               </v-tab-item>
@@ -277,9 +309,17 @@
 </template>
 
 <style scoped>
+.ds-expand-action {
+  display: flex;
+  flex-direction: column;
+}
+
+.ds-expand-all {
+  line-height: 12px;
+}
+
 .container {
   padding: 15px 15px 0px 15px;
-  border: 4px solid black;
   margin: auto;
 }
 
@@ -310,8 +350,15 @@
   border-top: none;
 }
 
+.content-header {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
 .time-range,
 .version {
+  display: flex;
   margin-left: 0.8rem;
   font-size: 0.8rem;
   font-weight: 600;
@@ -374,6 +421,12 @@
 }
 </style>
 
+<style lang="scss">  // Just for overriding styles
+.v-expansion-panel-header {
+  flex-direction: row-reverse;
+}
+</style>
+
 <script>
 import _ from "lodash";
 import api from "../Components/Utils/api/api.vue";
@@ -428,15 +481,17 @@ export default {
         activities: [],
         versions: [],
       },
+      allExpanded: false,
       responses: [],
       selectedTab: 0,
+      panel: [],
       tabs: ['responses', 'tokens'],
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
       hasVersionBars: false,
       panelWidth: 974,
       margin: 50,
-      itemPadding: 44
+      itemPadding: 15
     }
   },
 
@@ -445,7 +500,8 @@ export default {
    */
   computed: {
     appletVersions() {
-      return this.applet.versions.map(version => version.version)
+      const versions = this.applet.versions.map(version => version.version)
+      return [...new Set(versions)];
     },
     currentApplet() {
       return this.$store.state.currentAppletData;
@@ -535,6 +591,30 @@ export default {
         (moment.utc(date) <= moment.utc(NOW))
       );
     },
+
+    /**
+     * Expand all activities.
+     *
+     * @param {void}
+     * @return {void}
+     */
+
+    onAllExpand() {
+      this.panel = this.applet.activities.map((k, i) => i);
+      this.allExpanded = true;
+    },
+
+    /**
+     * Collapse all activities.
+     *
+     * @param {void}
+     * @return {void}
+     */
+
+    onAllCollapsed () {
+      this.panel = [];
+      this.allExpanded = false;
+    },
     /**
      * Updates the start date for the focused time range.
      *
@@ -560,7 +640,7 @@ export default {
 
     onUpdateFocusExtent(focusExtent) {
       this.$set(this, 'focusExtent', focusExtent);
-    }
+    },
   },
 };
 </script>

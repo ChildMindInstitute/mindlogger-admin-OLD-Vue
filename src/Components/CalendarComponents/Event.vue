@@ -109,12 +109,14 @@
                       <!-- absolute scheduling options below -->
                       <my-schedule
                         @onTimeout="handleTimeout"
+                        @onTimedActivity="handleTimedActivity"
                         @onIdleTime="handleIdleTime"
                         @onExtendedTime="handleExtendedTime"
                         @onCompletion="handleCompletion"
                         @onScheduledDay="handleScheduledDay"
                         :completion="completion"
                         :onlyScheduledDay="scheduledDay"
+                        :initial-timed-activity="initialTimedActivity"
                         :timeout="timeout"
                         :idle-time="idleTime"
                         :schedule="schedule"

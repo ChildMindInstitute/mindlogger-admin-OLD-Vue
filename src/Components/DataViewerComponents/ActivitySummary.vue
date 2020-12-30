@@ -4,15 +4,15 @@
   >
     <svg
       :id="plotId"
-      :width="width + itemPadding + 20"
-      :height="height + 16"
+      :width="width"
+      :height="height"
     >
       <g class="labels">
         <text
-          :y="padding.top + radius + 16/2"
-          :x="labelWidth/2"
-          :font-size="16"
-          text-anchor="middle"
+          :y="padding.top + radius + 15/2"
+          :x="15"
+          :font-size="itemPadding"
+          text-anchor="left"
           font-weight="bold"
         >
           {{ label }}
@@ -31,7 +31,7 @@
 
       <g
         class="content"
-        :transform="`translate(${labelWidth + itemPadding}, 0)`"
+        :transform="`translate(${labelWidth + itemPadding - 20}, 0)`"
       >
         <g class="x-axis" />
         <g class="versions" />
@@ -91,7 +91,7 @@ export default {
     let width = this.parentWidth - margin.left - margin.right;
 
     return {
-      height: 35,
+      height: 50,
       margin,
       width,
       labelWidth: width / 4,

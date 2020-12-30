@@ -16,7 +16,7 @@
           :font-size="15"
           text-anchor="middle"
         >
-          {{ feature.name.en }}
+          {{ compressedName(feature.name.en) }}
         </text>
       </g>
       <g
@@ -82,7 +82,6 @@ export default {
       })),
     }
   },
-
   /**
    * Handlers to be executed each time a property changes its value.
    */
@@ -128,6 +127,12 @@ export default {
 
       this.drawVersions();
       this.drawResponses();
+    },
+
+    compressedName(name) {
+      return name.length > 30
+        ? name.slice(0, 26) + ' …'
+        : name
     },
 
     drawAxes() {
