@@ -39,7 +39,7 @@
                 <template v-slot:activator="{ on }">
                   <v-btn 
                     depressed
-                    class="ds-button-tall ma-0 mb-2 fromDate"
+                    class="ds-button-tall mr-2 ml-2 mb-2 fromDate"
                     v-on="on"
                   >
                     {{ fromDate }}
@@ -60,7 +60,7 @@
                 <template v-slot:activator="{ on }">
                   <v-btn 
                     depressed
-                    class="ds-button-tall ma-0 mb-2 toDate"
+                    class="ds-button-tall mr-2 ml-2 mb-2 toDate"
                     v-on="on"
                   >
                     {{ toDate }}
@@ -77,18 +77,18 @@
             </div>
 
             <div class="version">
+              <v-checkbox
+                v-model="hasVersionBars"
+                class="version-bar"
+                :label="$t('showVersionChanges')"
+              />
+
               <v-select
                 v-model="selectedVersions"
                 class="version-list"
                 :items="appletVersions"
                 :label="$t('versions')"
                 multiple
-              />
-
-              <v-checkbox
-                v-model="hasVersionBars"
-                class="version-bar"
-                :label="$t('showVersionChanges')"
               />
             </div>
           </div>
@@ -366,6 +366,7 @@
 .time-range,
 .version {
   display: flex;
+  align-items: baseline;
   margin-left: 0.8rem;
   font-size: 0.8rem;
   font-weight: 600;
