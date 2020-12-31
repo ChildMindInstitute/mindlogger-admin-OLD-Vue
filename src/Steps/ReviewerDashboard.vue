@@ -103,6 +103,7 @@
                   <v-expansion-panels
                     v-model="panel"
                     multiple
+                    focusable
                   >
                     <v-expansion-panel
                       v-for="(activity, index) in applet.activities"
@@ -161,8 +162,8 @@
                           :data="activity.responses"
                           :label="activity.label.en || activity.description.en"
                           :color="activity.dataColor"
-                          :latest-score="activity.getLatestActivityScore(focusExtent, selectedVersions)"
-                          :frequency="activity.getFrequency(focusExtent, selectedVersions)"
+                          :latest-score="activity.getLatestActivityScore()"
+                          :frequency="activity.getFrequency()"
                           :parent-width="panelWidth"
                           :item-padding="itemPadding"
                         />
@@ -178,7 +179,7 @@
                           v-if="tab != 'tokens' && activity.subScales.length"
                         >
                           <SubScaleLineChart
-                            v-if="activity.getResponseCount(focusExtent, selectedVersions) > 1"
+                            v-if="activity.getFrequency() > 1"
                             :plot-id="`subscale-line-chart-${activity.id}`"
                             :versions="applet.versions"
                             :focus-extent="focusExtent"
@@ -190,11 +191,11 @@
                           />
 
                           <SubScaleBarChart
-                            v-if="activity.getResponseCount(focusExtent, selectedVersions) == 1"
+                            v-if="activity.getFrequency() == 1"
                             :plot-id="`subscale-bar-chart-${activity.id}`"
                             :versions="applet.versions"
                             :focus-extent="focusExtent"
-                            :selected-versions="selectedVersions"
+                            :selected-versions="appletVersions"
                             :has-version-bars="false"
                             :timezone="applet.timezoneStr"
                             :activity="activity"
@@ -219,7 +220,7 @@
                               <v-expansion-panel-header>
                                 <h4>
                                   {{ subScale.variableName }}
-                                  ( latest score: {{ activity.getLatestSubScaleScore(subScale, focusExtent, selectedVersions) }} )
+                                  ( latest score: {{ activity.getLatestSubScaleScore(subScale) }} )
                                 </h4>
                               </v-expansion-panel-header>
 
@@ -260,7 +261,7 @@
                           v-for="item in activity.items"
                         >
                           <div
-                            v-if="(tab == 'tokens' || !item.partOfSubScale) && (tab != 'tokens' || item.isTokenItem)"
+                            v-if="item.allowEdit && (tab == 'tokens' || !item.partOfSubScale) && (tab != 'tokens' || item.isTokenItem)"
                             :key="item['id']"
                             class="chart-card"
                           >

@@ -74,6 +74,8 @@ export default class Item {
     
     this.dataColor = '#8076B2';
     this.partOfSubScale = false;
+    this.allowEdit = data[ReproLib.allowEdit] && data[ReproLib.allowEdit][0] 
+      ? data[ReproLib.allowEdit][0]['@value'] : true;
   }
 
   /**

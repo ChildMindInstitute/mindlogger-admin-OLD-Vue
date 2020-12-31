@@ -82,7 +82,7 @@ export default {
       required: true,
     },
     frequency: {
-      type: String,
+      type: Number,
       required: true,
     }
   },

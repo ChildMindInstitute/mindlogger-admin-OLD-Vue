@@ -237,7 +237,7 @@ export default {
     },
 
     getValueExtent() {
-      const { min, max } = this.activity.getValueExtent(this.focusExtent, this.selectedVersions);
+      const { min, max } = this.activity.getValueExtent();
       return {
         min: Math.min(0, min),
         max: max + 10,

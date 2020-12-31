@@ -15,4 +15,5 @@ export default {
   jsExpression: 'reprolib:terms/jsExpression',
   lookupTable: 'reprolib:terms/lookupTable',
   variableName: 'reprolib:terms/variableName',
+  allowEdit: 'reprolib:terms/allowEdit',
 };
