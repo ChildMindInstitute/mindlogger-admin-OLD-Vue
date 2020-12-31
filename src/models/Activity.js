@@ -5,6 +5,7 @@ import i18n from '../core/i18n';
 import ReproLib from '../schema/ReproLib';
 import SKOS from '../schema/SKOS';
 import { RESPONSE_COLORS } from './Applet';
+import slugify from '../core/slugify';
 
 export default class Activity {
   /**
@@ -15,6 +16,7 @@ export default class Activity {
   constructor(data) {
     this.data = data;
     this.id = data['@id'];
+    this.slug = slugify(this.id);
     this.label = i18n.arrayToObject(data[SKOS.prefLabel]);
     this.description = i18n.arrayToObject(data['schema:description']);
     this.question = i18n.arrayToObject(data['schema:question']);
@@ -88,6 +90,7 @@ export default class Activity {
         lookupTable: lookupTable && lookupTable[0] && lookupTable[0]['@value'],
         variableName: variableName && variableName[0] && variableName[0]['@value'],
         dataColor: RESPONSE_COLORS[index % RESPONSE_COLORS.length],
+        slug: slugify(variableName),
       }
     })
   }

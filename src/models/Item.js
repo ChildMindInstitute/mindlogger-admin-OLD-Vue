@@ -42,6 +42,7 @@ export default class Item {
 
     this.data = data;
     this.id = data['@id'];
+    this.slug = slugify(this.id);
     this.type = data['@type'];
     this.label = i18n.arrayToObject(data[SKOS.prefLabel]);
     this.inputType = data[ReproLib.inputType][0]['@value'];

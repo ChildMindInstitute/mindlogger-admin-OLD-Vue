@@ -101,7 +101,7 @@
               >
                 <v-card class="mb-0">
                   <v-expansion-panels
-                    v-model="panel"
+                    v-model="applet.selectedActivites"
                     multiple
                     focusable
                   >
@@ -153,7 +153,7 @@
                         </div>
 
                         <ActivitySummary
-                          :plot-id="`Activity-Summary-${activity.id}-${tab}`"
+                          :plot-id="`Activity-Summary-${activity.slug}-${tab}`"
                           :versions="applet.versions"
                           :focus-extent="focusExtent"
                           :selected-versions="selectedVersions"
@@ -180,7 +180,7 @@
                         >
                           <SubScaleLineChart
                             v-if="activity.getFrequency() > 1"
-                            :plot-id="`subscale-line-chart-${activity.id}`"
+                            :plot-id="`subscale-line-chart-${activity.slug}`"
                             :versions="applet.versions"
                             :focus-extent="focusExtent"
                             :selected-versions="selectedVersions"
@@ -192,7 +192,7 @@
 
                           <SubScaleBarChart
                             v-if="activity.getFrequency() == 1"
-                            :plot-id="`subscale-bar-chart-${activity.id}`"
+                            :plot-id="`subscale-bar-chart-${activity.slug}`"
                             :versions="applet.versions"
                             :focus-extent="focusExtent"
                             :selected-versions="appletVersions"
@@ -239,7 +239,7 @@
 
                                       <RadioSlider
                                         v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
-                                        :plot-id="`RadioSlider-${subScale.variableName}-${item['id']}`"
+                                        :plot-id="`RadioSlider-${subScale.slug}-${item.slug}`"
                                         :item="item"
                                         :versions="applet.versions"
                                         :focus-extent="focusExtent"
@@ -271,7 +271,7 @@
 
                             <token-chart
                               v-if="tab=='tokens' && item.isTokenItem"
-                              :plot-id="`Token-${item['id']}`"
+                              :plot-id="`Token-${item.slug}`"
                               :item="item"
                               :timezone="applet.timezoneStr"
                               :versions="applet.versions"
@@ -283,8 +283,8 @@
                             />
 
                             <RadioSlider
-                              v-if="tab == 'responses' && item.responseOptions"
-                              :plot-id="`RadioSlider-${item['id']}`"
+                              v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
+                              :plot-id="`RadioSlider-${item.slug}`"
                               :item="item"
                               :versions="applet.versions"
                               :focus-extent="focusExtent"
@@ -607,7 +607,7 @@ export default {
      */
 
     onAllExpand() {
-      this.panel = this.applet.activities.map((k, i) => i);
+      this.$set(this.applet, 'selectedActivites', this.applet.activities.map((k, i) => i));
       this.allExpanded = true;
     },
 
@@ -619,7 +619,7 @@ export default {
      */
 
     onAllCollapsed () {
-      this.panel = [];
+      this.$set(this.applet, 'selectedActivites', [])
       this.allExpanded = false;
     },
     /**
