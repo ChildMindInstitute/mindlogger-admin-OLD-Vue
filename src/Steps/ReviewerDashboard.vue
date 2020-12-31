@@ -239,7 +239,7 @@
 
                                       <RadioSlider
                                         v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
-                                        :plot-id="`RadioSlider-${subScale.slug}-${item.slug}`"
+                                        :plot-id="`RadioSlider-${activity.slug}-${subScale.slug}-${item.slug}`"
                                         :item="item"
                                         :versions="applet.versions"
                                         :focus-extent="focusExtent"
@@ -271,7 +271,7 @@
 
                             <token-chart
                               v-if="tab=='tokens' && item.isTokenItem"
-                              :plot-id="`Token-${item.slug}`"
+                              :plot-id="`Token-${activity.slug}-${item.slug}`"
                               :item="item"
                               :timezone="applet.timezoneStr"
                               :versions="applet.versions"
@@ -284,7 +284,7 @@
 
                             <RadioSlider
                               v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
-                              :plot-id="`RadioSlider-${item.slug}`"
+                              :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
                               :item="item"
                               :versions="applet.versions"
                               :focus-extent="focusExtent"
