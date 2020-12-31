@@ -80,6 +80,21 @@
                   </template>
                   <span>{{ $t('editApplet') }}</span>
                 </v-tooltip>
+                <!-- duplicate applet -->
+                <v-tooltip
+                    v-if="item.roles.includes('editor') || item.roles.includes('manager')"
+                    top
+                >
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                        v-on="on"
+                        @click="onDuplicateApplet(item)"
+                    >
+                      <img height="24" src="@/assets/copy-clipart.png" />
+                    </v-btn>
+                  </template>
+                  <span>{{ $t('duplicateApplet') }}</span>
+                </v-tooltip>
 
                 <!-- delete applet -->
                 <v-tooltip
@@ -97,21 +112,6 @@
                   <span>{{ $t('deleteApplet') }}</span>
                 </v-tooltip>
 
-                <!-- duplicate applet -->
-                <v-tooltip
-                  v-if="item.roles.includes('editor') || item.roles.includes('manager')"
-                  top
-                >
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      v-on="on"
-                      @click="onDuplicateApplet(item)"
-                    >
-                      <v-icon>mdi-content-duplicate</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>{{ $t('duplicateApplet') }}</span>
-                </v-tooltip>
 
                 <!-- refresh applet -->
                 <v-tooltip
@@ -139,7 +139,7 @@
                       v-on="on"
                       @click="onTransferOwnership(item)"
                     >
-                      <v-icon>mdi-transfer</v-icon>
+                      <img height="24" src="@/assets/transfer-ownership.png" />
                     </v-btn>
                   </template>
                   <span>{{ $t('transferOwnership') }}</span>
@@ -294,7 +294,7 @@
   </div>
 </template>
 
-<style scoped>
+<style >
   .cell {
     text-align: center;
   }
@@ -308,7 +308,6 @@
     font-weight: 600;
     margin-left: 20px;
   }
-
   @media only screen and (max-width: 767px) {
     .filter .search-input {
       width: 80%;
@@ -381,21 +380,21 @@ export default {
       headers: [
         {
           text: this.$i18n.t('appletName'),
-          align: 'center',
+          align: 'left',
           sortable: true,
           value: 'name',
           width: '25%',
         },
         {
           text: this.$i18n.t('lastEdit'),
-          align: 'center',
+          align: 'left',
           sortable: true,
           value: 'updated',
           width: '30%'
         },
         {
           text: '',
-          align: 'center',
+          align: 'left',
           sortable: false,
           value: 'manage'
         }
