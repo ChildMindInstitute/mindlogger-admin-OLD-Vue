@@ -116,28 +116,6 @@ export default {
     /**
      * colors for the activities, to show on the left hand bar
      */
-    colors: [
-      "Orange",
-      "Deep Purple",
-      "Red",
-      "Light Blue",
-      "Pink",
-      "Glue",
-      "Light Green",
-      "Blue Gray",
-      "Green",
-      "Yellow",
-      "Teal",
-      "Brown",
-      "Indigo",
-      "Amber",
-      "Cyan",
-      "Gray",
-      "Blue",
-      "Purple",
-      "Lime",
-      "Deep Orange",
-    ],
     dialog: false,
     loading: true,
     saveSuccess: false,
@@ -156,7 +134,7 @@ export default {
         return _.map(this.currentAppletData.activities, (a, URI) => {
           const name =
             a["http://www.w3.org/2004/02/skos/core#prefLabel"][0]["@value"];
-          const color = this.colors[index];
+          const color = this.$dayspan.colors[index].text;
           index += 1;
           addActivityColor(a._id, color); // add the activity color
           return {
