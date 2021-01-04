@@ -247,7 +247,7 @@ export default {
 
         /** manager can delete anyone except other managers, coordinator can only delete users */
         if (
-          applet.roles.includes('coordinator') && !profile.roles.includes('owner') &&
+          profile.roles && applet.roles.includes('coordinator') && !profile.roles.includes('owner') &&
           (
             applet.roles.includes('owner') || 
             (!applet.roles.includes('manager') && profile.roles.length == 1 || applet.roles.includes('manager') && !profile.roles.includes('manager'))
@@ -263,7 +263,7 @@ export default {
 
         /** manager can update others' roles */
         if (
-          !profile.roles.includes('owner') && 
+          profile.roles && !profile.roles.includes('owner') && 
           (!profile.roles.includes('manager') || applet.roles.includes('owner'))
         ) {
           editable.push(appletId);
