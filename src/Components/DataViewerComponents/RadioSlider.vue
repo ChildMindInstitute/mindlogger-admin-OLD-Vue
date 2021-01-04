@@ -179,7 +179,7 @@ export default {
       for (let response of this.data) {
         let x = -1, y = -1;
         for (let feature of this.features) {
-          if (response[feature.slug]) {
+          if (response[feature.slug] !== undefined) {
             x = this.x(response.date);
             y = this.radius + this.padding.top + this.heightPerFeature * feature.index;
 

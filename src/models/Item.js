@@ -254,9 +254,9 @@ export default class Item {
       data: this.responses.map(response => {
         let formatted = { ...response };
 
-        for (let choice of this.responseOptions) {
-          if (formatted[choice.id]) {
-            formatted[slugify(choice.name.en)] = formatted[choice.id];
+        for (let choice of features) {
+          if (formatted[choice.id] !== undefined) {
+            formatted[choice.slug] = formatted[choice.id];
 
             delete formatted[choice.id];
           }
