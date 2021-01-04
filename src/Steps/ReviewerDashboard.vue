@@ -311,7 +311,6 @@
                         >
                           {{ $t("noTokenDataAvailable") }}
                         </h4>
-
                       </v-expansion-panel-content>
                     </v-expansion-panel>
                   </v-expansion-panels>

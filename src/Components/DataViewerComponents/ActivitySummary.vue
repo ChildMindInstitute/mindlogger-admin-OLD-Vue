@@ -97,6 +97,13 @@ export default {
       labelWidth: width / 4,
     }
   },
+  computed: {
+    compressedLabel() {
+      return this.label.length > 28
+        ? this.label.slice(0, 25) + ' …'
+        : this.label
+    }
+  },
 
   /**
    * Handlers to be executed each time a property changes its value.
@@ -182,13 +189,6 @@ export default {
         .attr('cy', this.radius + this.padding.top)
         .attr('r', d => this.x(d.date) >= 0 ? this.radius : 0);
     },
-  },
-  computed: {
-    compressedLabel() {
-      return this.label.length > 28
-        ? this.label.slice(0, 25) + ' …'
-        : this.label
-    }
   }
 }
 </script>

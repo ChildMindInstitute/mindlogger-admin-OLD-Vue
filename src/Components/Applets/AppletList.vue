@@ -82,15 +82,18 @@
                 </v-tooltip>
                 <!-- duplicate applet -->
                 <v-tooltip
-                    v-if="item.roles.includes('editor') || item.roles.includes('manager')"
-                    top
+                  v-if="item.roles.includes('editor') || item.roles.includes('manager')"
+                  top
                 >
                   <template v-slot:activator="{ on }">
                     <v-btn
-                        v-on="on"
-                        @click="onDuplicateApplet(item)"
+                      v-on="on"
+                      @click="onDuplicateApplet(item)"
                     >
-                      <img height="24" src="@/assets/copy-clipart.png" />
+                      <img
+                        height="24"
+                        src="@/assets/copy-clipart.png"
+                      >
                     </v-btn>
                   </template>
                   <span>{{ $t('duplicateApplet') }}</span>
@@ -139,7 +142,10 @@
                       v-on="on"
                       @click="onTransferOwnership(item)"
                     >
-                      <img height="24" src="@/assets/transfer-ownership.png" />
+                      <img
+                        height="24"
+                        src="@/assets/transfer-ownership.png"
+                      >
                     </v-btn>
                   </template>
                   <span>{{ $t('transferOwnership') }}</span>
