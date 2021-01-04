@@ -6,7 +6,6 @@ Vue.use(Vuex);
 import { Store } from 'vuex';
 import _ from 'lodash';
 import createPersistedState from 'vuex-persistedstate';
-import api from '../Components/Utils/api/api.vue';
 
 const getDefaultState = () => {
   return {
@@ -14,17 +13,20 @@ const getDefaultState = () => {
     currentAccount: {},
     currentApplets: [],
     ownerAccount: {},
-    allApplets: [],
+    allApplets: {},
     allAccounts: [],
     cachedEvents: [],
-    currentApplet: {},
+    currentAppletMeta: null,
+    currentAppletData: null,
     removedEvents: [],
     updatedEvents: [],
     auth: {},
     continue: {},
-    currentUsers: [],
+    currentUsers: {},
     userEmail: '',
     users: {},
+    pinned: {
+    },
     currentLanguage: 'en_US',
     currentRetentions: null,
   };
@@ -69,96 +71,61 @@ const mutations = {
     state.allAccounts = accounts;
   },
   switchAccount(state, account) {
-    const accounts = [];
-    const appletIdArray = [];
     state.currentAccount = account;
 
-    Object.keys(account.applets).forEach((key, index) => {
-      if (account.applets[key] && account.applets[key].length) {
-        account.applets[key].forEach((appletId, index) => {
-          if (!appletIdArray.includes(appletId, 0)) {
-            appletIdArray.push(appletId);
-            accounts.push({
-              appletId,
-              allEvent:
-                key === 'manager' || key === 'coordinator' ? true : false,
-            });
-          }
-        });
+    /** handle deleted applets */
+    Object.keys(state.allApplets).forEach(appletId => {
+      if (state.allApplets[appletId].accountId === account.accountId) {
+        if (!account.applets.some((applet) => applet.id === appletId)) {
+          delete state.allApplets[appletId];
+        }
       }
-    });
-    state.currentApplets = accounts;
+    })
   },
-  setCurrentApplet(state, protocol) {
-    if (protocol) {
-      state.currentApplet = protocol;
+  setCurrentApplet(state, applet) {
+    if (applet) {
+      state.currentAppletMeta = applet;
+      if (applet.id && state.allApplets[applet.id]) {
+        state.currentAppletData = state.allApplets[applet.id];
+      }
+    } else {
+      state.currentAppletMeta = null;
+      state.currentAppletData = null;
     }
   },
 
   setAppletPrivateKey(state, { appletId, key }) {
-    for (let applet of state.allApplets) {
-      if (applet.applet._id == appletId) {
-        if (applet.applet.encryption) {
-          applet.applet.encryption.appletPrivateKey = key;
-        }
-      }
+    const applet = state.allApplets[appletId];
+
+    if (applet && applet.applet.encryption) {
+      applet.applet.encryption.appletPrivateKey = key;
     }
   },
 
   updateAppletData(state, applet) {
-    for (let i = 0; i < state.allApplets.length; i++) {
-      if (state.allApplets[i].applet._id == applet.applet._id) {
-        state.allApplets[i] = applet;
+    const appletID = applet.applet._id.split('/')[1]
 
-        if (
-          state.currentApplet.applet &&
-          state.currentApplet.applet._id == applet.applet._id
-        ) {
-          state.currentApplet = applet;
-        }
-      }
+    state.allApplets[appletID] = applet;
+
+    if (state.currentAppletMeta && appletID === state.currentAppletMeta.id) {
+      state.currentAppletData = applet;
     }
-  },
-
-  setAllApplets(state, protocols) {
-    state.allApplets = protocols;
-  },
-
-  updateAllApplets(state) {
-    const currentApplets = state.currentAccount.applets;
-    const protocols = state.allApplets;
-    const requests = [];
-
-    protocols.forEach((protocol, i) => {
-      const appletId = protocol.applet._id.split('applet/')[1];
-
-      state.allApplets[i].roles = [];
-
-      Object.keys(currentApplets).forEach((key, index) => {
-        if (currentApplets[key] && currentApplets[key].length) {
-          currentApplets[key].forEach((id, index) => {
-            if (appletId === id && key !== 'user') {
-              state.allApplets[i].roles.push(key);
-            }
-          });
-        }
-      });
-    });
-    Promise.all(requests).then();
   },
 
   setApplet(state, applet) {
     if (applet) {
-      state.currentApplet.applet = applet;
+      state.currentAppletMeta.applet = applet;
     }
   },
   setAuth(state, userData) {
     state.auth = userData.auth;
+
     if (userData.auth.account) {
       state.currentAccount = userData.auth.account;
       state.currentApplets = userData.auth.account.applets.owner;
       state.ownerAccount = userData.auth.account;
     }
+
     state.userEmail = userData.email;
   },
   setCachedEvents(state, events) {
@@ -167,29 +134,23 @@ const mutations = {
     }
   },
   setSchedule(state, schedule) {
-    if (!_.isEmpty(state.currentApplet)) {
-      // TODO: this sucks.
-      state.currentApplet.applet.schedule = schedule;
-      // update this in the copy too.
-      //state.currentApplet = {...state.currentApplet, schedule };
+    if (state.currentAppletMeta && !_.isEmpty(state.currentAppletMeta)) {
+      state.currentAppletData.applet.schedule = schedule;
     }
   },
   setGroups(state, groups) {
-    // TODO: this sucks.
-    const idx = _.findIndex(
-      state.allApplets,
-      (a) =>
-        a.applet['skos:prefLabel'] ==
-        state.currentApplet.applet['skos:prefLabel']
-    );
-    if (idx > -1) {
-      state.allApplets[idx].groups = groups;
-    }
-    // update this in the copy too.
-    state.currentApplet = { ...state.currentApplet, groups };
+    state.currentAppletData.groups = groups;
   },
   setCurrentUsers(state, users) {
     state.currentUsers = users;
+  },
+  selectUser(state, user) {
+    state.currentUsers[user['_id']] = user;
+  },
+  unSelectUser(state, user) {
+    if (state.currentUsers[user['_id']]) {
+      delete state.currentUsers[user['_id']];
+    }
   },
   setUsers(state, newUsers) {
     state.users = newUsers;
@@ -210,7 +171,6 @@ const mutations = {
 
 const stateCopy = (({ 
   // Excluded properties.
-  allApplets, 
   currentLanguage,
   ...o
 }) => o)(state);

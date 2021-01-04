@@ -1,7 +1,11 @@
 <template>
   <div class="ds-expand ds-calendar-app">
-    <v-content class="ds-expand">
+    <v-content class="ds-expand pt-0">
+      <div class="calendar-header text-center pa-1">
+        <h4>{{$t(ownerType+"Schedule")}} - {{appletName}} {{ownerType === 'Group' ? "" : `for ${userCode}` }}</h4>
+      </div>
       <v-container fluid class="ds-calendar-container" style="height: 100%;">
+
         <!-- top controls -->
         <div class="top-controls">
           <v-tooltip bottom color="secondary">
@@ -281,7 +285,7 @@ export default {
     types: {
       type: Array,
       default() {
-        return this.$dsDefaults().types;
+        return this.$dsDefaults().types.filter((type) => type.shortcut !== 'S' && type.shortcut !== 'X');
       }
     },
     allowsAddToday: {
@@ -343,6 +347,9 @@ export default {
   }),
 
   computed: {
+    ownerType() {
+      return Object.keys(this.$store.state.currentUsers).length ? 'individual' : 'Group';
+    },
     currentType: {
       get() {
         return (
@@ -355,7 +362,15 @@ export default {
       },
       set(type) {
         this.rebuild(undefined, true, type);
-      }
+      },
+    },
+
+    appletName() {
+      return this.$store.state.currentAppletMeta.name;
+    },
+
+    userCode() {
+      return Object.values(this.$store.state.currentUsers).map(user => user.MRN || user.email).join(', ');
     },
 
     summary() {
@@ -782,5 +797,9 @@ export default {
   display: flex;
   height: 50px;
   align-items: center;
+}
+
+.calendar-header {
+  border:2px solid #ccc;
 }
 </style>

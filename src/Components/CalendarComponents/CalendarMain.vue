@@ -18,6 +18,7 @@
       <template slot="eventCreatePopover" slot-scope="{placeholder, calendar, close}">
         <calendar-event-create-popover
           :calendar-event="placeholder"
+          :move-to-dialog="true"
           :calendar="calendar"
           :close="$refs.app.$refs.calendar.clearPlaceholder"
           :activities="activities"
@@ -96,18 +97,18 @@ export default {
 
   computed: {
     currentApplet() {
-      return this.$store.state.currentApplet;
+      return this.$store.state.currentAppletData;
     },
 
     currentAppletName() {
       if (!_.isEmpty(this.currentApplet)) {
-        return this.$store.state.currentApplet.applet["skos:prefLabel"];
+        return this.$store.state.currentAppletData.applet["skos:prefLabel"];
       }
     },
 
     currentSchedule() {
       if (this.currentApplet) {
-        return this.$store.state.currentApplet.applet.schedule || null;
+        return this.$store.state.currentAppletData.applet.schedule || null;
       }
     }
   },
@@ -159,7 +160,7 @@ export default {
       let newStateEvents = [];
       if (state && storeState) {
         try {
-          const currentId = this.$store.state.currentApplet.applet._id;
+          const currentId = this.$store.state.currentAppletData.applet._id;
           oldStateEvents = this.$store.state.cachedEvents;
         } catch {}
         newStateEvents = state.events;
@@ -210,7 +211,7 @@ export default {
       try {
         let savedState = null;
         if (!_.isEmpty(this.currentApplet)) {
-          savedState = this.$store.state.currentApplet.applet.schedule || null;
+          savedState = this.$store.state.currentAppletData.applet.schedule || null;
         }
 
         if (savedState) {
@@ -225,7 +226,6 @@ export default {
       if (!state.events || !state.events.length) {
         state.events = this.defaultEvents;
       }
-
       state.events.forEach(ev => {
         let defaults = this.$dayspan.getDefaultEventDetails();
 

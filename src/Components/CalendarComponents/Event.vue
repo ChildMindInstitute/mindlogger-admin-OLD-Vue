@@ -1,5 +1,5 @@
 <template>
-  <v-card class="elevation-12 ds-event" :class="classes">
+  <v-card class="elevation-12 ds-event no-scroll" :class="classes">
     <v-toolbar color="primary" dark flat>
       <div v-if="hasCancel" class="ds-event-cancel">
         <!-- Cancel -->
@@ -28,7 +28,7 @@
         />
       </slot>
 
-      <div class="ds-event-actions">
+      <div class="ds-event-actions" style="display: flex">
         <!-- Save -->
         <slot name="scheduleSave" v-bind="{ hasSave, save, labels, readOnly }">
           <v-btn
@@ -72,33 +72,11 @@
     </v-toolbar>
 
     <v-card-text class="ds-event-details">
-      <div class="ds-event-body ds-event-area">
-        <slot name="schedule" v-bind="slotData">
-          <!-- absolute scheduling options below -->
-          <my-schedule
-            @onTimeout="handleTimeout"
-            @onTimedActivity="handleTimedActivity"
-            @onIdleTime="handleIdleTime"
-            @onExtendedTime="handleExtendedTime"
-            @onCompletion="handleCompletion"
-            @onScheduledDay="handleScheduledDay"
-            :completion="completion"
-            :onlyScheduledDay="scheduledDay"
-            :initial-timed-activity="initialTimedActivity"
-            :timeout="timeout"
-            :idle-time="idleTime"
-            :schedule="schedule"
-            :day="day"
-            :read-only="readOnly"
-            :extended-time="extendedTime"
-            :is-timeout-valid="isTimeoutValid"
-          />
-        </slot>
-      </div>
+      
 
       <!-- Tabs -->
       <v-layout v-if="hasTabs">
-        <v-flex xs12 class="mt-2">
+        <v-flex xs12 >
           <v-tabs v-model="tab" class="text--primary">
             <v-tab v-if="hasDetails" href="#details">
               {{ labels.tabs.details }}
@@ -126,9 +104,29 @@
             <v-tab-item v-if="hasDetails" value="details">
               <v-card text>
                 <v-card-text>
-                  {{ details }}
-                  <br />
-                  <br />
+                  <div class="ds-event-body ds-event-area">
+                    <slot name="schedule" v-bind="slotData">
+                      <!-- absolute scheduling options below -->
+                      <my-schedule
+                        @onTimeout="handleTimeout"
+                        @onTimedActivity="handleTimedActivity"
+                        @onIdleTime="handleIdleTime"
+                        @onExtendedTime="handleExtendedTime"
+                        @onCompletion="handleCompletion"
+                        @onScheduledDay="handleScheduledDay"
+                        :completion="completion"
+                        :onlyScheduledDay="scheduledDay"
+                        :initial-timed-activity="initialTimedActivity"
+                        :timeout="timeout"
+                        :idle-time="idleTime"
+                        :schedule="schedule"
+                        :day="day"
+                        :read-only="readOnly"
+                        :extended-time="extendedTime"
+                        :is-timeout-valid="isTimeoutValid"
+                      />
+                    </slot>
+                  </div>
                   <!-- Max number of responses -->
                   <!-- max # of responses
                   <v-text-field
@@ -238,7 +236,7 @@ import ScheduleModifier from "./ScheduleModifier";
 import ScheduleForecast from "./ScheduleForecast";
 import ScheduleActions from "./ScheduleActions";
 import mySchedule from "./Schedule";
-
+import {addActivityColor, getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
 export default {
   name: "dsEvent",
 
@@ -542,11 +540,22 @@ export default {
     },
     title() {
       const res = _.filter(this.activities, (a) => a.name === this.title);
-      this.details.URI = res[0].URI;
+      if (res.length)
+      {
+        this.details.URI = res[0].URI;
+        const activityColor = getEventColor(res[0].id)
+        if(activityColor)
+        {
+          this.details.color = this.getHexColor(activityColor)
+        }
+      }
     },
   },
 
   methods: {
+    getHexColor(colorName) {
+      return _.filter(this.$dayspan.colors, c => c.text === colorName)[0].value;
+    },
     async remove(eventId) {
       const res = await this.$dialog.warning({
         title: "",
@@ -789,8 +798,8 @@ export default {
         evDetails.idleTime = this.scheduledIdleTime;
       }
 
-      if (this.$store.state.currentUsers.length) {
-        evDetails.users = this.$store.state.currentUsers;
+      if (Object.keys(this.$store.state.currentUsers).length) {
+        evDetails.users = Object.keys(this.$store.state.currentUsers);
       }
       return fn.extend(
         {
@@ -834,12 +843,6 @@ export default {
 }
 
 .ds-event {
-  &.ds-has-cancel {
-    .ds-event-area {
-      margin-left: 60px;
-    }
-  }
-
   &.ds-event-small {
     &.ds-has-cancel {
       .ds-event-area {
@@ -864,7 +867,7 @@ export default {
   }
 
   .ds-event-details {
-    max-height: 580px;
+    max-height: 500px;
     overflow-y: auto;
   }
 

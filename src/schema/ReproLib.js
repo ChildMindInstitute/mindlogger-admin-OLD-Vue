@@ -11,4 +11,9 @@ export default {
   preable: 'reprolib:terms/preable',
   timeUnit: 'reprolib:terms/timeUnit',
   scoring: 'reprolib:terms/scoring',
+  subScales: 'reprolib:terms/subScales',
+  jsExpression: 'reprolib:terms/jsExpression',
+  lookupTable: 'reprolib:terms/lookupTable',
+  variableName: 'reprolib:terms/variableName',
+  allowEdit: 'reprolib:terms/allowEdit',
 };

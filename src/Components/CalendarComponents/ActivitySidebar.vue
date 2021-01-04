@@ -4,7 +4,7 @@
       dark
       :color="color"
     >
-      <v-card-title class="name">{{ activity.name }}</v-card-title>
+      <v-card-text class="name pa-2">{{ activity.name }}</v-card-text>
     </v-card>
   </div>
 </template>

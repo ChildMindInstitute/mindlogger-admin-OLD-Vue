@@ -11,9 +11,12 @@ import Item from './Item';
 import ReproLib from '../schema/ReproLib';
 import SKOS from '../schema/SKOS';
 import encryptionUtils from '../Components/Utils/encryption/encryption.vue'
-import { tickFormat } from 'd3';
 
-import * as moment from 'moment';
+export const RESPONSE_COLORS = [
+  '#1C7AB3',
+  '#FF7F1F',
+  '#41A549'
+];
 
 export default class Applet {
   /**
@@ -33,8 +36,12 @@ export default class Applet {
     this.landingPage = i18n.arrayToObject(data.applet[ReproLib.landingPage]);
     //this.shuffle = data.applet[ReproLib.shuffle]['@value'];
     this.url = data.applet['url'];
+    this.timezoneStr = '+00:00';
     this.activities = [];
     this.responses = {};
+    this.subScales = {};
+
+    this.selectedActivites = [];
 
     // Load items.
     this.items = Object
@@ -45,6 +52,7 @@ export default class Applet {
           item.schemas = [itemId];
 
           return {
+            ...items,
             [itemId]: item,
           }
         },
@@ -59,13 +67,13 @@ export default class Applet {
    *
    * @return {void}.
    */
-  async fetchActivities() {
+  addActivites() {
     let activity = null;
 
     for (let activityId in this.data.activities) {
-      activity = await Activity.fetchById(this.data.activities[activityId]._id);
+      activity = new Activity(this.data.activities[activityId]);
       activity.items = activity.order.map(itemId => this.items[itemId]);
-
+      activity.hasTokenItem = activity.items.some(item => item.isTokenItem);
       this.activities.push(activity);
     }
   }
@@ -86,12 +94,35 @@ export default class Applet {
 
     if (this.encryption) {
       Applet.replaceItemValues(Applet.decryptResponses(data, this.encryption));
+
+      for (let activityId in data.subScales) {
+        for (let subScaleName in data.subScales[activityId]) {
+          let subScales = data.subScales[activityId][subScaleName];
+
+          for (let subScale of subScales) {
+            if (subScale.value && subScale.value.ptr !== undefined && subScale.value.src !== undefined) {
+              subScale.value = data.subScaleSources[subScale.value.src].data[subScale.value.ptr];
+            }
+          }
+        }
+      }
     }
+
+    this.responses = data.responses;
+    this.subScales = data.subScales;
+
+    this.insertInitialVersion();
+
+    this.initMultipleChoiceStatus();
 
     for (let itemId in data.items) {
-      data.items[itemId] = new Item(data.items[itemId])
+      data.items[itemId] = new Item({
+        ...data.items[itemId],
+        _id: `screen/${data.items[itemId].original.screenId}`
+      });
     }
 
+    /** manage version controlling ( handle updated items, removed/added items and activites) */
     for (let version in data.itemReferences) {
       for (let key in data.itemReferences[version]) {
         if (!data.itemReferences[version][key]) {
@@ -103,27 +134,65 @@ export default class Applet {
 
         const currentItem = Object.values(this.items).find(item => item.data._id.split('/').pop() === oldItem.data.original.screenId)
 
-        data.itemReferences[version][key] = oldItem;
+        if (!currentItem) {
+          /** in case item was removed by editor */
 
-        if (currentItem.schemas.indexOf(key) < 0) {
-          currentItem.schemas.push(key);
-          this.items[key] = currentItem;
-        }
+          this.items[key] = oldItem;
 
-        oldItem.responseOptions.forEach(oldOption => {
-          const existing = currentItem.responseOptions.find(currentOption => currentOption.id === oldOption.id);
-          if (!existing) {
-            const index = currentItem.appendResponseOption(oldOption);
+          this.items[key].schemas = [key];
 
-            currentItem.valueMapping[version] = currentItem.valueMapping[version] || {};
-            currentItem.valueMapping[version][oldOption.value] = index;
-            currentItem.valueMapping[version][Object.values(oldOption.name)[0]] = index;
+          let currentActivity = this.activities.find(activity => activity.data._id.split('/').pop() === oldItem.data.original.activityId);
+
+          if (currentActivity) {
+            /** in case activity exists but only item was removed */
+            currentActivity.items.push(this.items[key]);
+          } else {
+            /** in case activity was removed by editor */
+            let activity = data.activities[oldItem.data.activityId];
+
+            currentActivity = new Activity({
+              ...activity,
+              _id: `activity/${activity.original.activityId}`
+            });
+
+            currentActivity.items.push(oldItem);
+
+            this.activities.push(currentActivity);
           }
-        })
+
+          oldItem.multiChoiceStatusByVersion[version] = oldItem.isMultipleChoice;
+        } else {
+          /** in case item was updated by editor */
+
+          data.itemReferences[version][key] = oldItem;
+
+          if (currentItem.schemas.indexOf(key) < 0) {
+            currentItem.schemas.push(key);
+            this.items[key] = currentItem;
+          }
+
+          if (oldItem.responseOptions) {
+            currentItem.responseOptions = currentItem.responseOptions || [];
+
+            oldItem.responseOptions.forEach(oldOption => {
+              const existing = currentItem.responseOptions.find(currentOption => currentOption.id === oldOption.id);
+
+              if (!existing) {
+                const index = currentItem.appendResponseOption(oldOption);
+
+                currentItem.valueMapping[version] = currentItem.valueMapping[version] || {};
+                currentItem.valueMapping[version][oldOption.value] = index;
+                currentItem.valueMapping[version][Object.values(oldOption.name)[0]] = index;
+              }
+            })
+
+            currentItem.multiChoiceStatusByVersion[version] = oldItem.isMultipleChoice;
+          }
+        }
       }
     }
 
-
+    /** sort data responses according to date/versions */
     let itemIDGroup = Object.keys(data.responses);
     itemIDGroup = itemIDGroup.filter(id => id.startsWith('https://')).concat(itemIDGroup.filter(id => !id.startsWith('https://')));
 
@@ -132,10 +201,10 @@ export default class Applet {
       /** sort data responses according to date/versions */
       data.responses[itemId].forEach(resp => {
         if (resp.value.length) {
-          this.items[itemId].timezoneStr = resp.date.substr(-6);
+          this.timezoneStr = resp.date.substr(-6);
         }
 
-        resp.date = resp.date.substr(0, 10);
+        resp.date = resp.date.slice(0, -6);
       });
 
       data.responses[itemId].sort((resp1, resp2) => {
@@ -144,37 +213,64 @@ export default class Applet {
 
         return resp1.version && resp2.version && Applet.compareVersions(resp1.version, resp2.version);
       });
+    }
 
-      /** merge responses with same version/date */
-      let merged = [], last = null;
-
-      data.responses[itemId].forEach(resp => {
-        if (last && resp.date == last.date && resp.version == last.version) {
-          last.value.push(...resp.value);
-        } else {
-          const item = this.items[itemId];
-
-          if (resp.version) {
-            item.dateToVersions[resp.date] = item.dateToVersions[resp.date] || [];
-            item.dateToVersions[resp.date].push(resp.version);
-
-            resp.barIndex = item.dateToVersions[resp.date].length-1;
-          }
-
-          merged.push(resp);
-
-          last = resp;
-        }
-      });
-
-      data.responses[itemId] = merged;
+    /** append responses */
+    for (let itemId of itemIDGroup) {
+      if (this.items[itemId].responseOptions) {
+        this.items[itemId].appendResponses(data.responses[itemId]);
+      }
     }
 
     for (let itemId of itemIDGroup) {
-      this.items[itemId].appendResponses(data.responses[itemId]);
+      let previousStatus = null;
+      let status = this.items[itemId].multiChoiceStatusByVersion;
+
+      for (let i = 0; i < this.versions.length; i++) {
+        let version = this.versions[i].version;
+
+        if (status[version] !== undefined) {
+          previousStatus = status[version];
+        } else if (previousStatus !== null) {
+          status[version] = previousStatus;
+        }
+      }
     }
 
-    this.responses = data.responses;
+    for (let i = 0; i < itemIDGroup.length; i++) {
+      this.items[itemIDGroup[i]].dataColor = RESPONSE_COLORS[i % RESPONSE_COLORS.length];
+    }
+    for (let i = 0; i < this.activities.length; i++) {
+      this.activities[i].dataColor = RESPONSE_COLORS[i % RESPONSE_COLORS.length];
+    }
+
+    /** save responses in activity model */
+    for (let activity of this.activities) {
+      activity.responses = [];
+
+      for (let item of activity.items) {
+        activity.responses.push(...item.responses.map(response => ({
+          date: response.date,
+          version: response.version
+        })));
+      }
+
+      activity.responses.sort((resp1, resp2) => {
+        if (resp1.date < resp2.date) return -1;
+        if (resp1.date > resp2.date) return 1;
+
+        return 0;
+      })
+
+      activity.responses = activity.responses.filter((resp, index) => activity.responses.findIndex(value => value.date.toString() == resp.date.toString() && value.version == resp.version) == index);
+    }
+
+    for (let activity of this.activities) {
+      activity.initSubScaleItems();
+
+      const activityId = activity.data._id.split('/')[1];
+      activity.addSubScaleValues(this.subScales[activityId] || {});
+    }
   }
 
   async fetchVersions() {
@@ -187,6 +283,10 @@ export default class Applet {
     });
 
     this.versions = data;
+
+    this.versions = this.versions.filter((version, index) => 
+      this.versions.findIndex(d => d.version == version.version) === index
+    );
   }
 
   insertInitialVersion() {
@@ -202,6 +302,20 @@ export default class Applet {
           })
         }
       }
+    }
+
+    if (!this.versions.length) {
+      this.versions.push({
+        version: '0.0.1'
+      })
+    }
+  }
+
+  initMultipleChoiceStatus() {
+    for (let itemId in this.items) {
+      this.items[itemId].multiChoiceStatusByVersion[
+        this.versions[0].version
+      ] = this.items[itemId].isMultipleChoice;
     }
   }
 
@@ -330,12 +444,11 @@ export default class Applet {
       }
 
       if (opts.withActivities) {
-        await applet.fetchActivities();
+        applet.addActivites();
       }
 
       if (opts.withResponses) {
         await applet.fetchResponses(opts.users);
-        applet.insertInitialVersion();
       }
 
       if (applet.versions) {

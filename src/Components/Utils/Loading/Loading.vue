@@ -1,6 +1,9 @@
 <template>
   <v-container fluid>
-    <v-layout align-center column>
+    <v-layout
+      align-center
+      column
+    >
       <h1>
         {{ $t("loadingApplets") }}
       </h1>
@@ -10,7 +13,10 @@
         <a href="https://github.com/ReproNim/reproschema">reusable surveys</a>
         along with study-specific settings, like your users and schedule. -->
       </p>
-      <v-progress-circular color="primary" indeterminate />
+      <v-progress-circular
+        color="primary"
+        indeterminate
+      />
     </v-layout>
   </v-container>
 </template>

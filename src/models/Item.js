@@ -4,7 +4,7 @@ import moment from 'moment';
 import i18n from '../core/i18n';
 import ReproLib from '../schema/ReproLib';
 import SKOS from '../schema/SKOS';
-
+import slugify from '../core/slugify';
 
 export default class Item {
   /**
@@ -42,16 +42,17 @@ export default class Item {
 
     this.data = data;
     this.id = data['@id'];
+    this.slug = slugify(this.id);
     this.type = data['@type'];
     this.label = i18n.arrayToObject(data[SKOS.prefLabel]);
     this.inputType = data[ReproLib.inputType][0]['@value'];
     this.url = data['schema:url'];
     this.description = i18n.arrayToObject(data['schema:description']);
+    this.question = i18n.arrayToObject(data['schema:question']);
     this.version = data['schema:version'] && i18n.arrayToObject(data['schema:version']);
     this.schemaVersion = data['schema:schemaVersion'] && i18n.arrayToObject(data['schema:schemaVersion']);
     this.responseOptions = this.parseResponseOptions(data[ReproLib.responseOptions]);
     this.responses = [];
-    this.timezoneStr = '+00:00';
     this.maxValue = data[ReproLib.responseOptions] && 'schema:maxValue' in data[ReproLib.responseOptions][0]
       ? data[ReproLib.responseOptions][0]['schema:maxValue'][0]['@value']
       : 0;
@@ -64,8 +65,18 @@ export default class Item {
       data: [],
     };
     this.dateToVersions = {};
+    this.multiChoiceStatusByVersion = {};
     this.schemas = [];
     this.valueMapping = {};
+    this.isTokenItem = data[ReproLib.responseOptions] && ReproLib.valueType in data[ReproLib.responseOptions][0]
+      ? data[ReproLib.responseOptions][0][ReproLib.valueType][0]['@id'].includes('#token') : false;
+    this.isMultipleChoice = data[ReproLib.responseOptions] && ReproLib.multipleChoice in data[ReproLib.responseOptions][0]
+      ? data[ReproLib.responseOptions][0][ReproLib.multipleChoice][0]['@value'] : false;
+    
+    this.dataColor = '#8076B2';
+    this.partOfSubScale = false;
+    this.allowEdit = data[ReproLib.allowEdit] && data[ReproLib.allowEdit][0] 
+      ? data[ReproLib.allowEdit][0]['@value'] : true;
   }
 
   /**
@@ -95,7 +106,7 @@ export default class Item {
         : this.warmColors.shift(),
     })).map(choice => ({
       ...choice,
-      id: `${Object.values(choice.name)[0]} (${choice.value})`
+      id: `${Object.values(choice.name)[0]} (${choice.value || 0})`
     }));
   }
 
@@ -135,47 +146,130 @@ export default class Item {
       );
   }
 
+  isRadioSlider() {
+    return this.inputType == 'radio' && !this.multipleChoice || this.inputType == 'slider';
+  }
+
+  isCheckBox() {
+    return this.inputType == 'radio' && this.multipleChoice;
+  }
 
   appendResponses(responses) {
     this.responses = this.responses.concat(responses.map(response => {
-      let date = moment(response.date).format('YYYY-MM-DD');
-
       if (!Array.isArray(response.value)) {
         // Ensure that it is an array.
         response.value = [response.value];
-      } else if (response.value.length > 0) {
-        const { offset } = response;
-        date = moment.utc(response.date).format("L");
       }
 
       return response.value.reduce(
         (obj, tokenValue) => {
           const choice = this.getChoice(tokenValue, response.version);
+
+          if (!choice) {
+            return obj;
+          }
+
           const { value, name } = choice;
 
           return {
             ...obj,
-            cummulative: obj.cummulative + value,
-            positive: value > 0 ? obj.positive + value : obj.positive,
-            negative: value < 0 ? obj.negative + value : obj.negative,
-            userActivity: true,
             [choice.id]: (obj[choice.id] || 0) + value,
-            barIndex: response.barIndex,
-            bars: this.dateToVersions[response.date].length,
-            version: response.version
           };
         },
         {
-          date: new Date(date),
-          cummulative: 0,
-          positive: 0,
-          negative: 0,
-          userActivity: false,
-          bars: 1,
-          barIndex: 0,
-          version: null
+          date: new Date(response.date),
+          version: response.version,
         },
       );
     }));
+  }
+
+  getFormattedTokenData() {
+    /** merge responses with same version/date */
+    let merged = [], last = null;
+    let dateToVersions = {};
+
+    this.responses.forEach(resp => {
+      let dateStr = moment.utc(resp.date).format('YYYY-MM-DD');
+
+      /** consider that responses are already sorted by date/version */
+      if (last && dateStr == last.date && resp.version == last.version) {
+        for (let choice of this.responseOptions) {
+          if (resp[choice.id]) {
+            last[choice.id] = last[choice.id] ? last[choice.id] + resp[choice.id] : resp[choice.id];
+          }
+        }
+      } else if (resp.version) {
+        dateToVersions[dateStr] = dateToVersions[dateStr] || [];
+        dateToVersions[dateStr].push(resp.version);
+
+        merged.push({
+          ...resp,
+          date: dateStr,
+          barIndex: dateToVersions[dateStr].length-1
+        });
+
+        last = merged[merged.length - 1];
+      }
+    });
+
+    return {
+      data: merged.map(response => {
+        let positive = 0, negative = 0, cummulative = 0;
+
+        for (let choice of this.responseOptions) {
+          let value = response[choice.id];
+
+          if (value) {
+            positive = value > 0 ? positive + value : positive;
+            negative = value < 0 ? negative + value : negative;
+            cummulative = cummulative + value;
+          }
+        }
+
+        return {
+          ...response,
+          bars: dateToVersions[response.date].length,
+          positive,
+          negative,
+          cummulative,
+          date: new Date(response.date)
+        }
+      }),
+      versionsByDate: dateToVersions,
+      features: this.responseOptions.map(choice => ({
+        ...choice,
+        slug: slugify(choice.id)
+      })),
+    }
+  }
+
+  getFormattedResponseData() {
+    let features = this.responseOptions.map(choice => ({
+      ...choice,
+      slug: slugify(choice.name.en),
+    }));
+
+    return {
+      data: this.responses.map(response => {
+        let formatted = { ...response };
+
+        for (let choice of features) {
+          if (formatted[choice.id] !== undefined) {
+            formatted[choice.slug] = formatted[choice.id];
+
+            delete formatted[choice.id];
+          }
+        }
+
+        return formatted;
+      }),
+      features: features.filter((feature, index) => features.findIndex(value => value.slug == feature.slug) == index),
+    }
+  }
+
+  getFormattedQuestion() {
+    const imageRE = new RegExp(/[\r\n]*\!\[.*\]\(.*=.*\)[\r\n]*/i);
+    return this.question.en.replace(imageRE, '').replace(/\*\*/g, '') || this.label.en;  // Remove the image from the question.
   }
 }

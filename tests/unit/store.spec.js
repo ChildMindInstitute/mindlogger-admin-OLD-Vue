@@ -26,25 +26,7 @@ test('sets "currentApplet" value when "setCurrentApplet" is committed', () => {
     } 
   }; 
   store.commit('setCurrentApplet', sampleApplet); 
-  expect(store.state.currentApplet).toBe(sampleApplet); 
-}); 
-
-test('sets "allApplets" value when "setAllApplets" is committed', () => { 
-  const store = getLocalStore(); 
-  const sampleAppletArray = [ 
-    { 
-      'applet': { 
-        '_id': 'testAppletId1',
-      },
-    }, 
-    { 
-      'applet': { 
-        '_id': 'testAppletId2',
-      },
-    }, 
-  ]; 
-  store.commit('setAllApplets', sampleAppletArray); 
-  expect(store.state.allApplets).toMatchObject(sampleAppletArray); 
+  expect(store.state.currentAppletMeta).toBe(sampleApplet); 
 }); 
 
 test('sets "auth" value when "setAuth" is committed', () => { 

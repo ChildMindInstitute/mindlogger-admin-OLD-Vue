@@ -1,4 +1,4 @@
-export const rolesMixin = { 
+export const RolesMixin = { 
     data() {
         return {
             localizedRoles: []

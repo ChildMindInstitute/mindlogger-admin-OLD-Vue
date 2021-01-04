@@ -158,11 +158,13 @@ export default {
 					return false
 				}
 
-				if (!this.$store.state.currentUsers.length && !calendarEvent.event.data.users) {
+				const userIds = Object.keys(this.$store.state.currentUsers);
+
+				if (!userIds.length && !calendarEvent.event.data.users) {
 					return true;
 				}
 
-				if (JSON.stringify(calendarEvent.event.data.users) !== JSON.stringify(this.$store.state.currentUsers)) {
+				if (!calendarEvent.event.data.users || calendarEvent.event.data.users.some(user => !userIds.includes(user))) {
 					return false
 				}
 				return true

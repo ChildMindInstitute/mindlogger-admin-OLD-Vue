@@ -150,6 +150,9 @@ const refreshApplet = ({ apiHost, token, appletId }) =>
     headers: {
       "Girder-Token": token,
     },
+    params: {
+      lang: store.state.currentLanguage,
+    }
   });
 
 const revokeAppletUser = ({
@@ -344,17 +347,23 @@ const duplicateApplet = ({ apiHost, token, appletId, options }) =>
     headers: {
       "Girder-Token": token,
     },
-    params: options,
+    params: {
+      ...options,
+      lang: store.state.currentLanguage,
+    },
   });
 
 
-const replaceResponseData = ({ apiHost, token, appletId, data }) => axios({
+const replaceResponseData = ({ apiHost, token, appletId, user, data }) => axios({
   method: 'put',
   url: `${apiHost}/response/${appletId}`,
   headers: {
     'Girder-Token': token,
   },
-  data
+  data,
+  params: {
+    user
+  }
 });
 
 const setAppletEncryption = ({ apiHost, token, appletId, data }) => axios({
@@ -403,6 +412,37 @@ const updateRetainingSettings = ({ apiHost, token, appletId, options }) =>
     params: options,
   });
 
+const getAccountUserList = ({ apiHost, token, appletId, role, MRN, pagination, sort }) => axios({
+  method: 'get',
+  url: `${apiHost}/account/users`,
+  headers: {
+    'Girder-Token': token
+  },
+  params: {
+    appletId, role, MRN, pagination, sort
+  },
+});
+
+const getInvitations = ({ apiHost, token, appletId }) => axios({
+  method: 'get',
+  url: `${apiHost}/applet/${appletId}/invitations`,
+  headers: {
+    'Girder-Token': token,
+  },
+});
+
+
+const updatePin = ({ apiHost, token, profileId, newState }) => axios({
+  method: 'put',
+  url: `${apiHost}/account/manage/pin`,
+  headers: {
+    'Girder-Token': token
+  },
+  params: {
+    profileId, newState
+  }
+})
+
 export default {
   signIn,
   signUp,
@@ -442,5 +482,8 @@ export default {
   prepareApplet,
   validateAppletName,
   updateRetainingSettings,
+  getAccountUserList,
+  updatePin,
+  getInvitations,
 }
 </script>

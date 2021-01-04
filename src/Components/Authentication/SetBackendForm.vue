@@ -1,7 +1,11 @@
 <template>
   <div>
     <v-card class="elevation-12">
-      <v-toolbar color="primary" dark flat>
+      <v-toolbar
+        color="primary"
+        dark
+        flat
+      >
         <v-toolbar-title>{{ $t("setServer") }}</v-toolbar-title>
       </v-toolbar>
       <v-card-text>
@@ -19,7 +23,10 @@
           />
         </v-form>
 
-        <v-btn color="primary" @click="onOkay">
+        <v-btn
+          color="primary"
+          @click="onOkay"
+        >
           {{ $t("okay") }}
         </v-btn>
       </v-card-text>
@@ -60,6 +67,10 @@ export default {
       {
         name: "localhost (localhost:8080)",
         url: "http://localhost:8080/api/v1",
+      },
+      {
+        name: "admin new",
+        url: "https://api-new.mindlogger.org/api/v1"
       },
       { name: "other", url: "" },
     ],

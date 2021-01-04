@@ -1,11 +1,11 @@
 <template>
-  <v-content>
+  <v-content class="builder">
     <About v-if="loading" />
     <AppletSchemaBuilder
       v-if="!loading"
-      exportButton
-      :initialData="(isEditing || null) && currentApplet"
       :key="componentKey"
+      exportButton
+      :initialData="(isEditing || null) && currentAppletData"
       :getProtocols="getProtocols"
       :versions="versions"
       :templates="itemTemplates"
@@ -35,6 +35,10 @@
 .v-card__text {
   padding: 16px !important;
 }
+
+.builder {
+  background: white;
+}
 </style>
 
 <script>
@@ -44,10 +48,11 @@ import PackageJson from '../../../package.json';
 import api from '../Utils/api/api.vue';
 import { cloneDeep } from 'lodash';
 import axios from 'axios';
+import { AppletMixin } from '../Utils/mixins/AppletMixin';
 
 import encryption from '../Utils/encryption/encryption.vue';
 import AppletPassword from '../Utils/dialogs/AppletPassword';
-import Information from '../Utils/dialogs/information';
+import Information from '../Utils/dialogs/InformationDialog.vue';
 
 const RESPONSE_OPTIONS = "reprolib:terms/responseOptions";
 const ITEM_LIST_ELEMENT = "schema:itemListElement";
@@ -64,6 +69,7 @@ export default {
     AppletPassword,
     Information,
   },
+  mixins: [AppletMixin],
   data() {
     return {
       loading: true,
@@ -111,24 +117,20 @@ export default {
     const { apiHost, token } = this;
     this.versions = [];
     if (this.$route.params.isEditing) {
-      const appletId = this.currentApplet.applet._id.split('/')[1];
+      const appletId = this.currentAppletMeta.id;
       this.isEditing = true;
-      const resp = await api.getAppletVersions({ apiHost, token, appletId });
-      this.versions = resp.data;
+
+      if (!this.isLatestApplet(this.currentAppletMeta)) {
+        await this.loadApplet(this.currentAppletMeta.id);
+      }
+
+      const versions = await api.getAppletVersions({ apiHost, token, appletId });
+      this.versions = versions.data;
     }
     const templateResp = await api.getItemTemplates({ apiHost, token });
-    this.formatItemTemplates(templateResp.data)
-  },
-  computed: {
-    apiHost() {
-      return this.$store.state.backend;
-    },
-    token() {
-      return this.$store.state.auth.authToken.token;
-    },
-    currentApplet() {
-      return this.$store.state.currentApplet;
-    }
+    this.formatItemTemplates(templateResp.data);
+
+    this.loading = false;
   },
   methods: {
     onClickSubmitPassword(appletPassword) {
@@ -231,13 +233,12 @@ export default {
         this.templateId = templatesData[0]["_id"]
       }
       this.itemTemplates = [...templates]
-      this.loading = false;
     },
     onUpdateProtocol(updateData) {
       const protocol = new FormData();
       protocol.set('protocol', JSON.stringify(updateData || {}));
 
-      const appletId = this.currentApplet.applet._id.split('/')[1];
+      const appletId = this.currentAppletMeta.id;
       const token = this.$store.state.auth.authToken.token;
       const apiHost = this.$store.state.backend;
       api
@@ -250,7 +251,7 @@ export default {
         .then((resp) => {
           this.$store.commit('updateAppletData', {
             ...resp.data,
-            roles: this.currentApplet.roles,
+            roles: this.currentAppletMeta.roles,
           });
 
           api.getAppletVersions({ apiHost, token, appletId }).then((resp) => {
@@ -268,7 +269,7 @@ export default {
       const protocol = new FormData();
       protocol.set('protocol', JSON.stringify(data || {}));
 
-      const appletId = this.currentApplet.applet._id.split('/')[1];
+      const appletId = this.currentAppletMeta.id;
       const token = this.$store.state.auth.authToken.token;
       const apiHost = this.$store.state.backend;
 
@@ -280,10 +281,7 @@ export default {
           appletId,
         })
         .then((resp) => {
-          this.$store.commit("updateAppletData", {
-            ...resp.data,
-            roles: this.currentApplet.roles,
-          });
+          this.$store.commit("updateAppletData", resp.data);
 
           return api.getAppletVersions({ apiHost, token, appletId })
         })
@@ -306,7 +304,7 @@ export default {
     },
     getProtocols(versions) {
       if (!this.isEditing) return [];
-      const appletId = this.currentApplet.applet._id.split('/')[1];
+      const appletId = this.currentAppletMeta.id;
 
       return api.getProtocolData({
         apiHost: this.$store.state.backend,

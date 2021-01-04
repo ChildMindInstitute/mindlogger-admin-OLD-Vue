@@ -1,117 +1,59 @@
 <template>
-  <div class="TokenChart" ref="container" >
-
-    <div class="legend">
-      <div
-          class="legend-item"
-          v-for="feature in features"
-          :key="feature.slug"
-      >
-        <div
-            class="color-box"
-            :style="{ background: feature.color }">
-        </div>
-        <div class="label">
-          {{ `${feature.name.en} (${feature.value})` }}
-        </div>
-      </div>
-    </div>
-
-    <div class="time-range">
-      Showing data from
-
-      <v-menu>
-        <template v-slot:activator="{ on }">
-          <v-btn
-              depressed
-              class="ds-button-tall ma-0 mb-2 fromDate"
-              v-on="on"
-          >
-            {{ fromDate }}
-          </v-btn>
-        </template>
-
-        <v-date-picker
-            no-title
-            @change="setStartDate"
-            :allowedDates="isAllowedStartDate"
-        ></v-date-picker>
-      </v-menu>
-
-      to
-
-      <v-menu>
-        <template v-slot:activator="{ on }">
-          <v-btn
-              depressed
-              class="ds-button-tall ma-0 mb-2 toDate"
-              v-on="on"
-          >
-            {{ toDate }}
-          </v-btn>
-        </template>
-
-        <v-date-picker
-            no-title
-            @change="setEndDate"
-            :allowedDates="isAllowedEndDate"
-        ></v-date-picker>
-      </v-menu>
-    </div>
-
-    <div class="version">
-      <v-select
-          :items="appletVersions"
-          label="versions"
-          @change="onVersionChanged"
-          v-model="selectedVersions"
-          multiple
-      ></v-select>
-
-      <v-checkbox
-          v-model="hasVersionBars"
-          label="Show Version Changes"
-          @change="onVersionChanged"
-      ></v-checkbox>
-    </div>
-
+  <div
+    class="TokenChart"
+    :class="`TokenChart-${plotId}`"
+  >
     <div class="chart-container">
       <div
-          class="tooltip"
-          style="display: none"
+        class="tooltip"
+        style="display: none"
       >
         <div
-            v-for="feature in features"
-            :class="feature.slug"
-            :key="feature.slug"
-        >
-        </div>
-
-        <div class="cumulative"></div>
+          v-for="feature in features"
+          :key="feature.slug" 
+          :class="feature.slug"
+        />
+        <div class="cumulative" />
       </div>
       <svg :id="plotId">
         <defs>
           <clipPath id="clip">
             <rect
-                width="500"
-                height="300"
+              width="500"
+              height="300"
             />
           </clipPath>
-          <marker id="arrowhead" markerWidth="7" markerHeight="5"
-                  refX="0" refY="2.5" orient="auto">
-            <polygon points="0 0, 7 2.5, 0 5" fill="gray"/>
+          <marker
+            id="arrowhead"
+            markerWidth="7"
+            markerHeight="5"
+            refX="0"
+            refY="2.5"
+            orient="auto"
+          >
+            <polygon
+              points="0 0, 7 2.5, 0 5"
+              fill="gray"
+            />
           </marker>
         </defs>
 
         <g class="y-axis" />
         <g class="x-axis" />
         <g
-            class="chart"
-            clip-path="url(#clip)">
+          class="chart"
+          clip-path="url(#clip)"
+        >
 
           <g class="token-accumulation" />
-          <text v-for="(accumulation, i) in accumulations" class="accumulation-value" :key="i"
-                :x="accumulation.x" :y="accumulation.y" fill="gray">{{accumulation.text}} </text>
+          <text
+            v-for="(accumulation, i) in accumulations"
+            :key="i"
+            class="accumulation-value"
+            :x="accumulation.x"
+            :y="accumulation.y"
+            fill="gray"
+          >{{ accumulation.text }} </text>
 
         </g>
 
@@ -119,8 +61,8 @@
         <g class="context-y-axis" />
         <g class="context-x-axis" />
         <g
-            class="context-chart"
-            clip-path="url(#clip)"
+          class="context-chart"
+          clip-path="url(#clip)"
         />
       </svg>
     </div>
@@ -138,19 +80,7 @@
   margin-bottom: 0;
   user-select: none;
 }
-.TokenChart .time-range,
-.TokenChart .version {
-  margin-bottom: 2rem;
-  margin-left: -0.8rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #777;
-  text-transform: uppercase;
-}
-.TokenChart .time-range .date {
-  margin: 0 0.3rem;
-  color: #1976D2;
-}
+
 .TokenChart .legend {
   display: flex;
   flex-wrap: wrap;
@@ -244,15 +174,17 @@
 .TokenChart .fromDate {
   margin: 0 0.5rem !important;
 }
+
 </style>
 
 
 <script>
 import * as d3 from 'd3';
 import * as moment from 'moment';
-import slugify from '../../core/slugify';
 import { DaySpan, Day } from 'dayspan';
 import Applet from '../../models/Applet';
+import Item from '../../models/Item';
+
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const NOW = new Date();
 const TODAY = new Date(Date.UTC(
@@ -276,62 +208,63 @@ export default {
    * Component properties.
    */
   props: {
-    maxValue: Number,
-    minValue: Number,
-    plotId: String,
-    data: Array,
-    features: Array,
-    versions: Array,
-    versionsByDate: Object,
-    timezone: String, /** format +05:00 */
+    plotId: {
+      type: String,
+      required: true,
+    },
+    focusExtent: {
+      type: Array,
+      required: true
+    },
+    item: {
+      type: Object,
+      required: true,
+    },
+    versions: {
+      type: Array,
+      required: true,
+    },
+    timezone: {
+      type: String, /** format +05:00 */
+      required: true,
+    },
+    hasVersionBars: {
+      type: Boolean,
+      required: true,
+    },
+    selectedVersions: {
+      type: Array,
+      required: true,
+    },
+    parentWidth: {
+      type: Number,
+      required: true,
+    }
   },
-  data: () => ({
-    legendWidth: 150,
-    focusExtent: [ONE_WEEK_AGO, TODAY],
-    divergingExtent: {
-      min: 0,
-      max: 0,
-    },
-    focusMargin: {
-      top: 40,
-      right: 50,
-      bottom: 180,
-      left: 30,
-    },
-    accumulations: [],
-    contextMargin: {
-      top: 500,
-      bottom: 30,
-    },
-    selectedVersions: [],
-    versionBarWidth: 10,
-    versionChangeLimitPerDay: 4,
-    hasVersionBars: false
-  }),
+  data: function() {
+    return {
+      legendWidth: 150,
+      divergingExtent: {
+        min: 0,
+        max: 0,
+      },
+      focusMargin: {
+        top: 40,
+        right: 70,
+        bottom: 180,
+        left: 50,
+      },
+      contextMargin: {
+        top: 500,
+        bottom: 30,
+      },
+      accumulations: [],
+      versionBarWidth: 4,
+      versionChangeLimitPerDay: 4,
+      ...this.item.getFormattedTokenData(),
+    }
+  },
   computed: {
-    appletVersions() {
-      return this.versions.map(version => version.version)
-    },
-    /** date in versions array doesn't consider timezone (all are set as UTC) and we need to convert updated times as user's timezone */
-    formattedVersions() {
-      let offset = `${this.timezone[0] === '+' ? '-' : '+'}${this.timezone.substr(1)}`;
-      return this.versions.map(version => {
-        /**
-         * input => yy-mm-10T23:30:30+00:00 = yy-mm-11T04:30:30+05:00
-         * output=> yy-mm-11
-         */
-        if (!version.updated) {
-          return version;
-        }
-        const formatted = moment(new Date(version.updated.slice(0, -6) + offset).toISOString()).format("YYYY-MM-DD");
-        return {
-          version: version.version,
-          barColor: version.barColor,
-          formatted,
-          updated: moment(formatted).set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-        }
-      })
-    },
     fromDate: {
       cache: false,
       get() {
@@ -347,11 +280,58 @@ export default {
     today() {
       return moment()
     },
+    /** date in versions array doesn't consider timezone (all are set as UTC) and we need to convert updated times as user's timezone */
+    formattedVersions() {
+      let offset = `${this.timezone[0] === '+' ? '-' : '+'}${this.timezone.substr(1)}`;
+      return this.versions.map(version => {
+        /**
+         * input => yy-mm-10T23:30:30+00:00 = yy-mm-11T04:30:30+05:00
+         * output=> yy-mm-11
+         */
+        if (!version.updated) {
+            return version;
+        }
+        const formatted = moment(new Date(version.updated.slice(0, -6) + offset).toISOString()).format("YYYY-MM-DD");
+        return {
+          version: version.version,
+          barColor: version.barColor,
+          formatted,
+          updated: moment.utc(formatted).set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+        }
+      })
+    },
   },
-  created() {
-    this.features.forEach(feat => feat.slug = slugify(feat.id));
-    this.selectedVersions = this.appletVersions;
+
+  /**
+   * Handlers to be executed each time a property changes its value.
+   */
+  watch: {
+    focusExtent: {
+      deep: true,
+      handler() {
+        this.render();
+      }
+    },
+    selectedVersions: {
+      deep: true,
+      handler() {
+        this.render();
+      }
+    },
+    hasVersionBars: {
+      deep: false,
+      handler() {
+        this.render();
+      }
+    },
+    parentWidth: {
+      deep: false,
+      handler(newValue) {
+        this.render();
+      }
+    }
   },
+
   /**
    * Method to be executed after the component has been mounted.
    *
@@ -359,13 +339,11 @@ export default {
    */
   mounted() {
     this.render = this.render.bind(this);
-    this.computeValueExtent();
-    this.render();
-    this.drawBrush();
-    window.addEventListener('resize', this.render);
-  },
-  destroyed() {
-    window.removeEventListener('resize', this.render);
+    this.$nextTick(() => {
+      this.computeValueExtent();
+      this.render();
+      this.drawBrush();
+    });
   },
   /**
    * Component methods.
@@ -378,53 +356,6 @@ export default {
      */
     onVersionChanged() {
       this.render();
-    },
-    /**
-     * Updates the start date for the focused time range.
-     *
-     * @param {string} date the new start date.
-     * @returns {void}
-     */
-    setStartDate(date) {
-      this.focusExtent[0] = moment.utc(date).toDate();
-      this.render();
-    },
-    /**
-     * Updates the end date for the focused time range.
-     *
-     * @param {string} date the new end date.
-     * @returns {void}
-     */
-    setEndDate(date) {
-      this.focusExtent[1] = moment
-          .utc(date)
-          .add(15, 'hours')
-          .toDate();
-      this.render();
-    },
-    /**
-     * Checks whether the given date should be enabled.
-     *
-     * @param {string} date a given date.
-     * @return {boolean} whether this options should be enabled.
-     */
-    isAllowedStartDate(date) {
-      return (
-          (moment.utc(date) < this.focusExtent[1]) &&
-          (moment.utc(date) > ONE_MONTH_AGO)
-      );
-    },
-    /**
-     * Checks whether the given date should be enabled.
-     *
-     * @param {string} date a given date.
-     * @return {boolean} whether this options should be enabled.
-     */
-    isAllowedEndDate(date) {
-      return (
-          (moment.utc(date) > this.focusExtent[0]) &&
-          (moment.utc(date) <= moment.utc())
-      );
     },
     contextBarWidth() {
       return this.width / 30 / this.versionChangeLimitPerDay;
@@ -444,21 +375,17 @@ export default {
     drawBrush() {
       if (!this.brush) {
         this.brush = d3
-            .brushX()
-            .on('end', () => {
-              if (!d3.event.sourceEvent) return;  // Only transition after input.
-              if (!d3.event.selection) return;  // Ignore empty selections.
-              const selection = d3.event.selection.map(this.contextX.invert);
-              let fromDate = selection[0];
-              let toDate = selection[1];
-              this.focusExtent = [
-                fromDate,
-                toDate,
-              ];
-              this.drawAxes();
-              this.drawFocusChart();
-              this.drawVersionBars();
-            });
+          .brushX()
+          .on('end', () => {
+            if (!d3.event.sourceEvent) return;  // Only transition after input.
+            if (!d3.event.selection) return;  // Ignore empty selections.
+            const selection = d3.event.selection.map(this.contextX.invert);
+
+            this.$emit('onUpdateFocusExtent', [
+              selection[0],
+              selection[1]
+            ])
+          });
       }
       d3.selectAll('.overlay').style('pointer-events', 'none');
       d3.selectAll('.handle').style('pointer-events', 'none');
@@ -524,20 +451,18 @@ export default {
       }
     },
     resize() {
-      const dimensions = this.$refs.container.getBoundingClientRect();
-      this.width = dimensions.width - this.focusMargin.left - this.focusMargin.right;
-      this.height = dimensions.height - this.focusMargin.top - this.focusMargin.bottom;
+      this.width = this.parentWidth - this.focusMargin.left - this.focusMargin.right;
+
       this.focusHeight = 650 - this.focusMargin.top - this.focusMargin.bottom;
       this.contextHeight = 650 - this.contextMargin.top - this.contextMargin.bottom;
       // Set dimensions.
       this.svg
-          .attr('width', dimensions.width)
-          .attr('height', dimensions.height);
+        .attr('width', this.parentWidth.width);
       // Set clip path.
       this.svg
-          .select("#clip rect")
-          .attr('width', this.width + this.focusBarWidth())
-          .attr('height', dimensions.height || 500);
+        .select("#clip rect")
+        .attr('width', this.width + this.focusBarWidth())
+        .attr('height', 500);
       if (this.brush) {
         // Set brush area.
         this.brush.extent([
@@ -553,6 +478,7 @@ export default {
      */
     render() {
       this.svg = d3.select('#' + this.plotId);
+
       this.resize();
       this.drawAxes();
       this.drawBrush();
@@ -571,7 +497,7 @@ export default {
       // Scales.
       this.y = d3
           .scaleLinear()
-          .domain([this.divergingExtent.min, this.divergingExtent.max+ 100]) // to show top cumulative number.
+          .domain([this.divergingExtent.min - 10, this.divergingExtent.max+ 100]) // to show top cumulative number.
           .range([this.focusHeight, 0]);
       this.contextY = d3
           .scaleLinear()
@@ -668,15 +594,17 @@ export default {
      * @return {void}
      */
     drawFocusChart() {
-      this.accumulations = [];
-      const { svg, x, y, data, focusMargin, features } = this;
+      const { svg, x, y, data, focusMargin, features, plotId } = this;
       const barWidth = this.focusBarWidth();
+
       const stack = d3.stack()
           .keys(features.map(f => f.id))
           .offset(d3.stackOffsetDiverging);
       const layers = stack(data);
-      const tooltip = document.querySelector('.TokenChart .tooltip');
+      const tooltip = document.querySelector(`.TokenChart.TokenChart-${plotId} .tooltip`);
       const widthPerDate = this.widthPerDate();
+
+      this.accumulations = [];
       svg
           .select('.chart')
           .selectAll('.layer')
@@ -729,6 +657,7 @@ export default {
                 { day: 'numeric', month: 'short' },
             );
             tooltip.style.left = xCoords + 'px';
+            tooltip.style.padding ='5px';
             tooltip.style.top = (yCoords - padding - cumulativeLabel) + 'px';
             for (let i = 0; i < features.length; i++) {
               const text = tooltip.querySelector(`.${features[i].slug}`)
@@ -741,7 +670,7 @@ export default {
 
               text.innerText = `${name}: ${value}`;
               text.style.top = y(0) - y(value) + 'px';
-              text.style.height = y(0) - y(value) + 'px';
+              text.style.height = 'inherit';
               text.style.display = 'flex';
             }
             const text = tooltip.querySelector(`.cumulative`)
@@ -750,29 +679,31 @@ export default {
       if (data.length < 1) {
         return;
       }
-      let normalisedx = x(data[0].date)
-      normalisedx += (0.5 * this.focusBarWidth()) - 5;
-      let normalisedy = this.y(data[0].positive)
-      let pathString = `M ${normalisedx} ${normalisedy}`;
-      let accumulation = data[0].positive;
-      console.log(data)
 
-      for (var i = 1; i <= data.length - 1; i++) {
+      let normalisedx = x(new Date(0))
+      normalisedx += (0.5 * this.focusBarWidth()) - 5;
+
+      let normalisedy = this.y(0) - 2;
+      let pathString = `M ${normalisedx} ${normalisedy}`;
+      let accumulation = 0;
+
+      for (var i = 0; i < data.length; i++) {
         const step = data[i]
         const positive = step.positive;
         normalisedx = x(step.date)
         normalisedx += (0.5 * this.focusBarWidth()) - 5;
-        normalisedy = this.y(accumulation)
+        normalisedy = this.y(accumulation) - 2
 
-        if (positive > 0) {
+        if (positive > 0){
           pathString += ` L ${normalisedx + 3} ${normalisedy}`
           accumulation = positive + accumulation;
           normalisedy = this.y(accumulation)
+
           pathString += ` L ${normalisedx + 3} ${normalisedy}`
           this.accumulations.push({text: accumulation, x: normalisedx + (0.5 * this.focusBarWidth()), y: normalisedy -3})
         }
         if (i === data.length -1) {
-          pathString += ` L ${normalisedx + (0.5 * this.focusBarWidth() + 10)} ${normalisedy}`
+          pathString += ` L ${normalisedx + (0.5 * this.focusBarWidth() + 20)} ${normalisedy}`
         }
       }
       this.svg
@@ -801,6 +732,7 @@ export default {
       if (!this.hasVersionBars) {
         return ;
       }
+
       svg
           .select('.chart')
           .selectAll('.version')

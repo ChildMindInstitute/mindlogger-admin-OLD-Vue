@@ -1,5 +1,8 @@
 <template>
-  <span v-if="!params.data.roles.includes('owner')" class="btn-align">
+  <span
+    v-if="!params.data.roles.includes('owner')"
+    class="btn-align"
+  >
     <v-btn
       v-if="params.data.roles != 'user' && isManager"
       icon
@@ -21,15 +24,27 @@
       <v-icon>delete</v-icon>
     </v-btn>
 
-    <v-menu v-if="params.data.roles == 'user'" offset-y>
+    <v-menu
+      v-if="params.data.roles == 'user'"
+      offset-y
+    >
       <template v-slot:activator="{ attrs, on }">
-        <v-btn icon small color="" v-bind="attrs" v-on="on">
+        <v-btn
+          icon
+          small
+          color=""
+          v-bind="attrs"
+          v-on="on"
+        >
           <v-icon>delete</v-icon>
         </v-btn>
       </template>
 
       <v-list>
-        <v-list-item link @click="btnDeletedHandler('deleteUser')">
+        <v-list-item
+          link
+          @click="btnDeletedHandler('deleteUser')"
+        >
           <v-list-item-title> {{ $t("removeUser") }} </v-list-item-title>
         </v-list-item>
 
@@ -51,8 +66,7 @@ import Vue from "vue";
 export default Vue.extend({
   computed: {
     isManager() {
-      const { manager } = this.$store.state.currentAccount.applets;
-      return manager && manager.length ? true : false;
+      return this.$store.state.currentAppletMeta.roles.includes('manager');
     },
   },
   methods: {

@@ -1,14 +1,21 @@
 <template>
   <div>
     <v-card class="elevation-12">
-      <v-toolbar color="primary" dark flat>
+      <v-toolbar
+        color="primary"
+        dark
+        flat
+      >
         <v-toolbar-title>{{ $t("login") }} </v-toolbar-title>
       </v-toolbar>
       <v-card-text>
         <p>
           {{ $t("logIntoAccount") }}
         </p>
-        <v-form ref="form" lazy-validation>
+        <v-form
+          ref="form"
+          lazy-validation
+        >
           <v-text-field
             v-model="email"
             :label="$t('login')"
@@ -24,21 +31,34 @@
           />
         </v-form>
 
-        <div v-if="error" class="error">
+        <div
+          v-if="error"
+          class="error"
+        >
           {{ error }}
         </div>
-        <p class="ml-32 text-underline" @click="onForgotPassword">
+        <p
+          class="ml-32 text-underline"
+          @click="onForgotPassword"
+        >
           {{ $t("forgotPassword") }}?
         </p>
 
         <v-row align="center">
           <v-col cols="auto">
-            <v-btn color="primary" @click="login">
+            <v-btn
+              color="primary"
+              @click="login"
+            >
               {{ $t("login") }}
             </v-btn>
           </v-col>
           <v-col cols="auto">
-            <v-btn outlined color="primary" @click="onCreateAccount">
+            <v-btn
+              outlined
+              color="primary"
+              @click="onCreateAccount"
+            >
               {{ $t("createAccount") }}
             </v-btn>
           </v-col>
@@ -162,7 +182,7 @@ export default {
         })
         .then((resp) => {
           this.$store.commit("setAccounts", resp.data);
-          this.$router.push("/applets").catch(err => {});
+          this.$router.push("/dashboard").catch(err => {});
         })
         .catch((err) => {
           console.warn(err);

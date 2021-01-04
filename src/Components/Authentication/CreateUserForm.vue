@@ -1,19 +1,33 @@
 <template>
   <div>
     <v-card class="elevation-12">
-      <v-toolbar color="primary" dark flat>
+      <v-toolbar
+        color="primary"
+        dark
+        flat
+      >
         <v-toolbar-title> {{ $t("createAccount") }}</v-toolbar-title>
       </v-toolbar>
       <v-card-text>
         <p>
           {{ $t("createNewAccount") }} {{ $store.state.backend }}
-          <v-btn icon style="margin: 0px;" @click="onSetBackend">
-            <v-icon small color="primary">
+          <v-btn
+            icon
+            style="margin: 0px;"
+            @click="onSetBackend"
+          >
+            <v-icon
+              small
+              color="primary"
+            >
               edit
             </v-icon>
           </v-btn>
         </p>
-        <v-form ref="form" lazy-validation>
+        <v-form
+          ref="form"
+          lazy-validation
+        >
           <v-text-field
             v-model="email"
             :rules="emailRules"
@@ -42,14 +56,24 @@
             type="password"
             prepend-icon="lock"
           />
-          <div v-if="error" class="error">
+          <div
+            v-if="error"
+            class="error"
+          >
             {{ error }}
           </div>
 
-          <v-btn outlined color="primary" @click="onLogin">
+          <v-btn
+            outlined
+            color="primary"
+            @click="onLogin"
+          >
             {{ $t("login") }}
           </v-btn>
-          <v-btn color="primary" @click="createAccount">
+          <v-btn
+            color="primary"
+            @click="createAccount"
+          >
             {{ $t("createAccount") }}
           </v-btn>
         </v-form>
@@ -136,7 +160,7 @@ export default {
         })
         .then((resp) => {
           this.$store.commit("setAccounts", resp.data);
-          this.$router.push("/applets").catch(err => {});
+          this.$router.push("/dashboard").catch(err => {});
         })
         .catch((err) => {
           console.warn(err);
