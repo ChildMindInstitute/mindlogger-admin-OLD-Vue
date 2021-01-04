@@ -367,6 +367,7 @@
 .time-range,
 .version {
   display: flex;
+  width: 480px;
   align-items: baseline;
   margin-left: 0.8rem;
   font-size: 0.8rem;
