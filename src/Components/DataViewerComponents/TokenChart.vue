@@ -703,7 +703,7 @@ export default {
           this.accumulations.push({text: accumulation, x: normalisedx + (0.5 * this.focusBarWidth()), y: normalisedy -3})
         }
         if (i === data.length -1) {
-          pathString += ` L ${normalisedx + (this.focusBarWidth() + 5)} ${normalisedy}`
+          pathString += ` L ${normalisedx + (0.5 * this.focusBarWidth() + 20)} ${normalisedy}`
         }
       }
       this.svg
