@@ -15,7 +15,7 @@
           text-anchor="left"
           font-weight="bold"
         >
-          {{ label }}
+          {{ compressedLabel }}
         </text>
 
         <text
@@ -183,5 +183,12 @@ export default {
         .attr('r', d => this.x(d.date) >= 0 ? this.radius : 0);
     },
   },
+  computed: {
+    compressedLabel() {
+      return this.label.length > 28
+        ? this.label.slice(0, 25) + ' …'
+        : this.label
+    }
+  }
 }
 </script>

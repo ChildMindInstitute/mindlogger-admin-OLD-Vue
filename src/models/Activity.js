@@ -128,7 +128,7 @@ export default class Activity {
       const { values } = subScale;
 
       if (values.length) {
-        total += values[values.length-1].value;
+        total += values[0].value;
       }
     }
 
@@ -137,7 +137,7 @@ export default class Activity {
 
   getLatestSubScaleScore(subScale) {
     if (subScale.values.length) {
-      return subScale.values[subScale.values.length - 1].value;
+      return subScale.values[0].value;
     }
     return 0;
   }
