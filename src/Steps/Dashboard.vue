@@ -59,6 +59,7 @@
               :loading="tabData[tab].loading"
               :applets="tabData[tab].list"
               @refreshAppletList="getAccountData"
+              @reloadData="reloadTabData"
               @onAppletPasswordChanged="onAppletPasswordChanged"
               @onOwnerShipInviteSuccessful="onOwnerShipInviteSuccessful"
               @onOwnerShipInviteError="onOwnerShipInviteError"
@@ -150,7 +151,6 @@
     display: flex;
     padding-right: 20px;
   }
-
   @media only screen and (min-width: 768px) {
     .welcome {
       width: 80%;
@@ -158,7 +158,6 @@
       min-height: calc(70vh - 60px);
     }
   }
-
   .welcome {
     text-align: center;
     padding: 20px;
@@ -175,19 +174,19 @@ import _ from "lodash";
 import Loading from "../Components/Utils/Loading";
 import { Parse, Day } from "dayspan";
 import Information from "../Components/Utils/dialogs/InformationDialog.vue";
-
 import config from "../config";
 import AppletList from "../Components/Applets/AppletList";
 import UserList from "../Components/Users/UserList";
 import AppletUpload from "../Components/Utils/dialogs/AppletUpload.vue";
 import AppletPassword from "../Components/Utils/dialogs/AppletPassword.vue";
 import encryption from "../Components/Utils/encryption/encryption.vue";
+import AppletDirectoryManager from "@/Components/Applets/AppletDirectoryManager.js";
 
 window.Parse = Parse;
 window.Day = Day;
-
 export default {
   name: "Dashboard",
+  mixins: [AppletDirectoryManager],
   components: {
     Loading,
     Information,
@@ -232,30 +231,24 @@ export default {
   watch: {
     accountApplets(newApplets, oldApplets) {
       const availableTabs = [];
-
       this.appletUploadEnabled = false;
-
       if (newApplets.length) {
         availableTabs.push('applets');
       }
-
       for (let applet of newApplets) {
         /** managers can view others */
         if (applet.roles.includes('manager')) {
           availableTabs.push('users', 'reviewers', 'editors', 'coordinators', 'managers');
         }
-
         /** reviewers can view users */
         if (applet.roles.includes('reviewer') || applet.roles.includes('coordinator')) {
           availableTabs.push('users');
         }
-
         /** manager and editors can view applets */
         if (applet.roles.includes('editor') || applet.roles.includes('manager')) {
           this.appletUploadEnabled = true;
         }
       }
-
       this.tabs = [];
       for (let tab of ['applets', 'users', 'reviewers', 'editors', 'coordinators', 'managers']) {
         if (availableTabs.indexOf(tab) >= 0) {
@@ -283,7 +276,15 @@ export default {
       if (tab == 'applets') {
         this.getAccountData();
       } else {
+        const role = this.tabNameToRole[tab];
         this.tabData[tab].loading = true;
+        return this.getUserList(role).then(resp => {
+          this.$set(this.tabData, tab, {
+            loading: false,
+            list: resp.data.items,
+            total: resp.data.total
+          });
+        });
       }
     },
     onEditRoleSuccessfull() {
@@ -292,6 +293,10 @@ export default {
         this.dialogText = this.$t('organizerRoleUpdateSuccess');
         this.dialogTitle = this.$t('organizerRoleUpdate');
       })
+    },
+    reloadTabData()
+    {
+      this.onSwitchTab(this.tabs[this.selectedTab])
     },
     getUserList(role, filter='', pagination={ allow: false }, sort={ allow: false }) {
       return api.getAccountUserList({
@@ -303,34 +308,38 @@ export default {
         sort
       });
     },
-    getAccountData() {
+    async getAccountData() {
       const accountId = this.$store.state.currentAccount.accountId;
-
       this.tabData['applets'].loading = true;
-
       if (!accountId) {
         this.status = "ready";
         return;
       }
-
       return api
         .switchAccount({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
           accountId,
         })
-        .then((resp) => {
+        .then(async (resp) => {
           this.$store.commit("switchAccount", resp.data.account);
-          this.status = "ready";
-
           this.$set(this.tabData, 'applets', {
             list: resp.data.account.applets,
             loading: false
           });
+          await this.setupApplets();
+          this.status = "ready";
         })
         .catch((err) => {
           console.warn(err);
         });
+    },
+
+
+    async setupApplets() {
+      const { fullDirectory, appletsOnly } = await this.getOrganisedAppletsDirectory();
+      this.$store.commit("setFullDirectory", fullDirectory);
+      this.$store.commit("setCurrentAccountApplets", appletsOnly);
     },
 
     onAddApplet(protocolUrl) {
@@ -338,15 +347,12 @@ export default {
       this.appletPasswordDialog = true;
       this.newProtocolURL = protocolUrl;
     },
-
     addNewApplet(appletPassword) {
       this.appletPasswordDialog = false;
-
       const encryptionInfo = encryption.getAppletEncryptionInfo({
         appletPassword: appletPassword,
         accountId: this.$store.state.currentAccount.accountId,
       });
-
       const encryptionForm = new FormData();
       encryptionForm.set(
         "encryption",
@@ -356,7 +362,6 @@ export default {
           base: Array.from(encryptionInfo.getGenerator()),
         })
       );
-
       api
         .addNewApplet({
           protocolUrl: this.newProtocolURL,

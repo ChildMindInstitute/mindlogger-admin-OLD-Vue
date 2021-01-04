@@ -13,14 +13,17 @@ const getDefaultState = () => {
     currentAccount: {},
     currentApplets: [],
     ownerAccount: {},
+    currentUser: {},
     allApplets: {},
     allAccounts: [],
     cachedEvents: [],
     currentAppletMeta: null,
     currentAppletData: null,
+    currentAccountApplets: [],
     removedEvents: [],
     updatedEvents: [],
     auth: {},
+    fullDirectory: [],
     continue: {},
     currentUsers: {},
     userEmail: '',
@@ -70,9 +73,11 @@ const mutations = {
   setAccounts(state, accounts) {
     state.allAccounts = accounts;
   },
+  setUserDetails(state, user) {
+    state.currentUser = user;
+  },
   switchAccount(state, account) {
     state.currentAccount = account;
-
     /** handle deleted applets */
     Object.keys(state.allApplets).forEach(appletId => {
       if (state.allApplets[appletId].accountId === account.accountId) {
@@ -166,6 +171,16 @@ const mutations = {
   },
   setCurrentRetentionSettings(state, settings) {
     state.currentRetentions = settings;
+  },
+  setCurrentAccountApplets(state, applets) {
+    if (applets && applets.length > 0)
+      state.currentAccount.applets.push(...applets)
+  },
+  setFullDirectory(state, fullDirectory) {
+    state.fullDirectory = fullDirectory;
+  },
+  removeDeletedFolder(state, deletedFolder) {
+    state.fullDirectory = state.fullDirectory.filter(item => item.id != deletedFolder.id);
   }
 };
 

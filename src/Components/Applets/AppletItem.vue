@@ -13,33 +13,34 @@
     <template v-for="header in headers">
       <td v-if="header.value !== 'actions'" :key="header.text">
         <div class="d-flex item">
-          <div v-if="header.isPrimaryColumn && item.isFolder" :style="rowStyle">
-            <v-btn
-              icon
-              small
-              @click="toggleExpanded"
-            >
+          <div v-if="header.isPrimaryColumn && item.isFolder" :style="rowStyle" >
+            <v-btn icon small class="mr-1" @click="toggleExpanded" >
               <v-icon v-if="!item.isExpanded">mdi-folder-outline</v-icon>
               <v-icon v-else>mdi-folder-open-outline</v-icon>
             </v-btn>
           </div>
-          <div v-else-if="header.isPrimaryColumn && !item.isFolder" :style="rowStyle">
-            <v-btn small icon>
-              <v-icon >mdi-pin</v-icon>
-            </v-btn>
+          <div v-else-if="header.isPrimaryColumn && !item.isFolder && item.parentId" :style="rowStyle">
+            <v-btn icon small depressed @click="$emit('pinStatusChanged', item)" class="mr-3">
+              <v-icon color="primary" v-if="item.pinOrder > 0">mdi-pin</v-icon>
+              <v-icon color="#474747" v-else >mdi-pin-off</v-icon>
+            </v-btn>  
           </div>
+          <div v-else-if="header.isPrimaryColumn && !item.isFolder && !item.parentId" :style="rowStyle">
+              <v-avatar color="purple lighten-3" size="30" class="mr-2" style="color:white">{{item.name[0]}}</v-avatar> 
+          </div>
+
           <v-text-field
               outlined
               @blur="item.isRenaming = false"
-              @keydown.enter="item.isRenaming = false"
+              @keydown.enter="onSaveFolder(item)" 
               v-model="item.name"
               v-if="item.isRenaming && header.isPrimaryColumn"
               hide-details
           ></v-text-field>
           <span v-else-if="header.value === 'updated'">
-              {{ item.timeAgo }}
-            </span>
-          <span v-else>{{ item[header.value] }}</span>
+              {{ formatTimeAgo(item) }}
+          </span>
+          <span v-else  style="text-transform: capitalize">{{ item[header.value] }}</span>
           <span v-else @dblclick="isRenaming = true">{{
               item[header.value]
             }}</span>
@@ -54,6 +55,12 @@
 
 <script>
 /* eslint-disable */
+
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
+import fr from 'javascript-time-ago/locale/fr';
+TimeAgo.addLocale(en);
+TimeAgo.addLocale(fr);
 
 export default {
   name: "applet-item",
@@ -80,6 +87,11 @@ export default {
     toggleExpanded() {
       this.$emit("expand-node", this.item);
     },
+    onSaveFolder(item)
+    {
+      item.isRenaming = false;
+      this.$emit('save-folder', item)
+    },
     rowSelected()
     {
       this.selectedRowId = this.item
@@ -101,6 +113,13 @@ export default {
       this.isDragOver = false;
       this.$emit("item-dropped", this.item);
     },
+
+    formatTimeAgo(item) {
+      if (!item.updated) return "";
+      const formatted = new TimeAgo(this.$i18n.locale.replace('_', '-')).format(new Date(item.updated), 'round');
+
+      return formatted;
+    }
   },
 
   props: {

@@ -7,268 +7,85 @@
             :label="$t('searchApplets')"
             prepend-inner-icon="mdi-magnify"
             class="search-input"
+            hide-details
             outlined
         />
       </div>
-      <div class="right-action">
+    </div>
+    <div class="ml-auto">
         <v-btn
-          icon
-          x-large
-          depressed
-          color="black"
-          :disabled="onCreateNewFolder"
+          color="primary"
+          class="mx-2 mb-2"
           @click="onNewFolderCreated()"
         >
           <v-icon
             dark
-            style="font-size: 3vw;"
-          >mdi-folder-plus-outline</v-icon>
+          >mdi-plus</v-icon>
+        New Folder
         </v-btn>
-      </div>
     </div>
-    <v-data-table
-        :headers="headers"
-        :items="visibleItems"
-        sort-by="calories"
-        class="elevation-4"
-        :loading="loading"
-        :footer-props="{
-          itemsPerPageText: $t('rowsPerPage'),
-          itemsPerPageAllText: $t('all'),
-        }"
-    >
-      <template v-slot:item="{ item }">
-        <applet-item
-            v-on:expand-node="toggleExpand"
-            :headers="headers"
-            v-on:newfolder-created="onNewFolderCreated"
-            v-on:item-drag-started="dragStarted"
-            v-on:item-dropped="itemDropped"
-            :item="item"
-            :key="item.id"
-            v-on:row-selected="handleRowSelect"
-        >
-          <template v-slot:actions v-if="selectedRowId === item.id">
-            <div v-if="!item.isFolder">
-              <span class="laptop-only">
-              <!-- view users -->
-              <v-tooltip
-                  v-if="item.roles.includes('coordinator') || item.roles.includes('reviewer') || item.roles.includes('manager')"
-                  top
-              >
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                      v-on="on"
-                      @click="onViewUsers(item)"
-                  >
-                    <v-icon>mdi-account-multiple</v-icon>
-                  </v-btn>
-                </template>
-                <span>{{ $t('viewUsers') }}</span>
-              </v-tooltip>
-                <!-- view calendar -->
-                <v-tooltip
-                    v-if="item.roles.includes('coordinator') || item.roles.includes('manager')"
-                    top
-                >
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                        v-on="on"
-                        @click="onViewGeneralCalendar(item)"
-                    >
-                      <v-icon>mdi-calendar-month</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>{{ $t('viewCalendar') }}</span>
-                </v-tooltip>
+    <div v-if="isSyncing" >
+      <p class="text-center" style="color:gray">{{loaderMessage}}</p>  
+      <v-progress-linear indeterminate rounded height="3" />
+    </div>
 
-                <!-- edit applet -->
-                <v-tooltip
-                    v-if="item.roles.includes('editor') || item.roles.includes('manager')"
-                    top
-                >
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                        v-on="on"
-                        @click="onEditApplet(item)"
-                    >
-                      <v-icon>mdi-square-edit-outline</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>{{ $t('editApplet') }}</span>
-                </v-tooltip>
-                <!-- duplicate applet -->
-                <v-tooltip
-                  v-if="item.roles.includes('editor') || item.roles.includes('manager')"
-                  top
-                >
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      v-on="on"
-                      @click="onDuplicateApplet(item)"
-                >
-                      <img
-                        height="24"
-                        src="@/assets/copy-clipart.png"
-                      >
-                    </v-btn>
-                  </template>
-                  <span>{{ $t('duplicateApplet') }}</span>
-                </v-tooltip>
+    <div class="d-flex">
+      <div style="min-width:10px;" @dragenter="draggingIntoRoot" @dragover.prevent 
+        @dragover.stop="draggingIntoRoot"
+        @drop.stop="doppedOnRoot"
+        @dragleave.stop.prevent="isRootActive = false"
+        :class="{'isRootActive': isRootActive}">
+        
+      </div>
+     <v-data-table
+          style="width: 100%"
+          :headers="headers"
+          :items="visibleItems"
+          :hide-default-footer="true"
+          :items-per-page="1000"
+          depressed
+          sort-by="calories"
+          class="elevation-4"
+          :loading="loading"
+          >
+        <template v-slot:item="{ item }">
+          <applet-item
+              v-on:expand-node="toggleExpand"
+              :headers="headers"
+              v-on:newfolder-created="onNewFolderCreated"
+              v-on:item-drag-started="dragStarted"
+              v-on:save-folder="onSaveFolder"
+              v-on:item-dropped="itemDropped"
+              v-on:pinStatusChanged="toggleAppletPin"
+              :item="item"
+              :key="item.id + item.parentId"
+              v-on:row-selected="handleRowSelect"
+          >
+            <template v-slot:actions v-if="selectedRowId === item.id">
+              <applet-actions v-if="!item.isFolder" :key="item.id" :item="item"
+                    @onViewUsers="onViewUsers"
+                    @onViewGeneralCalendar="onViewGeneralCalendar"
+                    @onEditApplet="onEditApplet" 
+                    @onDeleteApplet="onDeleteApplet" 
+                    @onDuplicateApplet="onDuplicateApplet"
+                    @onRefreshApplet="onRefreshApplet"
+                    @onTransferOwnership="onTransferOwnership" />
 
-                <!-- delete applet -->
-                <v-tooltip
-                  v-if="item.roles.includes('manager')"
-                  top
-                >
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      v-on="on"
-                      @click="onDeleteApplet(item)"
-                      >
-                      <v-icon>mdi-delete</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>{{ $t('deleteApplet') }}</span>
-                </v-tooltip>
-
-
-                <!-- refresh applet -->
-                <v-tooltip
-                    v-if="item.hasUrl && (item.roles.includes('editor') || item.roles.includes('manager'))"
-                    top
-                >
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                        v-on="on"
-                        @click="onRefreshApplet(item)"
-                    >
-                      <v-icon>mdi-refresh</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>{{ $t('refreshApplet') }}</span>
-                </v-tooltip>
-
-                <!-- transfer ownership -->
-                <v-tooltip
-                    v-if="item.roles.includes('owner')"
-                    top
-                >
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                        v-on="on"
-                        @click="onTransferOwnership(item)"
-                    >
-                      <img
-                        height="24"
-                        src="@/assets/transfer-ownership.png"
-                      >
-                    </v-btn>
-                  </template>
-                  <span>{{ $t('transferOwnership') }}</span>
-                </v-tooltip>
-              </span>
-              <span class="laptop-hidden">
-                <v-menu offset-y>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                        color="primary"
-                        dark
-                        v-bind="attrs"
-                        v-on="on"
-                    >
-                      {{ $t('manage') }}
-                    </v-btn>
-                  </template>
-                  <v-list>
-                    <v-list-item
-                        v-if="item.roles.includes('reviewer') || item.roles.includes('manager')"
-                        @click="onViewUsers(item)"
-                    >
-                      <v-list-item-title>{{ $t('viewUsers') }}</v-list-item-title>
-                    </v-list-item>
-
-                    <v-list-item
-                        v-if="item.roles.includes('coordinator') || item.roles.includes('manager')"
-                        @click="onViewGeneralCalendar(item)"
-                    >
-                      <v-list-item-title>{{ $t('viewCalendar') }}</v-list-item-title>
-                    </v-list-item>
-
-                    <v-list-item
-                        v-if="item.roles.includes('editor') || item.roles.includes('manager')"
-                        @click="onEditApplet(item)"
-                    >
-                      <v-list-item-title>{{ $t('editApplet') }}</v-list-item-title>
-                    </v-list-item>
-
-                    <v-list-item
-                        v-if="item.roles.includes('manager')"
-                        @click="onDeleteApplet(item)"
-                    >
-                      <v-list-item-title>{{ $t('deleteApplet') }}</v-list-item-title>
-                    </v-list-item>
-
-                    <v-list-item
-                        v-if="item.roles.includes('editor') || item.roles.includes('manager')"
-                        @click="onDuplicateApplet(item)"
-                    >
-                      <v-list-item-title>{{ $t('duplicateApplet') }}</v-list-item-title>
-                    </v-list-item>
-
-                    <v-list-item
-                        v-if="item.hasUrl && (item.roles.includes('editor') || item.roles.includes('manager'))"
-                        @click="onRefreshApplet(item)"
-                    >
-                      <v-list-item-title>{{ $t('refreshApplet') }}</v-list-item-title>
-                    </v-list-item>
-
-                    <v-list-item
-                        v-if="item.roles.includes('owner')"
-                        @click="onTransferOwnership(item)"
-                    >
-                      <v-list-item-title>{{ $t('transferOwnership') }}</v-list-item-title>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-              </span>
-            </div>
-            <div v-else>
-              <v-tooltip
-                  top
-              >
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                      v-on="on"
-                      @click="onSaveFolder(item)"
-                  >
-                    <v-icon>mdi-content-save</v-icon>
-                  </v-btn>
-                </template>
-                <span>{{ $t('viewUsers') }}</span>
-              </v-tooltip>
-              <!-- view calendar -->
-              <v-tooltip
-                  top
-              >
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                      v-on="on"
-                      @click="onDeleteFolder(item)"
-                  >
-                    <v-icon>mdi-delete</v-icon>
-                  </v-btn>
-                </template>
-                <span>{{ $t('viewCalendar') }}</span>
-              </v-tooltip>
-            </div>
-          </template>
-        </applet-item>
-      </template>
-      <template v-slot:no-data>
-        <v-btn color="primary"> No data</v-btn>
-      </template>
+              <folder-actions v-else :key="item.id" :item="item"
+                    @onSave="onSaveFolder"
+                    @onDelete="deleteFolder" />
+            </template>
+            
+          </applet-item>
+        </template>
+        <template v-slot:no-data>
+          <v-btn color="primary"> No data</v-btn>
+    </template>
     </v-data-table>
+    </div>
+
+  
+   
     <ConfirmationDialog
         v-model="appletDeleteDialog"
         :dialogText="deleteAppletDialogText"
@@ -399,15 +216,23 @@ import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import fr from 'javascript-time-ago/locale/fr';
 import AppletItem from "./AppletItem";
+import AppletDirectoryManager from "./AppletDirectoryManager.js";
+import AppletActions from "./AppletActions.vue";
+import FolderActions from "./FolderActions.vue";
+
+
 
 TimeAgo.addLocale(en);
 TimeAgo.addLocale(fr);
 
 export default {
   name: "AppletList",
+  mixins: [AppletDirectoryManager],
   components: {
     AppletItem,
     AppletName,
+    AppletActions,
+    FolderActions,
     ConfirmationDialog,
     AppletPassword,
   },
@@ -428,66 +253,7 @@ export default {
       directoryLookUp: {},
       flattenedDirectoryItems: [],
       visibleItems: [],
-      onCreateNewFolder: false,
       draggedItem: undefined,
-      demoApplets: [
-        {
-          id: 1,
-          name: "Development Applets",
-          description: "Applets used for development testing",
-          isFolder: true,
-          items: [
-            {
-              id: 3,
-              isFolder: false,
-              name: "Staging Applets",
-              description: "Applets Grouped for tech support testing. ",
-              roles: ['manager', 'reviewer', 'editor']
-            },
-            {
-              id: 4,
-              isFolder: false,
-              name: "Production Applets",
-              roles: ['manager', 'reviewer', 'editor']
-            },
-          ],
-        },
-        {
-          id: 111,
-          name: "Staging Applets",
-          description: "Applets used for staged testing",
-          isFolder: true,
-          items: [
-            {
-              id: 33,
-              isFolder: false,
-              name: "test applet 1",
-              description: "Visualisation applet. ",
-              roles: ['manager', 'reviewer', 'editor']
-            },
-            {
-              id: 44,
-              name: "Test applet 2",
-              isFolder: false,
-              roles: ['manager', 'reviewer', 'editor']
-            }
-          ],
-        },
-        {
-          id: 2,
-          name: "Token Logger Behaviour",
-          description: "Test Application",
-          isFolder: true,
-          items: [],
-        },
-        {
-          id: 7393,
-          name: "Token Logger Behaviour (3)",
-          description: "Test description",
-          isFolder: true,
-          items: [],
-        },
-      ],
       appletPasswordDialog: false,
       requestedAction: null,
       headers: [
@@ -497,14 +263,14 @@ export default {
           sortable: true,
           value: 'name',
           isPrimaryColumn: true,
-          width: '25%',
+          width: '30%',
         },
         {
           text: this.$i18n.t('lastEdit'),
           align: 'left',
           sortable: true,
           value: 'updated',
-          width: '30%'
+          width: '15%'
         },
         {
           align: 'left',
@@ -527,14 +293,14 @@ export default {
     }
   },
   mounted() {
-    this.demoApplets.forEach((item) => {
-      this.flattenDirectory(item);
-    });
-    this.visibleItems = this.flattenedDirectoryItems.filter(
-        (item) => item.isVisible
-    );
+   this.loadFormattedData();
   },
+  
   computed: {
+    directoryItems() {
+      return this.$store.state.fullDirectory;
+    },
+
     deleteAppletDialogTitle() {
       return this.$t('deleteApplet');
     },
@@ -566,19 +332,22 @@ export default {
     }
   },
   methods: {
+    loadFormattedData ()
+    {
+      const directoryItems = this.directoryItems;
+      directoryItems.forEach((item) => {
+        this.flattenDirectory(item);
+      });
+      this.visibleItems = this.flattenedDirectoryItems.filter(
+          (item) => item.isVisible
+      );
+    },
     toggleExpand(item) {
       item.isExpanded = !item.isExpanded;
       this.toggleExpansion(item);
       this.updateVisibleItems();
     },
-    onSaveFolder(item)
-    {
-      this.onCreateNewFolder = false;
-    },
-    onDeleteFolder(item)
-    {
 
-    },
     toggleExpansion(item) {
       if (!item.items) return;
       item.items.forEach((_item) => {
@@ -588,6 +357,12 @@ export default {
     },
     handleRowSelect(item) {
       this.selectedRowId = item.id;
+      // const folderIsEmpty = item.isFolder && item.items.length == 0;
+
+      // if (folderIsEmpty && item.isExpanded) {
+      //   // check API for applets in folder
+      //   this.getAppletsInFolder(item);
+      // }
     },
     updateVisibleItems() {
       this.visibleItems = this.flattenedDirectoryItems.filter(
@@ -596,7 +371,7 @@ export default {
     },
 
     onNewFolderCreated() {
-      this.onCreateNewFolder = true;
+      const userId = this.$store.state.currentUser['_id'] || ''
       const folder = {
         id: Math.random() + Math.random(),
         name: "New Folder",
@@ -605,22 +380,65 @@ export default {
         isExpanded: false,
         items: [],
         roles: [],
+        isNew: true,
         isRenaming: true,
         isVisible: true,
         depth: 0,
-        parentId: null,
+        parentId: userId,
       };
       this.flattenedDirectoryItems.unshift(folder);
       this.updateVisibleItems();
     },
+    onSaveFolder(item)
+    {
+      if(!item.isNew)
+      {
+        this.updateFolder(item, item.id)
+      }
+      else {
+        this.saveFolder(item);
+      }
+      item.isRenaming = false;
+    },
 
-    itemDropped(destination) {
+
+    doppedOnRoot() {
+      if (!this.draggedItem.parentId) return; // already belongs to the root
+
+      const previousFolder = this.flattenedDirectoryItems.filter(
+          (folder) => folder.id == this.draggedItem.parentId
+      )[0];
+
+
+      if (previousFolder) {
+        previousFolder.items = previousFolder.items.filter(
+            (x) => x.id != this.draggedItem.id
+        );
+      }
+
+      this.draggedItem.depth = 0;
+      this.draggedItem.parentId = undefined;
+      this.draggedItem.isVisible = true;
+
+      var previousIndex = this.flattenedDirectoryItems.indexOf(
+          this.draggedItem
+      );
+
+      if (previousIndex > -1)
+        this.flattenedDirectoryItems.splice(previousIndex, 1);
+
+      this.flattenedDirectoryItems.push(this.draggedItem);
+      this.updateVisibleItems();
+      this.isRootActive = false;
+    },
+
+    async itemDropped(destination) {
       if (!destination.isFolder) return;
 
       if (!this.draggedItem) return;
 
       // Disassocciate dropped item from previous tree
-      var previousFolder = this.flattenedDirectoryItems.filter(
+      const previousFolder = this.flattenedDirectoryItems.filter(
           (folder) => folder.id == this.draggedItem.parentId
       )[0];
 
@@ -629,6 +447,18 @@ export default {
             (x) => x.id != this.draggedItem.id
         );
       }
+      const wasNotInFolder =  !this.draggedItem.parentId;
+      const wasInFolder = this.draggedItem.parentId != undefined;
+      const isMovingToFolder = this.draggedItem.parentId != destination.id
+      this.loaderMessage = `'${this.draggedItem.name}' moved to '${destination.name}'. Saving changes. `;
+      if (wasNotInFolder && isMovingToFolder)
+      {
+          await this.addAppletToFolder(this.draggedItem, destination)        
+      }
+
+      if (isMovingToFolder && wasInFolder) {
+           await this.changeFolder(previousFolder, destination, this.draggedItem)        
+      } 
 
       this.draggedItem.parentId = destination.id;
       this.draggedItem.depth = destination.depth + 1;
@@ -642,6 +472,8 @@ export default {
 
       var indexOfParent = this.flattenedDirectoryItems.indexOf(destination);
 
+    
+
       if (indexOfParent > -1) {
         this.flattenedDirectoryItems.splice(
             indexOfParent + 1,
@@ -651,6 +483,9 @@ export default {
       }
 
       this.draggedItem.isVisible = destination.isExpanded;
+
+
+
 
       if (this.draggedItem.isFolder) {
         const destination = this.draggedItem;
@@ -669,6 +504,7 @@ export default {
 
     flattenDirectory(item) {
       this.directoryLookUp[item.id] = item;
+      item.isNew = false;
       this.flattenedDirectoryItems.push(item);
 
       if (!item.depth) {
@@ -692,8 +528,7 @@ export default {
     setAppletPassword(appletPassword) {
       let apiHost = this.$store.state.backend;
       let token = this.$store.state.auth.authToken.token;
-      let appletId = this.selectedRow;
-
+      let appletId = this.selectedRowId;
       const encryptionInfo = encryption.getAppletEncryptionInfo({
         appletPassword: appletPassword,
         accountId: this.$store.state.currentAccount.accountId,
@@ -737,7 +572,7 @@ export default {
           .transferOwnership({
             apiHost: this.$store.state.backend,
             token: this.$store.state.auth.authToken.token,
-            appletId: this.selectedRow,
+            appletId: this.selectedRowId,
             email: this.ownershipEmail,
           })
           .then((resp) => {
@@ -754,7 +589,7 @@ export default {
           .deleteApplet({
             apiHost: this.$store.state.backend,
             token: this.$store.state.auth.authToken.token,
-            appletId: this.selectedRow,
+            appletId: this.selectedRowId,
           })
           .then((resp) => {
             this.$emit("refreshAppletList");
@@ -762,7 +597,7 @@ export default {
     },
 
     editApplet() {
-      this.currentApplet = this.formattedApplets.find(applet => applet.id === this.selectedRow);
+      this.currentApplet = this.formattedApplets.find(applet => applet.id === this.selectedRowId);
       this.$router.push({
         name: 'Builder',
         params: {isEditing: true},
@@ -780,7 +615,7 @@ export default {
           .duplicateApplet({
             apiHost: this.$store.state.backend,
             token: this.$store.state.auth.authToken.token,
-            appletId: this.selectedRow,
+            appletId: this.selectedRowId,
             options: {
               name: appletName,
             },
@@ -800,7 +635,7 @@ export default {
     onViewUsers(applet) {
       if (
           applet.roles.includes('owner') &&
-          !applet.encryption
+          !applet.applet.encryption
       ) {
         this.onUpdateAppletPassword();
       } else {
@@ -821,7 +656,7 @@ export default {
     },
     onViewGeneralCalendar(applet) {
       if (
-          applet.roles.includes('owner') && !applet.encryption
+          applet.roles.includes('owner') && !applet.applet.encryption
       ) {
         this.onUpdateAppletPassword();
       } else {
@@ -855,6 +690,59 @@ export default {
             this.$emit("onRefreshAppletRequestReceived", resp.data.message);
           });
     },
+
+    deleteFolder(folder) {
+      if (folder.isNew && folder.items.length == 0) {
+        this.flattenedDirectoryItems = this.flattenedDirectoryItems.filter(item => item.id != folder.id);
+        this.updateVisibleItems();
+      } else {
+        this.deleteFolderOnServer(folder).then(() => {
+          this.flattenedDirectoryItems = this.flattenedDirectoryItems.filter(item => item.id != folder.id);
+          this.isSyncing = false;
+          this.loaderMessage = null;
+          this.updateVisibleItems();
+        });
+      }
+    },
   },
 };
 </script>
+
+
+<style scoped>
+  .cell {
+    text-align: center;
+  }
+  .applet-header {
+    display: flex;
+    justify-content: space-between;
+  }
+  .filter {
+    flex: 1;
+    width: 80%;
+  }
+  .filter .search-input {
+    margin: 10px;
+    width: 50%;
+    display: inline-block;
+  }
+  .filter span {
+    color: rgb(159, 110, 240);
+    font-weight: 600;
+    margin-left: 20px;
+  }
+
+  @media only screen and (max-width: 767px) {
+    .filter .search-input {
+      width: 80%;
+    }
+    .filter span {
+      display: none;
+    }
+  }
+
+  .isRootActive {
+    width: 30px;
+    background: steelblue;
+  }
+</style>
