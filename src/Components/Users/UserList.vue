@@ -93,7 +93,7 @@
               </v-tooltip>
 
               <v-tooltip
-                v-if="item.deletable.length > 0 && currentRole === 'user'"
+                v-if="item.deletable.length > 0"
                 top
               >
                 <template v-slot:activator="{ on }">
