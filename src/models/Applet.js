@@ -73,7 +73,7 @@ export default class Applet {
     for (let activityId in this.data.activities) {
       activity = new Activity(this.data.activities[activityId]);
       activity.items = activity.order.map(itemId => this.items[itemId]);
-
+      activity.hasTokenItem = activity.items.some(item => item.isTokenItem);
       this.activities.push(activity);
     }
   }

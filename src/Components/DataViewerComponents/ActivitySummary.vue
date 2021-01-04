@@ -10,9 +10,9 @@
       <g class="labels">
         <text
           :y="padding.top + radius + 15/2"
-          :x="15"
+          :x="labelWidth/2"
           :font-size="itemPadding"
-          text-anchor="left"
+          text-anchor="middle"
           font-weight="bold"
         >
           {{ compressedLabel }}

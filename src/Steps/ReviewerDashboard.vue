@@ -169,7 +169,7 @@
                         />
                       </v-expansion-panel-header>
                       <v-expansion-panel-content
-                        v-if="activity.responses && activity.responses.length"
+                        v-if="activity.responses && activity.responses.length && (tab !== 'tokens' || activity.hasTokenItem)"
                       >
                         <h2 class="mt-4">
                           {{ $t('responseOptions') }}
@@ -300,9 +300,18 @@
                       <v-expansion-panel-content
                         v-else
                       >
-                        <h4 class="ma-4">
+                        <h4
+                          v-if="tab != 'tokens'"
+                          class="ma-4"
+                        >
                           {{ $t("noDataAvailable") }}
                         </h4>
+                        <h4
+                          v-else
+                        >
+                          {{ $t("noTokenDataAvailable") }}
+                        </h4>
+
                       </v-expansion-panel-content>
                     </v-expansion-panel>
                   </v-expansion-panels>

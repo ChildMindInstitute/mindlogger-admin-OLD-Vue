@@ -319,4 +319,5 @@ export default {
   months: 'Months',
   years: 'Years',  
   loadingAppletData: 'Loading applet data',
+  noTokenDataAvailable: 'There\'s no token data available for this activity.',
 };
