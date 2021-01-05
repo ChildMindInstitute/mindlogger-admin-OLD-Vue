@@ -23,19 +23,6 @@
               height="300"
             />
           </clipPath>
-          <marker
-            id="arrowhead"
-            markerWidth="7"
-            markerHeight="5"
-            refX="0"
-            refY="2.5"
-            orient="auto"
-          >
-            <polygon
-              points="0 0, 7 2.5, 0 5"
-              fill="gray"
-            />
-          </marker>
         </defs>
 
         <g class="y-axis" />
@@ -713,7 +700,6 @@ export default {
           .attr('fill', 'transparent')
           .style('stroke-width', 2)
           .attr('d', pathString)
-          .attr('marker-end', "url(#arrowhead)");
     },
     /**
      * Draw bars (black bar for major change, grey bar for minor change) to represent version changes
