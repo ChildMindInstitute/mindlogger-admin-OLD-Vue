@@ -43,12 +43,10 @@ export default {
 				.then((response) => {
 					this.isSyncing = false;
 					this.loaderMessage = null;
-					this.$emit('reloadData')
 				})
 		},
 
 		draggingIntoRoot() {
-			console.log("dragging into root")
 			this.isRootActive = true;
 		},
 
@@ -61,7 +59,6 @@ export default {
 					folder.isNew = false;
 					folder.id = response.data._id;
 					this.loaderMessage = null;
-					this.$emit('reloadData')
 				})
 		},
 
@@ -97,7 +94,6 @@ export default {
 
 	    	const folders = currentAccount.folders;	
 
-
 	    	const loadedFolders = []
 	    	const allAppletsInFolders = [];
 
@@ -123,9 +119,11 @@ export default {
     				folder.items = res.data.map(applet => this.setAppletDirectoryProperties(applet, false));
     				this.removeDuplicateApplets(folder);
     			}
+    		}).catch((error) => {
+    			return folder;
     		});
 
-    		return folder;
+    		return folder;	
 		},
 
 		removeDuplicateApplets(folder) {
@@ -180,6 +178,17 @@ export default {
     			isFolder: false
     		}
 		},
+
+		async moveAppletToRootDirectory(applet) {
+			this.isSyncing = true;
+			 const userId = this.$store.state.currentUser['_id']
+
+			this.loaderMessage = `Saving '${applet.name}' in root directory. Please wait...`
+			await api.removeApplet(SERVERADDRESS, this.token, applet.parentId, applet.id)
+				.then(async (response) => {
+					this.isSyncing = false;
+				})
+		}
 	},
 
 	computed: {

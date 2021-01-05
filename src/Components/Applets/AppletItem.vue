@@ -11,11 +11,11 @@
     @click="rowSelected"
   >
     <template v-for="header in headers">
-      <td v-if="header.value !== 'actions'" :key="header.text">
+      <td v-if="header.value !== 'actions'" :key="header.text" >
         <div class="d-flex item">
           <div v-if="header.isPrimaryColumn && item.isFolder" :style="rowStyle" >
             <v-btn icon small class="mr-1" @click="toggleExpanded" >
-              <v-icon v-if="!item.isExpanded">mdi-folder-outline</v-icon>
+              <v-icon v-if="!item.isExpanded" >mdi-folder-outline</v-icon>
               <v-icon v-else>mdi-folder-open-outline</v-icon>
             </v-btn>
           </div>
@@ -31,7 +31,8 @@
 
           <v-text-field
               outlined
-              @blur="item.isRenaming = false"
+              @click.stop.self
+              @blur="finishRenaming"
               @keydown.enter="onSaveFolder(item)" 
               v-model="item.name"
               v-if="item.isRenaming && header.isPrimaryColumn"
@@ -40,14 +41,15 @@
           <span v-else-if="header.value === 'updated'">
               {{ formatTimeAgo(item) }}
           </span>
-          <span v-else  style="text-transform: capitalize">{{ item[header.value] }}</span>
+          <span v-else  style="text-transform: capitalize">{{ item[header.value] }} <small style="color: steelblue" v-if="item.isFolder">({{appletCount}} applets)</small></span>
           <span v-else @dblclick="isRenaming = true">{{
               item[header.value]
-            }}</span>
+            }} </span>
+
         </div>
       </td>
     </template>
-    <td style="text-align: center">
+    <td style="text-align: center; display:flex; align-self: center">
       <slot name="actions"></slot>
     </td>
   </tr>
@@ -87,9 +89,14 @@ export default {
     toggleExpanded() {
       this.$emit("expand-node", this.item);
     },
+    finishRenaming() {
+      this.item.isRenaming = false
+      this.$emit('rename-completed', this.item);
+    },
     onSaveFolder(item)
     {
-      item.isRenaming = false;
+      this.item.isRenaming = false
+      this.$emit('rename-completed', this.item);
       this.$emit('save-folder', item)
     },
     rowSelected()
@@ -105,12 +112,27 @@ export default {
       this.$emit("newfolder-created", this.item);
     },
 
-    dragStart() {
+    dragStart(event) {
+
+      if (this.item.isRenaming) {
+        event.preventDefault();
+      }
+
+      if (this.item.isNew) {
+        event.preventDefault();
+        this.$emit("unsaved-folder-operation", this.item);
+        return;
+      }
+      
       this.$emit("item-drag-started", this.item);
     },
 
     itemDropped() {
       this.isDragOver = false;
+      if (this.item.isFolder && this.item.isNew) {
+        this.$emit("unsaved-folder-operation", this.item);
+        return;
+      }
       this.$emit("item-dropped", this.item);
     },
 
@@ -135,6 +157,12 @@ export default {
     },
   },
 
+  computed : {
+    appletCount() {
+      return this.item.items.filter(item => !item.isFolder).length;
+    }
+  },
+
   watch: {
     item: {
       deep: true,
@@ -146,7 +174,7 @@ export default {
         };
       },
     },
-  },
+  }
 };
 </script>
 

@@ -59,7 +59,6 @@
               :loading="tabData[tab].loading"
               :applets="tabData[tab].list"
               @refreshAppletList="getAccountData"
-              @reloadData="reloadTabData"
               @onAppletPasswordChanged="onAppletPasswordChanged"
               @onOwnerShipInviteSuccessful="onOwnerShipInviteSuccessful"
               @onOwnerShipInviteError="onOwnerShipInviteError"

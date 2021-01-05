@@ -29,10 +29,17 @@
       <v-progress-linear indeterminate rounded height="3" />
     </div>
 
+    <v-expand-transition>
+      <div class="red lighten-2 mx-4" v-show="showSaveFolderInstructions">
+        <p class="text-center white--text" style="color:gray">Operation cannot be completed. Save folder first</p>  
+      </div>
+    </v-expand-transition>
+
+
     <div class="d-flex">
       <div style="min-width:10px;" @dragenter="draggingIntoRoot" @dragover.prevent 
         @dragover.stop="draggingIntoRoot"
-        @drop.stop="doppedOnRoot"
+        @drop.stop.prevent="doppedOnRoot"
         @dragleave.stop.prevent="isRootActive = false"
         :class="{'isRootActive': isRootActive}">
         
@@ -57,8 +64,10 @@
               v-on:save-folder="onSaveFolder"
               v-on:item-dropped="itemDropped"
               v-on:pinStatusChanged="toggleAppletPin"
+              v-on:rename-completed="renameFolder"
               :item="item"
               :key="item.id + item.parentId"
+              v-on:unsaved-folder-operation="animateSaveInstructions"
               v-on:row-selected="handleRowSelect"
           >
             <template v-slot:actions v-if="selectedRowId === item.id">
@@ -280,6 +289,7 @@ export default {
         }
       ],
       searchText: '',
+      showSaveFolderInstructions: false,
       appletDuplicateDialog: false,
       appletEditDialog: false,
       appletDeleteDialog: false,
@@ -332,6 +342,22 @@ export default {
     }
   },
   methods: {
+    animateSaveInstructions() {
+      this.showSaveFolderInstructions = true;
+
+      setTimeout(() => {
+        this.showSaveFolderInstructions  = false;
+      }, 2000);
+    },
+
+    renameFolder(item) {
+      item.isRenaming = false
+      const  similarFolders = this.flattenedDirectoryItems.filter(folder => folder.name == item.name)
+      if (similarFolders.length > 0 ) {
+        item.name = `${item.name} (${similarFolders.length} )` ;
+      }
+    },
+
     loadFormattedData ()
     {
       const directoryItems = this.directoryItems;
@@ -357,12 +383,6 @@ export default {
     },
     handleRowSelect(item) {
       this.selectedRowId = item.id;
-      // const folderIsEmpty = item.isFolder && item.items.length == 0;
-
-      // if (folderIsEmpty && item.isExpanded) {
-      //   // check API for applets in folder
-      //   this.getAppletsInFolder(item);
-      // }
     },
     updateVisibleItems() {
       this.visibleItems = this.flattenedDirectoryItems.filter(
@@ -402,7 +422,8 @@ export default {
     },
 
 
-    doppedOnRoot() {
+    async doppedOnRoot() {
+      this.isRootActive = false;
       if (!this.draggedItem.parentId) return; // already belongs to the root
 
       const previousFolder = this.flattenedDirectoryItems.filter(
@@ -415,6 +436,8 @@ export default {
             (x) => x.id != this.draggedItem.id
         );
       }
+
+      await this.moveAppletToRootDirectory(this.draggedItem);
 
       this.draggedItem.depth = 0;
       this.draggedItem.parentId = undefined;
@@ -433,6 +456,22 @@ export default {
     },
 
     async itemDropped(destination) {
+      const dragSourceIsSameAsDragDestination = destination.id == this.draggedItem.id;
+
+      if (dragSourceIsSameAsDragDestination) return;
+
+      const isDroppingOnRootApplet = destination.parentId == undefined;
+      const isMovingAppletOutOfFolders = isDroppingOnRootApplet && 
+                                        !this.draggedItem.isFolder 
+                                        && !destination.isFolder;
+      //disable nested folders for now                                        
+      if (destination.isFolder && this.draggedItem.isFolder) return;
+
+      if (isMovingAppletOutOfFolders) {
+        await this.doppedOnRoot();
+        return;
+      }
+
       if (!destination.isFolder) return;
 
       if (!this.draggedItem) return;
@@ -523,7 +562,7 @@ export default {
       });
     },
     rowClicked(row) {
-      this.selectedRow = row.id;
+      this.selectedRowId = row.id;
     },
     setAppletPassword(appletPassword) {
       let apiHost = this.$store.state.backend;
@@ -632,15 +671,17 @@ export default {
     onTransferOwnership(applet) {
       this.ownershipDialog = true;
     },
-    onViewUsers(applet) {
-      if (
-          applet.roles.includes('owner') &&
-          !applet.applet.encryption
-      ) {
+    
+    isNotEncrypted(item) {
+      return !item.encryption && !item.applet.encryption;
+    },
+
+    onViewUsers(item) {
+      if (item.roles.includes('owner') && this.isNotEncrypted(item)) {
         this.onUpdateAppletPassword();
       } else {
-        this.currentApplet = applet;
-        this.$router.push(`applet/${this.currentApplet.id}/users`).catch(err => {
+        this.currentApplet = item;
+        this.$router.push(`applet/${item.id}/users`).catch(err => {
         });
       }
     },
@@ -654,16 +695,13 @@ export default {
         this.editApplet();
       }
     },
-    onViewGeneralCalendar(applet) {
-      if (
-          applet.roles.includes('owner') && !applet.applet.encryption
-      ) {
+    onViewGeneralCalendar(item) {
+       if ( item.roles.includes('owner') && this.isNotEncrypted(item)) {
         this.onUpdateAppletPassword();
       } else {
-        this.currentApplet = applet;
-
+        this.currentApplet = item;
         this.$store.commit('setCurrentUsers', {});
-        this.$router.push(`applet/${this.currentApplet.id}/schedule`).catch(err => {
+       this.$router.push(`applet/${this.currentApplet.id}/schedule`).catch(err => {
         });
       }
     },
@@ -744,5 +782,6 @@ export default {
   .isRootActive {
     width: 30px;
     background: steelblue;
+    
   }
 </style>

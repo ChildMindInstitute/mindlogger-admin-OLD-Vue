@@ -1,6 +1,6 @@
 <template>
     <div >
-		<span class="laptop-only d-flex">
+		<span class="d-flex laptop-only ">
 
 			<action-button :tooltip="$t('viewUsers')" icon="mdi-account-multiple" @click="onViewUsers(item)"
 					v-if="canViewUsers" color="purple" />
@@ -167,7 +167,7 @@ export default {
   }
   @media only screen and (max-width: 1199px ) {
     .laptop-only {
-      display: none;
+      display: none !important;
     }
   }
 
