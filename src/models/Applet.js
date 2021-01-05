@@ -197,7 +197,7 @@ export default class Applet {
     itemIDGroup = itemIDGroup.filter(id => id.startsWith('https://')).concat(itemIDGroup.filter(id => !id.startsWith('https://')));
 
     for (let itemId of itemIDGroup) {
-      data.responses[itemId] = data.responses[itemId].filter(resp => resp.value);
+      data.responses[itemId] = data.responses[itemId].filter(resp => resp.value !== undefined);
       /** sort data responses according to date/versions */
       data.responses[itemId].forEach(resp => {
         if (resp.value.length) {
