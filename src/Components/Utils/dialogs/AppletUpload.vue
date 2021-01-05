@@ -40,7 +40,6 @@
         </p>
         <router-link
           to="/build"
-          target="_blank"
         >
           <v-btn color="primary">
             {{ $t("launchBuilder") }}
