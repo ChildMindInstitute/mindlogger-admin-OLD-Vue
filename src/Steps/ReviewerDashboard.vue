@@ -375,6 +375,7 @@
 .time-range,
 .version {
   display: flex;
+  width: 480px;
   align-items: baseline;
   margin-left: 0.8rem;
   font-size: 0.8rem;
@@ -389,7 +390,7 @@
 }
 .version .version-bar {
   display: inline-block;
-  margin-left: 20px;
+  margin: 0 20px;
 }
 
 .time-range .date {
