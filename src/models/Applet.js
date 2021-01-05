@@ -386,7 +386,7 @@ export default class Applet {
 
       for (let response of responses) {
         if (response.value && response.value.ptr !== undefined && response.value.src !== undefined) {
-          response.value = data.dataSources[response.value.src].data[response.value.ptr];
+          response.value = data.dataSources[response.value.src].data[0];
         }
       }
     }
