@@ -8,6 +8,7 @@
       color="primary"
       class="toolbar-btn"
       @click="onDashboard"
+      :x-small="isTablet"
     >
       {{ $t('mindloggerDashboard') }}
     </v-btn>
@@ -24,6 +25,7 @@
       color="primary"
       class="toolbar-btn"
       @click="viewUsers"
+      :x-small="isTablet"
     >
       {{ currentApplet.name }} 
     </v-btn>
@@ -39,6 +41,7 @@
       v-if="routeName == 'ReviewerDashboard'"
       color="primary"
       class="toolbar-btn"
+      :x-small="isTablet"
     >
       {{ currentUsers }}'s Overview
     </v-btn>
@@ -50,6 +53,7 @@
       <template v-slot:activator="{ on }">
         <v-btn
           :color="routeName == 'SetUsers' ? 'black' : 'primary'"
+          :x-small="isTablet"
           class="toolbar-btn"
           v-on="on"
           @click="viewUsers"
@@ -67,6 +71,7 @@
       <template v-slot:activator="{ on }">
         <v-btn
           :color="routeName == 'SetSchedule' ? 'black' : 'primary'"
+          :x-small="isTablet"
           class="toolbar-btn"
           v-on="on"
           @click="viewCalendar"
@@ -84,6 +89,7 @@
       <template v-slot:activator="{ on }">
         <v-btn
           :color="routeName == 'Builder' ? 'black' : 'primary'"
+          :x-small="isTablet"
           class="toolbar-btn"
           v-on="on"
           @click="onEditApplet"
@@ -100,6 +106,7 @@
     >
       <template v-slot:activator="{ on }">
         <v-btn
+          :x-small="isTablet"
           class="toolbar-btn primary"
           v-on="on"
           @click="onExportData"
@@ -152,6 +159,7 @@
       class="toolbar-btn logout"
       color="primary"
       @click="logout"
+      :x-small="isTablet"
     >
       {{ $t('logout') }}
     </v-btn>
@@ -203,6 +211,12 @@ export default {
     return {
       appletEditDialog: false,
       appletPasswordDialog: false,
+      windowWidth: window.innerWidth
+    }
+  },
+  mounted() {
+    window.onresize = () => {
+      this.windowWidth = window.innerWidth
     }
   },
   /**
@@ -242,7 +256,13 @@ export default {
     },
     currentUsers() {
       return Object.values(this.$store.state.currentUsers).map(user => user.MRN || user.email).join(', ');
-    }
+    },
+    isDesktop() {
+      return this.windowWidth > 1400;
+    },
+    isTablet() {
+      return this.windowWidth <= 1400 && this.windowWidth >= 768; 
+    },
   },
   /**
    * Define here all methods that will be available in the scope of the template.
