@@ -420,7 +420,7 @@ export default {
       );
     },
     currentApplet() {
-      return this.$store.state.currentAppletData;
+      return this.$store.state.currentAppletMeta;
     },
     activityNames() {
       return _.map(this.activities, (a) => a.name);
@@ -586,7 +586,6 @@ export default {
         let newStateEvents = [];
         if (state && storeState) {
           try {
-            const currentId = this.$store.state.currentApplet.applet._id;
             oldStateEvents = this.$store.state.cachedEvents;
           } catch {}
           newStateEvents = state.events;
