@@ -164,6 +164,7 @@
                           :color="activity.dataColor"
                           :latest-score="activity.getLatestActivityScore()"
                           :frequency="activity.getFrequency()"
+                          :sub-scales="activity.subScales"
                           :parent-width="panelWidth"
                           :item-padding="itemPadding"
                         />

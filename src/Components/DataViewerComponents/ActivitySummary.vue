@@ -17,6 +17,20 @@
         >
           {{ compressedLabel }}
         </text>
+
+        <template
+          v-if="subScales.length"
+        >
+          <text
+            :y="padding.top + radius + 16/2 + 16"
+            :x="labelWidth/2"
+            :font-size="10"
+            text-anchor="middle"
+            font-weight="bold"
+          >
+            ( Lastest Score: {{ latestScore }}, Frequency: {{ frequency }} )
+          </text>
+        </template>
       </g>
 
       <g
@@ -73,6 +87,10 @@ export default {
     },
     frequency: {
       type: Number,
+      required: true,
+    },
+    subScales: {
+      type: Array,
       required: true,
     }
   },
