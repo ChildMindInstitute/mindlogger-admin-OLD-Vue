@@ -205,11 +205,7 @@
   </div>
 </template>
 
-<style>
-  .cell {
-    text-align: center;
-  }
-
+<style scoped>
   .reset-selection {
     margin-right: 10px;
   }

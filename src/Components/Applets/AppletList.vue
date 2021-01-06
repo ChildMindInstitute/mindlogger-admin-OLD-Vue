@@ -300,10 +300,7 @@
   </div>
 </template>
 
-<style >
-  .cell {
-    text-align: center;
-  }
+<style scoped>
   .filter .search-input {
     margin: 10px;
     width: 25%;
