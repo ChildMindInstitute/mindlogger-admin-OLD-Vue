@@ -79,16 +79,17 @@ export default class Activity {
 
   parseSubScales(subScales) {
     return (subScales || []).map((subScale, index) => {
-      const {
+      let {
         [ReproLib.jsExpression]: jsExpression,
         [ReproLib.lookupTable]: lookupTable,
         [ReproLib.variableName]: variableName
       } = subScale;
 
+      variableName = variableName && variableName[0] && variableName[0]['@value'] || '';
       return {
         jsExpression: jsExpression && jsExpression[0] && jsExpression[0]['@value'],
         lookupTable: lookupTable && lookupTable[0] && lookupTable[0]['@value'],
-        variableName: variableName && variableName[0] && variableName[0]['@value'],
+        variableName,
         dataColor: RESPONSE_COLORS[index % RESPONSE_COLORS.length],
         slug: slugify(variableName),
       }
