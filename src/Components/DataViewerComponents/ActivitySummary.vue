@@ -17,16 +17,6 @@
         >
           {{ compressedLabel }}
         </text>
-
-        <text
-          :y="padding.top + radius + 16/2 + 16"
-          :x="labelWidth/2"
-          :font-size="10"
-          text-anchor="middle"
-          font-weight="bold"
-        >
-          ( Lastest Score: {{ latestScore }}, Frequency: {{ frequency }} )
-        </text>
       </g>
 
       <g
