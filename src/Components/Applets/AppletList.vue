@@ -301,9 +301,6 @@
 </template>
 
 <style scoped>
-  .cell {
-    text-align: center;
-  }
   .filter .search-input {
     margin: 10px;
     width: 25%;

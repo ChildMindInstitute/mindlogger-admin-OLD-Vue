@@ -206,10 +206,6 @@
 </template>
 
 <style scoped>
-  .cell {
-    text-align: center;
-  }
-
   .reset-selection {
     margin-right: 10px;
   }
