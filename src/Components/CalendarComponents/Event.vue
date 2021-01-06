@@ -420,7 +420,7 @@ export default {
       );
     },
     currentApplet() {
-      return this.$store.state.currentApplet;
+      return this.$store.state.currentAppletData;
     },
     activityNames() {
       return _.map(this.activities, (a) => a.name);
