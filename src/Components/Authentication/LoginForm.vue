@@ -168,12 +168,15 @@ export default {
         })
         .then((resp) => {
           this.$store.commit("setAuth", { auth: resp.data, email: this.email });
+         
           this.setAccounts();
+          this.setUserDetails();
         })
         .catch((e) => {
           this.error = e.response.data.message;
         });
     },
+
     setAccounts() {
       api
         .getAccounts({
@@ -182,6 +185,21 @@ export default {
         })
         .then((resp) => {
           this.$store.commit("setAccounts", resp.data);
+          this.$router.push("/dashboard").catch(err => {});
+        })
+        .catch((err) => {
+          console.warn(err);
+        });
+    },
+    setUserDetails()
+    {
+      api
+        .getUserDetails({
+          apiHost: this.apiHost,
+          token: this.$store.state.auth.authToken.token,
+        })
+        .then((resp) => {
+          this.$store.commit("setUserDetails", resp.data);
           this.$router.push("/dashboard").catch(err => {});
         })
         .catch((err) => {

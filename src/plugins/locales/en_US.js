@@ -320,4 +320,5 @@ export default {
   years: 'Years',  
   loadingAppletData: 'Loading applet data',
   noTokenDataAvailable: 'There\'s no token data available for this activity.',
+  deleteFolderWarning: 'Cannot delete a folder that contains applets. Remove applets from folder before deleting.',
 };
