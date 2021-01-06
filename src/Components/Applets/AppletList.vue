@@ -352,7 +352,7 @@ export default {
 
     renameFolder(item) {
       item.isRenaming = false
-      const  similarFolders = this.flattenedDirectoryItems.filter(folder => folder.name == item.name)
+      const  similarFolders = this.flattenedDirectoryItems.filter(folder => folder.id != item.id && folder.name == item.name)
       if (similarFolders.length > 0 ) {
         item.name = `${item.name} (${similarFolders.length} )` ;
       }
