@@ -169,7 +169,9 @@ export default {
 			if (!appletInfo.id) {
 				appletInfo.id = appletInfo.applet._id.split("/")[1]
 			}
-
+			if (!appletInfo.encryption) { 
+				appletInfo.encryption =  appletInfo.applet.encryption;
+			}
 			this.$set(appletInfo, "isExpanded", isExpanded)
 
 			return {
