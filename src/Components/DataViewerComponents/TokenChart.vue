@@ -484,7 +484,7 @@ export default {
       // Scales.
       this.y = d3
           .scaleLinear()
-          .domain([this.divergingExtent.min - 10, this.divergingExtent.max+ 100]) // to show top cumulative number.
+          .domain([this.divergingExtent.min - 10, this.divergingExtent.max + 10]) // to show top cumulative number.
           .range([this.focusHeight, 0]);
       this.contextY = d3
           .scaleLinear()
