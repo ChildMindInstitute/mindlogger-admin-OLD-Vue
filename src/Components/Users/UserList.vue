@@ -205,7 +205,7 @@
   </div>
 </template>
 
-<style>
+<style scoped>
   .cell {
     text-align: center;
   }
