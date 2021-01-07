@@ -181,6 +181,10 @@ const mutations = {
   },
   removeDeletedFolder(state, deletedFolder) {
     state.fullDirectory = state.fullDirectory.filter(item => item.id != deletedFolder.id);
+  },
+  removeDeletedApplet(state, applet) {
+    state.currentAccount.applets = state.currentAccount.applets.filter(item => item.id != applet.id);
+    state.fullDirectory = state.fullDirectory.filter(item => item.id != applet.id);
   }
 };
 
