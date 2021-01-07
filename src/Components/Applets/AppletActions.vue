@@ -1,6 +1,6 @@
 <template>
     <div >
-		<span class="d-flex laptop-only ">
+		<span class="laptop-only ">
 
 			<action-button :tooltip="$t('viewUsers')" icon="mdi-account-multiple" @click="onViewUsers(item)"
 					v-if="canViewUsers" color="purple" />
