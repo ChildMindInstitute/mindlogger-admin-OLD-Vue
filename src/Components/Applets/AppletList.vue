@@ -37,13 +37,6 @@
 
 
     <div class="d-flex">
-      <div style="min-width:10px;" @dragenter="draggingIntoRoot" @dragover.prevent 
-        @dragover.stop="draggingIntoRoot"
-        @drop.stop.prevent="doppedOnRoot"
-        @dragleave.stop.prevent="isRootActive = false"
-        :class="{'isRootActive': isRootActive}">
-        
-      </div>
      <v-data-table
           style="width: 100%"
           :headers="headers"
