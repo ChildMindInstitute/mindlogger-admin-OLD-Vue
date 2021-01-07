@@ -18,6 +18,7 @@ export default {
   firstNameRequired: 'Le prénom est obligatoire',
   lastNameRequired: 'Le nom est obligatoire',
   name: 'Nom',
+  removeFromFolder: "Supprimer l'applet du dossier",
   repeatOptions:'Options de répétition',
   activityAccessOptions: "Options d'accès aux activités",
   activityAvailable: "Activité disponible",
@@ -327,5 +328,4 @@ export default {
   deleteFolderWarning: 'Impossible de supprimer un dossier contenant des applets. Supprimez les applets du dossier avant de les supprimer.',
   loadingAppletData: `Chargement des données de l'applet`,
   noTokenDataAvailable: `Il n'y a pas de jeton disponible pour cette activité.`,
-  numberOfTimes: '{number} fois'
 };

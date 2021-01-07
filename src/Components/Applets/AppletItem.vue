@@ -116,6 +116,7 @@ export default {
 
       if (this.item.isRenaming) {
         event.preventDefault();
+        return;
       }
 
       if (this.item.isNew) {

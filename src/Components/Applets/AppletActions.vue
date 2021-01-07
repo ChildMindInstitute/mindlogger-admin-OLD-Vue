@@ -20,8 +20,9 @@
 			<action-button :tooltip="$t('refreshApplet')" icon="mdi-refresh" @click="onRefreshApplet(item)"
 					  v-if="canRefresh" color="primary lighten-2" />           	
 
-		  	<action-button :tooltip="$t('transferOwnership')"  imageName="transfer-ownership.png" @click="onTransferOwnership(item)"
-					   v-if="canTransferOwnership"/> 
+		  	<action-button :tooltip="$t('transferOwnership')"  imageName="transfer-ownership.png" @click="onTransferOwnership(item)" v-if="canTransferOwnership"/> 
+
+	  	  	<action-button :tooltip="$t('removeFromFolder')" @click="removeFromFolder"  imageName="folder-eject.png" v-if="canTransferOwnership && item.parentId"/> 
      		
 		</span>
 		<span class="laptop-hidden">
@@ -63,6 +64,10 @@
 
                 <v-list-item v-if="canTransferOwnership" @click="onTransferOwnership(item)">
                   <v-list-item-title>{{ $t('transferOwnership') }}</v-list-item-title>
+                </v-list-item>
+
+                  <v-list-item v-if="canTransferOwnership && item.parentId" @click="removeFromFolder">
+                  <v-list-item-title>{{ $t('removeFromFolder') }}</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
@@ -137,6 +142,10 @@ export default {
 			this.publishEvent("onEditApplet");
 		},
 
+		removeFromFolder() {
+			this.publishEvent("removeFromFolder");
+		},
+
 		onDeleteApplet() {
 			this.publishEvent("onDeleteApplet");
 		},
@@ -159,16 +168,20 @@ export default {
 </script>
 
 <style scoped>
-
-  @media only screen and (min-width: 1200px) {
-    .laptop-hidden {
-      display: none;
+.laptop-hidden {
+	display: none !important;
+}
+.laptop-only {
+	display: none !important;
+}
+ @media only screen and (min-width: 1200px) {
+    .laptop-only {
+      display: flex !important;
     }
   }
   @media only screen and (max-width: 1199px ) {
-    .laptop-only {
-      display: none !important;
+    .laptop-hidden {
+      display: flex !important;
     }
   }
-
-</style>	
+</style>
