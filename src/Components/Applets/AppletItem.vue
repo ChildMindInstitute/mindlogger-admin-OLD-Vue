@@ -26,7 +26,7 @@
             </v-btn>  
           </div>
           <div v-else-if="header.isPrimaryColumn && !item.isFolder && !item.parentId" :style="rowStyle">
-              <v-avatar color="purple lighten-3" size="30" class="mr-2" style="color:white">{{item.name[0]}}</v-avatar> 
+              <v-avatar color="blue lighten-3" size="30" class="mr-2" style="color:white">{{item.name[0]}}</v-avatar> 
           </div>
 
           <v-text-field
@@ -49,7 +49,7 @@
         </div>
       </td>
     </template>
-    <td style="text-align: center; display:flex; align-self: center">
+    <td style="text-align: center;  align-self: center">
       <slot name="actions"></slot>
     </td>
   </tr>

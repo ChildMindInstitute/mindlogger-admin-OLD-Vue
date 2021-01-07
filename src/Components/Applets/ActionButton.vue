@@ -2,7 +2,7 @@
 	<v-tooltip top >
 		<template v-slot:activator="{ on }">
 			<div v-on="on" >
-				 <v-btn fab small depressed @click="$emit('click')" :disabled="disabled">
+				 <v-btn @click="$emit('click')" :disabled="disabled">
 		    		<v-icon :color="color" v-if="icon">{{icon}}</v-icon>
 					  <img height="24" alt='' v-else v-bind:src="require(`@/assets/${imageName}`)"/>
 		  		</v-btn>

@@ -2,18 +2,18 @@
 	
 	<div >
 		<span class="d-flex">
-			<action-button icon="mdi-content-save" color="primary darken-1" :tooltip="$t('save')" 
+			<action-button icon="mdi-content-save" :tooltip="$t('save')" 
 						@click="$emit('onSave', item)" v-if="item.isNew" />
 
 			<action-button icon="mdi-delete" :disabled="item.isFolder && item.items.length > 0" 
-				@click="$emit('onDelete', item)" color="red" >
+				@click="$emit('onDelete', item)" >
 				<template v-slot:tooltip>
 				 	<span v-if="item.isFolder && item.items.length > 0">{{$t('deleteFolderWarning')}}</span>
                   	<span v-else-if="item.isFolder">{{$t('delete')}}</span>
 				</template>
 			</action-button>
 
-			<action-button icon="mdi-square-edit-outline" color="primary darken-1" :tooltip="$t('edit')" 
+			<action-button icon="mdi-square-edit-outline"  :tooltip="$t('edit')" 
 						@click="item.isRenaming = true" />
 		</span>
 	</div>
