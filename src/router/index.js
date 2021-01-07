@@ -81,7 +81,7 @@ router.beforeEach((to, from, next) => {
 
   // Redirect unauthenticated users to the login page if they are trying to
   // access a page that requires authentication.
-  if (isPrivatePage && !isLoggedIn) {
+  if ( (isPrivatePage || !to.matched.length) && !isLoggedIn) {
     return next({
       path: "/login",
       query: { nextUrl: to.fullPath, lang },
@@ -90,7 +90,7 @@ router.beforeEach((to, from, next) => {
 
   // Prevent users from accessing the login page if they are already
   // authenticated.
-  if (isGuestPage && isLoggedIn) {
+  if ( (isGuestPage || !to.matched.length) && isLoggedIn) {
     return next({ path: "/dashboard", query: { lang }});
   } 
 
