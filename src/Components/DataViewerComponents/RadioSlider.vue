@@ -51,7 +51,7 @@
   z-index: 9999;
   position: absolute;
   max-width: 300px;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 </style>
@@ -235,7 +235,7 @@ export default {
 
                 tooltip.style.left = (x + this.labelWidth) + 'px';
                 tooltip.style.padding = '5px';
-                tooltip.style.top = y + 'px';
+                tooltip.style.top = y - this.heightPerFeature + 'px';
                 tooltip.style.color = 'red';
 
                 let responseCount = this.responseDates[dateStr][feature.slug].length;

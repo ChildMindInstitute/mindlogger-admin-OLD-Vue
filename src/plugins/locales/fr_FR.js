@@ -328,4 +328,5 @@ export default {
   deleteFolderWarning: 'Impossible de supprimer un dossier contenant des applets. Supprimez les applets du dossier avant de les supprimer.',
   loadingAppletData: `Chargement des données de l'applet`,
   noTokenDataAvailable: `Il n'y a pas de jeton disponible pour cette activité.`,
+  numberOfTimes: '{number} fois',
 };
