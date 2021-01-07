@@ -1,7 +1,13 @@
 <template>
   <div
     class="radio-slider"
+    :class="`radio-slider-${plotId}`"
   >
+    <div
+      class="tooltip"
+      style="display: none"
+    />
+
     <svg
       :id="plotId"
       :width="width + 20"
@@ -39,6 +45,13 @@
   width: calc(100% - 40px);
   user-select: none;
   margin: 0px 20px;
+}
+
+.tooltip {
+  z-index: 9999;
+  position: absolute;
+  max-width: 300px;
+  font-size: 12px;
 }
 
 </style>
@@ -80,6 +93,23 @@ export default {
         ...feature,
         index
       })),
+    }
+  },
+  computed: {
+    responseDates() {
+      let responseDates = {};
+      for (let response of this.data) {
+        for (let feature of this.features) {
+          if (response[feature.slug] !== undefined) {
+            let dateStr = moment(response.date).format('MMM-DD, YYYY');
+
+            responseDates[dateStr] = responseDates[dateStr] || {};
+            responseDates[dateStr][feature.slug] = (responseDates[dateStr][feature.slug] || []).concat(response);
+          }
+        }
+      }
+
+      return responseDates;
     }
   },
   /**
@@ -169,6 +199,8 @@ export default {
     },
 
     drawResponses() {
+      const tooltip = document.querySelector(`.radio-slider.radio-slider-${this.plotId} .tooltip`);
+
       this.svg
         .select('.responses')
         .selectAll('*')
@@ -194,6 +226,21 @@ export default {
               .attr('cx', x)
               .attr('cy', y)
               .attr('r', this.radius)
+              .on('mouseover', () => tooltip.style.display = 'flex')
+              .on('mouseout', () => tooltip.style.display = 'none')
+              .on('mousemove', () => {
+                const x = this.x(response.date);
+                const dateStr = moment(response.date).format('MMM-DD, YYYY');
+                const y = this.radius + this.padding.top + this.heightPerFeature * feature.index;
+
+                tooltip.style.left = (x + this.labelWidth) + 'px';
+                tooltip.style.padding = '5px';
+                tooltip.style.top = y + 'px';
+                tooltip.style.color = 'red';
+
+                let responseCount = this.responseDates[dateStr][feature.slug].length;
+                tooltip.innerText = this.$t('numberOfTimes', { number: responseCount, suffix: responseCount > 1 ? 's' : '' });
+              });
           }
         }
 
