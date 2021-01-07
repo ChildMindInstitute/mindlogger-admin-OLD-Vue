@@ -1,8 +1,6 @@
 
 import api from "@/Components/Utils/api/api.vue";
 
-const SERVERADDRESS = process.env.VUE_APP_SERVER_URL;
-
 export default {
 
 	data () {
@@ -19,7 +17,7 @@ export default {
 			this.loaderMessage = `Please wait...`;
 			this.isSyncing = true;
 
-			await api.togglePin(SERVERADDRESS, this.token, applet, newState)
+			await api.togglePin(this.$store.state.backend, this.token, applet, newState)
 				.then((response) => {
 					this.$set(applet, "pinOrder", newState ? 1 : 0);
 				})
@@ -31,7 +29,7 @@ export default {
 		async deleteFolderOnServer(folder) {
 			this.isSyncing = true;
 			this.loaderMessage = `Deleting '${folder.name}'. Please wait...`
-			const apiRequest = api.deleteFolder(SERVERADDRESS, this.token, folder.id)
+			const apiRequest = api.deleteFolder(this.$store.state.backend, this.token, folder.id)
 			return apiRequest;
 		},
 
@@ -39,7 +37,7 @@ export default {
 		async updateFolder(updatedFolder, folderId ) {
 			this.isSyncing = true;
 			this.loaderMessage = `Updating '${updatedFolder.name}'. Please wait...`
-			await api.updateFolder(SERVERADDRESS, this.token, updatedFolder, folderId)
+			await api.updateFolder(this.$store.state.backend, this.token, updatedFolder, folderId)
 				.then((response) => {
 					this.isSyncing = false;
 					this.loaderMessage = null;
@@ -53,7 +51,7 @@ export default {
 		async saveFolder(folder) {
 			this.isSyncing = true;
 			this.loaderMessage = `Saving '${folder.name}'. Please wait...`
-			await api.saveFolder(SERVERADDRESS, this.token,folder)
+			await api.saveFolder(this.$store.state.backend, this.token,folder)
 				.then((response) => {
 					this.isSyncing = false;
 					folder.isNew = false;
@@ -64,29 +62,29 @@ export default {
 
 		// Get Applets in a folder
 		async getAppletsInFolder(folder) {
-			return await api.getAppletsInFolder(SERVERADDRESS, this.token, folder.id)
+			return await api.getAppletsInFolder(this.$store.state.backend, this.token, folder.id)
 		},
 
 		// Updates the parent directory of a folder
 		async changeFolder(previousFolder, newFolder, applet) {
 			this.isSyncing = true;
-			return await api.removeApplet(SERVERADDRESS, this.token, previousFolder.id, applet.id)
+			return await api.removeApplet(this.$store.state.backend, this.token, previousFolder.id, applet.id)
 					.then(async (response) => {
 						// then add applet to new Folder
-						await api.addAppletToFolder(SERVERADDRESS, this.token, newFolder.id, applet.id);
+						await api.addAppletToFolder(this.$store.state.backend, this.token, newFolder.id, applet.id);
 						this.isSyncing = false;
 					})
 		},
 
 		async addAppletToFolder(applet, folder) {
 			this.isSyncing = true;
-			const response = await api.addAppletToFolder(SERVERADDRESS, this.token, folder.id, applet.id);
+			const response = await api.addAppletToFolder(this.$store.state.backend, this.token, folder.id, applet.id);
 			this.isSyncing = false;
 			return response;
 		},
 
 		async removeAppletFromFolder(applet) {
-			return await api.removeApplet(SERVERADDRESS, this.token, applet.parentId, applet.id)
+			return await api.removeApplet(this.$store.state.backend, this.token, applet.parentId, applet.id)
 		},
 
 		async loadFolderData() {
@@ -187,7 +185,7 @@ export default {
 			 const userId = this.$store.state.currentUser['_id']
 
 			this.loaderMessage = `Saving '${applet.name}' in root directory. Please wait...`
-			await api.removeApplet(SERVERADDRESS, this.token, applet.parentId, applet.id)
+			await api.removeApplet(this.$store.state.backend, this.token, applet.parentId, applet.id)
 				.then(async (response) => {
 					this.isSyncing = false;
 				})
