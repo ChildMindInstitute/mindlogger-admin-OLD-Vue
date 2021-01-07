@@ -177,7 +177,8 @@ export default {
 			return {
     			...appletInfo,
     			items: [],
-    			isFolder: false
+				isFolder: false,
+				isChild: true,
     		}
 		},
 

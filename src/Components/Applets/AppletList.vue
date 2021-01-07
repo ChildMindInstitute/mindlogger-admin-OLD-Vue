@@ -78,6 +78,7 @@
                     @onDeleteApplet="onDeleteApplet" 
                     @onDuplicateApplet="onDuplicateApplet"
                     @onRefreshApplet="onRefreshApplet"
+                    @removeFromFolder="removeAppletFromFolder"
                     @onTransferOwnership="onTransferOwnership" />
 
               <folder-actions v-else :key="item.id" :item="item"
@@ -352,12 +353,26 @@ export default {
 
     renameFolder(item) {
       item.isRenaming = false
+      if(!item.duplicate)
+      {
+        item.duplicate = 0;
+      }
+      if(!item.oldName)
+      {
+        item.oldName = item.name
+      }
       const  similarFolders = this.flattenedDirectoryItems.filter(folder => folder.id != item.id && folder.name == item.name)
       if (similarFolders.length > 0 ) {
-        item.name = `${item.name} (${similarFolders.length} )` ;
+        item.duplicate +=  similarFolders.length;
+        item.name = `${ item.oldName} (${item.duplicate} )` ;
+       
+      }
+      const duplicateNames = this.flattenedDirectoryItems.filter(folder => folder.id != item.id && folder.name == item.name)
+      if (similarFolders.length > 0 ) {
+        this.renameFolder(item)
       }
     },
-
+   
     loadFormattedData ()
     {
       const directoryItems = this.directoryItems;
@@ -420,7 +435,10 @@ export default {
       }
       item.isRenaming = false;
     },
-
+    async removeAppletFromFolder(applet) {
+      this.draggedItem = applet;
+      await this.doppedOnRoot();
+    },
 
     async doppedOnRoot() {
       this.isRootActive = false;
