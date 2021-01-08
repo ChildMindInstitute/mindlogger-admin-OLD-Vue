@@ -13,6 +13,14 @@
       {{ $t('mindloggerDashboard') }}
     </v-btn>
 
+    <v-img
+      class="logo"
+      @click="onDashboard"
+      src="/images/logo.png"
+      max-width="130"
+      contain
+    />
+
     <v-icon 
       v-if="currentApplet" 
       medium
@@ -185,6 +193,11 @@
   box-shadow: unset;
   text-transform: none;
   font-size: 18px !important;
+}
+
+.logo {
+  margin-right: 12px;
+  cursor: pointer;
 }
 
 .logout {
