@@ -604,7 +604,7 @@ export default {
           .select('.chart')
           .selectAll('.layer')
           .data(layers)
-          .join('g')
+          .join((group) => group.insert('g', '.token-accumulation'))
           .attr('class', 'layer')
           .attr('fill', layer => {
             return features.find(f => layer.key === f.id).color
@@ -676,14 +676,14 @@ export default {
 
       for (var i = 0; i < data.length; i++) {
         const step = data[i]
-        const positive = step.positive;
+        const { cummulative } = step;
         normalisedx = x(step.date)
         normalisedx += (0.5 * this.focusBarWidth()) - 5;
         normalisedy = this.y(accumulation) - 2
 
-        if (positive > 0){
+        if (cummulative > 0){
           pathString += ` L ${normalisedx + 3} ${normalisedy}`
-          accumulation = positive + accumulation;
+          accumulation = cummulative + accumulation;
           normalisedy = this.y(accumulation)
 
           pathString += ` L ${normalisedx + 3} ${normalisedy}`
