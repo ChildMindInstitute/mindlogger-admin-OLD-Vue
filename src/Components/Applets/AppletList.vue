@@ -160,9 +160,7 @@
 </template>
 
 <style>
-  .cell {
-    text-align: center;
-  }
+
   .applet-header {
     display: flex;
     justify-content: space-between;
@@ -756,43 +754,3 @@ export default {
   },
 };
 </script>
-
-
-<style scoped>
-  .cell {
-    text-align: center;
-  }
-  .applet-header {
-    display: flex;
-    justify-content: space-between;
-  }
-  .filter {
-    flex: 1;
-    width: 80%;
-  }
-  .filter .search-input {
-    margin: 10px;
-    width: 50%;
-    display: inline-block;
-  }
-  .filter span {
-    color: rgb(159, 110, 240);
-    font-weight: 600;
-    margin-left: 20px;
-  }
-
-  @media only screen and (max-width: 767px) {
-    .filter .search-input {
-      width: 80%;
-    }
-    .filter span {
-      display: none;
-    }
-  }
-
-  .isRootActive {
-    width: 30px;
-    background: steelblue;
-    
-  }
-</style>

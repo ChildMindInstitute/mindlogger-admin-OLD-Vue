@@ -3,7 +3,7 @@
 		<span class="laptop-only ">
 
 			<action-button :tooltip="$t('viewUsers')" icon="mdi-account-multiple" @click="onViewUsers(item)"
-					v-if="canViewUsers" color="purple" />
+					v-if="canViewUsers" />
 
 			<action-button :tooltip="$t('viewCalendar')" icon="mdi-calendar-month" @click="onViewGeneralCalendar(item)"
 					v-if="canViewGeneralCalendar" />
@@ -14,11 +14,11 @@
 			<action-button :tooltip="$t('duplicateApplet')" imageName="copy-clipart.png"  @click="onDuplicateApplet(item)"
 					v-if="canDuplicate" />
 			<action-button :tooltip="$t('deleteApplet')" icon="mdi-delete" @click="onDeleteApplet(item)"
-					v-if="canDeleteApplet" color="red" />
+					v-if="canDeleteApplet" />
 
 
 			<action-button :tooltip="$t('refreshApplet')" icon="mdi-refresh" @click="onRefreshApplet(item)"
-					  v-if="canRefresh" color="primary lighten-2" />           	
+					  v-if="canRefresh" />           	
 
 		  	<action-button :tooltip="$t('transferOwnership')"  imageName="transfer-ownership.png" @click="onTransferOwnership(item)" v-if="canTransferOwnership"/> 
 
