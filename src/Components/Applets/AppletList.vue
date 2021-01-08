@@ -285,6 +285,7 @@ export default {
       appletDuplicateDialog: false,
       appletEditDialog: false,
       appletDeleteDialog: false,
+      appletPendingDelete: undefined,
       ownershipDialog: false,
       ownershipEmail: '',
       emailRules: /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/,
@@ -633,6 +634,8 @@ export default {
     },
 
     deleteApplet() {
+      this.isSyncing = true;
+      this.loaderMessage = `Deleting applet ${this.appletPendingDelete.name}`;
       api
           .deleteApplet({
             apiHost: this.$store.state.backend,
@@ -640,7 +643,12 @@ export default {
             appletId: this.selectedRowId,
           })
           .then((resp) => {
-            this.$emit("refreshAppletList");
+            this.isSyncing = false;
+            this.loaderMessage = "";
+            const applet = this.appletPendingDelete;
+            this.$store.commit('removeDeletedApplet',  applet);
+            this.flattenedDirectoryItems = this.flattenedDirectoryItems.filter(item => item.id != applet.id);
+            this.updateVisibleItems();
           });
     },
 
@@ -696,6 +704,7 @@ export default {
     },
     onDeleteApplet(applet) {
       this.appletDeleteDialog = true;
+      this.appletPendingDelete = applet;
     },
     onEditApplet(applet) {
       if (applet.hasUrl) {
