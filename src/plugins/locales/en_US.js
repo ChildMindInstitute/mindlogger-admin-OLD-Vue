@@ -263,7 +263,7 @@ export default {
   cancel: 'Cancel',
   welcomeMindLogger: 'Welcome to MindLogger!',
   getStarted: 'Let\'s get your started by uploading your first applet or creating one.',
-  navigateSpaceText: 'If you\'ve been invited to MindLogger as part of a team, use the ellipsis at the top right to navigate to that space',
+  navigateSpaceText: 'If you\'ve been invited to MindLogger as part of a team, use the people icon at the top right to navigate to that space',
   ownSpaceDescription: 'Your own space will always be available here to create your own applets',
   clickHere: 'Click Here',
   view: 'View',
