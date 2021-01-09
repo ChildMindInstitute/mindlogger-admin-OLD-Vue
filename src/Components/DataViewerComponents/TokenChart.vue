@@ -676,14 +676,14 @@ export default {
 
       for (var i = 0; i < data.length; i++) {
         const step = data[i]
-        const { cummulative } = step;
+        const { positive } = step;
         normalisedx = x(step.date)
         normalisedx += (0.5 * this.focusBarWidth()) - 5;
         normalisedy = this.y(accumulation) - 2
 
-        if (cummulative > 0){
+        if (positive > 0){
           pathString += ` L ${normalisedx + 3} ${normalisedy}`
-          accumulation = cummulative + accumulation;
+          accumulation = positive + accumulation;
           normalisedy = this.y(accumulation)
 
           pathString += ` L ${normalisedx + 3} ${normalisedy}`
