@@ -33,7 +33,6 @@
                 v-model="scheduledTimeout.allow"
                 @change="handleAccess"
                 :label="$t('timeout')"
-                :disabled="timedActivity.allow"
             />
 
             <div v-if="scheduledTimeout.allow" class="ds-timeout-body">

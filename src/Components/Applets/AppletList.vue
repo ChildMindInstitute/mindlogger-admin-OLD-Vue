@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="applet-header">
+    <div class="applet-header pt-5">
       <div class="filter">
         <v-text-field
             v-model="searchText"
@@ -15,7 +15,7 @@
     <div class="ml-auto">
         <v-btn
           color="primary"
-          class="mx-2 mb-2"
+          class="mx-2 my-2"
           @click="onNewFolderCreated()"
         >
           <v-icon
@@ -40,7 +40,7 @@
      <v-data-table
           style="width: 100%"
           :headers="headers"
-          :items="visibleItems"
+          :items="searchFilter(visibleItems)"
           :hide-default-footer="true"
           :items-per-page="1000"
           depressed
@@ -760,6 +760,35 @@ export default {
         });
       }
     },
+
+    searchFilter(arr) {
+      if(!this.searchText) return arr;
+
+      const filteredArr = [];
+
+      arr.forEach(item => {
+        if(!item.isFolder) {
+
+          if(item.name.toLowerCase().includes(this.searchText.toLowerCase()))
+            filteredArr.push(item);
+
+        } else {
+
+          let isFolderContainsSearchApplet = false;
+
+          item.items.forEach(itemInFolder => {
+            if(itemInFolder.name.toLowerCase().includes(this.searchText.toLowerCase()))
+              isFolderContainsSearchApplet = true;
+          });
+
+          if(isFolderContainsSearchApplet)
+            filteredArr.push(item);
+
+        }
+      });
+
+      return filteredArr;
+    }
   },
 };
 </script>
