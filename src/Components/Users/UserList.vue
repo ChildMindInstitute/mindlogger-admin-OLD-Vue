@@ -213,7 +213,7 @@
     width: 50%;
   }
   .filter .search-input {
-    margin: 10px;
+    margin: 20px 10px;
     width: 50%;
     display: inline-block;
   }
