@@ -15,7 +15,7 @@
           text-anchor="middle"
           font-weight="bold"
         >
-          Subscale Scores
+          {{ $t('subScaleScores') }}
         </text>
       </g>
       <g

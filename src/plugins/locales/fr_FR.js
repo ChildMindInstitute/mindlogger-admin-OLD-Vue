@@ -329,4 +329,7 @@ export default {
   loadingAppletData: `Chargement des données de l'applet`,
   noTokenDataAvailable: `Il n'y a pas de jeton disponible pour cette activité.`,
   numberOfTimes: '{number} fois',
+  subScaleScores: 'Scores des sous échelles',
+  latestScore: 'Dernier score',
+  frequency: 'Fréquence',
 };
