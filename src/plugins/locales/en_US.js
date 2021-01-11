@@ -323,4 +323,6 @@ export default {
   noTokenDataAvailable: 'There\'s no token data available for this activity.',
   deleteFolderWarning: 'Cannot delete a folder that contains applets. Remove applets from folder before deleting.',
   numberOfTimes: '{number} time{suffix}',
+  secretUserId: 'Secret User ID',
+  secretUserIdRequired: 'Secret User ID is required',
 };

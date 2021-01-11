@@ -383,13 +383,18 @@ export default {
             this.setAccountName(invitationOptions.accountName);
           }
           return this.onSwitchTab(this.tabs[this.selectedTab])
-        }).then(() => {
+        })
+        .then(() => {
           this.status = 'ready';
           this.invitationFormKey++;
         })
         .catch((e) => {
-          this.error = e;
+          this.error = e.response.data.message;
           this.status = 'error';
+          this.$dialog.error({
+            title: "Try again",
+            text: this.error,
+          });
         });
     },
 

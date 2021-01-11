@@ -71,7 +71,9 @@
           >
             <v-text-field
               v-model="params.profile.mrn"
-              :label="$t('institutionalID')"
+              :label="$t('secretUserId')"
+              :rules="secretUserIdRules"
+              required
             />
           </v-col>
           <v-col
@@ -172,6 +174,9 @@ export default {
       ],
       usersRules: [
         (v) => !!v || this.$i18n.t("usersRequired")
+      ],
+      secretUserIdRules: [
+        (v) => !!v || this.$i18n.t("secretUserIdRequired")
       ],
       params: {
         role: "user",
