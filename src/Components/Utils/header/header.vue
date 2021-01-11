@@ -142,7 +142,7 @@
           v-on="on"
           @click="onOpenAlertList"
         >
-          <v-icon> mdi-alert-box </v-icon>
+					<img height="24" alt='' v-bind:src="require(`@/assets/response-alert.png`)"/>
 
           <span
             v-if="newAlertCount"

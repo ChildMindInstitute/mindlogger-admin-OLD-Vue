@@ -11,7 +11,7 @@ const signIn = ({ apiHost, user, password }) =>
     url: `${apiHost}/user/authentication`,
     headers: { "Girder-Authorization": `Basic ${btoa(`${user}:${password}`)}` },
     params: {
-      lang: store.state.currentLanguage,
+      lang: store.state.currentLanguage.substr(0, 2),
     },
   });
 
