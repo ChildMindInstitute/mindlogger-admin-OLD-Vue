@@ -20,9 +20,11 @@
 			<action-button :tooltip="$t('refreshApplet')" icon="mdi-refresh" @click="onRefreshApplet(item)"
 					  v-if="canRefresh" />           	
 
-		  	<action-button :tooltip="$t('transferOwnership')"  imageName="transfer-ownership.png" @click="onTransferOwnership(item)" v-if="canTransferOwnership"/> 
+		  <action-button :tooltip="$t('transferOwnership')"  imageName="transfer-ownership.png" @click="onTransferOwnership(item)"
+					v-if="canTransferOwnership"/> 
 
-	  	  	<action-button :tooltip="$t('removeFromFolder')" @click="removeFromFolder"  imageName="folder-eject.png" v-if="canTransferOwnership && item.parentId"/> 
+	  	<action-button :tooltip="$t('removeFromFolder')" @click="removeFromFolder"  imageName="folder-eject.png" 
+			    v-if="canRemoveFromFolder"/>
      		
 		</span>
 		<span class="laptop-hidden">
@@ -66,7 +68,7 @@
                   <v-list-item-title>{{ $t('transferOwnership') }}</v-list-item-title>
                 </v-list-item>
 
-                  <v-list-item v-if="canTransferOwnership && item.parentId" @click="removeFromFolder">
+                <v-list-item v-if="canRemoveFromFolder" @click="removeFromFolder">
                   <v-list-item-title>{{ $t('removeFromFolder') }}</v-list-item-title>
                 </v-list-item>
               </v-list>
@@ -122,6 +124,11 @@ export default {
 		canTransferOwnership() {
 			const item = this.item;
 			return item.roles.includes('owner');
+		},
+
+		canRemoveFromFolder() {
+			const item = this.item;
+			return item.parentId && (item.roles.includes('editor') || item.roles.includes('reviewer') || item.roles.includes('manager'));
 		}
 	},
 
