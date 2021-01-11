@@ -328,4 +328,5 @@ export default {
   subScaleScores: 'Subscale Scores',
   latestScore: 'Lastest Score',
   frequency: 'Frequency',
+  new: 'new',
 };

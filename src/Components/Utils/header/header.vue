@@ -132,6 +132,74 @@
     <v-menu
       v-if="isLoggedIn"
       :offset-y="true"
+      :nudge-width="240"
+      bottom
+      right
+    >
+      <template v-slot:activator="{ on }">
+        <v-btn
+          icon
+          v-on="on"
+          @click="onOpenAlertList"
+        >
+          <v-icon> mdi-alert-box </v-icon>
+
+          <span
+            v-if="newAlertCount"
+            class="new-alert-count"
+          >
+            {{ newAlertCount }}
+          </span>
+        </v-btn>
+      </template>
+      <v-card class="alert-list">
+        <v-list>
+          <template
+            v-if="alertList.length"
+          >
+            <v-list-item
+              v-for="(alert, index) in alertList"
+              :key="index"
+              @click="onViewAlert(alert)"
+              class="alert-item"
+            >
+              <div
+                class="alert-message"
+              >
+                {{ alert.compressedMessage }}
+              </div>
+              <div
+                v-if="!alert.viewed"
+                class="new-alert"
+              >
+                {{ $t('new') }}
+              </div>
+              <div
+                class="alert-time"
+              >
+                {{ alert.timeAgo }}
+              </div>
+              <div
+                class="alert-user"
+              >
+                {{ alert.email && `${$t('email')}: ${alert.email}` || alert.MRN && `MRN: ${alert.MRN}` }}
+              </div>
+            </v-list-item>
+          </template>
+          <template
+            v-else
+          >
+            <v-list-item>
+              No Alerts
+            </v-list-item>
+          </template>
+        </v-list>
+      </v-card>
+    </v-menu>
+
+    <v-menu
+      v-if="isLoggedIn"
+      :offset-y="true"
       :nudge-width="150"
       bottom
       right
@@ -181,9 +249,16 @@
 
     <AppletPassword
       ref="appletPasswordDialog"
-      v-model="appletPasswordDialog"
+      v-model="appletPasswordDialog.visible"
       :hasConfirmPassword="false"
       @set-password="onAppletPassword"
+    />
+
+    <ResponseAlertDialog
+      v-model="responseAlertDialog.visible"
+      :user="responseAlertDialog.user"
+      :alert="responseAlertDialog.alert"
+      @view-data="viewAlert"
     />
   </v-app-bar>
 </template>
@@ -203,6 +278,55 @@
 .logout {
   font-size: 15px !important;
 }
+
+.alert-time {
+  position: absolute;
+  right: 2px;
+  font-size: 12px;
+  bottom: 2px;
+  width: 28%;
+  text-align: right;
+}
+
+.alert-user {
+  position: absolute;
+  left: 5px;
+  font-size: 12px;
+  bottom: 2px;
+  width: 70%;
+}
+
+.alert-list {
+  max-height: 260px;
+}
+
+.new-alert {
+  position: absolute;
+  right: 5px;
+  font-size: 12px;
+  top: 2px;
+  color: red;
+}
+
+.alert-item {
+  padding: 2px 5px 20px 5px;
+}
+
+.alert-item:not(:last-child) {
+  border-bottom: 1px solid grey;
+}
+
+.new-alert-count {
+  position: absolute;
+  z-index: 10;
+  color: white;
+  top: -11px;
+  right: 0px;
+  background: red;
+  border-radius: 50%;
+  width: 24px;
+  line-height: 12px;
+}
 </style>
 
 <script>
@@ -210,21 +334,40 @@
 import api from '../api/api.vue';
 import ConfirmationDialog from '../dialogs/ConfirmationDialog';
 import AppletPassword from '../dialogs/AppletPassword';
+import ResponseAlertDialog from '../dialogs/ResponseAlertDialog';
 import { AppletMixin } from '../mixins/AppletMixin';
 import encryption from '../encryption/encryption.vue';
+
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
+import fr from 'javascript-time-ago/locale/fr';
+
+TimeAgo.addLocale(en);
+TimeAgo.addLocale(fr);
 
 export default {
   name: "Header",
   components: {
     ConfirmationDialog,
     AppletPassword,
+    ResponseAlertDialog,
   },
   mixins: [AppletMixin],
   data() {
     return {
       appletEditDialog: false,
-      appletPasswordDialog: false,
-      windowWidth: window.innerWidth
+      appletPasswordDialog: {
+        visible: false,
+        applet: {},
+        requestedAction: null
+      },
+      windowWidth: window.innerWidth,
+      timeAgo: new TimeAgo(this.$i18n.locale.replace('_', '-')),
+      responseAlertDialog: {
+        visible: false,
+        alert: {},
+        user: {},
+      }
     }
   },
   mounted() {
@@ -264,11 +407,46 @@ export default {
     currentApplet() {
       return this.$store.state.currentAppletMeta; 
     },
+
     routeName() {
       return this.$route.name;
     },
+
     currentUsers() {
       return Object.values(this.$store.state.currentUsers).map(user => user.MRN || user.email).join(', ');
+    },
+
+    alertList() {
+      if (!this.currentAccount || !this.currentAccount.alerts) {
+        return [];
+      }
+
+      const profiles = this.currentAccount.alerts.profiles;
+
+      return (this.currentAccount.alerts.list || []).map(
+        alert => ({
+          ...alert,
+          compressedMessage: this.compressedMessage(alert.alertMessage),
+          timeAgo: this.timeAgo.format(new Date(alert.created), 'round'),
+          email: profiles[alert.profileId].email,
+          MRN: profiles[alert.profileId].MRN
+        })
+      );
+    },
+
+    newAlertCount() {
+      let newAlerts = 0;
+
+      for (let alert of this.alertList) {
+        if (!alert.viewed) {
+          newAlerts++;
+        }
+      }
+
+      return newAlerts;
+    },
+    userProfiles() {
+      return this.$store.state.currentAccount.alerts.profiles || {};
     },
     isDesktop() {
       return this.windowWidth > 1400;
@@ -276,11 +454,30 @@ export default {
     isTablet() {
       return this.windowWidth <= 1400 && this.windowWidth >= 768; 
     },
+    allApplets() {
+      return this.$store.state.allApplets;
+    },
+    accountApplets() {
+      return this.$store.state.currentAccount && this.$store.state.currentAccount.applets || [];
+    },
   },
   /**
    * Define here all methods that will be available in the scope of the template.
    */
   methods: {
+    onOpenAlertList() {
+      if (this.newAlertCount) {
+        api.updateAlertStatus(
+          this.$store.state.backend,
+          this.$store.state.auth.authToken.token,
+        );
+      }
+    },
+    compressedMessage(message) {
+      return message.length > 28
+        ? message.slice(0, 25) + ' …'
+        : message
+    },
     hasRoles() {
       return [].some.call(arguments, (role) =>
         this.currentApplet.roles.includes(role)
@@ -341,7 +538,7 @@ export default {
     },
 
     onAppletPassword(appletPassword) {
-      let applet = this.currentAppletMeta;
+      let applet = this.appletPasswordDialog.applet;
       const encryptionInfo = encryption.getAppletEncryptionInfo({
         appletPassword,
         accountId: this.currentAccount.accountId,
@@ -354,8 +551,8 @@ export default {
           .getPublicKey()
           .equals(Buffer.from(applet.encryption.appletPublicKey))
       ) {
-        this.appletPasswordDialog = false;
-        this.exportUserData(applet, Array.from(encryptionInfo.getPrivateKey()));
+        this.appletPasswordDialog.visible = false;
+        this.appletPasswordDialog.requestedAction(Array.from(encryptionInfo.getPrivateKey()));
       } else {
         this.$refs.appletPasswordDialog.defaultErrorMsg = this.$t('incorrectAppletPassword');
       }
@@ -371,9 +568,80 @@ export default {
       ) {
         this.exportUserData(this.currentApplet, encryptionInfo && encryptionInfo.appletPrivateKey);
       } else {
-        this.appletPasswordDialog = true;
+        this.$set(this, 'appletPasswordDialog', {
+          applet: this.currentApplet,
+          visible: true,
+          requestedAction: this.exportUserData.bind(this, this.currentApplet)
+        });
       }
     },
+
+    onViewAlert(alert) {
+      this.$set(this, 'responseAlertDialog', {
+        visible: true,
+        alert: alert,
+        user: this.userProfiles[alert.profileId],
+      })
+    },
+
+    viewAlert() {
+      this.responseAlertDialog.visible = false;
+
+      const appletId = this.responseAlertDialog.alert.appletId;
+      const appletMeta = this.accountApplets.find(applet => applet.id === appletId);
+      let appletLoader = Promise.resolve();
+
+      if (!appletMeta) {
+        return ;
+      }
+
+      if (!this.isLatestApplet(appletMeta)) {
+        appletLoader = this.loadApplet(appletId);
+      }
+
+      appletLoader.then(() => {
+        const appletData = this.allApplets[appletId];
+        const encryptionInfo = appletData.applet.encryption;
+
+        if (
+          !encryptionInfo ||
+          !encryptionInfo.appletPrime ||
+          encryptionInfo.appletPrivateKey
+        ) {
+          this.gotoReviewerDashboard();
+        } else {
+          this.$set(this, 'appletPasswordDialog', {
+            applet: appletMeta,
+            visible: true,
+            requestedAction: this.gotoReviewerDashboard.bind(this)
+          });
+        }
+      })
+    },
+
+    gotoReviewerDashboard(appletKey = null) {
+      const appletId = this.responseAlertDialog.alert.appletId;
+      const appletMeta = this.accountApplets.find(applet => applet.id === appletId);
+
+      if (appletKey) {
+        this.$store.commit('setAppletPrivateKey', {
+          appletId,
+          key: appletKey,
+        });
+      }
+      this.$store.commit('setCurrentApplet', appletMeta);
+
+      const profileId = this.responseAlertDialog.alert.profileId;
+
+      this.$store.commit('setCurrentUsers', {
+        [profileId]: this.userProfiles[profileId]
+      });
+
+      this.$router.push({
+        path: `/applet/${appletId}/dashboard`,
+        query: { users: [profileId] },
+      }).catch(err => {});
+    }
   },
 };
 </script>

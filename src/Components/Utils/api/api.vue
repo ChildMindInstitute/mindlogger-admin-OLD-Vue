@@ -534,6 +534,16 @@ const togglePin = (apiHost, token, applet, isPinned) => {
     })
 }
 
+const updateAlertStatus = (apiHost, token) => {
+  return axios({
+    method: 'put',
+    url: `${apiHost}/account/updateAlertStatus`,
+    headers: {
+      'Girder-Token': token
+    }
+  })
+}
+
 export default {
   signIn,
   signUp,
@@ -584,5 +594,6 @@ export default {
   updateFolder,
   deleteFolder,
   togglePin,
+  updateAlertStatus,
 }
 </script>

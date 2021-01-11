@@ -332,4 +332,5 @@ export default {
   subScaleScores: 'Scores des sous échelles',
   latestScore: 'Dernier score',
   frequency: 'Fréquence',
+  new: 'neuf',
 };
