@@ -393,7 +393,7 @@ export default {
     },
     updateVisibleItems() {
       this.visibleItems = this.flattenedDirectoryItems.filter(
-          (item) => item.isVisible
+          (item) => item.isVisible && item.name.includes(this.searchText)
       );
     },
 
@@ -761,5 +761,10 @@ export default {
       }
     },
   },
+  watch: {
+    searchText: function() {
+      this.updateVisibleItems();
+    }
+  }
 };
 </script>
