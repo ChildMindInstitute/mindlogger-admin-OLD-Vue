@@ -28,7 +28,7 @@
             text-anchor="middle"
             font-weight="bold"
           >
-            ( Latest Score: {{ latestScore }}, Frequency: {{ frequency }} )
+            ( {{$t('latestScore')}}: {{ latestScore }}, {{$t('frequency')}}: {{ frequency }} )
           </text>
         </template>
       </g>

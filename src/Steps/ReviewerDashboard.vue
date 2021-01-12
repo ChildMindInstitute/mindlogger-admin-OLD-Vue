@@ -221,7 +221,7 @@
                               <v-expansion-panel-header>
                                 <h4>
                                   {{ subScale.variableName }}
-                                  ( latest score: {{ activity.getLatestSubScaleScore(subScale) }} )
+                                  ( {{ $t('latestScore') }}: {{ activity.getLatestSubScaleScore(subScale) }} )
                                 </h4>
                               </v-expansion-panel-header>
 

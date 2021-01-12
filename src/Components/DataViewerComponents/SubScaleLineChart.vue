@@ -16,7 +16,7 @@
       >
         <div class="chart-labels">
           <div class="chart-title">
-            Subscale Scores
+            {{ $t('subScaleScores') }}
           </div>
 
           <div

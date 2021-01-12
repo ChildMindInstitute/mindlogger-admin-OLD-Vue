@@ -325,4 +325,7 @@ export default {
   numberOfTimes: '{number} time{suffix}',
   secretUserId: 'Secret User ID',
   secretUserIdRequired: 'Secret User ID is required',
+  subScaleScores: 'Subscale Scores',
+  latestScore: 'Lastest Score',
+  frequency: 'Frequency',
 };
