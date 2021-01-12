@@ -128,7 +128,7 @@ export default {
 
 		canRemoveFromFolder() {
 			const item = this.item;
-			return item.parentId && (item.roles.includes('editor') || item.roles.includes('reviewer') || item.roles.includes('manager'));
+			return item.parentId && item.roles.includes('coordinator') || (item.roles.includes('editor') || item.roles.includes('reviewer') || item.roles.includes('manager'));
 		}
 	},
 
