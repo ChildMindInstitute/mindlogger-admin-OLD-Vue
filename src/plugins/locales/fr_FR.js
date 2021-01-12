@@ -269,7 +269,7 @@ export default {
   cancel: 'Annuler',
   welcomeMindLogger: 'Bienvenue sur MindLogger!',
   getStarted: 'Pour commencer, téléchargez votre première applet ou créez-en une.',
-  navigateSpaceText: 'Si vous avez été invité à MindLogger en tant que membre d\'une équipe, utilisez les points de suspension en haut à droite pour naviguer vers cet espace',
+  navigateSpaceText: 'Si vous avez été invité à MindLogger en tant que membre d\'une équipe, utilisez l\'icône de personnes en haut à droite pour accéder à cet espace',
   ownSpaceDescription: 'Votre propre espace sera toujours disponible ici pour créer vos propres applets',
   clickHere: 'Cliquez ici',
   view: 'Vue',
