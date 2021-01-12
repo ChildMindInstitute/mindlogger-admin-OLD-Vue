@@ -379,7 +379,6 @@ export default {
       if (this.timedActivity.allow) {
         this.scheduledExtendedTime.allow = false;
         this.scheduledIdleTime.allow = false;
-        this.scheduledTimeout.allow = false;
 
         this.handleExtendedTimeAccess();
         this.handleIdleTimeAccess();
