@@ -40,6 +40,7 @@ export default class Applet {
     this.activities = [];
     this.responses = {};
     this.subScales = {};
+    this.tokens = {};
 
     this.selectedActivites = [];
 
@@ -94,6 +95,9 @@ export default class Applet {
 
     if (this.encryption) {
       Applet.replaceItemValues(Applet.decryptResponses(data, this.encryption));
+
+      data.tokens.cumulativeToken = data.tokens.cumulativeToken.reduce((total, current) => total + current, 0);
+      this.tokens = data.tokens;
 
       for (let activityId in data.subScales) {
         for (let subScaleName in data.subScales[activityId]) {
@@ -374,6 +378,32 @@ export default class Applet {
         } catch (e) {
           source.data = {};
         }
+      }
+    }
+
+    if (data.tokens) {
+      for (let i = 0; i < data.tokens.cumulativeToken.length; i++) {
+        const cumulative = data.tokens.cumulativeToken[i];
+
+        const decrypted = JSON.parse(encryptionUtils.decryptData({
+          text: cumulative.data,
+          key: data.AESKeys[cumulative.key]
+        }));
+
+        data.tokens.cumulativeToken[i] = decrypted.value;
+      }
+
+      for (let i = 0; i < data.tokens.tokenUpdates.length; i++) {
+        const tokenUpdate = data.tokens.tokenUpdates[i];
+
+        const decrypted = JSON.parse(encryptionUtils.decryptData({
+          text: tokenUpdate.data,
+          key: data.AESKeys[tokenUpdate.key]
+        }));
+
+        delete tokenUpdate['data'];
+
+        tokenUpdate.value = decrypted.value;
       }
     }
 

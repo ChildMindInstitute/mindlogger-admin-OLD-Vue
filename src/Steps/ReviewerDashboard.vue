@@ -274,6 +274,7 @@
                               v-if="tab=='tokens' && item.isTokenItem"
                               :plot-id="`Token-${activity.slug}-${item.slug}`"
                               :item="item"
+                              :cumulative="applet.tokens"
                               :timezone="applet.timezoneStr"
                               :versions="applet.versions"
                               :focus-extent="focusExtent"
