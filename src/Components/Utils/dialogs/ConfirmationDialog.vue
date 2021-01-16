@@ -17,7 +17,7 @@
         <v-spacer />
 
         <v-btn
-          color="green darken-1"
+          color="primary darken-1"
           text
           @click="onOK"
         >
@@ -25,7 +25,7 @@
         </v-btn>
 
         <v-btn
-          color="green darken-1"
+          color="primary darken-1"
           text
           @click="onCancel"
         >

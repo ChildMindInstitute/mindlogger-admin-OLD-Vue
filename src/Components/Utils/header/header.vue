@@ -4,6 +4,14 @@
     color="primary"
     dark
   >
+    <v-img
+      class="logo"
+      @click="onDashboard"
+      src="/images/logo.png"
+      max-width="130"
+      contain
+    />
+
     <v-btn
       color="primary"
       class="toolbar-btn"
@@ -12,14 +20,6 @@
     >
       {{ $t('mindloggerDashboard') }}
     </v-btn>
-
-    <v-img
-      class="logo"
-      @click="onDashboard"
-      src="/images/logo.png"
-      max-width="130"
-      contain
-    />
 
     <v-icon 
       v-if="currentApplet" 
