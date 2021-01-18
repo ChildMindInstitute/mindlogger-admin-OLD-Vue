@@ -5,29 +5,31 @@
     @input="$emit('input', $event)"
   >
     <v-card>
-      <v-card-title class="headline">{{ title }}</v-card-title>
+      <v-card-title class="headline">
+        {{ title }}
+      </v-card-title>
 
       <v-card-text>
         {{ dialogText }}
       </v-card-text>
 
       <v-card-actions>
-        <v-spacer></v-spacer>
+        <v-spacer />
 
         <v-btn
-          color="green darken-1"
+          color="primary darken-1"
           text
           @click="onOK"
         >
-          OK
+          {{ $t('okay') }}
         </v-btn>
 
         <v-btn
-          color="green darken-1"
+          color="primary darken-1"
           text
           @click="onCancel"
         >
-          Cancel
+          {{ $t('cancel') }}
         </v-btn>
       </v-card-actions>
     </v-card>

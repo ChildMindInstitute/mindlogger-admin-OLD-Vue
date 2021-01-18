@@ -1,19 +1,14 @@
 <template>
-	<div class="ds-calendar-event-menu">
+	<div class="ds-calendar-event-menu" >
 		<v-menu
 				:content-class="contentClass"
 				:disabled="!hasPopover"
 				v-model="menu"
 				v-bind="popoverProps">
-			<template v-slot:activator="{ on }">
-				<div class="ds-calendar-event"
-					 v-on="on"
+			<template v-slot:activator={}>
+				<v-card class="ds-calendar-event" dark flat
 					 :style="style"
-					 @click.stop="editCheck"
-					 @mouseenter="mouseEnterEvent"
-					 @mouseleave="mouseLeaveEvent"
-					 @mousedown="mouseDownEvent"
-					 @mouseup="mouseUpEvent">
+					 @click.stop="openEventDialog">
 
 						<span v-if="showName">
 							<slot name="eventTitle" v-bind="{calendarEvent, hasPrefix, getPrefix, details}">
@@ -37,7 +32,7 @@
 							<slot name="eventEmpty" v-bind="{calendarEvent, details}">&nbsp;</slot>
 						</span>
 
-				</div>
+				</v-card>
 			</template>
 
 			<slot name="eventPopover" v-bind="{calendarEvent, calendar, edit, details, close}"></slot>
@@ -48,7 +43,8 @@
 </template>
 
 <script>
-import { CalendarEvent, Calendar, Day, Functions as fn } from 'dayspan'
+import {Calendar, CalendarEvent, Day, Functions as fn} from 'dayspan'
+import {getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
 
 export default {
 
@@ -101,6 +97,11 @@ export default {
 				if (newStyle.right) {
 					newStyle.right = 0
 				}
+				const activityColor = getEventColor(this.details.activity_id)
+				if (activityColor)
+        {
+          newStyle.background = this.getHexColor(activityColor);
+        }
 				return newStyle;
 			},
 
@@ -153,20 +154,19 @@ export default {
 				this.menu = false
 			},
 
+      getHexColor(colorName) {
+        return _.filter(this.$dayspan.colors, c => c.text === colorName)[0].value;
+      },
+
 			edit () {
 				if (this.handlesEvents()) {
 					this.$emit('edit', this.calendarEvent)
 				}
 			},
 
-			editCheck ($event) {
-				if (this.handlesEvents($event)) {
-					if (!this.hasPopover) {
-						this.edit()
-					} else {
-						this.menu = !this.menu
-					}
-				}
+			openEventDialog ($event) {
+				$event.stopPropagation();
+				this.edit();
 			},
 
 			mouseEnterEvent ($event) {
@@ -182,15 +182,15 @@ export default {
 			},
 
 			mouseDownEvent ($event) {
-				if (this.handlesEvents($event)) {
-					this.$emit('mouse-down-event', this.getEvent('mouse-down-event', $event))
-				}
+				// if (this.handlesEvents($event)) {
+				// 	this.$emit('mouse-down-event', this.getEvent('mouse-down-event', $event))
+				// }
 			},
 
 			mouseUpEvent ($event) {
-				if (this.handlesEvents($event)) {
-					this.$emit('mouse-up-event', this.getEvent('mouse-up-event', $event))
-				}
+				// if (this.handlesEvents($event)) {
+				// 	this.$emit('mouse-up-event', this.getEvent('mouse-up-event', $event))
+				// }
 			},
 
 			handlesEvents ($event) {

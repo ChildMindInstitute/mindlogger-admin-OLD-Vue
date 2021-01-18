@@ -1,7 +1,11 @@
 <template>
   <div>
     <v-card class="elevation-12">
-      <v-toolbar color="primary" dark flat>
+      <v-toolbar
+        color="primary"
+        dark
+        flat
+      >
         <v-toolbar-title>{{ $t("resetPassword") }}</v-toolbar-title>
       </v-toolbar>
       <v-card-text>
@@ -9,16 +13,33 @@
           {{ $t("sendLinkPswdHosted") }}
           {{ $store.state.backend }}
         </p>
-        <v-form ref="form" lazy-validation>
-          <v-text-field v-model="email" :rules="emailRules" label="Email" />
-          <div v-if="error" class="error">
+        <v-form
+          ref="form"
+          lazy-validation
+        >
+          <v-text-field
+            v-model="email"
+            :rules="emailRules"
+            label="Email"
+          />
+          <div
+            v-if="error"
+            class="error"
+          >
             {{ error }}
           </div>
 
-          <v-btn outlined color="primary" @click="onLogin">
+          <v-btn
+            outlined
+            color="primary"
+            @click="onLogin"
+          >
             {{ $t("login") }}
           </v-btn>
-          <v-btn color="primary" @click="createAccount">
+          <v-btn
+            color="primary"
+            @click="createAccount"
+          >
             {{ $t("submit") }}
           </v-btn>
         </v-form>
@@ -50,6 +71,11 @@ export default {
       error: "",
     }
   },
+  computed: {
+    currentLanguage() {
+      return this.$store.state.currentLanguage;
+    }
+  },
   methods: {
     createAccount() {
       if (!this.$refs.form.validate()) {
@@ -62,6 +88,7 @@ export default {
           apiHost: this.$store.state.backend,
           body: {
             email: this.email,
+            lang: this.currentLanguage.slice(0, 2)
           },
         })
         .then((resp) => {

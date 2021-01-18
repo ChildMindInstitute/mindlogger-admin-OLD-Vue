@@ -1,13 +1,13 @@
 <template>
   <v-container>
-    <ag-grid-vue
-      class="ag-theme-balham"
-      :gridOptions="gridOptions"
-      :columnDefs="columnDefs"
-      :rowData="rowData"
-      :modules="modules"
-      :domLayout="domLayout"
-      @first-data-rendered="onFirstDataRendered"
+    <v-data-table
+      :headers="headers"
+      :items="rowData"
+      :loading="loading"
+      :footer-props="{
+        itemsPerPageText: $t('rowsPerPage'),
+        itemsPerPageAllText: $t('all'),
+      }"
     />
   </v-container>
 </template>
@@ -20,13 +20,11 @@
 
 <script>
 import moment from "moment";
-import { AgGridVue } from "@ag-grid-community/vue";
-import { AllCommunityModules } from "@ag-grid-community/all-modules";
+import { RolesMixin } from '../Utils/mixins/RolesMixin';
+
 export default {
   name: "PendingInviteTable",
-  components: {
-    AgGridVue,
-  },
+  mixins: [RolesMixin],
   props: {
     users: {
       type: Array,
@@ -34,56 +32,45 @@ export default {
         return [];
       },
     },
+    loading: {
+      type: Boolean,
+      required: true,
+    }
   },
   data() {
     return {
-      columnDefs: [
+      headers: [
         {
-          headerName: this.$i18n.t("institutionalID"),
-          field: "mrn",
+          text: this.$i18n.t("institutionalID"),
+          value: "mrn",
           sortable: true,
-          filter: true,
-          resizable: true
         },
         {
-          headerName: this.$i18n.t("firstName"),
-          field: "firstName",
+          text: this.$i18n.t("firstName"),
+          value: "firstName",
           sortable: true,
-          filter: true,
-          resizable: true
         },
         {
-          headerName: this.$i18n.t("lastName"),
-          field: "lastName",
+          text: this.$i18n.t("lastName"),
+          value: "lastName",
           sortable: true,
-          filter: true,
-          resizable: true
         },
         {
-          headerName: this.$i18n.t("userType"),
-          field: "userType",
+          text: this.$i18n.t("userType"),
+          value: "userType",
           sortable: true,
-          filter: true,
-          resizable: true
         },
         {
-          headerName: this.$i18n.t("invitationLink"),
-          field: "invitationLink",
+          text: this.$i18n.t("invitationLink"),
+          value: "invitationLink",
           sortable: true,
-          filter: true,
-          resizable: true
         },
         {
-          headerName: this.$i18n.t("dateTimeInvited"),
-          field: "dateTime",
+          text: this.$i18n.t("dateTimeInvited"),
+          value: "dateTime",
           sortable: true,
-          filter: true,
-          resizable: true
         }
-      ],
-      modules: AllCommunityModules,
-      gridOptions: {},
-      domLayout: "autoHeight",
+      ]
     };
   },
   computed: {
@@ -94,7 +81,7 @@ export default {
           mrn: invitation.MRN,
           firstName: invitation.firstName,
           lastName: invitation.lastName,
-          userType: invitation.role,
+          userType: this.localizedRoles.find(role => role.name == invitation.role).title,
           invitationLink: `${process.env.VUE_APP_WEB_URI}/#/invitation/${
             invitation._id
           }`,
@@ -102,22 +89,6 @@ export default {
         });
       });
       return dat;
-    },
-  },
-  mounted() {
-    this.autoSizeAll();
-  },
-  methods: {
-    onFirstDataRendered(params) {
-      params.api.sizeColumnsToFit();
-    },
-    autoSizeAll() {
-      var allColumnIds = [];
-      this.gridOptions.columnApi.getAllColumns().forEach(function(column) {
-        allColumnIds.push(column.colId);
-      });
-
-      this.gridOptions.columnApi.autoSizeColumns(allColumnIds, true);
     },
   },
 };

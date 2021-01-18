@@ -1,5 +1,8 @@
 <template>
   <div>
+    
+    <hr style="margin-bottom: 1.5em; margin-top: 1.5em; height: 1px" />
+
     <v-checkbox
       v-model="details.useNotifications"
       :label="$t('turnOnNotifs')"
@@ -12,7 +15,6 @@
       >
         <!-- Start notification at -->
         <div class="ds-time-cell">
-          <hr style="margin-bottom: 1.5em; margin-top: 1.5em;" />
           <label>{{ $t("startNotifAt") }}</label>
           <v-text-field
             v-model="notification.start"

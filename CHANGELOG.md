@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.6] - 2021-01-12
+- Fixed timeout option
+
+## [0.5.5] - 2021-01-11
+- Allowed timeout option on timed activity
+
+## [0.5.4] - 2021-01-08
+- Fixed state variables
+
+## [0.5.3] - 2021-01-05
+- Fixed state variables
+- Fixed response data
+
+## [0.5.2] - 2020-1-4
+- Fixed styles on version bar
+
+## [0.5.1] - 2020-1-4
+- Admin Dashboard New Design
+
+## [0.4.5] - 2020-12-30
+- Align filtering dates
+- Fix the position of version bar option
+
+## [0.4.4] - 2020-12-23
+- Data vis design updates [Redesign]
+- Add timed activity [Redesign]
+- Implement ellipsis for long text [Redesign]
+
+## [0.4.3] = 2020-12-18
+- Removed second on timed activity
+
+## [0.4.2] = 2020-12-07
+- Fixed token and version bar width
+
+## [0.4.1] = 2020-11-24
+- Added timed activity
+
+## [0.3.51] = 2020-11-20
+- Removed owner role in invitation form
+
+## [0.3.50] = 2020-11-17
+- Fix sessionStorage issue on Firefox
+
+## [0.3.49] = 2020-11-07
+- update forgot password functionality to send lang field to backend
+
+## [0.3.48] = 2020-11-04
+- Show a confirmation dialog when deleting an applet
+
+## [0.3.47] = 2020-11-04
+- update "Skip" option language
+
 ## [0.3.46] = 2020-11-04
 - Minor fixes for saved templates
 

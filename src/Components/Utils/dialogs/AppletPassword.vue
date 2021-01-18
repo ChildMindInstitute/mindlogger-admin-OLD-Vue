@@ -1,9 +1,15 @@
 <template>
-  <v-dialog max-width="800" :value="value" @input="$emit('input', $event)">
+  <v-dialog
+    max-width="800"
+    :value="value"
+    @input="$emit('input', $event)"
+  >
     <v-card>
-      <v-card-text>
-        <h3>{{ $t('appletPassword') }}</h3>
+      <v-card-title class="card-title">
+        {{ defaultTitle || $t('appletPassword') }}
+      </v-card-title>
 
+      <v-card-text>
         <v-text-field
           v-model="password.data"
           :label="$t('enterPassword')"
@@ -23,7 +29,10 @@
           @input="defaultErrorMsg = ''"
         />
 
-        <div v-if="error || defaultErrorMsg" class="error mb-4">
+        <div
+          v-if="error || defaultErrorMsg"
+          class="error mb-4"
+        >
           {{ error || defaultErrorMsg }}
         </div>
 
@@ -39,6 +48,13 @@
   </v-dialog>
 </template>
 
+<style scoped>
+.card-title {
+  color: white;
+  background: #1976d2;
+}
+</style>
+
 <script>
 export default {
   name: 'AppletPassword',
@@ -52,6 +68,11 @@ export default {
       required: false,
       default: true,
     },
+    defaultTitle: {
+      type: String,
+      required: false,
+      default: null
+    }
   },
   data: () => ({
     password: {

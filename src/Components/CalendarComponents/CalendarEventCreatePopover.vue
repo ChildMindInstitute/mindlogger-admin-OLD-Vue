@@ -41,9 +41,7 @@
           :style="styleText"
           @click="save"
         >
-          <v-icon left>
-            mdi-content-save
-          </v-icon>
+          <v-icon left> mdi-content-save </v-icon>
           <span>{{ labels.save }}</span>
         </v-btn>
       </slot>
@@ -88,6 +86,10 @@ export default {
     activities: {
       required: true,
       type: Array,
+    },
+    moveToDialog: {
+      required: true,
+      type: Boolean
     },
     calendarEvent: {
       required: true,
@@ -224,8 +226,13 @@ export default {
       this.details.URI = res[0].URI;
     },
   },
+  created (){
+     if (this.moveToDialog)
+      this.edit();
+  },
 
   methods: {
+
     edit() {
       var ev = this.getEvent("create-edit");
 
@@ -296,8 +303,8 @@ export default {
         allow: false,
       };
 
-      if (this.$store.state.currentUsers.length) {
-        evDetails.users = this.$store.state.currentUsers;
+      if (Object.keys(this.$store.state.currentUsers).length) {
+        evDetails.users = Object.keys(this.$store.state.currentUsers);
       }
       return fn.extend(
         {

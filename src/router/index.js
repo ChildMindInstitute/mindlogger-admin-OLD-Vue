@@ -2,10 +2,10 @@ import Vue from "vue";
 import Router from "vue-router";
 import Builder from "@/Components/Builder/Builder.vue";
 import Login from "../Steps/Login";
-import SetApplet from "../Steps/SetApplet";
+import Dashboard from "../Steps/Dashboard";
 import SetUsers from "../Steps/SetUsers";
 import SetSchedule from "../Steps/SetSchedule";
-import TokenLoggerDashboard from "../Steps/TokenLoggerDashboard";
+import ReviewerDashboard from "../Steps/ReviewerDashboard";
 import { getLanguageCode } from '../plugins/language';
 
 import _ from "lodash";
@@ -33,9 +33,9 @@ let router = new Router({
       },
     },
     {
-      path: "/applets",
-      name: "SetApplet",
-      component: SetApplet,
+      path: "/dashboard",
+      name: "Dashboard",
+      component: Dashboard,
       meta: {
         requiresAuth: true,
       },
@@ -58,8 +58,8 @@ let router = new Router({
     },
     {
       path: "/applet/:appletId/dashboard",
-      name: "TokenLoggerDashboard",
-      component: TokenLoggerDashboard,
+      name: "ReviewerDashboard",
+      component: ReviewerDashboard,
       meta: {
         requiresAuth: true,
       },
@@ -81,7 +81,7 @@ router.beforeEach((to, from, next) => {
 
   // Redirect unauthenticated users to the login page if they are trying to
   // access a page that requires authentication.
-  if (isPrivatePage && !isLoggedIn) {
+  if ( (isPrivatePage || !to.matched.length) && !isLoggedIn) {
     return next({
       path: "/login",
       query: { nextUrl: to.fullPath, lang },
@@ -90,8 +90,8 @@ router.beforeEach((to, from, next) => {
 
   // Prevent users from accessing the login page if they are already
   // authenticated.
-  if (isGuestPage && isLoggedIn) {
-    return next({ path: "/applets", query: { lang }});
+  if ( (isGuestPage || !to.matched.length) && isLoggedIn) {
+    return next({ path: "/dashboard", query: { lang }});
   } 
 
   // Evaluates to true if the lang parameter is set to just 'en' instead of
