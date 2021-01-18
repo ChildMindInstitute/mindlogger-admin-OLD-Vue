@@ -335,4 +335,6 @@ export default {
   takeToResponseData: 'Take me to the response data',
   alertMessage: 'A question was answered by {userIdentifier} that an alert was created for.',
   newFolder: 'New Folder',
+  appletUrl: 'Applet URL',
+  selectAppletToEdit: 'Please select applet to edit',
 };

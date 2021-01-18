@@ -13,6 +13,46 @@
       </div>
     </div>
     <div class="ml-auto">
+        <v-menu
+          v-if="appletUploadEnabled"
+          offset-y
+        >
+          <template v-slot:activator="{ on }">
+            <v-btn
+              color="primary"
+              style="margin: auto;"
+              v-on="on"
+            >
+              <v-icon>mdi-plus</v-icon>
+              New Applet
+            </v-btn>
+          </template>
+
+          <v-list>
+            <v-list-item
+              @click="$emit('onBuildApplet')"
+            >
+              <v-list-item-title>
+                {{ 'Build an applet' }}
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              @click="$emit('onEditApplet')"
+            >
+              <v-list-item-title>
+                {{ 'Edit an applet' }}
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              @click="$emit('onAddAppletFromUrl')"
+            >
+              <v-list-item-title>
+                {{ 'Add applet from GitHub URL' }}
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
         <v-btn
           color="primary"
           class="mx-2 my-2"
@@ -186,7 +226,6 @@ import AppletActions from "./AppletActions.vue";
 import FolderActions from "./FolderActions.vue";
 
 
-
 TimeAgo.addLocale(en);
 TimeAgo.addLocale(fr);
 
@@ -212,7 +251,6 @@ export default {
       type: Array,
       required: true
     },
-
   },
   data() {
     return {
@@ -272,6 +310,14 @@ export default {
     accountApplets() {
       return this.$store.state.currentAccount.applets;
     },
+    appletUploadEnabled() {
+      for (let applet of this.accountApplets) {
+        if (applet.roles.includes('manager') || applet.roles.includes('editor')) {
+          return true;
+        }
+      }
+      return false;
+    },
     formattedApplets() {
       const formatted = [];
       for (let applet of this.applets) {
@@ -294,6 +340,13 @@ export default {
     }
   },
   methods: {
+    onBuildApplet() {
+      this.$router.push({
+        name: 'Builder',
+        params: {isEditing: false},
+      }).catch(err => {
+      });
+    },
     animateSaveInstructions() {
       this.showSaveFolderInstructions = true;
 

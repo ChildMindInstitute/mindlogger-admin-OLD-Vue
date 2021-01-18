@@ -338,4 +338,6 @@ export default {
   takeToResponseData: 'Amenez-moi aux données de la réponse',
   alertMessage: '{userIdentifier} a répondu à une question pour laquelle une alerte a été créée',
   newFolder: 'Nouveau dossier',
+  appletUrl: 'Applet URL',
+  selectAppletToEdit: 'Please select applet to edit',
 };
