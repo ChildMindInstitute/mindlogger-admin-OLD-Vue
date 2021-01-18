@@ -342,7 +342,7 @@ export default {
         sort
       });
     },
-
+    
     getInvitations() {
       return api.getInvitations({
         apiHost: this.$store.state.backend,

@@ -1,5 +1,6 @@
 # MindLogger Administrator Panel
 
+
 [![GitHub version](https://img.shields.io/github/tag/ChildMindInstitute/mindlogger-admin.svg)](https://github.com/ChildMindInstitute/mindlogger-admin/releases)
 
 ## Project setup
