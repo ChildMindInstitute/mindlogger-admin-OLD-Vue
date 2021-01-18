@@ -77,6 +77,10 @@
     },
     computed: {
       applets() {
+        if (!this.$store.state.currentAccount || !Array.isArray(this.$store.state.currentAccount.applets)) {
+          return [];
+        }
+
         return this.$store.state.currentAccount.applets.filter(
           applet => 
               applet.roles.includes('manager') || applet.roles.includes('editor')
