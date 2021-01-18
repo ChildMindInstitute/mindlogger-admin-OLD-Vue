@@ -154,6 +154,9 @@
             </span>
           </td>
         </tr>
+        <tr v-if="props.items.length === 0 && !loading">
+          <h4 class="no-data"> No data </h4>
+        </tr>
       </template>
 
       <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
@@ -231,6 +234,12 @@
   } 
   .btn-user-request:hover {
     color: rgb(100, 0, 0);
+  }
+
+  .no-data {
+    font-size: 14px;
+    margin: 10px 0 10px 20px;
+    color: rgba(0, 0, 0, .38);
   }
 
   @media only screen and (max-width: 767px) {
@@ -340,7 +349,7 @@ export default {
         align: 'left',
         sortable: false,
         value: 'pinned',
-        width: 20,
+        width: 100,
       },
       {
         text: this.$i18n.t('userCode'),
