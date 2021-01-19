@@ -82,8 +82,8 @@
           </applet-item>
         </template>
         <template v-slot:no-data>
-          <v-btn color="primary"> No data</v-btn>
-    </template>
+          <h4> No data</h4>
+        </template>
     </v-data-table>
     </div>
 
