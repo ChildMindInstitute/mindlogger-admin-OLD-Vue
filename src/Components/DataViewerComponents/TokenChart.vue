@@ -39,7 +39,7 @@
             class="accumulation-value"
             :x="accumulation.x"
             :y="accumulation.y"
-            fill="gray"
+            fill="orange"
           >{{ accumulation.text }} </text>
 
         </g>
@@ -226,7 +226,11 @@ export default {
     parentWidth: {
       type: Number,
       required: true,
-    }
+    },
+    cumulative: {
+      type: Object,
+      required: true,
+    },
   },
   data: function() {
     return {
@@ -287,6 +291,15 @@ export default {
         }
       })
     },
+    cumulativeToken() {
+      return this.cumulative.cumulativeToken;
+    },
+    tokenUpdates() {
+      return this.cumulative.tokenUpdates.map(tokenUpdate => ({
+        date: new Date(tokenUpdate.created.slice(0, 10)),
+        value: tokenUpdate.value
+      }))
+    }
   },
 
   /**
@@ -667,37 +680,53 @@ export default {
         return;
       }
 
+      let events = this.tokenUpdates.concat(data);
+      events.sort((ev1, ev2) => {
+        if (ev1.date < ev2.date) return -1;
+        if (ev1.date > ev2.date) return 1;
+        return 0;
+      })
+
+      let accumulation = events.reduce((accumulation, event) => 
+        event.positive !== undefined ? accumulation - event.positive : accumulation - event.value,
+        this.cumulativeToken
+      );
+
       let normalisedx = x(new Date(0))
       normalisedx += (0.5 * this.focusBarWidth()) - 5;
 
       let normalisedy = this.y(0) - 2;
       let pathString = `M ${normalisedx} ${normalisedy}`;
-      let accumulation = 0;
 
-      for (var i = 0; i < data.length; i++) {
-        const step = data[i]
-        const { positive } = step;
+      for (let i = 0; i < events.length; i++) {
+        const step = events[i]
+        const value = step.positive !== undefined ? step.positive : step.value;
+
         normalisedx = x(step.date)
         normalisedx += (0.5 * this.focusBarWidth()) - 5;
         normalisedy = this.y(accumulation) - 2
 
-        if (positive > 0){
+        if (!i || events[i].date.getTime() != events[i-1].date.getTime()) {
           pathString += ` L ${normalisedx + 3} ${normalisedy}`
-          accumulation = positive + accumulation;
-          normalisedy = this.y(accumulation)
+        }
 
+        accumulation = value + accumulation;
+        normalisedy = this.y(accumulation)
+
+        if (i == events.length-1 || events[i].date.getTime() != events[i+1].date.getTime()) {
           pathString += ` L ${normalisedx + 3} ${normalisedy}`
           this.accumulations.push({text: accumulation, x: normalisedx + (0.5 * this.focusBarWidth()), y: normalisedy -3})
         }
-        if (i === data.length -1) {
+
+        if (i === events.length -1) {
           pathString += ` L ${normalisedx + (0.5 * this.focusBarWidth() + 20)} ${normalisedy}`
         }
       }
       this.svg
           .select('.token-accumulation')
           .append('path')
-          .style('stroke', 'gray')
-          .attr('fill', 'transparent')
+          .style('stroke', '#582400')
+          .attr('fill', 'none')
           .style('stroke-width', 2)
           .attr('d', pathString)
     },
