@@ -236,7 +236,6 @@ export default {
   invalidAppletPasswordFormat: 'Min. 8 characters with at least one capital letter, a number and a special character.',
   pageOf: 'Page {current} of {total}',
   shownResultsRange: '{from} to {to} of {total}',
-  showingDataFrom: 'Showing data from',
   showVersionChanges: 'Show Version Changes',
   confirmRemoveAllEvents: 'Are you sure you want to remove all events from calendar?',
   appletUploadError: 'There was an error uploading your applet. Please try again or report this issue.',
