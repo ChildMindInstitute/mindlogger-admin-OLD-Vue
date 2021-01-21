@@ -690,7 +690,7 @@ export default {
     },
     
     isNotEncrypted(item) {
-      return !item.encryption && !item.applet.encryption;
+      return !item.encryption && (!item.applet || !item.applet.encryption);
     },
 
     onViewUsers(item) {
