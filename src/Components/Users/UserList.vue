@@ -59,7 +59,7 @@
                     <v-icon> mdi-calendar-month </v-icon>
                   </v-btn>
                 </template>
-                <span>{{ $t('viewCalendar') }}</span>
+                <span>{{ $t('viewIndividualCalendar') }}</span>
               </v-tooltip>
 
               <v-tooltip
