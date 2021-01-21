@@ -72,10 +72,12 @@ export const DrawingMixin = {
         return;
       }
 
+      const newVersions = this.formattedVersions.filter(d => this.selectedVersions.indexOf(d.version) >= 0);
+
       this.svg
         .select('.versions')
         .selectAll('rect')
-        .data(this.formattedVersions.filter(d => this.selectedVersions.indexOf(d.version) >= 0 ))
+        .data(newVersions)
         .join('rect')
         .attr('fill', d => d.barColor)
         .attr('x', d => {
@@ -85,6 +87,29 @@ export const DrawingMixin = {
         .attr('width', this.versionBarWidth)
         .attr('height', d => {
           return this.x(d.updated) >= 0 ? this.height + this.padding.top + this.padding.bottom : 0
+        })
+      const texts = this.svg
+        .select('.versions')
+        .selectAll('text')
+        .data(newVersions)
+        .enter();
+      
+      texts.append("text")
+        .attr('x', d => {
+          return this.x(d.updated) - 40;
+        })
+        .attr('y', 12)
+        .style("font-size", "12px")
+        .text(d => "v" + d.version);
+      
+      texts.append("text")
+        .attr('x', d => {
+          return this.x(d.updated) + 9;
+        })
+        .attr('y', 12)
+        .style("font-size", "12px")
+        .text((d, index) => {
+          return newVersions[index + 1] ? "v" + newVersions[index + 1].version : "";
         });
     },
 
