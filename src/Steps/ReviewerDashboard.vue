@@ -33,8 +33,6 @@
         <div class="content">
           <div class="content-header">
             <div class="time-range">
-              {{ $t('showingDataFrom') }}
-
               <v-menu>
                 <template v-slot:activator="{ on }">
                   <v-btn 
@@ -77,12 +75,6 @@
             </div>
 
             <div class="version">
-              <v-checkbox
-                v-model="hasVersionBars"
-                class="version-bar"
-                :label="$t('showVersionChanges')"
-              />
-
               <v-select
                 v-model="selectedVersions"
                 class="version-list"
@@ -111,7 +103,7 @@
                     >
                       <v-expansion-panel-header>
                         <div 
-                          v-if="!allExpanded"
+                          v-if="!allExpanded && applet.activities.length > 1"
                           class="ds-expand-action"
                           @click.stop="onAllExpand"
                         >
@@ -132,7 +124,7 @@
                         </div>
 
                         <div 
-                          v-if="allExpanded"
+                          v-if="allExpanded  && applet.activities.length > 1"
                           class="ds-expand-action"
                           @click.stop="onAllCollapsed"
                         >
@@ -506,7 +498,7 @@ export default {
       tabs: ['responses', 'tokens'],
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
-      hasVersionBars: false,
+      hasVersionBars: true,
       panelWidth: 974,
       margin: 50,
       itemPadding: 15
