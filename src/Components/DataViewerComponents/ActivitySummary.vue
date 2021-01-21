@@ -4,13 +4,13 @@
   >
     <svg
       :id="plotId"
-      :width="width"
       :height="height"
+      width="100%"
     >
       <g class="labels">
         <text
           :y="padding.top + radius + 15/2"
-          :x="labelWidth/2"
+          :x="labelWidth/2 + 20"
           :font-size="itemPadding"
           text-anchor="middle"
           font-weight="bold"
@@ -35,7 +35,7 @@
 
       <g
         class="content"
-        :transform="`translate(${labelWidth + itemPadding - 20}, 0)`"
+        :transform="`translate(${labelWidth + itemPadding + 5}, 0)`"
       >
         <g class="x-axis" />
         <g class="versions" />
@@ -50,6 +50,7 @@
 .activity-summary {
   display: inline-block;
   position: relative;
+  width: 100%;
   user-select: none;
 }
 
