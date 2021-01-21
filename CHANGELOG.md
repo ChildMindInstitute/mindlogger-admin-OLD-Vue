@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.8] - 2021-01-20
+- Remove "Showing data from" text
+- Show version number on each side of version bar (ex: 0.01 | 0.02) on graphs
+- Remove "Show Version Changes" on/off checkbox and always show version bars
+- Show "Version text in line with the drop-down
+- Show summary line in line with the response option lines
+- Update text when Token data is not available to " No token data available for this activity"
+- Applets that have not collected any data yet from the user should read "No data available to show yet"
+- If there is only one activity, remove the expand all option
+
 ## [0.5.7] - 2021-01-11
 - Fix status of data availability
 
