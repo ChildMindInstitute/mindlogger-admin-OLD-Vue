@@ -1,6 +1,6 @@
 <template>
   <div>
-      <h3 class="mb-5">{{$t('activityAccessOptions')}}</h3>
+      <div class="mb-5" />
       <div style="display:flex">
         <h3 >{{$t('activityAvailable')}}</h3>
         <v-switch :label="$t('allDay')" 
