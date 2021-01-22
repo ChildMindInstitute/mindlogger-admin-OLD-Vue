@@ -2,6 +2,11 @@ import api from "../api/api.vue";
 import Applet from "../../../models/Applet";
 import Item from "../../../models/Item";
 import ObjectToCSV from 'object-to-csv';
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
+import fr from 'javascript-time-ago/locale/fr';
+TimeAgo.addLocale(en);
+TimeAgo.addLocale(fr);
 
 export const AppletMixin = { 
   computed: {
@@ -219,6 +224,12 @@ export const AppletMixin = {
       const applet = this.$store.state.allApplets[appletMeta.id];
 
       return applet && applet.updated === appletMeta.updated;
+    },
+    formatTimeAgo(item) {
+      if (!item.updated) return "";
+      const formatted = new TimeAgo(this.$i18n.locale.replace('_', '-')).format(new Date(item.updated), 'round');
+
+      return formatted;
     }
   }
 }
