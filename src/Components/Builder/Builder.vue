@@ -43,7 +43,6 @@
 </style>
 
 <script>
-import Components from 'applet-schema-builder';
 import About from './AboutBuilder';
 import PackageJson from '../../../package.json';
 import api from '../Utils/api/api.vue';
@@ -66,7 +65,6 @@ const CONTEXT = "@context";
 export default {
   name: 'Builder',
   components: {
-    ...Components,
     About,
     AppletPassword,
     Information,
