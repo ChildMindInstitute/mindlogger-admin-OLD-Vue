@@ -9,6 +9,11 @@ import router from "./router";
 import App from "./App.vue";
 import vuetify from "./plugins/vuetify";
 import i18n from "./plugins/language";
+import AppletSchemaBuilder from 'applet-schema-builder';
+import mavonEditor from 'mavon-editor';
+import 'mavon-editor/dist/css/index.css'
+
+import store from './State/state';
 
 import "vuetify-dialog/dist/vuetify-dialog.min.css";
 
@@ -28,6 +33,12 @@ if (environment !== "development" && environment !== "local") {
     integrations: [new VueIntegration({ Vue, attachProps: true })],
   });
 }
+
+Vue.use(mavonEditor);
+Vue.use(AppletSchemaBuilder, {
+  store,
+  mavonEditor,
+});
 
 Vue.use(DaySpanVuetify, {
   data: {
