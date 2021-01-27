@@ -332,4 +332,6 @@ export default {
   latestScore: 'Dernier score',
   frequency: 'Fréquence',
   new: 'neuf',
+  takeToResponseData: 'Amenez-moi aux données de la réponse',
+  alertMessage: '{userIdentifier} a répondu à une question pour laquelle une alerte a été créée'
 };

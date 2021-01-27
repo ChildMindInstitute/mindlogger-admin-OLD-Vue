@@ -7,7 +7,7 @@
     <v-card class="pa-4">
       <v-card-text>
         <div class="alert-message">
-          A question was answered by {{ userIdentifier }} that an alert was created for.
+          {{$t('alertMessage', { userIdentifier })}}
         </div>
 
         <div class="mt-4 alert-message">
@@ -19,7 +19,7 @@
           class="view-btn"
           @click="$emit('view-data')"
         >
-          Take me to the response data
+          {{$t('takeToResponseData')}}
         </v-btn>
       </v-card-actions>
 
