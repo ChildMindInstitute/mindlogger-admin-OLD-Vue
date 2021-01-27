@@ -189,7 +189,6 @@
         <v-btn
           icon
           v-on="on"
-          @click="onOpenAlertList"
         >
 					<img height="24" alt='' v-bind:src="require(`@/assets/response-alert.png`)"/>
 
@@ -552,14 +551,6 @@ export default {
    * Define here all methods that will be available in the scope of the template.
    */
   methods: {
-    onOpenAlertList() {
-      if (this.newAlertCount) {
-        api.updateAlertStatus(
-          this.$store.state.backend,
-          this.$store.state.auth.authToken.token,
-        );
-      }
-    },
     compressedMessage(message) {
       return message.length > 28
         ? message.slice(0, 25) + ' …'
@@ -664,6 +655,16 @@ export default {
     },
 
     onViewAlert(alert) {
+      if (this.newAlertCount) {
+        api.updateAlertStatus(
+          this.$store.state.backend,
+          this.$store.state.auth.authToken.token,
+          alert.id,
+        ).then(() => {
+          this.$store.commit('setViewAlert', alert.id);
+        });
+      }
+
       this.$set(this, 'responseAlertDialog', {
         visible: true,
         alert: alert,
