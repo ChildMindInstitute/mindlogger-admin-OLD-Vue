@@ -13,13 +13,13 @@
           @input="updateFilter"
         />
       </div>
-      <v-btn
+      <!-- <v-btn
         v-if="multiSelectionEnabled"
         class="reset-selection"
         @click="resetSelection"
       >
         {{ $t('resetSelection') }}
-      </v-btn>
+      </v-btn> -->
     </div>
 
     <v-data-table
@@ -31,7 +31,8 @@
       :custom-sort="customSort"
       :footer-props="{
         itemsPerPageText: $t('rowsPerPage'),
-        itemsPerPageAllText: $t('all')
+        itemsPerPageAllText: $t('all'),
+        itemsPerPageOptions: [10, 50, 100, -1],
       }"
     >
       <template v-slot:body="props">

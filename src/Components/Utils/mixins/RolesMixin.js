@@ -22,5 +22,12 @@ export const RolesMixin = {
                 title: this.$t('reviewer')
             },
         ]
+    },
+    methods: {
+        hasRoles(item) {
+            return [].some.call(arguments, (role) =>
+                item.roles.includes(role)
+            );
+        },
     }
 }
