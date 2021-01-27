@@ -55,7 +55,7 @@
     </v-btn>
 
     <v-tooltip
-      v-if="currentApplet && hasRoles('reviewer', 'manager', 'coordinator')"
+      v-if="currentApplet && hasRoles(currentApplet, 'reviewer', 'manager', 'coordinator')"
       bottom
     >
       <template v-slot:activator="{ on }">
@@ -73,7 +73,7 @@
     </v-tooltip>
 
     <v-tooltip
-      v-if="currentApplet && hasRoles('manager', 'coordinator')"
+      v-if="currentApplet && hasRoles(currentApplet, 'manager', 'coordinator')"
       bottom
     >
       <template v-slot:activator="{ on }">
@@ -91,7 +91,7 @@
     </v-tooltip>
 
     <v-tooltip
-      v-if="currentApplet && hasRoles('editor', 'manager')"
+      v-if="currentApplet && hasRoles(currentApplet, 'editor', 'manager')"
       bottom
     >
       <template v-slot:activator="{ on }">
@@ -109,7 +109,7 @@
     </v-tooltip>
 
     <v-tooltip
-      v-if="currentApplet && hasRoles('reviewer', 'manager')"
+      v-if="currentApplet && hasRoles(currentApplet, 'reviewer', 'manager')"
       bottom
     >
       <template v-slot:activator="{ on }">
@@ -119,12 +119,61 @@
           v-on="on"
           @click="onExportData"
         >
-          <v-icon class="export-icon">
-            mdi-export
-          </v-icon>
+          <v-icon class="export-icon">mdi-export</v-icon>
         </v-btn>
       </template>
       <span>{{ $t('exportData') }}</span>
+    </v-tooltip>
+
+    <v-tooltip
+      v-if="currentApplet && hasRoles(currentApplet, 'editor', 'manager')"
+      bottom
+    >
+      <template v-slot:activator="{ on }">
+        <v-btn
+          :x-small="isTablet"
+          class="toolbar-btn primary"
+          v-on="on"
+          @click="onDuplicateApplet"
+        >
+          <img height="24" alt='' v-bind:src="require(`@/assets/copy-clipart-white.png`)"/>
+        </v-btn>
+      </template>
+      <span>{{ $t('duplicateApplet') }}</span>
+    </v-tooltip>
+
+    <v-tooltip
+      v-if="currentApplet && hasRoles(currentApplet, 'editor', 'manager')"
+      bottom
+    >
+      <template v-slot:activator="{ on }">
+        <v-btn
+          :x-small="isTablet"
+          class="toolbar-btn primary"
+          v-on="on"
+          @click="onDeleteApplet"
+        >
+          <v-icon>mdi-delete</v-icon>
+        </v-btn>
+      </template>
+      <span>{{ $t('deleteApplet') }}</span>
+    </v-tooltip>
+
+    <v-tooltip
+      v-if="currentApplet && hasRoles(currentApplet, 'editor', 'manager')"
+      bottom
+    >
+      <template v-slot:activator="{ on }">
+        <v-btn
+          :x-small="isTablet"
+          class="toolbar-btn primary"
+          v-on="on"
+          @click="onTransferOwnership"
+        >
+          <img height="24" alt='' v-bind:src="require(`@/assets/transfer-ownership-white.png`)"/>
+        </v-btn>
+      </template>
+      <span>{{ $t('transferOwnership') }}</span>
     </v-tooltip>
 
     <v-spacer />
@@ -241,6 +290,12 @@
     </v-btn>
 
     <ConfirmationDialog
+      v-model="appletDeleteDialog"
+      :dialogText="$t('deleteAppletConfirmation')"
+      :title="$t('deleteApplet')"
+      @onOK="deleteApplet"
+    />
+    <ConfirmationDialog
       v-model="appletEditDialog"
       :dialogText="$t('appletEditAlert')"
       :title="$t('appletEdit')"
@@ -259,6 +314,24 @@
       :user="responseAlertDialog.user"
       :alert="responseAlertDialog.alert"
       @view-data="viewAlert"
+    />
+
+    <Information
+      v-model="dialog"
+      :dialogText="dialogText"
+      :title="dialogTitle"
+    />
+
+    <AppletName
+      ref="appletNameDialog"
+      v-model="appletDuplicateDialog"
+      @set-value="onSetAppletDuplicateName"
+    />
+
+    <TransferOwnershipDialog
+      v-model="ownershipDialog"
+      @submit="transferOwnership"
+      @close="ownershipDialog = false"
     />
   </v-app-bar>
 </template>
@@ -335,12 +408,16 @@ import api from '../api/api.vue';
 import ConfirmationDialog from '../dialogs/ConfirmationDialog';
 import AppletPassword from '../dialogs/AppletPassword';
 import ResponseAlertDialog from '../dialogs/ResponseAlertDialog';
+import Information from "../dialogs/InformationDialog.vue";
+import AppletName from "../dialogs/AppletName";
 import { AppletMixin } from '../mixins/AppletMixin';
+import { RolesMixin } from '../mixins/RolesMixin';
 import encryption from '../encryption/encryption.vue';
 
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import fr from 'javascript-time-ago/locale/fr';
+import TransferOwnershipDialog from '../dialogs/TransferOwnershipDialog.vue';
 
 TimeAgo.addLocale(en);
 TimeAgo.addLocale(fr);
@@ -351,8 +428,11 @@ export default {
     ConfirmationDialog,
     AppletPassword,
     ResponseAlertDialog,
+    Information,
+    AppletName,
+    TransferOwnershipDialog,
   },
-  mixins: [AppletMixin],
+  mixins: [AppletMixin, RolesMixin],
   data() {
     return {
       appletEditDialog: false,
@@ -367,7 +447,14 @@ export default {
         visible: false,
         alert: {},
         user: {},
-      }
+      },
+      dialog: false,
+      dialogText: "",
+      dialogTitle: "",
+      appletDuplicateDialog: false,
+      appletDeleteDialog: false,
+      appletPendingDelete: undefined,
+      ownershipDialog: false,
     }
   },
   mounted() {
@@ -478,11 +565,11 @@ export default {
         ? message.slice(0, 25) + ' …'
         : message
     },
-    hasRoles() {
-      return [].some.call(arguments, (role) =>
-        this.currentApplet.roles.includes(role)
-      );
-    },
+    // hasRoles() {
+    //   return [].some.call(arguments, (role) =>
+    //     this.currentApplet.roles.includes(role)
+    //   );
+    // },
     logout() {
       this.$store.commit('resetState');
       this.$router.push('/login').catch(err => {});
@@ -641,7 +728,84 @@ export default {
         path: `/applet/${appletId}/dashboard`,
         query: { users: [profileId] },
       }).catch(err => {});
-    }
+    },
+    onDuplicateApplet() {
+      api
+          .validateAppletName({
+            apiHost: this.$store.state.backend,
+            token: this.$store.state.auth.authToken.token,
+            name: `${this.currentApplet.name} (1)`
+          })
+          .then(resp => {
+            this.appletDuplicateDialog = true;
+            this.$refs.appletNameDialog.appletName = resp.data;
+          })
+    },
+    onSetAppletDuplicateName(appletName) {
+      api
+          .duplicateApplet({
+            apiHost: this.$store.state.backend,
+            token: this.$store.state.auth.authToken.token,
+            appletId: this.currentApplet.id,
+            options: {
+              name: appletName,
+            },
+          })
+          .then((resp) => {
+            this.appletDuplicateDialog = false;
+
+            this.dialogText = resp.data.message;
+            this.dialogTitle = this.$t('appletDuplication');
+            this.dialog = true;
+          });
+    },
+
+    onDeleteApplet() {
+      this.appletDeleteDialog = true;
+      this.appletPendingDelete = this.currentApplet;
+    },
+    deleteApplet() {
+      this.isSyncing = true;
+      this.loaderMessage = `Deleting applet ${this.appletPendingDelete.name}`;
+      api
+          .deleteApplet({
+            apiHost: this.$store.state.backend,
+            token: this.$store.state.auth.authToken.token,
+            appletId: this.currentApplet.id,
+          })
+          .then((resp) => {
+            this.isSyncing = false;
+            this.loaderMessage = "";
+            const applet = this.appletPendingDelete;
+            this.$store.commit('removeDeletedApplet',  applet);
+            this.$router.push("/dashboard").catch(err => {});
+          });
+    },
+
+    onTransferOwnership() {
+      this.ownershipDialog = true;
+    },
+    transferOwnership(ownershipEmail) {
+      api
+          .transferOwnership({
+            apiHost: this.$store.state.backend,
+            token: this.$store.state.auth.authToken.token,
+            appletId: this.currentApplet.id,
+            email: ownershipEmail,
+          })
+          .then((resp) => {
+            this.ownershipDialog = false;
+
+            this.dialogText = this.$t('requestSuccess', { ownershipEmail });
+            this.dialogTitle = this.$t('requestSent');
+            this.dialog = true;
+          })
+          .catch((err) => {
+            this.dialogText = this.$t('requestTransferFailed',);
+            this.dialogTitle = this.$t('requestFailed');
+            this.dialog = true;
+          });
+    },
   },
 };
 </script>

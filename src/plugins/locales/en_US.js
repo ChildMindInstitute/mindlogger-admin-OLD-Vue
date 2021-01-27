@@ -303,7 +303,7 @@ export default {
   currentScheduleStatus: 'Current Schedule Selection',
   individualSchedule: 'Individual Schedule',
   generalSchedule: 'General Schedule',
-  individualScheduleAlert: '{MRN} is a member of general schedule. Do you want to set an individual schedule with notifications for {MRN}?',
+  individualScheduleAlert: `{MRN} is a member of this applet's general schedule. Do you want to set an individual schedule with notifications for {MRN}?`,
   incorrectAppletPassword: 'Incorrect applet password',
   resetSelection: 'Reset Selection',
   exportUserData: 'User Data Export',
@@ -326,7 +326,7 @@ export default {
   secretUserId: 'Secret User ID',
   secretUserIdRequired: 'Secret User ID is required',
   subScaleScores: 'Subscale Scores',
-  latestScore: 'Lastest Score',
+  latestScore: 'Latest Score',
   frequency: 'Frequency',
   new: 'new',
 };
