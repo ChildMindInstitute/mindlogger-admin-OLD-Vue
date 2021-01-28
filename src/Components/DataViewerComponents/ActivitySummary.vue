@@ -193,7 +193,11 @@ export default {
         .join('circle')
         .attr('fill', this.color)
         .attr('cx', d => {
-          return this.x(d.date);
+          const dataVersion = this.formattedVersions.find(v => v.version === d.version );
+          const offset = this.versionsLength[new Date(dataVersion.updated).getDay()] / 2;
+          const responseDate = new Date(d.date).setHours(new Date (dataVersion.updated).getHours() + offset);
+
+          return this.x(responseDate);
         })
         .attr('cy', this.radius + this.padding.top)
         .attr('r', d => this.x(d.date) >= 0 ? this.radius : 0);
