@@ -97,7 +97,29 @@
                     multiple
                     focusable
                   >
+                    <v-expansion-panel v-if="tab=='tokens'">
+                      <v-expansion-panel-header>
+                        <div>
+                          {{ applet.label.en }}
+                        </div>
+                      </v-expansion-panel-header>
+                      <v-expansion-panel-content>
+                        <token-chart
+                          :plot-id="`Token-${applet.id.replace(' ', '_')}`"
+                          :applet="applet"
+                          :cumulative="applet.tokens"
+                          :timezone="applet.timezoneStr"
+                          :versions="applet.versions"
+                          :focus-extent="focusExtent"
+                          :selected-versions="selectedVersions"
+                          :has-version-bars="hasVersionBars"
+                          :parent-width="panelWidth"
+                          @onUpdateFocusExtent="onUpdateFocusExtent"
+                        />
+                      </v-expansion-panel-content>
+                    </v-expansion-panel>
                     <v-expansion-panel
+                      v-else
                       v-for="(activity, index) in applet.activities"
                       :key="index"
                     >
@@ -258,24 +280,6 @@
                             :key="item['id']"
                             class="chart-card"
                           >
-                            <header v-if="tab=='tokens' && item.isTokenItem || tab == 'responses'">
-                              <h3> - {{ item.getFormattedQuestion() }}</h3>
-                            </header>
-
-                            <token-chart
-                              v-if="tab=='tokens' && item.isTokenItem"
-                              :plot-id="`Token-${activity.slug}-${item.slug}`"
-                              :item="item"
-                              :cumulative="applet.tokens"
-                              :timezone="applet.timezoneStr"
-                              :versions="applet.versions"
-                              :focus-extent="focusExtent"
-                              :selected-versions="selectedVersions"
-                              :has-version-bars="hasVersionBars"
-                              :parent-width="panelWidth"
-                              @onUpdateFocusExtent="onUpdateFocusExtent"
-                            />
-
                             <RadioSlider
                               v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
                               :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"

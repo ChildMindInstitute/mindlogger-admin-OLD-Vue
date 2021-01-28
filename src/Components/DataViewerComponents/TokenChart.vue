@@ -203,7 +203,7 @@ export default {
       type: Array,
       required: true
     },
-    item: {
+    applet: {
       type: Object,
       required: true,
     },
@@ -252,7 +252,7 @@ export default {
       accumulations: [],
       versionBarWidth: 4,
       versionChangeLimitPerDay: 4,
-      ...this.item.getFormattedTokenData(),
+      ...this.applet.getItemsFormatted(),
     }
   },
   computed: {

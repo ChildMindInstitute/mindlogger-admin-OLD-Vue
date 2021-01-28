@@ -1,7 +1,8 @@
 import axios from 'axios';
-
+import moment from 'moment';
 import store from '../State/state';
 import i18n from '../core/i18n';
+import slugify from '../core/slugify';
 
 // Models.
 import Activity from './Activity';
@@ -338,6 +339,76 @@ export default class Applet {
     }
 
     return 'None';
+  }
+
+  getItemsFormatted() {
+    let merged = [], features = [], last = null;
+    let dateToVersions = {};
+
+    Object.keys(this.items).forEach(itemId => {
+      const item = this.items[itemId];
+
+      if (item.isTokenItem) {
+        item.responses.forEach(resp => {
+          let dateStr = moment.utc(resp.date).format('YYYY-MM-DD');
+
+          /** consider that responses are already sorted by date/version */
+          if (last && dateStr == last.date && resp.version == last.version) {
+            for (let choice of item.responseOptions) {
+              if (resp[choice.id]) {
+                last[choice.id] = last[choice.id] ? last[choice.id] + resp[choice.id] : resp[choice.id];
+              }
+            }
+          } else if (resp.version) {
+            dateToVersions[dateStr] = dateToVersions[dateStr] || [];
+            dateToVersions[dateStr].push(resp.version);
+            merged.push({
+              ...resp,
+              date: dateStr,
+              barIndex: dateToVersions[dateStr].length - 1,
+              itemId,
+            });
+
+            last = merged[merged.length - 1];
+          }
+        });
+        item.responseOptions.forEach(choice => {
+          features.push({
+            ...choice,
+            slug: slugify(item.id + choice.id),
+          })
+        });
+      }
+    });
+
+    return {
+      data: merged.map(response => {
+        let positive = 0, negative = 0, cummulative = 0;
+
+        Object.keys(this.items).forEach(itemId => {
+          for (let choice of this.items[itemId].responseOptions) {
+            let value = response[choice.id];
+
+            if (value) {
+              positive = value > 0 ? positive + value : positive;
+              negative = value < 0 ? negative + value : negative;
+              cummulative = cummulative + value;
+            }
+          }
+        });
+
+        return {
+          ...response,
+          bars: dateToVersions[response.date].length,
+          positive,
+          negative,
+          cummulative,
+          date: new Date(response.date)
+        }
+      }),
+      versionsByDate: dateToVersions,
+      features,
+    }
   }
 
   static compareVersions(version1, version2) {
