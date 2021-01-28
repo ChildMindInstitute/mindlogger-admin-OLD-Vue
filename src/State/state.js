@@ -50,6 +50,17 @@ const mutations = {
   addUpdatedEventId(state, eventId) {
     state.updatedEvents.push(eventId);
   },
+  setViewAlert(state, alertId) {
+    if (state.currentAccount && state.currentAccount.alerts) {
+      const alertList = state.currentAccount.alerts.list;
+
+      for (let alert of alertList) {
+        if (alert.id == alertId) {
+          alert.viewed = true;
+        }
+      }
+    }
+  },
   resetUpdatedEventId(state) {
     state.removedEvents = [];
     state.updatedEvents = [];
