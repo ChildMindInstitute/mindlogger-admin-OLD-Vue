@@ -326,6 +326,6 @@ export default {
   secretUserId: 'Secret User ID',
   secretUserIdRequired: 'Secret User ID is required',
   subScaleScores: 'Subscale Scores',
-  latestScore: 'Lastest Score',
+  latestScore: 'Latest Score',
   frequency: 'Frequency',
 };
