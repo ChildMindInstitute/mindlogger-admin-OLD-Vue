@@ -9,7 +9,7 @@ import createPersistedState from 'vuex-persistedstate';
 
 const getDefaultState = () => {
   return {
-    backend: "https://api-staging.mindlogger.org/api/v1",
+    backend: process.env.VUE_APP_SERVER_URL,
     currentAccount: {},
     currentApplets: [],
     ownerAccount: {},
@@ -50,6 +50,17 @@ const mutations = {
   addUpdatedEventId(state, eventId) {
     state.updatedEvents.push(eventId);
   },
+  setViewAlert(state, alertId) {
+    if (state.currentAccount && state.currentAccount.alerts) {
+      const alertList = state.currentAccount.alerts.list;
+
+      for (let alert of alertList) {
+        if (alert.id == alertId) {
+          alert.viewed = true;
+        }
+      }
+    }
+  },
   resetUpdatedEventId(state) {
     state.removedEvents = [];
     state.updatedEvents = [];
@@ -68,7 +79,7 @@ const mutations = {
     //   _.find(backendServers, { env: process.env.NODE_ENV }).url ||
     //   backendServers[0].url;
 
-    state.backend = backend || "https://api-staging.mindlogger.org/api/v1";
+    state.backend = backend || process.env.VUE_APP_SERVER_URL;
   },
   setAccounts(state, accounts) {
     state.allAccounts = accounts;

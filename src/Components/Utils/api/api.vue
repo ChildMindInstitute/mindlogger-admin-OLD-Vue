@@ -534,10 +534,10 @@ const togglePin = (apiHost, token, applet, isPinned) => {
     })
 }
 
-const updateAlertStatus = (apiHost, token) => {
+const updateAlertStatus = (apiHost, token, alertId) => {
   return axios({
     method: 'put',
-    url: `${apiHost}/account/updateAlertStatus`,
+    url: `${apiHost}/account/updateAlertStatus/${alertId}`,
     headers: {
       'Girder-Token': token
     }
