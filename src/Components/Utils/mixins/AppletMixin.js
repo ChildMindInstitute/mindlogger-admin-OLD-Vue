@@ -195,7 +195,7 @@ export const AppletMixin = {
           keys: [
             'id',
             'created',
-            'MRN',
+            'secretUserId',
             'userId',
             'activity',
             'item',
