@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.13] - 2021-01-28
 - Fixed long applet name
+- Fixed empty field in event card
+
+## [0.5.12] - 2021-01-26
+- Fixed total amount of token
 
 ## [0.5.11] - 2021-01-26
 - Fixed duplicated versions

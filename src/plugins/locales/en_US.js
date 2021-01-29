@@ -329,4 +329,6 @@ export default {
   latestScore: 'Latest Score',
   frequency: 'Frequency',
   new: 'new',
+  takeToResponseData: 'Take me to the response data',
+  alertMessage: 'A question was answered by {userIdentifier} that an alert was created for.'
 };
