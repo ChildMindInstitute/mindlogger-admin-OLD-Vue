@@ -1,6 +1,6 @@
 {
   "name": "mindlogger-admin",
-  "version": "0.6.1",
+  "version": "0.5.14",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --mode local",
@@ -30,6 +30,7 @@
     "debounce-promise": "^3.1.2",
     "javascript-time-ago": "^2.3.3",
     "lodash": "^4.17.15",
+    "mavon-editor": "^2.9.1",
     "object-to-csv": "^1.0.5",
     "protocol-builder": "^0.1.20",
     "vue": "2.6.10",

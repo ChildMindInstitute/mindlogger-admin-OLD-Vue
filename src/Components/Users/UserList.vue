@@ -13,13 +13,13 @@
           @input="updateFilter"
         />
       </div>
-      <v-btn
+      <!-- <v-btn
         v-if="multiSelectionEnabled"
         class="reset-selection"
         @click="resetSelection"
       >
         {{ $t('resetSelection') }}
-      </v-btn>
+      </v-btn> -->
     </div>
 
     <v-data-table
@@ -31,7 +31,8 @@
       :custom-sort="customSort"
       :footer-props="{
         itemsPerPageText: $t('rowsPerPage'),
-        itemsPerPageAllText: $t('all')
+        itemsPerPageAllText: $t('all'),
+        itemsPerPageOptions: [10, 50, 100, -1],
       }"
     >
       <template v-slot:body="props">
@@ -59,7 +60,7 @@
                     <v-icon> mdi-calendar-month </v-icon>
                   </v-btn>
                 </template>
-                <span>{{ $t('viewCalendar') }}</span>
+                <span>{{ $t('viewIndividualCalendar') }}</span>
               </v-tooltip>
 
               <v-tooltip
@@ -154,6 +155,9 @@
             </span>
           </td>
         </tr>
+        <tr v-if="props.items.length === 0 && !loading">
+          <h4 class="no-data"> No data </h4>
+        </tr>
       </template>
 
       <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
@@ -231,6 +235,12 @@
   } 
   .btn-user-request:hover {
     color: rgb(100, 0, 0);
+  }
+
+  .no-data {
+    font-size: 14px;
+    margin: 10px 0 10px 20px;
+    color: rgba(0, 0, 0, .38);
   }
 
   @media only screen and (max-width: 767px) {
@@ -340,7 +350,7 @@ export default {
         align: 'left',
         sortable: false,
         value: 'pinned',
-        width: 20,
+        width: 100,
       },
       {
         text: this.$i18n.t('secretUserId'),

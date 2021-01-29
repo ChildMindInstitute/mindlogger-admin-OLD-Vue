@@ -79,7 +79,7 @@
         <v-flex xs12 >
           <v-tabs v-model="tab" class="text--primary">
             <v-tab v-if="hasDetails" href="#details">
-              {{ labels.tabs.details }}
+              {{ $t('activityAccessOptions') }}
             </v-tab>
 
             <v-tab v-if="showForecast" href="#forecast">

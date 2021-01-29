@@ -242,7 +242,6 @@ export default {
   invalidAppletPasswordFormat: 'Min. 8 caractères avec au moins une majuscule, un chiffre et un caractère spécial.',
   pageOf: 'Page {current} sur {total}',
   shownResultsRange: '{from} à {to} sur {total}',
-  showingDataFrom: 'Affichage des données de',
   showVersionChanges: 'Afficher les changements de version',
   confirmRemoveAllEvents: 'Êtes-vous sûr de vouloir supprimer tous les événements du calendrier ?',
   appletUploadError: 'Il y a eu une erreur lors du téléchargement de votre applet. Veuillez réessayer ou signaler le problème.',
@@ -332,4 +331,7 @@ export default {
   subScaleScores: 'Scores des sous échelles',
   latestScore: 'Dernier score',
   frequency: 'Fréquence',
+  new: 'neuf',
+  takeToResponseData: 'Amenez-moi aux données de la réponse',
+  alertMessage: '{userIdentifier} a répondu à une question pour laquelle une alerte a été créée'
 };

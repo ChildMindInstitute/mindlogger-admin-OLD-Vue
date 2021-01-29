@@ -22,7 +22,9 @@
           class="view-btn"
           @click="onExportData(profile)"
         >
-          {{ profile.identifier }}
+          <div class="btn-label">
+            {{ profile.identifier }}
+          </div>
         </v-btn>
       </v-card-text>
     </v-card>
@@ -35,6 +37,13 @@
     text-transform: none;
     text-align: left;
     margin: 5px 0px;
+  }
+
+  .btn-label {
+    width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .title, .sub-title {

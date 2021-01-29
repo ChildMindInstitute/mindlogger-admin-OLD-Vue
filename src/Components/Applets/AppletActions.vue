@@ -80,10 +80,12 @@
 
 <script>
 import ActionButton from "./ActionButton.vue";
+import { RolesMixin } from '../Utils/mixins/RolesMixin';
 export default {
 	components: {
 		ActionButton
 	},
+	mixins: [RolesMixin],
 	props: {
 		item: {
 			type: Object,
@@ -92,43 +94,35 @@ export default {
 	},
 	computed : {
 		canViewUsers() {
-			const item = this.item;
-			return item.roles.includes('coordinator') || item.roles.includes('reviewer') || item.roles.includes('manager');
+			return this.hasRoles(this.item, 'reviewer', 'manager', 'coordinator');
 		},
 
 		canViewGeneralCalendar() {
-			const item = this.item;
-			return item.roles.includes('coordinator') || item.roles.includes('manager');
+			return this.hasRoles(this.item, 'manager', 'coordinator');
 		},
 
 		canEditApplet() {
-			const item = this.item;
-			return item.roles.includes('editor') || item.roles.includes('manager');
+			return this.hasRoles(this.item, 'editor', 'manager');
 		},
 
 		canDeleteApplet() {
-			const item = this.item;
-			return item.roles.includes('manager');
+			return this.hasRoles(this.item, 'manager');
 		},
 
 		canDuplicate() {
-			const item = this.item;
-			return item.roles.includes('editor') || item.roles.includes('manager');
+			return this.hasRoles(this.item, 'editor', 'manager');
 		},
 
 		canRefresh() {
-			const item = this.item;
-			return item.hasUrl && (item.roles.includes('editor') || item.roles.includes('manager'));
+			return this.item.hasUrl && this.hasRoles(this.item, 'editor', 'manager');
 		},
 
 		canTransferOwnership() {
-			const item = this.item;
-			return item.roles.includes('owner');
+			return this.hasRoles(this.item, 'owner');
 		},
 
 		canRemoveFromFolder() {
-			const item = this.item;
-			return item.parentId && (item.roles.includes('editor') || item.roles.includes('reviewer') || item.roles.includes('manager'));
+			return this.item.parentId && this.hasRoles(this.item, 'editor', 'reviewer', 'manager');
 		}
 	},
 
@@ -167,8 +161,7 @@ export default {
 
 		onTransferOwnership() {
 			this.publishEvent("onTransferOwnership");
-		}
-
+		},
 	}
 }
 

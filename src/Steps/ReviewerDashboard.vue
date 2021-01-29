@@ -33,8 +33,6 @@
         <div class="content">
           <div class="content-header">
             <div class="time-range">
-              {{ $t('showingDataFrom') }}
-
               <v-menu>
                 <template v-slot:activator="{ on }">
                   <v-btn 
@@ -77,12 +75,6 @@
             </div>
 
             <div class="version">
-              <v-checkbox
-                v-model="hasVersionBars"
-                class="version-bar"
-                :label="$t('showVersionChanges')"
-              />
-
               <v-select
                 v-model="selectedVersions"
                 class="version-list"
@@ -105,13 +97,35 @@
                     multiple
                     focusable
                   >
+                    <v-expansion-panel v-if="tab=='tokens'">
+                      <v-expansion-panel-header>
+                        <div>
+                          {{ applet.label.en }}
+                        </div>
+                      </v-expansion-panel-header>
+                      <v-expansion-panel-content>
+                        <token-chart
+                          :plot-id="`Token-${applet.id.replace(' ', '_')}`"
+                          :applet="applet"
+                          :cumulative="applet.tokens"
+                          :timezone="applet.timezoneStr"
+                          :versions="applet.versions"
+                          :focus-extent="focusExtent"
+                          :selected-versions="selectedVersions"
+                          :has-version-bars="hasVersionBars"
+                          :parent-width="panelWidth"
+                          @onUpdateFocusExtent="onUpdateFocusExtent"
+                        />
+                      </v-expansion-panel-content>
+                    </v-expansion-panel>
                     <v-expansion-panel
+                      v-else
                       v-for="(activity, index) in applet.activities"
                       :key="index"
                     >
                       <v-expansion-panel-header>
                         <div 
-                          v-if="!allExpanded"
+                          v-if="!allExpanded && applet.activities.length > 1"
                           class="ds-expand-action"
                           @click.stop="onAllExpand"
                         >
@@ -132,7 +146,7 @@
                         </div>
 
                         <div 
-                          v-if="allExpanded"
+                          v-if="allExpanded  && applet.activities.length > 1"
                           class="ds-expand-action"
                           @click.stop="onAllCollapsed"
                         >
@@ -266,23 +280,6 @@
                             :key="item['id']"
                             class="chart-card"
                           >
-                            <header v-if="tab=='tokens' && item.isTokenItem || tab == 'responses'">
-                              <h3> - {{ item.getFormattedQuestion() }}</h3>
-                            </header>
-
-                            <token-chart
-                              v-if="tab=='tokens' && item.isTokenItem"
-                              :plot-id="`Token-${activity.slug}-${item.slug}`"
-                              :item="item"
-                              :timezone="applet.timezoneStr"
-                              :versions="applet.versions"
-                              :focus-extent="focusExtent"
-                              :selected-versions="selectedVersions"
-                              :has-version-bars="hasVersionBars"
-                              :parent-width="panelWidth"
-                              @onUpdateFocusExtent="onUpdateFocusExtent"
-                            />
-
                             <RadioSlider
                               v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
                               :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
@@ -505,7 +502,7 @@ export default {
       tabs: ['responses', 'tokens'],
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
-      hasVersionBars: false,
+      hasVersionBars: true,
       panelWidth: 974,
       margin: 50,
       itemPadding: 15
