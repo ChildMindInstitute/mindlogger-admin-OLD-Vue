@@ -687,10 +687,12 @@ export default {
         return 0;
       })
 
-      let accumulation = events.reduce((accumulation, event) => 
-        event.positive !== undefined ? accumulation - event.positive : accumulation - event.value,
-        this.cumulativeToken
-      );
+      // let accumulation = events.reduce((accumulation, event) => {
+      //   let acc = event.positive !== undefined ? accumulation + event.positive : accumulation;
+      //   return event.negative !== undefined ? acc + event.negative : acc;
+      // }, this.cumulativeToken);
+
+      let accumulation = 0;
 
       let normalisedx = x(new Date(0))
       normalisedx += (0.5 * this.focusBarWidth()) - 5;
@@ -700,7 +702,8 @@ export default {
 
       for (let i = 0; i < events.length; i++) {
         const step = events[i]
-        const value = step.positive !== undefined ? step.positive : step.value;
+        const positiveValue = step.positive !== undefined ? step.positive : step.value;
+        const negativeValue = step.negative !== undefined ? step.negative : 0;
 
         normalisedx = x(step.date)
         normalisedx += (0.5 * this.focusBarWidth()) - 5;
@@ -710,7 +713,7 @@ export default {
           pathString += ` L ${normalisedx + 3} ${normalisedy}`
         }
 
-        accumulation = value + accumulation;
+        accumulation = accumulation + positiveValue + negativeValue;
         normalisedy = this.y(accumulation)
 
         if (i == events.length-1 || events[i].date.getTime() != events[i+1].date.getTime()) {

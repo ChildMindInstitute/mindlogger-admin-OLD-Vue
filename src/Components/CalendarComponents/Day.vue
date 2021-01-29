@@ -2,12 +2,8 @@
 
 	<div class="ds-day"
 		 :class="classesDay"
-		 @mouseenter="mouseEnterDay"
-		 @mouseleave="mouseLeaveDay"
-		 @mousedown="mouseDownDay"
-		 @mouseup="mouseUpDay"
 		 @click.stop="add"
-		 @dragstart.prevent>
+>
 
 		<div :class="classesHeader">
 
@@ -175,7 +171,7 @@ export default {
 			},
 
 			viewDay (event) {
-				this.$emit('view-day', this.day)
+				// this.$emit('view-day', this.day)
 			},
 
 			mouseEnterDay ($event) {
@@ -245,6 +241,10 @@ export default {
 				position: relative;
 				z-index: 1;
 			}
+		}
+
+		.ds-hide-event {
+			display: none;
 		}
 	}
 
