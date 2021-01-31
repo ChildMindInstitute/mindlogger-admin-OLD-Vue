@@ -19,13 +19,13 @@ to license your works, and to refer to it using the trademark "Delayed Open Sour
 ## Terms
 
 <ol>
-    <li><b>Delayed open source.</b></li>
+    <li><b>Delayed open source.</b>
         <ol type="a">
             <li>Permission is hereby granted, free of charge, to any person obtaining a copy of this Software, to use, copy, modify, merge, publish, and distribute the Software, in each case for any purpose other than a Commercial Purpose and to permit persons to whom the Software is furnished to do so, subject to the terms and conditions of this License.</li>
             <li>This License applies separately for each version of the Software. No version of the Software can be used for Commercial Purposes within three years of the first publicly available distribution of that version under this License.</li>
             <li>Effective on the third anniversary of the first publicly available distribution of each version of the Software under this License, you are hereby granted a license to that version of the Software under the terms of the CPAL License. The CPAL Notice set forth in Schedule B, below, shall constitute Exhibits A and B to the CPAL License.</li>
         </ol>
-    
+    </li>
     <li><b>Attribution.</b>
         <ol type="a">
             <li>Each time the Software is launched or initially run (such as by initiating a session), a prominent display of the Original Developer’s Attribution Information (defined below) must occur on the graphic user interface employed by the end user. If the end user does not access the Software through a graphic user interface, this obligation shall not apply. If the Original Code displays such Attribution Information in a particular form (such as in the form of a splash screen, notice at login, an "about" display, or dedicated attribution area on user interface screens), continued use of that form is one way of meeting this requirement.</li>
