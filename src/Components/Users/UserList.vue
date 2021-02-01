@@ -353,7 +353,7 @@ export default {
         width: 100,
       },
       {
-        text: this.$i18n.t('userCode'),
+        text: this.$i18n.t('secretUserId'),
         align: 'left',
         sortable: true,
         value: 'MRN',
