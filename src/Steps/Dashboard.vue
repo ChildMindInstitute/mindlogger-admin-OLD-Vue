@@ -228,33 +228,6 @@ export default {
     },
   },
   watch: {
-    accountApplets(newApplets, oldApplets) {
-      const availableTabs = [];
-      this.appletUploadEnabled = false;
-      if (newApplets.length) {
-        availableTabs.push('applets');
-      }
-      for (let applet of newApplets) {
-        /** managers can view others */
-        if (applet.roles.includes('manager')) {
-          availableTabs.push('users', 'reviewers', 'editors', 'coordinators', 'managers');
-        }
-        /** reviewers can view users */
-        if (applet.roles.includes('reviewer') || applet.roles.includes('coordinator')) {
-          availableTabs.push('users');
-        }
-        /** manager and editors can view applets */
-        if (applet.roles.includes('editor') || applet.roles.includes('manager')) {
-          this.appletUploadEnabled = true;
-        }
-      }
-      this.tabs = [];
-      for (let tab of ['applets', 'users', 'reviewers', 'editors', 'coordinators', 'managers']) {
-        if (availableTabs.indexOf(tab) >= 0) {
-          this.tabs.push(tab);
-        }
-      }
-    },
     $route(to, from) {
       this.status = 'loading';
       this.getAccountData();
@@ -266,6 +239,19 @@ export default {
         loading: false,
         list: [],
         total: 0,
+      });
+    }
+
+    if (this.accountApplets.length) {
+      this.tabs.push('applets')
+    }
+    for (let tab of ['users', 'reviewers', 'editors', 'coordinators', 'managers']) {
+      const role = this.tabNameToRole[tab];
+
+      this.getUserList(role).then(resp => {
+        if (resp.data.total > 0) {
+          this.tabs.push(tab);
+        }
       });
     }
     this.getAccountData();
