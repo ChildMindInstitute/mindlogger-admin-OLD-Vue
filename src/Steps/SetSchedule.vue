@@ -131,7 +131,10 @@ export default {
       if (this.currentAppletData) {
         const activityTypeColorMap = {}
         let index = 0;
-        return _.map(this.currentAppletData.activities, (a, URI) => {
+        const activities = _.pickBy(this.currentAppletData.activities, (a) => (
+          !(_.get(a, ["reprolib:terms/isPrize", 0, "@value"], false))
+        ));
+        return _.map(activities, (a, URI) => {
           const name =
             a["http://www.w3.org/2004/02/skos/core#prefLabel"][0]["@value"];
           const color = this.$dayspan.colors[index].text;
@@ -228,9 +231,12 @@ export default {
       applet.schedule = schedule;
       this.$store.commit("setApplet", applet);
       this.$store.commit("resetUpdatedEventId");
+      const events = _.filter(schedule.events, (event) => (
+        _.filter(this.activities, (act => act.URI == event.data.activity_id)).length > 0
+      ));
       this.$store.commit(
         "setCachedEvents",
-        schedule.events
+        events
       );
       this.loading = false;
       this.saveSuccess = true;
