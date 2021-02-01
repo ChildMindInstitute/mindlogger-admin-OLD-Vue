@@ -87,42 +87,39 @@ B. Any new file that contains any part of the Original Code or previous Modifica
 
 ## Schedule A: Attribution Information
 
-<p>Attribution copyright notice: _______________________
+Attribution Copyright Notice: Copyright (c) 2017 MATTER Lab at the Child Mind Institute
 
-<p>Attribution phrase (not exceeding 20 words): _______________________
+Attribution Phrase: Child Mind Institute product intended for building applications for good.
 
-<p>Attribution URL: _______________________
+Attribution URL: https://matter.childmind.org
 
-<p>Graphic image:
+Graphic Image as provided in the Covered Code: 
+
+![CMI logo](https://github.com/ChildMindInstitute/mindlogger-app/blob/master/CMI_logo.jpg)
 
 
 ## Schedule B: CPAL Notice
 
 EXHIBIT A. Common Public Attribution License Version 1.0.
 
-"The contents of this file are subject to the Common Public Attribution License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at ________________________. The License is based on the Mozilla Public License Version 1.1 but Sections 14 and 15 have been added to cover use of software over a computer network and provide for limited attribution for the Original Developer. In addition, Exhibit A has been modified to be consistent with Exhibit B.
+"The contents of this file are subject to the Common Public Attribution License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at https://github.com/ChildMindInstitute/mindlogger-admin/blob/master/LICENSE.md. The License is based on the Mozilla Public License Version 1.1 but Sections 14 and 15 have been added to cover use of software over a computer network and provide for limited attribution for the Original Developer. In addition, Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
 
-The Original Code is ______________________.
+The Original Code is https://github.com/ChildMindInstitute/mindlogger-admin.
 
-The Original Developer is not the Initial Developer and is ____________. If left blank, the Original Developer is the Initial Developer.
+The Original Developer is the Initial Developer. The Initial Developer of the Original Code is the MATTER Lab at the Child Mind Institute. All portions of the code written by the MATTER Lab at the Child Mind Institute are Copyright (c) 2017. All Rights Reserved. Contributor the MATTER Lab at the Child Mind Institute.
 
-The Initial Developer of the Original Code is ____________. All portions of the code written by ____________ are Copyright (c) ____________. All Rights Reserved.
-
-Contributor ______________________.
-
-Alternatively, the contents of t his file may be used under the terms of the _______________ license (the [______] License), in which case the provisions of [______] License are applicable instead of those above.
-
-If you wish to allow use of your version of this file only under the terms of the [______] License and not to allow others to use your version of this file under the CPAL, indicate your decision by deleting the provisions above and replace them with the notice and other provisions required by the [______] License. If you do not delete the provisions above, a recipient may use your version of this file under either the CPAL or the [______] License."
 EXHIBIT B. Attribution Information
 
-Attribution copyright notice: _______________________
+Attribution Copyright Notice: Copyright (c) 2017 MATTER Lab at the Child Mind Institute
 
-Attribution phrase (not exceeding 10 words): _______________________
+Attribution Phrase: Child Mind Institute product intended for building applications for good.
 
-Attribution URL: _______________________
+Attribution URL: https://matter.childmind.org
 
-Graphic image:
+Graphic Image as provided in the Covered Code: 
+
+![CMI logo](https://github.com/ChildMindInstitute/mindlogger-admin/blob/master/CMI_logo.jpg)
 
 Display of Attribution Information is required in Larger Works which are defined in the CPAL as a work which combines Covered Code or portions thereof with code not governed by the terms of the CPAL.
