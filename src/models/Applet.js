@@ -384,15 +384,18 @@ export default class Applet {
     return {
       data: merged.map(response => {
         let positive = 0, negative = 0, cummulative = 0;
-
         Object.keys(this.items).forEach(itemId => {
-          for (let choice of this.items[itemId].responseOptions) {
-            let value = response[choice.id];
+          const item = this.items[itemId];
 
-            if (value) {
-              positive = value > 0 ? positive + value : positive;
-              negative = value < 0 ? negative + value : negative;
-              cummulative = cummulative + value;
+          if (item.responseOptions) {
+            for (let choice of item.responseOptions) {
+              let value = response[choice.id];
+
+              if (value) {
+                positive = value > 0 ? positive + value : positive;
+                negative = value < 0 ? negative + value : negative;
+                cummulative = cummulative + value;
+              }
             }
           }
         });

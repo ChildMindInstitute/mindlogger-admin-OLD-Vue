@@ -230,7 +230,7 @@
               <div
                 class="alert-user"
               >
-                {{ alert.email && `${$t('email')}: ${alert.email}` || alert.MRN && `MRN: ${alert.MRN}` }}
+                {{ alert.email && `${$t('email')}: ${alert.email}` || alert.MRN && `${$t('secretUserId')}: ${alert.MRN}` }}
               </div>
             </v-list-item>
           </template>
