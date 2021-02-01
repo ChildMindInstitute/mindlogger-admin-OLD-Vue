@@ -12,6 +12,7 @@ terms of the open source CPAL-1.0 license (located at https://opensource.org/lic
 [or a future version of the CPAL-1.0 license published by Socialtext, Inc.] (the "CPAL License") 
 that preserves the attribution information of this license. 
 This delay is intended to protect the commercial interests of the licensor without compromising 
+on the many benefits of creating open source products.
 
 Child Mind Institute, Inc. ("CMI") hereby grants you permission to use this License’s text 
 (unmodified except for the inclusion of appropriate information as called for in Schedules A and B) 
