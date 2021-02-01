@@ -74,10 +74,12 @@
               </v-menu>
             </div>
 
-            <div class="version">
+            <div id="versions" class="version">
               <v-select
                 v-model="selectedVersions"
+                attach="#versions"
                 class="version-list"
+                :menu-props="{ maxHeight: 232}"
                 :items="appletVersions"
                 :label="$t('versions')"
                 multiple
@@ -372,6 +374,7 @@
 
 .time-range,
 .version {
+  position: relative;
   display: flex;
   width: 480px;
   align-items: baseline;
