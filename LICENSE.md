@@ -95,7 +95,7 @@ Attribution URL: https://matter.childmind.org
 
 Graphic Image as provided in the Covered Code: 
 
-![CMI logo](https://github.com/ChildMindInstitute/mindlogger-app/blob/master/CMI_logo.jpg)
+![CMI logo](https://github.com/ChildMindInstitute/mindlogger-admin/blob/master/CMI_logo.jpg)
 
 
 ## Schedule B: CPAL Notice
