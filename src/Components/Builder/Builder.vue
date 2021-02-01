@@ -221,7 +221,7 @@ export default {
             const template = {
               text: itemElement[ITEM_NAME][0]["@value"],
               value: itemElement[ITEM_VALUE][0]["@value"],
-              description: itemElement[ITEM_DESCRIPTION][0]["@value"],
+              description: (itemElement[ITEM_DESCRIPTION] && itemElement[ITEM_DESCRIPTION][0]["@value"]) || '',
             }
             if (templates.some(({ text, value, description }) => text === template.text && value === template.value && description === template.description)) {
               // template found inside the array
