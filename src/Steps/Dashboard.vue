@@ -232,7 +232,16 @@ export default {
       this.status = 'loading';
       this.getAccountData();
     },
-  },
+    accountApplets(newApplets, oldApplets) {
+      if (newApplets.length !== oldApplets.length) {
+        this.setVisibleTabs();
+      }
+
+      if (newApplets.length < oldApplets.length) {
+        this.onSwitchTab('applets');
+      }
+    }
+  },  
   mounted() {
     for (let tab of ['applets', 'users', 'reviewers', 'editors', 'coordinators', 'managers']) {
       this.$set(this.tabData, tab, {
@@ -241,22 +250,25 @@ export default {
         total: 0,
       });
     }
-
-    if (this.accountApplets.length) {
-      this.tabs.push('applets')
-    }
-    for (let tab of ['users', 'reviewers', 'editors', 'coordinators', 'managers']) {
-      const role = this.tabNameToRole[tab];
-
-      this.getUserList(role).then(resp => {
-        if (resp.data.total > 0) {
-          this.tabs.push(tab);
-        }
-      });
-    }
     this.getAccountData();
   },
   methods: {
+    setVisibleTabs() {
+      this.tabs.length = 0;
+
+      if (this.accountApplets.length && !this.tabs.find(tab => tab === 'applets')) {
+        this.tabs.push('applets');
+      }
+      for (let tab of ['users', 'reviewers', 'editors', 'coordinators', 'managers']) {
+        const role = this.tabNameToRole[tab];
+
+        this.getUserList(role).then(resp => {
+          if (resp.data.total > 0) {
+            this.tabs.push(tab);
+          }
+        });
+      }
+    },
     onSwitchTab(tab) {
       if (tab == 'applets') {
         this.getAccountData();
