@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="applet-header pt-5">
-      <div class="filter">
+      <div class="data-filter">
         <v-text-field
             v-model="searchText"
             :label="$t('searchApplets')"
@@ -136,38 +136,21 @@
   </div>
 </template>
 
+<style scoped>
+  .data-filter {
+    width: 50%;
+    padding-left: 5px;
+  }
+</style>
 <style>
-
   .applet-header {
     display: flex;
     justify-content: space-between;
-  }
-  .filter {
-    flex: 1;
-    width: 80%;
   }
   .right-action {
     flex: 1;
     text-align: right;
     margin-right: 1vw;
-  }
-  .filter .search-input {
-    margin: 10px;
-    width: 50%;
-    display: inline-block;
-  }
-  .filter span {
-    color: rgb(159, 110, 240);
-    font-weight: 600;
-    margin-left: 20px;
-  }
-  @media only screen and (max-width: 767px) {
-    .filter .search-input {
-      width: 80%;
-    }
-    .filter span {
-      display: none;
-    }
   }
 
   @media only screen and (min-width: 1200px) {
