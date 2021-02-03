@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="d-flex justify-space-between pt-5">
-      <div class="filter">
+      <div class="data-filter">
         <v-text-field
           v-model="searchText"
           :label="currentRole == 'user' ? $t('searchUsers') : $t('searchOrganizers')"
@@ -213,15 +213,15 @@
   .reset-selection {
     margin-right: 10px;
   }
-  .filter {
+  .data-filter {
     width: 50%;
   }
-  .filter .search-input {
+  .data-filter .search-input {
     margin: 10px;
     width: 50%;
     display: inline-block;
   }
-  .filter span {
+  .data-filter span {
     color: rgb(159, 110, 240);
     font-weight: 600;
     margin-left: 20px;
@@ -244,10 +244,10 @@
   }
 
   @media only screen and (max-width: 767px) {
-    .filter .search-input {
+    .data-filter .search-input {
       width: 80%;
     }
-    .filter span {
+    .data-filter span {
       display: none;
     }
   }
