@@ -138,7 +138,7 @@
 
 <style scoped>
   .data-filter {
-    width: 50%;
+    width: 25%;
     padding-left: 5px;
   }
 </style>
