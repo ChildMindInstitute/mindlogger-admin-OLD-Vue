@@ -15,8 +15,11 @@ Child Mind Institute, Inc. ("CMI") hereby grants you permission to use this DOSA
 ## Terms
 
   1. **Delayed open source.**
+  
     - _______________ (the "Licensor") hereby grants permission, free of charge, to any person obtaining a copy of this Software, to use, copy, modify, merge, publish, and distribute the Software, in each case for any purpose other than a Commercial Purpose and to permit persons to whom the Software is furnished to do so, subject to the terms and conditions of this DOSA License.
+    
     - This DOSA License applies separately for each version of the Software. No version of the Software can be used for Commercial Purposes within three years of the first publicly available distribution of that version under this DOSA License.
+    
     - Effective on the third anniversary of the first publicly available distribution of each version of the Software under this DOSA License, you are hereby granted a license to that version of the Software under the terms of the CPAL License.  The " Notice Exhibits to the time-delayed CPAL License" set forth in Schedule A, below, shall constitute Exhibits A and B to the CPAL License (and shall not, for the avoidance of doubt, be deemed to constitute a license or other grant of rights in the Software under this DOSA License).
 
   2. Attribution.
