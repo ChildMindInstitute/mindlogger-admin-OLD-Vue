@@ -1,27 +1,18 @@
 <h1><img width="100" src="https://mindlogger.org/assets/logos/DOSA_logo.png" class="img-responsive img-centered" alt="DOSA logo">
 Delayed Open Source Attribution License 1.0 (DOSA-1.0)</h1>
 
-            <p>License text copyright © 2021 Child Mind Institute, Inc. All Rights Reserved.
-                <br>
-                "Delayed Open Source Attribution License" and "DOSA License" are trademarks of Child Mind Institute, Inc.
-            </p>
-            <p>
-                Though it is not itself an open source license, the purpose of this Delayed Open Source Attribution License 
-                (the "DOSA License") is to provide open access to software for non-commercial use while giving attribution 
-                to its original developer, and after a delay of three years, forcing the software to fall under the terms 
-                of the open source CPAL-1.0 license (located at https://opensource.org/licenses/CPAL-1.0) or a future version 
-                of the CPAL-1.0 license published by Socialtext, Inc. (the "CPAL License") that preserves the attribution 
-                information of this DOSA License. This delay is intended to protect the commercial interests of the licensor 
-                without compromising on the many benefits of creating open source products. 
-            </p>
-            <p>
-                Child Mind Institute, Inc. ("CMI") hereby grants you permission to use this DOSA License’s text 
-                (unmodified except for identifying the relevant parties and providing attribution information as called 
-                for in Section 1(a) and Schedule A) to license your works, and to refer to it using the trademark 
-                "Delayed Open Source Attribution License" or "DOSA License".
-            </p>
+License text copyright © 2021 Child Mind Institute, Inc. All Rights Reserved.
 
-            <h3 id="terms">Terms</h3>
+"Delayed Open Source Attribution License" and "DOSA License" are trademarks of Child Mind Institute, Inc.
+            
+            
+ Though it is not itself an open source license, the purpose of this Delayed Open Source Attribution License 
+(the "DOSA License") is to provide open access to software for non-commercial use while giving attribution to its original developer, and after a delay of three years, forcing the software to fall under the terms of the open source CPAL-1.0 license (located at https://opensource.org/licenses/CPAL-1.0) or a future version of the CPAL-1.0 license published by Socialtext, Inc. (the "CPAL License") that preserves the attribution information of this DOSA License. This delay is intended to protect the commercial interests of the licensor without compromising on the many benefits of creating open source products. 
+            
+Child Mind Institute, Inc. ("CMI") hereby grants you permission to use this DOSA License’s text (unmodified except for identifying the relevant parties and providing attribution information as called for in Section 1(a) and Schedule A) to license your works, and to refer to it using the trademark "Delayed Open Source Attribution License" or "DOSA License".
+            
+
+## Terms
 
             <ol>
                 <li><b>Delayed open source.</b>
@@ -61,44 +52,43 @@ Delayed Open Source Attribution License 1.0 (DOSA-1.0)</h1>
             </ol>
 
 
-            <h3 id="definitions">Definitions</h3>
+## Definitions
 
-            <p>"Attribution Information" means the information set forth in Exhibit B to Schedule A.</p>
+"Attribution Information" means the information set forth in Exhibit B to Schedule A.
 
-            <p>"Commercial Purposes" means making available to a third party for the direct or indirect generation of income.</p>
+"Commercial Purposes" means making available to a third party for the direct or indirect generation of income.
 
-            <p>"CPAL License" has the meaning set forth in the preamble.</p>
+"CPAL License" has the meaning set forth in the preamble.
 
-            <p>"DOSA License" means this document.</p>
+"DOSA License" means this document.
                 
-            <p>"Executable" means the Software in any form other than Source Code.</p>
+"Executable" means the Software in any form other than Source Code.
 
-            <p>"Larger Work" means a work which combines one or more element of the Software with other software not governed by the terms of this DOSA License.</p>
+"Larger Work" means a work which combines one or more element of the Software with other software not governed by the terms of this DOSA License.
 
-            <p>"Licensor" has the meaning set forth in Section 1(a).</p>
+"Licensor" has the meaning set forth in Section 1(a).
 
-            <p>"Modifications" means any addition to or deletion from the substance or structure of either the Original Code or any previous Modifications. When the Software is released as a series of files, a Modification is:</p>
+"Modifications" means any addition to or deletion from the substance or structure of either the Original Code or any previous Modifications. When the Software is released as a series of files, a Modification is:
 
-            <p>&nbsp;&nbsp;A. Any addition to or deletion from the contents of a file containing Original Code or previous Modifications.</p>
+A. Any addition to or deletion from the contents of a file containing Original Code or previous Modifications.
 
-            <p>&nbsp;&nbsp;B. Any new file that contains any part of the Original Code or previous Modifications.</p>
+B. Any new file that contains any part of the Original Code or previous Modifications.
 
-            <p>"Original Code" means the original Source Code developed by the Original Developer, and which, at the time of its release under this DOSA License is not already governed by this DOSA License.</p>
+"Original Code" means the original Source Code developed by the Original Developer, and which, at the time of its release under this DOSA License is not already governed by this DOSA License.
 
-            <p>"Original Developer" means the organizer of the development of the Original Code.</p>
+"Original Developer" means the organizer of the development of the Original Code.
 
-            <p>"Software" means the Original Code or Modifications or the combination of the Original Code and Modifications, including in the form of Source Code, Executables, or as incorporated into Larger Works, in each case including portions thereof and associated documentation files.</p>
+"Software" means the Original Code or Modifications or the combination of the Original Code and Modifications, including in the form of Source Code, Executables, or as incorporated into Larger Works, in each case including portions thereof and associated documentation files.
 
-            <p>"Source Code" means the preferred form of the Software for making modifications to it, including all modules it contains, plus any associated interface definition files, or scripts used to control compilation and installation of an Executable.</p>
+"Source Code" means the preferred form of the Software for making modifications to it, including all modules it contains, plus any associated interface definition files, or scripts used to control compilation and installation of an Executable.
 
-            <p>"You" (or "Your") means an individual or a legal entity exercising rights under, and complying with all of the terms of, this DOSA License or a future version of this DOSA License. For legal entities, "You" includes any entity which controls, is controlled by, or is under common control with You. For purposes of this definition, "control" means (a) the power, direct or indirect, to cause the direction or management of such entity, whether by contract or otherwise, or (b) ownership of more than fifty percent (50%) of the outstanding shares or beneficial ownership of such entity.</p>
+"You" (or "Your") means an individual or a legal entity exercising rights under, and complying with all of the terms of, this DOSA License or a future version of this DOSA License. For legal entities, "You" includes any entity which controls, is controlled by, or is under common control with You. For purposes of this definition, "control" means (a) the power, direct or indirect, to cause the direction or management of such entity, whether by contract or otherwise, or (b) ownership of more than fifty percent (50%) of the outstanding shares or beneficial ownership of such entity.
 
+## Schedule A: Notice Exhibits to the time-delayed CPAL License
 
-           <h3 id="schedule-a">Schedule A: Notice Exhibits to the time-delayed CPAL License</h3>
+Below please find excerpts from the CPAL License, reproduced here for the purpose of setting forth the terms under which this version of the Software will be made available once three years have elapsed since its initial publication date, pursuant to Section 1(c) of this DOSA License.  For the avoidance of doubt the terms set forth in this Schedule A are not themselves a license or other grant of rights in the Software under this DOSA License.  
 
-            <p>Below please find excerpts from the CPAL License, reproduced here for the purpose of setting forth the terms under which this version of the Software will be made available once three years have elapsed since its initial publication date, pursuant to Section 1(c) of this DOSA License.  For the avoidance of doubt the terms set forth in this Schedule A are not themselves a license or other grant of rights in the Software under this DOSA License.</p>  
-
-            <p>Capitalized terms in the following exhibits refer to the corresponding terms as defined in the CPAL License, which differ from the defined terms under this DOSA License.  Without prejudice or modification to the definitions set forth under the CPAL License, the following guidelines are provided with the sole purpose to aide in populating this Schedule A to the DOSA License:</p>
+Capitalized terms in the following exhibits refer to the corresponding terms as defined in the CPAL License, which differ from the defined terms under this DOSA License.  Without prejudice or modification to the definitions set forth under the CPAL License, the following guidelines are provided with the sole purpose to aide in populating this Schedule A to the DOSA License:
                 <ol>
                     <li>In Paragraph 1, please provide the location at which a version of the CPAL License specific to the licensed Software will be made available.</li>
                     <li>"Original Code" – Please provide the title used to refer to the Software.</li>
@@ -109,30 +99,28 @@ Delayed Open Source Attribution License 1.0 (DOSA-1.0)</h1>
                     </ol>
                 </ol>
 
-            <hr>
+----------------
 
-            <p>EXHIBIT A. Common Public Attribution License Version 1.0.</p>
+EXHIBIT A. Common Public Attribution License Version 1.0.
 
-            <p>"The contents of this file are subject to the Common Public Attribution License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at _____________. The License is based on the Mozilla Public License Version 1.1 but Sections 14 and 15 have been added to cover use of software over a computer network and provide for limited attribution for the Original Developer. In addition, Exhibit A has been modified to be consistent with Exhibit B.</p>
+"The contents of this file are subject to the Common Public Attribution License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at _____________. The License is based on the Mozilla Public License Version 1.1 but Sections 14 and 15 have been added to cover use of software over a computer network and provide for limited attribution for the Original Developer. In addition, Exhibit A has been modified to be consistent with Exhibit B.
 
-            <p>Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.</p>
+Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
 
-            <p>The Original Code is______________________.</p>
+The Original Code is______________________.
 
-            <p>The Original Developer is not the Initial Developer and is __________. If left blank, the Original Developer is the Initial Developer.</p>
+The Original Developer is not the Initial Developer and is __________. If left blank, the Original Developer is the Initial Developer.
 
-            <p>The Initial Developer of the Original Code is ____________. All portions of the code written by ____________are Copyright (c) ___________. All Rights Reserved.</p>
+The Initial Developer of the Original Code is ____________. All portions of the code written by ____________are Copyright (c) ___________. All Rights Reserved.
 
-            <p>Contributor ______________________.</p>
+Contributor ______________________.
 
-            <p>EXHIBIT B. Attribution Information</p>
+EXHIBIT B. Attribution Information
 
-            <p>Attribution copyright notice: Copyright (c) 2017 MATTER Lab at the Child Mind Institute</p>
+Attribution copyright notice: Copyright (c) 2017 MATTER Lab at the Child Mind Institute
 
-            <p>Attribution phrase: Child Mind Institute product intended for building applications for good.</p>
+Attribution phrase: Child Mind Institute product intended for building applications for good.
 
-            <p>Attribution URL: https://matter.childmind.org</p>
+Attribution URL: https://matter.childmind.org
 
-            <p>Graphic image: <img width="200" src="https://github.com/ChildMindInstitute/mindlogger-admin/blob/master/CMI_logo.jpg" class="img-responsive img-centered" alt="CMI logo">
-</p>
-
+Graphic image: <img width="200" src="https://github.com/ChildMindInstitute/mindlogger-admin/blob/master/CMI_logo.jpg" class="img-responsive img-centered" alt="CMI logo">
