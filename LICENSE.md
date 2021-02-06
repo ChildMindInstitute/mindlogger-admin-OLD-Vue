@@ -16,7 +16,7 @@ Child Mind Institute, Inc. ("CMI") hereby grants you permission to use this DOSA
 <ol>
   <li><b>Delayed open source.</b></li>
     <ol type="a">
-      <li>_______________ (the "Licensor") hereby grants permission, free of charge, to any person obtaining a copy of this Software, to use, copy, modify, merge, publish, and distribute the Software, in each case for any purpose other than a Commercial Purpose and to permit persons to whom the Software is furnished to do so, subject to the terms and conditions of this DOSA License.</li>
+      <li><b>The MATTER Lab at the Child Mind Institute<b> (the "Licensor") hereby grants permission, free of charge, to any person obtaining a copy of this Software, to use, copy, modify, merge, publish, and distribute the Software, in each case for any purpose other than a Commercial Purpose and to permit persons to whom the Software is furnished to do so, subject to the terms and conditions of this DOSA License.</li>
       <li>This DOSA License applies separately for each version of the Software. No version of the Software can be used for Commercial Purposes within three years of the first publicly available distribution of that version under this DOSA License.</li>
       <li>Effective on the third anniversary of the first publicly available distribution of each version of the Software under this DOSA License, you are hereby granted a license to that version of the Software under the terms of the CPAL License.  The " Notice Exhibits to the time-delayed CPAL License" set forth in Schedule A, below, shall constitute Exhibits A and B to the CPAL License (and shall not, for the avoidance of doubt, be deemed to constitute a license or other grant of rights in the Software under this DOSA License).</li>
     </ol>
@@ -97,25 +97,25 @@ Capitalized terms in the following exhibits refer to the corresponding terms as 
 
 ### EXHIBIT A. Common Public Attribution License Version 1.0.
 
-"The contents of this file are subject to the Common Public Attribution License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at https://github.com/ChildMindInstitute/mindlogger-admin/blob/master/LICENSE.md. The License is based on the Mozilla Public License Version 1.1 but Sections 14 and 15 have been added to cover use of software over a computer network and provide for limited attribution for the Original Developer. In addition, Exhibit A has been modified to be consistent with Exhibit B.
+"The contents of this file are subject to the Common Public Attribution License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at **https://github.com/ChildMindInstitute/mindlogger-admin/blob/master/LICENSE.md**. The License is based on the Mozilla Public License Version 1.1 but Sections 14 and 15 have been added to cover use of software over a computer network and provide for limited attribution for the Original Developer. In addition, Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
 
-The Original Code is https://github.com/ChildMindInstitute/mindlogger-admin.
+The Original Code is **https://github.com/ChildMindInstitute/mindlogger-admin**.
 
 The Original Developer is the Initial Developer and is __________. If left blank, the Original Developer is the Initial Developer.
 
-The Initial Developer of the Original Code is the MATTER Lab at the Child Mind Institute. All portions of the code written by the MATTER Lab at the Child Mind Institute are Copyright (c) 2017. All Rights Reserved.
+The Initial Developer of the Original Code is **the MATTER Lab at the Child Mind Institute**. All portions of the code written by **the MATTER Lab at the Child Mind Institute** are Copyright (c) **2017**. All Rights Reserved.
 
 Contributor ______________________.
 
 
 ### EXHIBIT B. Attribution Information.
 
-Attribution copyright notice: Copyright (c) 2017 MATTER Lab at the Child Mind Institute
+Attribution copyright notice: **Copyright (c) 2017 MATTER Lab at the Child Mind Institute**
 
-Attribution phrase: Child Mind Institute product intended for building applications for good.
+Attribution phrase: **Child Mind Institute product intended for building applications for good.**
 
-Attribution URL: https://matter.childmind.org
+Attribution URL: **https://matter.childmind.org**
 
 Graphic image: <img width="200" src="https://github.com/ChildMindInstitute/mindlogger-admin/blob/master/CMI_logo.jpg" class="img-responsive img-centered" alt="CMI logo">
