@@ -85,15 +85,15 @@ B. Any new file that contains any part of the Original Code or previous Modifica
 Below please find excerpts from the CPAL License, reproduced here for the purpose of setting forth the terms under which this version of the Software will be made available once three years have elapsed since its initial publication date, pursuant to Section 1(c) of this DOSA License.  For the avoidance of doubt the terms set forth in this Schedule A are not themselves a license or other grant of rights in the Software under this DOSA License.  
 
 Capitalized terms in the following exhibits refer to the corresponding terms as defined in the CPAL License, which differ from the defined terms under this DOSA License.  Without prejudice or modification to the definitions set forth under the CPAL License, the following guidelines are provided with the sole purpose to aide in populating this Schedule A to the DOSA License:
-                <ol>
-                    <li>In Paragraph 1, please provide the location at which a version of the CPAL License specific to the licensed Software will be made available.</li>
-                    <li>"Original Code" – Please provide the title used to refer to the Software.</li>
-                    <li>"Initial Developer", "Original Developer" and "Contributor" – These terms are used to refer to the individuals or entities which produced the original Software, subsequent works licensed under the CPAL License (potentially including portions of Larger Works), and Modifications, respectively.</li>
-                    <ol type="a">
-                        <li>If Licensor is the only attributed developer of the Software, the fields designating the "Original Developer" and "Contributor" may be left blank, and the fields designating the "Initial Developer" should refer to Licensor.</li>
-                        <li>If the Software requires attribution to multiple parties involved in its development, please refer to the terms of the CPAL License Agreement to ensure proper attribution.</li>
-                    </ol>
-                </ol>
+<ol>
+  <li>In Paragraph 1, please provide the location at which a version of the CPAL License specific to the licensed Software will be made available.</li>
+  <li>"Original Code" – Please provide the title used to refer to the Software.</li>
+  <li>"Initial Developer", "Original Developer" and "Contributor" – These terms are used to refer to the individuals or entities which produced the original Software, subsequent works licensed under the CPAL License (potentially including portions of Larger Works), and Modifications, respectively.</li>
+  <ol type="a">
+    <li>If Licensor is the only attributed developer of the Software, the fields designating the "Original Developer" and "Contributor" may be left blank, and the fields designating the "Initial Developer" should refer to Licensor.</li>
+    <li>If the Software requires attribution to multiple parties involved in its development, please refer to the terms of the CPAL License Agreement to ensure proper attribution.</li>
+  </ol>
+</ol>
 
 ----------------
 
