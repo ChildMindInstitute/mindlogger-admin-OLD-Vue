@@ -5,7 +5,8 @@ License text copyright © 2021 Child Mind Institute, Inc. All Rights Reserved.
 
 "Delayed Open Source Attribution License" and "DOSA License" are trademarks of Child Mind Institute, Inc.
             
-            
+[License text files available at https://github.com/ChildMindInstitute/DOSA-license]
+
  Though it is not itself an open source license, the purpose of this Delayed Open Source Attribution License 
 (the "DOSA License") is to provide open access to software for non-commercial use while giving attribution to its original developer, and after a delay of three years, forcing the software to fall under the terms of the open source CPAL-1.0 license (located at https://opensource.org/licenses/CPAL-1.0) or a future version of the CPAL-1.0 license published by Socialtext, Inc. (the "CPAL License") that preserves the attribution information of this DOSA License. This delay is intended to protect the commercial interests of the licensor without compromising on the many benefits of creating open source products. 
             
@@ -47,6 +48,8 @@ Child Mind Institute, Inc. ("CMI") hereby grants you permission to use this DOSA
       <li>To the extent permitted by applicable law, the Software is provided on an "as is" basis. Licensor hereby disclaims all warranties and conditions, express or implied, including (without limitation) warranties of merchantability, fitness for a particular purpose, non-infringement, and title.</li>
     </ol>
   </li>  
+</ol>
+
 
 ## Definitions
 
@@ -66,9 +69,9 @@ Child Mind Institute, Inc. ("CMI") hereby grants you permission to use this DOSA
 
 "Modifications" means any addition to or deletion from the substance or structure of either the Original Code or any previous Modifications. When the Software is released as a series of files, a Modification is:
 
-A. Any addition to or deletion from the contents of a file containing Original Code or previous Modifications.
-
-B. Any new file that contains any part of the Original Code or previous Modifications.
+&nbsp;&nbsp;&nbsp;&nbsp; A. Any addition to or deletion from the contents of a file containing Original Code or previous Modifications.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; B. Any new file that contains any part of the Original Code or previous Modifications.
 
 "Original Code" means the original Source Code developed by the Original Developer, and which, at the time of its release under this DOSA License is not already governed by this DOSA License.
 
