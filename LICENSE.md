@@ -22,7 +22,7 @@ b. This DOSA License applies separately for each version of the Software. No ver
     
 c. Effective on the third anniversary of the first publicly available distribution of each version of the Software under this DOSA License, you are hereby granted a license to that version of the Software under the terms of the CPAL License.  The " Notice Exhibits to the time-delayed CPAL License" set forth in Schedule A, below, shall constitute Exhibits A and B to the CPAL License (and shall not, for the avoidance of doubt, be deemed to constitute a license or other grant of rights in the Software under this DOSA License).
 
-2. Attribution.
+2. **Attribution.**
 
 a. Each time the Software is launched or initially run (such as by initiating a session), a prominent display of the Original Developer’s Attribution Information (defined below) must occur on the graphic user interface employed by the end user. If the end user does not access the Software through a graphic user interface, this obligation shall not apply. If the Original Code displays such Attribution Information in a particular form (such as in the form of a splash screen, notice at login, an "about" display, or dedicated attribution area on user interface screens), continued use of that form is one way of meeting this requirement.
 
