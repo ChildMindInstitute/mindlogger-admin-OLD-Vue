@@ -14,15 +14,15 @@ Child Mind Institute, Inc. ("CMI") hereby grants you permission to use this DOSA
 
 ## Terms
 
-  1. **Delayed open source.**
+1. **Delayed open source.**
   
-    * _______________ (the "Licensor") hereby grants permission, free of charge, to any person obtaining a copy of this Software, to use, copy, modify, merge, publish, and distribute the Software, in each case for any purpose other than a Commercial Purpose and to permit persons to whom the Software is furnished to do so, subject to the terms and conditions of this DOSA License.
+  a. _______________ (the "Licensor") hereby grants permission, free of charge, to any person obtaining a copy of this Software, to use, copy, modify, merge, publish, and distribute the Software, in each case for any purpose other than a Commercial Purpose and to permit persons to whom the Software is furnished to do so, subject to the terms and conditions of this DOSA License.
     
-    * This DOSA License applies separately for each version of the Software. No version of the Software can be used for Commercial Purposes within three years of the first publicly available distribution of that version under this DOSA License.
+  b. This DOSA License applies separately for each version of the Software. No version of the Software can be used for Commercial Purposes within three years of the first publicly available distribution of that version under this DOSA License.
     
-    * Effective on the third anniversary of the first publicly available distribution of each version of the Software under this DOSA License, you are hereby granted a license to that version of the Software under the terms of the CPAL License.  The " Notice Exhibits to the time-delayed CPAL License" set forth in Schedule A, below, shall constitute Exhibits A and B to the CPAL License (and shall not, for the avoidance of doubt, be deemed to constitute a license or other grant of rights in the Software under this DOSA License).
+  c. Effective on the third anniversary of the first publicly available distribution of each version of the Software under this DOSA License, you are hereby granted a license to that version of the Software under the terms of the CPAL License.  The " Notice Exhibits to the time-delayed CPAL License" set forth in Schedule A, below, shall constitute Exhibits A and B to the CPAL License (and shall not, for the avoidance of doubt, be deemed to constitute a license or other grant of rights in the Software under this DOSA License).
 
-  2. Attribution.
+2. Attribution.
     - Each time the Software is launched or initially run (such as by initiating a session), a prominent display of the Original Developer’s Attribution Information (defined below) must occur on the graphic user interface employed by the end user. If the end user does not access the Software through a graphic user interface, this obligation shall not apply. If the Original Code displays such Attribution Information in a particular form (such as in the form of a splash screen, notice at login, an "about" display, or dedicated attribution area on user interface screens), continued use of that form is one way of meeting this requirement.
     - Attribution Information may include: (i) a copyright notice including the name of the Original Developer; (ii) a phrase (not exceeding 10 words); (iii) one graphic image provided by the Original Developer; and (iv) a URL. For these purposes, prominent shall mean display for sufficient duration to give reasonable notice to the user of the identity of the Original Developer and that if You display an attribution, notice or similar information for other parties, You must ensure that the Attribution Information for the Original Developer shall be no less prominently displayed.
     - If Attribution Information is not provided, then there are no requirements for You to display any Attribution Information of the Original Developer.
