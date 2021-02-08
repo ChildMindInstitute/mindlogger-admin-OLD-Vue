@@ -122,7 +122,7 @@ export default {
 		},
 
 		canRemoveFromFolder() {
-			return this.item.parentId && this.hasRoles(this.item, 'editor', 'reviewer', 'manager');
+			return this.item.parentId && this.hasRoles(this.item, 'coordinator', 'editor', 'reviewer', 'manager');
 		}
 	},
 
