@@ -59,6 +59,7 @@
               :loading="tabData[tab].loading"
               :applets="tabData[tab].list"
               @refreshAppletList="getAccountData"
+              @removeDeletedApplet="onRemoveApplet"
               @onAppletPasswordChanged="onAppletPasswordChanged"
               @onOwnerShipInviteSuccessful="onOwnerShipInviteSuccessful"
               @onOwnerShipInviteError="onOwnerShipInviteError"
@@ -241,14 +242,6 @@ export default {
           this.appletUploadEnabled = true;
         }
       }
-
-      if (newApplets.length !== oldApplets.length) {
-        this.setVisibleTabs();
-      }
-
-      if (newApplets.length < oldApplets.length) {
-        this.onSwitchTab('applets');
-      }
     }
   },  
   mounted() {
@@ -277,6 +270,9 @@ export default {
           }
         });
       }
+    },
+    onRemoveApplet() {
+      this.setVisibleTabs();
     },
     onSwitchTab(tab) {
       if (tab == 'applets') {
@@ -334,6 +330,7 @@ export default {
             loading: false
           });
           await this.setupApplets();
+          this.setVisibleTabs();
           this.status = "ready";
         })
         .catch((err) => {
