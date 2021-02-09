@@ -233,6 +233,15 @@ export default {
       this.getAccountData();
     },
     accountApplets(newApplets, oldApplets) {
+      this.appletUploadEnabled = false;
+
+      for (let applet of newApplets) {
+        /** manager and editors can view applets */
+        if (applet.roles.includes('editor') || applet.roles.includes('manager')) {
+          this.appletUploadEnabled = true;
+        }
+      }
+
       if (newApplets.length !== oldApplets.length) {
         this.setVisibleTabs();
       }
@@ -254,7 +263,7 @@ export default {
   },
   methods: {
     setVisibleTabs() {
-      this.tabs.length = 0;
+      this.tabs = [];
 
       if (this.accountApplets.length && !this.tabs.find(tab => tab === 'applets')) {
         this.tabs.push('applets');
