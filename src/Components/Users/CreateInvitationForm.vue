@@ -245,7 +245,7 @@ export default {
       if (this.params.role === "user") {
         invitationOptions.MRN = this.params.profile.mrn;
       } else {
-        invitationOptions.accountName = this.params.accountName;
+        invitationOptions.accountName = this.params.accountName || this.currentAccountName;
       }
       if (this.params.role === "reviewer") {
         invitationOptions.users = this.params.users;
