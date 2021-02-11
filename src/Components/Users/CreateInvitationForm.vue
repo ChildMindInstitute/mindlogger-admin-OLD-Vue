@@ -70,6 +70,7 @@
             md="4"
           >
             <v-text-field
+              key="secret-id-input"
               v-model="params.profile.mrn"
               :label="$t('secretUserId')"
               :rules="secretUserIdRules"
@@ -83,6 +84,7 @@
             md="4"
           >
             <v-text-field
+              key="account-name-input"
               v-if="
                 username === currentAccountName && appletRoles.includes('owner')
               "
@@ -170,7 +172,7 @@ export default {
         (v) => !!v || this.$i18n.t("lastNameRequired")
       ],
       accountNameRules: [
-        (v) => !!v || this.$i18n.t("nameRequired")
+        (v) => !!v || this.$i18n.t("accountNameRequired")
       ],
       usersRules: [
         (v) => !!v || this.$i18n.t("usersRequired")

@@ -169,6 +169,7 @@ export default {
   emailRequired: 'E-mail is required',
   usersRequired: 'Users are required',
   nameRequired: 'Name is required',
+  accountNameRequired: 'Account name is required',
   refreshing: 'Refreshing',
   refreshingApplets: 'Refreshing applets will take several minutes',
   permanantlyDisable: 'Permanantly disable this applet',
