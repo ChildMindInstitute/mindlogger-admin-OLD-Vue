@@ -1,5 +1,5 @@
 <template>
-  <v-content class="builder">
+  <div>
     <About v-if="loading" />
     <AppletSchemaBuilder
       v-if="!loading"
@@ -28,16 +28,12 @@
       v-model="appletPasswordDialog"
       @set-password="onClickSubmitPassword"
     />
-  </v-content>
+  </div>
 </template>
 
 <style lang="scss">
 .v-card__text {
   padding: 16px !important;
-}
-
-.builder {
-  background: white;
 }
 </style>
 
