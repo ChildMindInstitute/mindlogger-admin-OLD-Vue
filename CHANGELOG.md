@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.20] - 2021-02-11
 - Fixed table footer on applet tab
+- Fix user tabs in userList page
+
+## [0.5.19] - 2021-02-08
+- Fix hidden applet tab
+- Added reminder in scheduling modal
+- Fixed account name on invitation info
 
 ## [0.5.18] - 2021-02-02
 - Fix hidden applet tab

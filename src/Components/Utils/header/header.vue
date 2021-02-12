@@ -179,7 +179,7 @@
     <v-spacer />
 
     <v-menu
-      v-if="isLoggedIn"
+      v-if="isLoggedIn && hasReviewerRole"
       :offset-y="true"
       :nudge-width="240"
       bottom
@@ -471,6 +471,22 @@ export default {
     showEnvironment() {
       return process.env.VUE_APP_TITLE_ENV;
     },
+    hasReviewerRole() {
+      if (!this.currentAccount) {
+        return false;
+      }
+
+      if (this.currentAccount.accountId === this.ownerAccountId) {
+        return true;
+      }
+
+      for (let applet of this.currentAccount.applets) {
+        if (this.hasRoles(applet, 'reviewer', 'manager', 'owner')) {
+          return true;
+        }
+      }
+      return false;
+    },
     ownerAccountName() {
       return this.$store.state.ownerAccount.accountName;
     },
@@ -556,11 +572,6 @@ export default {
         ? message.slice(0, 25) + ' …'
         : message
     },
-    // hasRoles() {
-    //   return [].some.call(arguments, (role) =>
-    //     this.currentApplet.roles.includes(role)
-    //   );
-    // },
     logout() {
       this.$store.commit('resetState');
       this.$router.push('/login').catch(err => {});

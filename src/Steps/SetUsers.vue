@@ -265,17 +265,28 @@ export default {
       this.status = 'ready';
 
       this.$store.commit('setCurrentRetentionSettings', this.$store.state.currentAppletData.applet.retentionSettings);
+    });
 
-      if (this.hasRoles('manager', 'coordinator', 'reviewer')) {
-        this.tabs.push('users');
-      }
-      if (this.hasRoles('manager')) {
-        this.tabs.push('reviewers', 'editors', 'coordinators', 'managers');
-      }
-      if (this.hasRoles('manager', 'coordinator')) {
-        this.tabs.push('invitation');
-      }
-    })
+    for (let tab of ['users', 'reviewers', 'editors', 'coordinators', 'managers']) {
+      const role = this.tabNameToRole[tab];
+
+      this.getAppletUsers(role).then(resp => {
+        if (resp.data.total > 0) {
+
+          if (tab === 'coordinators') {
+            this.tabs.push(tab);
+            this.tabs.push('invitation');
+          } else if (tab === 'managers') {
+            if (this.tabs.includes('invitation')) {
+              this.tabs.pop();
+            }
+
+            this.tabs.push(tab);
+            this.tabs.push('invitation');
+          }
+        }
+      });
+    }
   },
   methods: {
     onRetentionSettingsClose() {

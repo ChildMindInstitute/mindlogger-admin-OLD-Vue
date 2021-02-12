@@ -148,6 +148,11 @@
                         details.notifications = n;
                       }
                     "
+                    @updatedReminder="
+                      (r) => {
+                        details.reminder = r;
+                      }
+                    "
                   />
                 </v-card-text>
               </v-card>
@@ -400,6 +405,15 @@ export default {
           minute: 0,
           access: false,
           allow: false,
+        }
+      );
+    },
+    reminder() {
+      return (
+        this.details.reminder || {
+          valid: false,
+          days: 0,
+          time: "",
         }
       );
     },
@@ -796,6 +810,8 @@ export default {
       } else {
         evDetails.idleTime = this.scheduledIdleTime;
       }
+
+      evDetails.reminder = this.reminder;
 
       if (Object.keys(this.$store.state.currentUsers).length) {
         evDetails.users = Object.keys(this.$store.state.currentUsers);
