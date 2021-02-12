@@ -83,6 +83,8 @@ export default {
   turnOnNotifs: 'activer les notifications',
   startNotifAt: 'notification de début à',
   randomNotif: 'notification aléatoire ',
+  reminderNotif: '',
+  reminder: '',
   randomizeEnds: 'la randomisation se termine à',
   uploadActivitySet: "Télécharger un ensemble d'activités ",
   activitySetUrl: "url de l'ensemble d'activités",
