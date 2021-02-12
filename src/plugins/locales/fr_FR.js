@@ -175,6 +175,7 @@ export default {
   emailRequired: 'Adresse e-mail obligatoire',
   usersRequired: 'Utilisateurs requis',
   nameRequired: 'Nom obligatoire',
+  accountNameRequired: 'Nom du compte obligatoire',
   refreshing: 'Mise à jour',
   refreshingApplets: 'La mise à jour des applets prendra plusieurs minutes',
   permanantlyDisable: 'Désactiver cette applet définitivement',
