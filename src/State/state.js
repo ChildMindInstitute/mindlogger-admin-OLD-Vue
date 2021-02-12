@@ -9,7 +9,7 @@ import createPersistedState from 'vuex-persistedstate';
 
 const getDefaultState = () => {
   return {
-    backend: process.env.VUE_APP_SERVER_URL,
+    backend: "https://api-staging.mindlogger.org/api/v1",
     currentAccount: {},
     currentApplets: [],
     ownerAccount: {},
@@ -79,7 +79,7 @@ const mutations = {
     //   _.find(backendServers, { env: process.env.NODE_ENV }).url ||
     //   backendServers[0].url;
 
-    state.backend = backend || process.env.VUE_APP_SERVER_URL;
+    state.backend = backend || "https://api-staging.mindlogger.org/api/v1";
   },
   setAccounts(state, accounts) {
     state.allAccounts = accounts;
