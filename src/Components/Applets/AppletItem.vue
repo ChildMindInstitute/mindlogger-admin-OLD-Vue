@@ -1,21 +1,21 @@
 <template>
   <tr
-    draggable
     @dragover.prevent
     @drop.stop="itemDropped"
     @dragstart.stop="dragStart"
     @dragenter.stop.prevent="isDragOver = true"
     @dragleave.stop.prevent="isDragOver = false"
     @dragover.stop="isDragOver = true"
-    :class="{ 'drop-target': isDragOver }"
     @mouseover="appletHovered"
-  >
+    :class="{ 'drop-target': isDragOver }"
+    draggable
+  > 
     <template v-for="header in headers">
       <td v-if="header.value !== 'actions'" :key="header.text" @click="appletClicked">
         <div class="d-flex item">
           <template v-if="header.isPrimaryColumn">
             <div v-if="item.parentId" :style="rowStyle">
-              <v-btn icon small depressed @click="$emit('pinStatusChanged', item)" class="mr-3">
+              <v-btn icon small depressed @click.stop="$emit('pinStatusChanged', item)" class="mr-3">
                 <v-icon color="primary" v-if="item.pinOrder > 0">mdi-pin</v-icon>
                 <v-icon color="#474747" v-else >mdi-pin-off</v-icon>
               </v-btn>  

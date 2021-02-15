@@ -22,6 +22,13 @@ export default {
 					this.$set(applet, "pinOrder", newState ? 1 : 0);
 				})
 
+			this.flattenedDirectoryItems.forEach((item, index) => {
+				if (item.isFolder && item.items.find(({ id }) => id === applet.id)) {
+					item.items.sort(this.compare);
+					this.updateVisibleItems();
+				}
+			})
+
 			this.isSyncing = false;
 		},
 
@@ -189,6 +196,12 @@ export default {
 				.then(async (response) => {
 					this.isSyncing = false;
 				})
+		},
+
+		// Utilities
+
+		compare(itemA, itemB) {
+			return itemA.pinOrder > itemB.pinOrder ? -1 : (itemA.pinOrder < itemB.pinOrder ? 1 : 0);
 		}
 	},
 
