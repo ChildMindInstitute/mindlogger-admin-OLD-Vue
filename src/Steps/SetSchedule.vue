@@ -252,12 +252,25 @@ export default {
       });
       if (res === "Yes") {
         const schedule = this.currentAppletData.applet.schedule;
+        const userIds = Object.keys(this.$store.state.currentUsers);
+
+        const events = [];
+
         for (let event of schedule.events) {
-          if (event["id"]) {
+          if (!userIds.length && !event.data.users) {
+  					this.$store.commit("addRemovedEventId", event["id"]);
+          } else if (
+            event.data.users && 
+            event.data.users.every(userId => userIds.includes(userId)) && 
+            userIds.every(userId => event.data.users.includes(userId))
+          ) {
             this.$store.commit("addRemovedEventId", event["id"]);
+          } else {
+            events.push(event);
           }
         }
-        schedule.events = [];
+
+        schedule.events = events;
 
         this.$store.commit("setSchedule", schedule);
         this.$store.commit("setCachedEvents", schedule.events);
