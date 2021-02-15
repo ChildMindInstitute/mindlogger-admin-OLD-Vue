@@ -340,13 +340,6 @@ export default {
     }
   },
   methods: {
-    onBuildApplet() {
-      this.$router.push({
-        name: 'Builder',
-        params: {isEditing: false},
-      }).catch(err => {
-      });
-    },
     animateSaveInstructions() {
       this.showSaveFolderInstructions = true;
 
