@@ -39,7 +39,7 @@
         <tr
           v-for="item in props.items"
           :key="item.id"
-          :class="item.selected ? 'selected' : ''"
+          :class="item.selected ? 'selected' : 'unselected'"
           @click="rowClicked(item)"
         >
           <td
@@ -156,7 +156,8 @@
           </td>
         </tr>
         <tr v-if="props.items.length === 0 && !loading">
-          <h4 class="no-data"> No data </h4>
+          <td> </td>
+          <td> <h4 class="no-data"> No data </h4> </td>
         </tr>
       </template>
 
@@ -252,11 +253,11 @@
     }
   }
 
-  tr {
+  tr.unselected {
     cursor: pointer;
     user-select: none;
   }
-  tr:hover {
+  tr.unselected:hover {
     background-color: #f0f0f0;
   }
   tr.selected {

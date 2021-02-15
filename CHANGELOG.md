@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.23] - 2021-02-13
 - Fixed pin button in applet list
 
+## [0.5.22] - 2021-02-13
+- Fixed table footer on applet tab
+
 ## [0.5.20] - 2021-02-11
 - Fixed table footer on applet tab
 - Fix user tabs in userList page
