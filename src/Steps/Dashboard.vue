@@ -265,7 +265,7 @@ export default {
         const role = this.tabNameToRole[tab];
 
         this.getUserList(role).then(resp => {
-          if (resp.data.total > 0) {
+          if (resp.data.total > 0 && !this.tabs.includes(tab)) {
             this.tabs.push(tab);
           }
         });
