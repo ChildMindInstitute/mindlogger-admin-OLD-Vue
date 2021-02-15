@@ -1,8 +1,8 @@
 <template>
   <div>
-    <About v-if="loading" />
+    <About v-show="loading" />
     <AppletSchemaBuilder
-      v-if="!loading"
+      v-show="!loading"
       :key="componentKey"
       exportButton
       :initialData="(isEditing || null) && currentAppletData"
@@ -69,7 +69,6 @@ export default {
     return {
       loading: true,
       drawer: false,
-      aboutOpen: false,
       package: PackageJson,
       dialog: false,
       dialogText: '',
@@ -125,7 +124,9 @@ export default {
     const templateResp = await api.getItemTemplates({ apiHost, token });
     this.formatItemTemplates(templateResp.data);
 
-    this.loading = false;
+    if (this.versions.length) {
+      this.loading = false;
+    }
   },
   methods: {
     onClickSubmitPassword(appletPassword) {
@@ -311,7 +312,7 @@ export default {
       });
     },
     setLoading(isLoading) {
-      this.aboutOpen = isLoading;
+      this.loading = isLoading;
     },
   },
 };
