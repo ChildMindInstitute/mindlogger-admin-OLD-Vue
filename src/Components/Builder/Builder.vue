@@ -2,6 +2,7 @@
   <div>
     <About v-show="loading" />
     <AppletSchemaBuilder
+      v-if="!initializing"
       v-show="!loading"
       :key="componentKey"
       exportButton
@@ -68,7 +69,7 @@ export default {
   data() {
     return {
       loading: true,
-      drawer: false,
+      initializing: true,
       package: PackageJson,
       dialog: false,
       dialogText: '',
@@ -127,6 +128,8 @@ export default {
     if (this.versions.length) {
       this.loading = false;
     }
+
+    this.initializing = false;
   },
   methods: {
     onClickSubmitPassword(appletPassword) {
