@@ -252,16 +252,20 @@ export default {
       });
       if (res === "Yes") {
         const schedule = this.currentAppletData.applet.schedule;
+        const userIds = Object.keys(this.$store.state.currentUsers);
+        const events = [];
         for (let event of schedule.events) {
           if (event["id"]) {
-            this.$store.commit("addRemovedEventId", event["id"]);
+            if (this.arraysEqual(event.data.users, userIds)) {
+              this.$store.commit("addRemovedEventId", event["id"]);
+            } else {
+              events.push(event);
+            }
           }
         }
-        schedule.events = [];
-
+        schedule.events = events;
         this.$store.commit("setSchedule", schedule);
         this.$store.commit("setCachedEvents", schedule.events);
-
         this.$refs.calendar.$refs.app.clearEvents();
       }
     },
@@ -294,6 +298,21 @@ export default {
       });
       return appletSchedule;
     },
+
+
+    // Utilities
+    arraysEqual(a, b) {
+      if (!a && !b.length) return true;
+      if (a.length !== b.length) return false;
+      // If you don't care about the order of the elements inside
+      // the array, you should sort both arrays here.
+      // Please note that calling sort on an array will modify that array.
+      // you might want to clone your array first.
+      for (var i = 0; i < a.length; ++i) {
+        if (a[i] !== b[i]) return false;
+      }
+      return true;
+    }
   },
 };
 </script>
