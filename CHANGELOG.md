@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.25] - 2021-02-13
 - Fixed edit roles dialog
 
+## [0.5.24] - 2021-02-14
+- Resolved removing events
+
 ## [0.5.23] - 2021-02-13
 - Fixed pin button in applet list
 
