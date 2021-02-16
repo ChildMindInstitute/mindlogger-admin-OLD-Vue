@@ -184,8 +184,9 @@ const mutations = {
     state.currentRetentions = settings;
   },
   setCurrentAccountApplets(state, applets) {
-    if (applets && applets.length > 0)
-      state.currentAccount.applets.push(...applets)
+    if (applets && applets.length > 0) {
+      state.currentAccount.applets = applets;
+    }
   },
   setFullDirectory(state, fullDirectory) {
     state.fullDirectory = fullDirectory;
@@ -199,7 +200,7 @@ const mutations = {
   }
 };
 
-const stateCopy = (({
+const stateCopy = (({ 
   // Excluded properties.
   currentLanguage,
   ...o
