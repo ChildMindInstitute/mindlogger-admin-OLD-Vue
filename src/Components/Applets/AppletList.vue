@@ -41,12 +41,16 @@
           style="width: 100%"
           :headers="headers"
           :items="searchFilter(visibleItems)"
-          :hide-default-footer="true"
           :items-per-page="1000"
           depressed
           sort-by="calories"
           class="elevation-4"
           :loading="loading"
+          :footer-props="{
+            itemsPerPageText: $t('rowsPerPage'),
+            itemsPerPageAllText: $t('all'),
+            itemsPerPageOptions: [10, 50, 100, -1],
+          }"
       >
         <template v-slot:item="{ item }">
           <template v-if="!item.isFolder">
@@ -100,8 +104,6 @@
     </v-data-table>
     </div>
 
-  
-   
     <ConfirmationDialog
         v-model="appletDeleteDialog"
         :dialogText="$t('deleteAppletConfirmation')"

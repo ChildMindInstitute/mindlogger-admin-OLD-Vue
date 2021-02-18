@@ -175,7 +175,7 @@ export const AppletMixin = {
             result.push({
               id: response._id,
               created: response.created,
-              MRN: MRN || null,
+              secretUserId: MRN || null,
               userId: _id,
               activity: response.activity.name,
               item: itemUrl,

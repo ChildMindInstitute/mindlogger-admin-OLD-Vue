@@ -8,6 +8,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.19] - 2021-02-04
 - Updated api endpoints for app optimization
 
+## [0.5.25] - 2021-02-13
+- Fixed edit roles dialog
+
+## [0.5.24] - 2021-02-14
+- Resolved tab switching
+- Resolved removing events
+
+## [0.5.23] - 2021-02-13
+- Fixed pin button in applet list
+
+## [0.5.22] - 2021-02-13
+- Fixed table footer on applet tab
+
+## [0.5.20] - 2021-02-11
+- Fixed table footer on applet tab
+- Fix user tabs in userList page
+
+## [0.5.19] - 2021-02-08
+- Fix hidden applet tab
+- Added reminder in scheduling modal
+- Fixed account name on invitation info
+
 ## [0.5.18] - 2021-02-02
 - Fix hidden applet tab
 

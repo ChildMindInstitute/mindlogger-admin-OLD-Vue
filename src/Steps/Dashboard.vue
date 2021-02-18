@@ -59,6 +59,7 @@
               :loading="tabData[tab].loading"
               :applets="tabData[tab].list"
               @refreshAppletList="getAccountData"
+              @removeDeletedApplet="onRemoveApplet"
               @onAppletPasswordChanged="onAppletPasswordChanged"
               @onOwnerShipInviteSuccessful="onOwnerShipInviteSuccessful"
               @onOwnerShipInviteError="onOwnerShipInviteError"
@@ -233,12 +234,13 @@ export default {
       this.getAccountData();
     },
     accountApplets(newApplets, oldApplets) {
-      if (newApplets.length !== oldApplets.length) {
-        this.setVisibleTabs();
-      }
+      this.appletUploadEnabled = false;
 
-      if (newApplets.length < oldApplets.length) {
-        this.onSwitchTab('applets');
+      for (let applet of newApplets) {
+        /** manager and editors can view applets */
+        if (applet.roles.includes('editor') || applet.roles.includes('manager')) {
+          this.appletUploadEnabled = true;
+        }
       }
     }
   },  
@@ -254,7 +256,7 @@ export default {
   },
   methods: {
     setVisibleTabs() {
-      this.tabs.length = 0;
+      this.tabs = [];
 
       if (this.accountApplets.length && !this.tabs.find(tab => tab === 'applets')) {
         this.tabs.push('applets');
@@ -263,11 +265,14 @@ export default {
         const role = this.tabNameToRole[tab];
 
         this.getUserList(role).then(resp => {
-          if (resp.data.total > 0) {
+          if (resp.data.total > 0 && !this.tabs.includes(tab)) {
             this.tabs.push(tab);
           }
         });
       }
+    },
+    onRemoveApplet() {
+      this.setVisibleTabs();
     },
     onSwitchTab(tab) {
       if (tab == 'applets') {
@@ -325,6 +330,7 @@ export default {
             loading: false
           });
           await this.setupApplets();
+          this.setVisibleTabs();
           this.status = "ready";
         })
         .catch((err) => {

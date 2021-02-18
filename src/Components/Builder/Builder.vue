@@ -22,7 +22,6 @@
       v-model="dialog"
       :dialogText="dialogText"
       :title="dialogTitle"
-      @input="redirectToDashbaord"
     />
 
     <AppletPassword
@@ -317,9 +316,6 @@ export default {
     },
     setLoading(isLoading) {
       this.aboutOpen = isLoading;
-    },
-    redirectToDashbaord() {
-      this.$router.push('/dashboard').catch(err => {});
     },
   },
 };
