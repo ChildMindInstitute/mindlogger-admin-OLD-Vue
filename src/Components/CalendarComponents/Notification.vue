@@ -127,7 +127,7 @@ export default {
     return {
       allowRandom: false,
       notificationTimes: [],
-      reminder: {
+      reminder: this.details.reminder || {
         valid: false,
         days: 0,
         time: "",
