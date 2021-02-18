@@ -37,7 +37,7 @@ const resetPassword = ({ apiHost, body }) =>
 const setSchedule = ({ apiHost, token, id, data }) =>
   axios({
     method: "put",
-    url: `${apiHost}/applet/${id}/schedule`,
+    url: `${apiHost}/applet/${id}/setSchedule`,
     headers: {
       "Girder-Token": token,
     },
