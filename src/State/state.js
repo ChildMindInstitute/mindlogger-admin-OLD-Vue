@@ -50,6 +50,17 @@ const mutations = {
   addUpdatedEventId(state, eventId) {
     state.updatedEvents.push(eventId);
   },
+  setViewAlert(state, alertId) {
+    if (state.currentAccount && state.currentAccount.alerts) {
+      const alertList = state.currentAccount.alerts.list;
+
+      for (let alert of alertList) {
+        if (alert.id == alertId) {
+          alert.viewed = true;
+        }
+      }
+    }
+  },
   resetUpdatedEventId(state) {
     state.removedEvents = [];
     state.updatedEvents = [];
@@ -173,8 +184,9 @@ const mutations = {
     state.currentRetentions = settings;
   },
   setCurrentAccountApplets(state, applets) {
-    if (applets && applets.length > 0)
-      state.currentAccount.applets.push(...applets)
+    if (applets && applets.length > 0) {
+      state.currentAccount.applets = applets;
+    }
   },
   setFullDirectory(state, fullDirectory) {
     state.fullDirectory = fullDirectory;
@@ -188,7 +200,7 @@ const mutations = {
   }
 };
 
-const stateCopy = (({ 
+const stateCopy = (({
   // Excluded properties.
   currentLanguage,
   ...o
