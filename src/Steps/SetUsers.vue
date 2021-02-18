@@ -267,21 +267,13 @@ export default {
       this.$store.commit('setCurrentRetentionSettings', this.$store.state.currentAppletData.applet.retentionSettings);
     });
 
-    for (let tab of ['users', 'reviewers', 'editors', 'coordinators', 'managers']) {
+    for (let tab of ['managers', 'coordinators', 'editors', 'reviewers', 'users']) {
       const role = this.tabNameToRole[tab];
 
       this.getAppletUsers(role).then(resp => {
         if (resp.data.total > 0) {
-
-          if (tab === 'coordinators') {
-            this.tabs.push(tab);
-            this.tabs.push('invitation');
-          } else if (tab === 'managers') {
-            if (this.tabs.includes('invitation')) {
-              this.tabs.pop();
-            }
-
-            this.tabs.push(tab);
+          this.tabs.unshift(tab);
+          if ((tab === 'coordinators' || tab === 'managers') && !this.tabs.includes('invitation')) {
             this.tabs.push('invitation');
           }
         }
