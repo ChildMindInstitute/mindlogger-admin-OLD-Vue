@@ -190,7 +190,8 @@ export default {
           .select('.x-axis')
           .append('g')
           .attr('class', 'feature-axis')
-          .style('stroke-width', 2)
+          .style('stroke-width', 1.2)
+          .style('color', '#373737')
           .attr('transform', d => `translate(0, ${this.radius + this.padding.top + this.heightPerFeature * i})`)
           .call(
             xAxis.tickFormat(d => i == this.features.length - 1 ? moment(d).format('MMM-D') : '')

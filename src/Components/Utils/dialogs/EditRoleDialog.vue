@@ -83,7 +83,7 @@
         <v-btn
           color="primary"
           text
-          :disabled="!profileList[0].roles.length"
+          :disabled="!profileList[0] || !profileList[0].roles.length"
           @click="onSaveUserRole()"
         >
           {{ $t('save') }}
