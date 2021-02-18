@@ -175,7 +175,8 @@ export default {
 
       this.svg
         .select('.x-axis')
-        .style('stroke-width', 2)
+        .style('stroke-width', 1.2)
+        .style('color', '#373737')
         .attr('transform', `translate(0, ${this.radius + this.padding.top})`)
         .call(xAxis);
     },
@@ -205,3 +206,4 @@ export default {
   }
 }
 </script>
+ 
