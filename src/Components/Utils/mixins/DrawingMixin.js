@@ -39,7 +39,7 @@ export const DrawingMixin = {
         bottom: 10,
       },
       versionBarWidth: 2,
-      radius: 7,
+      radius: 10,
       tickHeight: 6,
       tickWidth: 6,
     }

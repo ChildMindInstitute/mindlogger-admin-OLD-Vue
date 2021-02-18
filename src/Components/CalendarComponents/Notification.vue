@@ -89,7 +89,7 @@
 
         <div class="ds-reminder-flex">
           <label>If the user does not complete this activity after</label>
-          <input class="ds-reminder-day" v-model="reminder.days" />
+          <input type="number" class="ds-reminder-day" v-model="reminder.days" />
           <label>consecutive days, send a reminder notification</label>
         </div>
 
@@ -127,7 +127,7 @@ export default {
     return {
       allowRandom: false,
       notificationTimes: [],
-      reminder: {
+      reminder: this.details.reminder || {
         valid: false,
         days: 0,
         time: "",
@@ -244,7 +244,7 @@ export default {
   margin: 0 7px;
   border-bottom: 1px solid grey;
   padding: 0;
-  width: 25px;
+  width: 35px;
   font-size: 16px;
   text-align: center;
 }
