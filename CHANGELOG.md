@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.28] - 2021-02-17
 - Fixed reminder settings
 
+## [0.5.27] - 2021-02-16
+- Resolved dashboard tabs
+- Resolved input type for reminder day
+
+## [0.5.26] - 2021-02-16
+- Modified line thickness
+
 ## [0.5.25] - 2021-02-13
 - Fixed edit roles dialog
 
