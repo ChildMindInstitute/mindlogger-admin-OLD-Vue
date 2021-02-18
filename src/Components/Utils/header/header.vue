@@ -35,23 +35,7 @@
       @click="viewUsers"
       :x-small="isTablet"
     >
-      {{ currentApplet.name }} 
-    </v-btn>
-
-    <v-icon 
-      v-if="routeName == 'ReviewerDashboard'" 
-      medium
-    >
-      mdi-chevron-right
-    </v-icon>
-
-    <v-btn
-      v-if="routeName == 'ReviewerDashboard'"
-      color="primary"
-      class="toolbar-btn"
-      :x-small="isTablet"
-    >
-      {{ currentUsers }}'s Overview
+      <p class="ds-applet-name">{{ currentApplet.name }}</p>
     </v-btn>
 
     <v-tooltip
@@ -398,6 +382,13 @@
   border-radius: 50%;
   width: 24px;
   line-height: 12px;
+}
+
+.ds-applet-name {
+  margin: 0;
+  width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>
 
