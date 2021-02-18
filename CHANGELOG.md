@@ -5,8 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.5.19] - 2021-02-04
+## [0.5.31] - 2021-02-04
 - Updated api endpoints for app optimization
+
+## [0.5.30] - 2021-02-17
+- Fixed undefined events
+
+## [0.5.29] - 2021-02-17
+- Fixed header overflow
+
+## [0.5.28] - 2021-02-17
+- Fixed reminder settings
+
+## [0.5.27] - 2021-02-16
+- Resolved dashboard tabs
+- Resolved input type for reminder day
+
+## [0.5.26] - 2021-02-16
+- Modified line thickness
 
 ## [0.5.25] - 2021-02-13
 - Fixed edit roles dialog
