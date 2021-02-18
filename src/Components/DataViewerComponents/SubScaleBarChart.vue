@@ -152,7 +152,8 @@ export default {
 
       this.svg
         .select('.x-axis .main-axis')
-        .style('stroke-width', 2)
+        .style('stroke-width', 1.2)
+        .style('color', '#373737')
         .attr('transform', `translate(0, ${this.y(this.divergingExtent.min)})`)
         .call(xAxis);
 
@@ -167,7 +168,8 @@ export default {
 
       this.svg
         .select('.y-axis .main-axis')
-        .style('stroke-width', 2)
+        .style('stroke-width', 1.2)
+        .style('color', '#373737')
         .call(yAxis);
 
 
