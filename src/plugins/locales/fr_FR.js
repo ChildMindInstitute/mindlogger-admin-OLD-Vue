@@ -336,5 +336,6 @@ export default {
   frequency: 'Fréquence',
   new: 'neuf',
   takeToResponseData: 'Amenez-moi aux données de la réponse',
-  alertMessage: '{userIdentifier} a répondu à une question pour laquelle une alerte a été créée'
+  alertMessage: '{userIdentifier} a répondu à une question pour laquelle une alerte a été créée',
+  newFolder: 'Nouveau dossier',
 };
