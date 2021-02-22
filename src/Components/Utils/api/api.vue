@@ -53,10 +53,13 @@ const getUserDetails = ({ apiHost, token }) =>
   });
 const getSchedule = ({ apiHost, token, id }) =>
   axios({
-    method: "get",
-    url: `${apiHost}/applet/${id}/schedule?getAllEvents=true`,
+    method: "put",
+    url: `${apiHost}/applet/${id}/getSchedule?getAllEvents=true`,
     headers: {
       "Girder-Token": token,
+    },
+    params: {
+      localEvents: null,
     },
   });
 

@@ -172,7 +172,7 @@ export default {
   mounted() {
     let process;
     if (!this.isLatestApplet(this.currentAppletMeta)) {
-      process = this.loadApplet(this.currentAppletMeta.id).then(data => data.applet.schedule);
+      process = this.loadApplet(this.currentAppletMeta.id).then(data => data.schedule);
     } else {
       process = api.getSchedule({
         apiHost: this.apiHost,
