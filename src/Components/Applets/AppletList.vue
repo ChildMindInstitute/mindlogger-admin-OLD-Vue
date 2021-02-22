@@ -21,7 +21,7 @@
           <v-icon
             dark
           >mdi-plus</v-icon>
-        New Folder
+        {{ $t('newFolder') }}
         </v-btn>
     </div>
     <div v-if="isSyncing" >
@@ -363,7 +363,7 @@ export default {
       const userId = this.$store.state.currentUser['_id'] || ''
       const folder = {
         id: Math.random() + Math.random(),
-        name: "New Folder",
+        name: this.$i18n.t('newFolder'),
         isFolder: true,
         description: "",
         isExpanded: false,

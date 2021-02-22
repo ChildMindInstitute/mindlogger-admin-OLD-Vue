@@ -333,5 +333,6 @@ export default {
   frequency: 'Frequency',
   new: 'new',
   takeToResponseData: 'Take me to the response data',
-  alertMessage: 'A question was answered by {userIdentifier} that an alert was created for.'
+  alertMessage: 'A question was answered by {userIdentifier} that an alert was created for.',
+  newFolder: 'New Folder',
 };
