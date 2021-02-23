@@ -438,6 +438,9 @@ export default {
       this.dialog = true;
     },
     onBuildApplet() {
+      this.$store.commit('setCurrentApplet', null);
+      this.$store.commit('setCurrentUsers', {});
+
       this.$router.push({
         name: 'Builder',
         params: {isEditing: false},
