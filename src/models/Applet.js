@@ -42,6 +42,7 @@ export default class Applet {
     this.responses = {};
     this.subScales = {};
     this.tokens = {};
+    this.hasTokenItem = false;
 
     this.selectedActivites = [];
 
@@ -77,6 +78,10 @@ export default class Applet {
       activity.items = activity.order.map(itemId => this.items[itemId]);
       activity.hasTokenItem = activity.items.some(item => item.isTokenItem);
       this.activities.push(activity);
+
+      if (activity.hasTokenItem) {
+        this.hasTokenItem = true;
+      }
     }
   }
 

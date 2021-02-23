@@ -107,7 +107,9 @@
                           {{ applet.label.en }}
                         </div>
                       </v-expansion-panel-header>
-                      <v-expansion-panel-content>
+                      <v-expansion-panel-content
+                        v-if="applet.hasTokenItem"
+                      >
                         <token-chart
                           :plot-id="`Token-${applet.id.replace(' ', '_')}`"
                           :applet="applet"
@@ -120,6 +122,13 @@
                           :parent-width="panelWidth"
                           @onUpdateFocusExtent="onUpdateFocusExtent"
                         />
+                      </v-expansion-panel-content>
+                      <v-expansion-panel-content
+                        v-else
+                      >
+                        <h4>
+                          {{ $t("noTokenDataAvailable") }}
+                        </h4>
                       </v-expansion-panel-content>
                     </v-expansion-panel>
                     <v-expansion-panel
