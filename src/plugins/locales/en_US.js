@@ -265,7 +265,7 @@ export default {
   remove: 'Remove',
   cancel: 'Cancel',
   welcomeMindLogger: 'Welcome to MindLogger!',
-  getStarted: 'Let\'s s get started by creating a new applet or uploading one.',
+  getStarted: 'Let\'s get started by creating a new applet or uploading one.',
   navigateSpaceText: 'If you\'ve been invited to MindLogger as part of a team, the people icon at the top right will take you to the team\'s applets.',
   ownSpaceDescription: 'This is your own space to create and manage your own applets.',
   clickHere: 'Click Here',
