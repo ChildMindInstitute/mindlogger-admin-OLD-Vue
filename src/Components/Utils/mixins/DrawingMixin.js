@@ -93,7 +93,7 @@ export const DrawingMixin = {
         return;
       }
 
-      const newVersions = this.formattedVersions.filter(d => this.selectedVersions.indexOf(d.version) >= 0);
+      const newVersions = this.formattedVersions.filter(d => this.selectedVersions.indexOf(d.version) >= 0 && d.updated);
 
       this.svg
         .select('.versions')
