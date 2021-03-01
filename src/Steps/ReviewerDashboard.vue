@@ -293,6 +293,10 @@
                             :key="item['id']"
                             class="chart-card"
                           >
+                            <header>
+                              <h3> - {{ item.getFormattedQuestion() }}</h3>
+                            </header>
+
                             <RadioSlider
                               v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
                               :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
@@ -592,8 +596,10 @@ export default {
    */
   methods: {
     onResize() {
-      const dimensions = this.$refs.panels.getBoundingClientRect();
-      this.panelWidth = dimensions.width - this.margin;
+      if (this.$refs.panels) {
+        const dimensions = this.$refs.panels.getBoundingClientRect();
+        this.panelWidth = dimensions.width - this.margin;
+      }
     },
     /**
      * Checks whether the given date should be enabled.
