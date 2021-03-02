@@ -85,6 +85,9 @@
     >
       <h2> {{ $t("welcomeMindLogger") }} </h2>
       <p>
+        {{ $t("ownSpaceDescription") }}
+      </p>
+      <p>
         {{ $t("getStarted") }}
       </p>
       <p>
@@ -123,10 +126,6 @@
       </p>
       <p>
         {{ $t("navigateSpaceText") }}
-      </p>
-
-      <p>
-        {{ $t("ownSpaceDescription") }}
       </p>
     </v-card>
 
