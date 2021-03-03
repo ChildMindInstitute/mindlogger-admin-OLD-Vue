@@ -156,9 +156,15 @@ export default class Item {
 
   appendResponses(responses) {
     this.responses = this.responses.concat(responses.map(response => {
+      if (response.value.value !== undefined) {
+        response.value = response.value.value;
+      }
+
       if (!Array.isArray(response.value)) {
         // Ensure that it is an array.
         response.value = [response.value];
+      } else {
+        response.value = response.value;
       }
 
       return response.value.reduce(
