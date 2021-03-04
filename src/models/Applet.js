@@ -27,7 +27,7 @@ export default class Applet {
    */
   constructor(data) {
     this.data = data;
-    this.id = data.applet['@id'];
+    this.id = slugify(data.applet['@id']);
     this._id = data.applet['_id'];
     this.encryption = data.applet.encryption;
     this.label = i18n.arrayToObject(data.applet[SKOS.prefLabel]);
