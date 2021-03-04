@@ -133,43 +133,51 @@ export const AppletMixin = {
             let options = [], scores = [];
             let responseData = [];
 
-            if (response.data[itemUrl] === null ) {
-              responseData = null;
-            } else if (item.inputType === 'radio' || item.inputType === 'slider') {
-              options = item.responseOptions.map(option => 
-                `${Object.values(option.name)[0]}: ${option.value} ${item.scoring ? '(score: ' + option.score + ')' : ''}`
-              );
-
-              if (!Array.isArray(response.data[itemUrl])) {
-                response.data[itemUrl] = [response.data[itemUrl]]
+            if (response.data[itemUrl].value || !response.data[itemUrl].text) {
+              if (response.data[itemUrl].value) {
+                response.data[itemUrl] = response.data[itemUrl].value;
               }
 
-              response.data[itemUrl].forEach(val => {
-                if (typeof val === 'string') {
-                  let option = item.responseOptions.find(option => Object.values(option.name)[0] === val);
-                  if (option) {
-                    responseData.push(option.value);
-                    if (item.scoring) {
-                      scores.push(option.score);
-                    }
-                  }
-                } else {
-                  responseData.push(val);
-
-                  if (item.scoring) {
-                    let option = item.responseOptions.find(option => option.value === val);
-                    if (option) {
-                      scores.push(option.score);
-                    }
-                  }
+              if (response.data[itemUrl] === null ) {
+                responseData = null;
+              } else if (item.inputType === 'radio' || item.inputType === 'slider') {
+                options = item.responseOptions.map(option => 
+                  `${Object.values(option.name)[0]}: ${option.value} ${item.scoring ? '(score: ' + option.score + ')' : ''}`
+                );
+  
+                if (!Array.isArray(response.data[itemUrl])) {
+                  response.data[itemUrl] = [response.data[itemUrl]]
                 }
-              });
-            } else {
-              if (typeof response.data[itemUrl] == 'object' && response.data[itemUrl]) {
-                responseData = Object.keys(response.data[itemUrl]).map(key => `${key}: ${JSON.stringify(response.data[itemUrl][key]).replace(/[,"]/g, ' ')}`);
+  
+                response.data[itemUrl].forEach(val => {
+                  if (typeof val === 'string') {
+                    let option = item.responseOptions.find(option => Object.values(option.name)[0] === val);
+                    if (option) {
+                      responseData.push(option.value);
+                      if (item.scoring) {
+                        scores.push(option.score);
+                      }
+                    }
+                  } else {
+                    responseData.push(val);
+  
+                    if (item.scoring) {
+                      let option = item.responseOptions.find(option => option.value === val);
+                      if (option) {
+                        scores.push(option.score);
+                      }
+                    }
+                  }
+                });
               } else {
-                responseData = [response.data[itemUrl]];
+                if (typeof response.data[itemUrl] == 'object' && response.data[itemUrl]) {
+                  responseData = Object.keys(response.data[itemUrl]).map(key => `${key}: ${JSON.stringify(response.data[itemUrl][key]).replace(/[,"]/g, ' ')}`);
+                } else {
+                  responseData = [response.data[itemUrl]];
+                }
               }
+            } else {
+              responseData = [response.data[itemUrl].text];
             }
 
             result.push({
