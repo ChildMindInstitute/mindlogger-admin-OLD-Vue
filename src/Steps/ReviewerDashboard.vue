@@ -111,7 +111,7 @@
                         v-if="applet.hasTokenItem"
                       >
                         <token-chart
-                          :plot-id="`Token-${applet.id.replace(' ', '_')}`"
+                          :plot-id="`Token-${applet.id.replaceAll(' ', '_')}`"
                           :applet="applet"
                           :cumulative="applet.tokens"
                           :timezone="applet.timezoneStr"

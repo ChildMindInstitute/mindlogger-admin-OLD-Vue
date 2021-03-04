@@ -99,8 +99,8 @@ export default class Item {
 
     return itemListElement.map((choice, index) => ({
       name: i18n.arrayToObject(choice['schema:name']),
-      value: choice['schema:value'][0]['@value'],
-      score: Array.isArray(choice['schema:score']) && choice['schema:score'][0] && choice['schema:score'][0]['@value'],
+      value: Number(choice['schema:value'][0]['@value']),
+      score: Number(Array.isArray(choice['schema:score']) && choice['schema:score'][0] && choice['schema:score'][0]['@value']),
       color: choice['schema:value'][0]['@value'] > 0
         ? this.coldColors.shift()
         : this.warmColors.shift(),
