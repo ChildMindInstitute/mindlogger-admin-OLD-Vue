@@ -353,7 +353,7 @@ export default class Applet {
     Object.keys(this.items).forEach(itemId => {
       const item = this.items[itemId];
 
-      if (item.isTokenItem) {
+      if (item.isTokenItem && item.inputType !== 'stackedRadio') {
         item.responses.forEach(resp => {
           let dateStr = moment.utc(resp.date).format('YYYY-MM-DD');
 
@@ -394,12 +394,12 @@ export default class Applet {
 
           if (item.responseOptions) {
             for (let choice of item.responseOptions) {
-              let value = response[choice.id];
+              let value = Number(response[choice.id]);
 
               if (value) {
                 positive = value > 0 ? positive + value : positive;
                 negative = value < 0 ? negative + value : negative;
-                cummulative = cummulative + value;
+                cummulative = cummulative + Number(value);
               }
             }
           }

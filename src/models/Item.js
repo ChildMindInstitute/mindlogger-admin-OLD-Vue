@@ -179,7 +179,7 @@ export default class Item {
 
           return {
             ...obj,
-            [choice.id]: (obj[choice.id] || 0) + value,
+            [choice.id]: (obj[choice.id] || 0) + Number(value),
           };
         },
         {
