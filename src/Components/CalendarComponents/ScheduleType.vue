@@ -84,6 +84,11 @@ export default {
               label: this.$t('weekly'),
               value: pattern.name
             });
+          } else if (index === 6) {
+            eventTypes.push({
+              label: this.$t('weekday'),
+              value: pattern.name
+            });
           } else if (index === 7) {
             eventTypes.push({
               label: this.$t('monthly'),
