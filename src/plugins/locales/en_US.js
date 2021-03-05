@@ -62,6 +62,7 @@ export default {
   doesNotRepeat: 'Does not repeat',
   daily: 'Daily',
   weekly: 'Weekly',
+  weekday: 'Weekday',
   monthly: 'Monthly',
   accessBefore: 'Access before scheduled time',
   timedActivity: 'Timed activity',
