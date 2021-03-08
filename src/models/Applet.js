@@ -92,11 +92,29 @@ export default class Applet {
    */
   async fetchResponses(users = []) {
     let appletId = this._id.split('/').pop();
+
+    const NOW = new Date();
+    const TODAY = new Date(Date.UTC(
+      NOW.getFullYear(),
+      NOW.getMonth(),
+      NOW.getDate() + 1,
+      0,
+      0,
+      0,
+    ));
+
+    const ONE_YEAR_AGO = new Date(TODAY);
+    ONE_YEAR_AGO.setFullYear(TODAY.getFullYear() - 1);
+
     let { data } = await axios({
       method: 'get',
       url: `${store.state.backend}/response/${appletId}`,
       headers: { 'Girder-Token': store.state.auth.authToken.token },
-      params: { users: JSON.stringify(users) },
+      params: {
+        users: JSON.stringify(users),
+        toDate: `${NOW.getFullYear()}-${NOW.getMonth()}-${NOW.getDate()}`,
+        fromDate: `${ONE_YEAR_AGO.getFullYear()}-${ONE_YEAR_AGO.getMonth()}-${ONE_YEAR_AGO.getDate()}`
+      },
     });
 
     if (this.encryption) {
@@ -265,14 +283,15 @@ export default class Applet {
         })));
       }
 
-      activity.responses.sort((resp1, resp2) => {
-        if (resp1.date < resp2.date) return -1;
-        if (resp1.date > resp2.date) return 1;
+      const existing = {};
+      activity.responses = activity.responses.filter((resp, index) => {
+        const id = `${resp.date.toString()}/${resp.version}`;
+        if (existing[id]) {
+          return false;
+        }
 
-        return 0;
-      })
-
-      activity.responses = activity.responses.filter((resp, index) => activity.responses.findIndex(value => value.date.toString() == resp.date.toString() && value.version == resp.version) == index);
+        return true;
+      });
     }
 
     for (let activity of this.activities) {
