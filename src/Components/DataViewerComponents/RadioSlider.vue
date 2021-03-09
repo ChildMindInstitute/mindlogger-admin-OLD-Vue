@@ -209,8 +209,18 @@ export default {
 
       let prevX = -1, prevY = -1;
 
-      for (let response of this.data) {
+      for (let i = 0; i < this.data.length; i++) {
         let x = -1, y = -1;
+        let response = this.data[i];
+
+        if (response.date < this.focusExtent[0]) {
+          continue;
+        }
+
+        if (response.date > this.focusExtent[1]) {
+          break;
+        }
+
         for (let feature of this.features) {
           if (response[feature.slug] !== undefined) {
             x = this.x(response.date);

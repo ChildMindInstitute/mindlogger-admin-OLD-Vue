@@ -190,7 +190,7 @@ export default {
       this.svg
         .select('.responses')
         .selectAll('circle')
-        .data(this.data.filter(d => this.selectedVersions.indexOf(d.version) >= 0))
+        .data(this.data.filter(d => this.selectedVersions.indexOf(d.version) >= 0 && d.date >= this.focusExtent[0] && d.date <= this.focusExtent[1]))
         .join('circle')
         .attr('fill', this.color)
         .attr('cx', d => {
