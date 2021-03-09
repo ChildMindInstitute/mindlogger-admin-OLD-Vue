@@ -286,6 +286,7 @@ export default class Applet {
         if (existing[id]) {
           return false;
         }
+        existing[id] = true;
 
         return true;
       });
