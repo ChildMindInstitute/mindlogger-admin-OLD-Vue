@@ -103,9 +103,6 @@ export default class Applet {
       0,
     ));
 
-    const ONE_YEAR_AGO = new Date(TODAY);
-    ONE_YEAR_AGO.setFullYear(TODAY.getFullYear() - 1);
-
     let { data } = await axios({
       method: 'get',
       url: `${store.state.backend}/response/${appletId}`,
@@ -113,7 +110,7 @@ export default class Applet {
       params: {
         users: JSON.stringify(users),
         toDate: `${NOW.getFullYear()}-${NOW.getMonth()}-${NOW.getDate()}`,
-        fromDate: `${ONE_YEAR_AGO.getFullYear()}-${ONE_YEAR_AGO.getMonth()}-${ONE_YEAR_AGO.getDate()}`
+        fromDate: `${TODAY.getFullYear()-1}-${TODAY.getMonth()}-${TODAY.getDate()}`
       },
     });
 

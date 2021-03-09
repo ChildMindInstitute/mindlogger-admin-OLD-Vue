@@ -657,6 +657,9 @@ export default {
      */
     setStartDate(date) {
       this.$set(this.focusExtent, 0, moment.utc(date).toDate());
+      if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'weeks', true) > 2) {
+        this.focusExtent[1] = moment(this.focusExtent[0]).add(2, 'weeks').toDate();
+      }
     },
     /**
      * Updates the end date for the focused time range.
@@ -670,6 +673,10 @@ export default {
         .add(15, 'hours')
         .toDate()
       );
+
+      if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'weeks', true) > 2) {
+        this.focusExtent[0] = moment(this.focusExtent[1]).subtract(2, 'weeks').toDate();
+      }
     },
 
     onUpdateFocusExtent(focusExtent) {
