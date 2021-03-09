@@ -109,8 +109,8 @@ export default class Applet {
       headers: { 'Girder-Token': store.state.auth.authToken.token },
       params: {
         users: JSON.stringify(users),
-        toDate: `${NOW.getFullYear()}-${NOW.getMonth()}-${NOW.getDate()}`,
-        fromDate: `${TODAY.getFullYear()-1}-${TODAY.getMonth()}-${TODAY.getDate()}`
+        toDate: `${NOW.getFullYear()}-${NOW.getMonth()+1}-${NOW.getDate()}`,
+        fromDate: `${TODAY.getFullYear()-1}-${TODAY.getMonth()+1}-${TODAY.getDate()}`
       },
     });
 
