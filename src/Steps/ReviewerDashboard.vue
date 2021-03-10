@@ -657,7 +657,7 @@ export default {
      */
     setStartDate(date) {
       this.$set(this.focusExtent, 0, moment.utc(date).toDate());
-      if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) > 1) {
+      if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) > 3) {
         this.focusExtent[1] = moment(this.focusExtent[0]).add(1, 'months').toDate();
       }
     },
@@ -674,7 +674,7 @@ export default {
         .toDate()
       );
 
-      if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) > 1) {
+      if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) > 3) {
         this.focusExtent[0] = moment(this.focusExtent[1]).subtract(1, 'months').toDate();
       }
     },
