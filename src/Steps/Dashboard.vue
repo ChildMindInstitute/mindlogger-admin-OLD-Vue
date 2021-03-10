@@ -25,25 +25,6 @@
             </v-tab>
           </template>
         </v-tabs>
-
-        <v-tooltip
-          v-if="appletUploadEnabled"
-          top
-        >
-          <template v-slot:activator="{ on }">
-            <v-btn
-              color="primary"
-              rounded
-              small
-              style="margin: auto;"
-              v-on="on"
-              @click="appletUploadDialog = true"
-            >
-              <v-icon>mdi-plus</v-icon>
-            </v-btn>
-          </template>
-          <span>{{ $t("createUploadApplet") }}</span>
-        </v-tooltip>
       </div>
 
       <v-tabs-items v-model="selectedTab">
@@ -65,6 +46,9 @@
               @onOwnerShipInviteError="onOwnerShipInviteError"
               @onDuplicateRequestReceived="onDuplicateRequestReceived"
               @onRefreshAppletRequestReceived="onRefreshAppletRequestReceived"
+              @onBuildApplet="onBuildApplet"
+              @onEditApplet="appletEditDialog=true"
+              @onAddAppletFromUrl="appletURLDialog=true"
             />
           </v-card>
           <v-card
@@ -101,29 +85,47 @@
     >
       <h2> {{ $t("welcomeMindLogger") }} </h2>
       <p>
+        {{ $t("ownSpaceDescription") }}
+      </p>
+      <p>
         {{ $t("getStarted") }}
-      </p><p>
-        <v-tooltip top>
+      </p>
+      <p>
+        <v-menu
+          offset-x
+        >
           <template v-slot:activator="{ on }">
             <v-btn
               color="primary"
+              rounded
               x-large
-              elevation="11"
-              light
+              style="margin: auto;"
               v-on="on"
-              @click="appletUploadDialog = true"
             >
               {{ $t("clickHere") }}
             </v-btn>
           </template>
-          <span>{{ $t("createUploadApplet") }}</span>
-        </v-tooltip>
-      </p><p>
-        {{ $t("navigateSpaceText") }}
-      </p>
 
+          <v-list>
+            <v-list-item
+              @click="onBuildApplet"
+            >
+              <v-list-item-title>
+                {{ 'Build an applet' }}
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              @click="appletURLDialog=true"
+            >
+              <v-list-item-title>
+                {{ 'Add applet from GitHub URL' }}
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </p>
       <p>
-        {{ $t("ownSpaceDescription") }}
+        {{ $t("navigateSpaceText") }}
       </p>
     </v-card>
 
@@ -142,6 +144,15 @@
       v-model="appletPasswordDialog"
       :hasConfirmPassword="true"
       @set-password="addNewApplet"
+    />
+
+    <AppletUrl
+      v-model="appletURLDialog"
+      @set-value="onAddApplet"
+    />
+
+    <EditAppletDialog
+      v-model="appletEditDialog"
     />
   </v-container>
 </template>
@@ -181,6 +192,8 @@ import AppletUpload from "../Components/Utils/dialogs/AppletUpload.vue";
 import AppletPassword from "../Components/Utils/dialogs/AppletPassword.vue";
 import encryption from "../Components/Utils/encryption/encryption.vue";
 import AppletDirectoryManager from "@/Components/Applets/AppletDirectoryManager.js";
+import AppletUrl from '../Components/Utils/dialogs/AppletUrlUploader';
+import EditAppletDialog from '../Components/Utils/dialogs/EditAppletDialog';
 
 window.Parse = Parse;
 window.Day = Day;
@@ -194,6 +207,8 @@ export default {
     AppletUpload,
     AppletPassword,
     UserList,
+    AppletUrl,
+    EditAppletDialog,
   },
   data: () => ({
     sampleProtocols: config.protocols,
@@ -204,7 +219,6 @@ export default {
     dialogTitle: "",
     selectedTab: null,
     tabs: [],
-    appletUploadEnabled: false,
     tabNameToRole: {
       users: 'user',
       reviewers: 'reviewer',
@@ -215,6 +229,8 @@ export default {
     tabData: {},
     appletUploadDialog: false,
     appletPasswordDialog: false,
+    appletURLDialog: false,
+    appletEditDialog: false,
     newProtocolURL: "",
   }),
   computed: {
@@ -346,6 +362,7 @@ export default {
     },
 
     onAddApplet(protocolUrl) {
+      this.appletURLDialog = false;
       this.appletUploadDialog = false;
       this.appletPasswordDialog = true;
       this.newProtocolURL = protocolUrl;
@@ -418,7 +435,17 @@ export default {
       this.dialogText = message;
       this.dialogTitle = this.$t('refreshing');
       this.dialog = true;
-    }
+    },
+    onBuildApplet() {
+      this.$store.commit('setCurrentApplet', null);
+      this.$store.commit('setCurrentUsers', {});
+
+      this.$router.push({
+        name: 'Builder',
+        params: {isEditing: false},
+      }).catch(err => {
+      });
+    },
   },
 };
 </script>

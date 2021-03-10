@@ -27,7 +27,7 @@ export default class Applet {
    */
   constructor(data) {
     this.data = data;
-    this.id = data.applet['@id'];
+    this.id = slugify(data.applet['@id']);
     this._id = data.applet['_id'];
     this.encryption = data.applet.encryption;
     this.label = i18n.arrayToObject(data.applet[SKOS.prefLabel]);
@@ -92,11 +92,26 @@ export default class Applet {
    */
   async fetchResponses(users = []) {
     let appletId = this._id.split('/').pop();
+
+    const NOW = new Date();
+    const TODAY = new Date(Date.UTC(
+      NOW.getFullYear(),
+      NOW.getMonth(),
+      NOW.getDate() + 1,
+      0,
+      0,
+      0,
+    ));
+
     let { data } = await axios({
       method: 'get',
       url: `${store.state.backend}/response/${appletId}`,
       headers: { 'Girder-Token': store.state.auth.authToken.token },
-      params: { users: JSON.stringify(users) },
+      params: {
+        users: JSON.stringify(users),
+        toDate: `${NOW.getFullYear()}-${NOW.getMonth()+1}-${NOW.getDate()}`,
+        fromDate: `${TODAY.getFullYear()-1}-${TODAY.getMonth()+1}-${TODAY.getDate()}`
+      },
     });
 
     if (this.encryption) {
@@ -265,14 +280,16 @@ export default class Applet {
         })));
       }
 
-      activity.responses.sort((resp1, resp2) => {
-        if (resp1.date < resp2.date) return -1;
-        if (resp1.date > resp2.date) return 1;
+      const existing = {};
+      activity.responses = activity.responses.filter((resp, index) => {
+        const id = `${resp.date.toString()}/${resp.version}`;
+        if (existing[id]) {
+          return false;
+        }
+        existing[id] = true;
 
-        return 0;
-      })
-
-      activity.responses = activity.responses.filter((resp, index) => activity.responses.findIndex(value => value.date.toString() == resp.date.toString() && value.version == resp.version) == index);
+        return true;
+      });
     }
 
     for (let activity of this.activities) {
@@ -353,7 +370,7 @@ export default class Applet {
     Object.keys(this.items).forEach(itemId => {
       const item = this.items[itemId];
 
-      if (item.isTokenItem) {
+      if (item.isTokenItem && item.inputType !== 'stackedRadio') {
         item.responses.forEach(resp => {
           let dateStr = moment.utc(resp.date).format('YYYY-MM-DD');
 
@@ -394,12 +411,12 @@ export default class Applet {
 
           if (item.responseOptions) {
             for (let choice of item.responseOptions) {
-              let value = response[choice.id];
+              let value = Number(response[choice.id]);
 
               if (value) {
                 positive = value > 0 ? positive + value : positive;
                 negative = value < 0 ? negative + value : negative;
-                cummulative = cummulative + value;
+                cummulative = cummulative + Number(value);
               }
             }
           }

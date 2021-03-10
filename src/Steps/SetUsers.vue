@@ -385,7 +385,8 @@ export default {
           ) {
             this.setAccountName(invitationOptions.accountName);
           }
-          return this.onSwitchTab(this.tabs[this.selectedTab])
+
+          return this.onSwitchTab('invitation');
         })
         .then(() => {
           this.status = 'ready';

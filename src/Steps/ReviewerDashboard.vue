@@ -111,7 +111,7 @@
                         v-if="applet.hasTokenItem"
                       >
                         <token-chart
-                          :plot-id="`Token-${applet.id.replace(' ', '_')}`"
+                          :plot-id="`Token-${applet.id}`"
                           :applet="applet"
                           :cumulative="applet.tokens"
                           :timezone="applet.timezoneStr"
@@ -293,6 +293,10 @@
                             :key="item['id']"
                             class="chart-card"
                           >
+                            <header>
+                              <h3> - {{ item.getFormattedQuestion() }}</h3>
+                            </header>
+
                             <RadioSlider
                               v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
                               :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
@@ -592,8 +596,10 @@ export default {
    */
   methods: {
     onResize() {
-      const dimensions = this.$refs.panels.getBoundingClientRect();
-      this.panelWidth = dimensions.width - this.margin;
+      if (this.$refs.panels) {
+        const dimensions = this.$refs.panels.getBoundingClientRect();
+        this.panelWidth = dimensions.width - this.margin;
+      }
     },
     /**
      * Checks whether the given date should be enabled.
@@ -651,6 +657,9 @@ export default {
      */
     setStartDate(date) {
       this.$set(this.focusExtent, 0, moment.utc(date).toDate());
+      if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) > 3) {
+        this.focusExtent[1] = moment(this.focusExtent[0]).add(1, 'months').toDate();
+      }
     },
     /**
      * Updates the end date for the focused time range.
@@ -664,6 +673,10 @@ export default {
         .add(15, 'hours')
         .toDate()
       );
+
+      if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) > 3) {
+        this.focusExtent[0] = moment(this.focusExtent[1]).subtract(1, 'months').toDate();
+      }
     },
 
     onUpdateFocusExtent(focusExtent) {

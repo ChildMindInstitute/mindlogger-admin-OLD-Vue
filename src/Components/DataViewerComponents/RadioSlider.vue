@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="visible"
     class="radio-slider"
     :class="`radio-slider-${plotId}`"
   >
@@ -34,6 +35,18 @@
         <g class="responses" />
       </g>
     </svg>
+  </div>
+  <div
+    v-else
+    :style="`height: ${height + padding.top + padding.bottom}px;`"
+  >
+      <v-progress-circular
+        class="d-block ma-auto mt-2"
+        color="black"
+        indeterminate
+        :size="50"
+      >
+      </v-progress-circular>
   </div>
 </template>
 
@@ -93,6 +106,7 @@ export default {
         ...feature,
         index
       })),
+      visible: false
     }
   },
   computed: {
@@ -145,18 +159,39 @@ export default {
     }
   },
   mounted() {
+    if (('IntersectionObserver' in window)) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].intersectionRatio <= 0) {
+          return;
+        }
+
+        if (!this.visible) {
+          this.visible = true;
+          this.$nextTick(() => {
+            this.render();
+          });
+        }
+      });
+
+      observer.observe(this.$el);
+    } else {
+      this.visible = true;
+    }
+
     this.$nextTick(() => {
       this.render();
     });
   },
   methods: {
     render() {
-      this.svg = d3.select('#' + this.plotId);
+      if (this.visible) {
+        this.svg = d3.select('#' + this.plotId);
 
-      this.drawAxes();
+        this.drawAxes();
 
-      this.drawVersions();
-      this.drawResponses();
+        this.drawVersions();
+        this.drawResponses();
+      }
     },
 
     compressedName(name) {
@@ -209,8 +244,18 @@ export default {
 
       let prevX = -1, prevY = -1;
 
-      for (let response of this.data) {
+      for (let i = 0; i < this.data.length; i++) {
         let x = -1, y = -1;
+        let response = this.data[i];
+
+        if (response.date < this.focusExtent[0]) {
+          continue;
+        }
+
+        if (response.date > this.focusExtent[1]) {
+          break;
+        }
+
         for (let feature of this.features) {
           if (response[feature.slug] !== undefined) {
             x = this.x(response.date);

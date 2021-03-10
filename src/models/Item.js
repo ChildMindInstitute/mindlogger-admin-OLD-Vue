@@ -99,8 +99,8 @@ export default class Item {
 
     return itemListElement.map((choice, index) => ({
       name: i18n.arrayToObject(choice['schema:name']),
-      value: choice['schema:value'][0]['@value'],
-      score: Array.isArray(choice['schema:score']) && choice['schema:score'][0] && choice['schema:score'][0]['@value'],
+      value: Number(choice['schema:value'][0]['@value']),
+      score: Number(Array.isArray(choice['schema:score']) && choice['schema:score'][0] && choice['schema:score'][0]['@value']),
       color: choice['schema:value'][0]['@value'] > 0
         ? this.coldColors.shift()
         : this.warmColors.shift(),
@@ -120,7 +120,7 @@ export default class Item {
   }
 
   getChoiceByValue(value) {
-    return this.responseOptions.find(choice => choice.value === value);
+    return this.responseOptions.find(choice => choice.value === Math.floor(value + 0.5));
   }
 
   getChoiceByName(name) {
@@ -156,9 +156,15 @@ export default class Item {
 
   appendResponses(responses) {
     this.responses = this.responses.concat(responses.map(response => {
+      if (response.value.value !== undefined) {
+        response.value = response.value.value;
+      }
+
       if (!Array.isArray(response.value)) {
         // Ensure that it is an array.
         response.value = [response.value];
+      } else {
+        response.value = response.value;
       }
 
       return response.value.reduce(
@@ -173,7 +179,7 @@ export default class Item {
 
           return {
             ...obj,
-            [choice.id]: (obj[choice.id] || 0) + value,
+            [choice.id]: (obj[choice.id] || 0) + Number(value),
           };
         },
         {

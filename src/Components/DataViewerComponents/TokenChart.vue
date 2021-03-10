@@ -183,9 +183,9 @@ const TODAY = new Date(Date.UTC(
     0,
 ));
 const ONE_WEEK_AGO = new Date(TODAY);
-const ONE_MONTH_AGO = new Date(TODAY);
+const ONE_YEAR_AGO = new Date(TODAY);
 ONE_WEEK_AGO.setDate(TODAY.getDate() - 6);
-ONE_MONTH_AGO.setMonth(TODAY.getMonth() - 1);
+ONE_YEAR_AGO.setFullYear(TODAY.getFullYear() - 1);
 /**
  * TokenChart component.
  */
@@ -511,7 +511,7 @@ export default {
       this.contextX = d3
           .scaleUtc()
           .nice()
-          .domain([ONE_MONTH_AGO, TODAY])
+          .domain([ONE_YEAR_AGO, TODAY])
           .range([0, this.width + focusBarWidth]);
       const range = this.focusExtent;
       const timeDelta = range[1].getTime() - range[0].getTime();

@@ -1,8 +1,9 @@
 <template>
-  <v-content class="builder">
-    <About v-if="loading" />
+  <div>
+    <About v-show="loading" />
     <AppletSchemaBuilder
-      v-if="!loading"
+      v-if="!initializing"
+      v-show="!loading"
       :key="componentKey"
       exportButton
       :initialData="(isEditing || null) && currentAppletData"
@@ -28,16 +29,12 @@
       v-model="appletPasswordDialog"
       @set-password="onClickSubmitPassword"
     />
-  </v-content>
+  </div>
 </template>
 
 <style lang="scss">
 .v-card__text {
   padding: 16px !important;
-}
-
-.builder {
-  background: white;
 }
 </style>
 
@@ -72,8 +69,7 @@ export default {
   data() {
     return {
       loading: true,
-      drawer: false,
-      aboutOpen: false,
+      initializing: true,
       package: PackageJson,
       dialog: false,
       dialogText: '',
@@ -129,7 +125,11 @@ export default {
     const templateResp = await api.getItemTemplates({ apiHost, token });
     this.formatItemTemplates(templateResp.data);
 
-    this.loading = false;
+    if (this.versions.length) {
+      this.loading = false;
+    }
+
+    this.initializing = false;
   },
   methods: {
     onClickSubmitPassword(appletPassword) {
@@ -315,7 +315,7 @@ export default {
       });
     },
     setLoading(isLoading) {
-      this.aboutOpen = isLoading;
+      this.loading = isLoading;
     },
   },
 };
