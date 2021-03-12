@@ -16,9 +16,9 @@
     >
       <g class="labels">
         <text
-          v-for="feature in features"
+          v-for="(feature, index) in features"
           :key="feature.slug"
-          :y="radius * 2 + padding.top + heightPerFeature * feature.index"
+          :y="radius * 2 + padding.top + heightPerFeature * index"
           :x="labelWidth/2"
           :font-size="15"
           text-anchor="middle"
@@ -105,8 +105,8 @@ export default {
       features: features.map((feature, index) => ({
         ...feature,
         index
-      })),
-      visible: false
+      })).reverse(),
+      visible: false,
     }
   },
   computed: {
@@ -256,10 +256,10 @@ export default {
           break;
         }
 
-        for (let feature of this.features) {
+        for (let [index, feature] of this.features.entries()) {
           if (response[feature.slug] !== undefined) {
             x = this.x(response.date);
-            y = this.radius + this.padding.top + this.heightPerFeature * feature.index;
+            y = this.radius + this.padding.top + this.heightPerFeature * index;
 
             if (x < 0) {
               continue;
@@ -277,7 +277,7 @@ export default {
               .on('mousemove', () => {
                 const x = this.x(response.date);
                 const dateStr = moment(response.date).format('MMM-DD, YYYY');
-                const y = this.radius + this.padding.top + this.heightPerFeature * feature.index;
+                const y = this.radius + this.padding.top + this.heightPerFeature * index;
 
                 tooltip.style.left = (x + this.labelWidth) + 'px';
                 tooltip.style.padding = '5px';
