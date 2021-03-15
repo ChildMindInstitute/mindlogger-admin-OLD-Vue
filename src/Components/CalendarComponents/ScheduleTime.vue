@@ -1,6 +1,7 @@
 <template>
   <div class="ds-time-row">
     <div class="ds-time-cell">
+      {{ $t("startTime") }}
       <v-text-field
         single-line
         hide-details
@@ -9,6 +10,18 @@
         type="time"
         :readonly="isReadOnly"
         v-model="time"
+      />
+    </div>
+    <div class="ds-time-cell">
+      {{ $t("endTime") }}
+      <v-text-field
+        single-line
+        hide-details
+        solo
+        flat
+        type="time"
+        :readonly="isReadOnly"
+        v-model="endTime"
       />
     </div>
   </div>
@@ -22,6 +35,9 @@ export default {
     value: {
       required: true,
       type: Time,
+    },
+    scheduledTimeout: {
+      required: true,
     },
     readOnly: {
       type: Boolean,
@@ -85,6 +101,15 @@ export default {
       set(time) {
         this.setTime(time);
       },
+    },
+    endTime: {
+      get() {
+        console.log('scheduledTimeout', scheduledTimeout);
+        
+      },
+      set(time) {
+
+      }
     },
     isReadOnly() {
       return this.readOnly || this.$dayspan.readOnly;

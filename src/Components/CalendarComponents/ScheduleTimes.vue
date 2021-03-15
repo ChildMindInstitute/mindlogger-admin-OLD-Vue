@@ -13,6 +13,7 @@
         <schedule-time
           class="ds-time-cell double"
           :index="index"
+          :scheduledTimeout="scheduledTimeout"
           :show-add="isLastTime(index)"
           :show-remove="hasTimes"
           :value="schedule.times[index]"
@@ -40,6 +41,9 @@ export default {
       required: true,
       type: Schedule,
     },
+    scheduledTimeout: {
+      required: true,
+    }
     readOnly: {
       type: Boolean,
       default: false,

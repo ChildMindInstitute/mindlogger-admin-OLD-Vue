@@ -103,6 +103,7 @@
       <div class="d-flex align-baseline" >
         <schedule-times 
           v-if="!eventAvailability"
+          :scheduledTimeout="scheduledTimeout"
           :schedule="schedule"
           :read-only="readOnly"
         />
