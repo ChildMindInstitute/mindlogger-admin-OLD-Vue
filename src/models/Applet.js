@@ -416,7 +416,9 @@ export default class Applet {
               if (value) {
                 positive = value > 0 ? positive + value : positive;
                 negative = value < 0 ? negative + value : negative;
-                cummulative = cummulative + Number(value);
+                if (item.enableNegativeTokens || value > 0) {
+                  cummulative += value;
+                }
               }
             }
           }

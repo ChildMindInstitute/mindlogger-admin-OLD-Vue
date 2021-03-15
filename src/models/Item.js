@@ -1,5 +1,6 @@
 import axios from 'axios';
 import moment from 'moment';
+import _ from 'lodash';
 
 import i18n from '../core/i18n';
 import ReproLib from '../schema/ReproLib';
@@ -77,6 +78,7 @@ export default class Item {
     this.partOfSubScale = false;
     this.allowEdit = data[ReproLib.allowEdit] && data[ReproLib.allowEdit][0] 
       ? data[ReproLib.allowEdit][0]['@value'] : true;
+    this.enableNegativeTokens = _.get(data, [ReproLib.responseOptions, 0, ReproLib.enableNegativeTokens, 0, '@value'], false);
   }
 
   /**
