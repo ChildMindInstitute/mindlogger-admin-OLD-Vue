@@ -156,7 +156,6 @@ export default class Applet {
 
         const itemId = data.itemReferences[version][key];
         const oldItem = data.items[itemId];
-
         const currentItem = Object.values(this.items).find(item => item.data._id.split('/').pop() === oldItem.data.original.screenId)
 
         if (!currentItem) {
@@ -242,9 +241,7 @@ export default class Applet {
 
     /** append responses */
     for (let itemId of itemIDGroup) {
-      if (this.items[itemId].responseOptions) {
-        this.items[itemId].appendResponses(data.responses[itemId]);
-      }
+      this.items[itemId].appendResponses(data.responses[itemId]);
     }
 
     for (let itemId of itemIDGroup) {
@@ -565,6 +562,7 @@ export default class Applet {
       });
 
       response.data.applet.encryption = encryptionInfo;
+
       const applet = new Applet(response.data);
 
       if (opts.withVersions) {

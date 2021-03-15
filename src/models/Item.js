@@ -122,11 +122,11 @@ export default class Item {
   }
 
   getChoiceByValue(value) {
-    return this.responseOptions.find(choice => choice.value === Math.floor(value + 0.5));
+    return this.responseOptions && this.responseOptions.find(choice => choice.value === Math.floor(value + 0.5));
   }
 
   getChoiceByName(name) {
-    return this.responseOptions.find(choice => choice.name.en === name);
+    return this.responseOptions && this.responseOptions.find(choice => choice.name.en === name);
   }
 
   getChoice(str, version) {
