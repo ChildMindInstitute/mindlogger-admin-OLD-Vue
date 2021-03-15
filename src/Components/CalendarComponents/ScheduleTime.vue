@@ -1,7 +1,6 @@
 <template>
   <div class="ds-time-row">
     <div class="ds-time-cell">
-      {{ $t("startTime") }}
       <v-text-field
         single-line
         hide-details
@@ -10,24 +9,7 @@
         type="time"
         :readonly="isReadOnly"
         v-model="time"
-      ></v-text-field>
-    </div>
-
-    <div class="ds-time-cell">
-      <v-tooltip bottom v-if="showRemove && !isReadOnly">
-        <template v-slot:activator="{ on }">
-          <v-btn
-            v-on="on"
-            icon
-            class="action-remove"
-            :color="colors.remove"
-            @click="removeTime"
-          >
-            <v-icon>{{ icons.remove }}</v-icon>
-          </v-btn>
-        </template>
-        <span v-html="labels.remove"></span>
-      </v-tooltip>
+      />
     </div>
   </div>
 </template>

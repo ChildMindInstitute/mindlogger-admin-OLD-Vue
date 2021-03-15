@@ -1,13 +1,12 @@
 <template>
-  <div>
-      <div class="mb-5" />
+  <div class="d-flex">
       <div style="display:flex">
-        <h3 >{{$t('activityAvailable')}}</h3>
-        <v-switch :label="$t('allDay')" 
-                  :readonly="isReadOnly" 
-                  v-model="allDay"
-                  flat
-                  class="mx-6"></v-switch>
+        <v-switch 
+          :label="$t('activityStartTime')" 
+          :readonly="isReadOnly" 
+          v-model="allDay"
+          flat
+        />
       </div>
      
       <div v-for="(time, index) in schedule.times" :key="index">

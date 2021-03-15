@@ -82,6 +82,10 @@
               {{ $t('activityAccessOptions') }}
             </v-tab>
 
+            <v-tab href="#notifications">
+              {{ $t('notifications') }}
+            </v-tab>
+
             <v-tab v-if="showForecast" href="#forecast">
               {{ labels.tabs.forecast }}
             </v-tab>
@@ -138,9 +142,14 @@
                     type="number"
                     :value="1"
                   />-->
+                </v-card-text>
+              </v-card>
+            </v-tab-item>
 
-                  <!-- Notifications -->
-
+            <!-- Notifications -->
+            <v-tab-item v-if="hasDetails" value="notifications">
+              <v-card text>
+                <v-card-text>
                   <Notification
                     :details="details"
                     @updatedNotification="

@@ -21,6 +21,7 @@ export default {
   removeFromFolder: "Supprimer l'applet du dossier",
   repeatOptions:'Options de répétition',
   activityAccessOptions: "Options d'accès aux activités",
+  notifications: "Notifications",
   activityAvailable: "Activité disponible",
   passwordRequired: 'Un mot de passe est obligatoire',
   refresh: 'Rafraîchir',
