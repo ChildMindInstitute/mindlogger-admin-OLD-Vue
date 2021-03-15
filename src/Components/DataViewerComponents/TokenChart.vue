@@ -426,14 +426,11 @@ export default {
           this.divergingExtent.max += value;
         }
       }
-      let positive;
-      let negative;
-      let cumulativePositiveToken = 0
+      let cumulativeToken = 0
       // Find the maximum value for cumulative user responses.
       for (let i = 0; i < this.data.length; i++) {
-        positive = this.data[i].positive;
-        cumulativePositiveToken += positive;
-        negative = this.data[i].negative;
+        const { positive, negative, cummulative }  = this.data[i];
+        cumulativeToken += cummulative;
         if (positive > this.divergingExtent.max) {
           this.divergingExtent.max = positive;
         }
@@ -441,7 +438,7 @@ export default {
           this.divergingExtent.min = negative;
         }
       }
-      this.divergingExtent.max = cumulativePositiveToken;
+      this.divergingExtent.max = cumulativeToken;
       if (this.divergingExtent.max % 2) {
         this.divergingExtent.max += 1;
       }
@@ -702,8 +699,7 @@ export default {
 
       for (let i = 0; i < events.length; i++) {
         const step = events[i]
-        const positiveValue = step.positive !== undefined ? step.positive : step.value;
-        const negativeValue = step.negative !== undefined ? step.negative : 0;
+        const cummulativeValue = step.cummulative !== undefined ? step.cummulative : step.value;
 
         normalisedx = x(step.date)
         normalisedx += (0.5 * this.focusBarWidth()) - 5;
@@ -713,7 +709,7 @@ export default {
           pathString += ` L ${normalisedx + 3} ${normalisedy}`
         }
 
-        accumulation = accumulation + positiveValue + negativeValue;
+        accumulation += cummulativeValue;
         normalisedy = this.y(accumulation)
 
         if (i == events.length-1 || events[i].date.getTime() != events[i+1].date.getTime()) {

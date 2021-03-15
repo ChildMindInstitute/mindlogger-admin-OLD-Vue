@@ -23,8 +23,7 @@
               style="margin: auto;"
               v-on="on"
             >
-              <v-icon>mdi-plus</v-icon>
-              New Applet
+              Configure an Applet
             </v-btn>
           </template>
 
