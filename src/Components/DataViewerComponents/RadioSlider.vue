@@ -24,6 +24,7 @@
           text-anchor="middle"
         >
           {{ compressedName(feature.name.en) }}
+          <title>{{ feature.name.en }}</title>
         </text>
       </g>
       <g
