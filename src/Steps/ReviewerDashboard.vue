@@ -309,6 +309,15 @@
                               :parent-width="panelWidth"
                               :color="item.dataColor"
                             />
+
+                            <FreeTextTable
+                              v-if="tab == 'responses' && item.inputType === 'text'"
+                              :plot-id="`FreeText-${activity.data['_id']}-${item.data['_id']}`"
+                              :item="item"
+                              :selected-versions="selectedVersions"
+                              :timezone="applet.timezoneStr"
+                              :responses="applet.responses[activity.data['_id'].substring(9) + item.data['_id'].substring(6)]"
+                            />
                           </div>
                         </template>
                       </v-expansion-panel-content>
@@ -467,7 +476,8 @@ import Activity from "../models/Activity";
 import Item from "../models/Item";
 import TokenChart from "../Components/DataViewerComponents/TokenChart.vue";
 import ActivitySummary from "../Components/DataViewerComponents/ActivitySummary.vue";
-import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue";
+import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue"; 
+import FreeTextTable from "../Components/DataViewerComponents/FreeTextTable.vue";
 import SubScaleLineChart from "../Components/DataViewerComponents/SubScaleLineChart";
 import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChart";
 
@@ -483,6 +493,7 @@ export default {
     TokenChart,
     ActivitySummary,
     RadioSlider,
+    FreeTextTable,
     SubScaleLineChart,
     SubScaleBarChart,
   },
@@ -574,9 +585,7 @@ export default {
       );
 
       this.selectedVersions = this.appletVersions;
-
       this.loading = false;
-
       this.onResize = this.onResize.bind(this);
       this.$nextTick(this.onResize);
       window.addEventListener('resize', this.onResize);
