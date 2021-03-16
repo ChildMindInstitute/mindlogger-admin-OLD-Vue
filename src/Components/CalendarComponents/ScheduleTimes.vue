@@ -1,25 +1,27 @@
 <template>
-  <div class="d-flex">
-      <div style="display:flex">
+  <div class="d-flex align-end">
+      <div>
         <v-switch 
           :label="$t('activityStartTime')" 
           :readonly="isReadOnly" 
           v-model="allDay"
           flat
+          @change="allowTimeout()"
         />
       </div>
      
-      <div v-for="(time, index) in schedule.times" :key="index">
+      <div v-for="(time, index) in schedule.times" :key="index" class="ml-2">
         <schedule-time
           class="ds-time-cell double"
           :index="index"
-          :scheduledTimeout="scheduledTimeout"
+          :scheduledTimeout="timeout"
           :show-add="isLastTime(index)"
           :show-remove="hasTimes"
           :value="schedule.times[index]"
           :key="index"
           :read-only="readOnly"
           @add="addTime"
+          @update="updateTimeout"
           @remove="removeTime"
           @change="changeTime"
         ></schedule-time>
@@ -43,7 +45,7 @@ export default {
     },
     scheduledTimeout: {
       required: true,
-    }
+    },
     readOnly: {
       type: Boolean,
       default: false,
@@ -98,6 +100,7 @@ export default {
   },
   data: (vm) => ({
     allDay: false,
+    timeout: vm.scheduledTimeout,
   }),
   watch: {
     schedule: {
@@ -116,6 +119,16 @@ export default {
         this.triggerChange();
         //this.allDay = !allDay
       }
+    },
+    allowTimeout() {
+      this.timeout.allow = !this.allDay;
+      this.$emit("update", this.timeout);
+    },
+    updateTimeout(newTimeout) {
+      this.timeout.hour = newTimeout.hour;
+      this.timeout.minute = newTimeout.minute;
+
+      this.$emit("updateTimeout", this.timeout);
     },
     changeTime(ev) {
       ev.schedule = this.schedule;

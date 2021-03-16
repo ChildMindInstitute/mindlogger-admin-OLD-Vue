@@ -1,6 +1,6 @@
 <template>
   <div class="ds-time-row">
-    <div class="ds-time-cell">
+    <div class="ds-time-cell d-flex align-baseline  ">
       {{ $t("startTime") }}
       <v-text-field
         single-line
@@ -12,7 +12,7 @@
         v-model="time"
       />
     </div>
-    <div class="ds-time-cell">
+    <div class="ds-time-cell d-flex align-baseline">
       {{ $t("endTime") }}
       <v-text-field
         single-line
@@ -104,11 +104,25 @@ export default {
     },
     endTime: {
       get() {
-        console.log('scheduledTimeout', scheduledTimeout);
-        
+        const currentTime = this.value;
+        currentTime.minute += this.scheduledTimeout.minute;
+        currentTime.hour += this.scheduledTimeout.hour + Math.floor(currentTime.minute / 60);
+        currentTime.minute %= 60;
+        currentTime.hour %= 24;
+
+        return currentTime.format("HH:mm");
       },
       set(time) {
+        const newTime = Time.parse(time);
+        let minute = newTime.minute - this.value.minute;
+        let hour = newTime.hour - this.value.hour;
 
+        if (minute < 0) {
+          minute += 60;
+          hour -= 1;
+        }
+
+        this.$emit("update", {minute, hour});
       }
     },
     isReadOnly() {
@@ -158,9 +172,7 @@ export default {
 .ds-time-row {
   display: flex;
   .ds-time-cell {
-    padding-right: 8px;
-    flex: 1 0 0px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     &:last-child {
       margin-right: -8px;
     }

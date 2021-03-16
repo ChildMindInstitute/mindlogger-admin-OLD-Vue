@@ -6,6 +6,7 @@
         :readonly="isReadOnly"
         v-model="eventAvailability"
         flat
+        @change="handleAvailability"
       />
     </div>
 
@@ -106,6 +107,7 @@
           :scheduledTimeout="scheduledTimeout"
           :schedule="schedule"
           :read-only="readOnly"
+          @updateTimeout="onUpdateTimeout"
         />
       </div>
       <div class="d-flex  align-baseline">
@@ -252,6 +254,10 @@ export default {
     initialTimedActivity: {
       required: false,
     },
+    availability: {
+      type: Boolean,
+      required: false,
+    },
     timeout: {
       required: false,
     },
@@ -300,9 +306,9 @@ export default {
   data() {
     return {
       activityRepeats: !!this.schedule.isSingleEvent(),
-      eventAvailability: this.availability,
       oneTimeCompletion: this.completion,
       timedActivity: this.initialTimedActivity,
+      eventAvailability: this.availability,
       scheduledTimeout: this.timeout,
       scheduledDay: this.onlyScheduledDay,
       scheduledTimeoutDecimal: this.timeout,
@@ -310,6 +316,9 @@ export default {
       scheduledExtendedTimeDecimal: this.extendedTime,
       scheduledIdleTime: this.idleTime,
     };
+  },
+  mounted() {
+    console.log(this.timeout)
   },
   computed: {
     showRange() {
@@ -333,8 +342,15 @@ export default {
     custom() {
       this.$refs.customScheduler.edit(this.schedule, this.day);
     },
+    onUpdateTimeout(newTimeout) {
+      this.scheduledTimeout = newTimeout;
+      this.handleAccess();
+    },
     handleAccess() {
       this.$emit("onTimeout", this.scheduledTimeout);
+    },
+    handleAvailability() {
+      this.$emit("onAvailability", this.eventAvailability);
     },
     handleTimedActivity() {
       this.$emit("onTimedActivity", this.timedActivity);
