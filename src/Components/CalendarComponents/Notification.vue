@@ -1,92 +1,82 @@
 <template>
   <div>
-    
-    <hr style="margin-bottom: 1.5em; margin-top: 1.5em; height: 1px" />
+    <v-switch 
+      :label="$t('turnOnNotifs')" 
+      v-model="details.useNotifications"
+      flat
+      class="mx-2"
+    />
+    <v-container
+      v-if="details.useNotifications"
+      v-for="(notification, index) in notificationTimes"
+      class="no-padding mb-3"
+      :key="'notifi_' + index"
+    >
+      <!-- Start notification at -->
+      <v-row class="ds-time-cell">
+        <v-col class="no-padding" col="10" sm="11">
+          <div>
+            <div class="d-flex align-center ds-notif-ele">
+              <v-switch 
+                :label="$t('startNotifAt')" 
+                v-model="notification.allow"
+                flat
+                class="mx-2"
+              />
+              
+              <v-text-field
+                class="ds-reminder-time"
+                v-model="notification.start"
+                :disabled="!notification.allow"
+                single-line
+                hide-details
+                text
+                type="time"
+              />
+            </div>
 
-    <div class="ds-notifications">
-      <v-checkbox
-        v-model="details.useNotifications"
-        class="ds-notification-cell"
-        :label="$t('turnOnNotifs')"
-      />
-      
-      <v-checkbox 
-        v-if="details.useNotifications"
-        v-model="reminder.valid" 
-        class="ds-notification-cell"
-        :label="$t('reminderNotif')" 
-      />
+            <div class="d-flex align-center ds-notif-ele">
+              <v-switch 
+                :label="$t('randomizeEnds')" 
+                v-model="notification.random"
+                flat
+                class="mx-2"
+              />
 
-      <v-checkbox 
-        v-if="details.useNotifications"
-        v-model="allowRandom" 
-        class="ds-notification-cell"
-        :label="$t('randomNotif')" 
-      />
-    </div>
-
-    <div v-if="details.useNotifications">
-      <div
-        v-for="(notification, index) in notificationTimes"
-        :key="'notifi_' + index"
-      >
-        <!-- Start notification at -->
-        <div class="ds-time-cell">
-          <div class="ds-notification-row">
-            <label>{{ $t("startNotifAt") }}</label>
-            <div class="ds-notification-row">
-              <v-btn 
-                depressed 
-                color="secondary" 
-                class="ds-btn-cell"
-                fab
-                small 
-                @click="add(index)"
-              >
-                <v-icon dark>mdi-plus</v-icon>
-              </v-btn>
-              <v-btn
-                v-if="index"
-                depressed
-                color="secondary"
-                fab
-                small
-                @click="remove(index)"
-              >
-                <v-icon dark>mdi-minus</v-icon>
-              </v-btn>
+              <v-text-field
+                class="ds-reminder-time"
+                v-model="notification.end"
+                :disabled="!notification.random"
+                single-line
+                hide-details
+                text
+                type="time"
+              />
             </div>
           </div>
-          <v-text-field
-            v-model="notification.start"
-            :disabled="!details.useNotifications"
-            single-line
-            hide-details
-            solo
-            text
-            type="time"
-          />
-        </div>
+        </v-col>
+        <v-col col="1">
+          <v-btn
+            v-if="notificationTimes.length"
+            class="ds-remove-btn"
+            icon
+            color="grey"
+            @click="remove(index)"
+          >
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
 
-        <label class="ds-notification-row" v-if="allowRandom">
-          {{ $t("randomizeEnds") }}
-        </label>
-
-        <v-text-field
-          v-if="allowRandom"
-          v-model="notification.end"
-          :disabled="!notification.random"
-          single-line
-          hide-details
-          solo
-          text
-          type="time"
-        />
-      </div>
-
-      <div class="ds-reminder-container" v-if="reminder.valid">
-        <div class="ds-reminder-label">{{ $t("reminder") }}</div>
-
+    <div class="ds-reminder-container">
+      <v-switch 
+        :label="$t('reminderNotif')" 
+        v-model="reminder.valid"
+        flat
+        class="mx-2 mt-0"
+      />
+      <div v-if="reminder.valid" class="ds-reminder-details">
         <div class="ds-reminder-flex">
           <label>{{ $t("activityCompletion") }}</label>
           <input type="number" class="ds-reminder-day" v-model="reminder.days" />
@@ -100,11 +90,24 @@
             v-model="reminder.time"
             single-line
             hide-details
-            solo
             text
           />
         </div>
       </div>
+    </div>
+
+    <div class="d-flex justify-end">
+      <v-btn 
+        v-if="details.useNotifications"
+        depressed 
+        color="secondary" 
+        class="ds-btn-cell"
+        fab
+        small 
+        @click="add(notificationTimes.length - 1)"
+      >
+        <v-icon dark>mdi-plus</v-icon>
+      </v-btn>
     </div>
   </div>
 </template>
@@ -220,8 +223,8 @@ export default {
   padding: 5px;
 }
 
-.ds-reminder-label {
-  margin-bottom: 10px;
+.ds-reminder-details {
+  padding: 0 56px;
 }
 
 .ds-reminder-flex {
@@ -232,11 +235,28 @@ export default {
 
 .ds-reminder-time {
   max-width: 125px;
-  margin-left: 10px !important;
+  margin: 0 0 0 10px;
+  padding: 0;
+}
+
+.ds-time-cell:hover {
+  box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+}
+
+.ds-remove-btn {
+  display: none;
+}
+
+.ds-time-cell:hover .ds-remove-btn {
+  display: block;
+}
+
+.ds-notif-ele {
+  height: 40px;
 }
 
 .ds-reminder-container {
-  padding: 20px 5px 5px 5px;
+  padding: 0px 0px 5px 0px;
 }
 
 .ds-reminder-day {
@@ -246,5 +266,9 @@ export default {
   width: 35px;
   font-size: 16px;
   text-align: center;
+}
+
+.no-padding {
+  padding: 0 20px;
 }
 </style>
