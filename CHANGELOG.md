@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.38] - 2021-03-15
 - Update scheduling/notification settings
 
+## [0.5.38] - 2021-03-16
+- Fix response tab
+
 ## [0.5.37] - 2021-03-15
 - Fix response tab
 

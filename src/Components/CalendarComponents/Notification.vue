@@ -78,13 +78,12 @@
       />
       <div v-if="reminder.valid" class="ds-reminder-details">
         <div class="ds-reminder-flex">
-          <label>If the user does not complete this activity after</label>
+          <label>{{ $t("activityCompletion") }}</label>
           <input type="number" class="ds-reminder-day" v-model="reminder.days" />
-          <label>consecutive days, send a reminder </label>
+          <label>{{ $t("consecutiveDays") }}</label>
         </div>
 
         <div class="ds-reminder-flex">
-          <label> notification at </label>
           <v-text-field
             type="time"
             class="ds-reminder-time"

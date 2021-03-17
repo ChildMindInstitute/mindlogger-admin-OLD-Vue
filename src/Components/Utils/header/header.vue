@@ -222,7 +222,7 @@
             v-else
           >
             <v-list-item>
-              No Alerts
+              {{ $t('noAlerts') }}
             </v-list-item>
           </template>
         </v-list>

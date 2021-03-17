@@ -8,6 +8,7 @@
         itemsPerPageText: $t('rowsPerPage'),
         itemsPerPageAllText: $t('all'),
       }"
+      :no-data-text="$t('noData')"
     />
   </v-container>
 </template>
