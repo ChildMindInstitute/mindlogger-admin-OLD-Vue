@@ -104,11 +104,18 @@ export default {
     },
     endTime: {
       get() {
-        const currentTime = this.value;
+        const currentTime = Time.parse(this.time);
         currentTime.minute += this.scheduledTimeout.minute;
         currentTime.hour += this.scheduledTimeout.hour + Math.floor(currentTime.minute / 60);
         currentTime.minute %= 60;
         currentTime.hour %= 24;
+
+        if (currentTime.hour < this.value.hour) {
+          currentTime.hour = this.value.hour;
+          currentTime.minute = this.value.minute;
+        } else if (currentTime.hour === this.value.hour) {
+          currentTime.minute = currentTime.minute < this.value.minute ? this.value.minute : currentTime.minute;
+        }
 
         return currentTime.format("HH:mm");
       },
