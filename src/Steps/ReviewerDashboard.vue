@@ -297,8 +297,20 @@
                               <h3> - {{ item.getFormattedQuestion() }}</h3>
                             </header>
 
+                            <TimeRange
+                              v-if="tab == 'responses' && item.inputType === 'timeRange'"
+                              :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
+                              :item="item"
+                              :versions="applet.versions"
+                              :focus-extent="focusExtent"
+                              :selected-versions="selectedVersions"
+                              :timezone="applet.timezoneStr"
+                              :has-version-bars="hasVersionBars"
+                              :parent-width="panelWidth"
+                              :color="item.dataColor"
+                            />
                             <RadioSlider
-                              v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
+                              v-else-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
                               :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
                               :item="item"
                               :versions="applet.versions"
@@ -476,7 +488,8 @@ import Activity from "../models/Activity";
 import Item from "../models/Item";
 import TokenChart from "../Components/DataViewerComponents/TokenChart.vue";
 import ActivitySummary from "../Components/DataViewerComponents/ActivitySummary.vue";
-import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue"; 
+import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue";
+import TimeRange from "../Components/DataViewerComponents/TimeRange.vue"; 
 import FreeTextTable from "../Components/DataViewerComponents/FreeTextTable.vue";
 import SubScaleLineChart from "../Components/DataViewerComponents/SubScaleLineChart";
 import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChart";
@@ -493,6 +506,7 @@ export default {
     TokenChart,
     ActivitySummary,
     RadioSlider,
+    TimeRange,
     FreeTextTable,
     SubScaleLineChart,
     SubScaleBarChart,
@@ -583,6 +597,8 @@ export default {
         },
         this.$store.state.currentAppletData.applet.encryption
       );
+
+      console.log('applet --------------->', this.applet)
 
       this.selectedVersions = this.appletVersions;
       this.loading = false;
