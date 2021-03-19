@@ -480,12 +480,16 @@ export default class Applet {
       for (let i = 0; i < data.tokens.cumulativeToken.length; i++) {
         const cumulative = data.tokens.cumulativeToken[i];
 
-        const decrypted = JSON.parse(encryptionUtils.decryptData({
-          text: cumulative.data,
-          key: data.AESKeys[cumulative.key]
-        }));
+        if (typeof cumulative.data == 'string') {
+          const decrypted = JSON.parse(encryptionUtils.decryptData({
+            text: cumulative.data,
+            key: data.AESKeys[cumulative.key]
+          }));
 
-        data.tokens.cumulativeToken[i] = decrypted.value;
+          data.tokens.cumulativeToken[i] = decrypted.value;
+        } else {
+          data.tokens.cumulativeToken[i] = cumulative.data.value;
+        }
       }
 
       for (let i = 0; i < data.tokens.tokenUpdates.length; i++) {
