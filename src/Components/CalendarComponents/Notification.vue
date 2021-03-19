@@ -88,9 +88,11 @@
         <div class="ds-reminder-label">{{ $t("reminder") }}</div>
 
         <div class="ds-reminder-flex">
-          <label>{{ $t("activityCompletion") }}</label>
-          <input type="number" class="ds-reminder-day" v-model="reminder.days" />
-          <label>{{ $t("consecutiveDays") }}</label>
+          <label>
+            {{ $t("activityCompletion") }}
+            <input type="number" class="ds-reminder-day" v-model="reminder.days" />
+            {{ $t("consecutiveDays") }}
+          </label>
         </div>
 
         <div class="ds-reminder-flex">
@@ -232,7 +234,6 @@ export default {
 
 .ds-reminder-time {
   max-width: 125px;
-  margin-left: 10px !important;
 }
 
 .ds-reminder-container {

@@ -87,7 +87,7 @@ export default {
   reminder: '',
   weekday: 'Jour de la semaine',
   consecutiveDays: "Si l'utilisateur n'a pas terminé cette activité après ",
-  activityCompletion: "Si l'utilisateur n'a pas terminé cette activité après",
+  activityCompletion: "jours consécutifs, envoyer une notification de rappel à",
   randomizeEnds: 'la randomisation se termine à',
   uploadActivitySet: "Télécharger un ensemble d'activités ",
   activitySetUrl: "url de l'ensemble d'activités",
