@@ -538,6 +538,18 @@ export default class Applet {
       });
     }
 
+    if (data.tokens) {
+      for (let i = 0; i < data.tokens.tokenUpdates.length; i++) {
+        const tokenUpdate = data.tokens.tokenUpdates[i];
+
+        tokenUpdate.key = 0;
+        tokenUpdate.data = encryptionUtils.encryptData({
+          text: JSON.stringify({ value: tokenUpdate.value }),
+          key: data.AESKeys[tokenUpdate.key]
+        });
+      }
+    }
+
     return data;
   }
 

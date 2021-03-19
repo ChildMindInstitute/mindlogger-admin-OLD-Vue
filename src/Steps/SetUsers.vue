@@ -475,6 +475,7 @@ export default {
                 {}
               ),
               userPublicKey: userData.refreshRequest.userPublicKey,
+              tokenUpdates: (data.tokens && data.tokens.tokenUpdates || []).map(update => update.data)
             })
           );
 
@@ -486,7 +487,7 @@ export default {
               user: userData._id,
               data: form,
             })
-            .then(({message}) => {
+            .then(({ message }) => {
               this.onSwitchTab(this.tabs[this.selectedTab]).then(() => {
                 this.informationDialog = true;
                 this.informationText = this.$i18n.t('refreshComplete');
