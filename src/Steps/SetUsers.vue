@@ -80,6 +80,7 @@
               :currentRole="tabNameToRole[tab]"
               :reloading="tabData[tab].loading"
               @userDataReloaded="tabData[tab].loading = false"
+              @onReuploadResponse="responseReUploadEvent"
               @onEditRoleSuccessfull="onEditRoleSuccessfull"
             />
           </v-card>
@@ -475,6 +476,13 @@ export default {
                 {}
               ),
               userPublicKey: userData.refreshRequest.userPublicKey,
+              tokenUpdates: (data.tokens && data.tokens.tokenUpdates || []).reduce(
+                (accumulator, update) => {
+                  accumulator[update.id] = update.data;
+                  return accumulator;
+                },
+                {}
+              )
             })
           );
 
@@ -486,7 +494,7 @@ export default {
               user: userData._id,
               data: form,
             })
-            .then(({message}) => {
+            .then(({ message }) => {
               this.onSwitchTab(this.tabs[this.selectedTab]).then(() => {
                 this.informationDialog = true;
                 this.informationText = this.$i18n.t('refreshComplete');
