@@ -142,13 +142,13 @@
               {{ item['timeAgo'] }}
             </span>
             <span v-else-if="header.value == 'refreshRequest'">
-              <span
+              <div
                 v-if="item.refreshRequest"
                 class="btn-user-request"
                 @click="userRequestHandler(item)"
               >
                 {{ $t('refreshRequest') }}
-              </span>
+              </div>
             </span>
             <span v-else>
               {{ item[header.value] }}

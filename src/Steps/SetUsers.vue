@@ -80,6 +80,7 @@
               :currentRole="tabNameToRole[tab]"
               :reloading="tabData[tab].loading"
               @userDataReloaded="tabData[tab].loading = false"
+              @onReuploadResponse="responseReUploadEvent"
               @onEditRoleSuccessfull="onEditRoleSuccessfull"
             />
           </v-card>
@@ -475,7 +476,13 @@ export default {
                 {}
               ),
               userPublicKey: userData.refreshRequest.userPublicKey,
-              tokenUpdates: (data.tokens && data.tokens.tokenUpdates || []).map(update => update.data)
+              tokenUpdates: (data.tokens && data.tokens.tokenUpdates || []).reduce(
+                (accumulator, update) => {
+                  accumulator[update.id] = update.data;
+                  return accumulator;
+                },
+                {}
+              )
             })
           );
 

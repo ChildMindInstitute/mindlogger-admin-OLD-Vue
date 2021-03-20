@@ -403,23 +403,21 @@ export default class Applet {
     return {
       data: merged.map(response => {
         let positive = 0, negative = 0, cummulative = 0;
-        Object.keys(this.items).forEach(itemId => {
-          const item = this.items[itemId];
+        const item = this.items[response.itemId];
 
-          if (item.responseOptions) {
-            for (let choice of item.responseOptions) {
-              let value = Number(response[choice.id]);
+        if (item.responseOptions) {
+          for (let choice of item.responseOptions) {
+            let value = Number(response[choice.id]);
 
-              if (value) {
-                positive = value > 0 ? positive + value : positive;
-                negative = value < 0 ? negative + value : negative;
-                if (item.enableNegativeTokens || value > 0) {
-                  cummulative += value;
-                }
+            if (value) {
+              positive = value > 0 ? positive + value : positive;
+              negative = value < 0 ? negative + value : negative;
+              if (item.enableNegativeTokens || value > 0) {
+                cummulative += value;
               }
             }
           }
-        });
+        }
 
         return {
           ...response,
