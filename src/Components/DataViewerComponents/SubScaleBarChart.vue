@@ -223,7 +223,7 @@ export default {
 
           return {
             id: index,
-            value: d.value,
+            value: d.value.tScore,
             dataColor: subScale.dataColor,
           }
         }))

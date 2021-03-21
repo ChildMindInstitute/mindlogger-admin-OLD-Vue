@@ -41,8 +41,15 @@
         class="content"
         :transform="`translate(${labelWidth}, 0)`"
       >
-        <g class="x-axis" />
-        <g class="y-axis" />
+        <g class="x-axis">
+          <g class="main-axis" />
+          <g class="other-axis" />
+        </g>
+
+        <g class="y-axis">
+          <g class="main-axis" />
+          <g class="other-axis" />
+        </g>
 
         <g class="versions" />
         <g class="responses" />
@@ -192,7 +199,7 @@ export default {
         .tickFormat(d => moment(d).format('MMM-D'));
 
       this.svg
-        .select('.x-axis')
+        .select('.x-axis .main-axis')
         .style('stroke-width', 1.2)
         .style('color', '#373737')
         .attr('transform', `translate(0, ${this.y(0)})`)
@@ -207,7 +214,7 @@ export default {
           .tickFormat(d3.format('d'));
 
       this.svg
-        .select('.y-axis')
+        .select('.y-axis .main-axis')
         .style('stroke-width', 1.2)
         .style('color', '#373737')
         .call(yAxis);
@@ -230,7 +237,7 @@ export default {
           const d = subScale.values.map(d => {
             if (this.selectedVersions.includes(d.version)) {
               const x = this.x(new Date(d.date));
-              const y = this.y(d.value);
+              const y = this.y(d.value.tScore);
               return `L ${Math.max(x, 2)} ${y}`;
             }
             return '';
