@@ -129,7 +129,7 @@ export default class Activity {
       const { values } = subScale;
 
       if (values.length) {
-        total += values[0].value;
+        total += values[0].value.tScore;
       }
     }
 
@@ -138,7 +138,7 @@ export default class Activity {
 
   getLatestSubScaleScore(subScale) {
     if (subScale.values.length) {
-      return subScale.values[0].value;
+      return subScale.values[0].value.tScore;
     }
     return 0;
   }
@@ -157,8 +157,8 @@ export default class Activity {
           !versions || versions.includes(subScale.values[i].version) && 
           !focusExtent || date <= focusExtent[1] && date >= focusExtent[0]
         ) {
-          min = Math.min(min, subScale.values[i].value);
-          max = Math.max(max, subScale.values[i].value);
+          min = Math.min(min, subScale.values[i].value.tScore);
+          max = Math.max(max, subScale.values[i].value.tScore);
         }
       }
     }
