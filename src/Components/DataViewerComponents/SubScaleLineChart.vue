@@ -191,10 +191,19 @@ export default {
           .domain([this.divergingExtent.min, this.divergingExtent.max])
           .range([this.height + this.padding.top, this.padding.top]);
 
+      const xTicks = [];
+
+      for (let tick = this.focusExtent[0]; tick <= this.focusExtent[1]; tick = moment(tick).add(1, 'day').toDate()) {
+        xTicks.push(tick);
+      }
+
+      const yTicks = this.y.ticks().filter(Number.isInteger);
+
       const xAxis = d3
         .axisBottom()
         .scale(this.x)
         .tickSize(this.tickHeight)  // Height of the tick line.
+        .tickValues(xTicks)
         .ticks(d3.timeDay)
         .tickFormat(d => moment(d).format('MMM-D'));
 
@@ -208,7 +217,7 @@ export default {
       const yAxis = d3
           .axisLeft()
           .scale(this.y)
-          .tickValues(this.y.ticks().filter(Number.isInteger))
+          .tickValues(yTicks)
           .tickSize(this.tickWidth)  // Width of the tick line.
           .ticks(this.divergingExtent.max)
           .tickFormat(d3.format('d'));
@@ -218,6 +227,32 @@ export default {
         .style('stroke-width', 1.2)
         .style('color', '#373737')
         .call(yAxis);
+
+      this.svg
+        .select('.x-axis .other-axis')
+        .selectAll('line')
+        .data(xTicks.filter(x => x))
+        .join('line')
+        .style('stroke-width', 2)
+        .attr('x1', d => this.x(d))
+        .attr('y1', this.y(this.divergingExtent.min))
+        .attr('y2', this.y(this.divergingExtent.max))
+        .attr('x2', d => this.x(d))
+        .attr('stroke-dasharray', 2)
+        .style('stroke', 'grey')
+
+      this.svg
+        .select('.y-axis .other-axis')
+        .selectAll('line')
+        .data(yTicks.filter(y => y != this.divergingExtent.min))
+        .join('line')
+        .style('stroke-width', 2)
+        .attr('x1', this.x(this.focusExtent[0]))
+        .attr('y1', d => this.y(d))
+        .attr('y2', d => this.y(d))
+        .attr('x2', this.x(this.focusExtent[1]))
+        .attr('stroke-dasharray', 2)
+        .style('stroke', 'grey')
     },
 
     drawResponses() {
