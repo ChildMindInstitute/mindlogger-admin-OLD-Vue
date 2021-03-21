@@ -140,7 +140,6 @@
 import * as d3 from 'd3';
 import * as moment from 'moment';
 import { DrawingMixin } from '../Utils/mixins/DrawingMixin';
-import axios from 'axios';
 
 export default {
   name: 'SubScaleLineChart',
@@ -166,14 +165,6 @@ export default {
       height: this.getChartHeight(width),
       divergingExtent: this.getValueExtent(),
       responseLineWidth: 2.5,
-
-      toolTipVisible: false,
-      toolTipX: 0,
-      toolTipY: 0,
-      tooltipWidth: 350,
-      tooltipHeight: 120,
-      outputText: '',
-      cachedContents: {}
     }
   },
 
@@ -343,47 +334,15 @@ export default {
           .attr('cx', d => this.x(new Date(d.date)))
           .attr('cy', d => this.y(d.value.tScore))
           .attr('r', this.radius / 2)
-          .on('focus', d => {
-            this.toolTipVisible = true;
-
-            this.outputText = d.value.outputText;
-
-            /** getting output text */
-            if (!this.cachedContents[this.outputText]) {
-              const output = this.outputText;
-
-              if (output.startsWith('http://') || output.startsWith('https://')) {
-                  axios({
-                    method: 'GET',
-                    url: output,
-                  })
-                  .then(resp => 
-                    this.$set(this.cachedContents, output, resp.data)
-                  )
-                  .catch(() => {
-                    this.$set(this.cachedContents, output, output);
-                  })
-              } else {
-                this.$set(this.cachedContents, output, output);
-              }
-            }
-
-            /** getting coordination of tooltip */
-            let x = this.x(new Date(d.date)) + this.labelWidth;
-            let y = this.y(d.value.tScore) + 10;
-
-
-            if (y + this.tooltipHeight > this.height) {
-              y = this.height - this.tooltipHeight - 10;
-            }
-            if (x + this.tooltipWidth + 10 > this.width) {
-              x = x - this.tooltipWidth - 10;
-            }
-
-            this.toolTipX = x;
-            this.toolTipY = y;
-          })
-          .on('blur', d => this.toolTipVisible = false)
+          .on('focus', d => this.showTooltip(
+            this.x(new Date(d.date)),
+            this.y(d.value.tScore),
+            d.value,
+            this.labelWidth,
+            this.width,
+            this.height
+          ))
+          .on('blur', d => this.hideTooltip())
       }
     },
 
