@@ -92,6 +92,7 @@ export default class Activity {
         variableName,
         dataColor: RESPONSE_COLORS[index % RESPONSE_COLORS.length],
         slug: slugify(variableName),
+        latest: { tScore: 0, outputText: '' }
       }
     })
   }
@@ -112,13 +113,26 @@ export default class Activity {
     }
   }
 
-  addSubScaleValues(responses) {
+  async addSubScaleValues(responses) {
     for (let subScale of this.subScales) {
       subScale.values = subScale.values || [];
 
       let subScaleName = subScale.variableName;
       if (Array.isArray(responses[subScaleName])) {
         subScale.values = subScale.values.concat(responses[subScaleName]);
+      }
+
+      subScale.latest = subScale.values[0].value;
+      if (subScale.latest.outputText.startsWith('http://') || subScale.latest.outputText.startsWith('https://')) {
+        try {
+          const response = await axios({
+            method: 'GET',
+            url: subScale.latest.outputText,
+          });
+          subScale.latest.outputText = response.data;
+        } catch(e) {
+
+        }
       }
     }
   }
@@ -134,13 +148,6 @@ export default class Activity {
     }
 
     return total;
-  }
-
-  getLatestSubScaleScore(subScale) {
-    if (subScale.values.length) {
-      return subScale.values[0].value.tScore;
-    }
-    return 0;
   }
 
   getFrequency() {

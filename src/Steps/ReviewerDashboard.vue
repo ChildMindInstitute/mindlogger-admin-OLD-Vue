@@ -248,12 +248,25 @@
                               <v-expansion-panel-header>
                                 <h4>
                                   {{ subScale.variableName }}
-                                  ( {{ $t('latestScore') }}: {{ activity.getLatestSubScaleScore(subScale) }} )
+                                  ( {{ $t('latestScore') }}: {{ subScale.latest.tScore }} )
                                 </h4>
                               </v-expansion-panel-header>
 
                               <v-expansion-panel-content>
                                 <div>
+                                  <div class="chart-card">
+                                    <header>
+                                      <h3> - Additional Information </h3>
+                                    </header>
+                                    <div class="subscale-output">
+                                      <mavon-editor
+                                        :value="subScale.latest.outputText"
+                                        :language="'en'"
+                                        :toolbarsFlag="false"
+                                      >
+                                      </mavon-editor>
+                                    </div>
+                                  </div>
                                   <template
                                     v-for="item in subScale.items"
                                   >
@@ -465,6 +478,20 @@
 
 .v-expansion-panel-header {
   flex-direction: row-reverse;
+}
+
+.chart-card /deep/ .v-note-edit {
+  display: none;
+}
+.chart-card /deep/ .v-note-show {
+  width: 100% !important;
+  flex: 0 0 100% !important;
+}
+
+.chart-card .subscale-output {
+  max-height: 150px;
+  overflow-y: scroll;
+  margin: 10px 0px;
 }
 </style>
 
