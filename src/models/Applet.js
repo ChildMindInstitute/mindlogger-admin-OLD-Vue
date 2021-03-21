@@ -293,7 +293,7 @@ export default class Applet {
       activity.initSubScaleItems();
 
       const activityId = activity.data._id.split('/')[1];
-      activity.addSubScaleValues(this.subScales[activityId] || {});
+      await activity.addSubScaleValues(this.subScales[activityId] || {});
     }
   }
 
