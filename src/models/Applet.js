@@ -127,6 +127,10 @@ export default class Applet {
           for (let subScale of subScales) {
             if (subScale.value && subScale.value.ptr !== undefined && subScale.value.src !== undefined) {
               subScale.value = data.subScaleSources[subScale.value.src].data[subScale.value.ptr];
+
+              if (subScale.value.rawScore && !subScale.value.tScore) {
+                subScale.value.tScore = subScale.value.rawScore;
+              }
             }
           }
         }

@@ -28,6 +28,12 @@ export default class Activity {
     this.responses = [];
 
     this.subScales = this.parseSubScales(data[ReproLib.subScales]);
+    this.finalSubScale = this.parseFinalSubScale(data[ReproLib.finalSubScale] && data[ReproLib.finalSubScale][0]);
+
+    if (this.finalSubScale) {
+      this.subScales.push(this.finalSubScale);
+    }
+
     this.selectedSubScales = [];
 
     this.dataColor = '#8076B2';
@@ -97,9 +103,30 @@ export default class Activity {
     })
   }
 
+  parseFinalSubScale(finalSubScale) {
+    if (!finalSubScale) {
+      return null;
+    }
+
+    let {
+      [ReproLib.lookupTable]: lookupTable,
+      [ReproLib.variableName]: variableName
+    } = finalSubScale;
+
+    variableName = variableName && variableName[0] && variableName[0]['@value'] || '';
+    return {
+      variableName,
+      lookupTable,
+      dataColor: RESPONSE_COLORS[this.subScales.length % RESPONSE_COLORS.length],
+      slug: slugify(variableName),
+      latest: { tScore: 0, outputText: '' },
+      isFinalSubScale: true
+    }
+  }
+
   initSubScaleItems() {
     for (let subScale of this.subScales) {
-      let itemNames = subScale.jsExpression.split(' + ').map(name => name.trim());
+      let itemNames = (subScale.jsExpression || '').split(' + ').map(name => name.trim());
 
       subScale.items = [];
 
@@ -113,6 +140,21 @@ export default class Activity {
     }
   }
 
+  async getOutputText(outputText) {
+    if (outputText && (outputText.startsWith('http://') || outputText.startsWith('https://'))) {
+      try {
+        const response = await axios({
+          method: 'GET',
+          url: outputText,
+        });
+        return response.data
+      } catch(e) {
+
+      }
+    }
+    return outputText;
+  }
+
   async addSubScaleValues(responses) {
     for (let subScale of this.subScales) {
       subScale.values = subScale.values || [];
@@ -122,18 +164,10 @@ export default class Activity {
         subScale.values = subScale.values.concat(responses[subScaleName]);
       }
 
-      subScale.latest = subScale.values[0].value;
-      if (subScale.latest.outputText.startsWith('http://') || subScale.latest.outputText.startsWith('https://')) {
-        try {
-          const response = await axios({
-            method: 'GET',
-            url: subScale.latest.outputText,
-          });
-          subScale.latest.outputText = response.data;
-        } catch(e) {
-
-        }
-      }
+      subScale.latest = {
+        ...subScale.values[0].value,
+        outputText: await this.getOutputText(subScale.values[0].value.outputText)
+      };
     }
   }
 

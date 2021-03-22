@@ -333,15 +333,15 @@ export default {
           .attr('fill', subScale.dataColor)
           .attr('cx', d => this.x(new Date(d.date)))
           .attr('cy', d => this.y(d.value.tScore))
-          .attr('r', this.radius / 2)
-          .on('focus', d => this.showTooltip(
+          .attr('r', d => d.value.outputText ? this.radius / 2 : 0)
+          .on('focus', d => d.value.outputText ? this.showTooltip(
             this.x(new Date(d.date)),
             this.y(d.value.tScore),
             d.value,
             this.labelWidth,
             this.width,
             this.height
-          ))
+          ) : '')
           .on('blur', d => this.hideTooltip())
       }
     },
