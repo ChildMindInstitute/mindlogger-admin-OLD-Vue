@@ -189,7 +189,14 @@ export const AppletMixin = {
 
             }
 
-            let options = [], scores = [];
+            let options = [];
+            if(item.responseOptions && (item.inputType === 'radio' || item.inputType === 'slider')) {
+              options = item.responseOptions.map(option => 
+                `${Object.values(option.name)[0]}: ${option.value} ${item.scoring ? '(score: ' + option.score + ')' : ''}`
+              );
+            }
+
+            let scores = [];
             // let responseData = [];
 
             // if (response.data[itemUrl].value || !response.data[itemUrl].text) {
