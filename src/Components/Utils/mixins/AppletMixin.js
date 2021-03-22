@@ -130,55 +130,114 @@ export const AppletMixin = {
               continue;
             }
 
-            let options = [], scores = [];
-            let responseData = [];
+            const responseDataObj = response.data[itemUrl];
+            let responseData = '';
 
-            if (response.data[itemUrl].value || !response.data[itemUrl].text) {
-              if (response.data[itemUrl].value) {
-                response.data[itemUrl] = response.data[itemUrl].value;
-              }
+            if(!responseDataObj) {
+              responseData = null;
+            } else {
 
-              if (response.data[itemUrl] === null ) {
-                responseData = null;
-              } else if (item.inputType === 'radio' || item.inputType === 'slider') {
-                options = item.responseOptions.map(option => 
-                  `${Object.values(option.name)[0]}: ${option.value} ${item.scoring ? '(score: ' + option.score + ')' : ''}`
-                );
-  
-                if (!Array.isArray(response.data[itemUrl])) {
-                  response.data[itemUrl] = [response.data[itemUrl]]
-                }
-  
-                response.data[itemUrl].forEach(val => {
-                  if (typeof val === 'string') {
-                    let option = item.responseOptions.find(option => Object.values(option.name)[0] === val);
-                    if (option) {
-                      responseData.push(option.value);
-                      if (item.scoring) {
-                        scores.push(option.score);
-                      }
+              if(responseDataObj instanceof Array) {
+                
+                responseDataObj.forEach((value, index) => {
+
+                  if(typeof value === 'object' && !Array.isArray(value)) {
+                    for(const [key2, value2] of Object.entries(value)) {
+                      responseData += `${key2}: ${value2}`;
                     }
                   } else {
-                    responseData.push(val);
-  
-                    if (item.scoring) {
-                      let option = item.responseOptions.find(option => option.value === val);
-                      if (option) {
-                        scores.push(option.score);
-                      }
-                    }
+                    responseData += `${index}: ${value}`;
                   }
+
+                  if(index !== responseDataObj.length - 1)
+                    responseData += ' | ';
                 });
-              } else {
-                if (typeof response.data[itemUrl] == 'object' && response.data[itemUrl]) {
-                  responseData = Object.keys(response.data[itemUrl]).map(key => `${key}: ${JSON.stringify(response.data[itemUrl][key]).replace(/[,"]/g, ' ')}`);
-                } else {
-                  responseData = [response.data[itemUrl]];
+
+              } else if(responseDataObj instanceof Object) {
+                
+                let index = 0;
+                for(const [key, value] of Object.entries(responseDataObj)) {
+
+                  if(item.inputType === 'timeRange' && value.from && value.to) {
+                      responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
+                  } else if((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord') && value.filename) {
+                    responseData += `filename: ${value.filename}`;
+                  } else if(item.inputType === 'date' && (value.day || value.month || value.year)) {
+                    responseData += `date: ${value.day}/${value.month}/${value.year}`;
+                  } else if(item.inputType === 'drawing' && value.svgString) {
+                    responseData += `SVG`;
+                  } else if(item.inputType === 'geolocation' && typeof value === 'object') {
+                    responseData += `geo: lat (${value.latitude}) / long (${value.longitude})`;
+                  } else if(item.inputType === 'audioImageRecord') {
+                    if(key === 'filename') {
+                      responseData = `filename: ${value}`;
+                      index = Object.keys(responseDataObj).length;
+                    }
+                  } else {
+                    responseData += `${key}: ${value}`;
+                  }
+
+                  if(index < Object.keys(responseDataObj).length - 1)
+                    responseData += ' | ';
+
+                  index++;
                 }
+
+              } else {
+                responseData = responseDataObj;
               }
-            } else {
-              responseData = [response.data[itemUrl].text];
+
             }
+
+            let options = [], scores = [];
+            // let responseData = [];
+
+            // if (response.data[itemUrl].value || !response.data[itemUrl].text) {
+            //   if (response.data[itemUrl].value) {
+            //     response.data[itemUrl] = response.data[itemUrl].value;
+            //   }
+
+            //   if (response.data[itemUrl] === null ) {
+            //     responseData = null;
+            //   } else if (item.inputType === 'radio' || item.inputType === 'slider') {
+            //     options = item.responseOptions.map(option => 
+            //       `${Object.values(option.name)[0]}: ${option.value} ${item.scoring ? '(score: ' + option.score + ')' : ''}`
+            //     );
+  
+            //     if (!Array.isArray(response.data[itemUrl])) {
+            //       response.data[itemUrl] = [response.data[itemUrl]]
+            //     }
+  
+            //     response.data[itemUrl].forEach(val => {
+            //       if (typeof val === 'string') {
+            //         let option = item.responseOptions.find(option => Object.values(option.name)[0] === val);
+            //         if (option) {
+            //           responseData.push(option.value);
+            //           if (item.scoring) {
+            //             scores.push(option.score);
+            //           }
+            //         }
+            //       } else {
+            //         responseData.push(val);
+  
+            //         if (item.scoring) {
+            //           let option = item.responseOptions.find(option => option.value === val);
+            //           if (option) {
+            //             scores.push(option.score);
+            //           }
+            //         }
+            //       }
+            //     });
+            //   } else {
+            //     if (typeof response.data[itemUrl] == 'object' && response.data[itemUrl]) {
+            //       responseData = Object.keys(response.data[itemUrl]).map(key => `${key}: ${JSON.stringify(response.data[itemUrl][key]).replace(/[,"]/g, ' ')}`);
+            //     } else {
+            //       responseData = [response.data[itemUrl]];
+            //     }
+            //   }
+            // } else {
+            //   responseData = [response.data[itemUrl].text];
+            // }
 
             result.push({
               id: response._id,
