@@ -403,23 +403,21 @@ export default class Applet {
     return {
       data: merged.map(response => {
         let positive = 0, negative = 0, cummulative = 0;
-        Object.keys(this.items).forEach(itemId => {
-          const item = this.items[itemId];
+        const item = this.items[response.itemId];
 
-          if (item.responseOptions) {
-            for (let choice of item.responseOptions) {
-              let value = Number(response[choice.id]);
+        if (item.responseOptions) {
+          for (let choice of item.responseOptions) {
+            let value = Number(response[choice.id]);
 
-              if (value) {
-                positive = value > 0 ? positive + value : positive;
-                negative = value < 0 ? negative + value : negative;
-                if (item.enableNegativeTokens || value > 0) {
-                  cummulative += value;
-                }
+            if (value) {
+              positive = value > 0 ? positive + value : positive;
+              negative = value < 0 ? negative + value : negative;
+              if (item.enableNegativeTokens || value > 0) {
+                cummulative += value;
               }
             }
           }
-        });
+        }
 
         return {
           ...response,
@@ -480,12 +478,16 @@ export default class Applet {
       for (let i = 0; i < data.tokens.cumulativeToken.length; i++) {
         const cumulative = data.tokens.cumulativeToken[i];
 
-        const decrypted = JSON.parse(encryptionUtils.decryptData({
-          text: cumulative.data,
-          key: data.AESKeys[cumulative.key]
-        }));
+        if (typeof cumulative.data == 'string') {
+          const decrypted = JSON.parse(encryptionUtils.decryptData({
+            text: cumulative.data,
+            key: data.AESKeys[cumulative.key]
+          }));
 
-        data.tokens.cumulativeToken[i] = decrypted.value;
+          data.tokens.cumulativeToken[i] = decrypted.value;
+        } else {
+          data.tokens.cumulativeToken[i] = cumulative.data.value;
+        }
       }
 
       for (let i = 0; i < data.tokens.tokenUpdates.length; i++) {
@@ -536,6 +538,18 @@ export default class Applet {
         text: JSON.stringify(source.data),
         key: data.AESKeys[source.key]
       });
+    }
+
+    if (data.tokens) {
+      for (let i = 0; i < data.tokens.tokenUpdates.length; i++) {
+        const tokenUpdate = data.tokens.tokenUpdates[i];
+
+        tokenUpdate.key = 0;
+        tokenUpdate.data = encryptionUtils.encryptData({
+          text: JSON.stringify({ value: tokenUpdate.value }),
+          key: data.AESKeys[tokenUpdate.key]
+        });
+      }
     }
 
     return data;
