@@ -297,8 +297,8 @@
                               <h3> - {{ item.getFormattedQuestion() }}</h3>
                             </header>
 
-                            <TimeRange
-                              v-if="tab == 'responses' && item.inputType === 'timeRange'"
+                            <TimePicker
+                              v-if="tab == 'responses' && item.inputType === 'time'"
                               :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
                               :item="item"
                               :versions="applet.versions"
@@ -308,6 +308,8 @@
                               :has-version-bars="hasVersionBars"
                               :parent-width="panelWidth"
                               :color="item.dataColor"
+                              :maxValue="getMaxValue(activity.items)"
+                              :minValue="getMinValue(activity.items)"
                             />
                             <RadioSlider
                               v-else-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
@@ -489,7 +491,7 @@ import Item from "../models/Item";
 import TokenChart from "../Components/DataViewerComponents/TokenChart.vue";
 import ActivitySummary from "../Components/DataViewerComponents/ActivitySummary.vue";
 import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue";
-import TimeRange from "../Components/DataViewerComponents/TimeRange.vue"; 
+import TimePicker from "../Components/DataViewerComponents/TimePicker.vue"; 
 import FreeTextTable from "../Components/DataViewerComponents/FreeTextTable.vue";
 import SubScaleLineChart from "../Components/DataViewerComponents/SubScaleLineChart";
 import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChart";
@@ -506,7 +508,7 @@ export default {
     TokenChart,
     ActivitySummary,
     RadioSlider,
-    TimeRange,
+    TimePicker,
     FreeTextTable,
     SubScaleLineChart,
     SubScaleBarChart,
@@ -598,8 +600,6 @@ export default {
         this.$store.state.currentAppletData.applet.encryption
       );
 
-      console.log('applet --------------->', this.applet)
-
       this.selectedVersions = this.appletVersions;
       this.loading = false;
       this.onResize = this.onResize.bind(this);
@@ -649,6 +649,59 @@ export default {
         (moment.utc(date) > this.focusExtent[0]) && 
         (moment.utc(date) <= moment.utc(NOW))
       );
+    },
+
+    /** 
+     * Expand all activities.
+     *
+     * @param {items} items Activity Items
+     * @return {maxValue} Maximum response value
+     */
+
+    getMaxValue (items) {
+      let maxValue = {
+        hour: 0,
+        minute: 0,
+      };
+
+      items.forEach(item => {
+        if (item.inputType === 'time') {
+          item.responses.forEach(({ value }) => {
+            if (value.hour > maxValue.hour) {
+              maxValue.hour = value.hour;
+            }
+          });
+        }
+      });
+
+      maxValue.hour += 1;
+      return maxValue;
+    },
+
+    /** 
+     * Expand all activities.
+     *
+     * @param {items} items Activity Items
+     * @return {minValue} Minimum response value
+     */
+
+    getMinValue (items) {
+      let minValue = {
+        hour: 23,
+        minute: 0,
+      };
+
+      items.forEach(item => {
+        if (item.inputType === 'time') {
+          item.responses.forEach(({ value }) => {
+            if (value.hour < minValue.hour) {
+              minValue.hour = value.hour;
+            }
+          });
+        }
+      });
+
+      return minValue;
     },
 
     /**
