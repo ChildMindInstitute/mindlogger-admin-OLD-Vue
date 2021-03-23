@@ -148,7 +148,7 @@ export const AppletMixin = {
                 
                 responseDataObj.forEach((value, index) => {
 
-                  if(typeof value === 'object' && !Array.isArray(value)) {
+                  if(value instanceof Object && !Array.isArray(value)) {
                     for(const [key2, value2] of Object.entries(value)) {
                       responseData += `${key2}: ${value2}`;
                     }
