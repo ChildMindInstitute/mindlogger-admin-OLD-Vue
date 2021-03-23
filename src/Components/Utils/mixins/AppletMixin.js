@@ -130,6 +130,13 @@ export const AppletMixin = {
               continue;
             }
 
+            let flag = 'completed';
+            if(response.responseScheduled && !response.responseStarted) {
+              flag = 'missed';
+            } else if(response.responseStarted && !response.responseCompleted) {
+              flat = 'incomplete';
+            }
+
             const responseDataObj = response.data[itemUrl];
             let responseData = '';
 
@@ -189,6 +196,10 @@ export const AppletMixin = {
 
             }
 
+            const question = item.question['en']
+              .replace(/\r?\n|\r/g, '')
+              .split('250)');
+
             const options = [];
             const scores = [];
 
@@ -207,12 +218,16 @@ export const AppletMixin = {
 
             result.push({
               id: response._id,
-              created: response.created,
-              secretUserId: MRN || null,
+              activity_scheduled_time: response.responseScheduled || 'not scheduled',
+              activity_start_time: response.responseStarted || null,
+              activity_end_time: response.responseCompleted || null,
+              flag,
+              MRN:  MRN || null,
               userId: _id,
-              activity: response.activity.name,
-              item: itemUrl,
+              activity: response.activity['@id'],
+              item: item.id,
               response: responseData,
+              question: question[question.length - 1],
               options: options.join(', '),
               version: response.version,
               rawScore: scores.reduce((accumulated, current) => current + accumulated, 0),
@@ -232,12 +247,16 @@ export const AppletMixin = {
         let otc = new ObjectToCSV({
           keys: [
             'id',
-            'created',
-            'secretUserId',
+            'activity_scheduled_time',
+            'activity_start_time',
+            'activity_end_time',
+            'flag',
+            'MRN',
             'userId',
             'activity',
             'item',
             'response',
+            'question',
             'options',
             'version',
             'rawScore',
