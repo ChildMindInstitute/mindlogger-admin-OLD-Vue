@@ -2,7 +2,11 @@
   <div class="ds-expand ds-calendar-app">
     <v-content class="ds-expand pt-0">
       <div class="calendar-header text-center pa-1">
-        <h4>{{$t(ownerType+"Schedule")}} - {{appletName}} {{ownerType === 'Group' ? "" : `for ${userCode}` }}</h4>
+        <h4>{{ (ownerType === 'Group') 
+          ? $t('generalSchedule') 
+          : $t('individualSchedule') }} 
+          - {{ appletName }} 
+            {{ ownerType === 'Group' ? "" : `for ${userCode}` }}</h4>
       </div>
       <v-container fluid class="ds-calendar-container" style="height: 100%;">
 

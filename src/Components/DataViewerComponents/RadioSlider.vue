@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="visible"
     class="radio-slider"
     :class="`radio-slider-${plotId}`"
   >
@@ -15,14 +16,15 @@
     >
       <g class="labels">
         <text
-          v-for="feature in features"
+          v-for="(feature, index) in features"
           :key="feature.slug"
-          :y="radius * 2 + padding.top + heightPerFeature * feature.index"
+          :y="radius * 2 + padding.top + heightPerFeature * index"
           :x="labelWidth/2"
           :font-size="15"
           text-anchor="middle"
         >
           {{ compressedName(feature.name.en) }}
+          <title>{{ feature.name.en }}</title>
         </text>
       </g>
       <g
@@ -34,6 +36,18 @@
         <g class="responses" />
       </g>
     </svg>
+  </div>
+  <div
+    v-else
+    :style="`height: ${height + padding.top + padding.bottom}px;`"
+  >
+      <v-progress-circular
+        class="d-block ma-auto mt-2"
+        color="black"
+        indeterminate
+        :size="50"
+      >
+      </v-progress-circular>
   </div>
 </template>
 
@@ -92,7 +106,8 @@ export default {
       features: features.map((feature, index) => ({
         ...feature,
         index
-      })),
+      })).reverse(),
+      visible: false,
     }
   },
   computed: {
@@ -145,18 +160,39 @@ export default {
     }
   },
   mounted() {
+    if (('IntersectionObserver' in window)) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].intersectionRatio <= 0) {
+          return;
+        }
+
+        if (!this.visible) {
+          this.visible = true;
+          this.$nextTick(() => {
+            this.render();
+          });
+        }
+      });
+
+      observer.observe(this.$el);
+    } else {
+      this.visible = true;
+    }
+
     this.$nextTick(() => {
       this.render();
     });
   },
   methods: {
     render() {
-      this.svg = d3.select('#' + this.plotId);
+      if (this.visible) {
+        this.svg = d3.select('#' + this.plotId);
 
-      this.drawAxes();
+        this.drawAxes();
 
-      this.drawVersions();
-      this.drawResponses();
+        this.drawVersions();
+        this.drawResponses();
+      }
     },
 
     compressedName(name) {
@@ -190,7 +226,8 @@ export default {
           .select('.x-axis')
           .append('g')
           .attr('class', 'feature-axis')
-          .style('stroke-width', 2)
+          .style('stroke-width', 1.2)
+          .style('color', '#373737')
           .attr('transform', d => `translate(0, ${this.radius + this.padding.top + this.heightPerFeature * i})`)
           .call(
             xAxis.tickFormat(d => i == this.features.length - 1 ? moment(d).format('MMM-D') : '')
@@ -208,12 +245,22 @@ export default {
 
       let prevX = -1, prevY = -1;
 
-      for (let response of this.data) {
+      for (let i = 0; i < this.data.length; i++) {
         let x = -1, y = -1;
-        for (let feature of this.features) {
+        let response = this.data[i];
+
+        if (response.date < this.focusExtent[0]) {
+          continue;
+        }
+
+        if (response.date > this.focusExtent[1]) {
+          break;
+        }
+
+        for (let [index, feature] of this.features.entries()) {
           if (response[feature.slug] !== undefined) {
             x = this.x(response.date);
-            y = this.radius + this.padding.top + this.heightPerFeature * feature.index;
+            y = this.radius + this.padding.top + this.heightPerFeature * index;
 
             if (x < 0) {
               continue;
@@ -231,7 +278,7 @@ export default {
               .on('mousemove', () => {
                 const x = this.x(response.date);
                 const dateStr = moment(response.date).format('MMM-DD, YYYY');
-                const y = this.radius + this.padding.top + this.heightPerFeature * feature.index;
+                const y = this.radius + this.padding.top + this.heightPerFeature * index;
 
                 tooltip.style.left = (x + this.labelWidth) + 'px';
                 tooltip.style.padding = '5px';

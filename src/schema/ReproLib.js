@@ -16,4 +16,5 @@ export default {
   lookupTable: 'reprolib:terms/lookupTable',
   variableName: 'reprolib:terms/variableName',
   allowEdit: 'reprolib:terms/allowEdit',
+  enableNegativeTokens: 'reprolib:terms/enableNegativeTokens',
 };

@@ -2,6 +2,11 @@ import api from "../api/api.vue";
 import Applet from "../../../models/Applet";
 import Item from "../../../models/Item";
 import ObjectToCSV from 'object-to-csv';
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
+import fr from 'javascript-time-ago/locale/fr';
+TimeAgo.addLocale(en);
+TimeAgo.addLocale(fr);
 
 export const AppletMixin = { 
   computed: {
@@ -128,49 +133,57 @@ export const AppletMixin = {
             let options = [], scores = [];
             let responseData = [];
 
-            if (response.data[itemUrl] === null ) {
-              responseData = null;
-            } else if (item.inputType === 'radio' || item.inputType === 'slider') {
-              options = item.responseOptions.map(option => 
-                `${Object.values(option.name)[0]}: ${option.value} ${item.scoring ? '(score: ' + option.score + ')' : ''}`
-              );
-
-              if (!Array.isArray(response.data[itemUrl])) {
-                response.data[itemUrl] = [response.data[itemUrl]]
+            if (response.data[itemUrl].value || !response.data[itemUrl].text) {
+              if (response.data[itemUrl].value) {
+                response.data[itemUrl] = response.data[itemUrl].value;
               }
 
-              response.data[itemUrl].forEach(val => {
-                if (typeof val === 'string') {
-                  let option = item.responseOptions.find(option => Object.values(option.name)[0] === val);
-                  if (option) {
-                    responseData.push(option.value);
-                    if (item.scoring) {
-                      scores.push(option.score);
-                    }
-                  }
-                } else {
-                  responseData.push(val);
-
-                  if (item.scoring) {
-                    let option = item.responseOptions.find(option => option.value === val);
-                    if (option) {
-                      scores.push(option.score);
-                    }
-                  }
+              if (response.data[itemUrl] === null ) {
+                responseData = null;
+              } else if (item.inputType === 'radio' || item.inputType === 'slider') {
+                options = item.responseOptions.map(option => 
+                  `${Object.values(option.name)[0]}: ${option.value} ${item.scoring ? '(score: ' + option.score + ')' : ''}`
+                );
+  
+                if (!Array.isArray(response.data[itemUrl])) {
+                  response.data[itemUrl] = [response.data[itemUrl]]
                 }
-              });
-            } else {
-              if (typeof response.data[itemUrl] == 'object' && response.data[itemUrl]) {
-                responseData = Object.keys(response.data[itemUrl]).map(key => `${key}: ${JSON.stringify(response.data[itemUrl][key]).replace(/[,"]/g, ' ')}`);
+  
+                response.data[itemUrl].forEach(val => {
+                  if (typeof val === 'string') {
+                    let option = item.responseOptions.find(option => Object.values(option.name)[0] === val);
+                    if (option) {
+                      responseData.push(option.value);
+                      if (item.scoring) {
+                        scores.push(option.score);
+                      }
+                    }
+                  } else {
+                    responseData.push(val);
+  
+                    if (item.scoring) {
+                      let option = item.responseOptions.find(option => option.value === val);
+                      if (option) {
+                        scores.push(option.score);
+                      }
+                    }
+                  }
+                });
               } else {
-                responseData = [response.data[itemUrl]];
+                if (typeof response.data[itemUrl] == 'object' && response.data[itemUrl]) {
+                  responseData = Object.keys(response.data[itemUrl]).map(key => `${key}: ${JSON.stringify(response.data[itemUrl][key]).replace(/[,"]/g, ' ')}`);
+                } else {
+                  responseData = [response.data[itemUrl]];
+                }
               }
+            } else {
+              responseData = [response.data[itemUrl].text];
             }
 
             result.push({
               id: response._id,
               created: response.created,
-              MRN: MRN || null,
+              secretUserId: MRN || null,
               userId: _id,
               activity: response.activity.name,
               item: itemUrl,
@@ -195,7 +208,7 @@ export const AppletMixin = {
           keys: [
             'id',
             'created',
-            'MRN',
+            'secretUserId',
             'userId',
             'activity',
             'item',
@@ -219,6 +232,12 @@ export const AppletMixin = {
       const applet = this.$store.state.allApplets[appletMeta.id];
 
       return applet && applet.updated === appletMeta.updated;
+    },
+    formatTimeAgo(item) {
+      if (!item.updated) return "";
+      const formatted = new TimeAgo(this.$i18n.locale.replace('_', '-')).format(new Date(item.updated), 'round');
+
+      return formatted;
     }
   }
 }

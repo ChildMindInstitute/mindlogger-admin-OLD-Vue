@@ -193,7 +193,8 @@ export default {
 
       this.svg
         .select('.x-axis')
-        .style('stroke-width', 2)
+        .style('stroke-width', 1.2)
+        .style('color', '#373737')
         .attr('transform', `translate(0, ${this.y(0)})`)
         .call(xAxis);
 
@@ -207,7 +208,8 @@ export default {
 
       this.svg
         .select('.y-axis')
-        .style('stroke-width', 2)
+        .style('stroke-width', 1.2)
+        .style('color', '#373737')
         .call(yAxis);
     },
 

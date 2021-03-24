@@ -1,5 +1,6 @@
 import axios from 'axios';
 import moment from 'moment';
+import _ from 'lodash';
 
 import i18n from '../core/i18n';
 import ReproLib from '../schema/ReproLib';
@@ -77,6 +78,7 @@ export default class Item {
     this.partOfSubScale = false;
     this.allowEdit = data[ReproLib.allowEdit] && data[ReproLib.allowEdit][0] 
       ? data[ReproLib.allowEdit][0]['@value'] : true;
+    this.enableNegativeTokens = _.get(data, [ReproLib.responseOptions, 0, ReproLib.enableNegativeTokens, 0, '@value'], false);
   }
 
   /**
@@ -99,8 +101,8 @@ export default class Item {
 
     return itemListElement.map((choice, index) => ({
       name: i18n.arrayToObject(choice['schema:name']),
-      value: choice['schema:value'][0]['@value'],
-      score: Array.isArray(choice['schema:score']) && choice['schema:score'][0] && choice['schema:score'][0]['@value'],
+      value: Number(choice['schema:value'][0]['@value']),
+      score: Number(Array.isArray(choice['schema:score']) && choice['schema:score'][0] && choice['schema:score'][0]['@value']),
       color: choice['schema:value'][0]['@value'] > 0
         ? this.coldColors.shift()
         : this.warmColors.shift(),
@@ -120,11 +122,11 @@ export default class Item {
   }
 
   getChoiceByValue(value) {
-    return this.responseOptions.find(choice => choice.value === value);
+    return this.responseOptions && this.responseOptions.find(choice => choice.value === Math.floor(value + 0.5));
   }
 
   getChoiceByName(name) {
-    return this.responseOptions.find(choice => choice.name.en === name);
+    return this.responseOptions && this.responseOptions.find(choice => choice.name.en === name);
   }
 
   getChoice(str, version) {
@@ -156,9 +158,15 @@ export default class Item {
 
   appendResponses(responses) {
     this.responses = this.responses.concat(responses.map(response => {
+      if (response.value.value !== undefined) {
+        response.value = response.value.value;
+      }
+
       if (!Array.isArray(response.value)) {
         // Ensure that it is an array.
         response.value = [response.value];
+      } else {
+        response.value = response.value;
       }
 
       return response.value.reduce(
@@ -173,7 +181,7 @@ export default class Item {
 
           return {
             ...obj,
-            [choice.id]: (obj[choice.id] || 0) + value,
+            [choice.id]: (obj[choice.id] || 0) + Number(value),
           };
         },
         {

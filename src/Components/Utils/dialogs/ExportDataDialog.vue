@@ -22,7 +22,9 @@
           class="view-btn"
           @click="onExportData(profile)"
         >
-          {{ profile.identifier }}
+          <div class="btn-label">
+            {{ profile.identifier }}
+          </div>
         </v-btn>
       </v-card-text>
     </v-card>
@@ -37,6 +39,13 @@
     margin: 5px 0px;
   }
 
+  .btn-label {
+    width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .title, .sub-title {
     text-align: center;
   }
@@ -46,8 +55,6 @@
 </style>
 
 <script>
-  import api from "../api/api";
-
   export default {
     name: 'ViewDataDialog',
     props: {
@@ -82,7 +89,7 @@
           ...profile,
           appletId,
           MRN,
-          identifier: `${applet.name} (${MRN ? 'MRN: ' + MRN : 'email: ' + profile.email})`
+          identifier: `${applet.name} (${MRN ? this.$i18n.t('secretUserId') + ': ' + MRN : 'email: ' + profile.email})`
         });
       }
     },

@@ -101,7 +101,7 @@
           ...profile,
           appletId,
           MRN,
-          identifier: `${applet.name} (${MRN ? 'MRN: ' + MRN : 'email: ' + profile.email})`
+          identifier: `${applet.name} (${MRN ? this.$i18n.t('secretUserId') + ': ' + MRN : 'email: ' + profile.email})`
         });
       }
       if (this.profileList.length === 1) {

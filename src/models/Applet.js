@@ -1,7 +1,8 @@
 import axios from 'axios';
-
+import moment from 'moment';
 import store from '../State/state';
 import i18n from '../core/i18n';
+import slugify from '../core/slugify';
 
 // Models.
 import Activity from './Activity';
@@ -26,7 +27,7 @@ export default class Applet {
    */
   constructor(data) {
     this.data = data;
-    this.id = data.applet['@id'];
+    this.id = slugify(data.applet['@id']);
     this._id = data.applet['_id'];
     this.encryption = data.applet.encryption;
     this.label = i18n.arrayToObject(data.applet[SKOS.prefLabel]);
@@ -40,6 +41,8 @@ export default class Applet {
     this.activities = [];
     this.responses = {};
     this.subScales = {};
+    this.tokens = {};
+    this.hasTokenItem = false;
 
     this.selectedActivites = [];
 
@@ -75,6 +78,10 @@ export default class Applet {
       activity.items = activity.order.map(itemId => this.items[itemId]);
       activity.hasTokenItem = activity.items.some(item => item.isTokenItem);
       this.activities.push(activity);
+
+      if (activity.hasTokenItem) {
+        this.hasTokenItem = true;
+      }
     }
   }
 
@@ -85,15 +92,33 @@ export default class Applet {
    */
   async fetchResponses(users = []) {
     let appletId = this._id.split('/').pop();
+
+    const NOW = new Date();
+    const TODAY = new Date(Date.UTC(
+      NOW.getFullYear(),
+      NOW.getMonth(),
+      NOW.getDate() + 1,
+      0,
+      0,
+      0,
+    ));
+
     let { data } = await axios({
       method: 'get',
       url: `${store.state.backend}/response/${appletId}`,
       headers: { 'Girder-Token': store.state.auth.authToken.token },
-      params: { users: JSON.stringify(users) },
+      params: {
+        users: JSON.stringify(users),
+        toDate: `${NOW.getFullYear()}-${NOW.getMonth()+1}-${NOW.getDate()}`,
+        fromDate: `${TODAY.getFullYear()-1}-${TODAY.getMonth()+1}-${TODAY.getDate()}`
+      },
     });
 
     if (this.encryption) {
       Applet.replaceItemValues(Applet.decryptResponses(data, this.encryption));
+
+      data.tokens.cumulativeToken = data.tokens.cumulativeToken.reduce((total, current) => total + current, 0);
+      this.tokens = data.tokens;
 
       for (let activityId in data.subScales) {
         for (let subScaleName in data.subScales[activityId]) {
@@ -131,7 +156,6 @@ export default class Applet {
 
         const itemId = data.itemReferences[version][key];
         const oldItem = data.items[itemId];
-
         const currentItem = Object.values(this.items).find(item => item.data._id.split('/').pop() === oldItem.data.original.screenId)
 
         if (!currentItem) {
@@ -217,9 +241,7 @@ export default class Applet {
 
     /** append responses */
     for (let itemId of itemIDGroup) {
-      if (this.items[itemId].responseOptions) {
-        this.items[itemId].appendResponses(data.responses[itemId]);
-      }
+      this.items[itemId].appendResponses(data.responses[itemId]);
     }
 
     for (let itemId of itemIDGroup) {
@@ -255,14 +277,16 @@ export default class Applet {
         })));
       }
 
-      activity.responses.sort((resp1, resp2) => {
-        if (resp1.date < resp2.date) return -1;
-        if (resp1.date > resp2.date) return 1;
+      const existing = {};
+      activity.responses = activity.responses.filter((resp, index) => {
+        const id = `${resp.date.toString()}/${resp.version}`;
+        if (existing[id]) {
+          return false;
+        }
+        existing[id] = true;
 
-        return 0;
-      })
-
-      activity.responses = activity.responses.filter((resp, index) => activity.responses.findIndex(value => value.date.toString() == resp.date.toString() && value.version == resp.version) == index);
+        return true;
+      });
     }
 
     for (let activity of this.activities) {
@@ -336,6 +360,79 @@ export default class Applet {
     return 'None';
   }
 
+  getItemsFormatted() {
+    let merged = [], features = [], last = null;
+    let dateToVersions = {};
+
+    Object.keys(this.items).forEach(itemId => {
+      const item = this.items[itemId];
+
+      if (item.isTokenItem && item.inputType !== 'stackedRadio') {
+        item.responses.forEach(resp => {
+          let dateStr = moment.utc(resp.date).format('YYYY-MM-DD');
+
+          /** consider that responses are already sorted by date/version */
+          if (last && dateStr == last.date && resp.version == last.version) {
+            for (let choice of item.responseOptions) {
+              if (resp[choice.id]) {
+                last[choice.id] = last[choice.id] ? last[choice.id] + resp[choice.id] : resp[choice.id];
+              }
+            }
+          } else if (resp.version) {
+            dateToVersions[dateStr] = dateToVersions[dateStr] || [];
+            dateToVersions[dateStr].push(resp.version);
+            merged.push({
+              ...resp,
+              date: dateStr,
+              barIndex: dateToVersions[dateStr].length - 1,
+              itemId,
+            });
+
+            last = merged[merged.length - 1];
+          }
+        });
+        item.responseOptions.forEach(choice => {
+          features.push({
+            ...choice,
+            slug: slugify(item.id + choice.id),
+          })
+        });
+      }
+    });
+
+    return {
+      data: merged.map(response => {
+        let positive = 0, negative = 0, cummulative = 0;
+        const item = this.items[response.itemId];
+
+        if (item.responseOptions) {
+          for (let choice of item.responseOptions) {
+            let value = Number(response[choice.id]);
+
+            if (value) {
+              positive = value > 0 ? positive + value : positive;
+              negative = value < 0 ? negative + value : negative;
+              if (item.enableNegativeTokens || value > 0) {
+                cummulative += value;
+              }
+            }
+          }
+        }
+
+        return {
+          ...response,
+          bars: dateToVersions[response.date].length,
+          positive,
+          negative,
+          cummulative,
+          date: new Date(response.date)
+        }
+      }),
+      versionsByDate: dateToVersions,
+      features,
+    }
+  }
+
   static compareVersions(version1, version2) {
     const v1 = version1.split('.').map(val => parseInt(val));
     const v2 = version2.split('.').map(val => parseInt(val));
@@ -377,6 +474,36 @@ export default class Applet {
       }
     }
 
+    if (data.tokens) {
+      for (let i = 0; i < data.tokens.cumulativeToken.length; i++) {
+        const cumulative = data.tokens.cumulativeToken[i];
+
+        if (typeof cumulative.data == 'string') {
+          const decrypted = JSON.parse(encryptionUtils.decryptData({
+            text: cumulative.data,
+            key: data.AESKeys[cumulative.key]
+          }));
+
+          data.tokens.cumulativeToken[i] = decrypted.value;
+        } else {
+          data.tokens.cumulativeToken[i] = cumulative.data.value;
+        }
+      }
+
+      for (let i = 0; i < data.tokens.tokenUpdates.length; i++) {
+        const tokenUpdate = data.tokens.tokenUpdates[i];
+
+        const decrypted = JSON.parse(encryptionUtils.decryptData({
+          text: tokenUpdate.data,
+          key: data.AESKeys[tokenUpdate.key]
+        }));
+
+        delete tokenUpdate['data'];
+
+        tokenUpdate.value = decrypted.value;
+      }
+    }
+
     return data;
   }
 
@@ -413,6 +540,18 @@ export default class Applet {
       });
     }
 
+    if (data.tokens) {
+      for (let i = 0; i < data.tokens.tokenUpdates.length; i++) {
+        const tokenUpdate = data.tokens.tokenUpdates[i];
+
+        tokenUpdate.key = 0;
+        tokenUpdate.data = encryptionUtils.encryptData({
+          text: JSON.stringify({ value: tokenUpdate.value }),
+          key: data.AESKeys[tokenUpdate.key]
+        });
+      }
+    }
+
     return data;
   }
 
@@ -437,6 +576,7 @@ export default class Applet {
       });
 
       response.data.applet.encryption = encryptionInfo;
+
       const applet = new Applet(response.data);
 
       if (opts.withVersions) {

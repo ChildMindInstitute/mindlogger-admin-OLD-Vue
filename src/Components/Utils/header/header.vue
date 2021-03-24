@@ -35,27 +35,11 @@
       @click="viewUsers"
       :x-small="isTablet"
     >
-      {{ currentApplet.name }} 
-    </v-btn>
-
-    <v-icon 
-      v-if="routeName == 'ReviewerDashboard'" 
-      medium
-    >
-      mdi-chevron-right
-    </v-icon>
-
-    <v-btn
-      v-if="routeName == 'ReviewerDashboard'"
-      color="primary"
-      class="toolbar-btn"
-      :x-small="isTablet"
-    >
-      {{ currentUsers }}'s Overview
+      <p class="ds-applet-name">{{ currentApplet.name }}</p>
     </v-btn>
 
     <v-tooltip
-      v-if="currentApplet && hasRoles('reviewer', 'manager', 'coordinator')"
+      v-if="currentApplet && hasRoles(currentApplet, 'reviewer', 'manager', 'coordinator')"
       bottom
     >
       <template v-slot:activator="{ on }">
@@ -73,7 +57,7 @@
     </v-tooltip>
 
     <v-tooltip
-      v-if="currentApplet && hasRoles('manager', 'coordinator')"
+      v-if="currentApplet && hasRoles(currentApplet, 'manager', 'coordinator')"
       bottom
     >
       <template v-slot:activator="{ on }">
@@ -91,7 +75,7 @@
     </v-tooltip>
 
     <v-tooltip
-      v-if="currentApplet && hasRoles('editor', 'manager')"
+      v-if="currentApplet && hasRoles(currentApplet, 'editor', 'manager')"
       bottom
     >
       <template v-slot:activator="{ on }">
@@ -109,7 +93,7 @@
     </v-tooltip>
 
     <v-tooltip
-      v-if="currentApplet && hasRoles('reviewer', 'manager')"
+      v-if="currentApplet && hasRoles(currentApplet, 'reviewer', 'manager')"
       bottom
     >
       <template v-slot:activator="{ on }">
@@ -119,15 +103,131 @@
           v-on="on"
           @click="onExportData"
         >
-          <v-icon class="export-icon">
-            mdi-export
-          </v-icon>
+          <v-icon class="export-icon">mdi-export</v-icon>
         </v-btn>
       </template>
       <span>{{ $t('exportData') }}</span>
     </v-tooltip>
 
+    <v-tooltip
+      v-if="currentApplet && hasRoles(currentApplet, 'editor', 'manager')"
+      bottom
+    >
+      <template v-slot:activator="{ on }">
+        <v-btn
+          :x-small="isTablet"
+          class="toolbar-btn primary"
+          v-on="on"
+          @click="onDuplicateApplet"
+        >
+          <img height="24" alt='' v-bind:src="require(`@/assets/copy-clipart-white.png`)"/>
+        </v-btn>
+      </template>
+      <span>{{ $t('duplicateApplet') }}</span>
+    </v-tooltip>
+
+    <v-tooltip
+      v-if="currentApplet && hasRoles(currentApplet, 'editor', 'manager')"
+      bottom
+    >
+      <template v-slot:activator="{ on }">
+        <v-btn
+          :x-small="isTablet"
+          class="toolbar-btn primary"
+          v-on="on"
+          @click="onDeleteApplet"
+        >
+          <v-icon>mdi-delete</v-icon>
+        </v-btn>
+      </template>
+      <span>{{ $t('deleteApplet') }}</span>
+    </v-tooltip>
+
+    <v-tooltip
+      v-if="currentApplet && hasRoles(currentApplet, 'editor', 'manager')"
+      bottom
+    >
+      <template v-slot:activator="{ on }">
+        <v-btn
+          :x-small="isTablet"
+          class="toolbar-btn primary"
+          v-on="on"
+          @click="onTransferOwnership"
+        >
+          <img height="24" alt='' v-bind:src="require(`@/assets/transfer-ownership-white.png`)"/>
+        </v-btn>
+      </template>
+      <span>{{ $t('transferOwnership') }}</span>
+    </v-tooltip>
+
     <v-spacer />
+
+    <v-menu
+      v-if="isLoggedIn && hasReviewerRole"
+      :offset-y="true"
+      :nudge-width="240"
+      bottom
+      right
+    >
+      <template v-slot:activator="{ on }">
+        <v-btn
+          icon
+          v-on="on"
+        >
+					<img height="24" alt='' v-bind:src="require(`@/assets/response-alert.png`)"/>
+
+          <span
+            v-if="newAlertCount"
+            class="new-alert-count"
+          >
+            {{ newAlertCount }}
+          </span>
+        </v-btn>
+      </template>
+      <v-card class="alert-list">
+        <v-list>
+          <template
+            v-if="alertList.length"
+          >
+            <v-list-item
+              v-for="(alert, index) in alertList"
+              :key="index"
+              @click="onViewAlert(alert)"
+              class="alert-item"
+            >
+              <div
+                class="alert-message"
+              >
+                {{ alert.compressedMessage }}
+              </div>
+              <div
+                v-if="!alert.viewed"
+                class="new-alert"
+              >
+                {{ $t('new') }}
+              </div>
+              <div
+                class="alert-time"
+              >
+                {{ alert.timeAgo }}
+              </div>
+              <div
+                class="alert-user"
+              >
+                {{ alert.email && `${$t('email')}: ${alert.email}` || alert.MRN && `${$t('secretUserId')}: ${alert.MRN}` }}
+              </div>
+            </v-list-item>
+          </template>
+          <template
+            v-else
+          >
+            <v-list-item>
+              {{ $t('noAlerts') }}
+            </v-list-item>
+          </template>
+        </v-list>
+      </v-card>
+    </v-menu>
 
     <v-menu
       v-if="isLoggedIn"
@@ -173,6 +273,12 @@
     </v-btn>
 
     <ConfirmationDialog
+      v-model="appletDeleteDialog"
+      :dialogText="$t('deleteAppletConfirmation')"
+      :title="$t('deleteApplet')"
+      @onOK="deleteApplet"
+    />
+    <ConfirmationDialog
       v-model="appletEditDialog"
       :dialogText="$t('appletEditAlert')"
       :title="$t('appletEdit')"
@@ -181,9 +287,34 @@
 
     <AppletPassword
       ref="appletPasswordDialog"
-      v-model="appletPasswordDialog"
+      v-model="appletPasswordDialog.visible"
       :hasConfirmPassword="false"
       @set-password="onAppletPassword"
+    />
+
+    <ResponseAlertDialog
+      v-model="responseAlertDialog.visible"
+      :user="responseAlertDialog.user"
+      :alert="responseAlertDialog.alert"
+      @view-data="viewAlert"
+    />
+
+    <Information
+      v-model="dialog"
+      :dialogText="dialogText"
+      :title="dialogTitle"
+    />
+
+    <AppletName
+      ref="appletNameDialog"
+      v-model="appletDuplicateDialog"
+      @set-value="onSetAppletDuplicateName"
+    />
+
+    <TransferOwnershipDialog
+      v-model="ownershipDialog"
+      @submit="transferOwnership"
+      @close="ownershipDialog = false"
     />
   </v-app-bar>
 </template>
@@ -203,6 +334,62 @@
 .logout {
   font-size: 15px !important;
 }
+
+.alert-time {
+  position: absolute;
+  right: 2px;
+  font-size: 12px;
+  bottom: 2px;
+  width: 28%;
+  text-align: right;
+}
+
+.alert-user {
+  position: absolute;
+  left: 5px;
+  font-size: 12px;
+  bottom: 2px;
+  width: 70%;
+}
+
+.alert-list {
+  max-height: 260px;
+}
+
+.new-alert {
+  position: absolute;
+  right: 5px;
+  font-size: 12px;
+  top: 2px;
+  color: red;
+}
+
+.alert-item {
+  padding: 2px 5px 20px 5px;
+}
+
+.alert-item:not(:last-child) {
+  border-bottom: 1px solid grey;
+}
+
+.new-alert-count {
+  position: absolute;
+  z-index: 10;
+  color: white;
+  top: -11px;
+  right: 0px;
+  background: red;
+  border-radius: 50%;
+  width: 24px;
+  line-height: 12px;
+}
+
+.ds-applet-name {
+  margin: 0;
+  width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 </style>
 
 <script>
@@ -210,21 +397,54 @@
 import api from '../api/api.vue';
 import ConfirmationDialog from '../dialogs/ConfirmationDialog';
 import AppletPassword from '../dialogs/AppletPassword';
+import ResponseAlertDialog from '../dialogs/ResponseAlertDialog';
+import Information from "../dialogs/InformationDialog.vue";
+import AppletName from "../dialogs/AppletName";
 import { AppletMixin } from '../mixins/AppletMixin';
+import { RolesMixin } from '../mixins/RolesMixin';
 import encryption from '../encryption/encryption.vue';
+
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
+import fr from 'javascript-time-ago/locale/fr';
+import TransferOwnershipDialog from '../dialogs/TransferOwnershipDialog.vue';
+
+TimeAgo.addLocale(en);
+TimeAgo.addLocale(fr);
 
 export default {
   name: "Header",
   components: {
     ConfirmationDialog,
     AppletPassword,
+    ResponseAlertDialog,
+    Information,
+    AppletName,
+    TransferOwnershipDialog,
   },
-  mixins: [AppletMixin],
+  mixins: [AppletMixin, RolesMixin],
   data() {
     return {
       appletEditDialog: false,
-      appletPasswordDialog: false,
-      windowWidth: window.innerWidth
+      appletPasswordDialog: {
+        visible: false,
+        applet: {},
+        requestedAction: null
+      },
+      windowWidth: window.innerWidth,
+      timeAgo: new TimeAgo(this.$i18n.locale.replace('_', '-')),
+      responseAlertDialog: {
+        visible: false,
+        alert: {},
+        user: {},
+      },
+      dialog: false,
+      dialogText: "",
+      dialogTitle: "",
+      appletDuplicateDialog: false,
+      appletDeleteDialog: false,
+      appletPendingDelete: undefined,
+      ownershipDialog: false,
     }
   },
   mounted() {
@@ -241,6 +461,22 @@ export default {
     },
     showEnvironment() {
       return process.env.VUE_APP_TITLE_ENV;
+    },
+    hasReviewerRole() {
+      if (!this.currentAccount) {
+        return false;
+      }
+
+      if (this.currentAccount.accountId === this.ownerAccountId) {
+        return true;
+      }
+
+      for (let applet of this.currentAccount.applets) {
+        if (this.hasRoles(applet, 'reviewer', 'manager', 'owner')) {
+          return true;
+        }
+      }
+      return false;
     },
     ownerAccountName() {
       return this.$store.state.ownerAccount.accountName;
@@ -264,11 +500,46 @@ export default {
     currentApplet() {
       return this.$store.state.currentAppletMeta; 
     },
+
     routeName() {
       return this.$route.name;
     },
+
     currentUsers() {
       return Object.values(this.$store.state.currentUsers).map(user => user.MRN || user.email).join(', ');
+    },
+
+    alertList() {
+      if (!this.currentAccount || !this.currentAccount.alerts) {
+        return [];
+      }
+
+      const profiles = this.currentAccount.alerts.profiles;
+
+      return (this.currentAccount.alerts.list || []).map(
+        alert => ({
+          ...alert,
+          compressedMessage: this.compressedMessage(alert.alertMessage),
+          timeAgo: this.timeAgo.format(new Date(alert.created), 'round'),
+          email: profiles[alert.profileId].email,
+          MRN: profiles[alert.profileId].MRN
+        })
+      );
+    },
+
+    newAlertCount() {
+      let newAlerts = 0;
+
+      for (let alert of this.alertList) {
+        if (!alert.viewed) {
+          newAlerts++;
+        }
+      }
+
+      return newAlerts;
+    },
+    userProfiles() {
+      return this.$store.state.currentAccount.alerts.profiles || {};
     },
     isDesktop() {
       return this.windowWidth > 1400;
@@ -276,15 +547,21 @@ export default {
     isTablet() {
       return this.windowWidth <= 1400 && this.windowWidth >= 768; 
     },
+    allApplets() {
+      return this.$store.state.allApplets;
+    },
+    accountApplets() {
+      return this.$store.state.currentAccount && this.$store.state.currentAccount.applets || [];
+    },
   },
   /**
    * Define here all methods that will be available in the scope of the template.
    */
   methods: {
-    hasRoles() {
-      return [].some.call(arguments, (role) =>
-        this.currentApplet.roles.includes(role)
-      );
+    compressedMessage(message) {
+      return message.length > 28
+        ? message.slice(0, 25) + ' …'
+        : message
     },
     logout() {
       this.$store.commit('resetState');
@@ -341,7 +618,7 @@ export default {
     },
 
     onAppletPassword(appletPassword) {
-      let applet = this.currentAppletMeta;
+      let applet = this.appletPasswordDialog.applet;
       const encryptionInfo = encryption.getAppletEncryptionInfo({
         appletPassword,
         accountId: this.currentAccount.accountId,
@@ -354,8 +631,8 @@ export default {
           .getPublicKey()
           .equals(Buffer.from(applet.encryption.appletPublicKey))
       ) {
-        this.appletPasswordDialog = false;
-        this.exportUserData(applet, Array.from(encryptionInfo.getPrivateKey()));
+        this.appletPasswordDialog.visible = false;
+        this.appletPasswordDialog.requestedAction(Array.from(encryptionInfo.getPrivateKey()));
       } else {
         this.$refs.appletPasswordDialog.defaultErrorMsg = this.$t('incorrectAppletPassword');
       }
@@ -371,8 +648,166 @@ export default {
       ) {
         this.exportUserData(this.currentApplet, encryptionInfo && encryptionInfo.appletPrivateKey);
       } else {
-        this.appletPasswordDialog = true;
+        this.$set(this, 'appletPasswordDialog', {
+          applet: this.currentApplet,
+          visible: true,
+          requestedAction: this.exportUserData.bind(this, this.currentApplet)
+        });
       }
+    },
+
+    onViewAlert(alert) {
+      if (this.newAlertCount) {
+        api.updateAlertStatus(
+          this.$store.state.backend,
+          this.$store.state.auth.authToken.token,
+          alert.id,
+        ).then(() => {
+          this.$store.commit('setViewAlert', alert.id);
+        });
+      }
+
+      this.$set(this, 'responseAlertDialog', {
+        visible: true,
+        alert: alert,
+        user: this.userProfiles[alert.profileId],
+      })
+    },
+
+    viewAlert() {
+      this.responseAlertDialog.visible = false;
+
+      const appletId = this.responseAlertDialog.alert.appletId;
+      const appletMeta = this.accountApplets.find(applet => applet.id === appletId);
+      let appletLoader = Promise.resolve();
+
+      if (!appletMeta) {
+        return ;
+      }
+
+      if (!this.isLatestApplet(appletMeta)) {
+        appletLoader = this.loadApplet(appletId);
+      }
+
+      appletLoader.then(() => {
+        const appletData = this.allApplets[appletId];
+        const encryptionInfo = appletData.applet.encryption;
+
+        if (
+          !encryptionInfo ||
+          !encryptionInfo.appletPrime ||
+          encryptionInfo.appletPrivateKey
+        ) {
+          this.gotoReviewerDashboard();
+        } else {
+          this.$set(this, 'appletPasswordDialog', {
+            applet: appletMeta,
+            visible: true,
+            requestedAction: this.gotoReviewerDashboard.bind(this)
+          });
+        }
+      })
+    },
+
+    gotoReviewerDashboard(appletKey = null) {
+      const appletId = this.responseAlertDialog.alert.appletId;
+      const appletMeta = this.accountApplets.find(applet => applet.id === appletId);
+
+      if (appletKey) {
+        this.$store.commit('setAppletPrivateKey', {
+          appletId,
+          key: appletKey,
+        });
+      }
+      this.$store.commit('setCurrentApplet', appletMeta);
+
+      const profileId = this.responseAlertDialog.alert.profileId;
+
+      this.$store.commit('setCurrentUsers', {
+        [profileId]: this.userProfiles[profileId]
+      });
+
+      this.$router.push({
+        path: `/applet/${appletId}/dashboard`,
+        query: { users: [profileId] },
+      }).catch(err => {});
+    },
+    onDuplicateApplet() {
+      api
+          .validateAppletName({
+            apiHost: this.$store.state.backend,
+            token: this.$store.state.auth.authToken.token,
+            name: `${this.currentApplet.name} (1)`
+          })
+          .then(resp => {
+            this.appletDuplicateDialog = true;
+            this.$refs.appletNameDialog.appletName = resp.data;
+          })
+    },
+    onSetAppletDuplicateName(appletName) {
+      api
+          .duplicateApplet({
+            apiHost: this.$store.state.backend,
+            token: this.$store.state.auth.authToken.token,
+            appletId: this.currentApplet.id,
+            options: {
+              name: appletName,
+            },
+          })
+          .then((resp) => {
+            this.appletDuplicateDialog = false;
+
+            this.dialogText = resp.data.message;
+            this.dialogTitle = this.$t('appletDuplication');
+            this.dialog = true;
+          });
+    },
+
+    onDeleteApplet() {
+      this.appletDeleteDialog = true;
+      this.appletPendingDelete = this.currentApplet;
+    },
+    deleteApplet() {
+      this.isSyncing = true;
+      this.loaderMessage = `Deleting applet ${this.appletPendingDelete.name}`;
+      api
+          .deleteApplet({
+            apiHost: this.$store.state.backend,
+            token: this.$store.state.auth.authToken.token,
+            appletId: this.currentApplet.id,
+          })
+          .then((resp) => {
+            this.isSyncing = false;
+            this.loaderMessage = "";
+            const applet = this.appletPendingDelete;
+            this.$store.commit('removeDeletedApplet',  applet);
+            this.$router.push("/dashboard").catch(err => {});
+          });
+    },
+
+    onTransferOwnership() {
+      this.ownershipDialog = true;
+    },
+    transferOwnership(ownershipEmail) {
+      api
+          .transferOwnership({
+            apiHost: this.$store.state.backend,
+            token: this.$store.state.auth.authToken.token,
+            appletId: this.currentApplet.id,
+            email: ownershipEmail,
+          })
+          .then((resp) => {
+            this.ownershipDialog = false;
+
+            this.dialogText = this.$t('requestSuccess', { ownershipEmail });
+            this.dialogTitle = this.$t('requestSent');
+            this.dialog = true;
+          })
+          .catch((err) => {
+            this.dialogText = this.$t('requestTransferFailed',);
+            this.dialogTitle = this.$t('requestFailed');
+            this.dialog = true;
+          });
     },
   },
 };

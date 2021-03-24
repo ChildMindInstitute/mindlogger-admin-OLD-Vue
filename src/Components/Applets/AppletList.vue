@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="applet-header pt-5">
-      <div class="filter">
+      <div class="data-filter">
         <v-text-field
             v-model="searchText"
             :label="$t('searchApplets')"
@@ -13,6 +13,45 @@
       </div>
     </div>
     <div class="ml-auto">
+        <v-menu
+          v-if="appletUploadEnabled"
+          offset-y
+        >
+          <template v-slot:activator="{ on }">
+            <v-btn
+              color="primary"
+              style="margin: auto;"
+              v-on="on"
+            >
+              Configure an Applet
+            </v-btn>
+          </template>
+
+          <v-list>
+            <v-list-item
+              @click="$emit('onBuildApplet')"
+            >
+              <v-list-item-title>
+                {{ 'Build an applet' }}
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              @click="$emit('onEditApplet')"
+            >
+              <v-list-item-title>
+                {{ 'Edit an applet' }}
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              @click="$emit('onAddAppletFromUrl')"
+            >
+              <v-list-item-title>
+                {{ 'Add applet from GitHub URL' }}
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
         <v-btn
           color="primary"
           class="mx-2 my-2"
@@ -21,7 +60,7 @@
           <v-icon
             dark
           >mdi-plus</v-icon>
-        New Folder
+        {{ $t('newFolder') }}
         </v-btn>
     </div>
     <div v-if="isSyncing" >
@@ -37,62 +76,77 @@
 
 
     <div class="d-flex">
-     <v-data-table
+      <v-data-table
           style="width: 100%"
           :headers="headers"
           :items="searchFilter(visibleItems)"
-          :hide-default-footer="true"
           :items-per-page="1000"
           depressed
           sort-by="calories"
           class="elevation-4"
           :loading="loading"
-          >
+          :footer-props="{
+            itemsPerPageText: $t('rowsPerPage'),
+            itemsPerPageAllText: $t('all'),
+            itemsPerPageOptions: [10, 50, 100, -1],
+          }"
+      >
         <template v-slot:item="{ item }">
-          <applet-item
-              v-on:expand-node="toggleExpand"
-              :headers="headers"
-              v-on:newfolder-created="onNewFolderCreated"
-              v-on:item-drag-started="dragStarted"
-              v-on:save-folder="onSaveFolder"
-              v-on:item-dropped="itemDropped"
-              v-on:pinStatusChanged="toggleAppletPin"
-              v-on:rename-completed="renameFolder"
-              :item="item"
-              :key="item.id + item.parentId"
-              v-on:unsaved-folder-operation="animateSaveInstructions"
-              v-on:row-selected="handleRowSelect"
-          >
-            <template v-slot:actions v-if="selectedRowId === item.id">
-              <applet-actions v-if="!item.isFolder" :key="item.id" :item="item"
-                    @onViewUsers="onViewUsers"
-                    @onViewGeneralCalendar="onViewGeneralCalendar"
-                    @onEditApplet="onEditApplet" 
-                    @onDeleteApplet="onDeleteApplet" 
-                    @onDuplicateApplet="onDuplicateApplet"
-                    @onRefreshApplet="onRefreshApplet"
-                    @removeFromFolder="removeAppletFromFolder"
-                    @onTransferOwnership="onTransferOwnership" />
-
-              <folder-actions v-else :key="item.id" :item="item"
-                    @onSave="onSaveFolder"
-                    @onDelete="deleteFolder" />
-            </template>
-            
-          </applet-item>
+          <template v-if="!item.isFolder">
+            <applet-item
+                :key="item.id + item.parentId"
+                :item="item"
+                :headers="headers"
+                v-on:item-drag-started="dragStarted"
+                v-on:item-dropped="itemDropped"
+                v-on:pinStatusChanged="toggleAppletPin"
+                v-on:applet-clicked="onViewUsers"
+                v-on:applet-hovered="handleAppletHovered"
+            >
+              <template v-slot:actions v-if="hoveredAppletId === item.id">
+                <applet-actions :key="item.id" :item="item"
+                      @onViewUsers="onViewUsers"
+                      @onViewGeneralCalendar="onViewGeneralCalendar"
+                      @onEditApplet="onEditApplet" 
+                      @onDeleteApplet="onDeleteApplet" 
+                      @onDuplicateApplet="onDuplicateApplet"
+                      @onRefreshApplet="onRefreshApplet"
+                      @removeFromFolder="removeAppletFromFolder"
+                      @onTransferOwnership="onTransferOwnership" />
+              </template>
+            </applet-item>
+          </template>
+          <template v-else>
+            <folder-item
+                :key="item.id + item.parentId"
+                :item="item"
+                :headers="headers"
+                v-on:expand-node="toggleExpand"
+                v-on:item-drag-started="dragStarted"
+                v-on:item-dropped="itemDropped"
+                v-on:save-folder="onSaveFolder"
+                v-on:rename-completed="renameFolder"
+                v-on:unsaved-folder-operation="animateSaveInstructions"
+                v-on:folder-selected="handleFolderSelected"
+            >
+              <template v-slot:actions v-if="selectedFolderId === item.id">
+                <folder-actions :key="item.id" :item="item"
+                      @onSave="onSaveFolder"
+                      @onDelete="deleteFolder" />
+              </template>
+            </folder-item>
+          </template>
         </template>
         <template v-slot:no-data>
-          <v-btn color="primary"> No data</v-btn>
-    </template>
+          <h4> No data</h4>
+        </template>
     </v-data-table>
     </div>
 
-  
-   
     <ConfirmationDialog
         v-model="appletDeleteDialog"
-        :dialogText="deleteAppletDialogText"
-        :title="deleteAppletDialogTitle"
+        :dialogText="$t('deleteAppletConfirmation')"
+        :title="$t('deleteApplet')"
         @onOK="deleteApplet"
     />
 
@@ -109,47 +163,11 @@
         @set-value="onSetAppletDuplicateName"
     />
 
-    <v-dialog
+    <TransferOwnershipDialog
         v-model="ownershipDialog"
-        persistent
-        max-width="600px"
-    >
-      <v-card>
-        <v-card-title>
-          <span class="headline">{{ $t('transferAppletOwnership') }}</span>
-        </v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-col cols="12">
-              <v-text-field
-                  v-model="ownershipEmail"
-                  class="ownershipField"
-                  :label="$t('ownerEmail')"
-                  required
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer/>
-          <v-btn
-              color="blue darken-1"
-              text
-              @click="ownershipDialog = false"
-          >
-            {{ $t('close') }}
-          </v-btn>
-          <v-btn
-              color="blue darken-1"
-              text
-              :disabled="!emailRules.test(ownershipEmail)"
-              @click="transferOwnership"
-          >
-            {{ $t('submit') }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+        @submit="transferOwnership"
+        @close="ownershipDialog = false"
+    />
 
     <AppletPassword
         v-model="appletPasswordDialog"
@@ -159,38 +177,21 @@
   </div>
 </template>
 
+<style scoped>
+  .data-filter {
+    width: 25%;
+    padding-left: 5px;
+  }
+</style>
 <style>
-
   .applet-header {
     display: flex;
     justify-content: space-between;
-  }
-  .filter {
-    flex: 1;
-    width: 80%;
   }
   .right-action {
     flex: 1;
     text-align: right;
     margin-right: 1vw;
-  }
-  .filter .search-input {
-    margin: 10px;
-    width: 50%;
-    display: inline-block;
-  }
-  .filter span {
-    color: rgb(159, 110, 240);
-    font-weight: 600;
-    margin-left: 20px;
-  }
-  @media only screen and (max-width: 767px) {
-    .filter .search-input {
-      width: 80%;
-    }
-    .filter span {
-      display: none;
-    }
   }
 
   @media only screen and (min-width: 1200px) {
@@ -212,15 +213,16 @@ import encryption from "../Utils/encryption/encryption.vue";
 import AppletName from "../Utils/dialogs/AppletName";
 import ConfirmationDialog from '../Utils/dialogs/ConfirmationDialog';
 import AppletPassword from "../Utils/dialogs/AppletPassword.vue";
+import TransferOwnershipDialog from '../Utils/dialogs/TransferOwnershipDialog.vue';
 
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import fr from 'javascript-time-ago/locale/fr';
 import AppletItem from "./AppletItem";
+import FolderItem from "./FolderItem";
 import AppletDirectoryManager from "./AppletDirectoryManager.js";
 import AppletActions from "./AppletActions.vue";
 import FolderActions from "./FolderActions.vue";
-
 
 
 TimeAgo.addLocale(en);
@@ -231,11 +233,13 @@ export default {
   mixins: [AppletDirectoryManager],
   components: {
     AppletItem,
+    FolderItem,
     AppletName,
     AppletActions,
     FolderActions,
     ConfirmationDialog,
     AppletPassword,
+    TransferOwnershipDialog,
   },
   props: {
     loading: {
@@ -246,7 +250,6 @@ export default {
       type: Array,
       required: true
     },
-
   },
   data() {
     return {
@@ -287,12 +290,11 @@ export default {
       appletDeleteDialog: false,
       appletPendingDelete: undefined,
       ownershipDialog: false,
-      ownershipEmail: '',
-      emailRules: /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/,
       newProtocolUrl: "",
       appletUploadDialog: false,
       timeAgo: new TimeAgo(this.$i18n.locale.replace('_', '-')),
-      selectedRowId: null,
+      selectedFolderId: null,
+      hoveredAppletId: null,
     }
   },
   mounted() {
@@ -304,14 +306,16 @@ export default {
       return this.$store.state.fullDirectory;
     },
 
-    deleteAppletDialogTitle() {
-      return this.$t('deleteApplet');
-    },
-    deleteAppletDialogText() {
-      return this.$t('deleteAppletConfirmation');
-    },
     accountApplets() {
       return this.$store.state.currentAccount.applets;
+    },
+    appletUploadEnabled() {
+      for (let applet of this.accountApplets) {
+        if (applet.roles.includes('manager') || applet.roles.includes('editor')) {
+          return true;
+        }
+      }
+      return false;
     },
     formattedApplets() {
       const formatted = [];
@@ -388,8 +392,11 @@ export default {
         this.toggleExpansion(_item);
       });
     },
-    handleRowSelect(item) {
-      this.selectedRowId = item.id;
+    handleFolderSelected(item) {
+      this.selectedFolderId = item.id;
+    },
+    handleAppletHovered(item) {
+      this.hoveredAppletId = item.id;
     },
     updateVisibleItems() {
       this.visibleItems = this.flattenedDirectoryItems.filter(
@@ -401,7 +408,7 @@ export default {
       const userId = this.$store.state.currentUser['_id'] || ''
       const folder = {
         id: Math.random() + Math.random(),
-        name: "New Folder",
+        name: this.$i18n.t('newFolder'),
         isFolder: true,
         description: "",
         isExpanded: false,
@@ -429,10 +436,10 @@ export default {
     },
     async removeAppletFromFolder(applet) {
       this.draggedItem = applet;
-      await this.doppedOnRoot();
+      await this.droppedOnRoot();
     },
 
-    async doppedOnRoot() {
+    async droppedOnRoot() {
       this.isRootActive = false;
       if (!this.draggedItem.parentId) return; // already belongs to the root
 
@@ -478,7 +485,7 @@ export default {
       if (destination.isFolder && this.draggedItem.isFolder) return;
 
       if (isMovingAppletOutOfFolders) {
-        await this.doppedOnRoot();
+        await this.droppedOnRoot();
         return;
       }
 
@@ -571,13 +578,10 @@ export default {
         this.flattenDirectory(_item);
       });
     },
-    rowClicked(row) {
-      this.selectedRowId = row.id;
-    },
     setAppletPassword(appletPassword) {
       let apiHost = this.$store.state.backend;
       let token = this.$store.state.auth.authToken.token;
-      let appletId = this.selectedRowId;
+      let appletId = this.hoveredAppletId;
       const encryptionInfo = encryption.getAppletEncryptionInfo({
         appletPassword: appletPassword,
         accountId: this.$store.state.currentAccount.accountId,
@@ -616,17 +620,17 @@ export default {
           });
     },
 
-    transferOwnership() {
+    transferOwnership(ownershipEmail) {
       api
           .transferOwnership({
             apiHost: this.$store.state.backend,
             token: this.$store.state.auth.authToken.token,
-            appletId: this.selectedRowId,
-            email: this.ownershipEmail,
+            appletId: this.hoveredAppletId,
+            email: ownershipEmail,
           })
           .then((resp) => {
             this.ownershipDialog = false;
-            this.$emit("onOwnerShipInviteSuccessful", this.ownershipEmail);
+            this.$emit("onOwnerShipInviteSuccessful", ownershipEmail);
           })
           .catch((err) => {
             this.$emit("onOwnerShipInviteError");
@@ -640,7 +644,7 @@ export default {
           .deleteApplet({
             apiHost: this.$store.state.backend,
             token: this.$store.state.auth.authToken.token,
-            appletId: this.selectedRowId,
+            appletId: this.hoveredAppletId,
           })
           .then((resp) => {
             this.isSyncing = false;
@@ -653,7 +657,7 @@ export default {
     },
 
     editApplet() {
-      this.currentApplet = this.formattedApplets.find(applet => applet.id === this.selectedRowId);
+      this.currentApplet = this.formattedApplets.find(applet => applet.id === this.hoveredAppletId);
       this.$router.push({
         name: 'Builder',
         params: {isEditing: true},
@@ -671,7 +675,7 @@ export default {
           .duplicateApplet({
             apiHost: this.$store.state.backend,
             token: this.$store.state.auth.authToken.token,
-            appletId: this.selectedRowId,
+            appletId: this.hoveredAppletId,
             options: {
               name: appletName,
             },
@@ -685,7 +689,7 @@ export default {
       this.appletPasswordDialog = true;
       this.requestedAction = this.setAppletPassword.bind(this);
     },
-    onTransferOwnership(applet) {
+    onTransferOwnership() {
       this.ownershipDialog = true;
     },
     

@@ -83,6 +83,7 @@
         <v-btn
           color="primary"
           text
+          :disabled="!profileList[0] || !profileList[0].roles.length"
           @click="onSaveUserRole()"
         >
           {{ $t('save') }}
@@ -170,6 +171,7 @@
           roles: this.employer[appletId].roles.filter(role => role != 'user').map(role => this.allRoles.find(localized => localized.name === role))
         });
       }
+
     },
     methods: {
       onSaveUserRole() {

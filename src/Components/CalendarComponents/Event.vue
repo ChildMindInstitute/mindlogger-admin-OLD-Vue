@@ -79,7 +79,7 @@
         <v-flex xs12 >
           <v-tabs v-model="tab" class="text--primary">
             <v-tab v-if="hasDetails" href="#details">
-              {{ labels.tabs.details }}
+              {{ $t('activityAccessOptions') }}
             </v-tab>
 
             <v-tab v-if="showForecast" href="#forecast">
@@ -146,6 +146,11 @@
                     @updatedNotification="
                       (n) => {
                         details.notifications = n;
+                      }
+                    "
+                    @updatedReminder="
+                      (r) => {
+                        details.reminder = r;
                       }
                     "
                   />
@@ -400,6 +405,15 @@ export default {
           minute: 0,
           access: false,
           allow: false,
+        }
+      );
+    },
+    reminder() {
+      return (
+        this.details.reminder || {
+          valid: false,
+          days: 0,
+          time: "",
         }
       );
     },
@@ -796,6 +810,8 @@ export default {
       } else {
         evDetails.idleTime = this.scheduledIdleTime;
       }
+
+      evDetails.reminder = this.reminder;
 
       if (Object.keys(this.$store.state.currentUsers).length) {
         evDetails.users = Object.keys(this.$store.state.currentUsers);

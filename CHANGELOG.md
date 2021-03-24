@@ -5,11 +5,113 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.6.1] - 2021-01-26
+## [0.5.39] - 2021-03-18
+- Fix localization issue
+
+## [0.5.38] - 2021-03-16
+- Fix response tab
+
+## [0.5.37] - 2021-03-15
+- Fix response tab
+
+## [0.5.36] - 2021-03-14
+- Build response data table for free text items
+
+## [0.5.35] - 2021-03-11
+- Add weekday repeat option
+
+## [0.5.33] - 2021-03-04
+- Add weekday repeat option
+
+## [0.5.32] - 2021-02-04
+- Updated getSchedule api endpoints
+
+## [0.5.31] - 2021-02-04
+- Updated api endpoints for app optimization
+
+## [0.5.30] - 2021-02-17
+- Fixed undefined events
+
+## [0.5.29] - 2021-02-17
+- Fixed header overflow
+
+## [0.5.28] - 2021-02-17
+- Fixed reminder settings
+
+## [0.5.27] - 2021-02-16
+- Resolved dashboard tabs
+- Resolved input type for reminder day
+
+## [0.5.26] - 2021-02-16
+- Modified line thickness
+
+## [0.5.25] - 2021-02-13
+- Fixed edit roles dialog
+
+## [0.5.24] - 2021-02-14
+- Resolved tab switching
+- Resolved removing events
+
+## [0.5.23] - 2021-02-13
+- Fixed pin button in applet list
+
+## [0.5.22] - 2021-02-13
+- Fixed table footer on applet tab
+
+## [0.5.20] - 2021-02-11
+- Fixed table footer on applet tab
+- Fix user tabs in userList page
+
+## [0.5.19] - 2021-02-08
+- Fix hidden applet tab
+- Added reminder in scheduling modal
+- Fixed account name on invitation info
+
+## [0.5.18] - 2021-02-02
+- Fix hidden applet tab
+
+## [0.5.17] - 2021-01-30
+- Hide tabs that contain no data
+
+## [0.5.16] - 2021-01-30
+- Fix the position of versions
+
+## [0.5.15] - 2021-01-29
+- Fixed items with no response options
+
+## [0.5.14] - 2021-01-28
+- Displayed multi token values in a token chart
+
+## [0.5.13] - 2021-01-28
+- Fixed long applet name
+- Fixed empty field in event card
+
+## [0.5.12] - 2021-01-26
+- Fixed total amount of token
+
+## [0.5.11] - 2021-01-26
+- Fixed duplicated versions
+
+## [0.5.10] - 2021-01-23
 - Lastest => Latest
 
-## [0.6.0] - 2021-01-21
-- Production release
+## [0.5.9] - 2021-01-21
+- Remove "Event Details" text and replace with "Activity Access Options"
+- Calendar in header's tooltip should be "View General Calendar"
+- The Titles of the calendar are not updated correctly to show general vs individual
+
+## [0.5.8] - 2021-01-20
+- Remove "Showing data from" text
+- Show version number on each side of version bar (ex: 0.01 | 0.02) on graphs
+- Remove "Show Version Changes" on/off checkbox and always show version bars
+- Show "Version text in line with the drop-down
+- Show summary line in line with the response option lines
+- Update text when Token data is not available to " No token data available for this activity"
+- Applets that have not collected any data yet from the user should read "No data available to show yet"
+- If there is only one activity, remove the expand all option
+
+## [0.5.7] - 2021-01-11
+- Fix status of data availability
 
 ## [0.5.6] - 2021-01-12
 - Fixed timeout option

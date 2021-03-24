@@ -11,7 +11,7 @@ const signIn = ({ apiHost, user, password }) =>
     url: `${apiHost}/user/authentication`,
     headers: { "Girder-Authorization": `Basic ${btoa(`${user}:${password}`)}` },
     params: {
-      lang: store.state.currentLanguage,
+      lang: store.state.currentLanguage.substr(0, 2),
     },
   });
 
@@ -37,7 +37,7 @@ const resetPassword = ({ apiHost, body }) =>
 const setSchedule = ({ apiHost, token, id, data }) =>
   axios({
     method: "put",
-    url: `${apiHost}/applet/${id}/schedule`,
+    url: `${apiHost}/applet/${id}/setSchedule`,
     headers: {
       "Girder-Token": token,
     },
@@ -53,10 +53,13 @@ const getUserDetails = ({ apiHost, token }) =>
   });
 const getSchedule = ({ apiHost, token, id }) =>
   axios({
-    method: "get",
-    url: `${apiHost}/applet/${id}/schedule?getAllEvents=true`,
+    method: "put",
+    url: `${apiHost}/applet/${id}/getSchedule?getAllEvents=true`,
     headers: {
       "Girder-Token": token,
+    },
+    params: {
+      localEvents: null,
     },
   });
 
@@ -534,6 +537,16 @@ const togglePin = (apiHost, token, applet, isPinned) => {
     })
 }
 
+const updateAlertStatus = (apiHost, token, alertId) => {
+  return axios({
+    method: 'put',
+    url: `${apiHost}/account/updateAlertStatus/${alertId}`,
+    headers: {
+      'Girder-Token': token
+    }
+  })
+}
+
 export default {
   signIn,
   signUp,
@@ -584,5 +597,6 @@ export default {
   updateFolder,
   deleteFolder,
   togglePin,
+  updateAlertStatus,
 }
 </script>

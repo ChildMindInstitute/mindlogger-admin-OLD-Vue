@@ -3,10 +3,27 @@
     
     <hr style="margin-bottom: 1.5em; margin-top: 1.5em; height: 1px" />
 
-    <v-checkbox
-      v-model="details.useNotifications"
-      :label="$t('turnOnNotifs')"
-    />
+    <div class="ds-notifications">
+      <v-checkbox
+        v-model="details.useNotifications"
+        class="ds-notification-cell"
+        :label="$t('turnOnNotifs')"
+      />
+      
+      <v-checkbox 
+        v-if="details.useNotifications"
+        v-model="reminder.valid" 
+        class="ds-notification-cell"
+        :label="$t('reminderNotif')" 
+      />
+
+      <v-checkbox 
+        v-if="details.useNotifications"
+        v-model="allowRandom" 
+        class="ds-notification-cell"
+        :label="$t('randomNotif')" 
+      />
+    </div>
 
     <div v-if="details.useNotifications">
       <div
@@ -15,7 +32,31 @@
       >
         <!-- Start notification at -->
         <div class="ds-time-cell">
-          <label>{{ $t("startNotifAt") }}</label>
+          <div class="ds-notification-row">
+            <label>{{ $t("startNotifAt") }}</label>
+            <div class="ds-notification-row">
+              <v-btn 
+                depressed 
+                color="secondary" 
+                class="ds-btn-cell"
+                fab
+                small 
+                @click="add(index)"
+              >
+                <v-icon dark>mdi-plus</v-icon>
+              </v-btn>
+              <v-btn
+                v-if="index"
+                depressed
+                color="secondary"
+                fab
+                small
+                @click="remove(index)"
+              >
+                <v-icon dark>mdi-minus</v-icon>
+              </v-btn>
+            </div>
+          </div>
           <v-text-field
             v-model="notification.start"
             :disabled="!details.useNotifications"
@@ -27,10 +68,12 @@
           />
         </div>
 
-        <v-checkbox v-model="notification.random" :label="$t('randomNotif')" />
+        <label class="ds-notification-row" v-if="allowRandom">
+          {{ $t("randomizeEnds") }}
+        </label>
 
-        <label>{{ $t("randomizeEnds") }}</label>
         <v-text-field
+          v-if="allowRandom"
           v-model="notification.end"
           :disabled="!notification.random"
           single-line
@@ -39,20 +82,30 @@
           text
           type="time"
         />
+      </div>
 
-        <v-btn depressed color="secondary" fab small @click="add(index)">
-          <v-icon dark>mdi-plus</v-icon>
-        </v-btn>
-        <v-btn
-          v-if="index"
-          depressed
-          color="secondary"
-          fab
-          small
-          @click="remove(index)"
-        >
-          <v-icon dark>mdi-minus</v-icon>
-        </v-btn>
+      <div class="ds-reminder-container" v-if="reminder.valid">
+        <div class="ds-reminder-label">{{ $t("reminder") }}</div>
+
+        <div class="ds-reminder-flex">
+          <label>
+            {{ $t("activityCompletion") }}
+            <input type="number" class="ds-reminder-day" v-model="reminder.days" />
+            {{ $t("consecutiveDays") }}
+          </label>
+        </div>
+
+        <div class="ds-reminder-flex">
+          <v-text-field
+            type="time"
+            class="ds-reminder-time"
+            v-model="reminder.time"
+            single-line
+            hide-details
+            solo
+            text
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -73,7 +126,13 @@ export default {
   },
   data() {
     return {
+      allowRandom: false,
       notificationTimes: [],
+      reminder: this.details.reminder || {
+        valid: false,
+        days: 0,
+        time: "",
+      },
       notificationItem: {
         start: null,
         end: null,
@@ -89,6 +148,25 @@ export default {
         this.$emit("updatedNotification", this.notificationTimes);
       },
     },
+    reminder: {
+      deep: true,
+      handler() {
+        this.$emit("updatedReminder", this.reminder);
+      }
+    },
+    allowRandom: function(val) {
+      if (!this.notificationTimes.length) return;
+
+      if (val) {
+        this.notificationTimes.forEach(notification => {
+          notification.random = true;
+        });
+      } else {
+        this.notificationTimes.forEach(notification => {
+          notification.random = false;
+        });
+      }
+    }
   },
 
   created() {
@@ -99,6 +177,10 @@ export default {
   mounted() {
     if (this.details.notifications) {
       this.notificationTimes = this.details.notifications;
+      
+      if (this.notificationTimes.length) {
+        this.allowRandom = this.notificationTimes[0].random;
+      }
     }
   },
   methods: {
@@ -117,3 +199,53 @@ export default {
   },
 };
 </script>
+
+<style scoped lang="scss">
+.ds-notifications {
+  display: flex;
+  justify-content: flex-start;
+  padding: 0 8px;
+}
+
+.ds-notification-cell {
+  margin-right: 50px;
+}
+
+.ds-btn-cell {
+  margin-right: 10px;
+}
+
+.ds-notification-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px;
+}
+
+.ds-reminder-label {
+  margin-bottom: 10px;
+}
+
+.ds-reminder-flex {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+}
+
+.ds-reminder-time {
+  max-width: 125px;
+}
+
+.ds-reminder-container {
+  padding: 20px 5px 5px 5px;
+}
+
+.ds-reminder-day {
+  margin: 0 7px;
+  border-bottom: 1px solid grey;
+  padding: 0;
+  width: 35px;
+  font-size: 16px;
+  text-align: center;
+}
+</style>

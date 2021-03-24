@@ -8,6 +8,7 @@
         itemsPerPageText: $t('rowsPerPage'),
         itemsPerPageAllText: $t('all'),
       }"
+      :no-data-text="$t('noData')"
     />
   </v-container>
 </template>
@@ -41,7 +42,7 @@ export default {
     return {
       headers: [
         {
-          text: this.$i18n.t("institutionalID"),
+          text: this.$i18n.t("secretUserId"),
           value: "mrn",
           sortable: true,
         },

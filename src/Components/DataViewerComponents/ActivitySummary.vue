@@ -4,13 +4,13 @@
   >
     <svg
       :id="plotId"
-      :width="width"
       :height="height"
+      width="100%"
     >
       <g class="labels">
         <text
           :y="padding.top + radius + 15/2"
-          :x="labelWidth/2"
+          :x="labelWidth/2 + 20"
           :font-size="itemPadding"
           text-anchor="middle"
           font-weight="bold"
@@ -35,7 +35,7 @@
 
       <g
         class="content"
-        :transform="`translate(${labelWidth + itemPadding - 20}, 0)`"
+        :transform="`translate(${labelWidth + itemPadding + 5}, 0)`"
       >
         <g class="x-axis" />
         <g class="versions" />
@@ -50,6 +50,7 @@
 .activity-summary {
   display: inline-block;
   position: relative;
+  width: 100%;
   user-select: none;
 }
 
@@ -174,7 +175,8 @@ export default {
 
       this.svg
         .select('.x-axis')
-        .style('stroke-width', 2)
+        .style('stroke-width', 1.2)
+        .style('color', '#373737')
         .attr('transform', `translate(0, ${this.radius + this.padding.top})`)
         .call(xAxis);
     },
@@ -188,11 +190,19 @@ export default {
       this.svg
         .select('.responses')
         .selectAll('circle')
-        .data(this.data.filter(d => this.selectedVersions.indexOf(d.version) >= 0))
+        .data(this.data.filter(d => this.selectedVersions.indexOf(d.version) >= 0 && d.date >= this.focusExtent[0] && d.date <= this.focusExtent[1]))
         .join('circle')
         .attr('fill', this.color)
         .attr('cx', d => {
-          return this.x(d.date);
+          const dataVersion = this.formattedVersions.find(v => v.version === d.version );
+          let responseDate = new Date(d.date);
+
+          if (dataVersion.updated) {
+            const offset = this.versionsLength[new Date(dataVersion.updated).getDay()] / 2;
+            responseDate = new Date(d.date).setHours(new Date (dataVersion.updated).getHours() + offset);
+          }
+
+          return this.x(responseDate);
         })
         .attr('cy', this.radius + this.padding.top)
         .attr('r', d => this.x(d.date) >= 0 ? this.radius : 0);
@@ -200,3 +210,4 @@ export default {
   }
 }
 </script>
+ 

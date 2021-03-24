@@ -131,7 +131,10 @@ export default {
       if (this.currentAppletData) {
         const activityTypeColorMap = {}
         let index = 0;
-        return _.map(this.currentAppletData.activities, (a, URI) => {
+        const activities = _.pickBy(this.currentAppletData.activities, (a) => (
+          !(_.get(a, ["reprolib:terms/isPrize", 0, "@value"], false))
+        ));
+        return _.map(activities, (a, URI) => {
           const name =
             a["http://www.w3.org/2004/02/skos/core#prefLabel"][0]["@value"];
           const color = this.$dayspan.colors[index].text;
@@ -169,7 +172,7 @@ export default {
   mounted() {
     let process;
     if (!this.isLatestApplet(this.currentAppletMeta)) {
-      process = this.loadApplet(this.currentAppletMeta.id).then(data => data.applet.schedule);
+      process = this.loadApplet(this.currentAppletMeta.id).then(data => data.schedule);
     } else {
       process = api.getSchedule({
         apiHost: this.apiHost,
@@ -228,9 +231,12 @@ export default {
       applet.schedule = schedule;
       this.$store.commit("setApplet", applet);
       this.$store.commit("resetUpdatedEventId");
+      const events = _.filter(schedule.events, (event) => (
+        _.filter(this.activities, (act => act.URI == event.data.activity_id)).length > 0
+      ));
       this.$store.commit(
         "setCachedEvents",
-        schedule.events
+        events
       );
       this.loading = false;
       this.saveSuccess = true;
@@ -250,14 +256,22 @@ export default {
           },
         },
       });
+
       if (res === "Yes") {
         const schedule = this.currentAppletData.applet.schedule;
+        const userIds = Object.keys(this.$store.state.currentUsers);
+        const events = [];
+
         for (let event of schedule.events) {
           if (event["id"]) {
-            this.$store.commit("addRemovedEventId", event["id"]);
+            if (this.arraysEqual(event.data.users, userIds)) {
+              this.$store.commit("addRemovedEventId", event["id"]);
+            } else {
+              events.push(event);
+            }
           }
         }
-        schedule.events = [];
+        schedule.events = events;
 
         this.$store.commit("setSchedule", schedule);
         this.$store.commit("setCachedEvents", schedule.events);
@@ -294,6 +308,24 @@ export default {
       });
       return appletSchedule;
     },
+
+    // Utilities
+
+    arraysEqual(a, b) {
+      if (!a && !b.length) return true;
+      if (!a && b.length) return false;
+      if (a.length !== b.length) return false;
+
+      // If you don't care about the order of the elements inside
+      // the array, you should sort both arrays here.
+      // Please note that calling sort on an array will modify that array.
+      // you might want to clone your array first.
+
+      for (var i = 0; i < a.length; ++i) {
+        if (a[i] !== b[i]) return false;
+      }
+      return true;
+    }
   },
 };
 </script>

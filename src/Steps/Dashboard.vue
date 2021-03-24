@@ -25,25 +25,6 @@
             </v-tab>
           </template>
         </v-tabs>
-
-        <v-tooltip
-          v-if="appletUploadEnabled"
-          top
-        >
-          <template v-slot:activator="{ on }">
-            <v-btn
-              color="primary"
-              rounded
-              small
-              style="margin: auto;"
-              v-on="on"
-              @click="appletUploadDialog = true"
-            >
-              <v-icon>mdi-plus</v-icon>
-            </v-btn>
-          </template>
-          <span>{{ $t("createUploadApplet") }}</span>
-        </v-tooltip>
       </div>
 
       <v-tabs-items v-model="selectedTab">
@@ -59,11 +40,15 @@
               :loading="tabData[tab].loading"
               :applets="tabData[tab].list"
               @refreshAppletList="getAccountData"
+              @removeDeletedApplet="onRemoveApplet"
               @onAppletPasswordChanged="onAppletPasswordChanged"
               @onOwnerShipInviteSuccessful="onOwnerShipInviteSuccessful"
               @onOwnerShipInviteError="onOwnerShipInviteError"
               @onDuplicateRequestReceived="onDuplicateRequestReceived"
               @onRefreshAppletRequestReceived="onRefreshAppletRequestReceived"
+              @onBuildApplet="onBuildApplet"
+              @onEditApplet="appletEditDialog=true"
+              @onAddAppletFromUrl="appletURLDialog=true"
             />
           </v-card>
           <v-card
@@ -100,29 +85,47 @@
     >
       <h2> {{ $t("welcomeMindLogger") }} </h2>
       <p>
+        {{ $t("ownSpaceDescription") }}
+      </p>
+      <p>
         {{ $t("getStarted") }}
-      </p><p>
-        <v-tooltip top>
+      </p>
+      <p>
+        <v-menu
+          offset-x
+        >
           <template v-slot:activator="{ on }">
             <v-btn
               color="primary"
+              rounded
               x-large
-              elevation="11"
-              light
+              style="margin: auto;"
               v-on="on"
-              @click="appletUploadDialog = true"
             >
               {{ $t("clickHere") }}
             </v-btn>
           </template>
-          <span>{{ $t("createUploadApplet") }}</span>
-        </v-tooltip>
-      </p><p>
-        {{ $t("navigateSpaceText") }}
-      </p>
 
+          <v-list>
+            <v-list-item
+              @click="onBuildApplet"
+            >
+              <v-list-item-title>
+                {{ 'Build an applet' }}
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              @click="appletURLDialog=true"
+            >
+              <v-list-item-title>
+                {{ 'Add applet from GitHub URL' }}
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </p>
       <p>
-        {{ $t("ownSpaceDescription") }}
+        {{ $t("navigateSpaceText") }}
       </p>
     </v-card>
 
@@ -141,6 +144,15 @@
       v-model="appletPasswordDialog"
       :hasConfirmPassword="true"
       @set-password="addNewApplet"
+    />
+
+    <AppletUrl
+      v-model="appletURLDialog"
+      @set-value="onAddApplet"
+    />
+
+    <EditAppletDialog
+      v-model="appletEditDialog"
     />
   </v-container>
 </template>
@@ -180,6 +192,8 @@ import AppletUpload from "../Components/Utils/dialogs/AppletUpload.vue";
 import AppletPassword from "../Components/Utils/dialogs/AppletPassword.vue";
 import encryption from "../Components/Utils/encryption/encryption.vue";
 import AppletDirectoryManager from "@/Components/Applets/AppletDirectoryManager.js";
+import AppletUrl from '../Components/Utils/dialogs/AppletUrlUploader';
+import EditAppletDialog from '../Components/Utils/dialogs/EditAppletDialog';
 
 window.Parse = Parse;
 window.Day = Day;
@@ -193,6 +207,8 @@ export default {
     AppletUpload,
     AppletPassword,
     UserList,
+    AppletUrl,
+    EditAppletDialog,
   },
   data: () => ({
     sampleProtocols: config.protocols,
@@ -203,7 +219,6 @@ export default {
     dialogTitle: "",
     selectedTab: null,
     tabs: [],
-    appletUploadEnabled: false,
     tabNameToRole: {
       users: 'user',
       reviewers: 'reviewer',
@@ -214,6 +229,8 @@ export default {
     tabData: {},
     appletUploadDialog: false,
     appletPasswordDialog: false,
+    appletURLDialog: false,
+    appletEditDialog: false,
     newProtocolURL: "",
   }),
   computed: {
@@ -228,38 +245,21 @@ export default {
     },
   },
   watch: {
+    $route(to, from) {
+      this.status = 'loading';
+      this.getAccountData();
+    },
     accountApplets(newApplets, oldApplets) {
-      const availableTabs = [];
       this.appletUploadEnabled = false;
-      if (newApplets.length) {
-        availableTabs.push('applets');
-      }
+
       for (let applet of newApplets) {
-        /** managers can view others */
-        if (applet.roles.includes('manager')) {
-          availableTabs.push('users', 'reviewers', 'editors', 'coordinators', 'managers');
-        }
-        /** reviewers can view users */
-        if (applet.roles.includes('reviewer') || applet.roles.includes('coordinator')) {
-          availableTabs.push('users');
-        }
         /** manager and editors can view applets */
         if (applet.roles.includes('editor') || applet.roles.includes('manager')) {
           this.appletUploadEnabled = true;
         }
       }
-      this.tabs = [];
-      for (let tab of ['applets', 'users', 'reviewers', 'editors', 'coordinators', 'managers']) {
-        if (availableTabs.indexOf(tab) >= 0) {
-          this.tabs.push(tab);
-        }
-      }
-    },
-    $route(to, from) {
-      this.status = 'loading';
-      this.getAccountData();
-    },
-  },
+    }
+  },  
   mounted() {
     for (let tab of ['applets', 'users', 'reviewers', 'editors', 'coordinators', 'managers']) {
       this.$set(this.tabData, tab, {
@@ -271,6 +271,25 @@ export default {
     this.getAccountData();
   },
   methods: {
+    setVisibleTabs() {
+      this.tabs = [];
+
+      if (this.accountApplets.length && !this.tabs.find(tab => tab === 'applets')) {
+        this.tabs.push('applets');
+      }
+      for (let tab of ['users', 'reviewers', 'editors', 'coordinators', 'managers']) {
+        const role = this.tabNameToRole[tab];
+
+        this.getUserList(role).then(resp => {
+          if (resp.data.total > 0 && !this.tabs.includes(tab)) {
+            this.tabs.push(tab);
+          }
+        });
+      }
+    },
+    onRemoveApplet() {
+      this.setVisibleTabs();
+    },
     onSwitchTab(tab) {
       if (tab == 'applets') {
         this.getAccountData();
@@ -327,6 +346,7 @@ export default {
             loading: false
           });
           await this.setupApplets();
+          this.setVisibleTabs();
           this.status = "ready";
         })
         .catch((err) => {
@@ -342,6 +362,7 @@ export default {
     },
 
     onAddApplet(protocolUrl) {
+      this.appletURLDialog = false;
       this.appletUploadDialog = false;
       this.appletPasswordDialog = true;
       this.newProtocolURL = protocolUrl;
@@ -414,7 +435,17 @@ export default {
       this.dialogText = message;
       this.dialogTitle = this.$t('refreshing');
       this.dialog = true;
-    }
+    },
+    onBuildApplet() {
+      this.$store.commit('setCurrentApplet', null);
+      this.$store.commit('setCurrentUsers', {});
+
+      this.$router.push({
+        name: 'Builder',
+        params: {isEditing: false},
+      }).catch(err => {
+      });
+    },
   },
 };
 </script>

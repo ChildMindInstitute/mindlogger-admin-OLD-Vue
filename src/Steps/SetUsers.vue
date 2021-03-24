@@ -80,6 +80,7 @@
               :currentRole="tabNameToRole[tab]"
               :reloading="tabData[tab].loading"
               @userDataReloaded="tabData[tab].loading = false"
+              @onReuploadResponse="responseReUploadEvent"
               @onEditRoleSuccessfull="onEditRoleSuccessfull"
             />
           </v-card>
@@ -265,17 +266,20 @@ export default {
       this.status = 'ready';
 
       this.$store.commit('setCurrentRetentionSettings', this.$store.state.currentAppletData.applet.retentionSettings);
+    });
 
-      if (this.hasRoles('manager', 'coordinator', 'reviewer')) {
-        this.tabs.push('users');
-      }
-      if (this.hasRoles('manager')) {
-        this.tabs.push('reviewers', 'editors', 'coordinators', 'managers');
-      }
-      if (this.hasRoles('manager', 'coordinator')) {
-        this.tabs.push('invitation');
-      }
-    })
+    for (let tab of ['managers', 'coordinators', 'editors', 'reviewers', 'users']) {
+      const role = this.tabNameToRole[tab];
+
+      this.getAppletUsers(role).then(resp => {
+        if (resp.data.total > 0) {
+          this.tabs.unshift(tab);
+          if ((tab === 'coordinators' || tab === 'managers') && !this.tabs.includes('invitation')) {
+            this.tabs.push('invitation');
+          }
+        }
+      });
+    }
   },
   methods: {
     onRetentionSettingsClose() {
@@ -382,7 +386,8 @@ export default {
           ) {
             this.setAccountName(invitationOptions.accountName);
           }
-          return this.onSwitchTab(this.tabs[this.selectedTab])
+
+          return this.onSwitchTab('invitation');
         })
         .then(() => {
           this.status = 'ready';
@@ -471,6 +476,13 @@ export default {
                 {}
               ),
               userPublicKey: userData.refreshRequest.userPublicKey,
+              tokenUpdates: (data.tokens && data.tokens.tokenUpdates || []).reduce(
+                (accumulator, update) => {
+                  accumulator[update.id] = update.data;
+                  return accumulator;
+                },
+                {}
+              )
             })
           );
 
@@ -482,7 +494,7 @@ export default {
               user: userData._id,
               data: form,
             })
-            .then(({message}) => {
+            .then(({ message }) => {
               this.onSwitchTab(this.tabs[this.selectedTab]).then(() => {
                 this.informationDialog = true;
                 this.informationText = this.$i18n.t('refreshComplete');

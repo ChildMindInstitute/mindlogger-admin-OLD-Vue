@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="d-flex justify-space-between pt-5">
-      <div class="filter">
+      <div class="data-filter">
         <v-text-field
           v-model="searchText"
           :label="currentRole == 'user' ? $t('searchUsers') : $t('searchOrganizers')"
@@ -13,13 +13,13 @@
           @input="updateFilter"
         />
       </div>
-      <v-btn
+      <!-- <v-btn
         v-if="multiSelectionEnabled"
         class="reset-selection"
         @click="resetSelection"
       >
         {{ $t('resetSelection') }}
-      </v-btn>
+      </v-btn> -->
     </div>
 
     <v-data-table
@@ -31,14 +31,15 @@
       :custom-sort="customSort"
       :footer-props="{
         itemsPerPageText: $t('rowsPerPage'),
-        itemsPerPageAllText: $t('all')
+        itemsPerPageAllText: $t('all'),
+        itemsPerPageOptions: [10, 50, 100, -1],
       }"
     >
       <template v-slot:body="props">
         <tr
           v-for="item in props.items"
           :key="item.id"
-          :class="item.selected ? 'selected' : ''"
+          :class="item.selected ? 'selected' : 'unselected'"
           @click="rowClicked(item)"
         >
           <td
@@ -59,7 +60,7 @@
                     <v-icon> mdi-calendar-month </v-icon>
                   </v-btn>
                 </template>
-                <span>{{ $t('viewCalendar') }}</span>
+                <span>{{ $t('viewIndividualCalendar') }}</span>
               </v-tooltip>
 
               <v-tooltip
@@ -141,18 +142,22 @@
               {{ item['timeAgo'] }}
             </span>
             <span v-else-if="header.value == 'refreshRequest'">
-              <span
+              <div
                 v-if="item.refreshRequest"
                 class="btn-user-request"
                 @click="userRequestHandler(item)"
               >
                 {{ $t('refreshRequest') }}
-              </span>
+              </div>
             </span>
             <span v-else>
               {{ item[header.value] }}
             </span>
           </td>
+        </tr>
+        <tr v-if="props.items.length === 0 && !loading">
+          <td> </td>
+          <td> <h4 class="no-data"> No data </h4> </td>
         </tr>
       </template>
 
@@ -209,15 +214,15 @@
   .reset-selection {
     margin-right: 10px;
   }
-  .filter {
+  .data-filter {
     width: 50%;
   }
-  .filter .search-input {
+  .data-filter .search-input {
     margin: 10px;
     width: 50%;
     display: inline-block;
   }
-  .filter span {
+  .data-filter span {
     color: rgb(159, 110, 240);
     font-weight: 600;
     margin-left: 20px;
@@ -233,20 +238,26 @@
     color: rgb(100, 0, 0);
   }
 
+  .no-data {
+    font-size: 14px;
+    margin: 10px 0 10px 20px;
+    color: rgba(0, 0, 0, .38);
+  }
+
   @media only screen and (max-width: 767px) {
-    .filter .search-input {
+    .data-filter .search-input {
       width: 80%;
     }
-    .filter span {
+    .data-filter span {
       display: none;
     }
   }
 
-  tr {
+  tr.unselected {
     cursor: pointer;
     user-select: none;
   }
-  tr:hover {
+  tr.unselected:hover {
     background-color: #f0f0f0;
   }
   tr.selected {
@@ -340,10 +351,10 @@ export default {
         align: 'left',
         sortable: false,
         value: 'pinned',
-        width: 20,
+        width: 100,
       },
       {
-        text: this.$i18n.t('userCode'),
+        text: this.$i18n.t('secretUserId'),
         align: 'left',
         sortable: true,
         value: 'MRN',

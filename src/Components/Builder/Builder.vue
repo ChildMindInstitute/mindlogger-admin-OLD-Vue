@@ -1,8 +1,9 @@
 <template>
-  <v-content class="builder">
-    <About v-if="loading" />
+  <div>
+    <About v-show="loading" />
     <AppletSchemaBuilder
-      v-if="!loading"
+      v-if="!initializing"
+      v-show="!loading"
       :key="componentKey"
       exportButton
       :initialData="(isEditing || null) && currentAppletData"
@@ -22,28 +23,22 @@
       v-model="dialog"
       :dialogText="dialogText"
       :title="dialogTitle"
-      @input="redirectToDashbaord"
     />
 
     <AppletPassword
       v-model="appletPasswordDialog"
       @set-password="onClickSubmitPassword"
     />
-  </v-content>
+  </div>
 </template>
 
 <style lang="scss">
 .v-card__text {
   padding: 16px !important;
 }
-
-.builder {
-  background: white;
-}
 </style>
 
 <script>
-import Components from 'applet-schema-builder';
 import About from './AboutBuilder';
 import PackageJson from '../../../package.json';
 import api from '../Utils/api/api.vue';
@@ -59,13 +54,13 @@ const RESPONSE_OPTIONS = "reprolib:terms/responseOptions";
 const ITEM_LIST_ELEMENT = "schema:itemListElement";
 const ITEM_NAME = "schema:name";
 const ITEM_VALUE = "schema:value";
+const ITEM_DESCRIPTION = "schema:description";
 const TYPE = "@type";
 const CONTEXT = "@context";
 
 export default {
   name: 'Builder',
   components: {
-    ...Components,
     About,
     AppletPassword,
     Information,
@@ -74,8 +69,7 @@ export default {
   data() {
     return {
       loading: true,
-      drawer: false,
-      aboutOpen: false,
+      initializing: true,
       package: PackageJson,
       dialog: false,
       dialogText: '',
@@ -131,7 +125,11 @@ export default {
     const templateResp = await api.getItemTemplates({ apiHost, token });
     this.formatItemTemplates(templateResp.data);
 
-    this.loading = false;
+    if (this.versions.length) {
+      this.loading = false;
+    }
+
+    this.initializing = false;
   },
   methods: {
     onClickSubmitPassword(appletPassword) {
@@ -147,7 +145,7 @@ export default {
       await this.onUpdateTemplates(option)
     },
     async onRemoveTemplate(option) {
-      const updatedItems = this.itemTemplates.filter(({ text, value }) => text !== option.text || value !== option.value)
+      const updatedItems = this.itemTemplates.filter(({ text, value, description }) => text !== option.text || value !== option.value || description !== option.description)
       this.itemTemplates = [...updatedItems]
       await this.onUpdateTemplates(option)
     },
@@ -163,7 +161,8 @@ export default {
         return {
           [TYPE]: "schema:option",
           [ITEM_NAME]: template.text,
-          [ITEM_VALUE]: template.value
+          [ITEM_VALUE]: template.value,
+          [ITEM_DESCRIPTION]: template.description,
         }
       })
       optionData.contexts[contextURL] = (await axios.get(contextURL)).data[CONTEXT];
@@ -220,9 +219,10 @@ export default {
           responseOption[ITEM_LIST_ELEMENT].forEach(itemElement => {
             const template = {
               text: itemElement[ITEM_NAME][0]["@value"],
-              value: itemElement[ITEM_VALUE][0]["@value"]
+              value: itemElement[ITEM_VALUE][0]["@value"],
+              description: (itemElement[ITEM_DESCRIPTION] && itemElement[ITEM_DESCRIPTION][0]["@value"]) || '',
             }
-            if (templates.some(({ text, value }) => text === template.text && value === template.value)) {
+            if (templates.some(({ text, value, description }) => text === template.text && value === template.value && description === template.description)) {
               // template found inside the array
             } else {
               templates.push(template)
@@ -315,10 +315,7 @@ export default {
       });
     },
     setLoading(isLoading) {
-      this.aboutOpen = isLoading;
-    },
-    redirectToDashbaord() {
-      this.$router.push('/dashboard').catch(err => {});
+      this.loading = isLoading;
     },
   },
 };

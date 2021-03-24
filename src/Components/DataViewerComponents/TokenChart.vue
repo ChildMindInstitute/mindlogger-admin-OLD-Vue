@@ -39,7 +39,7 @@
             class="accumulation-value"
             :x="accumulation.x"
             :y="accumulation.y"
-            fill="gray"
+            fill="orange"
           >{{ accumulation.text }} </text>
 
         </g>
@@ -183,9 +183,9 @@ const TODAY = new Date(Date.UTC(
     0,
 ));
 const ONE_WEEK_AGO = new Date(TODAY);
-const ONE_MONTH_AGO = new Date(TODAY);
+const ONE_YEAR_AGO = new Date(TODAY);
 ONE_WEEK_AGO.setDate(TODAY.getDate() - 6);
-ONE_MONTH_AGO.setMonth(TODAY.getMonth() - 1);
+ONE_YEAR_AGO.setFullYear(TODAY.getFullYear() - 1);
 /**
  * TokenChart component.
  */
@@ -203,7 +203,7 @@ export default {
       type: Array,
       required: true
     },
-    item: {
+    applet: {
       type: Object,
       required: true,
     },
@@ -226,7 +226,11 @@ export default {
     parentWidth: {
       type: Number,
       required: true,
-    }
+    },
+    cumulative: {
+      type: Object,
+      required: true,
+    },
   },
   data: function() {
     return {
@@ -248,7 +252,7 @@ export default {
       accumulations: [],
       versionBarWidth: 4,
       versionChangeLimitPerDay: 4,
-      ...this.item.getFormattedTokenData(),
+      ...this.applet.getItemsFormatted(),
     }
   },
   computed: {
@@ -287,6 +291,15 @@ export default {
         }
       })
     },
+    cumulativeToken() {
+      return this.cumulative.cumulativeToken;
+    },
+    tokenUpdates() {
+      return this.cumulative.tokenUpdates.map(tokenUpdate => ({
+        date: new Date(tokenUpdate.created.slice(0, 10)),
+        value: tokenUpdate.value
+      }))
+    }
   },
 
   /**
@@ -413,14 +426,11 @@ export default {
           this.divergingExtent.max += value;
         }
       }
-      let positive;
-      let negative;
-      let cumulativePositiveToken = 0
+      let cumulativeToken = 0
       // Find the maximum value for cumulative user responses.
       for (let i = 0; i < this.data.length; i++) {
-        positive = this.data[i].positive;
-        cumulativePositiveToken += positive;
-        negative = this.data[i].negative;
+        const { positive, negative, cummulative }  = this.data[i];
+        cumulativeToken += cummulative;
         if (positive > this.divergingExtent.max) {
           this.divergingExtent.max = positive;
         }
@@ -428,7 +438,7 @@ export default {
           this.divergingExtent.min = negative;
         }
       }
-      this.divergingExtent.max = cumulativePositiveToken;
+      this.divergingExtent.max = cumulativeToken;
       if (this.divergingExtent.max % 2) {
         this.divergingExtent.max += 1;
       }
@@ -498,7 +508,7 @@ export default {
       this.contextX = d3
           .scaleUtc()
           .nice()
-          .domain([ONE_MONTH_AGO, TODAY])
+          .domain([ONE_YEAR_AGO, TODAY])
           .range([0, this.width + focusBarWidth]);
       const range = this.focusExtent;
       const timeDelta = range[1].getTime() - range[0].getTime();
@@ -667,37 +677,53 @@ export default {
         return;
       }
 
+      let events = this.tokenUpdates.concat(data);
+      events.sort((ev1, ev2) => {
+        if (ev1.date < ev2.date) return -1;
+        if (ev1.date > ev2.date) return 1;
+        return 0;
+      })
+
+      let accumulation = events.reduce((accumulation, event) => {
+        const cummulativeValue = event.cummulative !== undefined ? event.cummulative : event.value;
+        return accumulation - cummulativeValue;
+      }, this.cumulativeToken);
+
       let normalisedx = x(new Date(0))
       normalisedx += (0.5 * this.focusBarWidth()) - 5;
 
       let normalisedy = this.y(0) - 2;
       let pathString = `M ${normalisedx} ${normalisedy}`;
-      let accumulation = 0;
 
-      for (var i = 0; i < data.length; i++) {
-        const step = data[i]
-        const { positive } = step;
+      for (let i = 0; i < events.length; i++) {
+        const step = events[i]
+        const cummulativeValue = step.cummulative !== undefined ? step.cummulative : step.value;
+
         normalisedx = x(step.date)
         normalisedx += (0.5 * this.focusBarWidth()) - 5;
         normalisedy = this.y(accumulation) - 2
 
-        if (positive > 0){
+        if (!i || events[i].date.getTime() != events[i-1].date.getTime()) {
           pathString += ` L ${normalisedx + 3} ${normalisedy}`
-          accumulation = positive + accumulation;
-          normalisedy = this.y(accumulation)
+        }
 
+        accumulation += cummulativeValue;
+        normalisedy = this.y(accumulation)
+
+        if (i == events.length-1 || events[i].date.getTime() != events[i+1].date.getTime()) {
           pathString += ` L ${normalisedx + 3} ${normalisedy}`
           this.accumulations.push({text: accumulation, x: normalisedx + (0.5 * this.focusBarWidth()), y: normalisedy -3})
         }
-        if (i === data.length -1) {
+
+        if (i === events.length -1) {
           pathString += ` L ${normalisedx + (0.5 * this.focusBarWidth() + 20)} ${normalisedy}`
         }
       }
       this.svg
           .select('.token-accumulation')
           .append('path')
-          .style('stroke', 'gray')
-          .attr('fill', 'transparent')
+          .style('stroke', '#582400')
+          .attr('fill', 'none')
           .style('stroke-width', 2)
           .attr('d', pathString)
     },

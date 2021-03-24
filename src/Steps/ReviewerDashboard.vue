@@ -33,8 +33,6 @@
         <div class="content">
           <div class="content-header">
             <div class="time-range">
-              {{ $t('showingDataFrom') }}
-
               <v-menu>
                 <template v-slot:activator="{ on }">
                   <v-btn 
@@ -51,6 +49,7 @@
                   no-title
                   :allowedDates="isAllowedStartDate"
                   @change="setStartDate"
+                  class="date-range-picker"
                 />
               </v-menu>
 
@@ -72,20 +71,17 @@
                   no-title
                   :allowedDates="isAllowedEndDate"
                   @change="setEndDate"
+                  class="date-range-picker"
                 />
               </v-menu>
             </div>
 
-            <div class="version">
-              <v-checkbox
-                v-model="hasVersionBars"
-                class="version-bar"
-                :label="$t('showVersionChanges')"
-              />
-
+            <div id="versions" class="version">
               <v-select
                 v-model="selectedVersions"
+                attach="#versions"
                 class="version-list"
+                :menu-props="{ maxHeight: 232}"
                 :items="appletVersions"
                 :label="$t('versions')"
                 multiple
@@ -105,13 +101,44 @@
                     multiple
                     focusable
                   >
+                    <v-expansion-panel v-if="tab=='tokens'">
+                      <v-expansion-panel-header>
+                        <div>
+                          {{ applet.label.en }}
+                        </div>
+                      </v-expansion-panel-header>
+                      <v-expansion-panel-content
+                        v-if="applet.hasTokenItem"
+                      >
+                        <token-chart
+                          :plot-id="`Token-${applet.id}`"
+                          :applet="applet"
+                          :cumulative="applet.tokens"
+                          :timezone="applet.timezoneStr"
+                          :versions="applet.versions"
+                          :focus-extent="focusExtent"
+                          :selected-versions="selectedVersions"
+                          :has-version-bars="hasVersionBars"
+                          :parent-width="panelWidth"
+                          @onUpdateFocusExtent="onUpdateFocusExtent"
+                        />
+                      </v-expansion-panel-content>
+                      <v-expansion-panel-content
+                        v-else
+                      >
+                        <h4>
+                          {{ $t("noTokenDataAvailable") }}
+                        </h4>
+                      </v-expansion-panel-content>
+                    </v-expansion-panel>
                     <v-expansion-panel
+                      v-else
                       v-for="(activity, index) in applet.activities"
                       :key="index"
                     >
                       <v-expansion-panel-header>
                         <div 
-                          v-if="!allExpanded"
+                          v-if="!allExpanded && applet.activities.length > 1"
                           class="ds-expand-action"
                           @click.stop="onAllExpand"
                         >
@@ -132,7 +159,7 @@
                         </div>
 
                         <div 
-                          v-if="allExpanded"
+                          v-if="allExpanded  && applet.activities.length > 1"
                           class="ds-expand-action"
                           @click.stop="onAllCollapsed"
                         >
@@ -266,22 +293,9 @@
                             :key="item['id']"
                             class="chart-card"
                           >
-                            <header v-if="tab=='tokens' && item.isTokenItem || tab == 'responses'">
+                            <header>
                               <h3> - {{ item.getFormattedQuestion() }}</h3>
                             </header>
-
-                            <token-chart
-                              v-if="tab=='tokens' && item.isTokenItem"
-                              :plot-id="`Token-${activity.slug}-${item.slug}`"
-                              :item="item"
-                              :timezone="applet.timezoneStr"
-                              :versions="applet.versions"
-                              :focus-extent="focusExtent"
-                              :selected-versions="selectedVersions"
-                              :has-version-bars="hasVersionBars"
-                              :parent-width="panelWidth"
-                              @onUpdateFocusExtent="onUpdateFocusExtent"
-                            />
 
                             <RadioSlider
                               v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
@@ -294,6 +308,15 @@
                               :has-version-bars="hasVersionBars"
                               :parent-width="panelWidth"
                               :color="item.dataColor"
+                            />
+
+                            <FreeTextTable
+                              v-if="tab == 'responses' && item.inputType === 'text'"
+                              :plot-id="`FreeText-${activity.data['_id']}-${item.data['_id']}`"
+                              :item="item"
+                              :selected-versions="selectedVersions"
+                              :timezone="applet.timezoneStr"
+                              :responses="applet.responses[activity.data['_id'].substring(9) + item.data['_id'].substring(6)]"
                             />
                           </div>
                         </template>
@@ -375,6 +398,7 @@
 
 .time-range,
 .version {
+  position: relative;
   display: flex;
   width: 480px;
   align-items: baseline;
@@ -404,7 +428,7 @@
   margin: 1rem auto;
 }
 
-.v-card {
+.v-card:not(.date-range-picker) {
   margin-bottom: 1.5rem;
 }
 
@@ -452,7 +476,8 @@ import Activity from "../models/Activity";
 import Item from "../models/Item";
 import TokenChart from "../Components/DataViewerComponents/TokenChart.vue";
 import ActivitySummary from "../Components/DataViewerComponents/ActivitySummary.vue";
-import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue";
+import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue"; 
+import FreeTextTable from "../Components/DataViewerComponents/FreeTextTable.vue";
 import SubScaleLineChart from "../Components/DataViewerComponents/SubScaleLineChart";
 import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChart";
 
@@ -468,6 +493,7 @@ export default {
     TokenChart,
     ActivitySummary,
     RadioSlider,
+    FreeTextTable,
     SubScaleLineChart,
     SubScaleBarChart,
   },
@@ -505,7 +531,7 @@ export default {
       tabs: ['responses', 'tokens'],
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
-      hasVersionBars: false,
+      hasVersionBars: true,
       panelWidth: 974,
       margin: 50,
       itemPadding: 15
@@ -559,9 +585,7 @@ export default {
       );
 
       this.selectedVersions = this.appletVersions;
-
       this.loading = false;
-
       this.onResize = this.onResize.bind(this);
       this.$nextTick(this.onResize);
       window.addEventListener('resize', this.onResize);
@@ -581,8 +605,10 @@ export default {
    */
   methods: {
     onResize() {
-      const dimensions = this.$refs.panels.getBoundingClientRect();
-      this.panelWidth = dimensions.width - this.margin;
+      if (this.$refs.panels) {
+        const dimensions = this.$refs.panels.getBoundingClientRect();
+        this.panelWidth = dimensions.width - this.margin;
+      }
     },
     /**
      * Checks whether the given date should be enabled.
@@ -640,6 +666,9 @@ export default {
      */
     setStartDate(date) {
       this.$set(this.focusExtent, 0, moment.utc(date).toDate());
+      if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) > 3) {
+        this.focusExtent[1] = moment(this.focusExtent[0]).add(1, 'months').toDate();
+      }
     },
     /**
      * Updates the end date for the focused time range.
@@ -653,6 +682,10 @@ export default {
         .add(15, 'hours')
         .toDate()
       );
+
+      if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) > 3) {
+        this.focusExtent[0] = moment(this.focusExtent[1]).subtract(1, 'months').toDate();
+      }
     },
 
     onUpdateFocusExtent(focusExtent) {
