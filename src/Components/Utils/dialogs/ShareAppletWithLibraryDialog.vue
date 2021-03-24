@@ -25,9 +25,13 @@
               <div class="title">
                 {{ $t('shareAppletSetDetails', { appletName: appletData.name }) }}
               </div>
-              <div class="sub-title">
+              <v-btn
+                text
+                class="copy-link"
+                @click="onCopyLink"
+              >
                 {{ $t('shareAppletCopyLink') }}
-              </div>
+              </v-btn>
             </template>
           </div>
           <div class="ml-auto text-right">
@@ -39,7 +43,8 @@
               <v-icon>mdi-close</v-icon>
             </v-btn>
             <v-switch
-              v-model="isShared"
+              v-model="share"
+              @change="onSwitchShare"
               color="success"
               inset />
           </div>
@@ -60,7 +65,7 @@
             <div class="text-right">
               <v-btn
                 color="primary"
-                @click="onUpdateAppletName"
+                @click="onChangeAppletName"
               >
                 Update
               </v-btn>
@@ -79,14 +84,17 @@
                     <v-select
                       label="Category:"
                       :items="categories"
+                      item-text="name"
+                      item-value="_id"
                       v-model="category"
                       dense
                       solo
                       hide-details
+                      @change="onChangeCategory"
                     />
                   </template>
                   <template v-else>
-                    {{ category }}
+                    {{ categoryName }}
                   </template>
                 </v-col>
               </v-row>
@@ -99,6 +107,8 @@
                     <v-select
                       label="Sub-Category:"
                       :items="subCategories"
+                      item-text="name"
+                      item-value="_id"
                       v-model="subCategory"
                       dense
                       solo
@@ -106,7 +116,7 @@
                     />
                   </template>
                   <template v-else>
-                    {{ subCategory }}
+                    {{ subCategoryName }}
                   </template>
                 </v-col>
               </v-row>
@@ -118,7 +128,6 @@
                   <template v-if="isEditing">
                     <v-combobox
                       label="Keywords:"
-                      :items="keywordsList"
                       v-model="keywords"
                       clearable
                       multiple
@@ -139,7 +148,7 @@
                 <v-btn
                   class="align-self-end"
                   color="primary"
-                  @click="onPublishApplet"
+                  @click="onUpdateAppletDetails"
                 >
                   Publish
                 </v-btn>
@@ -175,9 +184,19 @@
 
 </template>
 
+<style scoped>
+  .data-filter {
+    width: 25%;
+    padding-left: 5px;
+  }
+</style>
+
 <script>
+import { AppletLibraryMixin } from '@/Components/Utils/mixins/AppletLibraryMixin';
+
 export default {
   name: 'ShareAppletWithLibraryDialog',
+  mixins: [AppletLibraryMixin],
   props: {
     appletData: {
       type: Object,
@@ -189,29 +208,79 @@ export default {
     }
   },
   data: () => ({
+    share: false,
     isShared: false,
-    isDuplicate: true,
+    isDuplicate: false,
     appletName: '',
     isError: false,
     isPublished: false,
     isEditing: true,
-    categories: ['Mental Health', 'Option1'],
-    category: '',
-    subCategory: '',
-    subCategories: ['ADHD', 'Option1'],
-    keywordsList: ['ADHD', 'learning disabilities'],
+    appletUrl: '',
+    libraryCategories: [],
+    categories: [],
+    category: null,
+    subCategories: [],
+    subCategory: null,
     keywords: [],
   }),
+  computed: {
+    categoryName() {
+      return this.category ? this.categories.find(c => c._id == this.category).name : '';
+    },
+    subCategoryName() {
+      return this.subCategory ? this.subCategories.find(c => c._id == this.subCategory).name : '';
+    },
+  },
+  mounted() {
+    this.getLibraryCategories()
+      .then(res => {
+        this.libraryCategories = [...res];
+        this.categories = this.libraryCategories.filter(c => c.parentId == null);
+        this.category = null;
+        this.subCategories = [];
+        this.subCategory = null;
+      })
+  },
   methods: {
-    onUpdateAppletName() {
-      this.isDuplicate = false;
+    onSwitchShare(val) {
+      if (val) {
+        this.onCheckAppletName();
+      } else {
+        this.isShared = false;
+      }
     },
-    onPublishApplet() {
-      this.isPublished = true;
-      this.isEditing = false;
+    async onCheckAppletName() {
+      this.isDuplicate = !(await this.checkAppletNameInLibrary(this.appletData));
+      try {
+        const { url } = await this.publishAppletToLibrary(this.appletData.id, true);
+        this.appletUrl = url;
+        this.isShared = true;
+      } catch (e) {
+      }
     },
-    onUpdateAppletDetails() {
-      this.isEditing = false;
+    async onChangeAppletName() {
+      this.isError = false;
+      try {
+        const response = await this.changeAppletName(this.appletData, this.appletName);
+        this.isDuplicate = false;
+      } catch (e) {
+        this.isError = true;
+      }
+    },
+    onCopyLink() {
+    },
+    onChangeCategory() {
+      this.subCategories = this.libraryCategories.filter(c => c.parentId == this.category);
+      this.subCategory = null;
+    },
+    async onUpdateAppletDetails() {
+      const { id: appletId } = this.appletData;
+      try {
+        const response = await this.updateAppletSearchTerms(appletId, this.category, this.subCategory, this.keywords);
+        this.isPublished = true;
+        this.isEditing = false;
+      } catch (e) {
+      }
     }
   }
 };
