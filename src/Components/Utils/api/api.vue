@@ -607,7 +607,10 @@ const updateAppletSearchTerms = (apiHost, token, appletId, params) => {
     headers: {
       'Girder-Token': token
     },
-    params
+    params: {
+      ...params,
+      id: appletId,
+    }
   })
 }
 

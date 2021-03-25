@@ -8,7 +8,7 @@
       <v-card-title>
         <v-container fluid class="d-flex pa-0">
           <div class="mr-5">
-            <template v-if="!isShared">
+            <template v-if="!share">
               <div class="title">
                 {{ $t('shareAppletLibraryTitle', { appletName: appletData.name }) }}
               </div>
@@ -25,13 +25,26 @@
               <div class="title">
                 {{ $t('shareAppletSetDetails', { appletName: appletData.name }) }}
               </div>
-              <v-btn
-                text
+              <a
+                href
                 class="copy-link"
-                @click="onCopyLink"
+                @click.stop.prevent="onCopyLink"
+                @mousedown.stop
               >
                 {{ $t('shareAppletCopyLink') }}
-              </v-btn>
+              </a>
+              <input type="text" class="applet-url" ref="appletUrl" :value="appletUrl">
+              <v-snackbar
+                v-model="clipboardCopied"
+                :timeout="2000"
+                absolute
+                top
+                centered
+                color="green accent-4"
+                elevation="24"
+              >
+                Copied!
+              </v-snackbar>
             </template>
           </div>
           <div class="ml-auto text-right">
@@ -50,7 +63,7 @@
           </div>
         </v-container>
       </v-card-title>
-      <v-card-text v-if="isShared" class="pt-0">
+      <v-card-text v-if="share" class="pt-0">
         <template v-if="isDuplicate">
           <v-container fluid class="py-0">
             <v-text-field
@@ -185,9 +198,12 @@
 </template>
 
 <style scoped>
-  .data-filter {
-    width: 25%;
-    padding-left: 5px;
+  .copy-link {
+    margin-left: 1rem;
+  }
+  .applet-url {
+    position: absolute;
+    left: -1000px;
   }
 </style>
 
@@ -209,11 +225,10 @@ export default {
   },
   data: () => ({
     share: false,
-    isShared: false,
+    isPublished: false,
     isDuplicate: false,
     appletName: '',
     isError: false,
-    isPublished: false,
     isEditing: true,
     appletUrl: '',
     libraryCategories: [],
@@ -222,6 +237,7 @@ export default {
     subCategories: [],
     subCategory: null,
     keywords: [],
+    clipboardCopied: false,
   }),
   computed: {
     categoryName() {
@@ -231,43 +247,58 @@ export default {
       return this.subCategory ? this.subCategories.find(c => c._id == this.subCategory).name : '';
     },
   },
-  mounted() {
+  watch: {
+    value(val) {
+      if (val && this.appletData) {
+        this.isPublished = this.appletData.published;
+        this.share = this.isPublished;
+        this.init();
+      }
+    },
+    isPublished(val) {
+      this.appletData.published = val;
+    }
+  },
+  beforeMount() {
     this.getLibraryCategories()
       .then(res => {
         this.libraryCategories = [...res];
         this.categories = this.libraryCategories.filter(c => c.parentId == null);
-        this.category = null;
-        this.subCategories = [];
-        this.subCategory = null;
       })
   },
   methods: {
-    onSwitchShare(val) {
+    init() {
+      this.category = null;
+      this.subCategories = [];
+      this.subCategory = null;
+      this.keywords = [];
+    },
+    async onSwitchShare(val) {
       if (val) {
-        this.onCheckAppletName();
+        this.checkAppletNameDuplicate();
       } else {
-        this.isShared = false;
+        await this.publishAppletToLibrary(this.appletData.id, false);
+        this.isPublished = false;
       }
     },
-    async onCheckAppletName() {
+    async checkAppletNameDuplicate() {
       this.isDuplicate = !(await this.checkAppletNameInLibrary(this.appletData));
-      try {
-        const { url } = await this.publishAppletToLibrary(this.appletData.id, true);
-        this.appletUrl = url;
-        this.isShared = true;
-      } catch (e) {
-      }
+      const { url } = await this.publishAppletToLibrary(this.appletData.id, true);
+      this.appletUrl = url;
     },
     async onChangeAppletName() {
       this.isError = false;
       try {
-        const response = await this.changeAppletName(this.appletData, this.appletName);
+        await this.changeAppletName(this.appletData, this.appletName);
         this.isDuplicate = false;
       } catch (e) {
         this.isError = true;
       }
     },
     onCopyLink() {
+      this.clipboardCopied = true;
+      this.$refs.appletUrl.select();
+      document.execCommand("copy");
     },
     onChangeCategory() {
       this.subCategories = this.libraryCategories.filter(c => c.parentId == this.category);
@@ -275,12 +306,9 @@ export default {
     },
     async onUpdateAppletDetails() {
       const { id: appletId } = this.appletData;
-      try {
-        const response = await this.updateAppletSearchTerms(appletId, this.category, this.subCategory, this.keywords);
-        this.isPublished = true;
-        this.isEditing = false;
-      } catch (e) {
-      }
+      await this.updateAppletSearchTerms(appletId, this.categoryName, this.subCategoryName, JSON.stringify(this.keywords));
+      this.isPublished = true;
+      this.isEditing = false;
     }
   }
 };
