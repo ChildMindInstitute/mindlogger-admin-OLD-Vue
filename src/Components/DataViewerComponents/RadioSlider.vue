@@ -87,6 +87,10 @@ export default {
       type: Object,
       required: true
     },
+    timeRange: {
+      type: String,
+      required: true,
+    },
   },
   data: function() {
     let margin = { left: 20, right: 60 };
@@ -195,6 +199,17 @@ export default {
       }
     },
 
+    getTickType() {
+      if (this.timeRange === "Daily") {
+        return d3.timeDay.every(2);
+      } else if (this.timeRange === "Weekly") {
+        return d3.timeWeek;
+      } else if (this.timeRange === "Monthly") {
+        return d3.timeMonth;
+      }
+      return d3.timeDay;
+    },
+
     compressedName(name) {
       return name.length > 30
         ? name.slice(0, 26) + ' …'
@@ -208,11 +223,13 @@ export default {
         .domain(this.focusExtent)
         .range([0, this.width - this.labelWidth]);
 
+      const tickType = this.getTickType();
+
       const xAxis = d3
         .axisBottom()
         .scale(this.x)
         .tickSize(this.tickHeight)  // Height of the tick line.
-        .ticks(d3.timeDay);
+        .ticks(tickType);
 
       this.svg
         .select('.x-axis')
@@ -227,7 +244,7 @@ export default {
           .append('g')
           .attr('class', 'feature-axis')
           .style('stroke-width', 1.2)
-          .style('color', '#373737')
+          .style('color', 'grey')
           .attr('transform', d => `translate(0, ${this.radius + this.padding.top + this.heightPerFeature * i})`)
           .call(
             xAxis.tickFormat(d => i == this.features.length - 1 ? moment(d).format('MMM-D') : '')
@@ -308,6 +325,7 @@ export default {
             this.svg
               .select('.responses')
               .append('line')
+              .style('stroke-width', 1.5)
               .attr('x1', prevX + dx * delta)
               .attr('y1', prevY + dy * delta)
               .attr('x2', x - dx * delta)
