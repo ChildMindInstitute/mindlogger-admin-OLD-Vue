@@ -133,8 +133,8 @@ export const AppletMixin = {
             let options = [], scores = [];
             let responseData = [];
 
-            if (response.data[itemUrl].value || !response.data[itemUrl].text) {
-              if (response.data[itemUrl].value) {
+            if (!response.data[itemUrl] || response.data[itemUrl].value || !response.data[itemUrl].text) {
+              if (response.data[itemUrl] && response.data[itemUrl].value) {
                 response.data[itemUrl] = response.data[itemUrl].value;
               }
 
