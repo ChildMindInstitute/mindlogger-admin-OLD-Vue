@@ -297,8 +297,22 @@
                               <h3> - {{ item.getFormattedQuestion() }}</h3>
                             </header>
 
+                            <TimePicker
+                              v-if="tab == 'responses' && item.inputType === 'time'"
+                              :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
+                              :item="item"
+                              :versions="applet.versions"
+                              :focus-extent="focusExtent"
+                              :selected-versions="selectedVersions"
+                              :timezone="applet.timezoneStr"
+                              :has-version-bars="hasVersionBars"
+                              :parent-width="panelWidth"
+                              :color="item.dataColor"
+                              :maxValue="getMaxValue(activity.items)"
+                              :minValue="getMinValue(activity.items)"
+                            />
                             <RadioSlider
-                              v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
+                              v-else-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
                               :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
                               :item="item"
                               :versions="applet.versions"
@@ -316,7 +330,7 @@
                               :item="item"
                               :selected-versions="selectedVersions"
                               :timezone="applet.timezoneStr"
-                              :responses="applet.responses[activity.data['_id'].substring(9) + item.data['_id'].substring(6)]"
+                              :responses="applet.responses[item.schemas[0]]"
                             />
                           </div>
                         </template>
@@ -476,7 +490,8 @@ import Activity from "../models/Activity";
 import Item from "../models/Item";
 import TokenChart from "../Components/DataViewerComponents/TokenChart.vue";
 import ActivitySummary from "../Components/DataViewerComponents/ActivitySummary.vue";
-import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue"; 
+import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue";
+import TimePicker from "../Components/DataViewerComponents/TimePicker.vue"; 
 import FreeTextTable from "../Components/DataViewerComponents/FreeTextTable.vue";
 import SubScaleLineChart from "../Components/DataViewerComponents/SubScaleLineChart";
 import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChart";
@@ -493,6 +508,7 @@ export default {
     TokenChart,
     ActivitySummary,
     RadioSlider,
+    TimePicker,
     FreeTextTable,
     SubScaleLineChart,
     SubScaleBarChart,
@@ -633,6 +649,59 @@ export default {
         (moment.utc(date) > this.focusExtent[0]) && 
         (moment.utc(date) <= moment.utc(NOW))
       );
+    },
+
+    /** 
+     * Expand all activities.
+     *
+     * @param {items} items Activity Items
+     * @return {maxValue} Maximum response value
+     */
+
+    getMaxValue (items) {
+      let maxValue = {
+        hour: 0,
+        minute: 0,
+      };
+
+      items.forEach(item => {
+        if (item.inputType === 'time') {
+          item.responses.forEach(({ value }) => {
+            if (value.hour > maxValue.hour) {
+              maxValue.hour = value.hour;
+            }
+          });
+        }
+      });
+
+      maxValue.hour += 1;
+      return maxValue;
+    },
+
+    /** 
+     * Expand all activities.
+     *
+     * @param {items} items Activity Items
+     * @return {minValue} Minimum response value
+     */
+
+    getMinValue (items) {
+      let minValue = {
+        hour: 23,
+        minute: 0,
+      };
+
+      items.forEach(item => {
+        if (item.inputType === 'time') {
+          item.responses.forEach(({ value }) => {
+            if (value.hour < minValue.hour) {
+              minValue.hour = value.hour;
+            }
+          });
+        }
+      });
+
+      return minValue;
     },
 
     /**
