@@ -330,7 +330,7 @@
                               :item="item"
                               :selected-versions="selectedVersions"
                               :timezone="applet.timezoneStr"
-                              :responses="applet.responses[activity.data['_id'].substring(9) + item.data['_id'].substring(6)]"
+                              :responses="applet.responses[item.schemas[0]]"
                             />
                           </div>
                         </template>
