@@ -193,6 +193,7 @@
                           :frequency="activity.getFrequency()"
                           :sub-scales="activity.subScales"
                           :parent-width="panelWidth"
+                          :time-range="timeRange"
                           :item-padding="itemPadding"
                         />
                       </v-expansion-panel-header>
@@ -274,6 +275,7 @@
                                         :selected-versions="selectedVersions"
                                         :timezone="applet.timezoneStr"
                                         :has-version-bars="hasVersionBars"
+                                        :time-range="timeRange"
                                         :parent-width="panelWidth"
                                         :color="item.dataColor"
                                       />
@@ -321,6 +323,7 @@
                               :timezone="applet.timezoneStr"
                               :has-version-bars="hasVersionBars"
                               :parent-width="panelWidth"
+                              :time-range="timeRange"
                               :color="item.dataColor"
                             />
 
@@ -547,6 +550,7 @@ export default {
       tabs: ['responses', 'tokens'],
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
+      timeRange: "Default",
       hasVersionBars: true,
       panelWidth: 974,
       margin: 50,
@@ -735,9 +739,7 @@ export default {
      */
     setStartDate(date) {
       this.$set(this.focusExtent, 0, moment.utc(date).toDate());
-      if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) > 3) {
-        this.focusExtent[1] = moment(this.focusExtent[0]).add(1, 'months').toDate();
-      }
+      this.updateTimeRange();
     },
     /**
      * Updates the end date for the focused time range.
@@ -746,14 +748,19 @@ export default {
      * @returns {void}
      */
     setEndDate(date) {
-      this.$set(this.focusExtent, 1, moment
-        .utc(date)
-        .add(15, 'hours')
-        .toDate()
-      );
+      this.$set(this.focusExtent, 1, moment.utc(date).add(15, 'hours').toDate());
+      this.updateTimeRange();
+    },
 
-      if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) > 3) {
-        this.focusExtent[0] = moment(this.focusExtent[1]).subtract(1, 'months').toDate();
+    updateTimeRange() {
+      if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'days', true) < 15) {
+        this.timeRange = "Default";
+      } else if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) <= 1) {
+        this.timeRange = "Daily";
+      } else if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) <= 4) {
+        this.timeRange = "Weekly";
+      } else {
+        this.timeRange = "Monthly";
       }
     },
 
