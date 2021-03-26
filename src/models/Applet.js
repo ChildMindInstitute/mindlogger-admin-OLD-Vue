@@ -241,7 +241,7 @@ export default class Applet {
 
     /** append responses */
     for (let itemId of itemIDGroup) {
-      this.items[itemId].appendResponses(data.responses[itemId]);
+      this.items[itemId].appendResponses(data.responses[itemId], this.items[itemId].inputType);
     }
 
     for (let itemId of itemIDGroup) {
