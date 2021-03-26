@@ -112,6 +112,8 @@ export const AppletMixin = {
             if (subScaleNames.indexOf(subScaleName) < 0) {
               subScaleNames.push(subScaleName);
             }
+
+            response.subScales[subScaleName] = response.subScales[subScaleName].toString();
           }
 
           let isSubScaleExported = false;
@@ -133,8 +135,8 @@ export const AppletMixin = {
             let options = [], scores = [];
             let responseData = [];
 
-            if (response.data[itemUrl].value || !response.data[itemUrl].text) {
-              if (response.data[itemUrl].value) {
+            if (response.data[itemUrl].value !== undefined || !response.data[itemUrl].text) {
+              if (response.data[itemUrl].value !== undefined) {
                 response.data[itemUrl] = response.data[itemUrl].value;
               }
 
