@@ -1,6 +1,6 @@
 <template>
   <div>
-    <About v-show="loading" />
+    <About v-if="loading" />
     <AppletSchemaBuilder
       v-if="!initializing"
       v-show="!loading"
