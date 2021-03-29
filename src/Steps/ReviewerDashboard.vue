@@ -200,6 +200,26 @@
                       <v-expansion-panel-content
                         v-if="activity.responses && activity.responses.length && (tab !== 'tokens' || activity.hasTokenItem)"
                       >
+                        <div
+                          v-if="activity.finalSubScale"
+                          class="additional-note mt-4"
+                        >
+                          <header>
+                            <h2> - Additional Information </h2>
+                          </header>
+                          <div
+                            v-if="activity.finalSubScale.latest.outputText"
+                            class="subscale-output"
+                          >
+                            <mavon-editor
+                              :value="activity.finalSubScale.latest.outputText"
+                              :language="'en'"
+                              :toolbarsFlag="false"
+                            >
+                            </mavon-editor>
+                          </div>
+                        </div>
+
                         <h2 class="mt-4">
                           {{ $t('responseOptions') }}
                         </h2>
@@ -243,18 +263,34 @@
                             v-for="(subScale) in activity.subScales"
                           >
                             <v-expansion-panel
-                              v-if="applet"
+                              v-if="applet && !subScale.isFinalSubScale"
                               :key="subScale.variableName"
                             >
                               <v-expansion-panel-header>
                                 <h4>
                                   {{ subScale.variableName }}
-                                  ( {{ $t('latestScore') }}: {{ activity.getLatestSubScaleScore(subScale) }} )
+                                  ( {{ $t('latestScore') }}: {{ subScale.latest.tScore }} )
                                 </h4>
                               </v-expansion-panel-header>
 
                               <v-expansion-panel-content>
                                 <div>
+                                  <div class="additional-note">
+                                    <header>
+                                      <h3> - Additional Information </h3>
+                                    </header>
+                                    <div
+                                      v-if="subScale.latest.outputText"
+                                      class="subscale-output"
+                                    >
+                                      <mavon-editor
+                                        :value="subScale.latest.outputText"
+                                        :language="'en'"
+                                        :toolbarsFlag="false"
+                                      >
+                                      </mavon-editor>
+                                    </div>
+                                  </div>
                                   <template
                                     v-for="item in subScale.items"
                                   >
@@ -482,6 +518,20 @@
 
 .v-expansion-panel-header {
   flex-direction: row-reverse;
+}
+
+.additional-note /deep/ .v-note-edit {
+  display: none;
+}
+.additional-note /deep/ .v-note-show {
+  width: 100% !important;
+  flex: 0 0 100% !important;
+}
+
+.additional-note .subscale-output {
+  max-height: 150px;
+  overflow-y: scroll;
+  margin: 10px 0px;
 }
 </style>
 
