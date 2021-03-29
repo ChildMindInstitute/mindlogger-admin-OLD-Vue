@@ -12,6 +12,7 @@ export default {
   timeUnit: 'reprolib:terms/timeUnit',
   scoring: 'reprolib:terms/scoring',
   subScales: 'reprolib:terms/subScales',
+  finalSubScale: 'reprolib:terms/finalSubScale',
   jsExpression: 'reprolib:terms/jsExpression',
   lookupTable: 'reprolib:terms/lookupTable',
   variableName: 'reprolib:terms/variableName',

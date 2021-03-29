@@ -82,6 +82,10 @@ export default {
       type: Number,
       required: true,
     },
+    timeRange: {
+      type: String,
+      required: true,
+    },
     latestScore: {
       type: Number,
       required: true,
@@ -159,18 +163,31 @@ export default {
       this.drawResponses();
     },
 
+    getTickType() {
+      if (this.timeRange === "Daily") {
+        return d3.timeDay.every(2);
+      } else if (this.timeRange === "Weekly") {
+        return d3.timeWeek;
+      } else if (this.timeRange === "Monthly") {
+        return d3.timeMonth;
+      }
+      return d3.timeDay;
+    },
+
     drawAxes() {
       this.x = d3
         .scaleUtc()
         .nice()
         .domain(this.focusExtent)
         .range([0, this.width - this.labelWidth]);
+      
+      const tickType = this.getTickType();
 
       const xAxis = d3
         .axisBottom()
         .scale(this.x)
         .tickSize(this.tickHeight)  // Height of the tick line.
-        .ticks(d3.timeDay)
+        .ticks(tickType)
         .tickFormat(d => moment(d).format('MMM-D'));
 
       this.svg

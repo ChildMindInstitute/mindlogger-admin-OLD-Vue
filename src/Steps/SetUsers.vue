@@ -80,6 +80,7 @@
               :currentRole="tabNameToRole[tab]"
               :reloading="tabData[tab].loading"
               @userDataReloaded="tabData[tab].loading = false"
+              @onReuploadResponse="responseReUploadEvent"
               @onEditRoleSuccessfull="onEditRoleSuccessfull"
             />
           </v-card>
@@ -273,11 +274,18 @@ export default {
       this.getAppletUsers(role).then(resp => {
         if (resp.data.total > 0) {
           this.tabs.unshift(tab);
-          if ((tab === 'coordinators' || tab === 'managers') && !this.tabs.includes('invitation')) {
-            this.tabs.push('invitation');
-          }
         }
       });
+    }
+
+    if (
+      this.currentAppletMeta.roles.includes('coordinator') ||
+      this.currentAppletMeta.roles.includes('manager') ||
+      this.currentAppletMeta.roles.includes('owner')
+    ) {
+      if (!this.tabs.includes('invitation')) {
+        this.onSwitchTab('invitation').then(() => this.tabs.push('invitation'));
+      }
     }
   },
   methods: {
@@ -475,6 +483,13 @@ export default {
                 {}
               ),
               userPublicKey: userData.refreshRequest.userPublicKey,
+              tokenUpdates: (data.tokens && data.tokens.tokenUpdates || []).reduce(
+                (accumulator, update) => {
+                  accumulator[update.id] = update.data;
+                  return accumulator;
+                },
+                {}
+              )
             })
           );
 
@@ -486,7 +501,7 @@ export default {
               user: userData._id,
               data: form,
             })
-            .then(({message}) => {
+            .then(({ message }) => {
               this.onSwitchTab(this.tabs[this.selectedTab]).then(() => {
                 this.informationDialog = true;
                 this.informationText = this.$i18n.t('refreshComplete');

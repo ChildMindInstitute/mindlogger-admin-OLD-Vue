@@ -107,6 +107,10 @@ export const AppletMixin = {
 
             if (subScale && subScale.ptr !== undefined && subScale.src !== undefined) {
               response.subScales[subScaleName] = data.subScaleSources[subScale.src].data[subScale.ptr];
+
+              if (typeof response.subScales[subScaleName] == 'object') {
+                response.subScales[subScaleName] = response.subScales[subScaleName].tScore || response.subScales[subScaleName].rawScore;
+              }
             }
 
             if (subScaleNames.indexOf(subScaleName) < 0) {

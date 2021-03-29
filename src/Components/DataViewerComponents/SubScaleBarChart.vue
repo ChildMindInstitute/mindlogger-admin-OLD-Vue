@@ -2,6 +2,19 @@
   <div
     class="subscale-bar-chart"
   >
+    <div
+      v-show="toolTipVisible && cachedContents[outputText]"
+      class="tooltip"
+      :style="`left: ${toolTipX}px; top: ${toolTipY}px; width: ${tooltipWidth}px; max-height: ${tooltipHeight}px`"
+    >
+      <mavon-editor
+        :value="cachedContents[outputText]"
+        :language="'en'"
+        :toolbarsFlag="false"
+      >
+      </mavon-editor>
+    </div>
+
     <svg
       :id="plotId"
       :width="width + 20"
@@ -37,7 +50,7 @@
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 
 .subscale-bar-chart {
   display: inline-block;
@@ -48,6 +61,20 @@
   border: 2px solid black;
 }
 
+.tooltip {
+  border: 1px solid black;
+  position: absolute;
+  overflow-y: scroll;
+}
+
+.tooltip /deep/ .v-note-edit {
+  display: none;
+}
+
+.tooltip /deep/ .v-note-show {
+  width: 100% !important;
+  flex: 0 0 100% !important;
+}
 </style>
 
 <script>
@@ -81,6 +108,14 @@ export default {
       maxBarWidth: 80,
       xRangePerBar: 3,
       responseStrokeWidth: 2,
+
+      toolTipVisible: false,
+      toolTipX: 0,
+      toolTipY: 0,
+      tooltipWidth: 350,
+      tooltipHeight: 120,
+      outputText: '',
+      cachedContents: {}
     }
   },
 
@@ -232,10 +267,19 @@ export default {
         .attr('fill', d => d.dataColor)
         .attr('x', d => this.x(d.id * this.xRangePerBar) + 2)
         .attr('width', barWidth - 4)
-        .attr('y', d => this.y(d.value))
-        .attr('height', d => baseY - this.y(d.value))
+        .attr('y', d => this.y(d.value.tScore))
+        .attr('height', d => baseY - this.y(d.value.tScore))
         .style('stroke-width', this.responseStrokeWidth)
         .style('stroke', 'grey')
+        .on('focus', d => d.value.outputText ? this.showTooltip(
+          this.x(( d.id * this.xRangePerBar) + 2),
+          this.y(d.value.tScore),
+          d.value,
+          (this.width - this.chartWidth) / 2,
+          this.width,
+          this.height
+        ) : '')
+        .on('blur', d => this.hideTooltip())
     },
 
     getValueExtent() {
