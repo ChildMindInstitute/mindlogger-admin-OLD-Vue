@@ -274,11 +274,18 @@ export default {
       this.getAppletUsers(role).then(resp => {
         if (resp.data.total > 0) {
           this.tabs.unshift(tab);
-          if ((tab === 'coordinators' || tab === 'managers') && !this.tabs.includes('invitation')) {
-            this.tabs.push('invitation');
-          }
         }
       });
+    }
+
+    if (
+      this.currentAppletMeta.roles.includes('coordinator') ||
+      this.currentAppletMeta.roles.includes('manager') ||
+      this.currentAppletMeta.roles.includes('owner')
+    ) {
+      if (!this.tabs.includes('invitation')) {
+        this.onSwitchTab('invitation').then(() => this.tabs.push('invitation'));
+      }
     }
   },
   methods: {
