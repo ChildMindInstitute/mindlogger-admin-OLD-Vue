@@ -1,6 +1,6 @@
 <template>
   <div class="ds-time-row">
-    <div class="ds-time-cell">
+    <div class="ds-time-cell d-flex align-baseline  ">
       {{ $t("startTime") }}
       <v-text-field
         single-line
@@ -10,24 +10,19 @@
         type="time"
         :readonly="isReadOnly"
         v-model="time"
-      ></v-text-field>
+      />
     </div>
-
-    <div class="ds-time-cell">
-      <v-tooltip bottom v-if="showRemove && !isReadOnly">
-        <template v-slot:activator="{ on }">
-          <v-btn
-            v-on="on"
-            icon
-            class="action-remove"
-            :color="colors.remove"
-            @click="removeTime"
-          >
-            <v-icon>{{ icons.remove }}</v-icon>
-          </v-btn>
-        </template>
-        <span v-html="labels.remove"></span>
-      </v-tooltip>
+    <div class="ds-time-cell d-flex align-baseline">
+      {{ $t("endTime") }}
+      <v-text-field
+        single-line
+        hide-details
+        solo
+        flat
+        type="time"
+        :readonly="isReadOnly"
+        v-model="endTime"
+      />
     </div>
   </div>
 </template>
@@ -40,6 +35,9 @@ export default {
     value: {
       required: true,
       type: Time,
+    },
+    scheduledTimeout: {
+      required: true,
     },
     readOnly: {
       type: Boolean,
@@ -104,6 +102,36 @@ export default {
         this.setTime(time);
       },
     },
+    endTime: {
+      get() {
+        const currentTime = Time.parse(this.time);
+        currentTime.minute += this.scheduledTimeout.minute;
+        currentTime.hour += this.scheduledTimeout.hour + Math.floor(currentTime.minute / 60);
+        currentTime.minute %= 60;
+        currentTime.hour %= 24;
+
+        if (currentTime.hour < this.value.hour) {
+          currentTime.hour = this.value.hour;
+          currentTime.minute = this.value.minute;
+        } else if (currentTime.hour === this.value.hour) {
+          currentTime.minute = currentTime.minute < this.value.minute ? this.value.minute : currentTime.minute;
+        }
+
+        return currentTime.format("HH:mm");
+      },
+      set(time) {
+        const newTime = Time.parse(time);
+        let minute = newTime.minute - this.value.minute;
+        let hour = newTime.hour - this.value.hour;
+
+        if (minute < 0) {
+          minute += 60;
+          hour -= 1;
+        }
+
+        this.$emit("update", {minute, hour});
+      }
+    },
     isReadOnly() {
       return this.readOnly || this.$dayspan.readOnly;
     },
@@ -151,9 +179,7 @@ export default {
 .ds-time-row {
   display: flex;
   .ds-time-cell {
-    padding-right: 8px;
-    flex: 1 0 0px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     &:last-child {
       margin-right: -8px;
     }
