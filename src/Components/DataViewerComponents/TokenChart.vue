@@ -684,12 +684,10 @@ export default {
         return 0;
       })
 
-      // let accumulation = events.reduce((accumulation, event) => {
-      //   let acc = event.positive !== undefined ? accumulation + event.positive : accumulation;
-      //   return event.negative !== undefined ? acc + event.negative : acc;
-      // }, this.cumulativeToken);
-
-      let accumulation = 0;
+      let accumulation = events.reduce((accumulation, event) => {
+        const cummulativeValue = event.cummulative !== undefined ? event.cummulative : event.value;
+        return accumulation - cummulativeValue;
+      }, this.cumulativeToken);
 
       let normalisedx = x(new Date(0))
       normalisedx += (0.5 * this.focusBarWidth()) - 5;

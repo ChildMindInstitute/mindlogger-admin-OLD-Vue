@@ -6,6 +6,7 @@ import i18n from '../core/i18n';
 import ReproLib from '../schema/ReproLib';
 import SKOS from '../schema/SKOS';
 import slugify from '../core/slugify';
+import { ReportBase } from 'istanbul-lib-report';
 
 export default class Item {
   /**
@@ -156,7 +157,7 @@ export default class Item {
     return this.inputType == 'radio' && this.multipleChoice;
   }
 
-  appendResponses(responses) {
+  appendResponses(responses, inputType) {
     this.responses = this.responses.concat(responses.map(response => {
       if (response.value.value !== undefined) {
         response.value = response.value.value;
@@ -167,6 +168,14 @@ export default class Item {
         response.value = [response.value];
       } else {
         response.value = response.value;
+      }
+
+      if (inputType === 'time') {
+        return {
+          date: new Date(response.date),
+          value: response.value[0],
+          version: response.version,
+        };
       }
 
       return response.value.reduce(
@@ -249,6 +258,17 @@ export default class Item {
         ...choice,
         slug: slugify(choice.id)
       })),
+    }
+  }
+
+  getTimeResponseData() {
+    return {
+      data: this.responses.map(response => {
+        return {
+          ...response,
+          value: new Date().setHours(response.value.hour, response.value.minute, 0, 0)
+        };
+      }),
     }
   }
 

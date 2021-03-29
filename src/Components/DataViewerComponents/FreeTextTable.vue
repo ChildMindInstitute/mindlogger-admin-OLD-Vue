@@ -5,7 +5,6 @@
   >
     <v-card>
       <v-card-title>
-        {{ item.id }}
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
