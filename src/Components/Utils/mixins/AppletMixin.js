@@ -134,64 +134,104 @@ export const AppletMixin = {
               continue;
             }
 
-            let options = [], scores = [];
-            let responseData = [];
+            let flag = 'completed';
+            if(response.responseScheduled && !response.responseStarted) {
+              flag = 'missed';
+            } else if(response.responseStarted && !response.responseCompleted) {
+              flat = 'incomplete';
+            }
 
-            if (response.data[itemUrl].value || !response.data[itemUrl].text) {
-              if (response.data[itemUrl].value) {
-                response.data[itemUrl] = response.data[itemUrl].value;
-              }
+            const responseDataObj = response.data[itemUrl];
+            let responseData = '';
 
-              if (response.data[itemUrl] === null ) {
-                responseData = null;
-              } else if (item.inputType === 'radio' || item.inputType === 'slider') {
-                options = item.responseOptions.map(option => 
-                  `${Object.values(option.name)[0]}: ${option.value} ${item.scoring ? '(score: ' + option.score + ')' : ''}`
-                );
-  
-                if (!Array.isArray(response.data[itemUrl])) {
-                  response.data[itemUrl] = [response.data[itemUrl]]
-                }
-  
-                response.data[itemUrl].forEach(val => {
-                  if (typeof val === 'string') {
-                    let option = item.responseOptions.find(option => Object.values(option.name)[0] === val);
-                    if (option) {
-                      responseData.push(option.value);
-                      if (item.scoring) {
-                        scores.push(option.score);
-                      }
+            if(!responseDataObj) {
+              responseData = null;
+            } else {
+
+              if(responseDataObj instanceof Array) {
+                
+                responseDataObj.forEach((value, index) => {
+
+                  if(value instanceof Object && !Array.isArray(value)) {
+                    for(const [key2, value2] of Object.entries(value)) {
+                      responseData += `${key2}: ${value2}`;
                     }
                   } else {
-                    responseData.push(val);
-  
-                    if (item.scoring) {
-                      let option = item.responseOptions.find(option => option.value === val);
-                      if (option) {
-                        scores.push(option.score);
-                      }
-                    }
+                    responseData += `${index}: ${value}`;
                   }
+
+                  if(index !== responseDataObj.length - 1)
+                    responseData += ' | ';
                 });
-              } else {
-                if (typeof response.data[itemUrl] == 'object' && response.data[itemUrl]) {
-                  responseData = Object.keys(response.data[itemUrl]).map(key => `${key}: ${JSON.stringify(response.data[itemUrl][key]).replace(/[,"]/g, ' ')}`);
-                } else {
-                  responseData = [response.data[itemUrl]];
+
+              } else if(responseDataObj instanceof Object) {
+                
+                let index = 0;
+                for(const [key, value] of Object.entries(responseDataObj)) {
+
+                  if(item.inputType === 'timeRange' && value.from && value.to) {
+                      responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
+                  } else if((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord') && value.filename) {
+                    responseData += `filename: ${value.filename}`;
+                  } else if(item.inputType === 'date' && (value.day || value.month || value.year)) {
+                    responseData += `date: ${value.day}/${value.month}/${value.year}`;
+                  } else if(item.inputType === 'drawing' && value.svgString) {
+                    responseData += `SVG`;
+                  } else if(item.inputType === 'geolocation' && typeof value === 'object') {
+                    responseData += `geo: lat (${value.latitude}) / long (${value.longitude})`;
+                  } else if(item.inputType === 'audioImageRecord') {
+                    if(key === 'filename') {
+                      responseData = `filename: ${value}`;
+                      index = Object.keys(responseDataObj).length;
+                    }
+                  } else {
+                    responseData += `${key}: ${value}`;
+                  }
+
+                  if(index < Object.keys(responseDataObj).length - 1)
+                    responseData += ' | ';
+
+                  index++;
                 }
+
+              } else {
+                responseData = responseDataObj;
               }
-            } else {
-              responseData = [response.data[itemUrl].text];
+
+            }
+
+            const question = item.question['en']
+              .replace(/\r?\n|\r/g, '')
+              .split('250)');
+
+            const options = [];
+            const scores = [];
+
+            if(item.responseOptions && (item.inputType === 'radio' || item.inputType === 'slider')) {
+              item.responseOptions.forEach(resOption => {
+                let option = `${Object.values(resOption.name)[0]}: ${resOption.value}`;
+                
+                if(item.scoring) {
+                  option += ` ${'(score: ' + resOption.score + ')'}`;
+                  scores.push(resOption.score);
+                }
+
+                options.push(option);
+              });
             }
 
             result.push({
               id: response._id,
-              created: response.created,
-              secretUserId: MRN || null,
+              activity_scheduled_time: response.responseScheduled || 'not scheduled',
+              activity_start_time: response.responseStarted || null,
+              activity_end_time: response.responseCompleted || null,
+              flag,
+              MRN:  MRN || null,
               userId: _id,
-              activity: response.activity.name,
-              item: itemUrl,
+              activity: response.activity['@id'],
+              item: item.id,
               response: responseData,
+              question: question[question.length - 1],
               options: options.join(', '),
               version: response.version,
               rawScore: scores.reduce((accumulated, current) => current + accumulated, 0),
@@ -211,12 +251,16 @@ export const AppletMixin = {
         let otc = new ObjectToCSV({
           keys: [
             'id',
-            'created',
-            'secretUserId',
+            'activity_scheduled_time',
+            'activity_start_time',
+            'activity_end_time',
+            'flag',
+            'MRN',
             'userId',
             'activity',
             'item',
             'response',
+            'question',
             'options',
             'version',
             'rawScore',
