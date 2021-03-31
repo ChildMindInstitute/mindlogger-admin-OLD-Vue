@@ -175,7 +175,6 @@ export default {
     }
   },
   mounted() {
-    console.log('==============================->', this.item);
     if (('IntersectionObserver' in window)) {
       const observer = new IntersectionObserver((entries) => {
         if (entries[0].intersectionRatio <= 0) {
@@ -288,8 +287,7 @@ export default {
 
     drawResponses(feature, index) {
       const tooltip = document.querySelector(`.radio-slider.radio-slider-${this.plotId} .tooltip`);
-      
-      console.log('feature', feature)
+
       this.radius = 7;
       this.svg
         .select('.responses-' + feature.slug)
