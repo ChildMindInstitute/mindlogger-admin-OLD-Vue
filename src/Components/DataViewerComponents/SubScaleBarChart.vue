@@ -258,7 +258,7 @@ export default {
 
           return {
             id: index,
-            value: d.value,
+            value: (d && d.value || { tScore: 0 }),
             dataColor: subScale.dataColor,
           }
         }))
