@@ -164,10 +164,12 @@ export default class Activity {
         subScale.values = subScale.values.concat(responses[subScaleName]);
       }
 
-      subScale.latest = {
-        ...subScale.values[0].value,
-        outputText: await this.getOutputText(subScale.values[0].value.outputText)
-      };
+      if (subScale.values.length) {
+        subScale.latest = {
+          ...subScale.values[0].value,
+          outputText: await this.getOutputText(subScale.values[0].value.outputText)
+        };
+      }
     }
   }
 
@@ -176,12 +178,16 @@ export default class Activity {
     for (let subScale of this.subScales) {
       const { values } = subScale;
 
+      if (subScale.isFinalSubScale) {
+        continue;
+      }
+
       if (values.length) {
         total += values[0].value.tScore;
       }
     }
 
-    return total;
+    return Number(total.toFixed(10));
   }
 
   getFrequency() {
