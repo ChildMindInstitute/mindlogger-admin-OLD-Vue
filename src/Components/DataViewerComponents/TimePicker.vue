@@ -83,6 +83,10 @@ export default {
       type: Object,
       required: true
     },
+    timeRange: {
+      type: String,
+      required: true,
+    },
   },
   data: function() {
     let margin = { left: 20, right: 60 };
@@ -188,6 +192,17 @@ export default {
       }
     },
 
+    getTickType() {
+      if (this.timeRange === "Daily") {
+        return d3.timeDay.every(2);
+      } else if (this.timeRange === "Weekly") {
+        return d3.timeWeek;
+      } else if (this.timeRange === "Monthly") {
+        return d3.timeMonth;
+      }
+      return d3.timeDay;
+    },
+
     compressedName(name) {
       return name.length > 30
         ? name.slice(0, 26) + ' …'
@@ -214,7 +229,7 @@ export default {
         .axisBottom()
         .scale(this.x)
         .tickSize(this.tickHeight)  // Height of the tick line.
-        .ticks(d3.timeDay);
+        .ticks(this.getTickType());
 
       const yAxis = d3
         .axisLeft()

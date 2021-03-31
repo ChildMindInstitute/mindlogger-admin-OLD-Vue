@@ -346,6 +346,7 @@
                               :has-version-bars="hasVersionBars"
                               :parent-width="panelWidth"
                               :color="item.dataColor"
+                              :time-range="timeRange"
                               :maxValue="getMaxValue(activity.items)"
                               :minValue="getMinValue(activity.items)"
                             />
