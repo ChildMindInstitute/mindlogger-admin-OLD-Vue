@@ -332,7 +332,11 @@
                             class="chart-card"
                           >
                             <header>
-                              <h3> - {{ item.getFormattedQuestion() }}</h3>
+                              <h3>
+                                <vue-markdown class="item-question">
+                                  {{ item.getFormattedQuestion() }}
+                                </vue-markdown>
+                              </h3>
                             </header>
 
                             <TimePicker
@@ -535,9 +539,16 @@
   margin: 10px 0px;
 }
 </style>
+<style>
+.item-question img {
+  width: 250px;
+  height: 250px;
+}
+</style>
 
 <script>
 import _ from "lodash";
+import VueMarkdown from "vue-markdown";
 import api from "../Components/Utils/api/api.vue";
 import Applet from "../models/Applet";
 import Activity from "../models/Activity";
@@ -566,6 +577,7 @@ export default {
     FreeTextTable,
     SubScaleLineChart,
     SubScaleBarChart,
+    VueMarkdown
   },
 
   /**
