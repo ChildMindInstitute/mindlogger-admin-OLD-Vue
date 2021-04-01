@@ -174,6 +174,10 @@ export default class Activity {
   }
 
   getLatestActivityScore() {
+    if (this.finalSubScale && this.finalSubScale.latest) {
+      return Number(this.finalSubScale.latest.tScore.toFixed(10));
+    }
+
     let total = 0;
     for (let subScale of this.subScales) {
       const { values } = subScale;
@@ -201,7 +205,7 @@ export default class Activity {
       for (let i = 0; i < subScale.values.length; i++) {
         const date = new Date(subScale.values[i].date);
         if (
-          !versions || versions.includes(subScale.values[i].version) && 
+          !versions || versions.includes(subScale.values[i].version) &&
           !focusExtent || date <= focusExtent[1] && date >= focusExtent[0]
         ) {
           min = Math.min(min, subScale.values[i].value.tScore);
