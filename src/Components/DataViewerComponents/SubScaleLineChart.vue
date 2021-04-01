@@ -331,7 +331,7 @@ export default {
           }
           return d;
         })
-        .style('stroke-width', this.responseLineWidth)
+        .style('stroke-width', d => d.isFinalSubScale ? this.responseLineWidth+1 : this.responseLineWidth)
         .style('stroke', subScale => subScale.dataColor)
 
       for (let i = 0; i < this.activity.subScales.length; i++) {
