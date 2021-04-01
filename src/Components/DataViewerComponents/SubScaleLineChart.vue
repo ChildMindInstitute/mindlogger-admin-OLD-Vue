@@ -290,6 +290,18 @@ export default {
         .style('stroke', 'grey')
     },
 
+    getX(d) {
+      let responseDate = new Date(d.date);
+
+      const dataVersion = this.formattedVersions.find(v => v.version === d.version );
+
+      if (dataVersion.updated) {
+        const offset = this.versionsLength[new Date(dataVersion.updated).getDay()] / 2;
+        responseDate = new Date(d.date).setHours(new Date (dataVersion.updated).getHours() + offset);
+      }
+      return this.x(responseDate);
+    },
+
     drawResponses() {
       this.svg
         .select('.responses')
@@ -306,8 +318,9 @@ export default {
         .attr('d', subScale => {
           const d = subScale.values.map(d => {
             if (this.selectedVersions.includes(d.version)) {
-              const x = this.x(new Date(d.date));
+              const x = this.getX(d);
               const y = this.y(d.value.tScore);
+
               return `L ${Math.max(x, 2)} ${y}`;
             }
             return '';
@@ -331,11 +344,11 @@ export default {
           .join('circle')
           .attr('class', 'tooltip-circle')
           .attr('fill', subScale.dataColor)
-          .attr('cx', d => this.x(new Date(d.date)))
+          .attr('cx', d => this.getX(d))
           .attr('cy', d => this.y(d.value.tScore))
           .attr('r', d => d.value.outputText ? this.radius / 2 : 0)
           .on('focus', d => d.value.outputText ? this.showTooltip(
-            this.x(new Date(d.date)),
+            this.getX(d),
             this.y(d.value.tScore),
             d.value,
             this.labelWidth,

@@ -180,7 +180,7 @@ export default {
         .nice()
         .domain(this.focusExtent)
         .range([0, this.width - this.labelWidth]);
-      
+
       const tickType = this.getTickType();
 
       const xAxis = d3
@@ -213,6 +213,11 @@ export default {
         .attr('cx', d => {
           const dataVersion = this.formattedVersions.find(v => v.version === d.version );
           let responseDate = new Date(d.date);
+
+          if (dataVersion.updated) {
+            const offset = this.versionsLength[new Date(dataVersion.updated).getDay()] / 2;
+            responseDate = new Date(d.date).setHours(new Date (dataVersion.updated).getHours() + offset);
+          }
 
           return this.x(responseDate);
         })
