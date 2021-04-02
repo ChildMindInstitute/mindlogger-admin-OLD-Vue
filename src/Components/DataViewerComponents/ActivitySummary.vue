@@ -180,7 +180,7 @@ export default {
         .nice()
         .domain(this.focusExtent)
         .range([0, this.width - this.labelWidth]);
-      
+
       const tickType = this.getTickType();
 
       const xAxis = d3
@@ -227,4 +227,3 @@ export default {
   }
 }
 </script>
- 

@@ -35,7 +35,7 @@
             <div class="time-range">
               <v-menu>
                 <template v-slot:activator="{ on }">
-                  <v-btn 
+                  <v-btn
                     depressed
                     class="ds-button-tall mr-2 ml-2 mb-2 fromDate"
                     v-on="on"
@@ -57,7 +57,7 @@
 
               <v-menu>
                 <template v-slot:activator="{ on }">
-                  <v-btn 
+                  <v-btn
                     depressed
                     class="ds-button-tall mr-2 ml-2 mb-2 toDate"
                     v-on="on"
@@ -137,42 +137,42 @@
                       :key="index"
                     >
                       <v-expansion-panel-header>
-                        <div 
+                        <div
                           v-if="!allExpanded && applet.activities.length > 1"
                           class="ds-expand-action"
                           @click.stop="onAllExpand"
                         >
-                          <v-icon 
+                          <v-icon
                             v-show="index === 0"
-                            class="ds-expand-all" 
+                            class="ds-expand-all"
                             medium
                           >
                             mdi-chevron-up
                           </v-icon>
-                          <v-icon 
+                          <v-icon
                             v-show="index === 0"
-                            class="ds-expand-all" 
+                            class="ds-expand-all"
                             medium
                           >
                             mdi-chevron-down
                           </v-icon>
                         </div>
 
-                        <div 
+                        <div
                           v-if="allExpanded  && applet.activities.length > 1"
                           class="ds-expand-action"
                           @click.stop="onAllCollapsed"
                         >
-                          <v-icon 
+                          <v-icon
                             v-show="index === 0"
-                            class="ds-expand-all" 
+                            class="ds-expand-all"
                             medium
                           >
                             mdi-chevron-down
                           </v-icon>
-                          <v-icon 
+                          <v-icon
                             v-show="index === 0"
-                            class="ds-expand-all" 
+                            class="ds-expand-all"
                             medium
                           >
                             mdi-chevron-up
@@ -201,14 +201,13 @@
                         v-if="activity.responses && activity.responses.length && (tab !== 'tokens' || activity.hasTokenItem)"
                       >
                         <div
-                          v-if="activity.finalSubScale"
+                          v-if="activity.finalSubScale && activity.finalSubScale.latest.outputText"
                           class="additional-note mt-4"
                         >
                           <header>
                             <h2> - Additional Information </h2>
                           </header>
                           <div
-                            v-if="activity.finalSubScale.latest.outputText"
                             class="subscale-output"
                           >
                             <mavon-editor
@@ -275,12 +274,14 @@
 
                               <v-expansion-panel-content>
                                 <div>
-                                  <div class="additional-note">
+                                  <div
+                                    v-if="subScale.latest.outputText"
+                                    class="additional-note"
+                                  >
                                     <header>
                                       <h3> - Additional Information </h3>
                                     </header>
                                     <div
-                                      v-if="subScale.latest.outputText"
                                       class="subscale-output"
                                     >
                                       <mavon-editor
@@ -545,7 +546,7 @@ import Item from "../models/Item";
 import TokenChart from "../Components/DataViewerComponents/TokenChart.vue";
 import ActivitySummary from "../Components/DataViewerComponents/ActivitySummary.vue";
 import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue";
-import TimePicker from "../Components/DataViewerComponents/TimePicker.vue"; 
+import TimePicker from "../Components/DataViewerComponents/TimePicker.vue";
 import FreeTextTable from "../Components/DataViewerComponents/FreeTextTable.vue";
 import SubScaleLineChart from "../Components/DataViewerComponents/SubScaleLineChart";
 import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChart";
@@ -701,12 +702,12 @@ export default {
       let NOW = new Date();
       NOW.setDate(NOW.getDate() + 1);
       return (
-        (moment.utc(date) > this.focusExtent[0]) && 
+        (moment.utc(date) > this.focusExtent[0]) &&
         (moment.utc(date) <= moment.utc(NOW))
       );
     },
 
-    /** 
+    /**
      * Expand all activities.
      *
      * @param {items} items Activity Items
@@ -733,7 +734,7 @@ export default {
       return maxValue;
     },
 
-    /** 
+    /**
      * Expand all activities.
      *
      * @param {items} items Activity Items

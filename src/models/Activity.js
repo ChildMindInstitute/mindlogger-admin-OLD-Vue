@@ -164,24 +164,34 @@ export default class Activity {
         subScale.values = subScale.values.concat(responses[subScaleName]);
       }
 
-      subScale.latest = {
-        ...subScale.values[0].value,
-        outputText: await this.getOutputText(subScale.values[0].value.outputText)
-      };
+      if (subScale.values.length) {
+        subScale.latest = {
+          ...subScale.values[0].value,
+          outputText: await this.getOutputText(subScale.values[0].value.outputText)
+        };
+      }
     }
   }
 
   getLatestActivityScore() {
+    if (this.finalSubScale && this.finalSubScale.latest) {
+      return Number(this.finalSubScale.latest.tScore.toFixed(10));
+    }
+
     let total = 0;
     for (let subScale of this.subScales) {
       const { values } = subScale;
+
+      if (subScale.isFinalSubScale) {
+        continue;
+      }
 
       if (values.length) {
         total += values[0].value.tScore;
       }
     }
 
-    return total;
+    return Number(total.toFixed(10));
   }
 
   getFrequency() {
@@ -195,7 +205,7 @@ export default class Activity {
       for (let i = 0; i < subScale.values.length; i++) {
         const date = new Date(subScale.values[i].date);
         if (
-          !versions || versions.includes(subScale.values[i].version) && 
+          !versions || versions.includes(subScale.values[i].version) &&
           !focusExtent || date <= focusExtent[1] && date >= focusExtent[0]
         ) {
           min = Math.min(min, subScale.values[i].value.tScore);
