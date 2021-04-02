@@ -325,6 +325,7 @@ export default {
   switchAccount: 'Switch Account',
   selectAppletToExportData: 'Please select applet to export data from: ',
   responses: 'Responses',
+  frequency: 'Frequency',
   tokens: 'Tokens',
   responseOptions: 'Response Options',
   dataRetentionSettingUpdate: 'Data Retention Setting Update',

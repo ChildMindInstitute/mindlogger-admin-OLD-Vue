@@ -365,6 +365,20 @@
                               :color="item.dataColor"
                             />
 
+                            <Frequency
+                              v-else-if="tab == 'frequency' && item.inputType === 'radio'"
+                              :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
+                              :item="item"
+                              :versions="applet.versions"
+                              :focus-extent="focusExtent"
+                              :selected-versions="selectedVersions"
+                              :timezone="applet.timezoneStr"
+                              :has-version-bars="hasVersionBars"
+                              :parent-width="panelWidth"
+                              :time-range="timeRange"
+                              :color="item.dataColor"
+                            />
+
                             <FreeTextTable
                               v-if="tab == 'responses' && item.inputType === 'text'"
                               :plot-id="`FreeText-${activity.data['_id']}-${item.data['_id']}`"
@@ -546,6 +560,7 @@ import Item from "../models/Item";
 import TokenChart from "../Components/DataViewerComponents/TokenChart.vue";
 import ActivitySummary from "../Components/DataViewerComponents/ActivitySummary.vue";
 import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue";
+import Frequency from "../Components/DataViewerComponents/Frequency.vue";
 import TimePicker from "../Components/DataViewerComponents/TimePicker.vue";
 import FreeTextTable from "../Components/DataViewerComponents/FreeTextTable.vue";
 import SubScaleLineChart from "../Components/DataViewerComponents/SubScaleLineChart";
@@ -563,6 +578,7 @@ export default {
     TokenChart,
     ActivitySummary,
     RadioSlider,
+    Frequency,
     TimePicker,
     FreeTextTable,
     SubScaleLineChart,
@@ -599,7 +615,7 @@ export default {
       responses: [],
       selectedTab: 0,
       panel: [],
-      tabs: ['responses', 'tokens'],
+      tabs: ['responses', 'tokens', 'frequency'],
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
       timeRange: "Default",
