@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added frequency tab
 
 ## [0.6.6] - 2021-03-28
+- Fixed tick space for time picker items
+
+## [0.6.6] - 2021-03-28
 - Update scheduling/notification settings
 
 ## [0.6.5] - 2021-03-25
