@@ -134,6 +134,10 @@
   width: 100% !important;
   flex: 0 0 100% !important;
 }
+
+.tooltip .v-note-wrapper {
+  min-height: unset;
+}
 </style>
 
 <script>

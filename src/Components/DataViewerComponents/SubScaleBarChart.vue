@@ -75,6 +75,10 @@
   width: 100% !important;
   flex: 0 0 100% !important;
 }
+
+.tooltip .v-note-wrapper {
+  min-height: unset;
+}
 </style>
 
 <script>
@@ -251,8 +255,8 @@ export default {
           const d = subScale.values.find(d => {
             const date = new Date(d.date);
 
-            return date >= this.focusExtent[0] && 
-                   date <= this.focusExtent[1] && 
+            return date >= this.focusExtent[0] &&
+                   date <= this.focusExtent[1] &&
                    this.selectedVersions.includes(d.version);
           });
 
