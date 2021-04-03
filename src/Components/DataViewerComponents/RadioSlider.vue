@@ -100,6 +100,11 @@ export default {
 
     let width = this.parentWidth - margin.left - margin.right;
 
+    features = features.map((feature, index) => ({ ...feature, index}));
+    if (this.item.inputType == 'slider') {
+      features = features.reverse();
+    }
+
     return {
       height: features.length * heightPerFeature,
       heightPerFeature,
@@ -107,10 +112,7 @@ export default {
       width,
       labelWidth: width / 4,
       data,
-      features: features.map((feature, index) => ({
-        ...feature,
-        index
-      })).reverse(),
+      features,
       visible: false,
     }
   },
@@ -314,7 +316,7 @@ export default {
 
         if (x >= 0 && prevX >= 0) {
           let delta = this.radius + 2;
-          let dx = x - prevX, 
+          let dx = x - prevX,
               dy = y - prevY;
 
           let r = Math.sqrt(dx * dx + dy * dy);
