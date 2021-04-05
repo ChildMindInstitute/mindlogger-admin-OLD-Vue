@@ -93,6 +93,9 @@ export default {
     },
   },
   data: (vm) => ({}),
+  mounted() {
+    console.log('ssss', this.scheduledTimeout);
+  },
   computed: {
     time: {
       get() {
@@ -107,8 +110,11 @@ export default {
         const currentTime = Time.parse(this.time);
         currentTime.minute += this.scheduledTimeout.minute;
         currentTime.hour += this.scheduledTimeout.hour + Math.floor(currentTime.minute / 60);
-        currentTime.minute %= 60;
-        currentTime.hour %= 24;
+
+        if (currentTime.hour >= 24) {
+          currentTime.hour = 23;
+          currentTime.minute = 59;
+        }
 
         if (currentTime.hour < this.value.hour) {
           currentTime.hour = this.value.hour;
