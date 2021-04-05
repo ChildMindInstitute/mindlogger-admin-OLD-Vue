@@ -546,8 +546,12 @@
 
 .additional-note .subscale-output {
   max-height: 150px;
-  overflow-y: scroll;
+  overflow-y: auto;
   margin: 10px 0px;
+}
+
+.additional-note .subscale-output .v-note-wrapper{
+  min-height: unset;
 }
 </style>
 
@@ -590,14 +594,8 @@ export default {
    */
   data: function() {
     const NOW = new Date();
-    const TODAY = new Date(Date.UTC(
-      NOW.getFullYear(),
-      NOW.getMonth(),
-      NOW.getDate() + 1,
-      0,
-      0,
-      0,
-    ));
+    const TODAY = NOW;
+    TODAY.setDate(TODAY.getDate() + 1);
 
     const ONE_WEEK_AGO = new Date(TODAY);
     ONE_WEEK_AGO.setDate(TODAY.getDate() - 6);

@@ -312,7 +312,7 @@ export default class Applet {
 
     this.versions = data;
 
-    this.versions = this.versions.filter((version, index) => 
+    this.versions = this.versions.filter((version, index) =>
       this.versions.findIndex(d => d.version == version.version) === index
     );
   }
@@ -348,7 +348,7 @@ export default class Applet {
   }
 
   /**
-   * Method to get version upgrade type 
+   * Method to get version upgrade type
    */
   getVersionChangeType(version1, version2) {
     const v1 = version1.split('.').map(val => parseInt(val));
