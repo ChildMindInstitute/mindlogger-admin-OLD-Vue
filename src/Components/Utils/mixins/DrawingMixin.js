@@ -92,6 +92,18 @@ export const DrawingMixin = {
     }
   },
   methods: {
+    getX(d) {
+      let responseDate = new Date(d.date);
+
+      const dataVersion = this.formattedVersions.find(v => v.version === d.version );
+
+      if (dataVersion.updated) {
+        const offset = this.versionsLength[new Date(dataVersion.updated).getDay()] / 2;
+        responseDate = new Date(d.date).setHours(new Date (dataVersion.updated).getHours() + offset);
+      }
+      return this.x(responseDate);
+    },
+
     drawVersions() {
       this.svg
         .select('.versions')
@@ -151,7 +163,7 @@ export const DrawingMixin = {
               method: 'GET',
               url: output,
             })
-            .then(resp => 
+            .then(resp =>
               this.$set(this.cachedContents, output, resp.data)
             )
             .catch(() => {

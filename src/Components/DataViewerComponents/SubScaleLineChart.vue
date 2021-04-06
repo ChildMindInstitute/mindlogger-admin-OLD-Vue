@@ -134,6 +134,10 @@
   width: 100% !important;
   flex: 0 0 100% !important;
 }
+
+.tooltip .v-note-wrapper {
+  min-height: unset;
+}
 </style>
 
 <script>
@@ -288,18 +292,6 @@ export default {
         .attr('x2', this.x(this.focusExtent[1]))
         .attr('stroke-dasharray', 2)
         .style('stroke', 'grey')
-    },
-
-    getX(d) {
-      let responseDate = new Date(d.date);
-
-      const dataVersion = this.formattedVersions.find(v => v.version === d.version );
-
-      if (dataVersion.updated) {
-        const offset = this.versionsLength[new Date(dataVersion.updated).getDay()] / 2;
-        responseDate = new Date(d.date).setHours(new Date (dataVersion.updated).getHours() + offset);
-      }
-      return this.x(responseDate);
     },
 
     drawResponses() {
