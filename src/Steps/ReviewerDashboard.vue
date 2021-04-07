@@ -613,7 +613,7 @@ export default {
       responses: [],
       selectedTab: 0,
       panel: [],
-      tabs: ['responses', 'tokens', 'frequency'],
+      tabs: ['responses', 'tokens'],
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
       timeRange: "Default",
@@ -670,6 +670,7 @@ export default {
         this.$store.state.currentAppletData.applet.encryption
       );
 
+      this.setDashboardTabs();
       this.selectedVersions = this.appletVersions;
       this.loading = false;
       this.onResize = this.onResize.bind(this);
@@ -690,6 +691,14 @@ export default {
    * Component methods.
    */
   methods: {
+    setDashboardTabs () {
+      for (const itemId in this.applet.items) {
+        if (this.applet.items[itemId].isTokenItem) {
+          this.tabs.push("frequency");
+          break;
+        }
+      }
+    },
     onResize() {
       if (this.$refs.panels) {
         const dimensions = this.$refs.panels.getBoundingClientRect();
