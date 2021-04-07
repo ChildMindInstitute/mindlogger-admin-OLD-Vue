@@ -92,10 +92,6 @@
             <div class="ds-timeout-unit">{{ $t('minutes') }}</div>
           </div>
         </div>
-
-        <div v-if="isTimeoutValid === false" class="error">
-          Idle Time invalid: Idle Time should be non-zero.
-        </div>
       </div>
     </div>
 
@@ -221,10 +217,9 @@
             <div class="ds-timeout-unit">{{ $t('minutes') }}</div>
           </div>
         </div>
-
-        <div v-if="isTimeoutValid === false" class="error">
-          Idle Time invalid: Idle Time should be non-zero.
-        </div>
+      </div>
+      <div v-if="isTimeoutValid === false" class="error white--text pa-2">
+        You cannot schedule an activity with the same start and stop time.
       </div>
     </div>
   </div>
@@ -298,7 +293,7 @@ export default {
     isTimeoutValid: {
       type: Boolean,
       required: true,
-      default: true,
+      default: true, 
     },
   },
   // eslint-disable-next-line
