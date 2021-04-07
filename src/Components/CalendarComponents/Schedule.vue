@@ -70,7 +70,6 @@
           v-model="scheduledIdleTime.allow"
           :label="$t('idleTime')"
           :readonly="isReadOnly"
-          :disabled="timedActivity.allow"
           @change="handleIdleTimeAccess"
           flat
         />

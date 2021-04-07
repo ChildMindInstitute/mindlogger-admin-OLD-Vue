@@ -399,7 +399,7 @@ export default {
       return this.details.completion || false;
     },
     availability() {
-      return this.details.availability || false;
+      return this.details.availability && true;
     },
     scheduledDay() {
       return this.details.onlyScheduledDay || false;
