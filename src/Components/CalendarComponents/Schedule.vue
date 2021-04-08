@@ -194,7 +194,6 @@
           v-model="scheduledIdleTime.allow"
           :label="$t('idleTime')"
           :readonly="isReadOnly"
-          :disabled="timedActivity.allow"
           @change="handleIdleTimeAccess"
           flat
         />
@@ -310,9 +309,6 @@ export default {
       scheduledExtendedTimeDecimal: this.extendedTime,
       scheduledIdleTime: this.idleTime,
     };
-  },
-  mounted() {
-    console.log(this.timeout)
   },
   computed: {
     showRange() {

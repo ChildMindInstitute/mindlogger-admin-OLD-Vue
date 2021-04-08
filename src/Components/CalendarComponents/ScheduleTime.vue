@@ -102,6 +102,18 @@ export default {
         return this.value.format("HH:mm");
       },
       set(time) {
+        const startTime = Time.parse(time);
+        const endTime = Time.parse(this.endTime);
+
+        let minute = endTime.minute - startTime.minute;
+        let hour = endTime.hour - startTime.hour;
+
+        if (minute < 0) {
+          minute += 60;
+          hour -= 1;
+        }
+
+        this.$emit("update", {minute, hour});
         this.setTime(time);
       },
     },
