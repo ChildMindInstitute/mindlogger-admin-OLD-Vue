@@ -21,13 +21,13 @@
       {{ $t('mindloggerDashboard') }}
     </v-btn>
 
-    <v-icon 
-      v-if="currentApplet" 
+    <v-icon
+      v-if="currentApplet"
       medium
     >
       mdi-chevron-right
     </v-icon>
-    
+
     <v-btn
       v-if="currentApplet"
       color="primary"
@@ -498,7 +498,7 @@ export default {
     },
 
     currentApplet() {
-      return this.$store.state.currentAppletMeta; 
+      return this.$store.state.currentAppletMeta;
     },
 
     routeName() {
@@ -545,7 +545,7 @@ export default {
       return this.windowWidth > 1400;
     },
     isTablet() {
-      return this.windowWidth <= 1400 && this.windowWidth >= 768; 
+      return this.windowWidth <= 1400 && this.windowWidth >= 768;
     },
     allApplets() {
       return this.$store.state.allApplets;
@@ -591,6 +591,7 @@ export default {
       if (this.isLoggedIn) {
         this.$router.push('/dashboard').catch(err => {});
         this.$store.commit('setCurrentApplet', null);
+        this.$store.commit('setCurrentUsers', {});
       }
     },
 
