@@ -5,6 +5,7 @@ import ObjectToCSV from 'object-to-csv';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import fr from 'javascript-time-ago/locale/fr';
+import Activity from "../../../models/Activity";
 TimeAgo.addLocale(en);
 TimeAgo.addLocale(fr);
 
@@ -79,12 +80,20 @@ export const AppletMixin = {
         const result = [];
 
         const currentItems = {};
+        const currentActivities = [];
         for (let itemUrl in appletData.items) {
           currentItems[itemUrl] = new Item(appletData.items[itemUrl]);
+        }
+        for (let activityUrl in appletData.activities) {
+          currentActivities.push(new Activity(appletData.activities[activityUrl]));
         }
 
         for (let itemId in data.items) {
           data.items[itemId] = new Item(data.items[itemId])
+        }
+
+        for (let activityId in data.activities) {
+          data.activities[activityId] = new Activity(data.activities[activityId]);
         }
 
         for (let version in data.itemReferences) {
@@ -137,6 +146,10 @@ export const AppletMixin = {
 
             let item = (data.itemReferences[response.version] && data.itemReferences[response.version][itemUrl])
                             || currentItems[itemUrl];
+            let activity = currentItems[itemUrl] ?
+                currentActivities.find(activity => activity.data._id.split('/')[1] == response.activity['@id']) :
+                data.activities[item.data.activityId];
+
             if (!item) {
               continue;
             }
@@ -236,7 +249,8 @@ export const AppletMixin = {
               flag,
               MRN:  MRN || null,
               userId: _id,
-              activity: response.activity['@id'],
+              activity_id: response.activity['@id'],
+              activity_name: activity.label.en,
               item: item.id,
               response: responseData,
               question: question[question.length - 1],
@@ -265,7 +279,8 @@ export const AppletMixin = {
             'flag',
             'MRN',
             'userId',
-            'activity',
+            'activity_id',
+            'activity_name',
             'item',
             'response',
             'question',
