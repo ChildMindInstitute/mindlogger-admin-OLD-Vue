@@ -26,7 +26,10 @@
         :width="labelWidth - 20"
         :height="height"
       >
-        <div class="chart-labels">
+        <div
+          class="chart-labels"
+          :style="`max-height: ${height-20}px;`"
+        >
           <div class="chart-title">
             {{ $t('subScaleScores') }}
           </div>
@@ -100,6 +103,8 @@
 
 .chart-labels {
   position: relative;
+  overflow-y: auto;
+  direction: rtl;
   top: 50%;
   transform: translate(0, -50%);
 }
