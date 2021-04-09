@@ -94,7 +94,6 @@ export const DrawingMixin = {
   methods: {
     getX(d) {
       let responseDate = new Date(d.date);
-
       const dataVersion = this.formattedVersions.find(v => v.version === d.version );
 
       if (dataVersion && dataVersion.updated) {

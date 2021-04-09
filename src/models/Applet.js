@@ -319,10 +319,6 @@ export default class Applet {
 
   insertInitialVersion() {
     for (let schema in this.responses) {
-      if (!schema.startsWith('https://')) {
-        continue;
-      }
-
       for (let response of this.responses[schema]) {
         if (response.version && !this.versions.find(data => data.version == response.version)) {
           this.versions.push({
