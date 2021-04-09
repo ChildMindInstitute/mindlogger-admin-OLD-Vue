@@ -332,9 +332,34 @@
                             :key="item['id']"
                             class="chart-card"
                           >
-                            <header>
-                              <h3> - {{ item.getFormattedQuestion() }}</h3>
+                            <header
+                            >
+                              <h3
+                                v-if="item.inputType !== 'markdownMessage'"
+                              >
+                                - {{ item.getFormattedQuestion() }}
+                              </h3>
+
+                              <h3
+                                v-else
+                              >
+                                - {{ item.label.en }}
+                              </h3>
                             </header>
+                            <div
+                              v-if="item.inputType == 'markdownMessage'"
+                            >
+                              <div
+                                class="markdown"
+                              >
+                                <mavon-editor
+                                  :value="item.question.en"
+                                  :language="'en'"
+                                  :toolbarsFlag="false"
+                                >
+                                </mavon-editor>
+                              </div>
+                            </div>
 
                             <TimePicker
                               v-if="tab == 'responses' && item.inputType === 'time'"
@@ -536,21 +561,21 @@
   flex-direction: row-reverse;
 }
 
-.additional-note /deep/ .v-note-edit {
+.additional-note /deep/ .v-note-edit, .markdown /deep/ .v-note-edit {
   display: none;
 }
-.additional-note /deep/ .v-note-show {
+.additional-note /deep/ .v-note-show, .markdown /deep/ .v-note-show {
   width: 100% !important;
   flex: 0 0 100% !important;
 }
 
-.additional-note .subscale-output {
+.additional-note .subscale-output, .markdown {
   max-height: 150px;
   overflow-y: auto;
   margin: 10px 0px;
 }
 
-.additional-note .subscale-output .v-note-wrapper{
+.additional-note .subscale-output .v-note-wrapper, .markdown .v-note-wrapper{
   min-height: unset;
 }
 </style>
