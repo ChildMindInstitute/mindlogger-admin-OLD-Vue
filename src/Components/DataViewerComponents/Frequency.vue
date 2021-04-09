@@ -16,7 +16,7 @@
       :height="(height + space) * features.length + padding.bottom + padding.top"
     >
       <g 
-        v-for="(feature, index) in features" 
+        v-for="(feature, index) in features"
         class="features"
         :key="feature.slug"
       >
@@ -28,10 +28,10 @@
         >
           {{feature.name.en}}
         </text>
-        <g :class="'x-axis-' + feature.slug" />
+        <g :class="'x-axis' + feature.slug" />
         <g :class="'y-axis-' + feature.slug" />
         <g :class="'versions-' + feature.slug" />
-        <g :class="'responses-' + feature.slug" />
+        <g :class="'responses' + feature.slug" />
       </g>
     </svg>
   </div>
@@ -120,6 +120,7 @@ export default {
   computed: {
     responseDates() {
       let responseDates = {};
+
       for (let response of this.data) {
         for (let feature of this.features) {
           if (response[feature.slug] !== undefined) {
@@ -205,9 +206,10 @@ export default {
 
         this.features.forEach((feature, index) => {
           this.drawAxis(feature, index + 1);
-
-          this.drawVersions();
-          this.drawResponses(feature, index + 1);
+          if (this.responseDates[feature.slug]) {
+            this.drawVersions();
+            this.drawResponses(feature, index + 1);
+          }
         });
       }
     },
@@ -230,8 +232,15 @@ export default {
     },
 
     drawAxis(feature, index) {
-      const max = Math.max(Math.max.apply(Math, this.responseDates[feature.slug].map(({ value }) => value)), 6);
-      const min = Math.min(Math.min.apply(Math, this.responseDates[feature.slug].map(({ value }) => value)), 0);
+      let max = 6; 
+      let min = 0;
+      
+      if (this.responseDates[feature.slug]) {
+        max = Math.max(Math.max.apply(Math, this.responseDates[feature.slug].map(({ value }) => value)), 6);
+        min = Math.min(Math.min.apply(Math, this.responseDates[feature.slug].map(({ value }) => value)), 0);
+      }
+      console.log(max, min)
+      console.log(feature.slug)
 
       this.x = d3
         .scaleUtc()
@@ -260,7 +269,7 @@ export default {
         .ticks(3);
 
       this.svg
-        .select('.x-axis-' + feature.slug)
+        .select('.x-axis' + feature.slug)
         .selectAll('.feature-axis')
         .remove();
 
@@ -275,7 +284,7 @@ export default {
 
       for (let i = 0; i <= max - min; i += 1) {
         this.svg
-          .select('.x-axis-' + feature.slug)
+          .select('.x-axis' + feature.slug)
           .append('g')
           .attr('class', 'feature-axis')
           .style('stroke-width', i === 0 ? 1.5 : 1)
@@ -290,7 +299,7 @@ export default {
 
       this.radius = 7;
       this.svg
-        .select('.responses-' + feature.slug)
+        .select('.responses' + feature.slug)
         .selectAll('*')
         .remove();
 
@@ -315,7 +324,7 @@ export default {
         }
 
         this.svg
-          .select('.responses-' + feature.slug)
+          .select('.responses' + feature.slug)
           .append('circle')
           .attr('fill', feature.color)
           .attr('cx', x)
@@ -333,7 +342,7 @@ export default {
 
           if (r >= this.radius * 2) {
             this.svg
-              .select('.responses-' + feature.slug)
+              .select('.responses' + feature.slug)
               .append('line')
               .style('stroke-width', 1.5)
               .attr('x1', prevX + dx * delta)
