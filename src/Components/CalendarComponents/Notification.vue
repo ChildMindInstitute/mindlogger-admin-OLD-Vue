@@ -14,7 +14,7 @@
     >
       <!-- Start notification at -->
       <v-row class="ds-time-cell">
-        <v-col class="no-padding" col="10" sm="11">
+        <v-col class="no-padding" col="10" sm="10">
           <div>
             <div class="d-flex align-center ds-notif-ele">
               <v-switch 
@@ -55,7 +55,7 @@
             </div>
           </div>
         </v-col>
-        <v-col col="1">
+        <v-col col="2" class="d-flex justify-end">
           <v-btn
             v-if="notificationTimes.length"
             class="ds-remove-btn"
