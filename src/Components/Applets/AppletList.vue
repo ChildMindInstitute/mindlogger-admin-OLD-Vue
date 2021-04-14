@@ -92,7 +92,7 @@
           }"
       >
         <template v-slot:item="{ item }">
-          <template v-if="!item.isFolder">
+          <template v-if="!item.isFolder && item.roles.length">
             <applet-item
                 :key="item.id + item.parentId"
                 :item="item"
@@ -116,7 +116,7 @@
               </template>
             </applet-item>
           </template>
-          <template v-else>
+          <template v-else-if="item.isFolder">
             <folder-item
                 :key="item.id + item.parentId"
                 :item="item"
@@ -647,11 +647,24 @@ export default {
             appletId: this.hoveredAppletId,
           })
           .then((resp) => {
+            const filteredItems = [];
+            
             this.isSyncing = false;
             this.loaderMessage = "";
             const applet = this.appletPendingDelete;
             this.$store.commit('removeDeletedApplet',  applet);
-            this.flattenedDirectoryItems = this.flattenedDirectoryItems.filter(item => item.id != applet.id);
+
+            for (const item of this.flattenedDirectoryItems) {
+              if (!item.isFolder && item.id !== applet.id) {
+                filteredItems.push(item);
+              } else if (item.isFolder) {
+                const folderItem = item;
+
+                folderItem.items = item.items.filter(ele => ele.id !== applet.id);
+                filteredItems.push(folderItem);
+              }
+            }
+            this.flattenedDirectoryItems = [...filteredItems];
             this.updateVisibleItems();
           });
     },
