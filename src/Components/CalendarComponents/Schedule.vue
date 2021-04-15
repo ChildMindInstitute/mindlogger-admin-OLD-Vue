@@ -361,9 +361,11 @@ export default {
       this.$emit("type", type);
     },
     onIdleTime() {
-      this.$set(this.timedActivity, 'allow', false);
+      if (this.scheduledIdleTime.allow && this.timedActivity.allow) {
+        this.$set(this.timedActivity, 'allow', false);
+        this.handleTimedActivity();
+      }
 
-      this.handleTimedActivity();
       this.handleIdleTimeAccess();
     },
     onTimedActivity() {
