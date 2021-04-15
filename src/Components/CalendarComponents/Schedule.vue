@@ -1,8 +1,8 @@
 <template>
   <div class="ds-schedule mx-6" :class="classes">
     <div class="d-flex mt-4">
-      <v-switch 
-        :label="$t('alwaysAvailable')" 
+      <v-switch
+        :label="$t('alwaysAvailable')"
         :readonly="isReadOnly"
         v-model="eventAvailability"
         flat
@@ -12,10 +12,10 @@
 
     <div v-if="eventAvailability">
       <div class="d-flex">
-        <v-switch 
+        <v-switch
           v-model="oneTimeCompletion"
-          :label="$t('oneTimeCompletion')" 
-          :readonly="isReadOnly" 
+          :label="$t('oneTimeCompletion')"
+          :readonly="isReadOnly"
           @change="handleOneTimeCompletion"
           class="mx-8"
           flat
@@ -70,7 +70,7 @@
           v-model="scheduledIdleTime.allow"
           :label="$t('idleTime')"
           :readonly="isReadOnly"
-          @change="handleIdleTimeAccess"
+          @change="onIdleTime"
           flat
         />
 
@@ -97,7 +97,7 @@
 
     <div v-else class="mx-8">
       <div class="d-flex align-baseline" >
-        <schedule-times 
+        <schedule-times
           v-if="!eventAvailability"
           :scheduledTimeout="scheduledTimeout"
           :schedule="schedule"
@@ -194,7 +194,7 @@
           v-model="scheduledIdleTime.allow"
           :label="$t('idleTime')"
           :readonly="isReadOnly"
-          @change="handleIdleTimeAccess"
+          @change="onIdleTime"
           flat
         />
 
@@ -292,7 +292,7 @@ export default {
     isTimeoutValid: {
       type: Boolean,
       required: true,
-      default: true, 
+      default: true,
     },
   },
   // eslint-disable-next-line
@@ -360,10 +360,16 @@ export default {
     setType(type) {
       this.$emit("type", type);
     },
+    onIdleTime() {
+      this.$set(this.timedActivity, 'allow', false);
+
+      this.handleTimedActivity();
+      this.handleIdleTimeAccess();
+    },
     onTimedActivity() {
       if (this.timedActivity.allow) {
-        this.scheduledExtendedTime.allow = false;
-        this.scheduledIdleTime.allow = false;
+        this.$set(this.scheduledExtendedTime, 'allow', false);
+        this.$set(this.scheduledIdleTime, 'allow', false);
 
         this.handleExtendedTimeAccess();
         this.handleIdleTimeAccess();
