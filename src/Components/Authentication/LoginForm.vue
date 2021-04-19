@@ -170,7 +170,7 @@ export default {
         })
         .then((resp) => {
           this.setAuth({ auth: resp.data, email: this.email });
-          this.$router.push("/dashboard").catch(err => {});
+          this.onLoginSuccess();
         })
         .catch((e) => {
           this.error = e.response.data.message;
@@ -185,6 +185,9 @@ export default {
     onForgotPassword() {
       this.$emit("forgotPassword", null);
     },
+    onLoginSuccess() {
+      this.$emit("loginSuccess");
+    }
   },
 };
 </script>
