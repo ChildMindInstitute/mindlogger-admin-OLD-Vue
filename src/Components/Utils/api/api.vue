@@ -547,6 +547,24 @@ const updateAlertStatus = (apiHost, token, alertId) => {
   })
 }
 
+const getBasketContent = ({ apiHost, token }) =>
+  axios({
+    method: 'get',
+    url: `${apiHost}/library/basket/content`,
+    headers: {
+      'Girder-Token': token,
+    },
+  });
+
+const createToken = ({ apiHost, token }) =>
+  axios({
+    method: 'post',
+    url: `${apiHost}/user/token`,
+    headers: {
+      'Girder-Token': token,
+    },
+  });
+
 export default {
   signIn,
   signUp,
@@ -598,5 +616,7 @@ export default {
   deleteFolder,
   togglePin,
   updateAlertStatus,
+  getBasketContent,
+  createToken,
 }
 </script>

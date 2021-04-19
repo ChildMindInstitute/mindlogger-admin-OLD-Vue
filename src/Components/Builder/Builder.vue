@@ -17,6 +17,7 @@
       @prepareApplet="onPrepareApplet"
       @onUploadError="onUploadError"
       @setLoading="setLoading"
+      @switchToLibrary="onSwitchToLibrary"
     />
 
     <Information
@@ -316,6 +317,20 @@ export default {
     },
     setLoading(isLoading) {
       this.loading = isLoading;
+    },
+    onSwitchToLibrary(appletBuilderData) {
+      console.log('onSwitchToLibrary', JSON.stringify(appletBuilderData));
+      api.createToken({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+      }).then((res) => {
+        const { token } = res;
+        this.cacheAppletBuilderData(appletBuilderData);
+        window.location.href = `${process.env.VUE_APP_LIBRARY_URI}/#/
+          ?from=builder
+          &token=${token}
+        `;
+      });
     },
   },
 };
