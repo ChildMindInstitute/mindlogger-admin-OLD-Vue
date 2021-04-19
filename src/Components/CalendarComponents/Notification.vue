@@ -4,7 +4,7 @@
       :label="$t('turnOnNotifs')" 
       v-model="details.useNotifications"
       flat
-      class="mx-2"
+      class="mx-2 ds-inline-switch"
     />
     <v-container
       v-if="details.useNotifications"
@@ -74,7 +74,7 @@
         :label="$t('reminderNotif')" 
         v-model="reminder.valid"
         flat
-        class="mx-2 mt-0"
+        class="mx-2 mt-0 ds-inline-switch"
       />
       <div v-if="reminder.valid" class="ds-reminder-details">
         <div class="ds-reminder-flex">
@@ -204,6 +204,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.ds-inline-switch {
+  display: inline-flex;
+}
+
 .ds-notifications {
   display: flex;
   justify-content: flex-start;
