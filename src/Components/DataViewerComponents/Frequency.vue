@@ -95,52 +95,50 @@ export default {
     },
   },
   data: function() {
-    let margin = { left: 20, right: 60 };
-    let heightPerFeature = 35;
+    const margin = { left: 20, right: 60 };
+    const width = this.parentWidth - margin.left - margin.right;
+    const { data, features } = this.item.getFormattedResponseData();
+    const responseDates = {};
+    let max = 6;
 
-    let { data, features } = this.item.getFormattedResponseData();
+    for (let response of data) {
+      for (let feature of features) {
+        if (response[feature.slug] !== undefined) {
+          let dateStr = moment(response.date).format('MMM-DD, YYYY');
+          responseDates[feature.slug] = responseDates[feature.slug] || []
+          const index = responseDates[feature.slug].findIndex(({ date }) => date === dateStr );
 
-    let width = this.parentWidth - margin.left - margin.right;
+          if (index === -1) {
+            responseDates[feature.slug].push({
+              date: dateStr,
+              value: 1,
+            })
+          } else {
+            responseDates[feature.slug][index].value += 1;
+          }
+        }
+      }
+    }
+
+    features.forEach((feature) => {
+      if (responseDates[feature.slug]) {
+        max = Math.max(Math.max.apply(Math, responseDates[feature.slug].map(({ value }) => value)), max);
+      }
+    });
 
     return {
-      height: features.length * heightPerFeature,
-      heightPerFeature,
+      height: max * 30,
       margin,
       width,
       labelWidth: width / 4,
       data,
       space: 60,
+      responseDates,
       features: features.map((feature, index) => ({
         ...feature,
         index
       })).reverse(),
       visible: false,
-    }
-  },
-  computed: {
-    responseDates() {
-      let responseDates = {};
-
-      for (let response of this.data) {
-        for (let feature of this.features) {
-          if (response[feature.slug] !== undefined) {
-            let dateStr = moment(response.date).format('MMM-DD, YYYY');
-            responseDates[feature.slug] = responseDates[feature.slug] || []
-            const index = responseDates[feature.slug].findIndex(({ date }) => date === dateStr );
-
-            if (index === -1) {
-              responseDates[feature.slug].push({
-                date: dateStr,
-                value: 1,
-              })
-            } else {
-              responseDates[feature.slug][index].value += 1;
-            }
-          }
-        }
-      }
-
-      return responseDates;
     }
   },
   /**
@@ -203,7 +201,6 @@ export default {
     render() {
       if (this.visible) {
         this.svg = d3.select('#' + this.plotId);
-
         this.features.forEach((feature, index) => {
           this.drawAxis(feature, index + 1);
           if (this.responseDates[feature.slug]) {
@@ -239,8 +236,6 @@ export default {
         max = Math.max(Math.max.apply(Math, this.responseDates[feature.slug].map(({ value }) => value)), 6);
         min = Math.min(Math.min.apply(Math, this.responseDates[feature.slug].map(({ value }) => value)), 0);
       }
-      console.log(max, min)
-      console.log(feature.slug)
 
       this.x = d3
         .scaleUtc()
@@ -308,15 +303,15 @@ export default {
       for (let i = 0; i < this.responseDates[feature.slug].length; i++) {
         let response = this.responseDates[feature.slug][i];
 
-        if (response.date < this.focusExtent[0]) {
+        if (new Date(response.date) < this.focusExtent[0]) {
           continue;
         }
 
-        if (response.date > this.focusExtent[1]) {
-          break;
+        if (new Date(response.date) > this.focusExtent[1]) {
+          continue;
         }
 
-        const x = this.x(new Date(response.date));
+        const x = this.x(new Date(response.date)) + 40;
         const y = this.y(response.value);
 
         if (x < 0) {
