@@ -33,7 +33,9 @@ const getDefaultState = () => {
     currentLanguage: 'en_US',
     currentRetentions: null,
     fromLibrary: false,
+    sync: false,
     currentAppletBuilderData: null,
+    basketApplets: [],
   };
 };
 
@@ -203,9 +205,15 @@ const mutations = {
   setFromLibrary(state, fromLibrary) {
     state.fromLibrary = fromLibrary;
   },
+  setSync(state, sync) {
+    state.sync = sync;
+  },
   cacheAppletBuilderData(state, appletBuilderData) {
     state.currentAppletBuilderData = appletBuilderData;
   },
+  setBasketApplets(state, basketApplets) {
+    state.basketApplets = basketApplets;
+  }
 };
 
 const getters = {

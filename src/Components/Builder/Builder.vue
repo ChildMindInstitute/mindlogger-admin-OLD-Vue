@@ -10,6 +10,7 @@
       :getProtocols="getProtocols"
       :versions="versions"
       :templates="itemTemplates"
+      :cacheData="cacheData"
       @removeTemplate="onRemoveTemplate"
       @updateTemplates="onAddTemplate"
       @uploadProtocol="onUploadProtocol"
@@ -45,6 +46,7 @@ import PackageJson from '../../../package.json';
 import api from '../Utils/api/api.vue';
 import { cloneDeep } from 'lodash';
 import axios from 'axios';
+import { mapState, mapGetters, mapMutations } from 'vuex';
 import { AppletMixin } from '../Utils/mixins/AppletMixin';
 
 import encryption from '../Utils/encryption/encryption.vue';
@@ -106,13 +108,26 @@ export default {
             "choices": []
           },
         }
-      ]
+      ],
+      cacheData: null,
     };
+  },
+  computed: {
+    ...mapState([
+      'fromLibrary',
+      'currentAppletBuilderData',
+      'basketApplets',
+    ]),
   },
   async beforeMount() {
     const { apiHost, token } = this;
     this.versions = [];
-    if (this.$route.params.isEditing) {
+    if (this.fromLibrary) {
+      this.cacheData = {
+        appletBuilder: this.currentAppletBuilderData,
+        basketApplets: this.basketApplets,
+      };
+    } else if (this.$route.params.isEditing) {
       const appletId = this.currentAppletMeta.id;
       this.isEditing = true;
 
@@ -133,6 +148,10 @@ export default {
     this.initializing = false;
   },
   methods: {
+    ...mapMutations([
+      'cacheAppletBuilderData',
+    ]),
+    
     onClickSubmitPassword(appletPassword) {
       this.appletPasswordDialog = false;
       this.addNewApplet(appletPassword);
@@ -319,17 +338,13 @@ export default {
       this.loading = isLoading;
     },
     onSwitchToLibrary(appletBuilderData) {
-      console.log('onSwitchToLibrary', JSON.stringify(appletBuilderData));
       api.createToken({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
       }).then((res) => {
-        const { token } = res;
+        const { token } = res.data;
         this.cacheAppletBuilderData(appletBuilderData);
-        window.location.href = `${process.env.VUE_APP_LIBRARY_URI}/#/
-          ?from=builder
-          &token=${token}
-        `;
+        window.location.href = `${process.env.VUE_APP_LIBRARY_URI}/#/?from=builder&token=${token}`;
       });
     },
   },

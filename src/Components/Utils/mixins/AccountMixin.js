@@ -28,8 +28,7 @@ export const AccountMixin = {
           console.warn(err);
         });
     },
-    setUserDetails()
-    {
+    setUserDetails() {
       api
         .getUserDetails({
           apiHost: this.apiHost,
