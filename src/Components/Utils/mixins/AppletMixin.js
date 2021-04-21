@@ -27,9 +27,6 @@ export const AppletMixin = {
     },
     mediaResponseObjects() {
       return [];
-    },
-    mediaBucketName() {
-      return process.env.VUE_APP_MEDIA_RES_BUCKET_NAME;
     }
   },
   methods: {
@@ -324,14 +321,19 @@ export const AppletMixin = {
       return formatted;
     },
     getMediaResponseObject(value, response, item) {
-        const key = value.split(this.mediaBucketName + '/')[1];
-        if(!key) return;
+        const identifier = 's3://';
+        if(!value.includes(identifier)) return;
 
-        if(key) {
-          const extension = value.slice(value.lastIndexOf('.'), value.length);
-          const name = `${response._id}-${response.userId}-${item.id}${extension}`;
-          this.mediaResponseObjects.push({ name, key });
-        }
+        value = value.replace(identifier, '');
+        const separator = value.indexOf('/');
+
+        const bucket = value.slice(0, separator);
+        const key = value.slice(separator + 1, value.length);
+
+        const extension = value.slice(value.lastIndexOf('.'), value.length);
+        const name = `${response._id}-${response.userId}-${item.id}${extension}`;
+
+        this.mediaResponseObjects.push({ bucket, name, key });
     },
     async generateMediaResponsesZip(mediaObjects) {
         if(mediaObjects.length < 1) return;
@@ -345,16 +347,18 @@ export const AppletMixin = {
           const S3Client = new S3(S3Config);
           const zip = new JSZip();
 
-          const params = { Bucket: this.mediaBucketName };
-
           for(const mediaObject of mediaObjects) {
-            params.Key = mediaObject.key;
+            const params = {
+              Bucket: mediaObject.bucket,
+              Key: mediaObject.key
+            };
             const data = await S3Client.getObject(params).promise();
             zip.file(mediaObject.name, data.Body);
           }
 
           const generatedZip = await zip.generateAsync({type: 'blob'});
           saveAs(generatedZip, `media-responses-${(new Date()).toDateString()}.zip`);
+          this.mediaResponseObjects.length = 0;
         } catch(err) {
           console.log(err);
         }
