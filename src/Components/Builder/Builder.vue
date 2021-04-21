@@ -114,7 +114,6 @@ export default {
   },
   computed: {
     ...mapState([
-      'fromLibrary',
       'currentAppletBuilderData',
       'basketApplets',
     ]),
@@ -122,7 +121,7 @@ export default {
   async beforeMount() {
     const { apiHost, token } = this;
     this.versions = [];
-    if (this.fromLibrary) {
+    if (this.$route.params.fromLibrary) {
       this.cacheData = {
         appletBuilder: this.currentAppletBuilderData,
         basketApplets: this.basketApplets,

@@ -48,18 +48,26 @@ export default {
         }
       }
     }
-    this.$store.commit("setFromLibrary", fromLibrary);
-    const doSync = sync == "true";
-    this.$store.commit("setSync", doSync);
+
     if (fromLibrary) {
-      if (doSync) {
+      if (sync == "true") {
         await this.loadBasketApplets();
       } else {
         this.$store.commit('setBasketApplets', []);
       }
+      this.$router.push({
+        name: 'Builder',
+        params: {
+          fromLibrary: true
+        },
+      }).catch(err => {
+      });
+    } else {
+      this.$router.push({
+        name: 'Dashboard',
+      }).catch(err => {
+      });
     }
-    const nextUrl = fromLibrary ? "/build" : "/dashboard";
-    this.$router.push(nextUrl).catch(err => {});
   },
 };
 </script>

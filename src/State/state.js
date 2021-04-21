@@ -32,10 +32,8 @@ const getDefaultState = () => {
     },
     currentLanguage: 'en_US',
     currentRetentions: null,
-    fromLibrary: false,
-    sync: false,
     currentAppletBuilderData: null,
-    basketApplets: [],
+    basketApplets: {},
   };
 };
 
@@ -201,12 +199,6 @@ const mutations = {
   removeDeletedApplet(state, applet) {
     state.currentAccount.applets = state.currentAccount.applets.filter(item => item.id != applet.id);
     state.fullDirectory = state.fullDirectory.filter(item => item.id != applet.id);
-  },
-  setFromLibrary(state, fromLibrary) {
-    state.fromLibrary = fromLibrary;
-  },
-  setSync(state, sync) {
-    state.sync = sync;
   },
   cacheAppletBuilderData(state, appletBuilderData) {
     state.currentAppletBuilderData = appletBuilderData;
