@@ -201,12 +201,7 @@ export const AppletMixin = {
                   if(item.inputType === 'timeRange' && value.from && value.to) {
                       responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
                   } else if((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord') && value.filename) {
-                      const key = value.uri.split(this.mediaBucketName + '/')[1];
-                      if(key) {
-                        const extension = value.type.split('/')[1];
-                        let name = `${response._id}-${response.userId}-${item.id}.${extension}`;
-                        this.mediaResponseObjects.push({ name, key });
-                      }
+                      this.getMediaResponseObject(value.uri, response, item);
                       responseData += `filename: ${value.filename}`;
                   } else if(item.inputType === 'date' && (value.day || value.month || value.year)) {
                     responseData += `date: ${value.day}/${value.month}/${value.year}`;
@@ -218,6 +213,8 @@ export const AppletMixin = {
                     if(key === 'filename') {
                       responseData = `filename: ${value}`;
                       index = Object.keys(responseDataObj).length;
+                    } else if(key === 'uri') {
+                      this.getMediaResponseObject(value, response, item);
                     }
                   } else {
                     responseData += `${key}: ${value}`;
@@ -325,6 +322,16 @@ export const AppletMixin = {
       const formatted = new TimeAgo(this.$i18n.locale.replace('_', '-')).format(new Date(item.updated), 'round');
 
       return formatted;
+    },
+    getMediaResponseObject(value, response, item) {
+        const key = value.split(this.mediaBucketName + '/')[1];
+        if(!key) return;
+
+        if(key) {
+          const extension = value.slice(value.lastIndexOf('.'), value.length);
+          const name = `${response._id}-${response.userId}-${item.id}${extension}`;
+          this.mediaResponseObjects.push({ name, key });
+        }
     },
     async generateMediaResponsesZip(mediaObjects) {
         if(mediaObjects.length < 1) return;
