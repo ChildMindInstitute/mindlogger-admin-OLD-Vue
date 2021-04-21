@@ -82,6 +82,10 @@
               {{ $t('activityAccessOptions') }}
             </v-tab>
 
+            <v-tab href="#notifications">
+              {{ $t('notifications') }}
+            </v-tab>
+
             <v-tab v-if="showForecast" href="#forecast">
               {{ labels.tabs.forecast }}
             </v-tab>
@@ -114,6 +118,8 @@
                         @onExtendedTime="handleExtendedTime"
                         @onCompletion="handleCompletion"
                         @onScheduledDay="handleScheduledDay"
+                        @onAvailability="handleAvailability"
+                        :availability="availability"
                         :completion="completion"
                         :onlyScheduledDay="scheduledDay"
                         :initial-timed-activity="initialTimedActivity"
@@ -138,9 +144,14 @@
                     type="number"
                     :value="1"
                   />-->
+                </v-card-text>
+              </v-card>
+            </v-tab-item>
 
-                  <!-- Notifications -->
-
+            <!-- Notifications -->
+            <v-tab-item v-if="hasDetails" value="notifications">
+              <v-card text>
+                <v-card-text>
                   <Notification
                     :details="details"
                     @updatedNotification="
@@ -365,17 +376,20 @@ export default {
     },
   },
 
-  data: (vm) => ({
+  data: (vm) => {
+    return {
     tab: "details",
     schedule: new Schedule(),
     details: vm.$dayspan.getDefaultEventDetails(),
     oneTimeCompletion: false,
+    eventAvailability: null,
     onlyScheduledDay: false,
     scheduledExtendedTime: {},
     scheduledTimeout: {},
     timedActivity: {},
     scheduledIdleTime: {},
-  }),
+    }
+  },
 
   computed: {
     title() {
@@ -383,6 +397,9 @@ export default {
     },
     completion() {
       return this.details.completion || false;
+    },
+    availability() {
+      return this.details.availability && true;
     },
     scheduledDay() {
       return this.details.onlyScheduledDay || false;
@@ -448,6 +465,7 @@ export default {
         timeout: this.details.timeout,
         initialTimedActivity: this.details.timedActivity,
         completion: this.details.completion,
+        availability: this.details.availability,
         scheduledDay: this.details.onlyScheduledDay,
         idleTime: this.details.idleTime,
         extendedTime: this.details.extendedTime,
@@ -671,6 +689,10 @@ export default {
       this.oneTimeCompletion = oneTimeCompletion;
     },
 
+    handleAvailability(availability) {
+      this.eventAvailability = availability;
+    },
+
     save() {
       var ev = this.getEvent("save");
       this.$emit("save", ev);
@@ -740,6 +762,12 @@ export default {
         evDetails.completion = true;
       } else {
         evDetails.completion = false;
+      }
+
+      if (this.eventAvailability === null) {
+        evDetails.availability = this.availability;
+      } else {
+        evDetails.availability = this.eventAvailability;
       }
 
       if (this.onlyScheduledDay) {

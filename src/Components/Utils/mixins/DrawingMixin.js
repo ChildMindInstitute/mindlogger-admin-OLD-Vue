@@ -1,4 +1,5 @@
 import * as moment from 'moment';
+import axios from 'axios';
 
 export const DrawingMixin = {
   props: {
@@ -42,6 +43,14 @@ export const DrawingMixin = {
       radius: 10,
       tickHeight: 6,
       tickWidth: 6,
+
+      toolTipVisible: false,
+      toolTipX: 0,
+      toolTipY: 0,
+      tooltipWidth: 350,
+      tooltipHeight: 120,
+      outputText: '',
+      cachedContents: {}
     }
   },
   computed: {
@@ -83,6 +92,17 @@ export const DrawingMixin = {
     }
   },
   methods: {
+    getX(d) {
+      let responseDate = new Date(d.date);
+      const dataVersion = this.formattedVersions.find(v => v.version === d.version );
+
+      if (dataVersion && dataVersion.updated) {
+        const offset = this.versionsLength[new Date(dataVersion.updated).getDay()] / 2;
+        responseDate = new Date(d.date).setHours(new Date (dataVersion.updated).getHours() + offset);
+      }
+      return this.x(responseDate);
+    },
+
     drawVersions() {
       this.svg
         .select('.versions')
@@ -127,5 +147,49 @@ export const DrawingMixin = {
     getChartHeight(width) {
       return width >= 1024 ? 250 : width >= 768 ? 200 : 150;
     },
+
+    showTooltip(x, y, value, labelWidth, width, height) {
+      this.toolTipVisible = true;
+
+      this.outputText = value.outputText;
+
+      /** getting output text */
+      if (!this.cachedContents[this.outputText]) {
+        const output = this.outputText;
+
+        if (output.startsWith('http://') || output.startsWith('https://')) {
+            axios({
+              method: 'GET',
+              url: output,
+            })
+            .then(resp =>
+              this.$set(this.cachedContents, output, resp.data)
+            )
+            .catch(() => {
+              this.$set(this.cachedContents, output, output);
+            })
+        } else {
+          this.$set(this.cachedContents, output, output);
+        }
+      }
+
+      /** getting coordination of tooltip */
+      x = x + labelWidth;
+      y = y + 10;
+
+      if (y + this.tooltipHeight > height) {
+        y = height - this.tooltipHeight - 10;
+      }
+      if (x + this.tooltipWidth + 10 > width) {
+        x = x - this.tooltipWidth - 10;
+      }
+
+      this.toolTipX = x;
+      this.toolTipY = y;
+    },
+
+    hideTooltip() {
+      this.toolTipVisible = false;
+    }
   }
 }

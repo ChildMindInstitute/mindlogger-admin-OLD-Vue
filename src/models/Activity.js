@@ -28,6 +28,12 @@ export default class Activity {
     this.responses = [];
 
     this.subScales = this.parseSubScales(data[ReproLib.subScales]);
+    this.finalSubScale = this.parseFinalSubScale(data[ReproLib.finalSubScale] && data[ReproLib.finalSubScale][0]);
+
+    if (this.finalSubScale) {
+      this.subScales.push(this.finalSubScale);
+    }
+
     this.selectedSubScales = [];
 
     this.dataColor = '#8076B2';
@@ -92,13 +98,35 @@ export default class Activity {
         variableName,
         dataColor: RESPONSE_COLORS[index % RESPONSE_COLORS.length],
         slug: slugify(variableName),
+        latest: { tScore: 0, outputText: '' }
       }
     })
   }
 
+  parseFinalSubScale(finalSubScale) {
+    if (!finalSubScale) {
+      return null;
+    }
+
+    let {
+      [ReproLib.lookupTable]: lookupTable,
+      [ReproLib.variableName]: variableName
+    } = finalSubScale;
+
+    variableName = variableName && variableName[0] && variableName[0]['@value'] || '';
+    return {
+      variableName,
+      lookupTable,
+      dataColor: RESPONSE_COLORS[this.subScales.length % RESPONSE_COLORS.length],
+      slug: slugify(variableName),
+      latest: { tScore: 0, outputText: '' },
+      isFinalSubScale: true
+    }
+  }
+
   initSubScaleItems() {
     for (let subScale of this.subScales) {
-      let itemNames = subScale.jsExpression.split(' + ').map(name => name.trim());
+      let itemNames = (subScale.jsExpression || '').split(' + ').map(name => name.trim());
 
       subScale.items = [];
 
@@ -112,7 +140,22 @@ export default class Activity {
     }
   }
 
-  addSubScaleValues(responses) {
+  async getOutputText(outputText) {
+    if (outputText && (outputText.startsWith('http://') || outputText.startsWith('https://'))) {
+      try {
+        const response = await axios({
+          method: 'GET',
+          url: outputText,
+        });
+        return response.data
+      } catch(e) {
+
+      }
+    }
+    return outputText;
+  }
+
+  async addSubScaleValues(responses) {
     for (let subScale of this.subScales) {
       subScale.values = subScale.values || [];
 
@@ -120,27 +163,35 @@ export default class Activity {
       if (Array.isArray(responses[subScaleName])) {
         subScale.values = subScale.values.concat(responses[subScaleName]);
       }
+
+      if (subScale.values.length) {
+        subScale.latest = {
+          ...subScale.values[0].value,
+          outputText: await this.getOutputText(subScale.values[0].value.outputText)
+        };
+      }
     }
   }
 
   getLatestActivityScore() {
+    if (this.finalSubScale && this.finalSubScale.latest) {
+      return Number(this.finalSubScale.latest.tScore.toFixed(10));
+    }
+
     let total = 0;
     for (let subScale of this.subScales) {
       const { values } = subScale;
 
+      if (subScale.isFinalSubScale) {
+        continue;
+      }
+
       if (values.length) {
-        total += values[0].value;
+        total += values[0].value.tScore;
       }
     }
 
-    return total;
-  }
-
-  getLatestSubScaleScore(subScale) {
-    if (subScale.values.length) {
-      return subScale.values[0].value;
-    }
-    return 0;
+    return Number(total.toFixed(10));
   }
 
   getFrequency() {
@@ -154,11 +205,11 @@ export default class Activity {
       for (let i = 0; i < subScale.values.length; i++) {
         const date = new Date(subScale.values[i].date);
         if (
-          !versions || versions.includes(subScale.values[i].version) && 
+          !versions || versions.includes(subScale.values[i].version) &&
           !focusExtent || date <= focusExtent[1] && date >= focusExtent[0]
         ) {
-          min = Math.min(min, subScale.values[i].value);
-          max = Math.max(max, subScale.values[i].value);
+          min = Math.min(min, subScale.values[i].value.tScore);
+          max = Math.max(max, subScale.values[i].value.tScore);
         }
       }
     }

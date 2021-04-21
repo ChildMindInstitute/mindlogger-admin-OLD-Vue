@@ -35,7 +35,7 @@
             <div class="time-range">
               <v-menu>
                 <template v-slot:activator="{ on }">
-                  <v-btn 
+                  <v-btn
                     depressed
                     class="ds-button-tall mr-2 ml-2 mb-2 fromDate"
                     v-on="on"
@@ -57,7 +57,7 @@
 
               <v-menu>
                 <template v-slot:activator="{ on }">
-                  <v-btn 
+                  <v-btn
                     depressed
                     class="ds-button-tall mr-2 ml-2 mb-2 toDate"
                     v-on="on"
@@ -137,42 +137,42 @@
                       :key="index"
                     >
                       <v-expansion-panel-header>
-                        <div 
+                        <div
                           v-if="!allExpanded && applet.activities.length > 1"
                           class="ds-expand-action"
                           @click.stop="onAllExpand"
                         >
-                          <v-icon 
+                          <v-icon
                             v-show="index === 0"
-                            class="ds-expand-all" 
+                            class="ds-expand-all"
                             medium
                           >
                             mdi-chevron-up
                           </v-icon>
-                          <v-icon 
+                          <v-icon
                             v-show="index === 0"
-                            class="ds-expand-all" 
+                            class="ds-expand-all"
                             medium
                           >
                             mdi-chevron-down
                           </v-icon>
                         </div>
 
-                        <div 
+                        <div
                           v-if="allExpanded  && applet.activities.length > 1"
                           class="ds-expand-action"
                           @click.stop="onAllCollapsed"
                         >
-                          <v-icon 
+                          <v-icon
                             v-show="index === 0"
-                            class="ds-expand-all" 
+                            class="ds-expand-all"
                             medium
                           >
                             mdi-chevron-down
                           </v-icon>
-                          <v-icon 
+                          <v-icon
                             v-show="index === 0"
-                            class="ds-expand-all" 
+                            class="ds-expand-all"
                             medium
                           >
                             mdi-chevron-up
@@ -193,12 +193,32 @@
                           :frequency="activity.getFrequency()"
                           :sub-scales="activity.subScales"
                           :parent-width="panelWidth"
+                          :time-range="timeRange"
                           :item-padding="itemPadding"
                         />
                       </v-expansion-panel-header>
                       <v-expansion-panel-content
                         v-if="activity.responses && activity.responses.length && (tab !== 'tokens' || activity.hasTokenItem)"
                       >
+                        <div
+                          v-if="activity.finalSubScale && activity.finalSubScale.latest.outputText"
+                          class="additional-note mt-4"
+                        >
+                          <header>
+                            <h2> - Additional Information </h2>
+                          </header>
+                          <div
+                            class="subscale-output"
+                          >
+                            <mavon-editor
+                              :value="activity.finalSubScale.latest.outputText"
+                              :language="'en'"
+                              :toolbarsFlag="false"
+                            >
+                            </mavon-editor>
+                          </div>
+                        </div>
+
                         <h2 class="mt-4">
                           {{ $t('responseOptions') }}
                         </h2>
@@ -242,18 +262,36 @@
                             v-for="(subScale) in activity.subScales"
                           >
                             <v-expansion-panel
-                              v-if="applet"
+                              v-if="applet && !subScale.isFinalSubScale"
                               :key="subScale.variableName"
                             >
                               <v-expansion-panel-header>
                                 <h4>
                                   {{ subScale.variableName }}
-                                  ( {{ $t('latestScore') }}: {{ activity.getLatestSubScaleScore(subScale) }} )
+                                  ( {{ $t('latestScore') }}: {{ subScale.latest.tScore }} )
                                 </h4>
                               </v-expansion-panel-header>
 
                               <v-expansion-panel-content>
                                 <div>
+                                  <div
+                                    v-if="subScale.latest.outputText"
+                                    class="additional-note"
+                                  >
+                                    <header>
+                                      <h3> - Additional Information </h3>
+                                    </header>
+                                    <div
+                                      class="subscale-output"
+                                    >
+                                      <mavon-editor
+                                        :value="subScale.latest.outputText"
+                                        :language="'en'"
+                                        :toolbarsFlag="false"
+                                      >
+                                      </mavon-editor>
+                                    </div>
+                                  </div>
                                   <template
                                     v-for="item in subScale.items"
                                   >
@@ -274,6 +312,7 @@
                                         :selected-versions="selectedVersions"
                                         :timezone="applet.timezoneStr"
                                         :has-version-bars="hasVersionBars"
+                                        :time-range="timeRange"
                                         :parent-width="panelWidth"
                                         :color="item.dataColor"
                                       />
@@ -293,12 +332,37 @@
                             :key="item['id']"
                             class="chart-card"
                           >
-                            <header>
-                              <h3> - {{ item.getFormattedQuestion() }}</h3>
-                            </header>
+                            <header
+                            >
+                              <h3
+                                v-if="item.inputType !== 'markdownMessage'"
+                              >
+                                - {{ item.getFormattedQuestion() }}
+                              </h3>
 
-                            <RadioSlider
-                              v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
+                              <h3
+                                v-else
+                              >
+                                - {{ item.label.en }}
+                              </h3>
+                            </header>
+                            <div
+                              v-if="item.inputType == 'markdownMessage'"
+                            >
+                              <div
+                                class="markdown"
+                              >
+                                <mavon-editor
+                                  :value="item.question.en"
+                                  :language="'en'"
+                                  :toolbarsFlag="false"
+                                >
+                                </mavon-editor>
+                              </div>
+                            </div>
+
+                            <TimePicker
+                              v-if="tab == 'responses' && item.inputType === 'time'"
                               :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
                               :item="item"
                               :versions="applet.versions"
@@ -308,6 +372,36 @@
                               :has-version-bars="hasVersionBars"
                               :parent-width="panelWidth"
                               :color="item.dataColor"
+                              :time-range="timeRange"
+                              :maxValue="getMaxValue(activity.items)"
+                              :minValue="getMinValue(activity.items)"
+                            />
+                            <RadioSlider
+                              v-else-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
+                              :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
+                              :item="item"
+                              :versions="applet.versions"
+                              :focus-extent="focusExtent"
+                              :selected-versions="selectedVersions"
+                              :timezone="applet.timezoneStr"
+                              :has-version-bars="hasVersionBars"
+                              :parent-width="panelWidth"
+                              :time-range="timeRange"
+                              :color="item.dataColor"
+                            />
+
+                            <Frequency
+                              v-else-if="tab == 'frequency' && item.inputType === 'radio'"
+                              :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
+                              :item="item"
+                              :versions="applet.versions"
+                              :focus-extent="focusExtent"
+                              :selected-versions="selectedVersions"
+                              :timezone="applet.timezoneStr"
+                              :has-version-bars="hasVersionBars"
+                              :parent-width="panelWidth"
+                              :time-range="timeRange"
+                              :color="item.dataColor"
                             />
 
                             <FreeTextTable
@@ -316,7 +410,7 @@
                               :item="item"
                               :selected-versions="selectedVersions"
                               :timezone="applet.timezoneStr"
-                              :responses="applet.responses[activity.data['_id'].substring(9) + item.data['_id'].substring(6)]"
+                              :responses="applet.responses[item.schemas[0]]"
                             />
                           </div>
                         </template>
@@ -466,6 +560,24 @@
 .v-expansion-panel-header {
   flex-direction: row-reverse;
 }
+
+.additional-note /deep/ .v-note-edit, .markdown /deep/ .v-note-edit {
+  display: none;
+}
+.additional-note /deep/ .v-note-show, .markdown /deep/ .v-note-show {
+  width: 100% !important;
+  flex: 0 0 100% !important;
+}
+
+.additional-note .subscale-output, .markdown {
+  max-height: 150px;
+  overflow-y: auto;
+  margin: 10px 0px;
+}
+
+.additional-note .subscale-output .v-note-wrapper, .markdown .v-note-wrapper{
+  min-height: unset;
+}
 </style>
 
 <script>
@@ -476,7 +588,9 @@ import Activity from "../models/Activity";
 import Item from "../models/Item";
 import TokenChart from "../Components/DataViewerComponents/TokenChart.vue";
 import ActivitySummary from "../Components/DataViewerComponents/ActivitySummary.vue";
-import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue"; 
+import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue";
+import Frequency from "../Components/DataViewerComponents/Frequency.vue";
+import TimePicker from "../Components/DataViewerComponents/TimePicker.vue";
 import FreeTextTable from "../Components/DataViewerComponents/FreeTextTable.vue";
 import SubScaleLineChart from "../Components/DataViewerComponents/SubScaleLineChart";
 import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChart";
@@ -493,6 +607,8 @@ export default {
     TokenChart,
     ActivitySummary,
     RadioSlider,
+    Frequency,
+    TimePicker,
     FreeTextTable,
     SubScaleLineChart,
     SubScaleBarChart,
@@ -503,14 +619,8 @@ export default {
    */
   data: function() {
     const NOW = new Date();
-    const TODAY = new Date(Date.UTC(
-      NOW.getFullYear(),
-      NOW.getMonth(),
-      NOW.getDate() + 1,
-      0,
-      0,
-      0,
-    ));
+    const TODAY = NOW;
+    TODAY.setDate(TODAY.getDate() + 1);
 
     const ONE_WEEK_AGO = new Date(TODAY);
     ONE_WEEK_AGO.setDate(TODAY.getDate() - 6);
@@ -531,6 +641,7 @@ export default {
       tabs: ['responses', 'tokens'],
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
+      timeRange: "Default",
       hasVersionBars: true,
       panelWidth: 974,
       margin: 50,
@@ -584,6 +695,7 @@ export default {
         this.$store.state.currentAppletData.applet.encryption
       );
 
+      this.setDashboardTabs();
       this.selectedVersions = this.appletVersions;
       this.loading = false;
       this.onResize = this.onResize.bind(this);
@@ -604,6 +716,14 @@ export default {
    * Component methods.
    */
   methods: {
+    setDashboardTabs () {
+      for (const itemId in this.applet.items) {
+        if (this.applet.items[itemId].isTokenItem) {
+          this.tabs.push("frequency");
+          break;
+        }
+      }
+    },
     onResize() {
       if (this.$refs.panels) {
         const dimensions = this.$refs.panels.getBoundingClientRect();
@@ -630,9 +750,62 @@ export default {
       let NOW = new Date();
       NOW.setDate(NOW.getDate() + 1);
       return (
-        (moment.utc(date) > this.focusExtent[0]) && 
+        (moment.utc(date) > this.focusExtent[0]) &&
         (moment.utc(date) <= moment.utc(NOW))
       );
+    },
+
+    /**
+     * Expand all activities.
+     *
+     * @param {items} items Activity Items
+     * @return {maxValue} Maximum response value
+     */
+
+    getMaxValue (items) {
+      let maxValue = {
+        hour: 0,
+        minute: 0,
+      };
+
+      items.forEach(item => {
+        if (item.inputType === 'time') {
+          item.responses.forEach(({ value }) => {
+            if (value.hour > maxValue.hour) {
+              maxValue.hour = value.hour;
+            }
+          });
+        }
+      });
+
+      maxValue.hour += 1;
+      return maxValue;
+    },
+
+    /**
+     * Expand all activities.
+     *
+     * @param {items} items Activity Items
+     * @return {minValue} Minimum response value
+     */
+
+    getMinValue (items) {
+      let minValue = {
+        hour: 23,
+        minute: 0,
+      };
+
+      items.forEach(item => {
+        if (item.inputType === 'time') {
+          item.responses.forEach(({ value }) => {
+            if (value.hour < minValue.hour) {
+              minValue.hour = value.hour;
+            }
+          });
+        }
+      });
+
+      return minValue;
     },
 
     /**
@@ -666,9 +839,7 @@ export default {
      */
     setStartDate(date) {
       this.$set(this.focusExtent, 0, moment.utc(date).toDate());
-      if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) > 3) {
-        this.focusExtent[1] = moment(this.focusExtent[0]).add(1, 'months').toDate();
-      }
+      this.updateTimeRange();
     },
     /**
      * Updates the end date for the focused time range.
@@ -677,14 +848,19 @@ export default {
      * @returns {void}
      */
     setEndDate(date) {
-      this.$set(this.focusExtent, 1, moment
-        .utc(date)
-        .add(15, 'hours')
-        .toDate()
-      );
+      this.$set(this.focusExtent, 1, moment.utc(date).add(15, 'hours').toDate());
+      this.updateTimeRange();
+    },
 
-      if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) > 3) {
-        this.focusExtent[0] = moment(this.focusExtent[1]).subtract(1, 'months').toDate();
+    updateTimeRange() {
+      if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'days', true) < 15) {
+        this.timeRange = "Default";
+      } else if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) <= 1) {
+        this.timeRange = "Daily";
+      } else if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) <= 4) {
+        this.timeRange = "Weekly";
+      } else {
+        this.timeRange = "Monthly";
       }
     },
 

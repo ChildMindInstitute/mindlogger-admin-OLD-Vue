@@ -5,15 +5,16 @@ import ObjectToCSV from 'object-to-csv';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import fr from 'javascript-time-ago/locale/fr';
+import Activity from "../../../models/Activity";
 TimeAgo.addLocale(en);
 TimeAgo.addLocale(fr);
 
-export const AppletMixin = { 
+export const AppletMixin = {
   computed: {
     currentAppletMeta() {
       return this.$store.state.currentAppletMeta;
     },
-    currentAppletData() { 
+    currentAppletData() {
       return this.$store.state.currentAppletData;
     },
     apiHost() {
@@ -79,12 +80,20 @@ export const AppletMixin = {
         const result = [];
 
         const currentItems = {};
+        const currentActivities = [];
         for (let itemUrl in appletData.items) {
           currentItems[itemUrl] = new Item(appletData.items[itemUrl]);
+        }
+        for (let activityUrl in appletData.activities) {
+          currentActivities.push(new Activity(appletData.activities[activityUrl]));
         }
 
         for (let itemId in data.items) {
           data.items[itemId] = new Item(data.items[itemId])
+        }
+
+        for (let activityId in data.activities) {
+          data.activities[activityId] = new Activity(data.activities[activityId]);
         }
 
         for (let version in data.itemReferences) {
@@ -100,21 +109,32 @@ export const AppletMixin = {
 
         let subScaleNames = [];
         for (let response of data.responses) {
-          const _id = response.userId, MRN = response.MRN;
+          const _id = response.userId, MRN = response.MRN, isSubScaleExported=false;
 
           for (let subScaleName in response.subScales) {
             let subScale = response.subScales[subScaleName];
 
             if (subScale && subScale.ptr !== undefined && subScale.src !== undefined) {
               response.subScales[subScaleName] = data.subScaleSources[subScale.src].data[subScale.ptr];
+
+              if (typeof response.subScales[subScaleName] == 'object') {
+                let value = response.subScales[subScaleName].tScore;
+                if (value == undefined) {
+                  value = response.subScales[subScaleName].rawScore;
+                }
+
+                if (value !== undefined) {
+                  value = value.toString();
+                }
+
+                response.subScales[subScaleName] = value || '';
+              }
             }
 
             if (subScaleNames.indexOf(subScaleName) < 0) {
               subScaleNames.push(subScaleName);
             }
           }
-
-          let isSubScaleExported = false;
 
           for (let itemUrl in response.data) {
             let itemData = response.data[itemUrl];
@@ -126,15 +146,20 @@ export const AppletMixin = {
 
             let item = (data.itemReferences[response.version] && data.itemReferences[response.version][itemUrl])
                             || currentItems[itemUrl];
+            let activity = currentItems[itemUrl] ?
+                currentActivities.find(activity => activity.data._id.split('/')[1] == response.activity['@id']) :
+                data.activities[item.data.activityId];
+
             if (!item) {
               continue;
             }
 
             let flag = 'completed';
+
             if(response.responseScheduled && !response.responseStarted) {
               flag = 'missed';
-            } else if(response.responseStarted && !response.responseCompleted) {
-              flat = 'incomplete';
+            } else if(response.responseStarted && response.timeout) {
+              flag = 'incomplete';
             }
 
             const responseDataObj = response.data[itemUrl];
@@ -145,7 +170,7 @@ export const AppletMixin = {
             } else {
 
               if(responseDataObj instanceof Array) {
-                
+
                 responseDataObj.forEach((value, index) => {
 
                   if(value instanceof Object && !Array.isArray(value)) {
@@ -161,7 +186,7 @@ export const AppletMixin = {
                 });
 
               } else if(responseDataObj instanceof Object) {
-                
+
                 let index = 0;
                 for(const [key, value] of Object.entries(responseDataObj)) {
 
@@ -206,7 +231,7 @@ export const AppletMixin = {
             if(item.responseOptions && (item.inputType === 'radio' || item.inputType === 'slider')) {
               item.responseOptions.forEach(resOption => {
                 let option = `${Object.values(resOption.name)[0]}: ${resOption.value}`;
-                
+
                 if(item.scoring) {
                   option += ` ${'(score: ' + resOption.score + ')'}`;
                   scores.push(resOption.score);
@@ -224,7 +249,8 @@ export const AppletMixin = {
               flag,
               MRN:  MRN || null,
               userId: _id,
-              activity: response.activity['@id'],
+              activity_id: response.activity['@id'],
+              activity_name: activity.label.en,
               item: item.id,
               response: responseData,
               question: question[question.length - 1],
@@ -253,7 +279,8 @@ export const AppletMixin = {
             'flag',
             'MRN',
             'userId',
-            'activity',
+            'activity_id',
+            'activity_name',
             'item',
             'response',
             'question',

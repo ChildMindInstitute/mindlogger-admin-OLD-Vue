@@ -127,6 +127,10 @@ export default class Applet {
           for (let subScale of subScales) {
             if (subScale.value && subScale.value.ptr !== undefined && subScale.value.src !== undefined) {
               subScale.value = data.subScaleSources[subScale.value.src].data[subScale.value.ptr];
+
+              if (subScale.value.rawScore && !subScale.value.tScore) {
+                subScale.value.tScore = subScale.value.rawScore;
+              }
             }
           }
         }
@@ -241,7 +245,7 @@ export default class Applet {
 
     /** append responses */
     for (let itemId of itemIDGroup) {
-      this.items[itemId].appendResponses(data.responses[itemId]);
+      this.items[itemId].appendResponses(data.responses[itemId], this.items[itemId].inputType);
     }
 
     for (let itemId of itemIDGroup) {
@@ -293,7 +297,7 @@ export default class Applet {
       activity.initSubScaleItems();
 
       const activityId = activity.data._id.split('/')[1];
-      activity.addSubScaleValues(this.subScales[activityId] || {});
+      await activity.addSubScaleValues(this.subScales[activityId] || {});
     }
   }
 
@@ -308,17 +312,13 @@ export default class Applet {
 
     this.versions = data;
 
-    this.versions = this.versions.filter((version, index) => 
+    this.versions = this.versions.filter((version, index) =>
       this.versions.findIndex(d => d.version == version.version) === index
     );
   }
 
   insertInitialVersion() {
     for (let schema in this.responses) {
-      if (!schema.startsWith('https://')) {
-        continue;
-      }
-
       for (let response of this.responses[schema]) {
         if (response.version && !this.versions.find(data => data.version == response.version)) {
           this.versions.push({
@@ -344,7 +344,7 @@ export default class Applet {
   }
 
   /**
-   * Method to get version upgrade type 
+   * Method to get version upgrade type
    */
   getVersionChangeType(version1, version2) {
     const v1 = version1.split('.').map(val => parseInt(val));

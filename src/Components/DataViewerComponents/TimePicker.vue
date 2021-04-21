@@ -14,24 +14,12 @@
       :width="width + 20"
       :height="height + padding.top + padding.bottom"
     >
-      <g class="labels">
-        <text
-          v-for="(feature, index) in features"
-          :key="feature.slug"
-          :y="radius * 2 + padding.top + heightPerFeature * index"
-          :x="labelWidth/2"
-          :font-size="15"
-          text-anchor="middle"
-        >
-          {{ compressedName(feature.name.en) }}
-          <title>{{ feature.name.en }}</title>
-        </text>
-      </g>
       <g
         class="content"
         :transform="`translate(${labelWidth}, 0)`"
       >
         <g class="x-axis" />
+        <g class="y-axis" />
         <g class="versions" />
         <g class="responses" />
       </g>
@@ -76,7 +64,7 @@ import * as moment from 'moment';
 import { DrawingMixin } from '../Utils/mixins/DrawingMixin';
 
 export default {
-  name: 'RadioSlider',
+  name: 'TimePicker',
   mixins: [DrawingMixin],
   props: {
     plotId: {
@@ -84,6 +72,14 @@ export default {
       required: true,
     },
     item: {
+      type: Object,
+      required: true
+    },
+    minValue: {
+      type: Object,
+      required: true
+    },
+    maxValue: {
       type: Object,
       required: true
     },
@@ -96,23 +92,19 @@ export default {
     let margin = { left: 20, right: 60 };
     let heightPerFeature = 35;
 
-    let { data, features } = this.item.getFormattedResponseData();
+    let { data } = this.item.getTimeResponseData();
 
     let width = this.parentWidth - margin.left - margin.right;
 
-    features = features.map((feature, index) => ({ ...feature, index}));
-    if (this.item.inputType == 'slider') {
-      features = features.reverse();
-    }
-
     return {
-      height: features.length * heightPerFeature,
+      // height: features.length * heightPerFeature,
       heightPerFeature,
       margin,
       width,
+      height: 500,
+      space: 20,
       labelWidth: width / 4,
       data,
-      features,
       visible: false,
     }
   },
@@ -195,7 +187,6 @@ export default {
         this.svg = d3.select('#' + this.plotId);
 
         this.drawAxes();
-
         this.drawVersions();
         this.drawResponses();
       }
@@ -219,38 +210,56 @@ export default {
     },
 
     drawAxes() {
+      const max = new Date().setHours(this.maxValue.hour, this.maxValue.minute, 0, 0);
+      const min = new Date().setHours(this.minValue.hour, this.minValue.minute, 0, 0);
+      
       this.x = d3
         .scaleUtc()
         .nice()
         .domain(this.focusExtent)
         .range([0, this.width - this.labelWidth]);
 
-      const tickType = this.getTickType();
+      this.y = d3
+        .scaleTime()
+        .domain([min, max])
+        .nice()
+        .range([this.height, this.space])
 
       const xAxis = d3
         .axisBottom()
         .scale(this.x)
         .tickSize(this.tickHeight)  // Height of the tick line.
-        .ticks(tickType);
+        .ticks(this.getTickType());
+
+      const yAxis = d3
+        .axisLeft()
+        .scale(this.y)
+        // .tickSize(this.tickHeight)
+        .ticks(this.maxValue.hour - this.minValue.hour)
 
       this.svg
         .select('.x-axis')
         .selectAll('.feature-axis')
         .remove();
 
-      for (let i = 0; i < this.features.length; i++) {
-        let feature = this.features[i];
+      this.svg
+        .select('.y-axis')
+        .append('g')
+        .attr('class', 'feature-axis')
+        .style('stroke-width', 1.2)
+        .style('color', '#373737')
+        // .attr('transform', d => `translate(${(this.width - this.labelWidth) - ((this.width - this.labelWidth) / 6 * i)}, 0)`)
+        .call(yAxis.tickFormat(d => moment(d).format('hh:mm A')));
 
+      for (let i = 0; i <= this.maxValue.hour - this.minValue.hour; i += 1) {
         this.svg
           .select('.x-axis')
           .append('g')
           .attr('class', 'feature-axis')
-          .style('stroke-width', 1.2)
-          .style('color', 'grey')
-          .attr('transform', d => `translate(0, ${this.radius + this.padding.top + this.heightPerFeature * i})`)
-          .call(
-            xAxis.tickFormat(d => i == this.features.length - 1 ? moment(d).format('MMM-D') : '')
-          );
+          .style('stroke-width', i === 0 ? 1.5 : 1)
+          .style('color', i === 0 ? '#373737' : '#979797')
+          .attr('transform', d => `translate(0, ${this.height - (this.height / (this.maxValue.hour - this.minValue.hour + 1) + 1.2) * i})`)
+          .call(xAxis.tickFormat(d => i === 0 ? moment(d).format('MMM-D') : ''));
       }
     },
 
@@ -265,7 +274,6 @@ export default {
       let prevX = -1, prevY = -1;
 
       for (let i = 0; i < this.data.length; i++) {
-        let x = -1, y = -1;
         let response = this.data[i];
 
         if (response.date < this.focusExtent[0]) {
@@ -276,39 +284,35 @@ export default {
           break;
         }
 
-        for (let [index, feature] of this.features.entries()) {
-          if (response[feature.slug] !== undefined) {
-            x = this.getX(response);
-            y = this.radius + this.padding.top + this.heightPerFeature * index;
+        const x = this.x(response.date);
+        const y = this.y(response.value);
 
-            if (x < 0) {
-              continue;
-            }
-
-            this.svg
-              .select('.responses')
-              .append('circle')
-              .attr('fill', this.color)
-              .attr('cx', x)
-              .attr('cy', y)
-              .attr('r', this.radius)
-              .on('mouseover', () => tooltip.style.display = 'flex')
-              .on('mouseout', () => tooltip.style.display = 'none')
-              .on('mousemove', () => {
-                const x = this.getX(response);
-                const dateStr = moment(response.date).format('MMM-DD, YYYY');
-                const y = this.radius + this.padding.top + this.heightPerFeature * index;
-
-                tooltip.style.left = (x + this.labelWidth) + 'px';
-                tooltip.style.padding = '5px';
-                tooltip.style.top = y - this.heightPerFeature + 'px';
-                tooltip.style.color = 'red';
-
-                let responseCount = this.responseDates[dateStr][feature.slug].length;
-                tooltip.innerText = this.$t('numberOfTimes', { number: responseCount, suffix: responseCount > 1 ? 's' : '' });
-              });
-          }
+        if (x < 0) {
+          continue;
         }
+
+        this.svg
+          .select('.responses')
+          .append('circle')
+          .attr('fill', this.color)
+          .attr('cx', x)
+          .attr('cy', y)
+          .attr('r', this.radius)
+          .on('mouseover', () => tooltip.style.display = 'flex')
+          .on('mouseout', () => tooltip.style.display = 'none')
+          .on('mousemove', () => {
+            // const x = this.x(response.date);
+            // const dateStr = moment(response.date).format('MMM-DD, YYYY');
+            // const y = this.radius + this.padding.top + this.heightPerFeature * index;
+
+            // tooltip.style.left = (x + this.labelWidth) + 'px';
+            // tooltip.style.padding = '5px';
+            // tooltip.style.top = y - this.heightPerFeature + 'px';
+            // tooltip.style.color = 'red';
+
+            // let responseCount = this.responseDates[dateStr][feature.slug].length;
+            // tooltip.innerText = this.$t('numberOfTimes', { number: responseCount, suffix: responseCount > 1 ? 's' : '' });
+          });
 
         if (this.item.multiChoiceStatusByVersion[response.version]) {
           x = y = -1;
@@ -316,7 +320,7 @@ export default {
 
         if (x >= 0 && prevX >= 0) {
           let delta = this.radius + 2;
-          let dx = x - prevX,
+          let dx = x - prevX, 
               dy = y - prevY;
 
           let r = Math.sqrt(dx * dx + dy * dy);
@@ -327,7 +331,6 @@ export default {
             this.svg
               .select('.responses')
               .append('line')
-              .style('stroke-width', 1.5)
               .attr('x1', prevX + dx * delta)
               .attr('y1', prevY + dy * delta)
               .attr('x2', x - dx * delta)

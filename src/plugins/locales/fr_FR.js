@@ -21,6 +21,7 @@ export default {
   removeFromFolder: "Supprimer l'applet du dossier",
   repeatOptions:'Options de répétition',
   activityAccessOptions: "Options d'accès aux activités",
+  notifications: "Notifications",
   activityAvailable: "Activité disponible",
   passwordRequired: 'Un mot de passe est obligatoire',
   refresh: 'Rafraîchir',
@@ -51,6 +52,7 @@ export default {
   sendLinkPswdHosted:
     'Envoyez un lien pour réinitialiser votre mot de passe hébergé à ',
   loadingApplets: 'Chargement de vos applets',
+  editingApplets: "Veuillez patienter pendant le chargement de votre applet dans le générateur d'applet",
   appletIs:
     "Une applet est une collection d'enquêtes réutilisables avec des paramètres spécifiques à l'étude, comme vos utilisateurs et votre calendrier",
   userType: "Type d'utilisateur",
@@ -86,8 +88,8 @@ export default {
   reminderNotif: 'Définir le rappel',
   reminder: '',
   weekday: 'Jour de la semaine',
-  consecutiveDays: "Si l'utilisateur n'a pas terminé cette activité après ",
-  activityCompletion: "jours consécutifs, envoyer une notification de rappel à",
+  consecutiveDays: "jours consécutifs, envoyer une notification de rappel à",
+  activityCompletion: "Si l'utilisateur n'a pas terminé cette activité après",
   randomizeEnds: 'la randomisation se termine à',
   uploadActivitySet: "Télécharger un ensemble d'activités ",
   activitySetUrl: "url de l'ensemble d'activités",
