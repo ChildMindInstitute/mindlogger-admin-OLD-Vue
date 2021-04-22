@@ -250,6 +250,15 @@ const postAppletInvitation = ({ apiHost, token, appletId, options }) =>
     params: options,
   });
 
+const getOneTimeToken = ({ apiHost, token }) =>
+  axios({
+    method: "POST",
+    url: `${apiHost}/user/token`,
+    headers: {
+      "Girder-Token": token,
+    }
+  });
+
 const deleteApplet = ({ apiHost, token, appletId }) =>
   axios({
     method: "DELETE",
@@ -562,6 +571,7 @@ export default {
   deleteUserFromRole,
   updateUserRoles,
   getAppletUsers,
+  getOneTimeToken,
   transferOwnership,
   postAppletInvitation,
   revokeAppletUser,

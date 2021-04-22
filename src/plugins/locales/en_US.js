@@ -348,5 +348,6 @@ export default {
   alertMessage: 'A question was answered by {userIdentifier} that an alert was created for.',
   newFolder: 'New Folder',
   appletUrl: 'Applet URL',
+  browseAppletLibrary: 'Browse Applet Library',
   selectAppletToEdit: 'Please select applet to edit',
 };

@@ -49,6 +49,13 @@
                 {{ 'Add applet from GitHub URL' }}
               </v-list-item-title>
             </v-list-item>
+            <v-list-item
+              @click="$emit('onBrowseAppletLibrary')"
+            >
+              <v-list-item-title>
+                {{ $t('browseAppletLibrary') }}
+              </v-list-item-title>
+            </v-list-item>
           </v-list>
         </v-menu>
 
