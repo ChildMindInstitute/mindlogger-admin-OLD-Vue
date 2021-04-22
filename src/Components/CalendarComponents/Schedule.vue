@@ -70,7 +70,7 @@
           v-model="scheduledIdleTime.allow"
           :label="$t('idleTime')"
           :readonly="isReadOnly"
-          @change="onIdleTime"
+          @change="handleIdleTimeAccess"
           flat
         />
 
@@ -80,7 +80,7 @@
                 type="number"
                 v-model="scheduledIdleTime.minute"
                 :value="scheduledTimeoutDecimal.minute"
-                @change="onChangeMinutes"
+                @change="handleIdleTimeAccess"
                 class="ds-schedule-timeout"
                 single-line
                 hide-details
@@ -194,7 +194,7 @@
           v-model="scheduledIdleTime.allow"
           :label="$t('idleTime')"
           :readonly="isReadOnly"
-          @change="onIdleTime"
+          @change="handleIdleTimeAccess"
           flat
         />
 
@@ -204,7 +204,7 @@
                 type="number"
                 v-model="scheduledIdleTime.minute"
                 :value="scheduledTimeoutDecimal.minute"
-                @change="onChangeMinutes"
+                @change="handleIdleTimeAccess"
                 class="ds-schedule-timeout"
                 single-line
                 hide-details
@@ -361,7 +361,7 @@ export default {
       this.$emit("type", type);
     },
     onIdleTime() {
-      if (this.scheduledIdleTime.allow && this.timedActivity.allow) {
+      if (this.scheduledIdleTime.allow) {
         this.$set(this.timedActivity, 'allow', false);
         this.handleTimedActivity();
       }
