@@ -360,14 +360,6 @@ export default {
     setType(type) {
       this.$emit("type", type);
     },
-    onIdleTime() {
-      if (this.scheduledIdleTime.allow) {
-        this.$set(this.timedActivity, 'allow', false);
-        this.handleTimedActivity();
-      }
-
-      this.handleIdleTimeAccess();
-    },
     onTimedActivity() {
       if (this.timedActivity.allow) {
         this.$set(this.scheduledExtendedTime, 'allow', false);

@@ -526,7 +526,6 @@ export default {
         })
         .then((resp) => {
           this.$store.commit('setAccountName', accountName);
-          console.log(resp);
         })
         .catch((err) => {
           console.warn(err);
