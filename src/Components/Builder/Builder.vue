@@ -10,7 +10,8 @@
       :getProtocols="getProtocols"
       :versions="versions"
       :templates="itemTemplates"
-      :cacheData="cacheData"
+      :cacheData="currentAppletBuilderData"
+      :basketApplets="basketApplets"
       @removeTemplate="onRemoveTemplate"
       @updateTemplates="onAddTemplate"
       @uploadProtocol="onUploadProtocol"
@@ -121,12 +122,11 @@ export default {
   async beforeMount() {
     const { apiHost, token } = this;
     this.versions = [];
-    if (this.$route.params.fromLibrary) {
-      this.cacheData = {
-        appletBuilder: this.currentAppletBuilderData,
-        basketApplets: this.basketApplets,
-      };
-    } else if (this.$route.params.isEditing) {
+    if (!this.$route.params.isLibrary) {
+      this.$store.commit('setBasketApplets', {});
+      this.$store.commit('cacheAppletBuilderData', null);
+    }
+    if (this.$route.params.isEditing) {
       const appletId = this.currentAppletMeta.id;
       this.isEditing = true;
 

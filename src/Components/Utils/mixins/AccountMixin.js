@@ -41,5 +41,17 @@ export const AccountMixin = {
           console.warn(err);
         });
     },
+    async switchAccount(accountId) {
+      try {
+        const resp = await api.switchAccount({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          accountId,
+        });
+        this.$store.commit('switchAccount', resp.data.account);
+      } catch (err) {
+        console.warn(err);
+      };
+    },
   }
 }

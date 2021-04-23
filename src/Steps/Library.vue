@@ -20,9 +20,17 @@ export default {
     ...mapGetters([
       'isLoggedIn',
     ]),
+    currentApplet: {
+      get() {
+        return this.$store.state.currentAppletMeta;
+      },
+      set(applet) {
+        this.$store.commit('setCurrentApplet', applet);
+      }
+    }
   },
   async created() {
-    const { from, sync, token } = this.$route.query;
+    const { from, sync, cache, token } = this.$route.query;
     let fromLibrary = false;
     if (from == 'library') {
       if (this.isLoggedIn) {
@@ -50,15 +58,27 @@ export default {
     }
 
     if (fromLibrary) {
-      if (sync == "true") {
-        await this.loadBasketApplets();
+      let isEditing = false;
+      if (cache == "true") {
+        if (sync == "true") {
+          await this.loadBasketApplets();
+        } else {
+          this.$store.commit('setBasketApplets', {});
+        }
       } else {
-        this.$store.commit('setBasketApplets', []);
+        this.$store.commit('cacheAppletBuilderData', null);
+        const { account: accountId, applet: appletId } = this.$route.query;
+        await this.switchAccount(accountId);
+        const applet = state.currentAccount[appletId];
+        this.$store.commit('setCurrentApplet', applet);
+        isEditing = true;
+        await this.loadBasketApplets();
       }
       this.$router.push({
         name: 'Builder',
         params: {
-          fromLibrary: true
+          isEditing,
+          isLibrary: true,
         },
       }).catch(err => {
       });
