@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.11] - 2021-04-12
 - Fix UI issues on calendar and data vis
+- Modified frequency graph
 
 ## [0.6.10] - 2021-04-09
 - Fix frequency tab
