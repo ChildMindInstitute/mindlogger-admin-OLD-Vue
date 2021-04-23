@@ -10,7 +10,9 @@
 
         <v-text-field
           v-model="appletUrl"
+          :rules="rules.appletUrl"
           label="Enter Applet URL"
+          required
         />
 
         <v-btn
@@ -35,10 +37,15 @@ export default {
   },
   data: () => ({
     appletUrl: '',
+    rules: {
+      appletUrl: [val => (val || '').length > 0 || 'This field is required'],
+    }
   }),
   methods: {
     onClickSubmit() {
-      this.$emit('set-value', this.appletUrl);
+      if (this.appletUrl) {
+        this.$emit('set-value', this.appletUrl);
+      }
     },
   },
 };
