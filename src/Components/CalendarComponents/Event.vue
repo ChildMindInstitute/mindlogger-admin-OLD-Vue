@@ -765,7 +765,7 @@ export default {
       }
 
       if (this.eventAvailability === null) {
-        evDetails.availability = this.availability;
+        evDetails.availability = this.availability === undefined ? true : this.availability;
       } else {
         evDetails.availability = this.eventAvailability;
       }
