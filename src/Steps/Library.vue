@@ -12,6 +12,7 @@
 import { mapGetters } from 'vuex';
 import { AccountMixin } from '../Components/Utils/mixins/AccountMixin';
 import { LibraryMixin } from '../Components/Utils/mixins/LibraryMixin';
+import api from '../Components/Utils/api/api.vue';
 
 export default {
   name: "Library",
@@ -29,7 +30,7 @@ export default {
       }
     }
   },
-  async created() {
+  async beforeMount() {
     const { from, sync, cache, token } = this.$route.query;
     let fromLibrary = false;
     if (from == 'library') {
@@ -38,7 +39,7 @@ export default {
       } else if (token) {
         try {
           const resp = await api.getUserDetails({
-            apiHost: this.$store.state.backend,
+            apiHost: this.apiHost,
             token,
           });
           if (resp.data) {
@@ -69,9 +70,13 @@ export default {
         this.$store.commit('cacheAppletBuilderData', null);
         const { account: accountId, applet: appletId } = this.$route.query;
         await this.switchAccount(accountId);
-        const applet = state.currentAccount[appletId];
-        this.$store.commit('setCurrentApplet', applet);
-        isEditing = true;
+        if (appletId) {
+          const applet = this.$store.state.currentAccount.applets.find(applet => applet.id == appletId);
+          this.$store.commit('setCurrentApplet', applet);
+          isEditing = true;
+        } else {
+          isEditing = false;
+        }
         await this.loadBasketApplets();
       }
       this.$router.push({
