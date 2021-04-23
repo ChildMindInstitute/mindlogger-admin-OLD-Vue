@@ -349,6 +349,7 @@ export default {
   alertMessage: 'A question was answered by {userIdentifier} that an alert was created for.',
   newFolder: 'New Folder',
   appletUrl: 'Applet URL',
+  browseAppletLibrary: 'Browse Applet Library',
   selectAppletToEdit: 'Please select applet to edit',
   shareAppletLibraryTitle: 'Share "{appletName}" in the Applet Library',
   shareAppletLibraryContent: 'When turned on, the contents of this applet will be available for other MindLogger users to use in their own applets. Only applet content is shared. No user information is shared.',
