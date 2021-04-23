@@ -21,7 +21,18 @@
               </v-btn>  
             </div>
             <div v-else :style="rowStyle">
-              <v-avatar color="blue" size="30" class="mr-2" style="color:white">{{item.name[0]}}</v-avatar> 
+              <v-avatar color="blue" size="30" class="mr-2" style="color:white">
+                <img
+                  v-if="item.image"
+                  :src="item.image"
+                  class="ma-0"
+                >
+                <span
+                  v-else
+                >
+                  {{item.name[0]}}
+                </span>
+              </v-avatar> 
             </div>
           </template>
           <span v-if="header.value === 'updated'">
@@ -61,10 +72,12 @@ export default {
       default: () => [],
     },
   },
-  data: () => ({
-    isDragOver: false,
-    showLastModified: true,
-  }),
+  data() {
+    return {
+      isDragOver: false,
+      showLastModified: true,
+    }
+  },
 	computed : {
     rowStyle() {
       return {

@@ -99,7 +99,7 @@
           }"
       >
         <template v-slot:item="{ item }">
-          <template v-if="!item.isFolder">
+          <template v-if="!item.isFolder && item.roles.length">
             <applet-item
                 :key="item.id + item.parentId"
                 :item="item"
@@ -119,11 +119,12 @@
                       @onDuplicateApplet="onDuplicateApplet"
                       @onRefreshApplet="onRefreshApplet"
                       @removeFromFolder="removeAppletFromFolder"
-                      @onTransferOwnership="onTransferOwnership" />
+                      @onTransferOwnership="onTransferOwnership"
+                      @onShareWithLibrary="onShareWithLibrary" />
               </template>
             </applet-item>
           </template>
-          <template v-else>
+          <template v-else-if="item.isFolder">
             <folder-item
                 :key="item.id + item.parentId"
                 :item="item"
@@ -176,6 +177,12 @@
         @close="ownershipDialog = false"
     />
 
+    <ShareAppletWithLibraryDialog
+        v-model="shareWithDialog"
+        :appletData="shareApplet"
+        @close="shareWithDialog = false"
+    />
+
     <AppletPassword
         v-model="appletPasswordDialog"
         :hasConfirmPassword="true"
@@ -221,6 +228,7 @@ import AppletName from "../Utils/dialogs/AppletName";
 import ConfirmationDialog from '../Utils/dialogs/ConfirmationDialog';
 import AppletPassword from "../Utils/dialogs/AppletPassword.vue";
 import TransferOwnershipDialog from '../Utils/dialogs/TransferOwnershipDialog.vue';
+import ShareAppletWithLibraryDialog from '../Utils/dialogs/ShareAppletWithLibraryDialog.vue';
 
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
@@ -247,6 +255,7 @@ export default {
     ConfirmationDialog,
     AppletPassword,
     TransferOwnershipDialog,
+    ShareAppletWithLibraryDialog,
   },
   props: {
     loading: {
@@ -297,6 +306,8 @@ export default {
       appletDeleteDialog: false,
       appletPendingDelete: undefined,
       ownershipDialog: false,
+      shareWithDialog: false,
+      shareApplet: {},
       newProtocolUrl: "",
       appletUploadDialog: false,
       timeAgo: new TimeAgo(this.$i18n.locale.replace('_', '-')),
@@ -654,11 +665,24 @@ export default {
             appletId: this.hoveredAppletId,
           })
           .then((resp) => {
+            const filteredItems = [];
+            
             this.isSyncing = false;
             this.loaderMessage = "";
             const applet = this.appletPendingDelete;
             this.$store.commit('removeDeletedApplet',  applet);
-            this.flattenedDirectoryItems = this.flattenedDirectoryItems.filter(item => item.id != applet.id);
+
+            for (const item of this.flattenedDirectoryItems) {
+              if (!item.isFolder && item.id !== applet.id) {
+                filteredItems.push(item);
+              } else if (item.isFolder) {
+                const folderItem = item;
+
+                folderItem.items = item.items.filter(ele => ele.id !== applet.id);
+                filteredItems.push(folderItem);
+              }
+            }
+            this.flattenedDirectoryItems = [...filteredItems];
             this.updateVisibleItems();
           });
     },
@@ -799,6 +823,11 @@ export default {
       });
 
       return filteredArr;
+    },
+
+    onShareWithLibrary(applet) {
+      this.shareApplet = applet;
+      this.shareWithDialog = true;
     }
   },
 };

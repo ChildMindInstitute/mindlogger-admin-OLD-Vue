@@ -20,7 +20,7 @@
         <v-btn
           v-for="profile in profileList"
           :key="profile.appletId"
-          class="view-btn"
+          class="schedule-btn"
           @click="onViewCalendar(profile)"
         >
           {{ profile.identifier }}
@@ -45,11 +45,16 @@
 </template>
 
 <style scoped>
-  .view-btn {
+  .schedule-btn {
     width: 100%;
     text-transform: none;
     text-align: left;
     margin: 5px 0px;
+  }
+  .schedule-btn /deep/ .v-btn__content {
+    width: 100%;
+    white-space: break-spaces;
+    text-align: center;
   }
 
   .title, .sub-title {

@@ -4,7 +4,7 @@
       :label="$t('turnOnNotifs')" 
       v-model="details.useNotifications"
       flat
-      class="mx-2"
+      class="mx-2 ds-inline-switch"
     />
     <v-container
       v-if="details.useNotifications"
@@ -14,7 +14,7 @@
     >
       <!-- Start notification at -->
       <v-row class="ds-time-cell">
-        <v-col class="no-padding" col="10" sm="11">
+        <v-col class="no-padding" col="10" sm="10">
           <div>
             <div class="d-flex align-center ds-notif-ele">
               <v-switch 
@@ -55,7 +55,7 @@
             </div>
           </div>
         </v-col>
-        <v-col col="1">
+        <v-col col="2" class="d-flex justify-end">
           <v-btn
             v-if="notificationTimes.length"
             class="ds-remove-btn"
@@ -74,7 +74,7 @@
         :label="$t('reminderNotif')" 
         v-model="reminder.valid"
         flat
-        class="mx-2 mt-0"
+        class="mx-2 mt-0 ds-inline-switch"
       />
       <div v-if="reminder.valid" class="ds-reminder-details">
         <div class="ds-reminder-flex">
@@ -204,6 +204,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.ds-inline-switch {
+  display: inline-flex;
+}
+
 .ds-notifications {
   display: flex;
   justify-content: flex-start;

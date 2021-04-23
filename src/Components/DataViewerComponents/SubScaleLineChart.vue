@@ -337,16 +337,22 @@ export default {
         this.svg
           .select(`.tooltip-circles .${subScale.slug}`)
           .selectAll('.tooltip-circle')
-          .data(subScale.values)
+          .data(subScale.values.map(d => ({
+            ...d,
+            position: {
+              x: this.getX(d),
+              y: this.y(d.value.tScore)
+            }
+          })).filter(d => d.position.x >= 0))
           .join('circle')
           .attr('class', 'tooltip-circle')
           .attr('fill', subScale.dataColor)
-          .attr('cx', d => this.getX(d))
-          .attr('cy', d => this.y(d.value.tScore))
+          .attr('cx', d => d.position.x)
+          .attr('cy', d => d.position.y)
           .attr('r', d => d.value.outputText ? this.radius / 2 : 0)
           .on('focus', d => d.value.outputText ? this.showTooltip(
-            this.getX(d),
-            this.y(d.value.tScore),
+            d.position.x,
+            d.position.y,
             d.value,
             this.labelWidth,
             this.width,
