@@ -112,7 +112,8 @@
                       @onDuplicateApplet="onDuplicateApplet"
                       @onRefreshApplet="onRefreshApplet"
                       @removeFromFolder="removeAppletFromFolder"
-                      @onTransferOwnership="onTransferOwnership" />
+                      @onTransferOwnership="onTransferOwnership"
+                      @onShareWithLibrary="onShareWithLibrary" />
               </template>
             </applet-item>
           </template>
@@ -169,6 +170,12 @@
         @close="ownershipDialog = false"
     />
 
+    <ShareAppletWithLibraryDialog
+        v-model="shareWithDialog"
+        :appletData="shareApplet"
+        @close="shareWithDialog = false"
+    />
+
     <AppletPassword
         v-model="appletPasswordDialog"
         :hasConfirmPassword="true"
@@ -214,6 +221,7 @@ import AppletName from "../Utils/dialogs/AppletName";
 import ConfirmationDialog from '../Utils/dialogs/ConfirmationDialog';
 import AppletPassword from "../Utils/dialogs/AppletPassword.vue";
 import TransferOwnershipDialog from '../Utils/dialogs/TransferOwnershipDialog.vue';
+import ShareAppletWithLibraryDialog from '../Utils/dialogs/ShareAppletWithLibraryDialog.vue';
 
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
@@ -240,6 +248,7 @@ export default {
     ConfirmationDialog,
     AppletPassword,
     TransferOwnershipDialog,
+    ShareAppletWithLibraryDialog,
   },
   props: {
     loading: {
@@ -290,6 +299,8 @@ export default {
       appletDeleteDialog: false,
       appletPendingDelete: undefined,
       ownershipDialog: false,
+      shareWithDialog: false,
+      shareApplet: {},
       newProtocolUrl: "",
       appletUploadDialog: false,
       timeAgo: new TimeAgo(this.$i18n.locale.replace('_', '-')),
@@ -805,6 +816,11 @@ export default {
       });
 
       return filteredArr;
+    },
+
+    onShareWithLibrary(applet) {
+      this.shareApplet = applet;
+      this.shareWithDialog = true;
     }
   },
 };

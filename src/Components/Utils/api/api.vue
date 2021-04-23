@@ -547,6 +547,73 @@ const updateAlertStatus = (apiHost, token, alertId) => {
   })
 }
 
+const checkAppletNameInLibrary = (apiHost, token, applet) => {
+  const { id, name } = applet;
+  return axios({
+    method: 'get',
+    url: `${apiHost}/library/${id}/checkName`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      id,
+      name
+    }
+  })
+}
+
+const changeAppletName = (apiHost, token, appletId, appletName) => {
+  return axios({
+    method: 'put',
+    url: `${apiHost}/applet/${appletId}/name`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      id: appletId,
+      name: appletName
+    }
+  })
+}
+
+const getLibraryCategories = (apiHost, token) => {
+  return axios({
+    method: 'get',
+    url: `${apiHost}/library/categories`,
+    headers: {
+      'Girder-Token': token
+    }
+  })
+}
+
+const publishAppletToLibrary = (apiHost, token, appletId, publish = true) => {
+  return axios({
+    method: 'put',
+    url: `${apiHost}/applet/${appletId}/status`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      id: appletId,
+      publish
+    }
+  })
+}
+
+const updateAppletSearchTerms = (apiHost, token, appletId, params) => {
+  return axios({
+    method: 'put',
+    url: `${apiHost}/applet/${appletId}/searchTerms`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      ...params,
+      id: appletId,
+    }
+  })
+}
+
 export default {
   signIn,
   signUp,
@@ -598,5 +665,10 @@ export default {
   deleteFolder,
   togglePin,
   updateAlertStatus,
+  checkAppletNameInLibrary,
+  changeAppletName,
+  getLibraryCategories,
+  publishAppletToLibrary,
+  updateAppletSearchTerms,
 }
 </script>
