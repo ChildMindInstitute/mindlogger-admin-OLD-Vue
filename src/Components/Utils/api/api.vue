@@ -661,6 +661,18 @@ const updateNote = (apiHost, token, appletId, noteId, note) =>
     }
   })
 
+const deleteNote = (apiHost, token, appletId, noteId) =>
+  axios({
+    method: 'delete',
+    url: `${apiHost}/response/${appletId}/note`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      noteId,
+    }
+  })
+
 export default {
   signIn,
   signUp,
@@ -720,6 +732,7 @@ export default {
   updateAppletSearchTerms,
   getNotes,
   addNote,
-  updateNote
+  updateNote,
+  deleteNote
 }
 </script>

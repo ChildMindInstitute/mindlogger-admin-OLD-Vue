@@ -93,7 +93,7 @@
           </div>
           <div
             v-else
-            class="review-header"
+            class="review-header mb-2"
           >
             <v-menu>
               <template v-slot:activator="{ on }">
