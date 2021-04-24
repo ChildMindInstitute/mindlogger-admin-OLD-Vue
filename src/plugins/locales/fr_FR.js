@@ -349,4 +349,5 @@ export default {
   appletUrl: 'Applet URL',
   browseAppletLibrary: "Parcourir la bibliothèque d'applets",
   selectAppletToEdit: 'Please select applet to edit',
+  review: 'Revoir'
 };

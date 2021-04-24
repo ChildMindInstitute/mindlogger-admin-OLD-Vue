@@ -334,7 +334,7 @@ export default {
   days: 'Days',
   weeks: 'Weeks',
   months: 'Months',
-  years: 'Years',  
+  years: 'Years',
   loadingAppletData: 'Loading applet data',
   noTokenDataAvailable: 'No token data available for this activity',
   deleteFolderWarning: 'Cannot delete a folder that contains applets. Remove applets from folder before deleting.',
@@ -358,4 +358,5 @@ export default {
   shareAppletCopyLink: 'Copy link to share with others',
   newNameNote: 'Note: This will change the name of the applet for your users',
   tryAgain: 'Please try again.',
+  review: 'Review'
 };

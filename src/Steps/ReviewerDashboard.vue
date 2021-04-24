@@ -31,7 +31,10 @@
         </div>
 
         <div class="content">
-          <div class="content-header">
+          <div
+            v-if="this.tabs[selectedTab] != 'review'"
+            class="content-header"
+          >
             <div class="time-range">
               <v-menu>
                 <template v-slot:activator="{ on }">
@@ -88,6 +91,37 @@
               />
             </div>
           </div>
+          <div
+            v-else
+            class="review-header"
+          >
+            <v-menu>
+              <template v-slot:activator="{ on }">
+                Select Date to review:
+                <v-btn
+                  depressed
+                  class="ds-button-tall mr-2 ml-2 mb-2"
+                  v-on="on"
+                >
+                  {{ reviewingDate }}
+                </v-btn>
+              </template>
+
+              <v-date-picker
+                :locale="$i18n.locale.slice(0, 2)"
+                no-title
+                :allowedDates="responseExists"
+                @change="setReviewDate"
+              />
+            </v-menu>
+
+            <v-btn
+              depressed
+              class="ds-button-tall mr-2 ml-2 mb-2"
+            >
+              {{ reviewingTime }}
+            </v-btn>
+          </div>
 
           <div ref="panels">
             <v-tabs-items v-model="selectedTab">
@@ -132,7 +166,7 @@
                       </v-expansion-panel-content>
                     </v-expansion-panel>
                     <v-expansion-panel
-                      v-else
+                      v-else-if="tab != 'review'"
                       v-for="(activity, index) in applet.activities"
                       :key="index"
                     >
@@ -431,6 +465,11 @@
                         </h4>
                       </v-expansion-panel-content>
                     </v-expansion-panel>
+                    <v-expansion-panels
+                      v-else
+                    >
+                      Review
+                    </v-expansion-panels>
                   </v-expansion-panels>
                 </v-card>
               </v-tab-item>
@@ -487,6 +526,12 @@
 .content-header {
   display: flex;
   justify-content: space-around;
+  align-items: center;
+}
+
+.review-header {
+  display: flex;
+  margin: 0px 20px;
   align-items: center;
 }
 
@@ -645,7 +690,12 @@ export default {
       hasVersionBars: true,
       panelWidth: 974,
       margin: 50,
-      itemPadding: 15
+      itemPadding: 15,
+      reviewing: {
+        date: null,
+        activity: null,
+        responseId: null,
+      }
     }
   },
 
@@ -666,6 +716,12 @@ export default {
     toDate() {
       return moment.utc(this.focusExtent[1]).format('ddd, D MMM YYYY');
     },
+    reviewingDate() {
+      return this.reviewing.date && moment(new Date(this.reviewing.date)).format('ddd, D MMM YYYY');
+    },
+    reviewingTime() {
+      return this.reviewing.date && moment(new Date(this.reviewing.date)).format('hh:mm:ss');
+    }
   },
 
   /**
@@ -699,6 +755,28 @@ export default {
       this.selectedVersions = this.appletVersions;
       this.loading = false;
       this.onResize = this.onResize.bind(this);
+
+      let latestActivity = null, latestResponseId = null;
+
+      for (let i = 0; i < this.applet.activities.length; i++)
+      {
+        const activity = this.applet.activities[i];
+        if (activity.lastResponseDate && (!latestActivity || activity.lastResponseDate < latestActivity.lastResponseDate)) {
+          latestActivity = activity;
+
+          const latestResponse = activity.responses.find(response => response.date == activity.lastResponseDate);
+          latestResponseId = latestResponse && latestResponse.responseId;
+        }
+      }
+
+      if (latestActivity) {
+        this.$set(this, 'reviewing', {
+          date: latestActivity.lastResponseDate,
+          activity: latestActivity,
+          responseId: latestResponseId
+        });
+      }
+
       this.$nextTick(this.onResize);
       window.addEventListener('resize', this.onResize);
     } catch (error) {
@@ -723,7 +801,20 @@ export default {
           break;
         }
       }
+
+      if (this.applet.activities && this.applet.activities.some(activity => activity.getFrequency() > 0)) {
+        this.tabs.push('review');
+      }
     },
+
+    setReviewDate (date) {
+      this.$set(this, 'reviewing', {
+        date: date,
+        activity: null,
+        responseId: null
+      });
+    },
+
     onResize() {
       if (this.$refs.panels) {
         const dimensions = this.$refs.panels.getBoundingClientRect();
@@ -738,6 +829,20 @@ export default {
      */
     isAllowedStartDate(date) {
       return moment.utc(date) < this.focusExtent[1];
+    },
+
+    /**
+     * Checks whether the given date should be enabled.
+     *
+     * @param {string} date a given date.
+     * @return {boolean} whether this options should be enabled.
+     */
+    responseExists(date) {
+      if (this.applet.availableDates[moment(date).format('L')]) {
+        return true;
+      }
+
+      return false;
     },
 
     /**
