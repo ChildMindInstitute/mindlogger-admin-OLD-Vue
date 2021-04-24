@@ -170,7 +170,7 @@ export default class Item {
         response.value = response.value;
       }
 
-      if (inputType === 'time') {
+      if (inputType === 'time' || inputType == 'text' || inputType == 'timeRange' || inputType == 'date') {
         return {
           date: new Date(response.date),
           value: response.value[0],

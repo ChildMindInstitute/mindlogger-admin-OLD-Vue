@@ -358,5 +358,8 @@ export default {
   shareAppletCopyLink: 'Copy link to share with others',
   newNameNote: 'Note: This will change the name of the applet for your users',
   tryAgain: 'Please try again.',
-  review: 'Review'
+  review: 'Review',
+  assessment: 'Assessment',
+  notes: 'Notes',
+  reviewed: 'Reviewed',
 };

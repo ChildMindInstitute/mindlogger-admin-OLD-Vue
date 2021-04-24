@@ -469,8 +469,30 @@
                     </v-expansion-panel>
                     <v-expansion-panels
                       v-else
+                      class="reviewing-section"
                     >
-                      Review
+                      <v-card class="reviewing-item">
+                        <Responses
+                          :activity="reviewing.activity"
+                          :response-id="reviewing.responseId"
+                        />
+                      </v-card>
+
+                      <v-card class="reviewing-item">
+                        <v-tabs
+                          hide-slider
+                          light
+                          left
+                        >
+                          <template v-for="reviewTab in reviewingTabs">
+                            <v-tab
+                              :key="reviewTab"
+                            >
+                              {{ $t(reviewTab) }}
+                            </v-tab>
+                          </template>
+                        </v-tabs>
+                      </v-card>
                     </v-expansion-panels>
                   </v-expansion-panels>
                 </v-card>
@@ -513,12 +535,12 @@
   background-color: white;
 }
 
-.v-tab--active {
+.tabs .v-tab--active {
   border: 2px solid black;
   border-bottom: 2px solid white;
 }
 
-.dashboard /deep/ .v-slide-group__content.v-tabs-bar__content::before {
+.dashboard .tabs /deep/ .v-slide-group__content.v-tabs-bar__content::before {
   position: absolute;
   content: '';
   width: 100%;
@@ -633,6 +655,17 @@
 .additional-note .subscale-output .v-note-wrapper, .markdown .v-note-wrapper{
   min-height: unset;
 }
+
+.reviewing-item {
+  width: 50%;
+  overflow-y: scroll;
+  height: 95%;
+}
+
+.reviewing-section {
+  max-height: calc(80vh - 250px);
+  padding: 0px 20px;
+}
 </style>
 
 <script>
@@ -650,6 +683,7 @@ import FreeTextTable from "../Components/DataViewerComponents/FreeTextTable.vue"
 import SubScaleLineChart from "../Components/DataViewerComponents/SubScaleLineChart";
 import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChart";
 import ResponseSelectionDialog from "../Components/Utils/dialogs/ResponseSelectionDialog";
+import Responses from '../Components/DataViewerComponents/Responses';
 
 import * as moment from 'moment-timezone';
 
@@ -669,6 +703,7 @@ export default {
     SubScaleLineChart,
     SubScaleBarChart,
     ResponseSelectionDialog,
+    Responses,
   },
 
   /**
@@ -696,6 +731,7 @@ export default {
       selectedTab: 0,
       panel: [],
       tabs: ['responses', 'tokens'],
+      reviewingTabs: ['assessment', 'notes', 'reviewed'],
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
       timeRange: "Default",
@@ -705,7 +741,7 @@ export default {
       itemPadding: 15,
       reviewing: {
         date: '',
-        activity: null,
+        activity: {},
         responseId: '',
       },
       responseDialog: false
@@ -823,7 +859,7 @@ export default {
     setReviewDate (date) {
       this.$set(this, 'reviewing', {
         date: moment.tz(date, moment.tz.guess()).format(),
-        activity: null,
+        activity: {},
         responseId: ''
       });
 
