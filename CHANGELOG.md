@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.6.11] - 2021-04-22
+- Integrate applet library
+
+## [0.6.12] - 2021-04-23
+- Add applet url validation
+- Modified clickable area in calendar settings
+
+# [0.6.11] - 2021-04-23
+- Modify folder delete
+- Fix UI issues on calendar and data vis
+- Modified frequency graph
 
 ## [0.6.10] - 2021-04-09
 - Fix frequency tab

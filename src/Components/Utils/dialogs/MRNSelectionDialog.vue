@@ -23,34 +23,11 @@
               <div class="content-title">
                 Reviewing Data for:
               </div>
-              <v-combobox
+              <UserSelection
                 v-model="userList"
-                :hint="$t('addRemoveReviewer')"
-                :label="$t('userList')"
-                multiple
-                small-chips
-                required
-              >
-                <template v-slot:selection="{ attrs, item, parent, selected }">
-                  <v-chip
-                    v-bind="attrs"
-                    :color="`lighten-3`"
-                    :input-value="selected"
-                    label
-                    small
-                  >
-                    <span class="pr-2">
-                      {{ item }}
-                    </span>
-                    <v-icon
-                      small
-                      @click="parent.selectItem(item)"
-                    >
-                      close
-                    </v-icon>
-                  </v-chip>
-                </template>
-              </v-combobox>
+                :appletId="profile.appletId"
+                hint="$t('addRemoveReviewer')"
+              />
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-expansion-panels>
@@ -90,10 +67,13 @@
 </style>
 
 <script>
-  import api from "../api/api";
+  import UserSelection from "../../Users/UserSelection";
 
   export default {
     name: 'EditRoleDialog',
+    components: {
+      UserSelection
+    },
     props: {
       profile: {
         type: Object,
@@ -117,9 +97,10 @@
       onSave() {
         this.$emit('onSaveMRNList', { MRNs: this.userList });
       },
+
       onClose() {
         this.$emit('onCloseMRNDialog');
-      }
+      },
     }
   }
 </script>
