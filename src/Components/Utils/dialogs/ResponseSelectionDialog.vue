@@ -10,7 +10,7 @@
       </v-card-title>
 
       <v-expansion-panels
-        v-model="panel"
+        v-model="panels"
         multiple
         focusable
       >
@@ -62,7 +62,7 @@ export default {
   },
   data() {
     return {
-      panel: []
+      panels: []
     };
   },
   computed: {
@@ -74,14 +74,15 @@ export default {
         responses: activity.responses.filter(response => date == moment(new Date(response.date)).format('L')).map(response => ({
           time: moment(new Date(response.date)).format('hh:mm:ss A'),
           ...response
-        }))
+        })),
+        slug: activity.slug
       })).filter(activity => activity.responses.length);
     }
   },
   methods: {
-    selectResponse(activity, response) {
+    selectResponse(selection, response) {
       this.$emit('selectResponse', {
-        activity,
+        activity: this.applet.activities.find(activity => activity.slug == selection.slug),
         responseId: response.responseId,
         date: response.date.toString()
       })

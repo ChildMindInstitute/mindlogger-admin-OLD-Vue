@@ -473,6 +473,7 @@
                     >
                       <v-card class="reviewing-item">
                         <Responses
+                          :key="reviewing.key"
                           :activity="reviewing.activity"
                           :response-id="reviewing.responseId"
                         />
@@ -663,7 +664,7 @@
 }
 
 .reviewing-section {
-  max-height: calc(80vh - 250px);
+  max-height: calc(80vh - 200px);
   padding: 0px 20px;
 }
 </style>
@@ -743,6 +744,7 @@ export default {
         date: '',
         activity: {},
         responseId: '',
+        key: 0
       },
       responseDialog: false
     }
@@ -822,7 +824,8 @@ export default {
         this.$set(this, 'reviewing', {
           date: latestActivity.lastResponseDate.toString(),
           activity: latestActivity,
-          responseId: latestResponseId
+          responseId: latestResponseId,
+          key: 1
         });
       }
 
@@ -860,7 +863,8 @@ export default {
       this.$set(this, 'reviewing', {
         date: moment.tz(date, moment.tz.guess()).format(),
         activity: {},
-        responseId: ''
+        responseId: '',
+        key: this.reviewing.key+1
       });
 
       this.responseDialog = true;
@@ -870,7 +874,8 @@ export default {
       this.$set(this, 'reviewing', {
         date,
         activity,
-        responseId
+        responseId,
+        key: this.reviewing.key+1
       });
 
       if (this.tabs[this.selectedTab] !== 'review') {

@@ -111,36 +111,36 @@ export default {
       required: true
     }
   },
-  computed: {
-    items() {
-      if (!this.responseId) {
-        return [];
+  data() {
+    const items = (this.activity.items || []).map(item => {
+      const response = item.responses.find(response => response.responseId == this.responseId)
+
+      let value = 0;
+      if ( response && (item.inputType == 'radio' && !item.isMultipleChoice || item.inputType == 'slider')) {
+        for (const choice of item.responseOptions) {
+          if (response[choice.id] !== undefined) {
+            value = choice;
+          }
+        }
+
+        if (value) {
+          value = item.inputType == 'radio' ? value.id : item.responseOptions.indexOf(value) + 1;
+        }
       }
 
-      return this.activity.items.map(item => {
-        const response = item.responses.find(response => response.responseId == this.responseId)
+      return {
+        ...item,
+        response,
+        value,
+        getFormattedQuestion: item.getFormattedQuestion.bind(item)
+      }
+    })
 
-        let value = 0;
-        if ( response && (item.inputType == 'radio' && !item.isMultipleChoice || item.inputType == 'slider')) {
-          for (const choice of item.responseOptions) {
-            if (response[choice.id] !== undefined) {
-              value = choice;
-            }
-          }
-
-          if (value) {
-            value = item.inputType == 'radio' ? value.id : item.responseOptions.indexOf(value) + 1;
-          }
-        }
-
-        return {
-          ...item,
-          response,
-          value,
-          getFormattedQuestion: item.getFormattedQuestion.bind(item)
-        }
-      });
-    },
+    return {
+      items
+    }
+  },
+  computed: {
     activityName() {
       return this.activity.label && this.activity.label.en;
     }
