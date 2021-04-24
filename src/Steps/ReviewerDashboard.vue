@@ -640,7 +640,7 @@ import FreeTextTable from "../Components/DataViewerComponents/FreeTextTable.vue"
 import SubScaleLineChart from "../Components/DataViewerComponents/SubScaleLineChart";
 import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChart";
 
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 
 export default {
   name: "ReviewerDashboard",
@@ -720,7 +720,7 @@ export default {
       return this.reviewing.date && moment(new Date(this.reviewing.date)).format('ddd, D MMM YYYY');
     },
     reviewingTime() {
-      return this.reviewing.date && moment(new Date(this.reviewing.date)).format('hh:mm:ss');
+      return this.reviewing.date && moment(new Date(this.reviewing.date)).format('hh:mm:ss A');
     }
   },
 
@@ -809,7 +809,7 @@ export default {
 
     setReviewDate (date) {
       this.$set(this, 'reviewing', {
-        date: date,
+        date: moment.tz(date, moment.tz.guess()).format(),
         activity: null,
         responseId: null
       });
