@@ -473,7 +473,7 @@
                     >
                       <v-card class="reviewing-item">
                         <Responses
-                          :key="reviewing.key"
+                          :key="`response-${reviewing.key}`"
                           :activity="reviewing.activity"
                           :response-id="reviewing.responseId"
                         />
@@ -481,18 +481,43 @@
 
                       <v-card class="reviewing-item">
                         <v-tabs
+                          v-model="selectedReviewTab"
                           hide-slider
                           light
                           left
                         >
-                          <template v-for="reviewTab in reviewingTabs">
+                          <template v-for="reviewingTab in reviewingTabs">
                             <v-tab
-                              :key="reviewTab"
+                              :key="reviewingTab"
                             >
-                              {{ $t(reviewTab) }}
+                              {{ $t(reviewingTab) }}
                             </v-tab>
                           </template>
                         </v-tabs>
+
+
+                        <v-tabs-items v-model="selectedReviewTab">
+                          <v-tab-item
+                            v-for="reviewingTab in reviewingTabs"
+                            :key="reviewingTab"
+                            class="mx-2"
+                          >
+                            <div
+                              v-if="reviewingTab == 'notes'"
+                            >
+                              <Notes
+                                :key="`note-${reviewing.key}`"
+                                :response-id="reviewing.responseId"
+                              />
+                            </div>
+                            <div
+                              v-else
+                            >
+                              {{ $t(reviewingTab) }}
+                            </div>
+                          </v-tab-item>
+                        </v-tabs-items>
+
                       </v-card>
                     </v-expansion-panels>
                   </v-expansion-panels>
@@ -685,6 +710,7 @@ import SubScaleLineChart from "../Components/DataViewerComponents/SubScaleLineCh
 import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChart";
 import ResponseSelectionDialog from "../Components/Utils/dialogs/ResponseSelectionDialog";
 import Responses from '../Components/DataViewerComponents/Responses';
+import Notes from '../Components/DataViewerComponents/Notes';
 
 import * as moment from 'moment-timezone';
 
@@ -705,6 +731,7 @@ export default {
     SubScaleBarChart,
     ResponseSelectionDialog,
     Responses,
+    Notes,
   },
 
   /**
@@ -730,6 +757,7 @@ export default {
       allExpanded: false,
       responses: [],
       selectedTab: 0,
+      selectedReviewTab: 1,
       panel: [],
       tabs: ['responses', 'tokens'],
       reviewingTabs: ['assessment', 'notes', 'reviewed'],
