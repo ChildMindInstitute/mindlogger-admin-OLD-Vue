@@ -350,7 +350,7 @@ export default {
           .attr('cx', d => d.position.x)
           .attr('cy', d => d.position.y)
           .attr('r', d => d.value.outputText ? this.radius / 2 : 0)
-          .on('focus', d => d.value.outputText ? this.showTooltip(
+          .on('focus', d => d.value.outputText ? this.showSubScaleToolTip(
             d.position.x,
             d.position.y,
             d.value,

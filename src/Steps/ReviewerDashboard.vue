@@ -118,6 +118,7 @@
             <v-btn
               depressed
               class="ds-button-tall mr-2 ml-2 mb-2"
+              @click="responseDialog=true"
             >
               {{ reviewingTime }}
             </v-btn>
@@ -229,6 +230,7 @@
                           :parent-width="panelWidth"
                           :time-range="timeRange"
                           :item-padding="itemPadding"
+                          @selectResponse="selectResponse({ activity, ...$event })"
                         />
                       </v-expansion-panel-header>
                       <v-expansion-panel-content
@@ -477,6 +479,14 @@
           </div>
         </div>
       </div>
+
+      <ResponseSelectionDialog
+        v-model="responseDialog"
+        :applet="applet"
+        :date="reviewing.date"
+        :current-response="reviewing.responseId"
+        @selectResponse="selectResponse"
+      />
     </v-card>
   </div>
 </template>
@@ -639,6 +649,7 @@ import TimePicker from "../Components/DataViewerComponents/TimePicker.vue";
 import FreeTextTable from "../Components/DataViewerComponents/FreeTextTable.vue";
 import SubScaleLineChart from "../Components/DataViewerComponents/SubScaleLineChart";
 import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChart";
+import ResponseSelectionDialog from "../Components/Utils/dialogs/ResponseSelectionDialog";
 
 import * as moment from 'moment-timezone';
 
@@ -657,6 +668,7 @@ export default {
     FreeTextTable,
     SubScaleLineChart,
     SubScaleBarChart,
+    ResponseSelectionDialog,
   },
 
   /**
@@ -692,10 +704,11 @@ export default {
       margin: 50,
       itemPadding: 15,
       reviewing: {
-        date: null,
+        date: '',
         activity: null,
-        responseId: null,
-      }
+        responseId: '',
+      },
+      responseDialog: false
     }
   },
 
@@ -771,7 +784,7 @@ export default {
 
       if (latestActivity) {
         this.$set(this, 'reviewing', {
-          date: latestActivity.lastResponseDate,
+          date: latestActivity.lastResponseDate.toString(),
           activity: latestActivity,
           responseId: latestResponseId
         });
@@ -811,8 +824,22 @@ export default {
       this.$set(this, 'reviewing', {
         date: moment.tz(date, moment.tz.guess()).format(),
         activity: null,
-        responseId: null
+        responseId: ''
       });
+
+      this.responseDialog = true;
+    },
+
+    selectResponse({ activity, responseId, date }) {
+      this.$set(this, 'reviewing', {
+        date,
+        activity,
+        responseId
+      });
+
+      if (this.tabs[this.selectedTab] !== 'review') {
+        this.selectedTab = this.tabs.indexOf('review');
+      }
     },
 
     onResize() {
