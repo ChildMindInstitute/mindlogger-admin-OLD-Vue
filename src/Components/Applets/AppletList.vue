@@ -159,6 +159,13 @@
     />
 
     <ConfirmationDialog
+        v-model="folderAppletDelete"
+        :dialogText="$t('deleteAppletConfirmation')"
+        :title="$t('deleteApplet')"
+        @onOK="deleteFolderApplet"
+    />
+
+    <ConfirmationDialog
         v-model="appletEditDialog"
         :dialogText="$t('appletEditAlert')"
         :title="$t('appletEdit')"
@@ -304,6 +311,7 @@ export default {
       appletDuplicateDialog: false,
       appletEditDialog: false,
       appletDeleteDialog: false,
+      folderAppletDelete: false,
       appletPendingDelete: undefined,
       ownershipDialog: false,
       shareWithDialog: false,
@@ -316,7 +324,7 @@ export default {
     }
   },
   mounted() {
-   this.loadFormattedData();
+    this.loadFormattedData();
   },
   
   computed: {
@@ -454,10 +462,17 @@ export default {
     },
     async removeAppletFromFolder(applet) {
       this.draggedItem = applet;
-      await this.droppedOnRoot();
+      this.appletPendingDelete = applet;
+      this.folderAppletDelete = true;
     },
 
-    async droppedOnRoot() {
+    async deleteFolderApplet() {
+      await this.droppedOnRoot(false);
+      await this.deleteApplet();
+      this.folderAppletDelete = false;
+    },
+
+    async droppedOnRoot(isDropping) {
       this.isRootActive = false;
       if (!this.draggedItem.parentId) return; // already belongs to the root
 
@@ -485,7 +500,8 @@ export default {
       if (previousIndex > -1)
         this.flattenedDirectoryItems.splice(previousIndex, 1);
 
-      this.flattenedDirectoryItems.push(this.draggedItem);
+      if (isDropping)
+        this.flattenedDirectoryItems.push(this.draggedItem);
       this.updateVisibleItems();
       this.isRootActive = false;
     },
@@ -503,7 +519,7 @@ export default {
       if (destination.isFolder && this.draggedItem.isFolder) return;
 
       if (isMovingAppletOutOfFolders) {
-        await this.droppedOnRoot();
+        await this.droppedOnRoot(true);
         return;
       }
 
@@ -787,10 +803,12 @@ export default {
         this.flattenedDirectoryItems = this.flattenedDirectoryItems.filter(item => item.id != folder.id);
         this.updateVisibleItems();
       } else {
-        this.deleteFolderOnServer(folder).then(() => {
+        this.deleteFolderOnServer(folder).then(() => {      
           this.flattenedDirectoryItems = this.flattenedDirectoryItems.filter(item => item.id != folder.id);
           this.isSyncing = false;
           this.loaderMessage = null;
+
+          this.$store.commit('removeDeletedFolder', folder);
           this.updateVisibleItems();
         });
       }
