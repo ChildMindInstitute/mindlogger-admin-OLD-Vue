@@ -143,10 +143,16 @@ export default {
 
   methods: {
     getNoteData(note) {
+      let name = note.reviewer.firstName;
+
+      if (note.reviewer.lastName && note.reviewer.lastName != name) {
+        name = name + ' ' + note.reviewer.lastName;
+      }
+
       return {
         ...note,
-        reviewerName: note.reviewer.firstName + ' ' + note.reviewer.lastName,
-        ago: this.timeAgo.format(new Date(note.updated), 'round'),
+        reviewerName: name,
+        ago: this.timeAgo.format(new Date(note.created), 'round'),
         open: false
       }
     },
