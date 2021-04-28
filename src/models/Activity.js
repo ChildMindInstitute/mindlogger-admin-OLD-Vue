@@ -27,6 +27,8 @@ export default class Activity {
     this.items = [];
     this.responses = [];
 
+    this.lastResponseDate = null;
+
     this.subScales = this.parseSubScales(data[ReproLib.subScales]);
     this.finalSubScale = this.parseFinalSubScale(data[ReproLib.finalSubScale] && data[ReproLib.finalSubScale][0]);
 
