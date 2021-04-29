@@ -27,6 +27,9 @@ export const AppletMixin = {
     },
     mediaResponseObjects() {
       return [];
+    },
+    currentAppletBuilderData() {
+      return this.$store.state.currentAppletBuilderData;
     }
   },
   methods: {

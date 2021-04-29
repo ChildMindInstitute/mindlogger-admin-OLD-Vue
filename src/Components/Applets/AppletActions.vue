@@ -157,7 +157,11 @@ export default {
 		},
 
 		onDeleteApplet() {
-			this.publishEvent("onDeleteApplet");
+			if (this.item.parentId) {
+				this.publishEvent("removeFromFolder");
+			} else {
+				this.publishEvent("onDeleteApplet");
+			}
 		},
 
 		onDuplicateApplet() {
