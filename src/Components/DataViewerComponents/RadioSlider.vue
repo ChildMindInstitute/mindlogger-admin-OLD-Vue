@@ -100,6 +100,11 @@ export default {
 
     let width = this.parentWidth - margin.left - margin.right;
 
+    features = features.map((feature, index) => ({ ...feature, index}));
+    if (this.item.inputType == 'slider') {
+      features = features.reverse();
+    }
+
     return {
       height: features.length * heightPerFeature,
       heightPerFeature,
@@ -107,10 +112,7 @@ export default {
       width,
       labelWidth: width / 4,
       data,
-      features: features.map((feature, index) => ({
-        ...feature,
-        index
-      })).reverse(),
+      features,
       visible: false,
     }
   },
@@ -276,7 +278,7 @@ export default {
 
         for (let [index, feature] of this.features.entries()) {
           if (response[feature.slug] !== undefined) {
-            x = this.x(response.date);
+            x = this.getX(response);
             y = this.radius + this.padding.top + this.heightPerFeature * index;
 
             if (x < 0) {
@@ -293,7 +295,7 @@ export default {
               .on('mouseover', () => tooltip.style.display = 'flex')
               .on('mouseout', () => tooltip.style.display = 'none')
               .on('mousemove', () => {
-                const x = this.x(response.date);
+                const x = this.getX(response);
                 const dateStr = moment(response.date).format('MMM-DD, YYYY');
                 const y = this.radius + this.padding.top + this.heightPerFeature * index;
 
@@ -310,28 +312,6 @@ export default {
 
         if (this.item.multiChoiceStatusByVersion[response.version]) {
           x = y = -1;
-        }
-
-        if (x >= 0 && prevX >= 0) {
-          let delta = this.radius + 2;
-          let dx = x - prevX, 
-              dy = y - prevY;
-
-          let r = Math.sqrt(dx * dx + dy * dy);
-
-          dx /= r, dy /= r;
-
-          if (r >= this.radius * 2) {
-            this.svg
-              .select('.responses')
-              .append('line')
-              .style('stroke-width', 1.5)
-              .attr('x1', prevX + dx * delta)
-              .attr('y1', prevY + dy * delta)
-              .attr('x2', x - dx * delta)
-              .attr('y2', y - dy * delta)
-              .attr('stroke', 'black')
-          }
         }
 
         prevX = x;

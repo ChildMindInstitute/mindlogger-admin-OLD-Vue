@@ -43,6 +43,7 @@ export default class Applet {
     this.subScales = {};
     this.tokens = {};
     this.hasTokenItem = false;
+    this.availableDates = {};
 
     this.selectedActivites = [];
 
@@ -277,7 +278,8 @@ export default class Applet {
       for (let item of activity.items) {
         activity.responses.push(...item.responses.map(response => ({
           date: response.date,
-          version: response.version
+          version: response.version,
+          responseId: response.responseId
         })));
       }
 
@@ -291,6 +293,16 @@ export default class Applet {
 
         return true;
       });
+
+      for (const response of activity.responses) {
+        this.availableDates[moment(response.date).format('L')] = true;
+
+        for (const response of activity.responses) {
+          if (!activity.lastResponseDate || activity.lastResponseDate < response.date) {
+              activity.lastResponseDate = response.date;
+          }
+        }
+      }
     }
 
     for (let activity of this.activities) {
@@ -312,17 +324,13 @@ export default class Applet {
 
     this.versions = data;
 
-    this.versions = this.versions.filter((version, index) => 
+    this.versions = this.versions.filter((version, index) =>
       this.versions.findIndex(d => d.version == version.version) === index
     );
   }
 
   insertInitialVersion() {
     for (let schema in this.responses) {
-      if (!schema.startsWith('https://')) {
-        continue;
-      }
-
       for (let response of this.responses[schema]) {
         if (response.version && !this.versions.find(data => data.version == response.version)) {
           this.versions.push({
@@ -348,7 +356,7 @@ export default class Applet {
   }
 
   /**
-   * Method to get version upgrade type 
+   * Method to get version upgrade type
    */
   getVersionChangeType(version1, version2) {
     const v1 = version1.split('.').map(val => parseInt(val));
@@ -517,6 +525,7 @@ export default class Applet {
 
       for (let response of responses) {
         if (response.value && response.value.ptr !== undefined && response.value.src !== undefined) {
+          response.responseId = response.value.src;
           response.value = data.dataSources[response.value.src].data[response.value.ptr];
         }
       }

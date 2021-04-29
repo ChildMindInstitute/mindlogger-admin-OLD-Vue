@@ -100,11 +100,11 @@
             sm="12"
             md="12"
           >
-            <v-combobox
+            <UserSelection
               v-model="params.users"
-              hint="Press enter to add a user"
-              label="Users"
               :rules="usersRules"
+              :applet-id="appletId"
+              hint="Press enter to add a user"
               multiple
               small-chips
               required
@@ -151,9 +151,13 @@
 
 <script>
 import { RolesMixin } from '../Utils/mixins/RolesMixin';
+import UserSelection from './UserSelection';
 
 export default {
   name: "CreateInvitationForm",
+  components: {
+    UserSelection,
+  },
   mixins: [RolesMixin],
   data() {
     return {
@@ -233,6 +237,9 @@ export default {
 
       return [];
     },
+    appletId() {
+      return this.$store.state.currentAppletMeta.id;
+    }
   },
   methods: {
     submit() {

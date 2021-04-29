@@ -31,11 +31,14 @@
         </div>
 
         <div class="content">
-          <div class="content-header">
+          <div
+            v-if="this.tabs[selectedTab] != 'review'"
+            class="content-header"
+          >
             <div class="time-range">
               <v-menu>
                 <template v-slot:activator="{ on }">
-                  <v-btn 
+                  <v-btn
                     depressed
                     class="ds-button-tall mr-2 ml-2 mb-2 fromDate"
                     v-on="on"
@@ -57,7 +60,7 @@
 
               <v-menu>
                 <template v-slot:activator="{ on }">
-                  <v-btn 
+                  <v-btn
                     depressed
                     class="ds-button-tall mr-2 ml-2 mb-2 toDate"
                     v-on="on"
@@ -87,6 +90,38 @@
                 multiple
               />
             </div>
+          </div>
+          <div
+            v-else
+            class="review-header mb-2"
+          >
+            <v-menu>
+              <template v-slot:activator="{ on }">
+                Select Date to review:
+                <v-btn
+                  depressed
+                  class="ds-button-tall mr-2 ml-2 mb-2"
+                  v-on="on"
+                >
+                  {{ reviewingDate }}
+                </v-btn>
+              </template>
+
+              <v-date-picker
+                :locale="$i18n.locale.slice(0, 2)"
+                no-title
+                :allowedDates="responseExists"
+                @change="setReviewDate"
+              />
+            </v-menu>
+
+            <v-btn
+              depressed
+              class="ds-button-tall mr-2 ml-2 mb-2"
+              @click="responseDialog=true"
+            >
+              {{ reviewingTime }}
+            </v-btn>
           </div>
 
           <div ref="panels">
@@ -132,47 +167,47 @@
                       </v-expansion-panel-content>
                     </v-expansion-panel>
                     <v-expansion-panel
-                      v-else
+                      v-else-if="tab != 'review'"
                       v-for="(activity, index) in applet.activities"
                       :key="index"
                     >
                       <v-expansion-panel-header>
-                        <div 
+                        <div
                           v-if="!allExpanded && applet.activities.length > 1"
                           class="ds-expand-action"
                           @click.stop="onAllExpand"
                         >
-                          <v-icon 
+                          <v-icon
                             v-show="index === 0"
-                            class="ds-expand-all" 
+                            class="ds-expand-all"
                             medium
                           >
                             mdi-chevron-up
                           </v-icon>
-                          <v-icon 
+                          <v-icon
                             v-show="index === 0"
-                            class="ds-expand-all" 
+                            class="ds-expand-all"
                             medium
                           >
                             mdi-chevron-down
                           </v-icon>
                         </div>
 
-                        <div 
+                        <div
                           v-if="allExpanded  && applet.activities.length > 1"
                           class="ds-expand-action"
                           @click.stop="onAllCollapsed"
                         >
-                          <v-icon 
+                          <v-icon
                             v-show="index === 0"
-                            class="ds-expand-all" 
+                            class="ds-expand-all"
                             medium
                           >
                             mdi-chevron-down
                           </v-icon>
-                          <v-icon 
+                          <v-icon
                             v-show="index === 0"
-                            class="ds-expand-all" 
+                            class="ds-expand-all"
                             medium
                           >
                             mdi-chevron-up
@@ -195,20 +230,20 @@
                           :parent-width="panelWidth"
                           :time-range="timeRange"
                           :item-padding="itemPadding"
+                          @selectResponse="selectResponse({ activity, ...$event })"
                         />
                       </v-expansion-panel-header>
                       <v-expansion-panel-content
                         v-if="activity.responses && activity.responses.length && (tab !== 'tokens' || activity.hasTokenItem)"
                       >
                         <div
-                          v-if="activity.finalSubScale"
+                          v-if="activity.finalSubScale && activity.finalSubScale.latest.outputText"
                           class="additional-note mt-4"
                         >
                           <header>
                             <h2> - Additional Information </h2>
                           </header>
                           <div
-                            v-if="activity.finalSubScale.latest.outputText"
                             class="subscale-output"
                           >
                             <mavon-editor
@@ -275,12 +310,14 @@
 
                               <v-expansion-panel-content>
                                 <div>
-                                  <div class="additional-note">
+                                  <div
+                                    v-if="subScale.latest.outputText"
+                                    class="additional-note"
+                                  >
                                     <header>
                                       <h3> - Additional Information </h3>
                                     </header>
                                     <div
-                                      v-if="subScale.latest.outputText"
                                       class="subscale-output"
                                     >
                                       <mavon-editor
@@ -332,12 +369,34 @@
                             class="chart-card"
                           >
                             <header>
-                              <h3>
+                              <h3
+                                v-if="item.inputType !== 'markdownMessage'"
+                              >
                                 <vue-markdown class="item-question">
                                   {{ item.getFormattedQuestion() }}
                                 </vue-markdown>
                               </h3>
+
+                              <h3
+                                v-else
+                              >
+                                - {{ item.label.en }}
+                              </h3>
                             </header>
+                            <div
+                              v-if="item.inputType == 'markdownMessage'"
+                            >
+                              <div
+                                class="markdown"
+                              >
+                                <mavon-editor
+                                  :value="item.question.en"
+                                  :language="'en'"
+                                  :toolbarsFlag="false"
+                                >
+                                </mavon-editor>
+                              </div>
+                            </div>
 
                             <TimePicker
                               v-if="tab == 'responses' && item.inputType === 'time'"
@@ -356,6 +415,20 @@
                             />
                             <RadioSlider
                               v-else-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
+                              :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
+                              :item="item"
+                              :versions="applet.versions"
+                              :focus-extent="focusExtent"
+                              :selected-versions="selectedVersions"
+                              :timezone="applet.timezoneStr"
+                              :has-version-bars="hasVersionBars"
+                              :parent-width="panelWidth"
+                              :time-range="timeRange"
+                              :color="item.dataColor"
+                            />
+
+                            <Frequency
+                              v-else-if="tab == 'frequency' && item.inputType === 'radio'"
                               :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
                               :item="item"
                               :versions="applet.versions"
@@ -395,6 +468,59 @@
                         </h4>
                       </v-expansion-panel-content>
                     </v-expansion-panel>
+                    <v-expansion-panels
+                      v-else
+                      class="reviewing-section"
+                    >
+                      <v-card class="reviewing-item">
+                        <Responses
+                          :key="`response-${reviewing.key}`"
+                          :activity="reviewing.activity"
+                          :response-id="reviewing.responseId"
+                        />
+                      </v-card>
+
+                      <v-card class="reviewing-item">
+                        <v-tabs
+                          v-model="selectedReviewTab"
+                          hide-slider
+                          light
+                          left
+                        >
+                          <template v-for="reviewingTab in reviewingTabs">
+                            <v-tab
+                              :key="reviewingTab"
+                            >
+                              {{ $t(reviewingTab) }}
+                            </v-tab>
+                          </template>
+                        </v-tabs>
+
+
+                        <v-tabs-items v-model="selectedReviewTab">
+                          <v-tab-item
+                            v-for="reviewingTab in reviewingTabs"
+                            :key="reviewingTab"
+                            class="mx-2"
+                          >
+                            <div
+                              v-if="reviewingTab == 'notes'"
+                            >
+                              <Notes
+                                :key="`note-${reviewing.key}`"
+                                :response-id="reviewing.responseId"
+                              />
+                            </div>
+                            <div
+                              v-else
+                            >
+                              {{ $t(reviewingTab) }}
+                            </div>
+                          </v-tab-item>
+                        </v-tabs-items>
+
+                      </v-card>
+                    </v-expansion-panels>
                   </v-expansion-panels>
                 </v-card>
               </v-tab-item>
@@ -402,6 +528,14 @@
           </div>
         </div>
       </div>
+
+      <ResponseSelectionDialog
+        v-model="responseDialog"
+        :applet="applet"
+        :date="reviewing.date"
+        :current-response="reviewing.responseId"
+        @selectResponse="selectResponse"
+      />
     </v-card>
   </div>
 </template>
@@ -428,12 +562,12 @@
   background-color: white;
 }
 
-.v-tab--active {
+.tabs .v-tab--active {
   border: 2px solid black;
   border-bottom: 2px solid white;
 }
 
-.dashboard /deep/ .v-slide-group__content.v-tabs-bar__content::before {
+.dashboard .tabs /deep/ .v-slide-group__content.v-tabs-bar__content::before {
   position: absolute;
   content: '';
   width: 100%;
@@ -451,6 +585,12 @@
 .content-header {
   display: flex;
   justify-content: space-around;
+  align-items: center;
+}
+
+.review-header {
+  display: flex;
+  margin: 0px 20px;
   align-items: center;
 }
 
@@ -525,18 +665,33 @@
   flex-direction: row-reverse;
 }
 
-.additional-note /deep/ .v-note-edit {
+.additional-note /deep/ .v-note-edit, .markdown /deep/ .v-note-edit {
   display: none;
 }
-.additional-note /deep/ .v-note-show {
+.additional-note /deep/ .v-note-show, .markdown /deep/ .v-note-show {
   width: 100% !important;
   flex: 0 0 100% !important;
 }
 
-.additional-note .subscale-output {
+.additional-note .subscale-output, .markdown {
   max-height: 150px;
-  overflow-y: scroll;
+  overflow-y: auto;
   margin: 10px 0px;
+}
+
+.additional-note .subscale-output .v-note-wrapper, .markdown .v-note-wrapper{
+  min-height: unset;
+}
+
+.reviewing-item {
+  width: 50%;
+  overflow-y: scroll;
+  height: 95%;
+}
+
+.reviewing-section {
+  max-height: calc(80vh - 200px);
+  padding: 0px 20px;
 }
 </style>
 <style>
@@ -556,12 +711,16 @@ import Item from "../models/Item";
 import TokenChart from "../Components/DataViewerComponents/TokenChart.vue";
 import ActivitySummary from "../Components/DataViewerComponents/ActivitySummary.vue";
 import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue";
-import TimePicker from "../Components/DataViewerComponents/TimePicker.vue"; 
+import Frequency from "../Components/DataViewerComponents/Frequency.vue";
+import TimePicker from "../Components/DataViewerComponents/TimePicker.vue";
 import FreeTextTable from "../Components/DataViewerComponents/FreeTextTable.vue";
 import SubScaleLineChart from "../Components/DataViewerComponents/SubScaleLineChart";
 import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChart";
+import ResponseSelectionDialog from "../Components/Utils/dialogs/ResponseSelectionDialog";
+import Responses from '../Components/DataViewerComponents/Responses';
+import Notes from '../Components/DataViewerComponents/Notes';
 
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 
 export default {
   name: "ReviewerDashboard",
@@ -573,11 +732,15 @@ export default {
     TokenChart,
     ActivitySummary,
     RadioSlider,
+    Frequency,
     TimePicker,
     FreeTextTable,
     SubScaleLineChart,
     SubScaleBarChart,
-    VueMarkdown
+    VueMarkdown,
+    ResponseSelectionDialog,
+    Responses,
+    Notes,
   },
 
   /**
@@ -585,14 +748,8 @@ export default {
    */
   data: function() {
     const NOW = new Date();
-    const TODAY = new Date(Date.UTC(
-      NOW.getFullYear(),
-      NOW.getMonth(),
-      NOW.getDate() + 1,
-      0,
-      0,
-      0,
-    ));
+    const TODAY = NOW;
+    TODAY.setDate(TODAY.getDate() + 1);
 
     const ONE_WEEK_AGO = new Date(TODAY);
     ONE_WEEK_AGO.setDate(TODAY.getDate() - 6);
@@ -609,15 +766,24 @@ export default {
       allExpanded: false,
       responses: [],
       selectedTab: 0,
+      selectedReviewTab: 1,
       panel: [],
       tabs: ['responses', 'tokens'],
+      reviewingTabs: ['assessment', 'notes', 'reviewed'],
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
       timeRange: "Default",
       hasVersionBars: true,
       panelWidth: 974,
       margin: 50,
-      itemPadding: 15
+      itemPadding: 15,
+      reviewing: {
+        date: '',
+        activity: {},
+        responseId: '',
+        key: 0
+      },
+      responseDialog: false
     }
   },
 
@@ -638,6 +804,12 @@ export default {
     toDate() {
       return moment.utc(this.focusExtent[1]).format('ddd, D MMM YYYY');
     },
+    reviewingDate() {
+      return this.reviewing.date && moment(new Date(this.reviewing.date)).format('ddd, D MMM YYYY');
+    },
+    reviewingTime() {
+      return this.reviewing.date && moment(new Date(this.reviewing.date)).format('hh:mm:ss A');
+    }
   },
 
   /**
@@ -667,9 +839,33 @@ export default {
         this.$store.state.currentAppletData.applet.encryption
       );
 
+      this.setDashboardTabs();
       this.selectedVersions = this.appletVersions;
       this.loading = false;
       this.onResize = this.onResize.bind(this);
+
+      let latestActivity = null, latestResponseId = null;
+
+      for (let i = 0; i < this.applet.activities.length; i++)
+      {
+        const activity = this.applet.activities[i];
+        if (activity.lastResponseDate && (!latestActivity || activity.lastResponseDate < latestActivity.lastResponseDate)) {
+          latestActivity = activity;
+
+          const latestResponse = activity.responses.find(response => response.date == activity.lastResponseDate);
+          latestResponseId = latestResponse && latestResponse.responseId;
+        }
+      }
+
+      if (latestActivity) {
+        this.$set(this, 'reviewing', {
+          date: latestActivity.lastResponseDate.toString(),
+          activity: latestActivity,
+          responseId: latestResponseId,
+          key: 1
+        });
+      }
+
       this.$nextTick(this.onResize);
       window.addEventListener('resize', this.onResize);
     } catch (error) {
@@ -687,6 +883,43 @@ export default {
    * Component methods.
    */
   methods: {
+    setDashboardTabs () {
+      for (const itemId in this.applet.items) {
+        if (this.applet.items[itemId].isTokenItem) {
+          this.tabs.push("frequency");
+          break;
+        }
+      }
+
+      if (this.applet.activities && this.applet.activities.some(activity => activity.getFrequency() > 0)) {
+        this.tabs.push('review');
+      }
+    },
+
+    setReviewDate (date) {
+      this.$set(this, 'reviewing', {
+        date: moment.tz(date, moment.tz.guess()).format(),
+        activity: {},
+        responseId: '',
+        key: this.reviewing.key+1
+      });
+
+      this.responseDialog = true;
+    },
+
+    selectResponse({ activity, responseId, date }) {
+      this.$set(this, 'reviewing', {
+        date,
+        activity,
+        responseId,
+        key: this.reviewing.key+1
+      });
+
+      if (this.tabs[this.selectedTab] !== 'review') {
+        this.selectedTab = this.tabs.indexOf('review');
+      }
+    },
+
     onResize() {
       if (this.$refs.panels) {
         const dimensions = this.$refs.panels.getBoundingClientRect();
@@ -709,16 +942,30 @@ export default {
      * @param {string} date a given date.
      * @return {boolean} whether this options should be enabled.
      */
+    responseExists(date) {
+      if (this.applet.availableDates[moment(date).format('L')]) {
+        return true;
+      }
+
+      return false;
+    },
+
+    /**
+     * Checks whether the given date should be enabled.
+     *
+     * @param {string} date a given date.
+     * @return {boolean} whether this options should be enabled.
+     */
     isAllowedEndDate(date) {
       let NOW = new Date();
       NOW.setDate(NOW.getDate() + 1);
       return (
-        (moment.utc(date) > this.focusExtent[0]) && 
+        (moment.utc(date) > this.focusExtent[0]) &&
         (moment.utc(date) <= moment.utc(NOW))
       );
     },
 
-    /** 
+    /**
      * Expand all activities.
      *
      * @param {items} items Activity Items
@@ -745,7 +992,7 @@ export default {
       return maxValue;
     },
 
-    /** 
+    /**
      * Expand all activities.
      *
      * @param {items} items Activity Items

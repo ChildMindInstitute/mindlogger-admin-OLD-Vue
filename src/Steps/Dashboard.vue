@@ -47,6 +47,7 @@
               @onDuplicateRequestReceived="onDuplicateRequestReceived"
               @onRefreshAppletRequestReceived="onRefreshAppletRequestReceived"
               @onBuildApplet="onBuildApplet"
+              @onBrowseAppletLibrary="onBrowseAppletLibrary"
               @onEditApplet="appletEditDialog=true"
               @onAddAppletFromUrl="appletURLDialog=true"
             />
@@ -435,6 +436,15 @@ export default {
       this.dialogText = message;
       this.dialogTitle = this.$t('refreshing');
       this.dialog = true;
+    },
+    onBrowseAppletLibrary() {
+      api.getOneTimeToken({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+      }).then((response) => {
+        console.log('response', response.data.token);
+        window.location.href = `https://library.mindlogger.org/#/librarySearch?token=${response.data.token}`;
+      })
     },
     onBuildApplet() {
       this.$store.commit('setCurrentApplet', null);

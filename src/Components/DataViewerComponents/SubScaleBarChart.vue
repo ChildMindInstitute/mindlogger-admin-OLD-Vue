@@ -75,6 +75,10 @@
   width: 100% !important;
   flex: 0 0 100% !important;
 }
+
+.tooltip .v-note-wrapper {
+  min-height: unset;
+}
 </style>
 
 <script>
@@ -251,14 +255,14 @@ export default {
           const d = subScale.values.find(d => {
             const date = new Date(d.date);
 
-            return date >= this.focusExtent[0] && 
-                   date <= this.focusExtent[1] && 
+            return date >= this.focusExtent[0] &&
+                   date <= this.focusExtent[1] &&
                    this.selectedVersions.includes(d.version);
           });
 
           return {
             id: index,
-            value: d.value,
+            value: (d && d.value || { tScore: 0 }),
             dataColor: subScale.dataColor,
           }
         }))
@@ -271,7 +275,7 @@ export default {
         .attr('height', d => baseY - this.y(d.value.tScore))
         .style('stroke-width', this.responseStrokeWidth)
         .style('stroke', 'grey')
-        .on('focus', d => d.value.outputText ? this.showTooltip(
+        .on('focus', d => d.value.outputText ? this.showSubScaleToolTip(
           this.x(( d.id * this.xRangePerBar) + 2),
           this.y(d.value.tScore),
           d.value,

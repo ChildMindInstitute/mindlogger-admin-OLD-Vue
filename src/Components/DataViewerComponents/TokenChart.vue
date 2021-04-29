@@ -593,7 +593,6 @@ export default {
     drawFocusChart() {
       const { svg, x, y, data, focusMargin, features, plotId } = this;
       const barWidth = this.focusBarWidth();
-
       const stack = d3.stack()
           .keys(features.map(f => f.id))
           .offset(d3.stackOffsetDiverging);

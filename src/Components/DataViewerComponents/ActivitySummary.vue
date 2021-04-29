@@ -2,6 +2,15 @@
   <div
     class="activity-summary"
   >
+    <div
+      v-show="toolTipVisible"
+      class="tooltip"
+      :style="`left: ${toolTipX}px; top: ${toolTipY}px; width: ${tooltipWidth}px; max-height: ${tooltipHeight}px`"
+      @mousedown="onReviewResponse"
+    >
+      Review
+    </div>
+
     <svg
       :id="plotId"
       :height="height"
@@ -54,6 +63,16 @@
   user-select: none;
 }
 
+.tooltip {
+  border: 1px solid black;
+  position: absolute;
+  border-radius: 2px;
+  padding: 2px;
+  background: white;
+}
+.tooltip:hover {
+  color: rgba(0, 0, 0, 0.7);
+}
 </style>
 
 <script>
@@ -108,6 +127,9 @@ export default {
       margin,
       width,
       labelWidth: width / 4,
+      tooltipWidth: 70,
+      tooltipHeight: 30,
+      currentResponse: null
     }
   },
   computed: {
@@ -180,7 +202,7 @@ export default {
         .nice()
         .domain(this.focusExtent)
         .range([0, this.width - this.labelWidth]);
-      
+
       const tickType = this.getTickType();
 
       const xAxis = d3
@@ -211,20 +233,27 @@ export default {
         .join('circle')
         .attr('fill', this.color)
         .attr('cx', d => {
-          const dataVersion = this.formattedVersions.find(v => v.version === d.version );
-          let responseDate = new Date(d.date);
-
-          if (dataVersion.updated) {
-            const offset = this.versionsLength[new Date(dataVersion.updated).getDay()] / 2;
-            responseDate = new Date(d.date).setHours(new Date (dataVersion.updated).getHours() + offset);
-          }
-
-          return this.x(responseDate);
+          return this.getX(d);
         })
         .attr('cy', this.radius + this.padding.top)
-        .attr('r', d => this.x(d.date) >= 0 ? this.radius : 0);
+        .attr('r', d => this.x(d.date) >= 0 ? this.radius : 0)
+        .on('focus', (d) => {
+          this.currentResponse = d;
+
+          this.showReviewingTooltip(this.getX(d), this.radius + this.padding.top, this.labelWidth, this.width, this.height);
+        })
+        .on('blur', d => {
+          this.currentResponse = null;
+          this.hideTooltip()
+        });
     },
+
+    onReviewResponse() {
+      this.$emit('selectResponse', {
+        date: this.currentResponse.date.toString(),
+        responseId: this.currentResponse.responseId,
+      });
+    }
   }
 }
 </script>
- 

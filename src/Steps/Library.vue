@@ -1,0 +1,98 @@
+<template>
+  <div />
+</template>
+
+<style scoped>
+.error {
+  color: "red";
+}
+</style>
+
+<script>
+import { mapGetters } from 'vuex';
+import { AccountMixin } from '../Components/Utils/mixins/AccountMixin';
+import { LibraryMixin } from '../Components/Utils/mixins/LibraryMixin';
+import api from '../Components/Utils/api/api.vue';
+
+export default {
+  name: "Library",
+  mixins: [AccountMixin, LibraryMixin],
+  computed: {
+    ...mapGetters([
+      'isLoggedIn',
+    ]),
+    currentApplet: {
+      get() {
+        return this.$store.state.currentAppletMeta;
+      },
+      set(applet) {
+        this.$store.commit('setCurrentApplet', applet);
+      }
+    }
+  },
+  async beforeMount() {
+    const { from, sync, cache, token } = this.$route.query;
+    let fromLibrary = false;
+    if (from == 'library') {
+      if (this.isLoggedIn) {
+        fromLibrary = true;
+      } else if (token) {
+        try {
+          const resp = await api.getUserDetails({
+            apiHost: this.apiHost,
+            token,
+          });
+          if (resp.data) {
+            this.setAuth({
+              auth: {
+                authToken: {
+                  token
+                }
+              }
+            });
+            fromLibrary = true;
+          }
+        } catch (e) {
+          console.log('token error', e.response.data.message);
+        }
+      }
+    }
+
+    if (fromLibrary) {
+      let isEditing = false;
+      if (cache == "true") {
+        if (sync == "true") {
+          await this.loadBasketApplets();
+        } else {
+          this.$store.commit('setBasketApplets', {});
+        }
+      } else {
+        this.$store.commit('cacheAppletBuilderData', null);
+        const { account: accountId, applet: appletId } = this.$route.query;
+        await this.switchAccount(accountId);
+        if (appletId) {
+          const applet = this.$store.state.currentAccount.applets.find(applet => applet.id == appletId);
+          this.$store.commit('setCurrentApplet', applet);
+          isEditing = true;
+        } else {
+          isEditing = false;
+        }
+        await this.loadBasketApplets();
+      }
+      this.$router.push({
+        name: 'Builder',
+        params: {
+          isEditing,
+          isLibrary: true,
+        },
+      }).catch(err => {
+      });
+    } else {
+      this.$router.push({
+        name: 'Dashboard',
+      }).catch(err => {
+      });
+    }
+  },
+};
+</script>

@@ -74,10 +74,10 @@ export default class Item {
       ? data[ReproLib.responseOptions][0][ReproLib.valueType][0]['@id'].includes('#token') : false;
     this.isMultipleChoice = data[ReproLib.responseOptions] && ReproLib.multipleChoice in data[ReproLib.responseOptions][0]
       ? data[ReproLib.responseOptions][0][ReproLib.multipleChoice][0]['@value'] : false;
-    
+
     this.dataColor = '#8076B2';
     this.partOfSubScale = false;
-    this.allowEdit = data[ReproLib.allowEdit] && data[ReproLib.allowEdit][0] 
+    this.allowEdit = data[ReproLib.allowEdit] && data[ReproLib.allowEdit][0]
       ? data[ReproLib.allowEdit][0]['@value'] : true;
     this.enableNegativeTokens = _.get(data, [ReproLib.responseOptions, 0, ReproLib.enableNegativeTokens, 0, '@value'], false);
   }
@@ -91,7 +91,7 @@ export default class Item {
    */
   parseResponseOptions(responseOptions) {
     if (
-      !responseOptions || !Array.isArray(responseOptions) || 
+      !responseOptions || !Array.isArray(responseOptions) ||
       typeof(responseOptions[0]) != 'object' || !responseOptions[0]['schema:itemListElement']
     ) {
       return null;
@@ -170,11 +170,12 @@ export default class Item {
         response.value = response.value;
       }
 
-      if (inputType === 'time') {
+      if (inputType === 'time' || inputType == 'text' || inputType == 'timeRange' || inputType == 'date') {
         return {
           date: new Date(response.date),
           value: response.value[0],
           version: response.version,
+          responseId: response.responseId
         };
       }
 
@@ -196,6 +197,7 @@ export default class Item {
         {
           date: new Date(response.date),
           version: response.version,
+          responseId: response.responseId
         },
       );
     }));

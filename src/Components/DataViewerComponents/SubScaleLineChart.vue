@@ -26,7 +26,10 @@
         :width="labelWidth - 20"
         :height="height"
       >
-        <div class="chart-labels">
+        <div
+          class="chart-labels"
+          :style="`max-height: ${height-20}px;`"
+        >
           <div class="chart-title">
             {{ $t('subScaleScores') }}
           </div>
@@ -100,6 +103,8 @@
 
 .chart-labels {
   position: relative;
+  overflow-y: auto;
+  direction: rtl;
   top: 50%;
   transform: translate(0, -50%);
 }
@@ -133,6 +138,10 @@
 .tooltip /deep/ .v-note-show {
   width: 100% !important;
   flex: 0 0 100% !important;
+}
+
+.tooltip .v-note-wrapper {
+  min-height: unset;
 }
 </style>
 
@@ -306,8 +315,9 @@ export default {
         .attr('d', subScale => {
           const d = subScale.values.map(d => {
             if (this.selectedVersions.includes(d.version)) {
-              const x = this.x(new Date(d.date));
+              const x = this.getX(d);
               const y = this.y(d.value.tScore);
+
               return `L ${Math.max(x, 2)} ${y}`;
             }
             return '';
@@ -318,7 +328,7 @@ export default {
           }
           return d;
         })
-        .style('stroke-width', this.responseLineWidth)
+        .style('stroke-width', d => d.isFinalSubScale ? this.responseLineWidth+1 : this.responseLineWidth)
         .style('stroke', subScale => subScale.dataColor)
 
       for (let i = 0; i < this.activity.subScales.length; i++) {
@@ -327,16 +337,22 @@ export default {
         this.svg
           .select(`.tooltip-circles .${subScale.slug}`)
           .selectAll('.tooltip-circle')
-          .data(subScale.values)
+          .data(subScale.values.map(d => ({
+            ...d,
+            position: {
+              x: this.getX(d),
+              y: this.y(d.value.tScore)
+            }
+          })).filter(d => d.position.x >= 0))
           .join('circle')
           .attr('class', 'tooltip-circle')
           .attr('fill', subScale.dataColor)
-          .attr('cx', d => this.x(new Date(d.date)))
-          .attr('cy', d => this.y(d.value.tScore))
+          .attr('cx', d => d.position.x)
+          .attr('cy', d => d.position.y)
           .attr('r', d => d.value.outputText ? this.radius / 2 : 0)
-          .on('focus', d => d.value.outputText ? this.showTooltip(
-            this.x(new Date(d.date)),
-            this.y(d.value.tScore),
+          .on('focus', d => d.value.outputText ? this.showSubScaleToolTip(
+            d.position.x,
+            d.position.y,
             d.value,
             this.labelWidth,
             this.width,

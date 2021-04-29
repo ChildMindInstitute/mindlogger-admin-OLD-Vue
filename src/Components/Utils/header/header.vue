@@ -21,13 +21,13 @@
       {{ $t('mindloggerDashboard') }}
     </v-btn>
 
-    <v-icon 
-      v-if="currentApplet" 
+    <v-icon
+      v-if="currentApplet"
       medium
     >
       mdi-chevron-right
     </v-icon>
-    
+
     <v-btn
       v-if="currentApplet"
       color="primary"
@@ -247,14 +247,14 @@
       <v-card>
         <v-list>
           <v-list-item>
-            <v-list-item-title @click="switchAccount(ownerAccountId)">
+            <v-list-item-title @click="onSwitchAccount(ownerAccountId)">
               {{ ownerAccountName }}
             </v-list-item-title>
           </v-list-item>
           <v-list-item
             v-for="(account, index) in accounts"
             :key="index"
-            @click="switchAccount(account.accountId)"
+            @click="onSwitchAccount(account.accountId)"
           >
             <v-list-item-title>{{ account.accountName }}</v-list-item-title>
           </v-list-item>
@@ -402,6 +402,7 @@ import Information from "../dialogs/InformationDialog.vue";
 import AppletName from "../dialogs/AppletName";
 import { AppletMixin } from '../mixins/AppletMixin';
 import { RolesMixin } from '../mixins/RolesMixin';
+import { AccountMixin } from '../mixins/AccountMixin';
 import encryption from '../encryption/encryption.vue';
 
 import TimeAgo from 'javascript-time-ago';
@@ -422,7 +423,7 @@ export default {
     AppletName,
     TransferOwnershipDialog,
   },
-  mixins: [AppletMixin, RolesMixin],
+  mixins: [AppletMixin, RolesMixin, AccountMixin],
   data() {
     return {
       appletEditDialog: false,
@@ -498,7 +499,7 @@ export default {
     },
 
     currentApplet() {
-      return this.$store.state.currentAppletMeta; 
+      return this.$store.state.currentAppletMeta;
     },
 
     routeName() {
@@ -545,7 +546,7 @@ export default {
       return this.windowWidth > 1400;
     },
     isTablet() {
-      return this.windowWidth <= 1400 && this.windowWidth >= 768; 
+      return this.windowWidth <= 1400 && this.windowWidth >= 768;
     },
     allApplets() {
       return this.$store.state.allApplets;
@@ -568,29 +569,19 @@ export default {
       this.$router.push('/login').catch(err => {});
     },
 
-    switchAccount(accountId) {
-      api
-        .switchAccount({
-          apiHost: this.$store.state.backend,
-          token: this.$store.state.auth.authToken.token,
-          accountId,
-        })
-        .then((resp) => {
-          this.$store.commit('setCurrentApplet', null);
-          this.$store.commit('setCurrentUsers', {});
-          this.$store.commit('switchAccount', resp.data.account);
-          this.$router.push('/build').catch(err => {});
-          this.$router.push('/dashboard').catch(err => {});
-        })
-        .catch((err) => {
-          console.warn(err);
-        });
+    async onSwitchAccount(accountId) {
+      this.$store.commit('setCurrentApplet', null);
+      this.$store.commit('setCurrentUsers', {});
+      await this.switchAccount(accountId);
+      this.$router.push('/build').catch(err => {});
+      this.$router.push('/dashboard').catch(err => {});
     },
 
     onDashboard() {
       if (this.isLoggedIn) {
         this.$router.push('/dashboard').catch(err => {});
         this.$store.commit('setCurrentApplet', null);
+        this.$store.commit('setCurrentUsers', {});
       }
     },
 

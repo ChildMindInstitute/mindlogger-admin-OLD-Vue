@@ -99,6 +99,18 @@ export default {
         return this.value.format("HH:mm");
       },
       set(time) {
+        const startTime = Time.parse(time);
+        const endTime = Time.parse(this.endTime);
+
+        let minute = endTime.minute - startTime.minute;
+        let hour = endTime.hour - startTime.hour;
+
+        if (minute < 0) {
+          minute += 60;
+          hour -= 1;
+        }
+
+        this.$emit("update", {minute, hour});
         this.setTime(time);
       },
     },
@@ -107,8 +119,11 @@ export default {
         const currentTime = Time.parse(this.time);
         currentTime.minute += this.scheduledTimeout.minute;
         currentTime.hour += this.scheduledTimeout.hour + Math.floor(currentTime.minute / 60);
-        currentTime.minute %= 60;
-        currentTime.hour %= 24;
+
+        if (currentTime.hour >= 24) {
+          currentTime.hour = 23;
+          currentTime.minute = 59;
+        }
 
         if (currentTime.hour < this.value.hour) {
           currentTime.hour = this.value.hour;

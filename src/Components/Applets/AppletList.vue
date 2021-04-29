@@ -49,6 +49,13 @@
                 {{ 'Add applet from GitHub URL' }}
               </v-list-item-title>
             </v-list-item>
+            <v-list-item
+              @click="$emit('onBrowseAppletLibrary')"
+            >
+              <v-list-item-title>
+                {{ $t('browseAppletLibrary') }}
+              </v-list-item-title>
+            </v-list-item>
           </v-list>
         </v-menu>
 
@@ -92,7 +99,7 @@
           }"
       >
         <template v-slot:item="{ item }">
-          <template v-if="!item.isFolder">
+          <template v-if="!item.isFolder && item.roles.length">
             <applet-item
                 :key="item.id + item.parentId"
                 :item="item"
@@ -112,11 +119,12 @@
                       @onDuplicateApplet="onDuplicateApplet"
                       @onRefreshApplet="onRefreshApplet"
                       @removeFromFolder="removeAppletFromFolder"
-                      @onTransferOwnership="onTransferOwnership" />
+                      @onTransferOwnership="onTransferOwnership"
+                      @onShareWithLibrary="onShareWithLibrary" />
               </template>
             </applet-item>
           </template>
-          <template v-else>
+          <template v-else-if="item.isFolder">
             <folder-item
                 :key="item.id + item.parentId"
                 :item="item"
@@ -151,6 +159,13 @@
     />
 
     <ConfirmationDialog
+        v-model="folderAppletDelete"
+        :dialogText="$t('deleteAppletConfirmation')"
+        :title="$t('deleteApplet')"
+        @onOK="deleteFolderApplet"
+    />
+
+    <ConfirmationDialog
         v-model="appletEditDialog"
         :dialogText="$t('appletEditAlert')"
         :title="$t('appletEdit')"
@@ -167,6 +182,12 @@
         v-model="ownershipDialog"
         @submit="transferOwnership"
         @close="ownershipDialog = false"
+    />
+
+    <ShareAppletWithLibraryDialog
+        v-model="shareWithDialog"
+        :appletData="shareApplet"
+        @close="shareWithDialog = false"
     />
 
     <AppletPassword
@@ -214,6 +235,7 @@ import AppletName from "../Utils/dialogs/AppletName";
 import ConfirmationDialog from '../Utils/dialogs/ConfirmationDialog';
 import AppletPassword from "../Utils/dialogs/AppletPassword.vue";
 import TransferOwnershipDialog from '../Utils/dialogs/TransferOwnershipDialog.vue';
+import ShareAppletWithLibraryDialog from '../Utils/dialogs/ShareAppletWithLibraryDialog.vue';
 
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
@@ -240,6 +262,7 @@ export default {
     ConfirmationDialog,
     AppletPassword,
     TransferOwnershipDialog,
+    ShareAppletWithLibraryDialog,
   },
   props: {
     loading: {
@@ -288,8 +311,11 @@ export default {
       appletDuplicateDialog: false,
       appletEditDialog: false,
       appletDeleteDialog: false,
+      folderAppletDelete: false,
       appletPendingDelete: undefined,
       ownershipDialog: false,
+      shareWithDialog: false,
+      shareApplet: {},
       newProtocolUrl: "",
       appletUploadDialog: false,
       timeAgo: new TimeAgo(this.$i18n.locale.replace('_', '-')),
@@ -298,7 +324,7 @@ export default {
     }
   },
   mounted() {
-   this.loadFormattedData();
+    this.loadFormattedData();
   },
   
   computed: {
@@ -436,10 +462,17 @@ export default {
     },
     async removeAppletFromFolder(applet) {
       this.draggedItem = applet;
-      await this.droppedOnRoot();
+      this.appletPendingDelete = applet;
+      this.folderAppletDelete = true;
     },
 
-    async droppedOnRoot() {
+    async deleteFolderApplet() {
+      await this.droppedOnRoot(false);
+      await this.deleteApplet();
+      this.folderAppletDelete = false;
+    },
+
+    async droppedOnRoot(isDropping) {
       this.isRootActive = false;
       if (!this.draggedItem.parentId) return; // already belongs to the root
 
@@ -467,7 +500,8 @@ export default {
       if (previousIndex > -1)
         this.flattenedDirectoryItems.splice(previousIndex, 1);
 
-      this.flattenedDirectoryItems.push(this.draggedItem);
+      if (isDropping)
+        this.flattenedDirectoryItems.push(this.draggedItem);
       this.updateVisibleItems();
       this.isRootActive = false;
     },
@@ -485,7 +519,7 @@ export default {
       if (destination.isFolder && this.draggedItem.isFolder) return;
 
       if (isMovingAppletOutOfFolders) {
-        await this.droppedOnRoot();
+        await this.droppedOnRoot(true);
         return;
       }
 
@@ -647,11 +681,24 @@ export default {
             appletId: this.hoveredAppletId,
           })
           .then((resp) => {
+            const filteredItems = [];
+            
             this.isSyncing = false;
             this.loaderMessage = "";
             const applet = this.appletPendingDelete;
             this.$store.commit('removeDeletedApplet',  applet);
-            this.flattenedDirectoryItems = this.flattenedDirectoryItems.filter(item => item.id != applet.id);
+
+            for (const item of this.flattenedDirectoryItems) {
+              if (!item.isFolder && item.id !== applet.id) {
+                filteredItems.push(item);
+              } else if (item.isFolder) {
+                const folderItem = item;
+
+                folderItem.items = item.items.filter(ele => ele.id !== applet.id);
+                filteredItems.push(folderItem);
+              }
+            }
+            this.flattenedDirectoryItems = [...filteredItems];
             this.updateVisibleItems();
           });
     },
@@ -756,10 +803,12 @@ export default {
         this.flattenedDirectoryItems = this.flattenedDirectoryItems.filter(item => item.id != folder.id);
         this.updateVisibleItems();
       } else {
-        this.deleteFolderOnServer(folder).then(() => {
+        this.deleteFolderOnServer(folder).then(() => {      
           this.flattenedDirectoryItems = this.flattenedDirectoryItems.filter(item => item.id != folder.id);
           this.isSyncing = false;
           this.loaderMessage = null;
+
+          this.$store.commit('removeDeletedFolder', folder);
           this.updateVisibleItems();
         });
       }
@@ -792,6 +841,11 @@ export default {
       });
 
       return filteredArr;
+    },
+
+    onShareWithLibrary(applet) {
+      this.shareApplet = applet;
+      this.shareWithDialog = true;
     }
   },
 };
