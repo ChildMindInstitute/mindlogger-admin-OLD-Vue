@@ -3,6 +3,7 @@ import Router from "vue-router";
 import Builder from "@/Components/Builder/Builder.vue";
 import Login from "../Steps/Login";
 import Dashboard from "../Steps/Dashboard";
+import Library from "../Steps/Library";
 import SetUsers from "../Steps/SetUsers";
 import SetSchedule from "../Steps/SetSchedule";
 import ReviewerDashboard from "../Steps/ReviewerDashboard";
@@ -63,6 +64,11 @@ let router = new Router({
       meta: {
         requiresAuth: true,
       },
+    },
+    {
+      path: "/library",
+      name: "Library",
+      component: Library,
     },
     {
       path: "/",

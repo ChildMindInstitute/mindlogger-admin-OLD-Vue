@@ -275,7 +275,7 @@ export default {
         .attr('height', d => baseY - this.y(d.value.tScore))
         .style('stroke-width', this.responseStrokeWidth)
         .style('stroke', 'grey')
-        .on('focus', d => d.value.outputText ? this.showTooltip(
+        .on('focus', d => d.value.outputText ? this.showSubScaleToolTip(
           this.x(( d.id * this.xRangePerBar) + 2),
           this.y(d.value.tScore),
           d.value,

@@ -93,9 +93,6 @@ export default {
     },
   },
   data: (vm) => ({}),
-  mounted() {
-    console.log('ssss', this.scheduledTimeout);
-  },
   computed: {
     time: {
       get() {

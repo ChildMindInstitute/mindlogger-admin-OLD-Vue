@@ -170,11 +170,12 @@ export default class Item {
         response.value = response.value;
       }
 
-      if (inputType === 'time') {
+      if (inputType === 'time' || inputType == 'text' || inputType == 'timeRange' || inputType == 'date') {
         return {
           date: new Date(response.date),
           value: response.value[0],
           version: response.version,
+          responseId: response.responseId
         };
       }
 
@@ -196,6 +197,7 @@ export default class Item {
         {
           date: new Date(response.date),
           version: response.version,
+          responseId: response.responseId
         },
       );
     }));

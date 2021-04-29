@@ -23,6 +23,9 @@ export const AppletMixin = {
     token() {
       return this.$store.state.auth.authToken.token;
     },
+    currentAppletBuilderData() {
+      return this.$store.state.currentAppletBuilderData;
+    }
   },
   methods: {
     loadApplet(appletId) {
