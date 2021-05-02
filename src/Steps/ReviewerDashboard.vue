@@ -1,16 +1,11 @@
 <template>
   <div class="container">
     <v-card class="dashboard">
-      <div
-        v-if="loading"
-        class="status-message"
-      >
+      <div v-if="loading" class="status-message">
         {{ status }}
       </div>
 
-      <div
-        v-else
-      >
+      <div v-else>
         <div>
           <v-tabs
             v-model="selectedTab"
@@ -21,9 +16,7 @@
             left
           >
             <template v-for="tab in tabs">
-              <v-tab
-                :key="tab"
-              >
+              <v-tab :key="tab">
                 {{ $t(tab) }}
               </v-tab>
             </template>
@@ -31,7 +24,7 @@
         </div>
 
         <div class="content">
-          <div class="content-header">
+          <div v-if="this.tabs[selectedTab] != 'review'" class="content-header">
             <div class="time-range">
               <v-menu>
                 <template v-slot:activator="{ on }">
@@ -53,7 +46,7 @@
                 />
               </v-menu>
 
-              {{ $t('to') }}
+              {{ $t("to") }}
 
               <v-menu>
                 <template v-slot:activator="{ on }">
@@ -81,35 +74,59 @@
                 v-model="selectedVersions"
                 attach="#versions"
                 class="version-list"
-                :menu-props="{ maxHeight: 232}"
+                :menu-props="{ maxHeight: 232 }"
                 :items="appletVersions"
                 :label="$t('versions')"
                 multiple
               />
             </div>
           </div>
+          <div v-else class="review-header mb-2">
+            <v-menu>
+              <template v-slot:activator="{ on }">
+                Select Date to review:
+                <v-btn
+                  depressed
+                  class="ds-button-tall mr-2 ml-2 mb-2"
+                  v-on="on"
+                >
+                  {{ reviewingDate }}
+                </v-btn>
+              </template>
+
+              <v-date-picker
+                :locale="$i18n.locale.slice(0, 2)"
+                no-title
+                :allowedDates="responseExists"
+                @change="setReviewDate"
+              />
+            </v-menu>
+
+            <v-btn
+              depressed
+              class="ds-button-tall mr-2 ml-2 mb-2"
+              @click="responseDialog = true"
+            >
+              {{ reviewingTime }}
+            </v-btn>
+          </div>
 
           <div ref="panels">
             <v-tabs-items v-model="selectedTab">
-              <v-tab-item
-                v-for="tab in tabs"
-                :key="tab"
-              >
+              <v-tab-item v-for="tab in tabs" :key="tab">
                 <v-card class="mb-0">
                   <v-expansion-panels
                     v-model="applet.selectedActivites"
                     multiple
                     focusable
                   >
-                    <v-expansion-panel v-if="tab=='tokens'">
+                    <v-expansion-panel v-if="tab == 'tokens'">
                       <v-expansion-panel-header>
                         <div>
                           {{ applet.label.en }}
                         </div>
                       </v-expansion-panel-header>
-                      <v-expansion-panel-content
-                        v-if="applet.hasTokenItem"
-                      >
+                      <v-expansion-panel-content v-if="applet.hasTokenItem">
                         <token-chart
                           :plot-id="`Token-${applet.id}`"
                           :applet="applet"
@@ -123,16 +140,14 @@
                           @onUpdateFocusExtent="onUpdateFocusExtent"
                         />
                       </v-expansion-panel-content>
-                      <v-expansion-panel-content
-                        v-else
-                      >
+                      <v-expansion-panel-content v-else>
                         <h4>
                           {{ $t("noTokenDataAvailable") }}
                         </h4>
                       </v-expansion-panel-content>
                     </v-expansion-panel>
                     <v-expansion-panel
-                      v-else
+                      v-else-if="tab != 'review'"
                       v-for="(activity, index) in applet.activities"
                       :key="index"
                     >
@@ -159,7 +174,7 @@
                         </div>
 
                         <div
-                          v-if="allExpanded  && applet.activities.length > 1"
+                          v-if="allExpanded && applet.activities.length > 1"
                           class="ds-expand-action"
                           @click.stop="onAllCollapsed"
                         >
@@ -195,21 +210,29 @@
                           :parent-width="panelWidth"
                           :time-range="timeRange"
                           :item-padding="itemPadding"
+                          @selectResponse="
+                            selectResponse({ activity, ...$event })
+                          "
                         />
                       </v-expansion-panel-header>
                       <v-expansion-panel-content
-                        v-if="activity.responses && activity.responses.length && (tab !== 'tokens' || activity.hasTokenItem)"
+                        v-if="
+                          activity.responses &&
+                          activity.responses.length &&
+                          (tab !== 'tokens' || activity.hasTokenItem)
+                        "
                       >
                         <div
-                          v-if="activity.finalSubScale && activity.finalSubScale.latest.outputText"
+                          v-if="
+                            activity.finalSubScale &&
+                            activity.finalSubScale.latest.outputText
+                          "
                           class="additional-note mt-4"
                         >
                           <header>
-                            <h2> - Additional Information </h2>
+                            <h2>- Additional Information</h2>
                           </header>
-                          <div
-                            class="subscale-output"
-                          >
+                          <div class="subscale-output">
                             <mavon-editor
                               :value="activity.finalSubScale.latest.outputText"
                               :language="'en'"
@@ -220,7 +243,7 @@
                         </div>
 
                         <h2 class="mt-4">
-                          {{ $t('responseOptions') }}
+                          {{ $t("responseOptions") }}
                         </h2>
 
                         <template
@@ -258,9 +281,7 @@
                           focusable
                           multiple
                         >
-                          <template
-                            v-for="(subScale) in activity.subScales"
-                          >
+                          <template v-for="subScale in activity.subScales">
                             <v-expansion-panel
                               v-if="applet && !subScale.isFinalSubScale"
                               :key="subScale.variableName"
@@ -268,7 +289,8 @@
                               <v-expansion-panel-header>
                                 <h4>
                                   {{ subScale.variableName }}
-                                  ( {{ $t('latestScore') }}: {{ subScale.latest.tScore }} )
+                                  ( {{ $t("latestScore") }}:
+                                  {{ subScale.latest.tScore }} )
                                 </h4>
                               </v-expansion-panel-header>
 
@@ -279,11 +301,9 @@
                                     class="additional-note"
                                   >
                                     <header>
-                                      <h3> - Additional Information </h3>
+                                      <h3>- Additional Information</h3>
                                     </header>
-                                    <div
-                                      class="subscale-output"
-                                    >
+                                    <div class="subscale-output">
                                       <mavon-editor
                                         :value="subScale.latest.outputText"
                                         :language="'en'"
@@ -292,19 +312,22 @@
                                       </mavon-editor>
                                     </div>
                                   </div>
-                                  <template
-                                    v-for="item in subScale.items"
-                                  >
-                                    <div
-                                      :key="item['id']"
-                                      class="chart-card"
-                                    >
+                                  <template v-for="item in subScale.items">
+                                    <div :key="item['id']" class="chart-card">
                                       <header>
-                                        <h3> - {{ item.getFormattedQuestion() }}</h3>
+                                        <h3>
+                                          - {{ item.getFormattedQuestion() }}
+                                        </h3>
                                       </header>
 
                                       <RadioSlider
-                                        v-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
+                                        v-if="
+                                          tab == 'responses' &&
+                                          item.responseOptions &&
+                                          applet.selectedActivites.includes(
+                                            index
+                                          )
+                                        "
                                         :plot-id="`RadioSlider-${activity.slug}-${subScale.slug}-${item.slug}`"
                                         :item="item"
                                         :versions="applet.versions"
@@ -324,34 +347,27 @@
                           </template>
                         </v-expansion-panels>
 
-                        <template
-                          v-for="item in activity.items"
-                        >
+                        <template v-for="item in activity.items">
                           <div
-                            v-if="item.allowEdit && (tab == 'tokens' || !item.partOfSubScale) && (tab != 'tokens' || item.isTokenItem)"
+                            v-if="
+                              item.allowEdit &&
+                              (tab == 'tokens' || !item.partOfSubScale) &&
+                              (tab != 'tokens' || item.isTokenItem)
+                            "
                             :key="item['id']"
                             class="chart-card"
                           >
-                            <header
-                            >
-                              <h3
-                                v-if="item.inputType !== 'markdownMessage'"
-                              >
-                                - {{ item.getFormattedQuestion() }}
+                            <header>
+                              <h3 v-if="item.inputType !== 'markdownMessage'">
+                                <vue-markdown class="item-question">
+                                  {{ item.getFormattedQuestion() }}
+                                </vue-markdown>
                               </h3>
 
-                              <h3
-                                v-else
-                              >
-                                - {{ item.label.en }}
-                              </h3>
+                              <h3 v-else>- {{ item.label.en }}</h3>
                             </header>
-                            <div
-                              v-if="item.inputType == 'markdownMessage'"
-                            >
-                              <div
-                                class="markdown"
-                              >
+                            <div v-if="item.inputType == 'markdownMessage'">
+                              <div class="markdown">
                                 <mavon-editor
                                   :value="item.question.en"
                                   :language="'en'"
@@ -362,7 +378,9 @@
                             </div>
 
                             <TimePicker
-                              v-if="tab == 'responses' && item.inputType === 'time'"
+                              v-if="
+                                tab == 'responses' && item.inputType === 'time'
+                              "
                               :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
                               :item="item"
                               :versions="applet.versions"
@@ -377,7 +395,11 @@
                               :minValue="getMinValue(activity.items)"
                             />
                             <RadioSlider
-                              v-else-if="tab == 'responses' && item.responseOptions && applet.selectedActivites.includes(index)"
+                              v-else-if="
+                                tab == 'responses' &&
+                                item.responseOptions &&
+                                applet.selectedActivites.includes(index)
+                              "
                               :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
                               :item="item"
                               :versions="applet.versions"
@@ -391,7 +413,9 @@
                             />
 
                             <Frequency
-                              v-else-if="tab == 'frequency' && item.inputType === 'radio'"
+                              v-else-if="
+                                tab == 'frequency' && item.inputType === 'radio'
+                              "
                               :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
                               :item="item"
                               :versions="applet.versions"
@@ -405,7 +429,9 @@
                             />
 
                             <FreeTextTable
-                              v-if="tab == 'responses' && item.inputType === 'text'"
+                              v-if="
+                                tab == 'responses' && item.inputType === 'text'
+                              "
                               :plot-id="`FreeText-${activity.data['_id']}-${item.data['_id']}`"
                               :item="item"
                               :selected-versions="selectedVersions"
@@ -415,22 +441,57 @@
                           </div>
                         </template>
                       </v-expansion-panel-content>
-                      <v-expansion-panel-content
-                        v-else
-                      >
-                        <h4
-                          v-if="tab != 'tokens'"
-                          class="ma-4"
-                        >
+                      <v-expansion-panel-content v-else>
+                        <h4 v-if="tab != 'tokens'" class="ma-4">
                           {{ $t("noDataAvailable") }}
                         </h4>
-                        <h4
-                          v-else
-                        >
+                        <h4 v-else>
                           {{ $t("noTokenDataAvailable") }}
                         </h4>
                       </v-expansion-panel-content>
                     </v-expansion-panel>
+                    <v-expansion-panels v-else class="reviewing-section">
+                      <v-card class="reviewing-item">
+                        <Responses
+                          :key="`response-${reviewing.key}`"
+                          :activity="reviewing.activity"
+                          :response-id="reviewing.responseId"
+                        />
+                      </v-card>
+
+                      <v-card class="reviewing-item">
+                        <v-tabs
+                          v-model="selectedReviewTab"
+                          hide-slider
+                          light
+                          left
+                        >
+                          <template v-for="reviewingTab in reviewingTabs">
+                            <v-tab :key="reviewingTab">
+                              {{ $t(reviewingTab) }}
+                            </v-tab>
+                          </template>
+                        </v-tabs>
+
+                        <v-tabs-items v-model="selectedReviewTab">
+                          <v-tab-item
+                            v-for="reviewingTab in reviewingTabs"
+                            :key="reviewingTab"
+                            class="mx-2"
+                          >
+                            <div v-if="reviewingTab == 'notes'">
+                              <Notes
+                                :key="`note-${reviewing.key}`"
+                                :response-id="reviewing.responseId"
+                              />
+                            </div>
+                            <div v-else>
+                              {{ $t(reviewingTab) }}
+                            </div>
+                          </v-tab-item>
+                        </v-tabs-items>
+                      </v-card>
+                    </v-expansion-panels>
                   </v-expansion-panels>
                 </v-card>
               </v-tab-item>
@@ -438,6 +499,14 @@
           </div>
         </div>
       </div>
+
+      <ResponseSelectionDialog
+        v-model="responseDialog"
+        :applet="applet"
+        :date="reviewing.date"
+        :current-response="reviewing.responseId"
+        @selectResponse="selectResponse"
+      />
     </v-card>
   </div>
 </template>
@@ -464,14 +533,14 @@
   background-color: white;
 }
 
-.v-tab--active {
+.tabs .v-tab--active {
   border: 2px solid black;
   border-bottom: 2px solid white;
 }
 
-.dashboard /deep/ .v-slide-group__content.v-tabs-bar__content::before {
+.dashboard .tabs /deep/ .v-slide-group__content.v-tabs-bar__content::before {
   position: absolute;
-  content: '';
+  content: "";
   width: 100%;
   height: 100%;
   top: 0px;
@@ -487,6 +556,12 @@
 .content-header {
   display: flex;
   justify-content: space-around;
+  align-items: center;
+}
+
+.review-header {
+  display: flex;
+  margin: 0px 20px;
   align-items: center;
 }
 
@@ -514,7 +589,7 @@
 
 .time-range .date {
   margin: 0 0.3rem;
-  color: #1976D2;
+  color: #1976d2;
 }
 
 .wrapper {
@@ -561,27 +636,49 @@
   flex-direction: row-reverse;
 }
 
-.additional-note /deep/ .v-note-edit, .markdown /deep/ .v-note-edit {
+.additional-note /deep/ .v-note-edit,
+.markdown /deep/ .v-note-edit {
   display: none;
 }
-.additional-note /deep/ .v-note-show, .markdown /deep/ .v-note-show {
+.additional-note /deep/ .v-note-show,
+.markdown /deep/ .v-note-show {
   width: 100% !important;
   flex: 0 0 100% !important;
 }
 
-.additional-note .subscale-output, .markdown {
+.additional-note .subscale-output,
+.markdown {
   max-height: 150px;
   overflow-y: auto;
   margin: 10px 0px;
 }
 
-.additional-note .subscale-output .v-note-wrapper, .markdown .v-note-wrapper{
+.additional-note .subscale-output .v-note-wrapper,
+.markdown .v-note-wrapper {
   min-height: unset;
+}
+
+.reviewing-item {
+  width: 50%;
+  overflow-y: scroll;
+  height: 95%;
+}
+
+.reviewing-section {
+  max-height: calc(80vh - 200px);
+  padding: 0px 20px;
+}
+</style>
+<style>
+.item-question img {
+  width: 250px;
+  height: 250px;
 }
 </style>
 
 <script>
 import _ from "lodash";
+import VueMarkdown from "vue-markdown";
 import api from "../Components/Utils/api/api.vue";
 import Applet from "../models/Applet";
 import Activity from "../models/Activity";
@@ -594,8 +691,11 @@ import TimePicker from "../Components/DataViewerComponents/TimePicker.vue";
 import FreeTextTable from "../Components/DataViewerComponents/FreeTextTable.vue";
 import SubScaleLineChart from "../Components/DataViewerComponents/SubScaleLineChart";
 import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChart";
+import ResponseSelectionDialog from "../Components/Utils/dialogs/ResponseSelectionDialog";
+import Responses from "../Components/DataViewerComponents/Responses";
+import Notes from "../Components/DataViewerComponents/Notes";
 
-import * as moment from 'moment';
+import * as moment from "moment-timezone";
 
 export default {
   name: "ReviewerDashboard",
@@ -612,12 +712,16 @@ export default {
     FreeTextTable,
     SubScaleLineChart,
     SubScaleBarChart,
+    VueMarkdown,
+    ResponseSelectionDialog,
+    Responses,
+    Notes,
   },
 
   /**
    * Component state.
    */
-  data: function() {
+  data: function () {
     const NOW = new Date();
     const TODAY = NOW;
     TODAY.setDate(TODAY.getDate() + 1);
@@ -637,16 +741,25 @@ export default {
       allExpanded: false,
       responses: [],
       selectedTab: 0,
+      selectedReviewTab: 1,
       panel: [],
-      tabs: ['responses', 'tokens'],
+      tabs: ["responses", "tokens"],
+      reviewingTabs: ["assessment", "notes", "reviewed"],
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
       timeRange: "Default",
       hasVersionBars: true,
       panelWidth: 974,
       margin: 50,
-      itemPadding: 15
-    }
+      itemPadding: 15,
+      reviewing: {
+        date: "",
+        activity: {},
+        responseId: "",
+        key: 0,
+      },
+      responseDialog: false,
+    };
   },
 
   /**
@@ -654,17 +767,29 @@ export default {
    */
   computed: {
     appletVersions() {
-      const versions = this.applet.versions.map(version => version.version)
+      const versions = this.applet.versions.map((version) => version.version);
       return [...new Set(versions)];
     },
     currentApplet() {
       return this.$store.state.currentAppletData;
     },
     fromDate() {
-      return moment.utc(this.focusExtent[0]).format('ddd, D MMM YYYY');
+      return moment.utc(this.focusExtent[0]).format("ddd, D MMM YYYY");
     },
     toDate() {
-      return moment.utc(this.focusExtent[1]).format('ddd, D MMM YYYY');
+      return moment.utc(this.focusExtent[1]).format("ddd, D MMM YYYY");
+    },
+    reviewingDate() {
+      return (
+        this.reviewing.date &&
+        moment(new Date(this.reviewing.date)).format("ddd, D MMM YYYY")
+      );
+    },
+    reviewingTime() {
+      return (
+        this.reviewing.date &&
+        moment(new Date(this.reviewing.date)).format("hh:mm:ss A")
+      );
     },
   },
 
@@ -683,7 +808,7 @@ export default {
     const { users } = this.$route.query;
 
     try {
-      this.status = this.$i18n.t('loadingAppletData');
+      this.status = this.$i18n.t("loadingAppletData");
       this.applet = await Applet.fetchById(
         appletId,
         {
@@ -699,8 +824,37 @@ export default {
       this.selectedVersions = this.appletVersions;
       this.loading = false;
       this.onResize = this.onResize.bind(this);
+
+      let latestActivity = null,
+        latestResponseId = null;
+
+      for (let i = 0; i < this.applet.activities.length; i++) {
+        const activity = this.applet.activities[i];
+        if (
+          activity.lastResponseDate &&
+          (!latestActivity ||
+            activity.lastResponseDate < latestActivity.lastResponseDate)
+        ) {
+          latestActivity = activity;
+
+          const latestResponse = activity.responses.find(
+            (response) => response.date == activity.lastResponseDate
+          );
+          latestResponseId = latestResponse && latestResponse.responseId;
+        }
+      }
+
+      if (latestActivity) {
+        this.$set(this, "reviewing", {
+          date: latestActivity.lastResponseDate.toString(),
+          activity: latestActivity,
+          responseId: latestResponseId,
+          key: 1,
+        });
+      }
+
       this.$nextTick(this.onResize);
-      window.addEventListener('resize', this.onResize);
+      window.addEventListener("resize", this.onResize);
     } catch (error) {
       this.status = "Oops, something went wrong. We couldn't load the applet";
       this.error = error;
@@ -709,21 +863,53 @@ export default {
   },
 
   destroyed() {
-    window.removeEventListener('resize', this.onResize);
+    window.removeEventListener("resize", this.onResize);
   },
 
   /**
    * Component methods.
    */
   methods: {
-    setDashboardTabs () {
+    setDashboardTabs() {
       for (const itemId in this.applet.items) {
         if (this.applet.items[itemId].isTokenItem) {
           this.tabs.push("frequency");
           break;
         }
       }
+
+      if (
+        this.applet.activities &&
+        this.applet.activities.some((activity) => activity.getFrequency() > 0)
+      ) {
+        this.tabs.push("review");
+      }
     },
+
+    setReviewDate(date) {
+      this.$set(this, "reviewing", {
+        date: moment.tz(date, moment.tz.guess()).format(),
+        activity: {},
+        responseId: "",
+        key: this.reviewing.key + 1,
+      });
+
+      this.responseDialog = true;
+    },
+
+    selectResponse({ activity, responseId, date }) {
+      this.$set(this, "reviewing", {
+        date,
+        activity,
+        responseId,
+        key: this.reviewing.key + 1,
+      });
+
+      if (this.tabs[this.selectedTab] !== "review") {
+        this.selectedTab = this.tabs.indexOf("review");
+      }
+    },
+
     onResize() {
       if (this.$refs.panels) {
         const dimensions = this.$refs.panels.getBoundingClientRect();
@@ -746,12 +932,26 @@ export default {
      * @param {string} date a given date.
      * @return {boolean} whether this options should be enabled.
      */
+    responseExists(date) {
+      if (this.applet.availableDates[moment(date).format("L")]) {
+        return true;
+      }
+
+      return false;
+    },
+
+    /**
+     * Checks whether the given date should be enabled.
+     *
+     * @param {string} date a given date.
+     * @return {boolean} whether this options should be enabled.
+     */
     isAllowedEndDate(date) {
       let NOW = new Date();
       NOW.setDate(NOW.getDate() + 1);
       return (
-        (moment.utc(date) > this.focusExtent[0]) &&
-        (moment.utc(date) <= moment.utc(NOW))
+        moment.utc(date) > this.focusExtent[0] &&
+        moment.utc(date) <= moment.utc(NOW)
       );
     },
 
@@ -762,14 +962,14 @@ export default {
      * @return {maxValue} Maximum response value
      */
 
-    getMaxValue (items) {
+    getMaxValue(items) {
       let maxValue = {
         hour: 0,
         minute: 0,
       };
 
-      items.forEach(item => {
-        if (item.inputType === 'time') {
+      items.forEach((item) => {
+        if (item.inputType === "time") {
           item.responses.forEach(({ value }) => {
             if (value.hour > maxValue.hour) {
               maxValue.hour = value.hour;
@@ -789,14 +989,14 @@ export default {
      * @return {minValue} Minimum response value
      */
 
-    getMinValue (items) {
+    getMinValue(items) {
       let minValue = {
         hour: 23,
         minute: 0,
       };
 
-      items.forEach(item => {
-        if (item.inputType === 'time') {
+      items.forEach((item) => {
+        if (item.inputType === "time") {
           item.responses.forEach(({ value }) => {
             if (value.hour < minValue.hour) {
               minValue.hour = value.hour;
@@ -816,7 +1016,11 @@ export default {
      */
 
     onAllExpand() {
-      this.$set(this.applet, 'selectedActivites', this.applet.activities.map((k, i) => i));
+      this.$set(
+        this.applet,
+        "selectedActivites",
+        this.applet.activities.map((k, i) => i)
+      );
       this.allExpanded = true;
     },
 
@@ -827,8 +1031,8 @@ export default {
      * @return {void}
      */
 
-    onAllCollapsed () {
-      this.$set(this.applet, 'selectedActivites', [])
+    onAllCollapsed() {
+      this.$set(this.applet, "selectedActivites", []);
       this.allExpanded = false;
     },
     /**
@@ -848,16 +1052,38 @@ export default {
      * @returns {void}
      */
     setEndDate(date) {
-      this.$set(this.focusExtent, 1, moment.utc(date).add(15, 'hours').toDate());
+      this.$set(
+        this.focusExtent,
+        1,
+        moment.utc(date).add(15, "hours").toDate()
+      );
       this.updateTimeRange();
     },
 
     updateTimeRange() {
-      if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'days', true) < 15) {
+      if (
+        moment(this.focusExtent[1]).diff(
+          moment(this.focusExtent[0]),
+          "days",
+          true
+        ) < 15
+      ) {
         this.timeRange = "Default";
-      } else if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) <= 1) {
+      } else if (
+        moment(this.focusExtent[1]).diff(
+          moment(this.focusExtent[0]),
+          "months",
+          true
+        ) <= 1
+      ) {
         this.timeRange = "Daily";
-      } else if (moment(this.focusExtent[1]).diff(moment(this.focusExtent[0]), 'months', true) <= 4) {
+      } else if (
+        moment(this.focusExtent[1]).diff(
+          moment(this.focusExtent[0]),
+          "months",
+          true
+        ) <= 4
+      ) {
         this.timeRange = "Weekly";
       } else {
         this.timeRange = "Monthly";
@@ -865,7 +1091,7 @@ export default {
     },
 
     onUpdateFocusExtent(focusExtent) {
-      this.$set(this, 'focusExtent', focusExtent);
+      this.$set(this, "focusExtent", focusExtent);
     },
   },
 };

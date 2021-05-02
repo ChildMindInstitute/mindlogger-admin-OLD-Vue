@@ -1,6 +1,8 @@
 import api from "../api/api.vue";
 import Applet from "../../../models/Applet";
 import Item from "../../../models/Item";
+import S3 from 'aws-sdk/clients/s3';
+import JSZip from 'jszip';
 import ObjectToCSV from 'object-to-csv';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
@@ -23,6 +25,12 @@ export const AppletMixin = {
     token() {
       return this.$store.state.auth.authToken.token;
     },
+    mediaResponseObjects() {
+      return [];
+    },
+    currentAppletBuilderData() {
+      return this.$store.state.currentAppletBuilderData;
+    }
   },
   methods: {
     loadApplet(appletId) {
@@ -193,7 +201,8 @@ export const AppletMixin = {
                   if(item.inputType === 'timeRange' && value.from && value.to) {
                       responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
                   } else if((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord') && value.filename) {
-                    responseData += `filename: ${value.filename}`;
+                      this.getMediaResponseObject(value.uri, response, item);
+                      responseData += `filename: ${value.filename}`;
                   } else if(item.inputType === 'date' && (value.day || value.month || value.year)) {
                     responseData += `date: ${value.day}/${value.month}/${value.year}`;
                   } else if(item.inputType === 'drawing' && value.svgString) {
@@ -204,6 +213,8 @@ export const AppletMixin = {
                     if(key === 'filename') {
                       responseData = `filename: ${value}`;
                       index = Object.keys(responseDataObj).length;
+                    } else if(key === 'uri') {
+                      this.getMediaResponseObject(value, response, item);
                     }
                   } else {
                     responseData += `${key}: ${value}`;
@@ -270,6 +281,8 @@ export const AppletMixin = {
           }
         }
 
+        this.generateMediaResponsesZip(this.mediaResponseObjects);
+
         let otc = new ObjectToCSV({
           keys: [
             'id',
@@ -309,6 +322,50 @@ export const AppletMixin = {
       const formatted = new TimeAgo(this.$i18n.locale.replace('_', '-')).format(new Date(item.updated), 'round');
 
       return formatted;
+    },
+    getMediaResponseObject(value, response, item) {
+        const identifier = 's3://';
+        if(!value.includes(identifier)) return;
+
+        value = value.replace(identifier, '');
+        const separator = value.indexOf('/');
+
+        const bucket = value.slice(0, separator);
+        const key = value.slice(separator + 1, value.length);
+
+        const extension = value.slice(value.lastIndexOf('.'), value.length);
+        const name = `${response._id}-${response.userId}-${item.id}${extension}`;
+
+        this.mediaResponseObjects.push({ bucket, name, key });
+    },
+    async generateMediaResponsesZip(mediaObjects) {
+        if(mediaObjects.length < 1) return;
+        
+        try {
+          const S3Config = {
+              accessKeyId: process.env.VUE_APP_ACCESS_KEY_ID,
+              secretAccessKey: process.env.VUE_APP_SECRET_ACCES_KEY
+          };
+          
+          const S3Client = new S3(S3Config);
+          const zip = new JSZip();
+
+          for(const mediaObject of mediaObjects) {
+            const params = {
+              Bucket: mediaObject.bucket,
+              Key: mediaObject.key
+            };
+            const data = await S3Client.getObject(params).promise();
+            zip.file(mediaObject.name, data.Body);
+          }
+
+          const generatedZip = await zip.generateAsync({type: 'blob'});
+          saveAs(generatedZip, `media-responses-${(new Date()).toDateString()}.zip`);
+          this.mediaResponseObjects.length = 0;
+        } catch(err) {
+          console.log(err);
+        }
     }
+
   }
 }

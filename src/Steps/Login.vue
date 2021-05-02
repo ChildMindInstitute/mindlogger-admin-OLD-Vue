@@ -21,6 +21,7 @@
           @createAccount="toggleCreateAccount"
           @forgotPassword="toggleForgotPassword"
           @setBackend="toggleSetBackend"
+          @loginSuccess="loginSuccess"
         />
         <CreateUserForm
           v-else-if="createAccount && !forgotPassword"
@@ -100,6 +101,9 @@ export default {
     },
     toggleSetBackend() {
       this.setBackend = !this.setBackend;
+    },
+    loginSuccess() {
+      this.$router.push("/dashboard").catch(err => {});
     },
   },
 };

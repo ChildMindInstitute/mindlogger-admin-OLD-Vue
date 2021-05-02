@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed env for applet library
 
 ## [0.6.16] - 2021-04-27
+
+## [0.6.15] - 2021-04-27
 - Fixed idle timer input
+- Fixed Github url validation
 
 ## [0.6.13] - 2021-04-22
 - Integrate applet library
