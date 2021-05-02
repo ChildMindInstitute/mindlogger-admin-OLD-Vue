@@ -6,7 +6,9 @@
           <div class="mr-5">
             <template v-if="!share">
               <div class="title">
-                {{ $t("shareAppletLibraryTitle", { appletName: appletData.name }) }}
+                {{
+                  $t("shareAppletLibraryTitle", { appletName: appletData.name })
+                }}
               </div>
               <div class="sub-title">
                 {{ $t("shareAppletLibraryContent") }}
@@ -19,7 +21,9 @@
             </template>
             <template v-else>
               <div class="title">
-                {{ $t("shareAppletSetDetails", { appletName: appletData.name }) }}
+                {{
+                  $t("shareAppletSetDetails", { appletName: appletData.name })
+                }}
               </div>
               <a
                 href
@@ -93,11 +97,11 @@
                         :items="categories"
                         item-text="name"
                         item-value="_id"
-                        v-model="category"
+                        v-model="categoryId"
                         :rules="categoryRules"
                         dense
                         solo
-                        @change="onChangeCategory"
+                        @change="onChangeCategoryId"
                       />
                     </template>
                     <template v-else>
@@ -107,14 +111,14 @@
                 </v-row>
                 <v-row align="center">
                   <v-col md="3" class="text-right"> Sub-Category: </v-col>
-                  <v-col md="9" class="">
+                  <v-col md="9">
                     <template v-if="isEditing">
                       <v-select
                         label="Sub-Category:"
                         :items="subCategories"
                         item-text="name"
                         item-value="_id"
-                        v-model="subCategory"
+                        v-model="subCategoryId"
                         :rules="subCategoryRules"
                         dense
                         solo
@@ -147,17 +151,7 @@
                 </v-row>
               </v-container>
               <div class="ml-auto pb-5 d-flex text-right">
-                <template v-if="!isPublished">
-                  <v-btn
-                    class="align-self-end"
-                    color="primary"
-                    @click="onUpdateAppletDetails"
-                    :disabled="!valid"
-                  >
-                    Publish
-                  </v-btn>
-                </template>
-                <template v-else-if="!isEditing">
+                <template v-if="!isEditing">
                   <v-btn
                     color="secondary"
                     icon
@@ -175,7 +169,7 @@
                     @click="onUpdateAppletDetails"
                     :disabled="!valid"
                   >
-                    Update
+                    {{ !isPublished ? "Publish" : "Update" }}
                   </v-btn>
                 </template>
               </div>
@@ -206,16 +200,15 @@ export default {
   props: {
     appletData: {
       type: Object,
-      required: true
+      required: true,
     },
     value: {
       type: Boolean,
-      required: true
-    }
+      required: true,
+    },
   },
   data: () => ({
     share: false,
-    isPublished: false,
     isDuplicate: false,
     appletName: "",
     isError: false,
@@ -223,47 +216,76 @@ export default {
     appletUrl: "",
     libraryCategories: [],
     categories: [],
-    category: null,
+    categoryId: null,
     subCategories: [],
-    subCategory: null,
+    subCategoryId: null,
     keywords: [],
     clipboardCopied: false,
     valid: false,
-    categoryRules: [v => !!v || "Category is required"],
-    subCategoryRules: [v => !!v || "Sub Category is required"]
+    categoryRules: [(v) => !!v || "Category is required"],
+    subCategoryRules: [(v) => !!v || "Sub Category is required"],
   }),
   computed: {
+    isPublished: {
+      get() {
+        return this.appletData.published;
+      },
+      set(published) {
+        this.appletData.published = published;
+      },
+    },
+    appletId() {
+      return this.appletData.id;
+    },
     categoryName() {
-      return this.category ? this.categories.find(c => c._id == this.category).name : "";
+      return this.categoryId
+        ? this.categories.find((c) => c._id == this.categoryId).name
+        : "";
     },
     subCategoryName() {
-      return this.subCategory ? this.subCategories.find(c => c._id == this.subCategory).name : "";
-    }
+      return this.subCategoryId
+        ? this.subCategories.find((c) => c._id == this.subCategoryId).name
+        : "";
+    },
   },
   watch: {
     value(val) {
       if (val && this.appletData) {
-        this.isPublished = this.appletData.published;
-        this.share = this.isPublished;
         this.init();
       }
     },
-    isPublished(val) {
-      this.appletData.published = val;
-    }
+    categoryId(val) {
+      this.subCategories = this.libraryCategories.filter(
+        (c) => c.parentId == val
+      );
+    },
   },
   beforeMount() {
-    this.getLibraryCategories().then(res => {
+    this.getLibraryCategories().then((res) => {
       this.libraryCategories = [...res];
-      this.categories = this.libraryCategories.filter(c => c.parentId == null);
+      this.categories = this.libraryCategories.filter(
+        (c) => c.parentId == null
+      );
     });
   },
   methods: {
-    init() {
-      this.category = null;
-      this.subCategories = [];
-      this.subCategory = null;
-      this.keywords = [];
+    async init() {
+      this.share = this.isPublished;
+      if (this.isPublished) {
+        const {
+          categoryId,
+          subCategoryId,
+          keywords,
+        } = await this.getAppletSearchTerms(this.appletId);
+        this.categoryId = categoryId;
+        this.subCategoryId = subCategoryId;
+        this.keywords = keywords;
+      } else {
+        this.categoryId = null;
+        this.subCategoryId = null;
+        this.keywords = [];
+      }
+      this.appletName = this.appletData.name;
     },
     async onSwitchShare(val) {
       if (val) {
@@ -271,17 +293,20 @@ export default {
       } else {
         await this.publishAppletToLibrary(this.appletData.id, false);
         this.isPublished = false;
+        this.isEditing = true;
       }
     },
     async checkAppletNameDuplicate() {
-      this.isDuplicate = !(await this.checkAppletNameInLibrary(this.appletData));
-      const { url } = await this.publishAppletToLibrary(this.appletData.id, true);
-      this.appletUrl = url;
+      this.isDuplicate = !(await this.checkAppletNameInLibrary(
+        this.appletId,
+        this.appletName
+      ));
     },
     async onChangeAppletName() {
       this.isError = false;
       try {
-        await this.changeAppletName(this.appletData, this.appletName);
+        await this.changeAppletName(this.appletId, this.appletName);
+        this.appletData.name = this.appletName;
         this.isDuplicate = false;
       } catch (e) {
         this.isError = true;
@@ -292,21 +317,23 @@ export default {
       this.$refs.appletUrl.select();
       document.execCommand("copy");
     },
-    onChangeCategory() {
-      this.subCategories = this.libraryCategories.filter(c => c.parentId == this.category);
-      this.subCategory = null;
+    onChangeCategoryId() {
+      this.subCategoryId = null;
     },
     async onUpdateAppletDetails() {
-      const { id: appletId } = this.appletData;
+      if (!this.isPublished) {
+        const { url } = await this.publishAppletToLibrary(this.appletId, true);
+        this.appletUrl = url;
+      }
       await this.updateAppletSearchTerms(
-        appletId,
+        this.appletId,
         this.categoryName,
         this.subCategoryName,
         JSON.stringify(this.keywords)
       );
       this.isPublished = true;
       this.isEditing = false;
-    }
-  }
+    },
+  },
 };
 </script>
