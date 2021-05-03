@@ -573,17 +573,15 @@ const createToken = ({ apiHost, token }) =>
       'Girder-Token': token,
     },
   });
-const checkAppletNameInLibrary = (apiHost, token, applet) => {
-  const { id, name } = applet;
+const checkAppletNameInLibrary = (apiHost, token, appletId, appletName) => {
   return axios({
     method: 'get',
-    url: `${apiHost}/library/${id}/checkName`,
+    url: `${apiHost}/library/${appletId}/checkName`,
     headers: {
       'Girder-Token': token
     },
     params: {
-      id,
-      name
+      name: appletName
     }
   })
 }
@@ -636,6 +634,16 @@ const updateAppletSearchTerms = (apiHost, token, appletId, params) => {
     params: {
       ...params,
       id: appletId,
+    }
+  })
+}
+
+const getAppletSearchTerms = (apiHost, token, appletId) => {
+  return axios({
+    method: 'get',
+    url: `${apiHost}/applet/${appletId}/searchTerms`,
+    headers: {
+      'Girder-Token': token
     }
   })
 }
@@ -749,6 +757,7 @@ export default {
   getLibraryCategories,
   publishAppletToLibrary,
   updateAppletSearchTerms,
+  getAppletSearchTerms,
   getNotes,
   addNote,
   updateNote,
