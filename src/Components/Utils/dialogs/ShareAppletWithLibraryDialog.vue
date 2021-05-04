@@ -189,6 +189,9 @@
   position: absolute;
   left: -1000px;
 }
+.v-card__title {
+  word-break: normal;
+}
 </style>
 
 <script>
