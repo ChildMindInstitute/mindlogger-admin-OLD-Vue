@@ -24,7 +24,7 @@
               :input-value="item.response && item.response[choice.id] !== undefined"
               :label="choice.name.en"
               hide-details
-              readonly
+              disabled
             ></v-checkbox>
           </div>
 
@@ -33,7 +33,7 @@
           >
               <v-radio-group
                 :value="item.value"
-                readonly
+                disabled
                 hide-details
               >
                 <v-radio
@@ -53,7 +53,7 @@
               :tick-labels="item.responseOptions.map(option => option.name.en)"
               :max="item.responseOptions.length"
               :min="1"
-              readonly
+              disabled
             ></v-slider>
           </div>
 
