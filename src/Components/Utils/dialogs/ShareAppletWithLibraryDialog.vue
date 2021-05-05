@@ -292,7 +292,7 @@ export default {
     },
     async onSwitchShare(val) {
       if (val) {
-        await this.checkAppletNameDuplicate();
+        this.checkAppletNameDuplicate();
       } else {
         await this.publishAppletToLibrary(this.appletData.id, false);
         this.isPublished = false;
