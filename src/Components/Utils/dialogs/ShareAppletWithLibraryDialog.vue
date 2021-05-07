@@ -310,7 +310,8 @@ export default {
       try {
         await this.changeAppletName(this.appletId, this.appletName);
         this.appletData.name = this.appletName;
-        this.isDuplicate = false;
+        await this.checkAppletNameDuplicate();
+        this.isError = this.isDuplicate;
       } catch (e) {
         this.isError = true;
       }
