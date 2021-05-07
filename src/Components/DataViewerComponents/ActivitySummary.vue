@@ -2,14 +2,15 @@
   <div
     class="activity-summary"
   >
-    <div
+    <v-btn
       v-show="toolTipVisible"
       class="tooltip"
       :style="`left: ${toolTipX}px; top: ${toolTipY}px; width: ${tooltipWidth}px; max-height: ${tooltipHeight}px`"
       @mousedown="onReviewResponse"
+      rounded
     >
       Review
-    </div>
+    </v-btn>
 
     <svg
       :id="plotId"
@@ -127,8 +128,8 @@ export default {
       margin,
       width,
       labelWidth: width / 4,
-      tooltipWidth: 70,
-      tooltipHeight: 30,
+      tooltipWidth: 100,
+      tooltipHeight: 50,
       currentResponse: null
     }
   },
