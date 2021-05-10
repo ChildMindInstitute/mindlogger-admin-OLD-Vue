@@ -7,8 +7,11 @@
         :key="note._id"
       >
         <v-card-text>
-          <div>
-            {{ note.reviewerName }} added a comment - {{ note.ago }}
+          <div
+            @mouseover="note.hover = true"
+            @mouseleave="note.hover = false"
+          >
+            {{ note.reviewerName }} added a comment - {{ note.hover ? note.datetime  : note.ago }}
           </div>
           <div class="my-1">
             <v-textarea
@@ -107,6 +110,7 @@ import TimeAgo from 'javascript-time-ago';
 
 import en from 'javascript-time-ago/locale/en';
 import fr from 'javascript-time-ago/locale/fr';
+import * as moment from "moment-timezone";
 
 TimeAgo.addLocale(en);
 TimeAgo.addLocale(fr);
@@ -154,7 +158,9 @@ export default {
         ...note,
         reviewerName: name,
         ago: this.timeAgo.format(new Date(note.created), 'round'),
-        open: false
+        datetime: moment(new Date(note.created)).format("ddd, D MMM YYYY hh:mm:ss A"),
+        open: false,
+        hover: false,
       }
     },
 
