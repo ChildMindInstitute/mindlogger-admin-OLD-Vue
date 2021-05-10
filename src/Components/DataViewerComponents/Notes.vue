@@ -160,7 +160,7 @@ export default {
 
     addComment() {
       api.addNote(this.apiHost, this.token, this.currentAppletMeta.id, this.responseId, this.comment).then(resp => {
-        this.notes.push(this.getNoteData(resp.data));
+        this.notes.unshift(this.getNoteData(resp.data));
         this.comment = '';
       })
     },
