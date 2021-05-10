@@ -14,6 +14,7 @@
             <v-textarea
               :value="note.note"
               :rows="note.open ? 4 : 2"
+              :disabled="!note.my_note"
               :readonly="!note.open"
               hide-details
             >
