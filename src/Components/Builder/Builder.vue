@@ -150,7 +150,7 @@ export default {
     ...mapMutations([
       'cacheAppletBuilderData',
     ]),
-    
+
     onClickSubmitPassword(appletPassword) {
       this.appletPasswordDialog = false;
       this.addNewApplet(appletPassword);
@@ -287,7 +287,9 @@ export default {
     },
     onPrepareApplet(data) {
       const protocol = new FormData();
-      protocol.set('protocol', JSON.stringify(data || {}));
+
+      const blob = new Blob([JSON.stringify(data || {})], { type: 'application/json' });
+      protocol.append('protocol', blob);
 
       const appletId = this.currentAppletMeta.id;
       const token = this.$store.state.auth.authToken.token;
