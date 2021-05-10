@@ -130,7 +130,7 @@ const getApplet = ({ apiHost, token, allEvent, id, nextActivity }) => {
           response.activities[activityIRI] = next.data.activities[activityIRI];
         }
         for (const itemIRI in next.data.items) {
-          response.items[itemIRI] = next.data.items;
+          response.items[itemIRI] = next.data.items[itemIRI];
         }
 
         return {
