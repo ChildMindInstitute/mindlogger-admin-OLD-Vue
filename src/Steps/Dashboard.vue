@@ -442,8 +442,15 @@ export default {
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
       }).then((response) => {
-        console.log('response', response.data.token);
-        window.location.href = `https://library.mindlogger.org/#/librarySearch?token=${response.data.token}`;
+        let env = '';
+        const serverUrl = process.env.VUE_APP_SERVER_URL;
+
+        if (serverUrl && serverUrl.indexOf('-') !== -1) {
+          env = serverUrl.substring(serverUrl.indexOf('-') + 1, serverUrl.indexOf('.'));
+          window.location.href = `https://library-${env}.mindlogger.org/#/librarySearch?token=${response.data.token}`;
+        } else {
+          window.location.href = `https://library.mindlogger.org/#/librarySearch?token=${response.data.token}`;
+        }
       })
     },
     onBuildApplet() {
