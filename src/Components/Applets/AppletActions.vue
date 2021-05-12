@@ -3,30 +3,30 @@
 		<span class="laptop-only ">
 
 			<action-button :tooltip="$t('viewUsers')" icon="mdi-account-multiple" @click="onViewUsers(item)"
-					v-if="canViewUsers" :disabled="disabled" />
+					v-if="canViewUsers" />
 
 			<action-button :tooltip="$t('viewCalendar')" icon="mdi-calendar-month" @click="onViewGeneralCalendar(item)"
-					v-if="canViewGeneralCalendar" :disabled="disabled" />
+					v-if="canViewGeneralCalendar" />
 
 			<action-button :tooltip="$t('editApplet')" icon="mdi-square-edit-outline" @click="onEditApplet(item)"
-					v-if="canEditApplet" :disabled="disabled" />
+					v-if="canEditApplet" />
 
 			<action-button :tooltip="$t('duplicateApplet')" imageName="copy-clipart.png" @click="onDuplicateApplet(item)"
-					v-if="canDuplicate" :disabled="disabled" />
+					v-if="canDuplicate" />
 			<action-button :tooltip="$t('deleteApplet')" icon="mdi-delete" @click="onDeleteApplet(item)"
-					v-if="canDeleteApplet" :disabled="disabled" />
+					v-if="canDeleteApplet" />
 
 			<action-button :tooltip="$t('refreshApplet')" icon="mdi-refresh" @click="onRefreshApplet(item)"
-					v-if="canRefresh" :disabled="disabled" />
+					v-if="canRefresh" />
 
 			<action-button :tooltip="$t('transferOwnership')" imageName="transfer-ownership.png" @click="onTransferOwnership(item)"
-					v-if="canTransferOwnership" :disabled="disabled" />
+					v-if="canTransferOwnership" />
 
 			<action-button :tooltip="$t('removeFromFolder')" imageName="folder-eject.png" @click="removeFromFolder"
-					v-if="canRemoveFromFolder" :disabled="disabled" />
+					v-if="canRemoveFromFolder" />
 
 			<action-button :tooltip="$t('shareWithLibrary')" icon="mdi-web" @click="onShareWithLibrary"
-					v-if="canShareWithLibrary" :disabled="disabled" />
+					v-if="canShareWithLibrary" />
 		</span>
 		<span class="laptop-hidden">
             <v-menu offset-y>
@@ -98,10 +98,6 @@ export default {
 		}
 	},
 	computed : {
-		disabled() {
-			return this.item.editing == true;
-		},
-
 		canViewUsers() {
 			return this.hasRoles(this.item, 'reviewer', 'manager', 'coordinator');
 		},
