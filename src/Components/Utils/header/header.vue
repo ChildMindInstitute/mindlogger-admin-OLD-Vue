@@ -409,6 +409,7 @@ import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import fr from 'javascript-time-ago/locale/fr';
 import TransferOwnershipDialog from '../dialogs/TransferOwnershipDialog.vue';
+import Builder from 'applet-schema-builder';
 
 TimeAgo.addLocale(en);
 TimeAgo.addLocale(fr);
@@ -601,11 +602,39 @@ export default {
       }
     },
 
-    editApplet() {
-      this.$router.push({
-        name: 'Builder',
-        params: { isEditing: true },
-      }).catch(err => {});
+    async editApplet() {
+      if (this.currentApplet.largeApplet && this.currentApplet.hasUrl) {
+        if (!this.isLatestApplet(this.currentApplet)) {
+          await this.loadApplet(this.currentApplet.id);
+        }
+
+        const appletId = this.currentApplet.id;
+        const token = this.$store.state.auth.authToken.token;
+        const apiHost = this.$store.state.backend;
+
+        const data = await Builder.getBuilderFormat(this.currentAppletData, true)
+        const protocol = new FormData();
+        protocol.append('protocol', new Blob([JSON.stringify(data || {})], { type: 'application/json' }));
+
+        api
+          .prepareApplet({
+            apiHost,
+            token,
+            data: protocol,
+            appletId,
+            thread: true
+          })
+          .then(resp => {
+            this.dialogText = this.$t('appletEditProgress');
+            this.dialogTitle = this.$t('appletStatusUpdate');
+            this.dialog = true;
+          })
+      } else {
+        this.$router.push({
+          name: 'Builder',
+          params: { isEditing: true },
+        }).catch(err => {});
+      }
     },
 
     onAppletPassword(appletPassword) {

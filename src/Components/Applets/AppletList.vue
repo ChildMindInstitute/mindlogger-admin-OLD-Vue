@@ -708,7 +708,7 @@ export default {
     async editApplet() {
       this.currentApplet = this.formattedApplets.find(applet => applet.id === this.hoveredAppletId);
 
-      if (this.currentApplet.largeApplet) {
+      if (this.currentApplet.largeApplet && this.currentApplet.hasUrl) {
         if (!this.isLatestApplet(this.currentApplet)) {
           await this.loadApplet(this.currentApplet.id);
         }
@@ -717,7 +717,7 @@ export default {
         const token = this.$store.state.auth.authToken.token;
         const apiHost = this.$store.state.backend;
 
-        const data = Builder.getBuilderFormat(this.currentAppletData, true)
+        const data = await Builder.getBuilderFormat(this.currentAppletData, true)
         const protocol = new FormData();
         protocol.append('protocol', new Blob([JSON.stringify(data || {})], { type: 'application/json' }));
 
@@ -730,7 +730,8 @@ export default {
             thread: true
           })
           .then(resp => {
-            this.$emit("onAppletIsEdited", resp.data.message);
+            this.$emit("onAppletIsEdited");
+            this.$emit("refreshAppletList");
           })
       } else {
         this.$router.push({
