@@ -301,12 +301,10 @@ export default {
           token,
           data: protocol,
           appletId,
+          thread: false
         })
-        .then((resp) => {
-          this.$store.commit("updateAppletData", resp.data);
-
-          return api.getAppletVersions({ apiHost, token, appletId })
-        })
+        .then(resp => this.loadApplet(appletId))
+        .then(() => api.getAppletVersions({ apiHost, token, appletId }))
         .then((resp) => {
           this.versions = resp.data;
           this.componentKey = this.componentKey + 1;

@@ -320,10 +320,10 @@ const updateApplet = ({ apiHost, token, data, appletId }) =>
     data,
   })
 
-const prepareApplet = ({ apiHost, token, data, appletId }) =>
+const prepareApplet = ({ apiHost, token, data, appletId, thread }) =>
   axios({
     method: "PUT",
-    url: `${apiHost}/applet/${appletId}/prepare`,
+    url: `${apiHost}/applet/${appletId}/prepare?thread=${thread}`,
     headers: {
       "Girder-Token": token,
     },
