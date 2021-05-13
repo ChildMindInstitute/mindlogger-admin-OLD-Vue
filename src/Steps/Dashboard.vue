@@ -122,6 +122,13 @@
                 {{ 'Add applet from GitHub URL' }}
               </v-list-item-title>
             </v-list-item>
+            <v-list-item
+              @click="onBrowseAppletLibrary"
+            >
+              <v-list-item-title>
+                {{ $t('browseAppletLibrary') }}
+              </v-list-item-title>
+            </v-list-item>
           </v-list>
         </v-menu>
       </p>
@@ -441,16 +448,9 @@ export default {
       api.getOneTimeToken({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
-      }).then((response) => {
-        let env = '';
-        const serverUrl = process.env.VUE_APP_SERVER_URL;
-
-        if (serverUrl && serverUrl.indexOf('-') !== -1) {
-          env = serverUrl.substring(serverUrl.indexOf('-') + 1, serverUrl.indexOf('.'));
-          window.location.href = `https://library-${env}.mindlogger.org/#/librarySearch?token=${response.data.token}`;
-        } else {
-          window.location.href = `https://library.mindlogger.org/#/librarySearch?token=${response.data.token}`;
-        }
+      }).then((res) => {
+        const { token } = res.data;
+        window.location.href = `${process.env.VUE_APP_LIBRARY_URI}/#/librarySearch?token=${token}`;
       })
     },
     onBuildApplet() {
