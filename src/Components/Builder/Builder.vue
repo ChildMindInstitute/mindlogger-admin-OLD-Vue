@@ -268,9 +268,10 @@ export default {
           token,
           apiHost,
         })
-        .then((resp) => {
+        .then(resp => this.loadApplet(appletId))
+        .then(data => {
           this.$store.commit('updateAppletData', {
-            ...resp.data,
+            ...data,
             roles: this.currentAppletMeta.roles,
           });
 

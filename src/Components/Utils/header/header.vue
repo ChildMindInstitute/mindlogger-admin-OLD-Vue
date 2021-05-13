@@ -85,6 +85,7 @@
           class="toolbar-btn"
           v-on="on"
           @click="onEditApplet"
+          :disabled="currentApplet.editing"
         >
           <v-icon>mdi-square-edit-outline</v-icon>
         </v-btn>

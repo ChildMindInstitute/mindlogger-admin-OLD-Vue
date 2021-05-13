@@ -9,7 +9,7 @@
 					v-if="canViewGeneralCalendar" />
 
 			<action-button :tooltip="$t('editApplet')" icon="mdi-square-edit-outline" @click="onEditApplet(item)"
-					v-if="canEditApplet" />
+					v-if="canEditApplet" :disabled="item.editing" />
 
 			<action-button :tooltip="$t('duplicateApplet')" imageName="copy-clipart.png" @click="onDuplicateApplet(item)"
 					v-if="canDuplicate" />
