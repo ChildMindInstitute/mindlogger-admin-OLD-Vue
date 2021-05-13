@@ -10,7 +10,7 @@
         :key="item.slug"
         class="item"
       >
-        <h3> - {{ item.getFormattedQuestion() }} </h3>
+        <h3> - {{ item.getQuizWithoutImage() }} </h3>
 
         <div
           class="item-response"
@@ -132,7 +132,7 @@ export default {
         ...item,
         response,
         value,
-        getFormattedQuestion: item.getFormattedQuestion.bind(item)
+        getQuizWithoutImage: item.getQuizWithoutImage.bind(item),
       }
     })
 
