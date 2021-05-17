@@ -301,4 +301,9 @@ export default class Item {
   getFormattedQuestion() {
     return this.question.en.replace(/(!\[.*\]\s*\(.*?) =\d*x\d*(\))/g, '$1$2') || this.label.en;
   }
+
+  getQuizWithoutImage() {
+    const imageRE = new RegExp(/[\r\n]*\!\[.*\]\(.*=.*\)[\r\n]*/i);
+    return this.question.en.replace(imageRE, '').replace(/\*\*/g, '') || this.label.en;  // Remove the image from the question.
+  }
 }
