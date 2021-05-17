@@ -9,7 +9,7 @@
 					v-if="canViewGeneralCalendar" />
 
 			<action-button :tooltip="$t('editApplet')" icon="mdi-square-edit-outline" @click="onEditApplet(item)"
-					v-if="canEditApplet" />
+					v-if="canEditApplet" :disabled="item.editing" />
 
 			<action-button :tooltip="$t('duplicateApplet')" imageName="copy-clipart.png" @click="onDuplicateApplet(item)"
 					v-if="canDuplicate" />
@@ -20,13 +20,13 @@
 					v-if="canRefresh" />
 
 			<action-button :tooltip="$t('transferOwnership')" imageName="transfer-ownership.png" @click="onTransferOwnership(item)"
-					v-if="canTransferOwnership"/> 
+					v-if="canTransferOwnership" />
 
 			<action-button :tooltip="$t('removeFromFolder')" imageName="folder-eject.png" @click="removeFromFolder"
-					v-if="canRemoveFromFolder"/>
+					v-if="canRemoveFromFolder" />
 
 			<action-button :tooltip="$t('shareWithLibrary')" icon="mdi-web" @click="onShareWithLibrary"
-					v-if="canShareWithLibrary"/>
+					v-if="canShareWithLibrary" />
 		</span>
 		<span class="laptop-hidden">
             <v-menu offset-y>

@@ -108,14 +108,42 @@ const setAccountName = ({ apiHost, token, accountName }) =>
     },
   });
 
-const getApplet = ({ apiHost, token, allEvent, id }) =>
-  axios({
+const getApplet = ({ apiHost, token, allEvent, id, nextActivity }) => {
+  let url = `${apiHost}/applet/${id}?retrieveSchedule=true&retrieveAllEvents=${allEvent}&retrieveItems=true`;
+  if (nextActivity) {
+    url = url + `&nextActivity=${nextActivity}`;
+  }
+
+  return axios({
     method: "get",
-    url: `${apiHost}/applet/${id}?retrieveSchedule=true&retrieveAllEvents=${allEvent}&retrieveItems=true`,
+    url,
     headers: {
       "Girder-Token": token,
     },
-  });
+  }).then(resp => {
+    const response = resp.data;
+
+    if (response.nextActivity)
+    {
+      return new Promise(resolve => setTimeout(() => resolve(getApplet({ apiHost, token, allEvent, id, nextActivity: response.nextActivity }).then(next => {
+        for (const activityIRI in next.data.activities) {
+          response.activities[activityIRI] = next.data.activities[activityIRI];
+        }
+        for (const itemIRI in next.data.items) {
+          response.items[itemIRI] = next.data.items[itemIRI];
+        }
+
+        return {
+          data: {
+            ...response
+          }
+        };
+      })), 50));
+    }
+
+    return resp;
+  })
+}
 
 const getActivityByUrl = ({ apiHost, token, url }) =>
   axios({
@@ -292,10 +320,10 @@ const updateApplet = ({ apiHost, token, data, appletId }) =>
     data,
   })
 
-const prepareApplet = ({ apiHost, token, data, appletId }) =>
+const prepareApplet = ({ apiHost, token, data, appletId, thread }) =>
   axios({
     method: "PUT",
-    url: `${apiHost}/applet/${appletId}/prepare`,
+    url: `${apiHost}/applet/${appletId}/prepare?thread=${thread}`,
     headers: {
       "Girder-Token": token,
     },

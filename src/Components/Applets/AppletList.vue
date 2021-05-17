@@ -71,13 +71,13 @@
         </v-btn>
     </div>
     <div v-if="isSyncing" >
-      <p class="text-center" style="color:gray">{{loaderMessage}}</p>  
+      <p class="text-center" style="color:gray">{{loaderMessage}}</p>
       <v-progress-linear indeterminate rounded height="3" />
     </div>
 
     <v-expand-transition>
       <div class="red lighten-2 mx-4" v-show="showSaveFolderInstructions">
-        <p class="text-center white--text" style="color:gray">Operation cannot be completed. Save folder first</p>  
+        <p class="text-center white--text" style="color:gray">Operation cannot be completed. Save folder first</p>
       </div>
     </v-expand-transition>
 
@@ -114,8 +114,8 @@
                 <applet-actions :key="item.id" :item="item"
                       @onViewUsers="onViewUsers"
                       @onViewGeneralCalendar="onViewGeneralCalendar"
-                      @onEditApplet="onEditApplet" 
-                      @onDeleteApplet="onDeleteApplet" 
+                      @onEditApplet="onEditApplet"
+                      @onDeleteApplet="onDeleteApplet"
                       @onDuplicateApplet="onDuplicateApplet"
                       @onRefreshApplet="onRefreshApplet"
                       @removeFromFolder="removeAppletFromFolder"
@@ -245,6 +245,8 @@ import FolderItem from "./FolderItem";
 import AppletDirectoryManager from "./AppletDirectoryManager.js";
 import AppletActions from "./AppletActions.vue";
 import FolderActions from "./FolderActions.vue";
+import Builder from 'applet-schema-builder';
+import { AppletMixin } from '../Utils/mixins/AppletMixin';
 
 
 TimeAgo.addLocale(en);
@@ -252,7 +254,7 @@ TimeAgo.addLocale(fr);
 
 export default {
   name: "AppletList",
-  mixins: [AppletDirectoryManager],
+  mixins: [AppletDirectoryManager, AppletMixin],
   components: {
     AppletItem,
     FolderItem,
@@ -326,7 +328,7 @@ export default {
   mounted() {
     this.loadFormattedData();
   },
-  
+
   computed: {
     directoryItems() {
       return this.$store.state.fullDirectory;
@@ -387,14 +389,14 @@ export default {
       if (similarFolders.length > 0 ) {
         item.duplicate +=  similarFolders.length;
         item.name = `${ item.oldName} (${item.duplicate} )` ;
-       
+
       }
       const duplicateNames = this.flattenedDirectoryItems.filter(folder => folder.id != item.id && folder.name == item.name)
       if (similarFolders.length > 0 ) {
         this.renameFolder(item)
       }
     },
-   
+
     loadFormattedData ()
     {
       const directoryItems = this.directoryItems;
@@ -512,10 +514,10 @@ export default {
       if (dragSourceIsSameAsDragDestination) return;
 
       const isDroppingOnRootApplet = destination.parentId == undefined;
-      const isMovingAppletOutOfFolders = isDroppingOnRootApplet && 
-                                        !this.draggedItem.isFolder 
+      const isMovingAppletOutOfFolders = isDroppingOnRootApplet &&
+                                        !this.draggedItem.isFolder
                                         && !destination.isFolder;
-      //disable nested folders for now                                        
+      //disable nested folders for now
       if (destination.isFolder && this.draggedItem.isFolder) return;
 
       if (isMovingAppletOutOfFolders) {
@@ -543,12 +545,12 @@ export default {
       this.loaderMessage = `'${this.draggedItem.name}' moved to '${destination.name}'. Saving changes. `;
       if (wasNotInFolder && isMovingToFolder)
       {
-          await this.addAppletToFolder(this.draggedItem, destination)        
+          await this.addAppletToFolder(this.draggedItem, destination)
       }
 
       if (isMovingToFolder && wasInFolder) {
-           await this.changeFolder(previousFolder, destination, this.draggedItem)        
-      } 
+           await this.changeFolder(previousFolder, destination, this.draggedItem)
+      }
 
       this.draggedItem.parentId = destination.id;
       this.draggedItem.depth = destination.depth + 1;
@@ -562,7 +564,7 @@ export default {
 
       var indexOfParent = this.flattenedDirectoryItems.indexOf(destination);
 
-    
+
 
       if (indexOfParent > -1) {
         this.flattenedDirectoryItems.splice(
@@ -682,7 +684,7 @@ export default {
           })
           .then((resp) => {
             const filteredItems = [];
-            
+
             this.isSyncing = false;
             this.loaderMessage = "";
             const applet = this.appletPendingDelete;
@@ -703,13 +705,41 @@ export default {
           });
     },
 
-    editApplet() {
+    async editApplet() {
       this.currentApplet = this.formattedApplets.find(applet => applet.id === this.hoveredAppletId);
-      this.$router.push({
-        name: 'Builder',
-        params: {isEditing: true},
-      }).catch(err => {
-      });
+
+      if (this.currentApplet.largeApplet && this.currentApplet.hasUrl) {
+        if (!this.isLatestApplet(this.currentApplet)) {
+          await this.loadApplet(this.currentApplet.id);
+        }
+
+        const appletId = this.currentApplet.id;
+        const token = this.$store.state.auth.authToken.token;
+        const apiHost = this.$store.state.backend;
+
+        const data = await Builder.getBuilderFormat(this.currentAppletData, true)
+        const protocol = new FormData();
+        protocol.append('protocol', new Blob([JSON.stringify(data || {})], { type: 'application/json' }));
+
+        api
+          .prepareApplet({
+            apiHost,
+            token,
+            data: protocol,
+            appletId,
+            thread: true
+          })
+          .then(resp => {
+            this.$emit("onAppletIsEdited");
+            this.$emit("refreshAppletList");
+          })
+      } else {
+        this.$router.push({
+          name: 'Builder',
+          params: {isEditing: true},
+        }).catch(err => {
+        });
+      }
     },
 
     onClickSubmitPassword(appletPassword) {
@@ -739,7 +769,7 @@ export default {
     onTransferOwnership() {
       this.ownershipDialog = true;
     },
-    
+
     isNotEncrypted(item) {
       return !item.encryption && (!item.applet || !item.applet.encryption);
     },
@@ -803,7 +833,7 @@ export default {
         this.flattenedDirectoryItems = this.flattenedDirectoryItems.filter(item => item.id != folder.id);
         this.updateVisibleItems();
       } else {
-        this.deleteFolderOnServer(folder).then(() => {      
+        this.deleteFolderOnServer(folder).then(() => {
           this.flattenedDirectoryItems = this.flattenedDirectoryItems.filter(item => item.id != folder.id);
           this.isSyncing = false;
           this.loaderMessage = null;

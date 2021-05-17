@@ -214,9 +214,11 @@ const getters = {
   },
 };
 
-const stateCopy = (({ 
+const stateCopy = (({
   // Excluded properties.
   currentLanguage,
+  allApplets,
+  currentAppletData,
   ...o
 }) => o)(state);
 const stateToPersist = Object.keys(stateCopy);
