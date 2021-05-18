@@ -645,6 +645,7 @@ export default {
                 token,
                 apiHost,
                 id: appletId,
+                retrieveSchedule: true,
                 allEvent: this.accountApplets.find(
                     (value) => value.id == appletId
                 ).allEvent,
