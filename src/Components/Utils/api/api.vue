@@ -108,8 +108,8 @@ const setAccountName = ({ apiHost, token, accountName }) =>
     },
   });
 
-const getApplet = ({ apiHost, token, allEvent, id, nextActivity }) => {
-  let url = `${apiHost}/applet/${id}?retrieveSchedule=true&retrieveAllEvents=${allEvent}&retrieveItems=true`;
+const getApplet = ({ apiHost, token, retrieveSchedule, allEvent, id, nextActivity }) => {
+  let url = `${apiHost}/applet/${id}?retrieveSchedule=${retrieveSchedule}&retrieveAllEvents=${allEvent}&retrieveItems=true`;
   if (nextActivity) {
     url = url + `&nextActivity=${nextActivity}`;
   }
@@ -125,7 +125,7 @@ const getApplet = ({ apiHost, token, allEvent, id, nextActivity }) => {
 
     if (response.nextActivity)
     {
-      return new Promise(resolve => setTimeout(() => resolve(getApplet({ apiHost, token, allEvent, id, nextActivity: response.nextActivity }).then(next => {
+      return new Promise(resolve => setTimeout(() => resolve(getApplet({ apiHost, token, retrieveSchedule, allEvent, id, nextActivity: response.nextActivity }).then(next => {
         for (const activityIRI in next.data.activities) {
           response.activities[activityIRI] = next.data.activities[activityIRI];
         }

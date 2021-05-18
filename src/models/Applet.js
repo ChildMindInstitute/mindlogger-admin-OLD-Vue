@@ -12,6 +12,7 @@ import Item from './Item';
 import ReproLib from '../schema/ReproLib';
 import SKOS from '../schema/SKOS';
 import encryptionUtils from '../Components/Utils/encryption/encryption.vue'
+import api from '../Components/Utils/api/api';
 
 export const RESPONSE_COLORS = [
   '#1C7AB3',
@@ -582,10 +583,13 @@ export default class Applet {
     const id = appletId.split('/').pop();
 
     try {
-      const response = await axios({
-        method: 'GET',
-        url: `${store.state.backend}/applet/${id}`,
-        headers: { 'Girder-Token': store.state.auth.authToken.token },
+      const response = await api.getApplet({
+        apiHost: store.state.backend,
+        token: store.state.auth.authToken.token,
+        allEvent: false,
+        retrieveSchedule: false,
+        id,
+        nextActivity: null
       });
 
       response.data.applet.encryption = encryptionInfo;
