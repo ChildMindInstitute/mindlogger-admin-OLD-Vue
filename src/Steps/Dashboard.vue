@@ -456,7 +456,7 @@ export default {
         token: this.$store.state.auth.authToken.token,
       }).then((res) => {
         const { token } = res.data;
-        window.location.href = `${process.env.VUE_APP_LIBRARY_URI}/#/librarySearch?token=${token}`;
+        window.location.href = `${process.env.VUE_APP_LIBRARY_URI}/#/?token=${token}`;
       })
     },
     onBuildApplet() {
