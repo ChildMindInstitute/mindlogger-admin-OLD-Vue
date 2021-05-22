@@ -42,6 +42,7 @@
               @refreshAppletList="getAccountData"
               @removeDeletedApplet="onRemoveApplet"
               @onAppletPasswordChanged="onAppletPasswordChanged"
+              @onAppletIsEdited="onAppletIsEdited"
               @onOwnerShipInviteSuccessful="onOwnerShipInviteSuccessful"
               @onOwnerShipInviteError="onOwnerShipInviteError"
               @onDuplicateRequestReceived="onDuplicateRequestReceived"
@@ -120,6 +121,13 @@
             >
               <v-list-item-title>
                 {{ 'Add applet from GitHub URL' }}
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              @click="onBrowseAppletLibrary"
+            >
+              <v-list-item-title>
+                {{ $t('browseAppletLibrary') }}
               </v-list-item-title>
             </v-list-item>
           </v-list>
@@ -260,7 +268,7 @@ export default {
         }
       }
     }
-  },  
+  },
   mounted() {
     for (let tab of ['applets', 'users', 'reviewers', 'editors', 'coordinators', 'managers']) {
       this.$set(this.tabData, tab, {
@@ -399,7 +407,7 @@ export default {
           this.onAppletUploadError();
         });
     },
-    
+
     onAppletUploadSuccessful(message) {
       this.dialogTitle = this.$t('uploadReceived');
       this.dialogText = message;
@@ -416,6 +424,11 @@ export default {
         this.dialogTitle = this.$t('appletEncryptionUpdate');
         this.dialog = true;
       })
+    },
+    onAppletIsEdited() {
+      this.dialogText = this.$t('appletEditProgress');
+      this.dialogTitle = this.$t('appletStatusUpdate');
+      this.dialog = true;
     },
     onOwnerShipInviteSuccessful(email) {
       this.dialogText = this.$t('requestSuccess', { email });
@@ -441,9 +454,9 @@ export default {
       api.getOneTimeToken({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
-      }).then((response) => {
-        console.log('response', response.data.token);
-        window.location.href = `https://library.mindlogger.org/#/librarySearch?token=${response.data.token}`;
+      }).then((res) => {
+        const { token } = res.data;
+        window.location.href = `${process.env.VUE_APP_LIBRARY_URI}/#/?token=${token}`;
       })
     },
     onBuildApplet() {

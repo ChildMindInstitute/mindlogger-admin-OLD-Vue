@@ -40,6 +40,7 @@ export const AppletMixin = {
       return api.getApplet({
         apiHost: this.apiHost,
         token: this.token,
+        retrieveSchedule: true,
         allEvent: appletMeta.roles.includes('coordinator') || appletMeta.roles.includes('manager'),
         id: appletId
       }).then(resp => {

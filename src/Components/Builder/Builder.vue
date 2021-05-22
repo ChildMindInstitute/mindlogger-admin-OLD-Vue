@@ -150,7 +150,7 @@ export default {
     ...mapMutations([
       'cacheAppletBuilderData',
     ]),
-    
+
     onClickSubmitPassword(appletPassword) {
       this.appletPasswordDialog = false;
       this.addNewApplet(appletPassword);
@@ -268,9 +268,10 @@ export default {
           token,
           apiHost,
         })
-        .then((resp) => {
+        .then(resp => this.loadApplet(appletId))
+        .then(data => {
           this.$store.commit('updateAppletData', {
-            ...resp.data,
+            ...data,
             roles: this.currentAppletMeta.roles,
           });
 
@@ -287,7 +288,9 @@ export default {
     },
     onPrepareApplet(data) {
       const protocol = new FormData();
-      protocol.set('protocol', JSON.stringify(data || {}));
+
+      const blob = new Blob([JSON.stringify(data || {})], { type: 'application/json' });
+      protocol.append('protocol', blob);
 
       const appletId = this.currentAppletMeta.id;
       const token = this.$store.state.auth.authToken.token;
@@ -299,12 +302,10 @@ export default {
           token,
           data: protocol,
           appletId,
+          thread: false
         })
-        .then((resp) => {
-          this.$store.commit("updateAppletData", resp.data);
-
-          return api.getAppletVersions({ apiHost, token, appletId })
-        })
+        .then(resp => this.loadApplet(appletId))
+        .then(() => api.getAppletVersions({ apiHost, token, appletId }))
         .then((resp) => {
           this.versions = resp.data;
           this.componentKey = this.componentKey + 1;
