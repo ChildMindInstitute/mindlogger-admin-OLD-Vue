@@ -1,8 +1,7 @@
 import api from "../api/api.vue";
 import Applet from "../../../models/Applet";
 import Item from "../../../models/Item";
-import AWS from 'aws-sdk';
-import { S3 } from "@aws-sdk/client-s3";
+import S3 from 'aws-sdk/clients/s3';
 import JSZip from 'jszip';
 import ObjectToCSV from 'object-to-csv';
 import TimeAgo from 'javascript-time-ago';
@@ -40,7 +39,6 @@ export const AppletMixin = {
       return api.getApplet({
         apiHost: this.apiHost,
         token: this.token,
-        retrieveSchedule: true,
         allEvent: appletMeta.roles.includes('coordinator') || appletMeta.roles.includes('manager'),
         id: appletId
       }).then(resp => {
@@ -233,8 +231,6 @@ export const AppletMixin = {
 
               }
 
-              console.log(responseData);
-
               const question = item.question['en']
                 .replace(/\r?\n|\r/g, '')
                 .split('250)');
@@ -310,8 +306,8 @@ export const AppletMixin = {
           let anchor = document.createElement('a');
           anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(otc.getCSV());
           anchor.target = '_blank';
-          // anchor.download = 'report.csv';
-          // anchor.click();
+          anchor.download = 'report.csv';
+          anchor.click();
         })
     },
     isLatestApplet(appletMeta) {
@@ -342,27 +338,13 @@ export const AppletMixin = {
     },
     async generateMediaResponsesZip(mediaObjects) {
       if (mediaObjects.length < 1) return;
-
-      console.log(mediaObjects);
-
       try {
-        // const creds = {
-        //   accessKeyId: process.env.VUE_APP_ACCESS_KEY_ID,
-        //   secretAccessKey: process.env.VUE_APP_SECRET_ACCES_KEY,
-        // };
-
-        const creds = new AWS.Credentials(process.env.VUE_APP_ACCESS_KEY_ID, process.env.VUE_APP_SECRET_ACCES_KEY);
-
-        const S3Config = {
+        const credentials = {
           accessKeyId: process.env.VUE_APP_ACCESS_KEY_ID,
-          secretAccessKey: process.env.VUE_APP_SECRET_ACCES_KEY,
-          region: 'us-east-1',
-          credentials: creds
+          secretAccessKey: process.env.VUE_APP_SECRET_ACCES_KEY
         };
 
-        console.log(S3Config);
-
-        const client = new S3(S3Config);
+        const client = new S3(credentials);
         const zip = new JSZip();
 
         for (const mediaObject of mediaObjects) {
@@ -371,13 +353,7 @@ export const AppletMixin = {
             Key: mediaObject.key
           };
 
-          if (mediaObject.key.includes('.mp4')) continue;
-
-          console.log(params);
-
-          const data = await client.getObject(params);
-          console.log(data);
-
+          const data = await client.getObject(params).promise();
           zip.file(mediaObject.name, data.Body);
         }
 
