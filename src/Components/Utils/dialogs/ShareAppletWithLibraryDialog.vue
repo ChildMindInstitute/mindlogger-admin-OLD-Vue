@@ -88,7 +88,7 @@
           <v-form v-model="valid">
             <v-container fluid class="d-flex py-0">
               <v-container fluid class="mr-5 pa-0">
-                <v-row align="center">
+                <v-row v-if="false" align="center">
                   <v-col md="3" class="text-right"> Category: </v-col>
                   <v-col md="9">
                     <template v-if="isEditing">
@@ -109,7 +109,7 @@
                     </template>
                   </v-col>
                 </v-row>
-                <v-row align="center">
+                <v-row v-if="false" align="center">
                   <v-col md="3" class="text-right"> Sub-Category: </v-col>
                   <v-col md="9">
                     <template v-if="isEditing">
@@ -329,12 +329,11 @@ export default {
         const { url } = await this.publishAppletToLibrary(this.appletId, true);
         this.appletUrl = url;
       }
-      await this.updateAppletSearchTerms(
-        this.appletId,
-        this.categoryName,
-        this.subCategoryName,
-        JSON.stringify(this.keywords)
-      );
+      await this.updateAppletSearchTerms(this.appletId, {
+        // category: this.categoryName,
+        // subCategory: this.subCategoryName,
+        keywords: JSON.stringify(this.keywords),
+      });
       this.isPublished = true;
       this.isEditing = false;
     },

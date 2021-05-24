@@ -34,12 +34,8 @@ export const AppletLibraryMixin = {
           return resp.data;
         })
     },
-    updateAppletSearchTerms(appletId, category, subCategory, keywords) {
-      return api.updateAppletSearchTerms(this.apiHost, this.token, appletId, {
-        category,
-        subCategory,
-        keywords
-      })
+    updateAppletSearchTerms(appletId, searchTerms) {
+      return api.updateAppletSearchTerms(this.apiHost, this.token, appletId, searchTerms)
         .then(resp => {
           return resp.data;
         })
