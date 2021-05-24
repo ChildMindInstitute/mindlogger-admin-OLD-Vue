@@ -39,7 +39,6 @@ export const AppletMixin = {
       return api.getApplet({
         apiHost: this.apiHost,
         token: this.token,
-        retrieveSchedule: true,
         allEvent: appletMeta.roles.includes('coordinator') || appletMeta.roles.includes('manager'),
         id: appletId
       }).then(resp => {
@@ -305,8 +304,7 @@ export const AppletMixin = {
           });
 
           let anchor = document.createElement('a');
-          anchor.href =
-            'data:text/csv;charset=utf-8,' + encodeURIComponent(otc.getCSV());
+          anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(otc.getCSV());
           anchor.target = '_blank';
           anchor.download = 'report.csv';
           anchor.click();
@@ -340,14 +338,13 @@ export const AppletMixin = {
     },
     async generateMediaResponsesZip(mediaObjects) {
       if (mediaObjects.length < 1) return;
-
       try {
-        const S3Config = {
+        const credentials = {
           accessKeyId: process.env.VUE_APP_ACCESS_KEY_ID,
           secretAccessKey: process.env.VUE_APP_SECRET_ACCES_KEY
         };
 
-        const S3Client = new S3(S3Config);
+        const client = new S3(credentials);
         const zip = new JSZip();
 
         for (const mediaObject of mediaObjects) {
@@ -355,7 +352,8 @@ export const AppletMixin = {
             Bucket: mediaObject.bucket,
             Key: mediaObject.key
           };
-          const data = await S3Client.getObject(params).promise();
+
+          const data = await client.getObject(params).promise();
           zip.file(mediaObject.name, data.Body);
         }
 
