@@ -23,7 +23,7 @@
 					v-if="canTransferOwnership"/> 
 
 			<action-button :tooltip="$t('removeFromFolder')" imageName="folder-eject.png" @click="removeFromFolder"
-					v-if="canRemoveFromFolder"/>
+					/>
 
 			<action-button :tooltip="$t('shareWithLibrary')" icon="mdi-web" @click="onShareWithLibrary"
 					v-if="canShareWithLibrary"/>
@@ -69,7 +69,7 @@
                   <v-list-item-title>{{ $t('transferOwnership') }}</v-list-item-title>
                 </v-list-item>
 
-                <v-list-item v-if="canRemoveFromFolder" @click="removeFromFolder">
+                <v-list-item  @click="removeFromFolder">
                   <v-list-item-title>{{ $t('removeFromFolder') }}</v-list-item-title>
                 </v-list-item>
 

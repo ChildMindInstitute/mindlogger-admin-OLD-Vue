@@ -33,7 +33,7 @@ export default {
 	},
 	computed : {
     appletCount() {
-      return this.item.items.filter(item => !item.isFolder && item.roles.length).length;
+      return this.item.items.filter(item => !item.isFolder).length;
     },
 	},
 }
