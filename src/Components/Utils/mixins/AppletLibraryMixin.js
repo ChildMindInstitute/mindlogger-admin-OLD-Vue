@@ -10,14 +10,14 @@ export const AppletLibraryMixin = {
     },
   },
   methods: {
-    checkAppletNameInLibrary(applet) {
-      return api.checkAppletNameInLibrary(this.apiHost, this.token, applet)
+    checkAppletNameInLibrary(appletId, appletName) {
+      return api.checkAppletNameInLibrary(this.apiHost, this.token, appletId, appletName)
         .then(resp => {
           return resp.data;
         })
     },
-    changeAppletName(applet, appletName) {
-      return api.changeAppletName(this.apiHost, this.token, applet.id, appletName)
+    changeAppletName(appletId, appletName) {
+      return api.changeAppletName(this.apiHost, this.token, appletId, appletName)
         .then(resp => {
           return resp.data;
         })
@@ -34,12 +34,14 @@ export const AppletLibraryMixin = {
           return resp.data;
         })
     },
-    updateAppletSearchTerms(appletId, category, subCategory, keywords) {
-      return api.updateAppletSearchTerms(this.apiHost, this.token, appletId, {
-        category,
-        subCategory,
-        keywords
-      })
+    updateAppletSearchTerms(appletId, searchTerms) {
+      return api.updateAppletSearchTerms(this.apiHost, this.token, appletId, searchTerms)
+        .then(resp => {
+          return resp.data;
+        })
+    },
+    getAppletSearchTerms(appletId) {
+      return api.getAppletSearchTerms(this.apiHost, this.token, appletId)
         .then(resp => {
           return resp.data;
         })

@@ -12,6 +12,7 @@ import Item from './Item';
 import ReproLib from '../schema/ReproLib';
 import SKOS from '../schema/SKOS';
 import encryptionUtils from '../Components/Utils/encryption/encryption.vue'
+import api from '../Components/Utils/api/api';
 
 export const RESPONSE_COLORS = [
   '#1C7AB3',
@@ -224,6 +225,7 @@ export default class Applet {
     /** sort data responses according to date/versions */
     let itemIDGroup = Object.keys(data.responses);
     itemIDGroup = itemIDGroup.filter(id => id.startsWith('https://')).concat(itemIDGroup.filter(id => !id.startsWith('https://')));
+    itemIDGroup = itemIDGroup.filter(id => this.items[id]);
 
     for (let itemId of itemIDGroup) {
       data.responses[itemId] = data.responses[itemId].filter(resp => resp.value !== undefined && resp.value !== null);
@@ -582,10 +584,13 @@ export default class Applet {
     const id = appletId.split('/').pop();
 
     try {
-      const response = await axios({
-        method: 'GET',
-        url: `${store.state.backend}/applet/${id}`,
-        headers: { 'Girder-Token': store.state.auth.authToken.token },
+      const response = await api.getApplet({
+        apiHost: store.state.backend,
+        token: store.state.auth.authToken.token,
+        allEvent: false,
+        retrieveSchedule: false,
+        id,
+        nextActivity: null
       });
 
       response.data.applet.encryption = encryptionInfo;

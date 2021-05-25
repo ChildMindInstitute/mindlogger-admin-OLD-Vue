@@ -362,4 +362,6 @@ export default {
   assessment: 'Assessment',
   notes: 'Notes',
   reviewed: 'Reviewed',
+  appletStatusUpdate: 'Updating Applet Status',
+  appletEditProgress: 'Your applet is being edited.'
 };
