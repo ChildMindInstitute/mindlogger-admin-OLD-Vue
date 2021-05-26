@@ -99,7 +99,7 @@
           }"
       >
         <template v-slot:item="{ item }">
-          <template v-if="!item.isFolder && item.roles.length">
+          <template v-if="!item.isFolder">
             <applet-item
                 :key="item.id + item.parentId"
                 :item="item"
