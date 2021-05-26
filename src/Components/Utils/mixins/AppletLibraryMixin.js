@@ -46,5 +46,11 @@ export const AppletLibraryMixin = {
           return resp.data;
         })
     },
+    getAppletLibraryUrl(appletId) {
+      return api.getAppletLibraryUrl(this.apiHost, this.token, appletId)
+        .then(resp => {
+          return resp.data;
+        })
+    },
   }
 }

@@ -676,6 +676,16 @@ const getAppletSearchTerms = (apiHost, token, appletId) => {
   })
 }
 
+const getAppletLibraryUrl = (apiHost, token, appletId) => {
+  return axios({
+    method: 'get',
+    url: `${apiHost}/applet/${appletId}/libraryUrl`,
+    headers: {
+      'Girder-Token': token
+    }
+  })
+}
+
 const getNotes = (apiHost, token, appletId, responseId) =>
   axios({
     method: 'get',
@@ -786,6 +796,7 @@ export default {
   publishAppletToLibrary,
   updateAppletSearchTerms,
   getAppletSearchTerms,
+  getAppletLibraryUrl,
   getNotes,
   addNote,
   updateNote,

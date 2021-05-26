@@ -25,31 +25,33 @@
                   $t("shareAppletSetDetails", { appletName: appletData.name })
                 }}
               </div>
-              <a
-                href
-                class="copy-link"
-                @click.stop.prevent="onCopyLink"
-                @mousedown.stop
-              >
-                {{ $t("shareAppletCopyLink") }}
-              </a>
-              <input
-                type="text"
-                class="applet-url"
-                ref="appletUrl"
-                :value="appletUrl"
-              />
-              <v-snackbar
-                v-model="clipboardCopied"
-                :timeout="2000"
-                absolute
-                top
-                centered
-                color="green accent-4"
-                elevation="24"
-              >
-                Copied!
-              </v-snackbar>
+              <template v-if="isPublished">
+                <a
+                  href
+                  class="copy-link"
+                  @click.stop.prevent="onCopyLink"
+                  @mousedown.stop
+                >
+                  {{ $t("shareAppletCopyLink") }}
+                </a>
+                <input
+                  type="text"
+                  class="applet-url"
+                  ref="appletUrl"
+                  :value="appletUrl"
+                />
+                <v-snackbar
+                  v-model="clipboardCopied"
+                  :timeout="2000"
+                  absolute
+                  top
+                  centered
+                  color="green accent-4"
+                  elevation="24"
+                >
+                  Copied!
+                </v-snackbar>
+              </template>
             </template>
           </div>
           <div class="ml-auto text-right">
@@ -283,6 +285,7 @@ export default {
         this.categoryId = categoryId;
         this.subCategoryId = subCategoryId;
         this.keywords = keywords;
+        this.appletUrl = await this.getAppletLibraryUrl(this.appletId);
       } else {
         this.categoryId = null;
         this.subCategoryId = null;
@@ -326,8 +329,7 @@ export default {
     },
     async onUpdateAppletDetails() {
       if (!this.isPublished) {
-        const { url } = await this.publishAppletToLibrary(this.appletId, true);
-        this.appletUrl = url;
+        await this.publishAppletToLibrary(this.appletId, true);
       }
       await this.updateAppletSearchTerms(this.appletId, {
         // category: this.categoryName,
