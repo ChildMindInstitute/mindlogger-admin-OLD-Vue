@@ -23,7 +23,7 @@
 					v-if="canTransferOwnership" />
 
 			<action-button :tooltip="$t('removeFromFolder')" imageName="folder-eject.png" @click="removeFromFolder"
-					/>
+					v-if="canRemoveFromFolder" />
 
 			<action-button :tooltip="$t('shareWithLibrary')" icon="mdi-web" @click="onShareWithLibrary"
 					v-if="canShareWithLibrary" />
