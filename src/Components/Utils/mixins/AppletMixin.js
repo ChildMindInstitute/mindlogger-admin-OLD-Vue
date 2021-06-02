@@ -196,10 +196,9 @@ export const AppletMixin = {
 
                   let index = 0;
                   for (const [key, value] of Object.entries(responseDataObj)) {
-
                     if (item.inputType === 'timeRange' && value.from && value.to) {
                       responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
-                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord') && value.filename) {
+                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing') && value.filename) {
                       this.getMediaResponseObject(value.uri, response, item);
                       responseData += `filename: ${value.filename}`;
                     } else if (item.inputType === 'date' && (value.day || value.month || value.year)) {
@@ -228,7 +227,6 @@ export const AppletMixin = {
                 } else {
                   responseData = responseDataObj;
                 }
-
               }
 
               const question = item.question['en']
