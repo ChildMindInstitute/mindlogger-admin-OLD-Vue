@@ -40,6 +40,7 @@ export const AppletMixin = {
         apiHost: this.apiHost,
         token: this.token,
         allEvent: appletMeta.roles.includes('coordinator') || appletMeta.roles.includes('manager'),
+        retrieveSchedule: true,
         id: appletId
       }).then(resp => {
         const appletData = this.$store.state.allApplets[appletId];

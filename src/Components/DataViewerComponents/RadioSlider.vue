@@ -45,7 +45,7 @@
         class="d-block ma-auto mt-2"
         color="black"
         indeterminate
-        :size="50"
+        :size="25"
       >
       </v-progress-circular>
   </div>
