@@ -315,9 +315,13 @@
                                   <template v-for="item in subScale.items">
                                     <div :key="item['id']" class="chart-card">
                                       <header>
-                                        <h3>
-                                          - {{ item.getFormattedQuestion() }}
+                                        <h3 v-if="item.inputType !== 'markdownMessage'">
+                                          <vue-markdown class="item-question">
+                                            {{ item.getFormattedQuestion() }}
+                                          </vue-markdown>
                                         </h3>
+
+                                        <h3 v-else>- {{ item.label.en }}</h3>
                                       </header>
 
                                       <RadioSlider
