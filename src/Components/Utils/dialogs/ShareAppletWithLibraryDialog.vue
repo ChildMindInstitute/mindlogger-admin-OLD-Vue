@@ -25,9 +25,9 @@
                   $t("shareAppletSetDetails", { appletName: appletData.name })
                 }}
               </div>
-              <template v-if="isPublished">
+              <template v-if="isPublished && appletUrl">
                 <a
-                  href
+                  :href="'https://' + appletUrl"
                   class="copy-link"
                   @click.stop.prevent="onCopyLink"
                   @mousedown.stop
@@ -35,6 +35,7 @@
                   {{ $t("shareAppletCopyLink") }}
                 </a>
                 <input
+                  id="AppletURL"
                   type="text"
                   class="applet-url"
                   ref="appletUrl"
@@ -198,6 +199,7 @@
 
 <script>
 import { AppletLibraryMixin } from "@/Components/Utils/mixins/AppletLibraryMixin";
+import copy from "copy-to-clipboard";
 
 export default {
   name: "ShareAppletWithLibraryDialog",
@@ -321,8 +323,7 @@ export default {
     },
     onCopyLink() {
       this.clipboardCopied = true;
-      this.$refs.appletUrl.select();
-      document.execCommand("copy");
+      copy(this.appletUrl);
     },
     onChangeCategoryId() {
       this.subCategoryId = null;
