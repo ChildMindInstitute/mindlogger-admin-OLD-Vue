@@ -72,8 +72,7 @@ export const AppletMixin = {
           });
         }
 
-        return api
-          .getUsersData({
+        return api.getUsersData({
             apiHost: this.$store.state.backend,
             token: this.$store.state.auth.authToken.token,
             appletId: appletId,
@@ -256,7 +255,7 @@ export const AppletMixin = {
                 activity_start_time: response.responseStarted || null,
                 activity_end_time: response.responseCompleted || null,
                 flag,
-                MRN: MRN || null,
+                secret_user_id: MRN || null,
                 userId: _id,
                 activity_id: response.activity['@id'],
                 activity_name: activity.label.en,
@@ -288,7 +287,7 @@ export const AppletMixin = {
               'activity_start_time',
               'activity_end_time',
               'flag',
-              'MRN',
+              'secret_user_id',
               'userId',
               'activity_id',
               'activity_name',
