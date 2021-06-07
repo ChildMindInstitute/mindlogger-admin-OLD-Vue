@@ -197,6 +197,7 @@
 </style>
 
 <script>
+import debounce from "debounce-promise";
 import { AppletLibraryMixin } from "@/Components/Utils/mixins/AppletLibraryMixin";
 
 export default {
@@ -327,17 +328,20 @@ export default {
     onChangeCategoryId() {
       this.subCategoryId = null;
     },
-    async onUpdateAppletDetails() {
-      if (!this.isPublished) {
-        await this.publishAppletToLibrary(this.appletId, true);
-      }
-      await this.updateAppletSearchTerms(this.appletId, {
-        // category: this.categoryName,
-        // subCategory: this.subCategoryName,
-        keywords: JSON.stringify(this.keywords),
-      });
-      this.isPublished = true;
-      this.isEditing = false;
+    onUpdateAppletDetails() {
+      const updateAppletDetails = debounce(async() => {
+        if (!this.isPublished) {
+          await this.publishAppletToLibrary(this.appletId, true);
+        }
+        await this.updateAppletSearchTerms(this.appletId, {
+          // category: this.categoryName,
+          // subCategory: this.subCategoryName,
+          keywords: JSON.stringify(this.keywords),
+        });
+        this.isPublished = true;
+        this.isEditing = false;
+      }, 270)
+      updateAppletDetails();
     },
   },
 };
