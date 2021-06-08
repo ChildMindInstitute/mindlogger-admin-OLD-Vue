@@ -100,7 +100,7 @@ export default class Activity {
         variableName,
         dataColor: RESPONSE_COLORS[index % RESPONSE_COLORS.length],
         slug: slugify(variableName),
-        latest: { tScore: 0, outputText: '' }
+        current: { tScore: 0, outputText: '' }
       }
     })
   }
@@ -121,7 +121,7 @@ export default class Activity {
       lookupTable,
       dataColor: RESPONSE_COLORS[this.subScales.length % RESPONSE_COLORS.length],
       slug: slugify(variableName),
-      latest: { tScore: 0, outputText: '' },
+      current: { tScore: 0, outputText: '' },
       isFinalSubScale: true
     }
   }
@@ -167,7 +167,7 @@ export default class Activity {
       }
 
       if (subScale.values.length) {
-        subScale.latest = {
+        subScale.current = {
           ...subScale.values[0].value,
           outputText: await this.getOutputText(subScale.values[0].value.outputText)
         };
@@ -176,8 +176,8 @@ export default class Activity {
   }
 
   getLatestActivityScore() {
-    if (this.finalSubScale && this.finalSubScale.latest) {
-      return Number(this.finalSubScale.latest.tScore.toFixed(10));
+    if (this.finalSubScale && this.finalsubScale.current) {
+      return Number(this.finalsubScale.current.tScore.toFixed(10));
     }
 
     let total = 0;

@@ -213,6 +213,9 @@
                           @selectResponse="
                             selectResponse({ activity, ...$event })
                           "
+                          @showSubScale="
+                            showSubScale({ activity, ...$event })
+                          "
                         />
                       </v-expansion-panel-header>
                       <v-expansion-panel-content
@@ -225,7 +228,7 @@
                         <div
                           v-if="
                             activity.finalSubScale &&
-                            activity.finalSubScale.latest.outputText
+                            activity.finalsubScale.current.outputText
                           "
                           class="additional-note mt-4"
                         >
@@ -234,7 +237,7 @@
                           </header>
                           <div class="subscale-output">
                             <mavon-editor
-                              :value="activity.finalSubScale.latest.outputText"
+                              :value="activity.finalsubScale.current.outputText"
                               :language="'en'"
                               :toolbarsFlag="false"
                             >
@@ -289,15 +292,14 @@
                               <v-expansion-panel-header>
                                 <h4>
                                   {{ subScale.variableName }}
-                                  ( {{ $t("latestScore") }}:
-                                  {{ subScale.latest.tScore }} )
+                                  ( {{ $t("latestScore") }}: {{ subScale.current.tScore }} )
                                 </h4>
                               </v-expansion-panel-header>
 
                               <v-expansion-panel-content>
                                 <div>
                                   <div
-                                    v-if="subScale.latest.outputText"
+                                    v-if="subScale.current.outputText"
                                     class="additional-note"
                                   >
                                     <header>
@@ -305,7 +307,7 @@
                                     </header>
                                     <div class="subscale-output">
                                       <mavon-editor
-                                        :value="subScale.latest.outputText"
+                                        :value="subScale.current.outputText"
                                         :language="'en'"
                                         :toolbarsFlag="false"
                                       >
@@ -762,6 +764,7 @@ export default {
         key: 0,
       },
       responseDialog: false,
+      cachedContents: {}
     };
   },
 
@@ -910,6 +913,28 @@ export default {
 
       if (this.tabs[this.selectedTab] !== "review") {
         this.selectedTab = this.tabs.indexOf("review");
+      }
+    },
+
+    async showSubScale({ activity, responseId }) {
+      for (let subScale of activity.subScales) {
+        const current = subScale.values.find(data => data.value.responseId == responseId);
+
+        if (!current) {
+          subScale.current.outputText = '';
+          continue;
+        }
+
+        if (!this.cachedContents[current.value.outputText]) {
+          const outputText = await activity.getOutputText(current.value.outputText);
+
+          this.cachedContents[current.value.outputText] = outputText;
+        }
+
+        for (const key in current.value) {
+          subScale.current[key] = current.value[key];
+        }
+        subScale.current.outputText = this.cachedContents[current.value.outputText];
       }
     },
 

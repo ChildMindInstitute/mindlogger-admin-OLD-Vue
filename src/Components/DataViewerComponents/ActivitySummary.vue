@@ -2,15 +2,26 @@
   <div
     class="activity-summary"
   >
-    <v-btn
+    <v-list
       v-show="toolTipVisible"
       class="tooltip"
       :style="`left: ${toolTipX}px; top: ${toolTipY}px; width: ${tooltipWidth}px; max-height: ${tooltipHeight}px`"
-      @mousedown="onReviewResponse"
-      rounded
     >
-      Review
-    </v-btn>
+      <v-list-item
+        class="tooltip-item"
+        @mousedown="onReviewResponse"
+      >
+        Review
+      </v-list-item>
+
+      <v-list-item
+        v-if="currentResponseId"
+        class="tooltip-item"
+        @mousedown="onShowSubScale"
+      >
+        Show SubScale Results
+      </v-list-item>
+    </v-list>
 
     <svg
       :id="plotId"
@@ -70,9 +81,21 @@
   border-radius: 2px;
   padding: 2px;
   background: white;
+  z-index: 100;
 }
-.tooltip:hover {
+
+.tooltip-item:hover {
   color: rgba(0, 0, 0, 0.7);
+  opacity: .7;
+}
+
+.tooltip-item {
+  text-align: center;
+  background-color: #f5f5f5;
+}
+
+.tooltip-item:not(:last-child) {
+  border-bottom: 1px solid black;
 }
 </style>
 
@@ -122,15 +145,17 @@ export default {
   data: function() {
     let margin = { left: 20, right: 60 };
     let width = this.parentWidth - margin.left - margin.right;
+    let currentResponseId = this.subScales.length ? this.subScales[0].current.responseId : null;
 
     return {
       height: 50,
       margin,
       width,
       labelWidth: width / 4,
-      tooltipWidth: 100,
-      tooltipHeight: 50,
-      currentResponse: null
+      tooltipWidth: 200,
+      tooltipHeight: 110,
+      currentResponse: null,
+      currentResponseId
     }
   },
   computed: {
@@ -238,6 +263,9 @@ export default {
         })
         .attr('cy', this.radius + this.padding.top)
         .attr('r', d => this.x(d.date) >= 0 ? this.radius : 0)
+        .style('outline', d =>
+          d.responseId == this.currentResponseId ? 'black auto 5px' : ''
+        )
         .on('focus', (d) => {
           this.currentResponse = d;
 
@@ -254,6 +282,15 @@ export default {
         date: this.currentResponse.date.toString(),
         responseId: this.currentResponse.responseId,
       });
+    },
+
+    onShowSubScale() {
+      this.$emit('showSubScale', {
+        responseId: this.currentResponse.responseId
+      });
+
+      this.currentResponseId = this.currentResponse.responseId;
+      this.render();
     }
   }
 }

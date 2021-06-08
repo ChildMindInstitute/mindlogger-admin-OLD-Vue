@@ -119,9 +119,11 @@ export const AppletMixin = {
           let subScaleNames = [];
           for (let response of data.responses) {
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
+            const outputTexts = {};
 
             for (let subScaleName in response.subScales) {
               let subScale = response.subScales[subScaleName];
+              let textColumn = `Optional text for ${subScaleName}`;
 
               if (subScale && subScale.ptr !== undefined && subScale.src !== undefined) {
                 response.subScales[subScaleName] = data.subScaleSources[subScale.src].data[subScale.ptr];
@@ -136,12 +138,20 @@ export const AppletMixin = {
                     value = value.toString();
                   }
 
+                  if (response.subScales[subScaleName].outputText) {
+                    outputTexts[textColumn] = response.subScales[subScaleName].outputText;
+                  }
+
                   response.subScales[subScaleName] = value || '';
                 }
               }
 
               if (subScaleNames.indexOf(subScaleName) < 0) {
                 subScaleNames.push(subScaleName);
+              }
+
+              if (subScaleNames.indexOf(textColumn) < 0) {
+                subScaleNames.push(textColumn);
               }
             }
 
@@ -266,7 +276,8 @@ export const AppletMixin = {
                 options: options.join(', '),
                 version: response.version,
                 rawScore: scores.reduce((accumulated, current) => current + accumulated, 0),
-                ... (!isSubScaleExported ? response.subScales : {})
+                ... (!isSubScaleExported ? response.subScales : {}),
+                ... (!isSubScaleExported ? outputTexts : {})
               });
 
               isSubScaleExported = true;
