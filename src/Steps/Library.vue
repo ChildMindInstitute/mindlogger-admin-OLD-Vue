@@ -34,9 +34,7 @@ export default {
     const { from, sync, cache, token } = this.$route.query;
     let fromLibrary = false;
     if (from == 'library') {
-      if (this.isLoggedIn) {
-        fromLibrary = true;
-      } else if (token) {
+      if (token) {
         try {
           const resp = await api.getUserDetails({
             apiHost: this.apiHost,
@@ -55,6 +53,8 @@ export default {
         } catch (e) {
           console.log('token error', e.response.data.message);
         }
+      } else if (this.isLoggedIn) {
+        fromLibrary = true;
       }
     }
 
