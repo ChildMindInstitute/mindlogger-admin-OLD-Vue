@@ -103,7 +103,11 @@ export default {
       this.setBackend = !this.setBackend;
     },
     loginSuccess() {
-      this.$router.push("/dashboard").catch(err => {});
+      if (this.$route.query.nextUrl) {
+        this.$router.push(this.$route.query.nextUrl).catch(err => {});
+      } else {
+        this.$router.push("/dashboard").catch(err => {});
+      }
     },
   },
 };

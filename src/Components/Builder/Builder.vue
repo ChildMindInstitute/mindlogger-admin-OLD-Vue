@@ -49,6 +49,7 @@ import { cloneDeep } from 'lodash';
 import axios from 'axios';
 import { mapState, mapGetters, mapMutations } from 'vuex';
 import { AppletMixin } from '../Utils/mixins/AppletMixin';
+import { AccountMixin } from '../Utils/mixins/AccountMixin';
 
 import encryption from '../Utils/encryption/encryption.vue';
 import AppletPassword from '../Utils/dialogs/AppletPassword';
@@ -69,7 +70,7 @@ export default {
     AppletPassword,
     Information,
   },
-  mixins: [AppletMixin],
+  mixins: [AppletMixin, AccountMixin],
   data() {
     return {
       loading: true,
@@ -118,6 +119,9 @@ export default {
       'currentAppletBuilderData',
       'basketApplets',
     ]),
+    accountApplets() {
+      return this.$store.state.currentAccount && this.$store.state.currentAccount.applets || [];
+    },
   },
   async beforeMount() {
     const { apiHost, token } = this;
@@ -126,7 +130,18 @@ export default {
       this.$store.commit('setBasketApplets', {});
       this.$store.commit('cacheAppletBuilderData', null);
     }
-    if (this.$route.params.isEditing) {
+
+    if (this.$route.query.accountId) {
+      await this.switchAccount(this.$route.query.accountId);
+    }
+
+    if (this.$route.query.appletId) {
+      this.$store.commit('setCurrentApplet', this.accountApplets.find(
+        applet => applet.id === this.$route.query.appletId)
+      );
+    }
+
+    if (this.$route.params.isEditing || this.$route.query.appletId) {
       const appletId = this.currentAppletMeta.id;
       this.isEditing = true;
 
