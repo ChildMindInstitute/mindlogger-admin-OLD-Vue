@@ -128,7 +128,10 @@ export default class Applet {
 
           for (let subScale of subScales) {
             if (subScale.value && subScale.value.ptr !== undefined && subScale.value.src !== undefined) {
+              const src = subScale.value.src;
+
               subScale.value = data.subScaleSources[subScale.value.src].data[subScale.value.ptr];
+              subScale.value.responseId = src;
 
               if (subScale.value.rawScore && !subScale.value.tScore) {
                 subScale.value.tScore = subScale.value.rawScore;
