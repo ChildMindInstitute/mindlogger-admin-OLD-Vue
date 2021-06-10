@@ -476,7 +476,7 @@ const addAppletToFolder = (apiHost, token, folderId, appletId) => axios({
     'Girder-Token': token
   },
   params: {
-    id: folderId, 
+    id: folderId,
     appletId
   }
 })
@@ -488,7 +488,7 @@ const removeApplet = (apiHost, token, folderId, appletId) => axios({
     'Girder-Token': token
   },
   params: {
-    id: folderId, 
+    id: folderId,
     appletId
   }
 })
@@ -547,6 +547,15 @@ const updateAlertStatus = (apiHost, token, alertId) => {
   })
 }
 
+const appletInviteLink = ({ apiHost, token, appletId, method }) =>
+  axios({
+    method,
+    url: `${apiHost}/applet/${appletId}/inviteLink`,
+    headers: {
+      "Girder-Token": token,
+    }
+  });
+
 export default {
   signIn,
   signUp,
@@ -598,5 +607,6 @@ export default {
   deleteFolder,
   togglePin,
   updateAlertStatus,
+  appletInviteLink
 }
 </script>

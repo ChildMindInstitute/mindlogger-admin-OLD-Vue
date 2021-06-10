@@ -3,7 +3,7 @@
     <h1>{{ $t("inviteLink") }}</h1>
 
     <v-container>
-      <v-row>
+      <v-row v-if="inviteLink !== undefined">
         <v-col
             cols="12"
         >
@@ -14,7 +14,7 @@
             cols="11"
         >
           <v-text-field class="pa-0 ma-0"
-              value="https://web.mindlogger.com/....."
+              :value="inviteLink.url"
               ref="textToCopy"
               readonly="readonly"
           />
@@ -29,13 +29,15 @@
             <v-icon>mdi-content-copy</v-icon>
           </v-btn>
         </v-col>
+      </v-row>
 
+      <v-row v-if="inviteLink !== undefined">
         <v-col
             align-self="center"
             cols="12"
             md="4"
         >
-          <v-btn color="error" @click="copyText">
+          <v-btn color="error" @click="deleteAppletInviteLink()">
             {{ $t("deleteInviteLink") }}
           </v-btn>
         </v-col>
@@ -46,14 +48,15 @@
         >
           <p class="ma-0">{{ $t("deleteInviteLinkText") }}</p>
         </v-col>
+      </v-row>
 
-
+      <v-row v-if="inviteLink === undefined">
         <v-col
             align-self="center"
             cols="12"
             md="4"
         >
-          <v-btn color="primary" @click="copyText">
+          <v-btn color="primary" @click="postAppletInviteLink()">
             {{ $t("createInviteLink") }}
           </v-btn>
         </v-col>
@@ -72,15 +75,72 @@
 <script>
 import { RolesMixin } from '../Utils/mixins/RolesMixin';
 
+import api from "../Utils/api/api.vue";
+
 export default {
   name: "InviteLink",
   mixins: [RolesMixin],
+  data() {
+    return {
+      inviteLink: undefined
+    }
+  },
+  computed: {
+    currentAppletMeta() {
+      return this.$store.state.currentAppletMeta;
+    },
+    apiHost() {
+      return this.$store.state.backend;
+    },
+    token() {
+      return this.$store.state.auth.authToken.token;
+    },
+  },
   methods: {
     copyText () {
       const textToCopy = this.$refs.textToCopy.$el.querySelector('input');
       textToCopy.select();
       document.execCommand("copy");
+    },
+
+    populateAppletInviteLink(invite) {
+      this.inviteLink = invite && invite.data ? {
+        ...invite.data,
+        url: `https://${process.env.VUE_APP_WEB_URI}/#${invite.data.url}`
+      } : undefined;
+    },
+
+    postAppletInviteLink() {
+      api.appletInviteLink({
+        method: "POST",
+        apiHost: this.apiHost,
+        token: this.token,
+        appletId: this.currentAppletMeta.id
+      }).then((invite) => this.populateAppletInviteLink(invite))
+    },
+
+    deleteAppletInviteLink() {
+      api.appletInviteLink({
+        method: "DELETE",
+        apiHost: this.apiHost,
+        token: this.token,
+        appletId: this.currentAppletMeta.id
+      }).then(() => this.inviteLink = undefined)
+    },
+
+    async getAppletInviteLink() {
+      const invite = await api.appletInviteLink({
+        method: "GET",
+        apiHost: this.apiHost,
+        token: this.token,
+        appletId: this.currentAppletMeta.id
+      });
+
+      this.populateAppletInviteLink(invite);
     }
+  },
+  async mounted() {
+    await this.getAppletInviteLink();
   }
 }
 </script>
