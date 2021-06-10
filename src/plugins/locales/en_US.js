@@ -34,7 +34,7 @@ export default {
   deleteInviteLink: 'Delete invite link',
   deleteInviteLinkText: 'Delete this link no longer allow anyone to invite themselves to this study. Users who have already have invited themselves, but have a pending invitation can still join.',
   createInviteLink: 'Create invite link',
-  createInviteLinkText: 'Generate a link that will allow anyone to invite themselves to this study.',
+  createInviteLinkText: 'Generate a link that will allow anyone to invite themselves to this study as a user.',
   id: 'ID ',
   displayName: 'Display Name',
   applets: 'Applets',

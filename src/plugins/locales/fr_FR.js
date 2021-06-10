@@ -37,7 +37,7 @@ export default {
   deleteInviteLink: 'Supprimer l\'invitation publique',
   deleteInviteLinkText: 'Supprimer cette invitation ne permet plus à personne de s\'inviter pour cette étude. Les utilisateurs qui se sont déjà invités, mais qui ont une invitation en attente, peuvent toujours la rejoindre.',
   createInviteLink: 'Créez un lien publique',
-  createInviteLinkText: 'Générez un lien qui permettra à n\'importe qui de s\'inviter à cette étude.',
+  createInviteLinkText: 'Générez un lien qui permettra à n\'importe qui de s\'inviter à cette étude en tant qu\'utilisateur.',
   id: 'Identifiant',
   displayName: 'Afficher le nom',
   applets: 'Applets',
