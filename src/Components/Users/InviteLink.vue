@@ -104,9 +104,9 @@ export default {
     },
 
     populateAppletInviteLink(invite) {
-      this.inviteLink = invite && invite.data ? {
+      this.inviteLink = invite && invite.data && invite.data.inviteId ? {
         ...invite.data,
-        url: `https://${process.env.VUE_APP_WEB_URI}/#${invite.data.url}`
+        url: `${process.env.VUE_APP_WEB_URI}/#/join/${invite.data.inviteId}`
       } : undefined;
     },
 
