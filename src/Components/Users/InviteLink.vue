@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{ $t("openInvitation") }}</h1>
+    <h1>{{ $t("inviteLink") }}</h1>
 
     <v-container>
       <v-row>
@@ -36,7 +36,7 @@
             md="4"
         >
           <v-btn color="error" @click="copyText">
-            {{ $t("deleteOpenInvitation") }}
+            {{ $t("deleteInviteLink") }}
           </v-btn>
         </v-col>
 
@@ -44,7 +44,7 @@
             cols="12"
             md="8"
         >
-          <p class="ma-0">{{ $t("deleteOpenInvitationText") }}</p>
+          <p class="ma-0">{{ $t("deleteInviteLinkText") }}</p>
         </v-col>
 
 
@@ -54,7 +54,7 @@
             md="4"
         >
           <v-btn color="primary" @click="copyText">
-            {{ $t("createOpenLink") }}
+            {{ $t("createInviteLink") }}
           </v-btn>
         </v-col>
 
@@ -62,7 +62,7 @@
             cols="12"
             md="8"
         >
-          <p class="ma-0">{{ $t("createOpenLinkText") }}</p>
+          <p class="ma-0">{{ $t("createInviteLinkText") }}</p>
         </v-col>
       </v-row>
     </v-container>
@@ -73,7 +73,7 @@
 import { RolesMixin } from '../Utils/mixins/RolesMixin';
 
 export default {
-  name: "OpenInvitation",
+  name: "InviteLink",
   mixins: [RolesMixin],
   methods: {
     copyText () {
