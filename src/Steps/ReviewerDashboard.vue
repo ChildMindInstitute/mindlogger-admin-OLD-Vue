@@ -42,7 +42,7 @@
                   no-title
                   :allowedDates="isAllowedStartDate"
                   @change="setStartDate"
-                  class="date-range-picker"
+                  class="date-picker"
                 />
               </v-menu>
 
@@ -64,7 +64,7 @@
                   no-title
                   :allowedDates="isAllowedEndDate"
                   @change="setEndDate"
-                  class="date-range-picker"
+                  class="date-picker"
                 />
               </v-menu>
             </div>
@@ -99,6 +99,7 @@
                 no-title
                 :allowedDates="responseExists"
                 @change="setReviewDate"
+                class="date-picker"
               />
             </v-menu>
 
@@ -603,7 +604,7 @@
   margin: 1rem auto;
 }
 
-.v-card:not(.date-range-picker) {
+.v-card:not(.date-picker) {
   margin-bottom: 1.5rem;
 }
 
