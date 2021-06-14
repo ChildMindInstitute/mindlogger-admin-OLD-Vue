@@ -105,7 +105,6 @@ export default {
 	.ds-week {
 		display: flex;
 		flex: 1 1 0%;
-		min-height: 400px;
 	}
 
 </style>
