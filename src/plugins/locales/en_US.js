@@ -342,7 +342,7 @@ export default {
   secretUserId: 'Secret User ID',
   secretUserIdRequired: 'Secret User ID is required',
   subScaleScores: 'Subscale Scores',
-  latestScore: 'Latest Score',
+  score: 'Score',
   frequency: 'Frequency',
   new: 'new',
   takeToResponseData: 'Take me to the response data',

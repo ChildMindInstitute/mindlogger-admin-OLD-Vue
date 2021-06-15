@@ -207,12 +207,27 @@ export default {
         this.labelWidth = this.width / 4;
         this.render();
       }
+    },
+    currentResponseDate() {
+      this.render();
     }
   },
   mounted() {
     this.$nextTick(() => {
       this.render();
     });
+  },
+  computed: {
+    currentResponseDate() {
+      if (this.activity.subScales.length) {
+        const responseId = this.activity.subScales[0].current.responseId;
+        const d = this.activity.subScales[0].values.find(d => d.value.responseId == responseId);
+
+        return new Date(d.date);
+      }
+
+      return null;
+    }
   },
   methods: {
     render() {
@@ -313,7 +328,9 @@ export default {
         .attr('class', 'sub-scale')
         .attr('fill', 'transparent')
         .attr('d', subScale => {
-          const d = subScale.values.map(d => {
+          const d = subScale.values.filter(
+            value => !this.currentResponseDate || new Date(value.date) >= this.currentResponseDate
+          ).map(d => {
             if (this.selectedVersions.includes(d.version)) {
               const x = this.getX(d);
               const y = this.y(d.value.tScore);
@@ -337,7 +354,9 @@ export default {
         this.svg
           .select(`.tooltip-circles .${subScale.slug}`)
           .selectAll('.tooltip-circle')
-          .data(subScale.values.map(d => ({
+          .data(subScale.values.filter(
+            value => !this.currentResponseDate || new Date(value.date) >= this.currentResponseDate
+          ).map(d => ({
             ...d,
             position: {
               x: this.getX(d),
@@ -349,7 +368,7 @@ export default {
           .attr('fill', subScale.dataColor)
           .attr('cx', d => d.position.x)
           .attr('cy', d => d.position.y)
-          .attr('r', d => d.value.outputText ? this.radius / 2 : 0)
+          .attr('r', d => d.value.outputText ? this.radius / 2 : 2)
           .on('focus', d => d.value.outputText ? this.showSubScaleToolTip(
             d.position.x,
             d.position.y,

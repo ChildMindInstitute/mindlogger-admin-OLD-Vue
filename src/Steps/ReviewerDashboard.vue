@@ -293,7 +293,7 @@
                               <v-expansion-panel-header>
                                 <h4>
                                   {{ subScale.variableName }}
-                                  ( {{ $t("latestScore") }}: {{ subScale.current.tScore }} )
+                                  ( {{ $t("score") }}: {{ subScale.current.tScore }} )
                                 </h4>
                               </v-expansion-panel-header>
 
