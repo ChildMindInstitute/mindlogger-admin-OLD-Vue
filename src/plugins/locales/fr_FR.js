@@ -340,7 +340,7 @@ export default {
   noTokenDataAvailable: `Il n'y a pas de jeton disponible pour cette activité.`,
   numberOfTimes: '{number} fois',
   subScaleScores: 'Scores des sous échelles',
-  latestScore: 'Dernier score',
+  score: 'Score',
   frequency: 'Fréquence',
   new: 'neuf',
   takeToResponseData: 'Amenez-moi aux données de la réponse',
