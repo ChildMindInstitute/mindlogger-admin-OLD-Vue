@@ -26,50 +26,129 @@
         <div class="content">
           <div v-if="this.tabs[selectedTab] != 'review'" class="content-header">
             <div class="time-range">
-              <v-menu>
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    depressed
-                    class="ds-button-tall mr-2 ml-2 mb-2 fromDate"
-                    v-on="on"
+              <div class="start-time-range">
+                <v-menu>
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      depressed
+                      class="ds-button-tall mr-2 ml-2 mb-2 fromDate"
+                      v-on="on"
+                    >
+                      {{ fromDate }}
+                    </v-btn>
+                  </template>
+
+                  <v-date-picker
+                    :locale="$i18n.locale.slice(0, 2)"
+                    no-title
+                    :allowedDates="isAllowedStartDate"
+                    @change="setStartDate"
+                    class="date-picker"
+                  />
+                </v-menu>
+                <v-dialog
+                  ref="dialog1"
+                  v-model="startTimeDialog"
+                  :return-value.sync="startTime"
+                  persistent
+                  width="290px"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="startTime"
+                      label="Start time"
+                      prepend-icon="mdi-clock-time-four-outline"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                    ></v-text-field>
+                  </template>
+                  <v-time-picker
+                    v-if="startTimeDialog"
+                    v-model="startTime"
+                    full-width
                   >
-                    {{ fromDate }}
-                  </v-btn>
-                </template>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="startTimeDialog = false"
+                    >
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="$refs.dialog1.save(startTime); setStartTime()"
+                    >
+                      OK
+                    </v-btn>
+                  </v-time-picker>
+                </v-dialog>
+              </div>
+              <div class="mx-4">{{ $t("to") }}</div>
+              <div class="end-time-range">
+                <v-menu>
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      depressed
+                      class="ds-button-tall mr-2 ml-2 mb-2 toDate"
+                      v-on="on"
+                    >
+                      {{ toDate }}
+                    </v-btn>
+                  </template>
 
-                <v-date-picker
-                  :locale="$i18n.locale.slice(0, 2)"
-                  no-title
-                  :allowedDates="isAllowedStartDate"
-                  @change="setStartDate"
-                  class="date-picker"
-                />
-              </v-menu>
-
-              {{ $t("to") }}
-
-              <v-menu>
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    depressed
-                    class="ds-button-tall mr-2 ml-2 mb-2 toDate"
-                    v-on="on"
+                  <v-date-picker
+                    :locale="$i18n.locale.slice(0, 2)"
+                    no-title
+                    :allowedDates="isAllowedEndDate"
+                    @change="setEndDate"
+                    class="date-picker"
+                  />
+                </v-menu>
+                <v-dialog
+                  ref="dialog2"
+                  v-model="endTimeDialog"
+                  :return-value.sync="endTime"
+                  persistent
+                  width="290px"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="endTime"
+                      label="End time"
+                      prepend-icon="mdi-clock-time-four-outline"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                    ></v-text-field>
+                  </template>
+                  <v-time-picker
+                    v-if="endTimeDialog"
+                    v-model="endTime"
+                    full-width
                   >
-                    {{ toDate }}
-                  </v-btn>
-                </template>
-
-                <v-date-picker
-                  :locale="$i18n.locale.slice(0, 2)"
-                  no-title
-                  :allowedDates="isAllowedEndDate"
-                  @change="setEndDate"
-                  class="date-picker"
-                />
-              </v-menu>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="endTimeDialog = false"
+                    >
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="$refs.dialog2.save(endTime); setEndTime()"
+                    >
+                      OK
+                    </v-btn>
+                  </v-time-picker>
+                </v-dialog>
+              </div>
             </div>
-
-            <div id="versions" class="version">
+            <div id="versions" class="version ml-6 mt-2">
               <v-select
                 v-model="selectedVersions"
                 attach="#versions"
@@ -576,13 +655,18 @@
 .version {
   position: relative;
   display: flex;
-  width: 480px;
   align-items: baseline;
   margin-left: 0.8rem;
   font-size: 0.8rem;
   font-weight: 600;
   color: #777;
   text-transform: uppercase;
+}
+
+.toDate,
+.fromDate {
+  width: 100%;
+  margin: 0 !important;
 }
 
 .version .version-list {
@@ -754,6 +838,10 @@ export default {
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
       timeRange: "Default",
+      startTimeDialog: false,
+      startTime: null,
+      endTimeDialog: false,
+      endTime: null,
       hasVersionBars: true,
       panelWidth: 974,
       margin: 50,
@@ -1064,6 +1152,14 @@ export default {
       this.$set(this.applet, "selectedActivites", []);
       this.allExpanded = false;
     },
+
+    setEndTime() {
+      this.setEndDate(this.focusExtent[1]);
+    },
+
+    setStartTime() {
+      this.setStartDate(this.focusExtent[0]);
+    },
     /**
      * Updates the start date for the focused time range.
      *
@@ -1071,7 +1167,18 @@ export default {
      * @returns {void}
      */
     setStartDate(date) {
-      this.$set(this.focusExtent, 0, moment.utc(date).toDate());
+      let startDate = moment.utc(date);
+
+      if (this.startTime) {
+        const time = moment(this.startTime, "HH:mm");
+
+        startDate.set({
+          hour:   time.get('hour'),
+          minute: time.get('minute')
+        });
+      }
+
+      this.$set(this.focusExtent, 0, startDate.toDate());
       this.updateTimeRange();
     },
     /**
@@ -1081,11 +1188,18 @@ export default {
      * @returns {void}
      */
     setEndDate(date) {
-      this.$set(
-        this.focusExtent,
-        1,
-        moment.utc(date).add(15, "hours").toDate()
-      );
+      let endDate = moment.utc(date);
+
+      if (this.endTime) {
+        const time = moment(this.endTime, "HH:mm");
+
+        endDate.set({
+          hour:   time.get('hour'),
+          minute: time.get('minute')
+        });
+      }
+
+      this.$set(this.focusExtent, 1, endDate.toDate());
       this.updateTimeRange();
     },
 
