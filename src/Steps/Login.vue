@@ -4,6 +4,7 @@
     fill-height
   >
     <v-layout
+      v-if="!loading"
       align-center
       justify-center
     >
@@ -65,10 +66,12 @@ import LoginForm from "../Components/Authentication/LoginForm.vue";
 import CreateUserForm from "../Components/Authentication/CreateUserForm.vue";
 import ForgotPasswordForm from "../Components/Authentication/ForgotPasswordForm.vue";
 import SetBackendForm from "../Components/Authentication/SetBackendForm.vue";
+import { AccountMixin } from '../Components/Utils/mixins/AccountMixin';
+import api from "../Components/Utils/api/api.vue";
 
 export default {
   name: "Login",
-
+  mixins: [AccountMixin],
   components: {
     LoginForm,
     CreateUserForm,
@@ -84,9 +87,38 @@ export default {
     snackAlert: false,
     timeout: 3000,
     text: "",
+    loading: true
   }),
   created() {
     this.text = this.$t("resetEmailSent");
+  },
+  async beforeMount() {
+    const { token } = this.$route.query;
+
+    if (token) {
+      try {
+        const resp = await api.getUserDetails({
+          apiHost: this.apiHost,
+          token,
+        });
+
+        if (resp.data) {
+          this.setAuth({
+            auth: {
+              authToken: {
+                token
+              }
+            }
+          });
+
+          this.loginSuccess();
+        }
+      } catch (e) {
+        console.log('token error', e.response.data.message);
+      }
+    }
+
+    this.loading = false;
   },
   methods: {
     toggleCreateAccount() {
