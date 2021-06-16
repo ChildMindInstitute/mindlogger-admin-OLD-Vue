@@ -1,3 +1,4 @@
+import _ from "lodash";
 import api from "../api/api.vue";
 import Applet from "../../../models/Applet";
 import Item from "../../../models/Item";
@@ -73,11 +74,11 @@ export const AppletMixin = {
         }
 
         return api.getUsersData({
-            apiHost: this.$store.state.backend,
-            token: this.$store.state.auth.authToken.token,
-            appletId: appletId,
-            options: payload,
-          })
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          appletId: appletId,
+          options: payload,
+        })
       })
         .then((resp) => {
           const { data } = resp;
@@ -158,7 +159,14 @@ export const AppletMixin = {
               let itemData = response.data[itemUrl];
 
               if (itemData && itemData.ptr !== undefined && itemData.src !== undefined) {
-                response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr];
+                if (_.isArray(data.dataSources[itemData.src].data)) {
+                  if (data.dataSources[itemData.src].data[0].value) {
+                    response.data[itemUrl] = _.find(data.dataSources[itemData.src].data, { value: itemData.ptr });
+                  } else
+                    response.data[itemUrl] = data.dataSources[itemData.src].data[0][itemData.ptr];
+                }
+                else
+                  response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr];
               }
 
               let item = (data.itemReferences[response.version] && data.itemReferences[response.version][itemUrl]) || currentItems[itemUrl];
@@ -187,9 +195,7 @@ export const AppletMixin = {
               } else {
 
                 if (responseDataObj instanceof Array) {
-
                   responseDataObj.forEach((value, index) => {
-
                     if (value instanceof Object && !Array.isArray(value)) {
                       for (const [key2, value2] of Object.entries(value)) {
                         responseData += `${key2}: ${value2}`;
