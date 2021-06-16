@@ -137,7 +137,7 @@
                   <v-col md="9">
                     <template v-if="isEditing">
                       <v-combobox
-                        label="Keywords:"
+                        label="Enter Keywords"
                         v-model="keywords"
                         clearable
                         multiple
@@ -145,6 +145,7 @@
                         dense
                         solo
                         hide-details
+                        append-icon=""
                       />
                     </template>
                     <template v-else>
