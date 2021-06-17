@@ -80,6 +80,8 @@ export default class Item {
     this.allowEdit = data[ReproLib.allowEdit] && data[ReproLib.allowEdit][0]
       ? data[ReproLib.allowEdit][0]['@value'] : true;
     this.enableNegativeTokens = _.get(data, [ReproLib.responseOptions, 0, ReproLib.enableNegativeTokens, 0, '@value'], false);
+    this.isResponseIdentifier = _.get(data, [ReproLib.responseOptions, 0, 'reprolib:terms/isResponseIdentifier', 0, '@value'], false);
+    this.correctAnswer = _.get(data, ['schema:correctAnswer', 0, '@value'], null);
   }
 
   /**

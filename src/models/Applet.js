@@ -45,6 +45,7 @@ export default class Applet {
     this.tokens = {};
     this.hasTokenItem = false;
     this.availableDates = {};
+    this.secretIDs = [];
 
     this.selectedActivites = [];
 
@@ -316,6 +317,22 @@ export default class Applet {
       const activityId = activity.data._id.split('/')[1];
       await activity.addSubScaleValues(this.subScales[activityId] || {});
     }
+
+    const secretIDs = {};
+
+    for (const itemIRI in this.items) {
+      const item = this.items[itemIRI];
+
+      if (item.isResponseIdentifier) {
+        for (const response of item.responses) {
+          if (!secretIDs[response.value]) {
+            secretIDs[response.value] = true;
+          }
+        }
+      }
+    }
+
+    this.secretIDs = Object.keys(secretIDs);
   }
 
   async fetchVersions() {

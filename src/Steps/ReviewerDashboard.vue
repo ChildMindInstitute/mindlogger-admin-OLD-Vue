@@ -159,6 +159,17 @@
                 multiple
               />
             </div>
+
+            <div class="secret-id">
+              <v-select
+                v-model="selectedSecretIds"
+                :items="applet.secretIDs"
+                class="secret-id-list"
+                :menu-props="{ maxHeight: 232 }"
+                :label="$t('secretId')"
+                multiple
+              />
+            </div>
           </div>
           <div v-else class="review-header mb-2">
             <v-menu>
@@ -438,7 +449,8 @@
                             v-if="
                               item.allowEdit &&
                               (tab == 'tokens' || !item.partOfSubScale) &&
-                              (tab != 'tokens' || item.isTokenItem)
+                              (tab != 'tokens' || item.isTokenItem) &&
+                              (item.inputType !== 'text' || !item.correctAnswer && !item.isResponseIdentifier)
                             "
                             :key="item['id']"
                             class="chart-card"
@@ -652,7 +664,8 @@
 }
 
 .time-range,
-.version {
+.version,
+.secret-id {
   position: relative;
   display: flex;
   align-items: baseline;
@@ -830,6 +843,7 @@ export default {
       },
       allExpanded: false,
       responses: [],
+      selectedSecretIds: [],
       selectedTab: 0,
       selectedReviewTab: 1,
       panel: [],

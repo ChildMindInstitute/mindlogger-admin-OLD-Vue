@@ -363,5 +363,6 @@ export default {
   notes: 'Notes',
   reviewed: 'Reviewed',
   appletStatusUpdate: 'Updating Applet Status',
-  appletEditProgress: 'Your applet is being edited.'
+  appletEditProgress: 'Your applet is being edited.',
+  secretId: 'Secret Id'
 };
