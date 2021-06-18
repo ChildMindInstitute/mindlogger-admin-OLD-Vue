@@ -160,10 +160,14 @@
               />
             </div>
 
-            <div class="secret-id">
+            <div
+              v-if="secretIDs.length"
+              class="secret-id"
+            >
               <v-select
                 v-model="selectedSecretIds"
-                :items="applet.secretIDs"
+                @input="onChangeSecretId"
+                :items="secretIDs"
                 class="secret-id-list"
                 :menu-props="{ maxHeight: 232 }"
                 :label="$t('secretId')"
@@ -295,10 +299,12 @@
                           :data="activity.responses"
                           :label="activity.label.en || activity.description.en"
                           :color="activity.dataColor"
-                          :latest-score="activity.getLatestActivityScore()"
-                          :frequency="activity.getFrequency()"
+                          :latest-score="activity.getLatestActivityScore(selectedSecretIds)"
+                          :frequency="activity.getFrequency(selectedSecretIds)"
                           :sub-scales="activity.subScales"
                           :parent-width="panelWidth"
+                          :secret-ids="selectedSecretIds"
+                          :has-response-identifier="activity.hasResponseIdentifier"
                           :time-range="timeRange"
                           :item-padding="itemPadding"
                           @selectResponse="
@@ -344,7 +350,7 @@
                           v-if="tab != 'tokens' && activity.subScales.length"
                         >
                           <SubScaleLineChart
-                            v-if="activity.getFrequency() > 1"
+                            v-if="activity.getFrequency(selectedSecretIds) > 1"
                             :plot-id="`subscale-line-chart-${activity.slug}`"
                             :versions="applet.versions"
                             :focus-extent="focusExtent"
@@ -353,10 +359,12 @@
                             :timezone="applet.timezoneStr"
                             :activity="activity"
                             :parent-width="panelWidth"
+                            :secret-ids="selectedSecretIds"
+                            :has-response-identifier="activity.hasResponseIdentifier"
                           />
 
                           <SubScaleBarChart
-                            v-if="activity.getFrequency() == 1"
+                            v-if="activity.getFrequency(selectedSecretIds) == 1"
                             :plot-id="`subscale-bar-chart-${activity.slug}`"
                             :versions="applet.versions"
                             :focus-extent="focusExtent"
@@ -365,6 +373,8 @@
                             :timezone="applet.timezoneStr"
                             :activity="activity"
                             :parent-width="panelWidth"
+                            :secret-ids="selectedSecretIds"
+                            :has-response-identifier="activity.hasResponseIdentifier"
                           />
                         </template>
 
@@ -435,6 +445,8 @@
                                         :time-range="timeRange"
                                         :parent-width="panelWidth"
                                         :color="item.dataColor"
+                                        :secret-ids="selectedSecretIds"
+                                        :has-response-identifier="activity.hasResponseIdentifier"
                                       />
                                     </div>
                                   </template>
@@ -491,6 +503,8 @@
                               :time-range="timeRange"
                               :maxValue="getMaxValue(activity.items)"
                               :minValue="getMinValue(activity.items)"
+                              :secret-ids="selectedSecretIds"
+                              :has-response-identifier="activity.hasResponseIdentifier"
                             />
                             <RadioSlider
                               v-else-if="
@@ -508,6 +522,8 @@
                               :parent-width="panelWidth"
                               :time-range="timeRange"
                               :color="item.dataColor"
+                              :secret-ids="selectedSecretIds"
+                              :has-response-identifier="activity.hasResponseIdentifier"
                             />
 
                             <Frequency
@@ -524,6 +540,8 @@
                               :parent-width="panelWidth"
                               :time-range="timeRange"
                               :color="item.dataColor"
+                              :secret-ids="selectedSecretIds"
+                              :has-response-identifier="activity.hasResponseIdentifier"
                             />
 
                             <FreeTextTable
@@ -535,6 +553,8 @@
                               :selected-versions="selectedVersions"
                               :timezone="applet.timezoneStr"
                               :responses="applet.responses[item.schemas[0]]"
+                              :secret-ids="selectedSecretIds"
+                              :has-response-identifier="activity.hasResponseIdentifier"
                             />
                           </div>
                         </template>
@@ -554,6 +574,8 @@
                           :key="`response-${reviewing.key}`"
                           :activity="reviewing.activity"
                           :response-id="reviewing.responseId"
+                          :secret-ids="selectedSecretIds"
+                          :has-response-identifier="reviewing.activity.hasResponseIdentifier"
                         />
                       </v-card>
 
@@ -603,6 +625,7 @@
         :applet="applet"
         :date="reviewing.date"
         :current-response="reviewing.responseId"
+        :secret-ids="selectedSecretIds"
         @selectResponse="selectResponse"
       />
     </v-card>
@@ -866,6 +889,7 @@ export default {
         responseId: "",
         key: 0,
       },
+      secretIDs: [],
       responseDialog: false,
       cachedContents: {}
     };
@@ -929,7 +953,9 @@ export default {
         this.$store.state.currentAppletData.applet.encryption
       );
 
-      this.selectedSecretIds = this.applet.secretIDs.map(id => id);
+      const secretIDs = Object.values(this.applet.secretIDs);
+      this.secretIDs = secretIDs.filter((value, index) => secretIDs.indexOf(value) == index);
+      this.selectedSecretIds = this.secretIDs.map(id => id);
 
       this.setDashboardTabs();
       this.selectedVersions = this.appletVersions;
@@ -991,9 +1017,22 @@ export default {
 
       if (
         this.applet.activities &&
-        this.applet.activities.some((activity) => activity.getFrequency() > 0)
+        this.applet.activities.some((activity) => activity.getFrequency(this.selectedSecretIds) > 0)
       ) {
         this.tabs.push("review");
+      }
+    },
+
+    onChangeSecretId() {
+      for (let activity of this.applet.activities) {
+        if (activity.subScales.length) {
+          if (this.secretIDs.indexOf(activity.subScales[0].current.secretId)) {
+            this.showSubScale({
+              activity,
+              responseId: null
+            });
+          }
+        }
       }
     },
 
@@ -1066,8 +1105,15 @@ export default {
      * @return {boolean} whether this options should be enabled.
      */
     responseExists(date) {
-      if (this.applet.availableDates[moment(date).format("L")]) {
-        return true;
+      const responseId = this.applet.availableDates[moment(date).format("L")];
+
+      if (responseId) {
+        if (
+          !this.secretIDs.length ||
+          this.selectedSecretIds.includes(this.applet.secretIDs[responseId])
+        ) {
+          return true;
+        }
       }
 
       return false;

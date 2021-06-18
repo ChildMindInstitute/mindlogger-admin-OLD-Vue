@@ -178,7 +178,7 @@ export default class Item {
           value: response.value[0],
           version: response.version,
           responseId: response.responseId,
-          secretID: (secretIDs[response.responseId] || null)
+          secretId: (secretIDs[response.responseId] || null)
         };
       }
 
@@ -201,7 +201,7 @@ export default class Item {
           date: new Date(response.date),
           version: response.version,
           responseId: response.responseId,
-          secretID: (secretIDs[response.responseId] || null)
+          secretId: (secretIDs[response.responseId] || null)
         },
       );
     }));

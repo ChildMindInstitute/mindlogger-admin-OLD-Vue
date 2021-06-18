@@ -210,6 +210,14 @@ export default {
     },
     currentResponseDate() {
       this.render();
+    },
+    secretIds: {
+      deep: true,
+      handler() {
+        if (this.hasResponseIdentifier) {
+          this.render();
+        }
+      }
     }
   },
   mounted() {
@@ -223,7 +231,7 @@ export default {
         const responseId = this.activity.subScales[0].current.responseId;
         const d = this.activity.subScales[0].values.find(d => d.value.responseId == responseId);
 
-        return new Date(d.date);
+        return d ? new Date(d.date) : null;
       }
 
       return null;
@@ -329,7 +337,9 @@ export default {
         .attr('fill', 'transparent')
         .attr('d', subScale => {
           const d = subScale.values.filter(
-            value => !this.currentResponseDate || new Date(value.date) >= this.currentResponseDate
+            value =>
+              (!this.currentResponseDate || new Date(value.date) >= this.currentResponseDate) &&
+              (!this.hasResponseIdentifier || this.secretIds.includes(value.secretId))
           ).map(d => {
             if (this.selectedVersions.includes(d.version)) {
               const x = this.getX(d);

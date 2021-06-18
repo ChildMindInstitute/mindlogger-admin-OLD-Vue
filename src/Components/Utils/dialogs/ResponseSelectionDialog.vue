@@ -58,6 +58,10 @@ export default {
     currentResponse: {
       type: String,
       required: true
+    },
+    secretIds: {
+      type: Array,
+      required: true
     }
   },
   data() {
@@ -71,7 +75,11 @@ export default {
 
       return this.applet.activities.map(activity => ({
         label: activity.label,
-        responses: activity.responses.filter(response => date == moment(new Date(response.date)).format('L')).map(response => ({
+        responses: activity.responses.filter(
+          response =>
+            date == moment(new Date(response.date)).format('L') &&
+            (!this.secretIds.length || this.secretIds.includes(response.secretId))
+        ).map(response => ({
           time: moment(new Date(response.date)).format('hh:mm:ss A'),
           ...response
         })),

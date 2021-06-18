@@ -31,7 +31,7 @@ export default class Activity {
 
     this.subScales = this.parseSubScales(data[ReproLib.subScales]);
     this.finalSubScale = this.parseFinalSubScale(data[ReproLib.finalSubScale] && data[ReproLib.finalSubScale][0]);
-
+    this.hasResponseIdentifier = _.get(data, ["reprolib:terms/hasResponseIdentifier", 0, "@value"], false);
     if (this.finalSubScale) {
       this.subScales.push(this.finalSubScale);
     }
@@ -175,7 +175,7 @@ export default class Activity {
     }
   }
 
-  getLatestActivityScore() {
+  getLatestActivityScore(selectedSecretIds) {
     if (this.finalSubScale && this.finalsubScale.current) {
       return Number(this.finalsubScale.current.tScore.toFixed(10));
     }
@@ -188,15 +188,20 @@ export default class Activity {
         continue;
       }
 
-      if (values.length) {
-        total += values[0].value.tScore;
+      const index = values.findIndex(d => selectedSecretIds.includes(d.value.secretId));
+      if (index >= 0) {
+        total += values[index].value.tScore;
       }
     }
 
     return Number(total.toFixed(10));
   }
 
-  getFrequency() {
+  getFrequency(secretIds) {
+    if (this.hasResponseIdentifier) {
+      return this.responses.filter(response => secretIds.includes(response.secretId)).length;
+    }
+
     return this.responses.length;
   }
 

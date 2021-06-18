@@ -31,6 +31,15 @@ export const DrawingMixin = {
     timezone: {
       type: String,
       required: true,
+    },
+    secretIds: {
+      type: Array,
+      required: []
+    },
+    hasResponseIdentifier: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data: function () {

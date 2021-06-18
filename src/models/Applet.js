@@ -45,7 +45,7 @@ export default class Applet {
     this.tokens = {};
     this.hasTokenItem = false;
     this.availableDates = {};
-    this.secretIDs = [];
+    this.secretIDs = {};
 
     this.selectedActivites = [];
 
@@ -264,7 +264,7 @@ export default class Applet {
       }
     }
 
-    this.secretIDs = Object.values(secretIDs);
+    this.secretIDs = secretIDs;
 
     /** append responses */
     for (let itemId of itemIDGroup) {
@@ -302,7 +302,7 @@ export default class Applet {
           date: response.date,
           version: response.version,
           responseId: response.responseId,
-          secretId: response.secretID
+          secretId: response.secretId
         })));
       }
 
@@ -318,7 +318,7 @@ export default class Applet {
       });
 
       for (const response of activity.responses) {
-        this.availableDates[moment(response.date).format('L')] = true;
+        this.availableDates[moment(response.date).format('L')] = response.responseId;
 
         for (const response of activity.responses) {
           if (!activity.lastResponseDate || activity.lastResponseDate < response.date) {
@@ -332,6 +332,15 @@ export default class Applet {
       activity.initSubScaleItems();
 
       const activityId = activity.data._id.split('/')[1];
+
+      for (const subScaleName in this.subScales[activityId]) {
+        const responses = this.subScales[activityId][subScaleName];
+
+        for (const response of responses) {
+          response.value.secretId = secretIDs[response.value.responseId];
+        }
+      }
+
       await activity.addSubScaleValues(this.subScales[activityId] || {});
     }
   }
