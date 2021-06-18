@@ -929,6 +929,8 @@ export default {
         this.$store.state.currentAppletData.applet.encryption
       );
 
+      this.selectedSecretIds = this.applet.secretIDs.map(id => id);
+
       this.setDashboardTabs();
       this.selectedVersions = this.appletVersions;
       this.loading = false;

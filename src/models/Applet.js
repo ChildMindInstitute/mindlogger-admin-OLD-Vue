@@ -250,9 +250,25 @@ export default class Applet {
       });
     }
 
+    const secretIDs = {};
+
+    for (const itemIRI of itemIDGroup) {
+      const item = this.items[itemIRI];
+
+      if (item.isResponseIdentifier) {
+        for (const response of data.responses[itemIRI]) {
+          if (!secretIDs[response.responseId]) {
+            secretIDs[response.responseId] = response.value;
+          }
+        }
+      }
+    }
+
+    this.secretIDs = Object.values(secretIDs);
+
     /** append responses */
     for (let itemId of itemIDGroup) {
-      this.items[itemId].appendResponses(data.responses[itemId], this.items[itemId].inputType);
+      this.items[itemId].appendResponses(data.responses[itemId], this.items[itemId].inputType, secretIDs);
     }
 
     for (let itemId of itemIDGroup) {
@@ -285,7 +301,8 @@ export default class Applet {
         activity.responses.push(...item.responses.map(response => ({
           date: response.date,
           version: response.version,
-          responseId: response.responseId
+          responseId: response.responseId,
+          secretId: response.secretID
         })));
       }
 
@@ -317,22 +334,6 @@ export default class Applet {
       const activityId = activity.data._id.split('/')[1];
       await activity.addSubScaleValues(this.subScales[activityId] || {});
     }
-
-    const secretIDs = {};
-
-    for (const itemIRI in this.items) {
-      const item = this.items[itemIRI];
-
-      if (item.isResponseIdentifier) {
-        for (const response of item.responses) {
-          if (!secretIDs[response.value]) {
-            secretIDs[response.value] = true;
-          }
-        }
-      }
-    }
-
-    this.secretIDs = Object.keys(secretIDs);
   }
 
   async fetchVersions() {

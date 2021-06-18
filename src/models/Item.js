@@ -159,7 +159,7 @@ export default class Item {
     return this.inputType == 'radio' && this.multipleChoice;
   }
 
-  appendResponses(responses, inputType) {
+  appendResponses(responses, inputType, secretIDs) {
     this.responses = this.responses.concat(responses.map(response => {
       if (response.value.value !== undefined) {
         response.value = response.value.value;
@@ -177,7 +177,8 @@ export default class Item {
           date: new Date(response.date),
           value: response.value[0],
           version: response.version,
-          responseId: response.responseId
+          responseId: response.responseId,
+          secretID: (secretIDs[response.responseId] || null)
         };
       }
 
@@ -199,7 +200,8 @@ export default class Item {
         {
           date: new Date(response.date),
           version: response.version,
-          responseId: response.responseId
+          responseId: response.responseId,
+          secretID: (secretIDs[response.responseId] || null)
         },
       );
     }));
