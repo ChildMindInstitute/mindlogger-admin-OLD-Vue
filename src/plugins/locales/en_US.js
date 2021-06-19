@@ -276,6 +276,7 @@ export default {
   userDataStoredFor: 'User data will be stored for',
   remove: 'Remove',
   cancel: 'Cancel',
+  latestScore: 'Latest Score',
   welcomeMindLogger: 'Welcome to MindLogger!',
   getStarted: 'Let\'s get started by creating a new applet or uploading one.',
   navigateSpaceText: 'If you\'ve been invited to MindLogger as part of a team, the people icon at the top right will take you to the team\'s applets.',

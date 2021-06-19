@@ -277,6 +277,7 @@ export default {
   deleteApplet: "Supprimer l'applet",
   remove: 'Retirer',
   cancel: 'Annuler',
+  latestScore: 'Latest Score',
   welcomeMindLogger: 'Bienvenue sur MindLogger!',
   getStarted: 'Pour commencer, téléchargez votre première applet ou créez-en une.',
   navigateSpaceText: 'Si vous avez été invité à MindLogger en tant que membre d\'une équipe, utilisez l\'icône de personnes en haut à droite pour accéder à cet espace',
