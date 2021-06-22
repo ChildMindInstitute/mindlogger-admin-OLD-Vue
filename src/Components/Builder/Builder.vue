@@ -353,7 +353,7 @@ export default {
       this.loading = isLoading;
     },
     onSwitchToLibrary(appletBuilderData) {
-      api.createToken({
+      api.getOneTimeToken({
         apiHost: this.$store.state.backend,
         token: this.$store.state.auth.authToken.token,
       }).then((res) => {
