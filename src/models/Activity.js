@@ -176,8 +176,8 @@ export default class Activity {
   }
 
   getLatestActivityScore() {
-    if (this.finalSubScale && this.finalsubScale.current) {
-      return Number(this.finalsubScale.current.tScore.toFixed(10));
+    if (this.finalSubScale && this.finalSubScale.current) {
+      return Number(this.finalSubScale.current.tScore.toFixed(10));
     }
 
     let total = 0;

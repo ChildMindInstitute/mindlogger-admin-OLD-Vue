@@ -308,7 +308,7 @@
                         <div
                           v-if="
                             activity.finalSubScale &&
-                            activity.finalsubScale.current.outputText
+                            activity.finalSubScale.current.outputText
                           "
                           class="additional-note mt-4"
                         >
@@ -317,7 +317,7 @@
                           </header>
                           <div class="subscale-output">
                             <mavon-editor
-                              :value="activity.finalsubScale.current.outputText"
+                              :value="activity.finalSubScale.current.outputText"
                               :language="'en'"
                               :toolbarsFlag="false"
                             >
