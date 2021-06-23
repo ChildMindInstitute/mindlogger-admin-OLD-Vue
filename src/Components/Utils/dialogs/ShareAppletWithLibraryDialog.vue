@@ -334,6 +334,7 @@ export default {
       const updateAppletDetails = debounce(async() => {
         if (!this.isPublished) {
           await this.publishAppletToLibrary(this.appletId, true);
+          this.appletUrl = await this.getAppletLibraryUrl(this.appletId);
         }
         await this.updateAppletSearchTerms(this.appletId, {
           // category: this.categoryName,

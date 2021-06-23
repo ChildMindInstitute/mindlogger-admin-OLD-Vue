@@ -593,14 +593,6 @@ const getBasketContent = ({ apiHost, token }) =>
     },
   });
 
-const createToken = ({ apiHost, token }) =>
-  axios({
-    method: 'post',
-    url: `${apiHost}/user/token`,
-    headers: {
-      'Girder-Token': token,
-    },
-  });
 const checkAppletNameInLibrary = (apiHost, token, appletId, appletName) => {
   return axios({
     method: 'get',
@@ -789,7 +781,6 @@ export default {
   togglePin,
   updateAlertStatus,
   getBasketContent,
-  createToken,
   checkAppletNameInLibrary,
   changeAppletName,
   getLibraryCategories,
