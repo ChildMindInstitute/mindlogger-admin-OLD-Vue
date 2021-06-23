@@ -360,76 +360,25 @@
                         <v-expansion-panels
                           v-if="tab != 'tokens'"
                           v-model="activity.selectedSubScales"
-                          class="mt-4 sub-scale"
+                          class="mt-4"
                           focusable
                           multiple
                         >
                           <template v-for="subScale in activity.subScales">
-                            <v-expansion-panel
-                              v-if="applet && !subScale.isFinalSubScale"
+                            <SubScaleComponent
+                              v-if="applet && !subScale.isFinalSubScale && !subScale.partOfSubScale"
                               :key="subScale.variableName"
-                            >
-                              <v-expansion-panel-header>
-                                <h4>
-                                  {{ subScale.variableName }}
-                                  ( {{ $t("score") }}: {{ subScale.current.tScore }} )
-                                </h4>
-                              </v-expansion-panel-header>
-
-                              <v-expansion-panel-content>
-                                <div>
-                                  <div
-                                    v-if="subScale.current.outputText"
-                                    class="additional-note"
-                                  >
-                                    <header>
-                                      <h3>- Additional Information</h3>
-                                    </header>
-                                    <div class="subscale-output">
-                                      <mavon-editor
-                                        :value="subScale.current.outputText"
-                                        :language="'en'"
-                                        :toolbarsFlag="false"
-                                      >
-                                      </mavon-editor>
-                                    </div>
-                                  </div>
-                                  <template v-for="item in subScale.items">
-                                    <div :key="item['id']" class="chart-card">
-                                      <header>
-                                        <h3 v-if="item.inputType !== 'markdownMessage'">
-                                          <vue-markdown class="item-question">
-                                            {{ item.getFormattedQuestion() }}
-                                          </vue-markdown>
-                                        </h3>
-
-                                        <h3 v-else>- {{ item.label.en }}</h3>
-                                      </header>
-
-                                      <RadioSlider
-                                        v-if="
-                                          tab == 'responses' &&
-                                          item.responseOptions &&
-                                          applet.selectedActivites.includes(
-                                            index
-                                          )
-                                        "
-                                        :plot-id="`RadioSlider-${activity.slug}-${subScale.slug}-${item.slug}`"
-                                        :item="item"
-                                        :versions="applet.versions"
-                                        :focus-extent="focusExtent"
-                                        :selected-versions="selectedVersions"
-                                        :timezone="applet.timezoneStr"
-                                        :has-version-bars="hasVersionBars"
-                                        :time-range="timeRange"
-                                        :parent-width="panelWidth"
-                                        :color="item.dataColor"
-                                      />
-                                    </div>
-                                  </template>
-                                </div>
-                              </v-expansion-panel-content>
-                            </v-expansion-panel>
+                              :applet="applet"
+                              :activity="activity"
+                              :subScale="subScale"
+                              :tab="tab"
+                              :index="index"
+                              :focusExtent="focusExtent"
+                              :selectedVersions="selectedVersions"
+                              :hasVersionBars="hasVersionBars"
+                              :timeRange="timeRange"
+                              :panelWidth="panelWidth"
+                            />
                           </template>
                         </v-expansion-panels>
 
@@ -715,10 +664,6 @@
   padding: 24px;
 }
 
-.sub-scale .chart-card {
-  padding: 24px 0px;
-}
-
 .activity-header {
   margin: 24px 0;
 }
@@ -784,6 +729,7 @@ import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChar
 import ResponseSelectionDialog from "../Components/Utils/dialogs/ResponseSelectionDialog";
 import Responses from "../Components/DataViewerComponents/Responses";
 import Notes from "../Components/DataViewerComponents/Notes";
+import SubScaleComponent from "../Components/DataViewerComponents/SubScaleComponent";
 
 import * as moment from "moment-timezone";
 
@@ -806,6 +752,7 @@ export default {
     ResponseSelectionDialog,
     Responses,
     Notes,
+    SubScaleComponent,
   },
 
   /**
