@@ -100,7 +100,9 @@ export default class Activity {
         variableName,
         dataColor: RESPONSE_COLORS[index % RESPONSE_COLORS.length],
         slug: slugify(variableName),
-        current: { tScore: 0, outputText: '' }
+        current: { tScore: 0, outputText: '' },
+        partOfSubScale: false,
+        subScales: []
       }
     })
   }
@@ -122,15 +124,25 @@ export default class Activity {
       dataColor: RESPONSE_COLORS[this.subScales.length % RESPONSE_COLORS.length],
       slug: slugify(variableName),
       current: { tScore: 0, outputText: '' },
-      isFinalSubScale: true
+      isFinalSubScale: true,
+      partOfSubScale: false
     }
   }
 
   initSubScaleItems() {
     for (let subScale of this.subScales) {
       let itemNames = (subScale.jsExpression || '').split(' + ').map(name => name.trim());
+      let subScaleNames = itemNames.filter(name => name.match(/^\(.*\)$/i)).map(name => name.substr(1, name.length-2));
 
       subScale.items = [];
+      subScale.subScales = [];
+      subScaleNames.forEach(name => {
+        const innerSubScale = this.subScales.find(d => d.variableName == name);
+        if (innerSubScale) {
+          innerSubScale.partOfSubScale = true;
+          subScale.subScales.push(innerSubScale);
+        }
+      });
 
       for (let i = 0; i < this.items.length; i++) {
         if (itemNames.includes(this.items[i].label.en)) {
@@ -176,8 +188,8 @@ export default class Activity {
   }
 
   getLatestActivityScore() {
-    if (this.finalSubScale && this.finalsubScale.current) {
-      return Number(this.finalsubScale.current.tScore.toFixed(10));
+    if (this.finalSubScale && this.finalSubScale.current) {
+      return Number(this.finalSubScale.current.tScore.toFixed(10));
     }
 
     let total = 0;
