@@ -69,14 +69,16 @@ export default {
     activities() {
       const date = moment(new Date(this.date)).format('L');
 
-      return this.applet.activities.map(activity => ({
+      return this.applet.activities.map(activity => {
+        console.log(activity);
+        return({
         label: activity.label,
         responses: activity.responses.filter(response => date == moment(new Date(response.date)).format('L')).map(response => ({
           time: moment(new Date(response.date)).format('hh:mm:ss A'),
           ...response
         })),
         slug: activity.slug
-      })).filter(activity => activity.responses.length);
+      })}).filter(activity => activity.responses.length);
     }
   },
   methods: {
