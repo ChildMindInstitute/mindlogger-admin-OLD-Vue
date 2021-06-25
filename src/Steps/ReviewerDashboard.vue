@@ -816,10 +816,10 @@ export default {
       return this.$store.state.currentAppletData;
     },
     fromDate() {
-      return moment(this.focusExtent[0]).format("ddd, D MMM YYYY");
+      return moment.utc(this.focusExtent[0]).format("ddd, D MMM YYYY");
     },
     toDate() {
-      return moment(this.focusExtent[1]).format("ddd, D MMM YYYY");
+      return moment.utc(this.focusExtent[1]).format("ddd, D MMM YYYY");
     },
     reviewingDate() {
       return (
@@ -1114,7 +1114,7 @@ export default {
      * @returns {void}
      */
     setStartDate(date) {
-      let startDate = moment(date);
+      let startDate = moment.utc(date);
       if (this.startTime) {
         const time = moment(this.startTime, "HH:mm");
 
@@ -1132,7 +1132,7 @@ export default {
      * @returns {void}
      */
     setEndDate(date) {
-      let endDate = moment(date);
+      let endDate = moment.utc(date);
 
       if (this.endTime) {
         const time = moment(this.endTime, "HH:mm");
