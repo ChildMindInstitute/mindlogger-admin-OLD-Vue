@@ -258,9 +258,7 @@ export default {
         .data(this.data.filter(d => this.selectedVersions.indexOf(d.version) >= 0 && d.date >= this.focusExtent[0] && d.date <= this.focusExtent[1]))
         .join('circle')
         .attr('fill', this.color)
-        .attr('cx', d => {
-          return this.getX(d);
-        })
+        .attr('cx', d => this.x(d.date))
         .attr('cy', this.radius + this.padding.top)
         .attr('r', d => this.x(d.date) >= 0 ? this.radius : 0)
         .style('outline', d =>
