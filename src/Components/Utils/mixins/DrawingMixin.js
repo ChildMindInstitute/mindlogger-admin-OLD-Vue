@@ -97,7 +97,7 @@ export const DrawingMixin = {
       const dataVersion = this.formattedVersions.find(v => v.version === d.version );
 
       if (dataVersion && dataVersion.updated) {
-        const offset = this.versionsLength[new Date(dataVersion.updated).getDay()] / 2;
+        const offset = this.versionsLength[new Date(dataVersion.updated).getDay()] / 1.7;
         responseDate = new Date(d.date).setHours(new Date (dataVersion.updated).getHours() + offset);
       }
       return this.x(responseDate);

@@ -9,6 +9,7 @@ import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import fr from 'javascript-time-ago/locale/fr';
 import Activity from "../../../models/Activity";
+import moment from "moment";
 TimeAgo.addLocale(en);
 TimeAgo.addLocale(fr);
 
@@ -255,11 +256,11 @@ export const AppletMixin = {
                 });
               }
 
-              result.push({
+              const csvObj = {
                 id: response._id,
                 activity_scheduled_time: response.responseScheduled || 'not scheduled',
-                activity_start_time: response.responseStarted || null,
-                activity_end_time: response.responseCompleted || null,
+                activity_start_time: typeof response.responseStarted === "number" ? moment(response.responseStarted).format("LLL") : response.responseStarted || null,
+                activity_end_time: typeof response.responseCompleted === "number" ? moment(response.responseCompleted).format("LLL") : response.responseCompleted || null,
                 flag,
                 secret_user_id: MRN || null,
                 userId: _id,
@@ -273,7 +274,10 @@ export const AppletMixin = {
                 rawScore: scores.reduce((accumulated, current) => current + accumulated, 0),
                 ... (!isSubScaleExported ? response.subScales : {}),
                 ... (!isSubScaleExported ? outputTexts : {})
-              });
+              }
+
+              if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined) continue;
+              result.push(csvObj);
 
               isSubScaleExported = true;
             }
