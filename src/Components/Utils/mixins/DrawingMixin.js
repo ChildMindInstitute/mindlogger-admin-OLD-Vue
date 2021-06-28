@@ -54,53 +54,25 @@ export const DrawingMixin = {
     }
   },
   computed: {
-    versionsLength() {
-      const versionsLength = {};
-      this.versions.forEach(version => {
-        if (version.updated) {
-          const updatedDay = new Date(version.updated).getDay();
-          versionsLength[updatedDay] = versionsLength[updatedDay]
-            ? versionsLength[updatedDay] + 1
-            : 2;
-        }
-      });
-
-      return versionsLength;
-    },
     formattedVersions() {
       let offset = `${this.timezone[0] === '+' ? '-' : '+'}${this.timezone.substr(1)}`;
-      let timeZoneIndex = new Date().getTimezoneOffset() / (-60);
-      let versionHours = 24;
 
       return this.versions.map(version => {
         if (!version.updated) {
           return version;
         }
 
-        const hour = 24 / this.versionsLength[new Date(version.updated).getDay()];
-        const formatted = new Date(version.updated.slice(0, -6) + offset);
-        const versionDate = new Date(formatted).setHours(versionHours - hour + timeZoneIndex, 0, 1);
-        versionHours = (versionHours === hour * 2) ? 24 : versionHours - hour;
-
-        const formattedDate = new Date(versionDate).toISOString();
         return {
           version: version.version,
           barColor: version.barColor || "#000000",
-          updated: new Date(formattedDate.slice(0, -5))
+          updated: new Date(version.updated.slice(0, -6) + offset)
         }
       })
     }
   },
   methods: {
     getX(d) {
-      let responseDate = new Date(d.date);
-      const dataVersion = this.formattedVersions.find(v => v.version === d.version );
-
-      if (dataVersion && dataVersion.updated) {
-        const offset = this.versionsLength[new Date(dataVersion.updated).getDay()] / 1.7;
-        responseDate = new Date(d.date).setHours(new Date (dataVersion.updated).getHours() + offset);
-      }
-      return this.x(responseDate);
+      return this.x(new Date(d.date));
     },
 
     drawVersions() {
