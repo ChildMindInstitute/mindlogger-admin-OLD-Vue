@@ -1013,9 +1013,20 @@ export default {
     isAllowedEndDate(date) {
       let NOW = new Date();
       NOW.setDate(NOW.getDate() + 1);
+      let endDate = moment.utc(date);
+
+      if (this.endTime) {
+        const time = moment(this.endTime, "HH:mm");
+
+        endDate.set({
+          hour:   time.get('hour'),
+          minute: time.get('minute')
+        });
+      }
+
       return (
-        moment.utc(date) > this.focusExtent[0] &&
-        moment.utc(date) <= moment.utc(NOW)
+        moment.utc(endDate) >= this.focusExtent[0] &&
+        moment.utc(endDate) <= moment.utc(NOW)
       );
     },
 
