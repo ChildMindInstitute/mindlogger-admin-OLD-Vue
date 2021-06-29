@@ -953,6 +953,13 @@ export default {
     },
 
     async showSubScale({ activity, responseId }) {
+      const activityIndex = this.applet.activities.indexOf(activity);
+      if (
+        activityIndex >= 0 &&
+        this.applet.selectedActivites.indexOf(activityIndex) < 0) {
+        this.applet.selectedActivites.push(activityIndex);
+      }
+
       for (let subScale of activity.subScales) {
         const current = subScale.values.find(data => data.value.responseId == responseId);
 
