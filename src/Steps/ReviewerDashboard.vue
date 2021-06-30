@@ -824,13 +824,14 @@ export default {
     reviewingDate() {
       return (
         this.reviewing.date &&
-        moment.utc(new Date(this.reviewing.date)).format("ddd, D MMM YYYY")
+        moment(new Date(this.reviewing.date)).format("ddd, D MMM YYYY")
       );
     },
     reviewingTime() {
       return (
         this.reviewing.date &&
-        moment.utc(new Date(this.reviewing.date)).format("hh:mm:ss A")
+        this.reviewing.responseId && moment.utc(new Date(this.reviewing.date)).format("hh:mm:ss A") ||
+        '00:00:00 AM'
       );
     },
   },
