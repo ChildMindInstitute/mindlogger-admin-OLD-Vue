@@ -74,7 +74,7 @@ export default {
         return({
         label: activity.label,
         responses: activity.responses.filter(response => date == moment(new Date(response.date)).format('L')).map(response => ({
-          time: moment(new Date(response.date)).format('hh:mm:ss A'),
+          time: moment.utc(new Date(response.date)).format('hh:mm:ss A'),
           ...response
         })),
         slug: activity.slug
