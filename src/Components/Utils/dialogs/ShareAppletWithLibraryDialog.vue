@@ -25,9 +25,9 @@
                   $t("shareAppletSetDetails", { appletName: appletData.name })
                 }}
               </div>
-              <template v-if="isPublished">
+              <template v-if="isPublished && appletUrl">
                 <a
-                  href
+                  :href="'https://' + appletUrl"
                   class="copy-link"
                   @click.stop.prevent="onCopyLink"
                   @mousedown.stop
@@ -35,6 +35,7 @@
                   {{ $t("shareAppletCopyLink") }}
                 </a>
                 <input
+                  id="AppletURL"
                   type="text"
                   class="applet-url"
                   ref="appletUrl"
@@ -136,7 +137,7 @@
                   <v-col md="9">
                     <template v-if="isEditing">
                       <v-combobox
-                        label="Keywords:"
+                        label="Enter Keywords"
                         v-model="keywords"
                         clearable
                         multiple
@@ -144,6 +145,7 @@
                         dense
                         solo
                         hide-details
+                        append-icon=""
                       />
                     </template>
                     <template v-else>
@@ -199,6 +201,7 @@
 <script>
 import debounce from "debounce-promise";
 import { AppletLibraryMixin } from "@/Components/Utils/mixins/AppletLibraryMixin";
+import copy from "copy-to-clipboard";
 
 export default {
   name: "ShareAppletWithLibraryDialog",
@@ -322,8 +325,7 @@ export default {
     },
     onCopyLink() {
       this.clipboardCopied = true;
-      this.$refs.appletUrl.select();
-      document.execCommand("copy");
+      copy(this.appletUrl);
     },
     onChangeCategoryId() {
       this.subCategoryId = null;
@@ -332,6 +334,7 @@ export default {
       const updateAppletDetails = debounce(async() => {
         if (!this.isPublished) {
           await this.publishAppletToLibrary(this.appletId, true);
+          this.appletUrl = await this.getAppletLibraryUrl(this.appletId);
         }
         await this.updateAppletSearchTerms(this.appletId, {
           // category: this.categoryName,

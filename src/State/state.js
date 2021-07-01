@@ -146,6 +146,9 @@ const mutations = {
 
     state.userEmail = userData.email;
   },
+  setOwnerAccount(state, account) {
+    state.ownerAccount = account;
+  },
   setCachedEvents(state, events) {
     if (events) {
       state.cachedEvents = events;

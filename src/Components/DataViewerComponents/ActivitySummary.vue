@@ -23,12 +23,24 @@
       </v-list-item>
     </v-list>
 
+    <div
+      v-if="fullActivityName"
+      class="tooltip pa-2 tooltip-text"
+      :style="`left: ${labelWidth/4}px; top: ${padding.top + radius + 30}px; width: ${tooltipWidth}px; max-height: ${tooltipHeight}px`"
+    >
+      {{ label }}
+    </div>
+
     <svg
       :id="plotId"
       :height="height"
       width="100%"
     >
-      <g class="labels">
+      <g
+        @mouseenter="fullActivityName = true"
+        @mouseleave="fullActivityName = false"
+        class="labels"
+      >
         <text
           :y="padding.top + radius + 15/2"
           :x="labelWidth/2 + 20"
@@ -60,7 +72,10 @@
       >
         <g class="x-axis" />
         <g class="versions" />
-        <g class="responses" />
+        <g
+          @click="onClickSVG"
+          class="responses"
+        />
       </g>
     </svg>
   </div>
@@ -82,6 +97,14 @@
   padding: 2px;
   background: white;
   z-index: 100;
+}
+
+.tooltip-text {
+  border-radius: 4px;
+  background: black;
+  color: white;
+  text-align: center;
+  opacity: 0.75;
 }
 
 .tooltip-item:hover {
@@ -155,7 +178,8 @@ export default {
       tooltipWidth: 200,
       tooltipHeight: 110,
       currentResponse: null,
-      currentResponseId
+      fullActivityName: false,
+      currentResponseId,
     }
   },
   computed: {
@@ -222,6 +246,12 @@ export default {
       return d3.timeDay;
     },
 
+    onClickSVG(e) {
+      if (this.currentResponse) {
+        e.stopPropagation();
+      }
+    },
+
     drawAxes() {
       this.x = d3
         .scaleUtc()
@@ -258,9 +288,7 @@ export default {
         .data(this.data.filter(d => this.selectedVersions.indexOf(d.version) >= 0 && d.date >= this.focusExtent[0] && d.date <= this.focusExtent[1]))
         .join('circle')
         .attr('fill', this.color)
-        .attr('cx', d => {
-          return this.getX(d);
-        })
+        .attr('cx', d => this.x(d.date))
         .attr('cy', this.radius + this.padding.top)
         .attr('r', d => this.x(d.date) >= 0 ? this.radius : 0)
         .style('outline', d =>

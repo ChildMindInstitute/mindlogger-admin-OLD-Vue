@@ -1,6 +1,6 @@
 {
   "name": "mindlogger-admin",
-  "version": "0.6.20",
+  "version": "0.6.23",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --mode local",
@@ -28,7 +28,9 @@
     "aws-sdk": "^2.889.0",
     "axios": "^0.19.2",
     "babel-loader": "^7.1.5",
+    "copy-to-clipboard": "^3.3.1",
     "crypto": "^1.0.1",
+    "crypto-browserify": "^3.12.0",
     "d3": "5",
     "dayspan-vuetify-2": "^0.2.0",
     "debounce-promise": "^3.1.2",

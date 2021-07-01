@@ -1,3 +1,4 @@
+import _ from "lodash";
 import api from "../api/api.vue";
 import Applet from "../../../models/Applet";
 import Item from "../../../models/Item";
@@ -8,6 +9,7 @@ import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import fr from 'javascript-time-ago/locale/fr';
 import Activity from "../../../models/Activity";
+import moment from "moment";
 TimeAgo.addLocale(en);
 TimeAgo.addLocale(fr);
 
@@ -72,13 +74,12 @@ export const AppletMixin = {
           });
         }
 
-        return api
-          .getUsersData({
-            apiHost: this.$store.state.backend,
-            token: this.$store.state.auth.authToken.token,
-            appletId: appletId,
-            options: payload,
-          })
+        return api.getUsersData({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          appletId: appletId,
+          options: payload,
+        })
       })
         .then((resp) => {
           const { data } = resp;
@@ -158,14 +159,14 @@ export const AppletMixin = {
             for (let itemUrl in response.data) {
               let itemData = response.data[itemUrl];
 
-              if (itemData && itemData.ptr !== undefined && itemData.src !== undefined) {
-                response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr];
-              }
-
               let item = (data.itemReferences[response.version] && data.itemReferences[response.version][itemUrl]) || currentItems[itemUrl];
 
               if (!item) {
                 continue;
+              }
+
+              if (itemData && itemData.ptr !== undefined && itemData.src !== undefined) {
+                response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr];
               }
 
               let activity = currentItems[itemUrl] ?
@@ -186,21 +187,16 @@ export const AppletMixin = {
               if (!responseDataObj) {
                 responseData = null;
               } else {
-
                 if (responseDataObj instanceof Array) {
-
                   responseDataObj.forEach((value, index) => {
-
                     if (value instanceof Object && !Array.isArray(value)) {
-                      for (const [key2, value2] of Object.entries(value)) {
-                        responseData += `${key2}: ${value2}`;
-                      }
+                      responseData += Object.entries(value).map(entry => `${entry[0]}: ${entry[1]}`).join(', ');
                     } else {
                       responseData += `${index}: ${value}`;
                     }
 
                     if (index !== responseDataObj.length - 1)
-                      responseData += ' | ';
+                      responseData += '\r\n\r\n';
                   });
 
                 } else if (responseDataObj instanceof Object) {
@@ -240,7 +236,7 @@ export const AppletMixin = {
                 }
               }
 
-              const question = item.question['en']
+              const question = item.question.en && item.question['en']
                 .replace(/\r?\n|\r/g, '')
                 .split('250)');
 
@@ -260,25 +256,28 @@ export const AppletMixin = {
                 });
               }
 
-              result.push({
+              const csvObj = {
                 id: response._id,
                 activity_scheduled_time: response.responseScheduled || 'not scheduled',
-                activity_start_time: response.responseStarted || null,
-                activity_end_time: response.responseCompleted || null,
+                activity_start_time: typeof response.responseStarted === "number" ? moment(response.responseStarted).format("LLL") : response.responseStarted || null,
+                activity_end_time: typeof response.responseCompleted === "number" ? moment(response.responseCompleted).format("LLL") : response.responseCompleted || null,
                 flag,
-                MRN: MRN || null,
+                secret_user_id: MRN || null,
                 userId: _id,
                 activity_id: response.activity['@id'],
                 activity_name: activity.label.en,
                 item: item.id,
                 response: responseData,
-                question: question[question.length - 1],
+                prompt: question && question[question.length - 1] || '',
                 options: options.join(', '),
                 version: response.version,
                 rawScore: scores.reduce((accumulated, current) => current + accumulated, 0),
                 ... (!isSubScaleExported ? response.subScales : {}),
                 ... (!isSubScaleExported ? outputTexts : {})
-              });
+              }
+
+              if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined) continue;
+              result.push(csvObj);
 
               isSubScaleExported = true;
             }
@@ -299,13 +298,13 @@ export const AppletMixin = {
               'activity_start_time',
               'activity_end_time',
               'flag',
-              'MRN',
+              'secret_user_id',
               'userId',
               'activity_id',
               'activity_name',
               'item',
               'response',
-              'question',
+              'prompt',
               'options',
               'version',
               'rawScore',

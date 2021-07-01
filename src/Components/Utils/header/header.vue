@@ -145,7 +145,7 @@
     </v-tooltip>
 
     <v-tooltip
-      v-if="currentApplet && hasRoles(currentApplet, 'editor', 'manager')"
+      v-if="currentApplet && hasRoles(currentApplet, 'owner')"
       bottom
     >
       <template v-slot:activator="{ on }">
@@ -819,8 +819,7 @@ export default {
           })
           .then((resp) => {
             this.ownershipDialog = false;
-
-            this.dialogText = this.$t('requestSuccess', { ownershipEmail });
+            this.dialogText = this.$t('requestSuccess', { email: ownershipEmail });
             this.dialogTitle = this.$t('requestSent');
             this.dialog = true;
           })

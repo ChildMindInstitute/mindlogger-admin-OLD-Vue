@@ -26,50 +26,129 @@
         <div class="content">
           <div v-if="this.tabs[selectedTab] != 'review'" class="content-header">
             <div class="time-range">
-              <v-menu>
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    depressed
-                    class="ds-button-tall mr-2 ml-2 mb-2 fromDate"
-                    v-on="on"
+              <div class="start-time-range">
+                <v-menu>
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      depressed
+                      class="ds-button-tall mr-2 ml-2 mb-2 fromDate"
+                      v-on="on"
+                    >
+                      {{ fromDate }}
+                    </v-btn>
+                  </template>
+
+                  <v-date-picker
+                    :locale="$i18n.locale.slice(0, 2)"
+                    no-title
+                    :allowedDates="isAllowedStartDate"
+                    @change="setStartDate"
+                    class="date-picker"
+                  />
+                </v-menu>
+                <v-dialog
+                  ref="dialog1"
+                  v-model="startTimeDialog"
+                  :return-value.sync="startTime"
+                  persistent
+                  width="290px"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="startTime"
+                      label="Start time"
+                      prepend-icon="mdi-clock-time-four-outline"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                    ></v-text-field>
+                  </template>
+                  <v-time-picker
+                    v-if="startTimeDialog"
+                    v-model="startTime"
+                    full-width
                   >
-                    {{ fromDate }}
-                  </v-btn>
-                </template>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="startTimeDialog = false"
+                    >
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="$refs.dialog1.save(startTime); setStartTime()"
+                    >
+                      OK
+                    </v-btn>
+                  </v-time-picker>
+                </v-dialog>
+              </div>
+              <div class="mx-4">{{ $t("to") }}</div>
+              <div class="end-time-range">
+                <v-menu>
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      depressed
+                      class="ds-button-tall mr-2 ml-2 mb-2 toDate"
+                      v-on="on"
+                    >
+                      {{ toDate }}
+                    </v-btn>
+                  </template>
 
-                <v-date-picker
-                  :locale="$i18n.locale.slice(0, 2)"
-                  no-title
-                  :allowedDates="isAllowedStartDate"
-                  @change="setStartDate"
-                  class="date-picker"
-                />
-              </v-menu>
-
-              {{ $t("to") }}
-
-              <v-menu>
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    depressed
-                    class="ds-button-tall mr-2 ml-2 mb-2 toDate"
-                    v-on="on"
+                  <v-date-picker
+                    :locale="$i18n.locale.slice(0, 2)"
+                    no-title
+                    :allowedDates="isAllowedEndDate"
+                    @change="setEndDate"
+                    class="date-picker"
+                  />
+                </v-menu>
+                <v-dialog
+                  ref="dialog2"
+                  v-model="endTimeDialog"
+                  :return-value.sync="endTime"
+                  persistent
+                  width="290px"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="endTime"
+                      label="End time"
+                      prepend-icon="mdi-clock-time-four-outline"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                    ></v-text-field>
+                  </template>
+                  <v-time-picker
+                    v-if="endTimeDialog"
+                    v-model="endTime"
+                    full-width
                   >
-                    {{ toDate }}
-                  </v-btn>
-                </template>
-
-                <v-date-picker
-                  :locale="$i18n.locale.slice(0, 2)"
-                  no-title
-                  :allowedDates="isAllowedEndDate"
-                  @change="setEndDate"
-                  class="date-picker"
-                />
-              </v-menu>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="endTimeDialog = false"
+                    >
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="$refs.dialog2.save(endTime); setEndTime()"
+                    >
+                      OK
+                    </v-btn>
+                  </v-time-picker>
+                </v-dialog>
+              </div>
             </div>
-
-            <div id="versions" class="version">
+            <div id="versions" class="version ml-6 mt-2">
               <v-select
                 v-model="selectedVersions"
                 attach="#versions"
@@ -229,7 +308,7 @@
                         <div
                           v-if="
                             activity.finalSubScale &&
-                            activity.finalsubScale.current.outputText
+                            activity.finalSubScale.current.outputText
                           "
                           class="additional-note mt-4"
                         >
@@ -238,7 +317,7 @@
                           </header>
                           <div class="subscale-output">
                             <mavon-editor
-                              :value="activity.finalsubScale.current.outputText"
+                              :value="activity.finalSubScale.current.outputText"
                               :language="'en'"
                               :toolbarsFlag="false"
                             >
@@ -281,76 +360,25 @@
                         <v-expansion-panels
                           v-if="tab != 'tokens'"
                           v-model="activity.selectedSubScales"
-                          class="mt-4 sub-scale"
+                          class="mt-4"
                           focusable
                           multiple
                         >
                           <template v-for="subScale in activity.subScales">
-                            <v-expansion-panel
-                              v-if="applet && !subScale.isFinalSubScale"
+                            <SubScaleComponent
+                              v-if="applet && !subScale.isFinalSubScale && !subScale.partOfSubScale"
                               :key="subScale.variableName"
-                            >
-                              <v-expansion-panel-header>
-                                <h4>
-                                  {{ subScale.variableName }}
-                                  ( {{ $t("latestScore") }}: {{ subScale.current.tScore }} )
-                                </h4>
-                              </v-expansion-panel-header>
-
-                              <v-expansion-panel-content>
-                                <div>
-                                  <div
-                                    v-if="subScale.current.outputText"
-                                    class="additional-note"
-                                  >
-                                    <header>
-                                      <h3>- Additional Information</h3>
-                                    </header>
-                                    <div class="subscale-output">
-                                      <mavon-editor
-                                        :value="subScale.current.outputText"
-                                        :language="'en'"
-                                        :toolbarsFlag="false"
-                                      >
-                                      </mavon-editor>
-                                    </div>
-                                  </div>
-                                  <template v-for="item in subScale.items">
-                                    <div :key="item['id']" class="chart-card">
-                                      <header>
-                                        <h3 v-if="item.inputType !== 'markdownMessage'">
-                                          <vue-markdown class="item-question">
-                                            {{ item.getFormattedQuestion() }}
-                                          </vue-markdown>
-                                        </h3>
-
-                                        <h3 v-else>- {{ item.label.en }}</h3>
-                                      </header>
-
-                                      <RadioSlider
-                                        v-if="
-                                          tab == 'responses' &&
-                                          item.responseOptions &&
-                                          applet.selectedActivites.includes(
-                                            index
-                                          )
-                                        "
-                                        :plot-id="`RadioSlider-${activity.slug}-${subScale.slug}-${item.slug}`"
-                                        :item="item"
-                                        :versions="applet.versions"
-                                        :focus-extent="focusExtent"
-                                        :selected-versions="selectedVersions"
-                                        :timezone="applet.timezoneStr"
-                                        :has-version-bars="hasVersionBars"
-                                        :time-range="timeRange"
-                                        :parent-width="panelWidth"
-                                        :color="item.dataColor"
-                                      />
-                                    </div>
-                                  </template>
-                                </div>
-                              </v-expansion-panel-content>
-                            </v-expansion-panel>
+                              :applet="applet"
+                              :activity="activity"
+                              :subScale="subScale"
+                              :tab="tab"
+                              :index="index"
+                              :focusExtent="focusExtent"
+                              :selectedVersions="selectedVersions"
+                              :hasVersionBars="hasVersionBars"
+                              :timeRange="timeRange"
+                              :panelWidth="panelWidth"
+                            />
                           </template>
                         </v-expansion-panels>
 
@@ -576,13 +604,18 @@
 .version {
   position: relative;
   display: flex;
-  width: 480px;
   align-items: baseline;
   margin-left: 0.8rem;
   font-size: 0.8rem;
   font-weight: 600;
   color: #777;
   text-transform: uppercase;
+}
+
+.toDate,
+.fromDate {
+  width: 100%;
+  margin: 0 !important;
 }
 
 .version .version-list {
@@ -629,10 +662,6 @@
 
 .chart-card {
   padding: 24px;
-}
-
-.sub-scale .chart-card {
-  padding: 24px 0px;
 }
 
 .activity-header {
@@ -700,6 +729,7 @@ import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChar
 import ResponseSelectionDialog from "../Components/Utils/dialogs/ResponseSelectionDialog";
 import Responses from "../Components/DataViewerComponents/Responses";
 import Notes from "../Components/DataViewerComponents/Notes";
+import SubScaleComponent from "../Components/DataViewerComponents/SubScaleComponent";
 
 import * as moment from "moment-timezone";
 
@@ -722,6 +752,7 @@ export default {
     ResponseSelectionDialog,
     Responses,
     Notes,
+    SubScaleComponent,
   },
 
   /**
@@ -754,6 +785,10 @@ export default {
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
       timeRange: "Default",
+      startTimeDialog: false,
+      startTime: null,
+      endTimeDialog: false,
+      endTime: null,
       hasVersionBars: true,
       panelWidth: 974,
       margin: 50,
@@ -795,7 +830,8 @@ export default {
     reviewingTime() {
       return (
         this.reviewing.date &&
-        moment(new Date(this.reviewing.date)).format("hh:mm:ss A")
+        this.reviewing.responseId && moment.utc(new Date(this.reviewing.date)).format("hh:mm:ss A") ||
+        '00:00:00 AM'
       );
     },
   },
@@ -918,6 +954,13 @@ export default {
     },
 
     async showSubScale({ activity, responseId }) {
+      const activityIndex = this.applet.activities.indexOf(activity);
+      if (
+        activityIndex >= 0 &&
+        this.applet.selectedActivites.indexOf(activityIndex) < 0) {
+        this.applet.selectedActivites.push(activityIndex);
+      }
+
       for (let subScale of activity.subScales) {
         const current = subScale.values.find(data => data.value.responseId == responseId);
 
@@ -978,9 +1021,20 @@ export default {
     isAllowedEndDate(date) {
       let NOW = new Date();
       NOW.setDate(NOW.getDate() + 1);
+      let endDate = moment.utc(date);
+
+      if (this.endTime) {
+        const time = moment(this.endTime, "HH:mm");
+
+        endDate.set({
+          hour:   time.get('hour'),
+          minute: time.get('minute')
+        });
+      }
+
       return (
-        moment.utc(date) > this.focusExtent[0] &&
-        moment.utc(date) <= moment.utc(NOW)
+        moment.utc(endDate) >= this.focusExtent[0] &&
+        moment.utc(endDate) <= moment.utc(NOW)
       );
     },
 
@@ -1064,6 +1118,14 @@ export default {
       this.$set(this.applet, "selectedActivites", []);
       this.allExpanded = false;
     },
+
+    setEndTime() {
+      this.setEndDate(this.focusExtent[1]);
+    },
+
+    setStartTime() {
+      this.setStartDate(this.focusExtent[0]);
+    },
     /**
      * Updates the start date for the focused time range.
      *
@@ -1071,7 +1133,15 @@ export default {
      * @returns {void}
      */
     setStartDate(date) {
-      this.$set(this.focusExtent, 0, moment.utc(date).toDate());
+      let startDate = moment.utc(date);
+      if (this.startTime) {
+        const time = moment(this.startTime, "HH:mm");
+
+        startDate.set("hours", time.get('hours'));
+        startDate.set("minutes", time.get('minutes'));
+      }
+
+      this.$set(this.focusExtent, 0, startDate.toDate());
       this.updateTimeRange();
     },
     /**
@@ -1081,11 +1151,17 @@ export default {
      * @returns {void}
      */
     setEndDate(date) {
-      this.$set(
-        this.focusExtent,
-        1,
-        moment.utc(date).add(15, "hours").toDate()
-      );
+      let endDate = moment.utc(date);
+
+      if (this.endTime) {
+        const time = moment(this.endTime, "HH:mm");
+
+
+        endDate.set("hours", time.get('hours'));
+        endDate.set("minutes", time.get('minutes'));
+      }
+
+      this.$set(this.focusExtent, 1, endDate.toDate());
       this.updateTimeRange();
     },
 
