@@ -370,7 +370,7 @@ export default {
       }
 
       try {
-        this.$store.commit("setThemes", await api.getThemes(this.$store.state.backend));
+        this.$store.commit("setThemes", await api.getThemes(this.$store.state.backend, this.$store.state.auth.authToken.token));
       } catch (err) {
         console.error(err);
       }
