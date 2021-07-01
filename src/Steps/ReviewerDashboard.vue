@@ -830,7 +830,8 @@ export default {
     reviewingTime() {
       return (
         this.reviewing.date &&
-        moment(new Date(this.reviewing.date)).format("hh:mm:ss A")
+        this.reviewing.responseId && moment.utc(new Date(this.reviewing.date)).format("hh:mm:ss A") ||
+        '00:00:00 AM'
       );
     },
   },
