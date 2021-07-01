@@ -278,6 +278,7 @@ export default {
       });
     }
     this.getAccountData();
+    this.initThemes();
   },
   methods: {
     setVisibleTabs() {
@@ -363,6 +364,17 @@ export default {
         });
     },
 
+    async initThemes() {
+      if (this.$store.state.themes) {
+        return;
+      }
+
+      try {
+        this.$store.commit("setThemes", await api.getThemes(this.$store.state.backend));
+      } catch (err) {
+        console.error(err);
+      }
+    },
 
     async setupApplets() {
       const { fullDirectory, appletsOnly } = await this.getOrganisedAppletsDirectory();

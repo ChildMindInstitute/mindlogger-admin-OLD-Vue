@@ -12,6 +12,7 @@
       :templates="itemTemplates"
       :cacheData="currentAppletBuilderData"
       :basketApplets="basketApplets"
+      :themes="themes"
       @removeTemplate="onRemoveTemplate"
       @updateTemplates="onAddTemplate"
       @uploadProtocol="onUploadProtocol"
@@ -118,6 +119,7 @@ export default {
     ...mapState([
       'currentAppletBuilderData',
       'basketApplets',
+      'themes'
     ]),
     accountApplets() {
       return this.$store.state.currentAccount && this.$store.state.currentAccount.applets || [];

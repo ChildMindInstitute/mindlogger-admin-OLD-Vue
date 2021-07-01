@@ -728,6 +728,13 @@ const deleteNote = (apiHost, token, appletId, noteId) =>
     }
   })
 
+const getThemes = (apiHost) => {
+  return axios({
+    method: 'get',
+    url: `${apiHost}/theme`
+  })
+}
+
 export default {
   signIn,
   signUp,
@@ -791,6 +798,7 @@ export default {
   getNotes,
   addNote,
   updateNote,
-  deleteNote
+  deleteNote,
+  getThemes
 }
 </script>
