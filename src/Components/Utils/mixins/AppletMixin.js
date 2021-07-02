@@ -90,12 +90,13 @@ export const AppletMixin = {
           const result = [];
 
           const currentItems = {};
-          const currentActivities = [];
+          const currentActivities = {};
           for (let itemUrl in appletData.items) {
             currentItems[itemUrl] = new Item(appletData.items[itemUrl]);
           }
           for (let activityUrl in appletData.activities) {
-            currentActivities.push(new Activity(appletData.activities[activityUrl]));
+            const activity = new Activity(appletData.activities[activityUrl]);
+            currentActivities[activity.data._id.split('/')[1]] = activity;
           }
 
           for (let itemId in data.items) {
@@ -170,7 +171,7 @@ export const AppletMixin = {
               }
 
               let activity = currentItems[itemUrl] ?
-                currentActivities.find(activity => activity.data._id.split('/')[1] == response.activity['@id']) :
+                currentActivities[response.activity['@id']] :
                 data.activities[item.data.activityId];
 
               let flag = 'completed';
