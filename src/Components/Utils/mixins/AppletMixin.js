@@ -117,7 +117,7 @@ export const AppletMixin = {
             }
           }
 
-          let subScaleNames = [];
+          let subScaleNames = [], previousResponse = [];
           for (let response of data.responses) {
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
             const outputTexts = {};
@@ -158,7 +158,6 @@ export const AppletMixin = {
 
             for (let itemUrl in response.data) {
               let itemData = response.data[itemUrl];
-
               let item = (data.itemReferences[response.version] && data.itemReferences[response.version][itemUrl]) || currentItems[itemUrl];
 
               if (!item) {
@@ -166,7 +165,10 @@ export const AppletMixin = {
               }
 
               if (itemData && itemData.ptr !== undefined && itemData.src !== undefined) {
-                response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr];
+                if (_.isArray(data.dataSources[itemData.src].data) && itemData.ptr && typeof itemData.ptr === "object" && itemData.ptr.latitude)
+                  response.data[itemUrl] = itemData.ptr;
+                else
+                  response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr];
               }
 
               let activity = currentItems[itemUrl] ?
@@ -205,7 +207,7 @@ export const AppletMixin = {
                   for (const [key, value] of Object.entries(responseDataObj)) {
                     if (item.inputType === 'timeRange' && value.from && value.to) {
                       responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
-                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing') && value.filename) {
+                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType === 'audioImageRecord') && value.filename) {
                       this.getMediaResponseObject(value.uri, response, item);
                       responseData += `filename: ${value.filename}`;
                     } else if (item.inputType === 'date' && (value.day || value.month || value.year)) {
@@ -274,6 +276,17 @@ export const AppletMixin = {
                 rawScore: scores.reduce((accumulated, current) => current + accumulated, 0),
                 ... (!isSubScaleExported ? response.subScales : {}),
                 ... (!isSubScaleExported ? outputTexts : {})
+              }
+
+              if (!csvObj.activity_start_time && csvObj.activity_id && csvObj.item && csvObj.response) {
+                previousResponse.push(csvObj);
+                continue;
+              } else if (previousResponse.length > 0 && _.find(previousResponse, o => (o.activity_id === csvObj.activity_id) && (o.item === csvObj.item)) && csvObj.activity_start_time && !csvObj.response) {
+                const index = _.findIndex(previousResponse, o => (o.activity_id === csvObj.activity_id) && (o.item === csvObj.item));
+                if (index > -1) {
+                  csvObj['response'] = previousResponse[index].response;
+                  previousResponse.splice(index, 1);
+                }
               }
 
               if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined) continue;
