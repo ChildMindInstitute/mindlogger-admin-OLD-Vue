@@ -119,6 +119,9 @@ export const AppletMixin = {
           }
 
           let subScaleNames = [], previousResponse = [];
+
+          const drawingCSVs = [];
+
           for (let response of data.responses) {
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
             const outputTexts = {};
@@ -164,8 +167,9 @@ export const AppletMixin = {
                 continue;
               }
 
+              const src = itemData.src;
               if (itemData && itemData.ptr !== undefined && itemData.src !== undefined) {
-                if (_.isArray(data.dataSources[itemData.src].data) && itemData.ptr && typeof itemData.ptr === "object" && itemData.ptr.latitude)
+                if (_.isArray(data.dataSources[itemData.src].data) && itemData.ptr && typeof itemData.ptr === "object")
                   response.data[itemUrl] = itemData.ptr;
                 else
                   response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr];
@@ -207,9 +211,20 @@ export const AppletMixin = {
                   for (const [key, value] of Object.entries(responseDataObj)) {
                     if (item.inputType === 'timeRange' && value.from && value.to) {
                       responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
-                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType === 'audioImageRecord') && value.filename) {
-                      const name = this.getMediaResponseObject(value.uri, response, item);
-                      responseData += `filename: ${name}`;
+                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType === 'audioImageRecord')) {
+                      if (value.filename) {
+                        this.getMediaResponseObject(value.uri, response, item);
+                        responseData += `filename: ${value.filename}`;
+                      } else if (Array.isArray(value)) {
+                        drawingCSVs.push({
+                          name: `${src}.csv`,
+                          data: this.getLinesAsCSV(value)
+                        });
+
+                        responseData += `filename: ${src}.csv`;
+
+                        index = Object.keys(responseDataObj).length;
+                      }
                     } else if (item.inputType === 'date' && (value.day || value.month || value.year)) {
                       responseData += `date: ${value.day}/${value.month}/${value.year}`;
                     } else if (item.inputType === 'drawing' && value.svgString) {
@@ -337,6 +352,7 @@ export const AppletMixin = {
             type: 'text/csv;charset=utf-8'
           })
 
+          await this.generateDrawingZip(drawingCSVs);
           await this.generateMediaResponsesZip(this.mediaResponseObjects);
         })
     },
@@ -377,6 +393,48 @@ export const AppletMixin = {
 
       return name;
     },
+
+    getLinesAsCSV(lines) {
+      const result = [];
+      for (let i = 0; i < lines.length; i++) {
+        for (const point of lines[i].points) {
+          result.push({
+            line_number: i.toString(),
+            x: point.x.toString(),
+            y: point.y.toString(),
+            time: point.time.toString()
+          });
+        }
+      }
+
+      let otc = new ObjectToCSV({
+        keys: [
+          'line_number',
+          'x',
+          'y',
+          'time'
+        ].map((value) => ({ key: value, as: value })),
+        data: result,
+      });
+
+      return otc.getCSV();
+    },
+
+    async generateDrawingZip(drawingCSVs) {
+      try {
+        const zip = new JSZip();
+
+        for (const csvData of drawingCSVs) {
+          zip.file(csvData.name, csvData.data);
+        }
+
+        const generatedZip = await zip.generateAsync({ type: 'blob' });
+        saveAs(generatedZip, `drawing-responses-${(new Date()).toDateString()}.zip`);
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
     async generateMediaResponsesZip(mediaObjects) {
       if (mediaObjects.length < 1) return;
       try {
