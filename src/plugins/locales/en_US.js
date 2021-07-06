@@ -123,6 +123,7 @@ export default {
   itemName: 'Item Name ',
   editItem: 'Edit Item',
   description: 'Description ',
+  splash: 'Splash Screen ',
   question: 'Question ',
   inputType: 'Input type ',
   discardChanges: 'Discard changes ',

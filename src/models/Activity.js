@@ -19,6 +19,7 @@ export default class Activity {
     this.slug = slugify(this.id);
     this.label = i18n.arrayToObject(data[SKOS.prefLabel]);
     this.description = i18n.arrayToObject(data['schema:description']);
+    this.splash = i18n.arrayToObject(data['schema:splash']);
     this.question = i18n.arrayToObject(data['schema:question']);
     this.version = i18n.arrayToObject(data['schema:version']);
     this.order = data[ReproLib.order][0]['@list'].map(item => item['@id']);
