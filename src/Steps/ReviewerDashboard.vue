@@ -957,7 +957,9 @@ export default {
       const activityIndex = this.applet.activities.indexOf(activity);
       if (
         activityIndex >= 0 &&
-        this.applet.selectedActivites.indexOf(activityIndex) < 0) {
+        activityIndex < this.applet.activities.length - 1 &&
+        this.applet.selectedActivites.indexOf(activityIndex) < 0
+      ) {
         this.applet.selectedActivites.push(activityIndex);
       }
 

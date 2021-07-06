@@ -74,6 +74,7 @@
         <g class="versions" />
         <g
           @click="onClickSVG"
+          @mousedown="onClickSVG"
           class="responses"
         />
       </g>
