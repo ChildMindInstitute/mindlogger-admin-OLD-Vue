@@ -6,6 +6,7 @@ import ReproLib from '../schema/ReproLib';
 import SKOS from '../schema/SKOS';
 import { RESPONSE_COLORS } from './Applet';
 import slugify from '../core/slugify';
+import _ from 'lodash';
 
 export default class Activity {
   /**
@@ -23,6 +24,10 @@ export default class Activity {
     this.version = i18n.arrayToObject(data['schema:version']);
     this.order = data[ReproLib.order][0]['@list'].map(item => item['@id']);
     this.schemaVersion = i18n.arrayToObject(data['schema:schemaVersion']);
+    this.isReviewerActivity = _.get(data, [
+      'reprolib:terms/isReviewerActivity', 0, '@value'
+    ], false);
+
     this.url = data['schema:url'];
     this.items = [];
     this.responses = [];

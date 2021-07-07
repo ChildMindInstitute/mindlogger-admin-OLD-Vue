@@ -45,6 +45,7 @@ export default class Applet {
     this.tokens = {};
     this.hasTokenItem = false;
     this.availableDates = {};
+    this.reviewerActivity = null;
 
     this.selectedActivites = [];
 
@@ -80,6 +81,10 @@ export default class Applet {
       activity.items = activity.order.map(itemId => this.items[itemId]);
       activity.hasTokenItem = activity.items.some(item => item.isTokenItem);
       this.activities.push(activity);
+
+      if (activity.isReviewerActivity) {
+        this.reviewerActivity = activity;
+      }
 
       if (activity.hasTokenItem) {
         this.hasTokenItem = true;

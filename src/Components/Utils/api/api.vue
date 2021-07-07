@@ -736,6 +736,17 @@ const appletInviteLink = ({ apiHost, token, appletId, method }) =>
       "Girder-Token": token,
     }
   });
+const downloadReviews = (apiHost, token, appletId, responseId) =>
+  axios({
+    method: 'get',
+    url: `${apiHost}/response/${appletId}/reviews`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      responseId
+    }
+  })
 
 export default {
   signIn,
@@ -801,6 +812,7 @@ export default {
   addNote,
   updateNote,
   deleteNote,
-  appletInviteLink
+  appletInviteLink,
+  downloadReviews,
 }
 </script>
