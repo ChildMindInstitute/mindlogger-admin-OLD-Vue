@@ -109,6 +109,7 @@ export const AppletMixin = {
         }
 
         let subScaleNames = [];
+
         for (let response of data.responses) {
           const _id = response.userId, MRN = response.MRN, isSubScaleExported=false;
 
@@ -293,14 +294,22 @@ export const AppletMixin = {
           data: result,
         });
 
-        let anchor = document.createElement('a');
-        anchor.href =
-          'data:text/csv;charset=utf-8,' + encodeURIComponent(otc.getCSV());
-        anchor.target = '_blank';
-        anchor.download = 'report.csv';
-        anchor.click();
+        this.downloadFile({
+          name: 'report.csv',
+          content: otc.getCSV(),
+          type: 'text/csv;charset=utf-8'
+        })
       })
     },
+
+    downloadFile ({ name, content, type }) {
+      const file = new Blob([content], { type })
+      return new Promise(resolve => {
+       saveAs(file, name)
+       resolve(true)
+      })
+    },
+
     isLatestApplet(appletMeta) {
       const applet = this.$store.state.allApplets[appletMeta.id];
 
