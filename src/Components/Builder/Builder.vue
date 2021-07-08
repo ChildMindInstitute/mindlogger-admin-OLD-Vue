@@ -174,7 +174,7 @@ export default {
       this.addNewApplet(appletPassword);
     },
     onUploadProtocol({applet, themeId}) {
-     this.newApplet = applet;
+      this.newApplet = applet;
       this.themeId = themeId;
       this.appletPasswordDialog = true;
     },
@@ -275,15 +275,19 @@ export default {
       this.itemTemplates = [...templates]
     },
     onUpdateProtocol({protocol, themeId}) {
-     const protocolData = new FormData();
-      protocolData.set('protocol', JSON.stringify(protocol || {}));
+     let protocolData;
+
+      if (protocol) {
+        protocolData = new FormData();
+        protocolData.set('protocol', JSON.stringify(protocol));
+      }
 
       const appletId = this.currentAppletMeta.id;
       const token = this.$store.state.auth.authToken.token;
       const apiHost = this.$store.state.backend;
       api
         .updateApplet({
-          data: protocolData,
+          ...(protocolData && {data: protocolData}),
           appletId,
           token,
           apiHost,
