@@ -206,8 +206,8 @@ export default {
 
       const items = Object.values(currentApplet.items);
 
-      return hasPermission && 
-              items.length === 1 && 
+      return hasPermission &&
+              items.length === 1 &&
               new Item(items[0]).inputType == 'radio';
     },
     activeUserList() {
@@ -353,7 +353,7 @@ export default {
         sort
       });
     },
-    
+
     getInvitations() {
       return api.getInvitations({
         apiHost: this.$store.state.backend,

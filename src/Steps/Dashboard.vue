@@ -269,7 +269,7 @@ export default {
       }
     }
   },
-  mounted() {
+  async mounted() {
     for (let tab of ['applets', 'users', 'reviewers', 'editors', 'coordinators', 'managers']) {
       this.$set(this.tabData, tab, {
         loading: false,
@@ -277,8 +277,7 @@ export default {
         total: 0,
       });
     }
-    this.getAccountData();
-    this.initThemes();
+    await Promise.all([this.getAccountData(), this.initThemes()]);
   },
   methods: {
     setVisibleTabs() {
