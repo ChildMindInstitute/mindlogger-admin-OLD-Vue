@@ -35,6 +35,7 @@
       :id="plotId"
       :height="height"
       width="100%"
+      ref="responses"
     >
       <g
         @mouseenter="fullActivityName = true"
@@ -221,10 +222,45 @@ export default {
       }
     }
   },
+  created() {
+    this.onMouseDown = (evt) => {
+      const src = evt.srcElement;
+
+      if (this.$refs && this.$refs.responses) {
+        if (this.$refs.responses.contains(src) && src.tagName == 'circle') {
+          const responseId = src.getAttribute('responseId');
+
+          if (!this.currentResponse || this.currentResponse.responseId != responseId) {
+            this.currentResponse = this.data.find(d => d.responseId == responseId);
+
+            this.showReviewingTooltip(
+              this.getX(this.currentResponse),
+              this.radius + this.padding.top,
+              this.labelWidth,
+              this.width,
+              this.height
+            )
+          }
+
+          return ;
+        }
+      }
+
+      if (this.toolTipVisible) {
+        this.currentResponse = null;
+        this.hideTooltip()
+      }
+    }
+
+    window.addEventListener('mousedown', this.onMouseDown);
+  },
   mounted() {
     this.$nextTick(() => {
       this.render();
     });
+  },
+  beforeDestroy() {
+    window.removeEventListener('mousedown', this.onMouseDown);
   },
   methods: {
     render() {
@@ -291,18 +327,10 @@ export default {
         .attr('cx', d => this.x(d.date))
         .attr('cy', this.radius + this.padding.top)
         .attr('r', d => this.x(d.date) >= 0 ? this.radius : 0)
+        .attr('responseId', d => d.responseId)
         .style('outline', d =>
           d.responseId == this.currentResponseId ? 'black auto 5px' : ''
         )
-        .on('focus', (d) => {
-          this.currentResponse = d;
-
-          this.showReviewingTooltip(this.getX(d), this.radius + this.padding.top, this.labelWidth, this.width, this.height);
-        })
-        .on('blur', d => {
-          this.currentResponse = null;
-          this.hideTooltip()
-        });
     },
 
     onReviewResponse() {
