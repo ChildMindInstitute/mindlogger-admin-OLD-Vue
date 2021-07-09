@@ -353,6 +353,7 @@ export default {
   assessment: 'Évaluation',
   notes: 'Remarques',
   reviewed: 'Révisé',
+  latestScore: 'Dernière Score',
   appletStatusUpdate: `Mise à jour de l'état de l'applet`,
   appletEditProgress: 'Votre applet est en cours de modification.'
 };
