@@ -18,4 +18,8 @@ export default {
   variableName: 'reprolib:terms/variableName',
   allowEdit: 'reprolib:terms/allowEdit',
   enableNegativeTokens: 'reprolib:terms/enableNegativeTokens',
+  addProperties: 'reprolib:terms/addProperties',
+  isAbout: 'reprolib:terms/isAbout',
+  isVis: 'reprolib:terms/isVis',
+  variableName: 'reprolib:terms/variableName'
 };

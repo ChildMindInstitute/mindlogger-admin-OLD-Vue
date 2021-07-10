@@ -89,6 +89,7 @@
 import Checkbox from "./Checkbox";
 import Radio from "./Radio";
 import Slider from "./Slider";
+import { Parser } from 'expr-eval';
 
 export default {
   props: {
@@ -141,16 +142,101 @@ export default {
     }
   },
   methods: {
-    onNext() {
+    isVisible (item) {
+      const addProperty = this.activity.addProperties.find(
+        addProperty => item.id == addProperty.variableName
+      )
+
+      if (addProperty) {
+        return this.testVisibility(
+          addProperty.isVis, this.activity.items, this.responses
+        )
+      }
+      return true;
+    },
+
+    onNext () {
       if (this.currentScreen == this.items.length-1) {
         console.log('submit response ... ');
       } else {
+        for (let i = this.currentScreen + 1; i < this.itemCount; i++) {
+          if (this.isVisible(this.activity.items[i])) {
+            this.currentScreen = i;
+            return ;
+          }
+        }
+
         this.currentScreen++;
       }
     },
-    onBack() {
+
+    onBack () {
+      for (let i = this.currentScreen - 1; i >= 0; i--) {
+       if (this.isVisible(this.activity.items[i])) {
+         this.currentScreen = i;
+         return
+       }
+      }
+
       this.currentScreen--;
+    },
+
+    testVisibility (testExpression = true, items = [], responses = []) {
+      // Short circuit for common testExpression
+      if (testExpression === true || testExpression === 'true') {
+        return true;
+      }
+
+      const parser = new Parser({
+        logical: true,
+        comparison: true,
+      });
+
+      let testExpressionFixed = testExpression.replace(/&&/g, ' and ')
+                                  .replace(/\|\|/g, ' or ')
+                                  .replace('===', '==')
+                                  .replace('!==', '!=')
+                                  .replace(/(\w+\.)/g, 'arrayIncludes($&')
+                                  .replace(/.includes\(/g, ', ')
+
+      // Custom function to test if element is present in array
+      const arrayIncludes = (array, element) => {
+        if (array === undefined || array === null) {
+          return false;
+        }
+        for (let i = 0; i < array.length; i += 1) {
+          if (array[i] === element) {
+            return true;
+          }
+        }
+        return false;
+      };
+
+      parser.functions.arrayIncludes = arrayIncludes;
+
+      try {
+        const expr = parser.parse(testExpressionFixed);
+        // Build an object where the keys are item variableNames, and values are
+        // item responses
+        const inputs = items.reduce((acc, item, index) => {
+          const response = (responses[index] && (responses[index].value || responses[index].value === 0))
+            ? responses[index].value
+            : responses[index];
+
+          return {
+            ...acc,
+            [item.id]: responses[index] === 0 ? 0 : (response === 0 ? 0 : response || null), // cast undefined to null
+          }
+        }, {});
+
+        // Run the expression
+        const result = expr.evaluate(inputs);
+        return !!result; // Cast the result to true or false
+      } catch (error) {
+        return true; // Default to true if we can't parse the expression
+      }
     }
+
   }
 }
 </script>

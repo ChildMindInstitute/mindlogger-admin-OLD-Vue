@@ -27,6 +27,7 @@ export default class Activity {
     this.isReviewerActivity = _.get(data, [
       'reprolib:terms/isReviewerActivity', 0, '@value'
     ], false);
+    this.addProperties = this.parseAddProperties(data[ReproLib.addProperties]);
 
     this.url = data['schema:url'];
     this.items = [];
@@ -88,6 +89,14 @@ export default class Activity {
     } catch(error) {
       console.error(error);
     }
+  }
+
+  parseAddProperties(addProperties) {
+    return addProperties.map(property => ({
+      isAbout: _.get(property, [ReproLib.isAbout, 0, '@id']),
+      isVis: _.get(property, [ReproLib.isVis, 0, '@value']),
+      variableName: _.get(property, [ReproLib.variableName, 0, '@value'])
+    }))
   }
 
   parseSubScales(subScales) {
