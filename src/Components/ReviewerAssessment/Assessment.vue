@@ -163,6 +163,7 @@ export default {
           addProperty.isVis, this.activity.items, this.responses
         )
       }
+
       return true;
     },
 

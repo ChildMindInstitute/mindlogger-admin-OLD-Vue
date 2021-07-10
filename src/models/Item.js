@@ -73,6 +73,9 @@ export default class Item {
     this.isMultipleChoice = data[ReproLib.responseOptions] && ReproLib.multipleChoice in data[ReproLib.responseOptions][0]
       ? data[ReproLib.responseOptions][0][ReproLib.multipleChoice][0]['@value'] : false;
 
+    this.isContinuousSlider = _.get(data, [ReproLib.responseOptions, 0, ReproLib.continuousSlider, 0, '@value'], false);
+    this.showTickMarks = _.get(data, [ReproLib.responseOptions, 0, ReproLib.showTickMarks, 0, '@value']);
+
     this.dataColor = '#8076B2';
     this.partOfSubScale = false;
     this.allowEdit = data[ReproLib.allowEdit] && data[ReproLib.allowEdit][0]

@@ -2,23 +2,32 @@
   <div
     class="slider"
   >
-    <v-slider
-      v-model="response"
-      :max="maxValue"
+    <input
+      type="range"
+      :class="isNull ? 'no-value' : ''"
       :min="minValue"
-      :thumb-color="thumbColor"
-      :tick-labels="ticksLabels"
-      :disabled="disabled"
-      step="1"
-      tick-size="4"
-      ticks="always"
+      :max="maxValue"
+      v-model="response"
+      step="0.1"
       @input="update"
+      :disabled="disabled"
     />
+
+    <div
+      v-if="!item.showTickMarks"
+      class="ticks"
+    >
+      <span
+        v-for="tick in ticksLabels"
+        :key="tick"
+        class="tick"
+      >{{ tick }}</span>
+    </div>
 
     <div class="slider-description">
       <div
         class="first"
-        :style="`width: ${Math.floor(90 / ticksLabels.length)}%`"
+        :style="`width: ${tickWidth}%`"
       >
         <img
           :src="item.minValueImg"
@@ -28,12 +37,12 @@
         <div
           class="min-label"
         >
-          {{item.minValue}}
+          {{ item.minValue }}
         </div>
       </div>
       <div
         class="last"
-        :style="`width: ${Math.floor(90 / ticksLabels.length)}%`"
+        :style="`width: ${tickWidth}%`"
       >
         <img
           :src="item.maxValueImg"
@@ -59,6 +68,35 @@
   padding-top: 20px;
   display: flex;
   justify-content: space-between;
+}
+
+.slider .ticks {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+}
+
+.slider .ticks .tick {
+    height: 10px;
+    width: 1px;
+    background: black;
+    display: flex;
+    justify-content: center;
+    line-height: 40px;
+}
+
+.slider input[type="range"] {
+    width: 100%;
+    height: 2px;
+}
+
+
+input[type="range"].no-value::-webkit-slider-thumb {
+    opacity: 0;
+}
+
+input[type="range"].no-value::-moz-range-thumb {
+    opacity: 0;
 }
 
 .slider-description .min-label,
@@ -118,16 +156,17 @@ export default {
   },
 
   computed: {
-    thumbColor () {
-      if (this.isNull) {
-        return 'rgba(0,0,0,0)';
-      }
-      return ''
+    tickWidth () {
+      return Math.floor(90 / (this.maxValue - this.minValue))
     }
   },
 
   methods: {
     update () {
+      if (!this.item.isContinuousSlider) {
+        this.response = Math.round(this.response)
+      }
+
       const newResponse = {
         value: this.response
       }

@@ -21,5 +21,7 @@ export default {
   addProperties: 'reprolib:terms/addProperties',
   isAbout: 'reprolib:terms/isAbout',
   isVis: 'reprolib:terms/isVis',
-  variableName: 'reprolib:terms/variableName'
+  variableName: 'reprolib:terms/variableName',
+  continuousSlider: 'reprolib:terms/continousSlider',
+  showTickMarks: 'reprolib:terms/showTickMarks',
 };
