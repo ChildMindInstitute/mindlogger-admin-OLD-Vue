@@ -756,6 +756,7 @@ export default {
 <style scoped>
 .v-card__text,
 .v-card__title {
+  display: inline;
   word-break: normal;
 }
 </style>
