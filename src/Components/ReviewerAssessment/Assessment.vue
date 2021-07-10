@@ -1,67 +1,76 @@
 <template>
-  <div class="screen-list">
-    <template
-      v-for="(item, index) in items"
-    >
-      <v-card
-        v-if="(item.inputType == 'radio' || item.inputType == 'slider') && index <= currentScreen"
-        class="screen"
-        :key="item.slug"
+  <div>
+    <div class="screen-list">
+      <template
+        v-for="(item, index) in items"
       >
-        <v-card-title class="question">
-          {{ item.question.en }}
-        </v-card-title>
-
-        <div
-          class="content"
+        <v-card
+          v-if="(item.inputType == 'radio' || item.inputType == 'slider') && index <= currentScreen"
+          class="screen"
+          :key="item.slug"
         >
-          <Radio
-            v-if="item.inputType == 'radio' && !item.isMultipleChoice"
-            v-model="responses[index]"
-            :item="activity.items[index]"
-            :disabled="index != currentScreen"
-          />
+          <v-card-title class="question">
+            {{ item.question.en }}
+          </v-card-title>
 
-          <Slider
-            v-if="item.inputType == 'slider'"
-            v-model="responses[index]"
-            :item="activity.items[index]"
-            :disabled="index != currentScreen"
-          />
-
-          <Checkbox
-            v-if="item.inputType == 'radio' && item.isMultipleChoice"
-            v-model="responses[index]"
-            :item="activity.items[index]"
-            :disabled="index != currentScreen"
-          />
-        </div>
-
-        <v-card-actions
-          v-if="index == currentScreen"
-        >
-          <v-btn
-            v-if="!isFirstScreen"
-            @click="onBack"
-            color="primary"
-            rounded
-            outlined
+          <div
+            class="content"
           >
-            Back
-          </v-btn>
+            <Radio
+              v-if="item.inputType == 'radio' && !item.isMultipleChoice"
+              v-model="responses[index]"
+              :item="activity.items[index]"
+              :disabled="index != currentScreen"
+            />
 
-          <v-spacer />
+            <Slider
+              v-if="item.inputType == 'slider'"
+              v-model="responses[index]"
+              :item="activity.items[index]"
+              :disabled="index != currentScreen"
+            />
 
-          <v-btn
-            @click="onNext"
-            color="primary"
-            rounded
+            <Checkbox
+              v-if="item.inputType == 'radio' && item.isMultipleChoice"
+              v-model="responses[index]"
+              :item="activity.items[index]"
+              :disabled="index != currentScreen"
+            />
+          </div>
+
+          <v-card-actions
+            v-if="index == currentScreen"
           >
-            {{ isLastScreen ? 'Submit' : 'Next' }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </template>
+            <v-btn
+              v-if="!isFirstScreen"
+              @click="onBack"
+              color="primary"
+              rounded
+              outlined
+            >
+              Back
+            </v-btn>
+
+            <v-spacer />
+
+            <v-btn
+              @click="onNext"
+              color="primary"
+              rounded
+            >
+              {{ isLastScreen ? 'Submit' : 'Next' }}
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </template>
+    </div>
+
+    <ConfirmationDialog
+      v-model="responseSubmitDialog"
+      :dialogText="$t('responseSubmitConfirmation')"
+      :title="$t('responseSubmit')"
+      @onOK="submitResponse"
+    />
   </div>
 </template>
 
@@ -89,7 +98,8 @@
 import Checkbox from "./Checkbox";
 import Radio from "./Radio";
 import Slider from "./Slider";
-import { Parser } from 'expr-eval';
+import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
+import { Parser } from "expr-eval";
 
 export default {
   props: {
@@ -106,7 +116,8 @@ export default {
   components: {
     Checkbox,
     Radio,
-    Slider
+    Slider,
+    ConfirmationDialog,
   },
 
   data() {
@@ -115,15 +126,15 @@ export default {
 
     while (responses.length < itemCount) {
       responses.push({
-        value: null,
-        edited: null
+        value: null
       });
     }
 
     return {
       responses,
       itemCount,
-      currentScreen: 0
+      currentScreen: 0,
+      responseSubmitDialog: false
     }
   },
   computed: {
@@ -132,7 +143,7 @@ export default {
     },
 
     isLastScreen() {
-      return this.currentScreen == this.items.length-1
+      return this.currentScreen == this.itemCount - 1
     },
     isFirstScreen() {
       return this.currentScreen == 0;
@@ -156,8 +167,8 @@ export default {
     },
 
     onNext () {
-      if (this.currentScreen == this.items.length-1) {
-        console.log('submit response ... ');
+      if (this.currentScreen == this.itemCount-1) {
+        this.responseSubmitDialog = true
       } else {
         for (let i = this.currentScreen + 1; i < this.itemCount; i++) {
           if (this.isVisible(this.activity.items[i])) {
@@ -179,6 +190,10 @@ export default {
       }
 
       this.currentScreen--;
+    },
+
+    submitResponse () {
+      console.log('submitting response ... ')
     },
 
     testVisibility (testExpression = true, items = [], responses = []) {

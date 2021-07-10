@@ -49,7 +49,7 @@ export default {
     options () {
       return this.item.responseOptions;
     },
-    isTokenItem() {
+    isTokenItem () {
       return this.item.isTokenItem;
     }
   },
@@ -62,7 +62,7 @@ export default {
       for (let i = 0; i < this.response.length; i++) {
         if (this.response[i]) {
           newResponse.value.push(
-            this.isTokenItem ? this.options[i].value : this.options[i].name.en
+            this.isTokenItem ? this.options[i].name.en : this.options[i].value
           );
         }
       }

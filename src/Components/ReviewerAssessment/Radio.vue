@@ -1,7 +1,7 @@
 <template>
   <v-radio-group
     v-model="response"
-    @input="update"
+    @change="update"
   >
     <div class="option-list">
       <v-radio
@@ -9,7 +9,7 @@
         v-for="option in options"
         :key="option.id"
         :label="option.name.en"
-        :value="isTokenItem ? option.value : option.name.en"
+        :value="isTokenItem ? option.name.en : option.value"
         :disabled="disabled"
       ></v-radio>
     </div>
@@ -49,10 +49,10 @@ export default {
     }
   },
   computed: {
-    options() {
+    options () {
       return this.item.responseOptions;
     },
-    isTokenItem() {
+    isTokenItem () {
       return this.item.isTokenItem;
     }
   },
