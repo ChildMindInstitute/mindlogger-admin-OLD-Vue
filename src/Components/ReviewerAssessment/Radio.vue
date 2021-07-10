@@ -1,12 +1,15 @@
 <template>
-  <v-radio-group v-model="response">
+  <v-radio-group
+    v-model="response"
+    @input="update"
+  >
     <div class="option-list">
       <v-radio
         class="option"
-        v-for="n in 5"
-        :key="n"
-        :label="`Radio ${n}`"
-        :value="n"
+        v-for="option in options"
+        :key="option.id"
+        :label="option.name.en"
+        :value="isTokenItem ? option.value : option.name.en"
         :disabled="disabled"
       ></v-radio>
     </div>
@@ -20,7 +23,7 @@
 }
 
 .option {
-  width: 33%;
+  width: 50%;
 }
 </style>
 
@@ -34,11 +37,34 @@ export default {
     disabled: {
       type: Boolean,
       required: true
+    },
+    item: {
+      type: Object,
+      required: true
     }
   },
   data() {
     return {
-      response: ''
+      response: (this.value.value || null)
+    }
+  },
+  computed: {
+    options() {
+      return this.item.responseOptions;
+    },
+    isTokenItem() {
+      return this.item.isTokenItem;
+    }
+  },
+  methods: {
+    update () {
+      const newResponse = { value: this.response }
+
+      if ('edited' in this.value) {
+        newResponse.edited = new Date().getTime()
+      }
+
+      this.$emit('input', newResponse)
     }
   }
 }

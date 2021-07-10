@@ -18,18 +18,21 @@
           <Radio
             v-if="item.inputType == 'radio' && !item.isMultipleChoice"
             v-model="responses[index]"
+            :item="activity.items[index]"
             :disabled="index != currentScreen"
           />
 
           <Slider
             v-if="item.inputType == 'slider'"
             v-model="responses[index]"
+            :item="activity.items[index]"
             :disabled="index != currentScreen"
           />
 
           <Checkbox
             v-if="item.inputType == 'radio' && item.isMultipleChoice"
             v-model="responses[index]"
+            :item="activity.items[index]"
             :disabled="index != currentScreen"
           />
         </div>
