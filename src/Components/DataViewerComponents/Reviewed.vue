@@ -18,7 +18,7 @@
           :key="item.slug"
           class="item"
         >
-          <h3> - {{ item.getQuizWithoutImage() }} </h3>
+          <h3> - {{ item.getQuizWithoutImage() }} {{ review.data[index].edited ? '( edited )' : '' }} </h3>
 
           <div class="title">
             <Radio
