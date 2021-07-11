@@ -544,6 +544,7 @@
                               <Reviewed
                                 :key="`reviewed-${reviewing.key}`"
                                 :activity="applet.reviewerActivity"
+                                :reviews="reviewing.reviews"
                               />
                             </div>
                           </v-tab-item>
