@@ -1014,20 +1014,7 @@ export default {
           this.apiHost,
           this.token,
           data
-        ).then((resp) => {
-          const currentReview = {
-            responseId: resp.data._id,
-            current: true,
-            data: responses
-          }
-
-          this.$set(this.reviewing, 'currentReview', currentReview);
-          this.reviewing.reviews.push(currentReview);
-
-          this.$set(this.reviewing, 'key', this.reviewing.key + 1);
-
-          this.selectedReviewTab = this.reviewingTabs.indexOf("reviewed")
-        })
+        ).then(() => this.selectResponse(this.reviewing))
       }
     },
 
