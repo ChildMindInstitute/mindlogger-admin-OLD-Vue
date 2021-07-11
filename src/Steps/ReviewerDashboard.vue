@@ -502,6 +502,7 @@
                       <v-card class="reviewing-item">
                         <v-tabs
                           v-model="selectedReviewTab"
+                          @change="onChangeReviewingTab"
                           hide-slider
                           light
                           left
@@ -533,7 +534,8 @@
                               <Assessment
                                 :key="`assessment-${reviewing.key}`"
                                 :activity="applet.reviewerActivity"
-                                :response-history="[]"
+                                :response-history="reviewing.currentReview.data"
+                                @submit="submitAssessment"
                               />
                             </div>
                             <div
@@ -825,6 +827,10 @@ export default {
         activity: {},
         responseId: "",
         key: 0,
+        timeStarted: 0,
+        currentReview: {
+          data: []
+        }
       },
       responseDialog: false,
       cachedContents: {}
@@ -945,6 +951,14 @@ export default {
    * Component methods.
    */
   methods: {
+    onChangeReviewingTab() {
+      if (this.reviewingTabs[this.selectedReviewTab] == "assessment") {
+        if (!this.reviewing.timeStarted) {
+          this.$set(this.reviewing, 'timeStarted', Date.now())
+        }
+      }
+    },
+
     setDashboardTabs() {
       for (const itemId in this.applet.items) {
         if (this.applet.items[itemId].isTokenItem) {
@@ -958,6 +972,61 @@ export default {
         this.applet.activities.some((activity) => activity.getFrequency() > 0)
       ) {
         this.tabs.push("review");
+      }
+    },
+
+    submitAssessment(responses) {
+      const data = this.applet.prepareResponseForUpload(
+        responses, this.applet.reviewerActivity, this.reviewing.timeStarted, this.reviewing.responseId
+      );
+
+      if (this.reviewing.currentReview.responseId) {
+        const form = new FormData();
+
+        form.set(
+          'responses',
+          JSON.stringify({
+            dataSources: {
+              [this.reviewing.currentReview.responseId]: data.dataSource
+            },
+            userPublicKey: data.userPublicKey,
+            tokenUpdates: {}
+          })
+        );
+
+        api
+          .replaceResponseData({
+            apiHost: this.apiHost,
+            token: this.token,
+            appletId: this.applet._id.split('/')[1],
+            user: null,
+            data: form,
+          })
+          .then(() => {
+            this.$set(this.reviewing.currentReview, 'data', responses)
+
+            this.$set(this.reviewing, 'key', this.reviewing.key + 1);
+            this.selectedReviewTab = this.reviewingTabs.indexOf("reviewed")
+          });
+      } else {
+        api.postReviewerResponse(
+          this.apiHost,
+          this.token,
+          data
+        ).then((resp) => {
+          const currentReview = {
+            responseId: resp.data._id,
+            current: true,
+            data: responses
+          }
+
+          this.$set(this.reviewing, 'currentReview', currentReview);
+          this.reviewing.reviews.push(currentReview);
+
+          this.$set(this.reviewing, 'key', this.reviewing.key + 1);
+
+          this.selectedReviewTab = this.reviewingTabs.indexOf("reviewed")
+        })
       }
     },
 
@@ -977,15 +1046,57 @@ export default {
         this.apiHost,
         this.token,
         this.currentAppletMeta.id,
-        this.responseId
+        responseId
       ).then(resp => {
-        const responses = resp.data;
+        const data = resp.data;
+        const reviewerActivity = this.applet.reviewerActivity;
+        const responses = {};
+
+        let reviews = {};
+        if (reviewerActivity) {
+          if (this.applet.encryption) {
+            Applet.replaceItemValues(Applet.decryptResponses(data, this.applet.encryption));
+          }
+
+          for (const responseId in data.users) {
+            const profile = data.users[responseId]
+
+            reviews[responseId] = {
+              profile,
+              current: profile.reviewerId == data.reviewer,
+              data: [],
+              responseId
+            }
+          }
+
+          for (const item of reviewerActivity.items) {
+            const itemResponses = data.responses[item.schemas[0]];
+
+            if (!itemResponses) {
+              for (const responseId in reviews) {
+                reviews[responseId].data.push({ value: null });
+              }
+
+              continue;
+            }
+
+            for (const response of itemResponses) {
+              reviews[response.responseId].data.push(response.value);
+            }
+          }
+        }
+
+        reviews = Object.values(reviews);
+        const currentReview = reviews.find(review => review.current);
 
         this.$set(this, "reviewing", {
           date,
           activity,
           responseId,
           key: this.reviewing.key + 1,
+          timeStarted: 0,
+          currentReview: currentReview || { data: [] },
+          reviews
         });
 
         if (switchTab && this.tabs[this.selectedTab] !== "review") {

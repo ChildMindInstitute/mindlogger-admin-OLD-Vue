@@ -69,7 +69,7 @@
       v-model="responseSubmitDialog"
       :dialogText="$t('responseSubmitConfirmation')"
       :title="$t('responseSubmit')"
-      @onOK="submitResponse"
+      @onOK="$emit('submit', responses)"
     />
   </div>
 </template>
@@ -121,20 +121,27 @@ export default {
   },
 
   data() {
-    const responses = this.responseHistory.map(resp => resp);
+    const responses = this.responseHistory.map(resp => ({
+      ...resp,
+      edited: null
+    }));
     const itemCount = this.activity.items.length;
 
     while (responses.length < itemCount) {
-      responses.push({
-        value: null
-      });
+      const response = { value: null }
+
+      if (this.responseHistory.length) {
+        response.edited = null
+      }
+
+      responses.push(response)
     }
 
     return {
       responses,
       itemCount,
       currentScreen: 0,
-      responseSubmitDialog: false
+      responseSubmitDialog: false,
     }
   },
   computed: {
@@ -191,10 +198,6 @@ export default {
       }
 
       this.currentScreen--;
-    },
-
-    submitResponse () {
-      console.log('submitting response ... ')
     },
 
     testVisibility (testExpression = true, items = [], responses = []) {

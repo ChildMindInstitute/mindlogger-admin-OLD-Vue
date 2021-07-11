@@ -146,9 +146,11 @@ export default {
       }
     }
 
+    const isNull = this.value.value === null;
+
     return {
-      response: minValue,
-      isNull: true,
+      response: isNull ? minValue : this.value.value,
+      isNull,
       minValue,
       maxValue,
       ticksLabels: this.item.responseOptions.map(option => option.name.en),

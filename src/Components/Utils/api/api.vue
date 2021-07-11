@@ -748,6 +748,22 @@ const downloadReviews = (apiHost, token, appletId, responseId) =>
     }
   })
 
+
+const postReviewerResponse = (apiHost, token, response) => {
+  const form = new FormData();
+
+  form.set('metadata', JSON.stringify(response))
+
+  return axios({
+    method: 'post',
+    url: `${apiHost}/response/${response.applet.id}/${response.activity.id}`,
+    headers: {
+      'Girder-Token': token
+    },
+    data: form
+  });
+}
+
 export default {
   signIn,
   signUp,
@@ -814,5 +830,6 @@ export default {
   deleteNote,
   appletInviteLink,
   downloadReviews,
+  postReviewerResponse,
 }
 </script>

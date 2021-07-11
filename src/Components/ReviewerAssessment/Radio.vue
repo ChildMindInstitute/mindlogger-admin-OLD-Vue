@@ -45,7 +45,7 @@ export default {
   },
   data() {
     return {
-      response: (this.value.value || null)
+      response: this.value.value !== null ? this.value.value : null
     }
   },
   computed: {

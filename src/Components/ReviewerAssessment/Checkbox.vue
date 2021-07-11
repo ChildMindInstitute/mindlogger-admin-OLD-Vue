@@ -41,8 +41,12 @@ export default {
     }
   },
   data() {
+    const selections = this.value.value || [];
+
     return {
-      response: this.item.responseOptions.map(() => false),
+      response: this.item.responseOptions.map(option =>
+        selections.includes(option.name.en) || selections.includes(option.value)
+      ),
     }
   },
   computed: {

@@ -17,6 +17,7 @@ export default class Activity {
   constructor(data) {
     this.data = data;
     this.id = data['@id'];
+    this._id = data['_id'];
     this.slug = slugify(this.id);
     this.label = i18n.arrayToObject(data[SKOS.prefLabel]);
     this.description = i18n.arrayToObject(data['schema:description']);
@@ -89,6 +90,16 @@ export default class Activity {
     } catch(error) {
       console.error(error);
     }
+  }
+
+  getItemIndexFromIRI(IRI) {
+    for (let i = 0; i < this.items.length; i++) {
+      if (this.items[i].schemas.includes(IRI)) {
+        return i;
+      }
+    }
+
+    return -1;
   }
 
   parseAddProperties(addProperties) {

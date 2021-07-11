@@ -33,7 +33,7 @@ export default class Applet {
     this.encryption = data.applet.encryption;
     this.label = i18n.arrayToObject(data.applet[SKOS.prefLabel]);
     this.description = data.applet['schema:description'];
-    this.schemaVersion = data.applet['schema:schemaVersion'];
+    this.schemaVersion = i18n.arrayToObject(data.applet['schema:schemaVersion']);
     this.version = data.applet['schema:version'];
     this.landingPage = i18n.arrayToObject(data.applet[ReproLib.landingPage]);
     //this.shuffle = data.applet[ReproLib.shuffle]['@value'];
@@ -80,6 +80,8 @@ export default class Applet {
       activity = new Activity(this.data.activities[activityId]);
       activity.items = activity.order.map(itemId => this.items[itemId]);
       activity.hasTokenItem = activity.items.some(item => item.isTokenItem);
+      activity.schema = activityId;
+
       this.activities.push(activity);
 
       if (activity.isReviewerActivity) {
@@ -90,6 +92,55 @@ export default class Applet {
         this.hasTokenItem = true;
       }
     }
+  }
+
+  prepareResponseForUpload(responses, activity, timeStarted, reviewingResponseId) {
+    const responseData = {
+      activity: {
+        id: activity._id.split('/')[1],
+        schema: activity.schema,
+        schemaVersion: activity.schemaVersion.en,
+      },
+      applet: {
+        id: this._id.split('/')[1],
+        schemaVersion: this.schemaVersion.en,
+      },
+      subject: store.state.auth.user._id,
+      responseStarted: timeStarted,
+      responseCompleted: Date.now(),
+      client: {
+        appId: "mindlogger-admin",
+      },
+      languageCode: '',
+      reviewing: {
+        responseId: reviewingResponseId
+      }
+    };
+
+    const formattedResponses = activity.items.reduce(
+      (accumulator, item, index) => ({ ...accumulator, [item.schemas[0]]: index }),
+      {},
+    );
+
+    const accountId = store.state.currentAccount.accountId;
+
+    const AESKey = encryptionUtils.getAESKey(
+      this.encryption.appletPrivateKey,
+      accountId,
+      this.encryption.appletPrime,
+      this.encryption.base
+    )
+
+    const dataSource = encryptionUtils.encryptData({
+      text: JSON.stringify(responses),
+      key: AESKey
+    });
+
+    responseData['responses'] = formattedResponses;
+    responseData['dataSource'] = dataSource;
+    responseData['userPublicKey'] = accountId;
+
+    return responseData;
   }
 
   /**
