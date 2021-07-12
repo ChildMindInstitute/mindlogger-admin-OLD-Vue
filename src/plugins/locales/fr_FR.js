@@ -78,7 +78,6 @@ export default {
   idleTime: "Temps d'inactivité",
   allDay: 'Toute la journée ',
   startTime: 'Heure de début',
-  days: 'jours',
   hours: 'heures',
   minutes: 'minutes',
   seconds: 'secondes',
