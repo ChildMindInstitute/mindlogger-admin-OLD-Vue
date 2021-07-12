@@ -160,7 +160,7 @@ export default {
   },
   computed: {
     tScore() {
-      return this.subScale.current.tScore && Number(this.subScale.current.tScore).toFixed(3)
+      return this.subScale.current.tScore && Number(Number(this.subScale.current.tScore).toFixed(3))
     }
   }
 }
