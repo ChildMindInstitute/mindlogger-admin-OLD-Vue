@@ -18,6 +18,7 @@
         >
           <v-text-field
             v-model="email"
+            :rules="emailRules"
             :label="$t('login')"
             prepend-icon="mdi-account"
           />
