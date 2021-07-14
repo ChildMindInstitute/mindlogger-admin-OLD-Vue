@@ -203,6 +203,8 @@ export default {
               this.width,
               this.height
             )
+
+            this.drawResponses();
           }
 
           return ;
@@ -211,6 +213,7 @@ export default {
 
       if (this.toolTipVisible) {
         this.currentResponse = null;
+        this.drawResponses();
         this.hideTooltip();
       }
     }
@@ -333,6 +336,10 @@ export default {
         .style('outline', d => {
           if (d.responseId == this.currentResponseId) {
             return 'black auto 5px'
+          }
+
+          if (this.currentResponse && this.currentResponse.responseId == d.responseId) {
+            return 'blue auto 5px';
           }
 
           return ''

@@ -155,6 +155,8 @@ export default {
             } else {
               this.hideTooltip();
             }
+
+            this.drawResponses();
           }
 
           return ;
@@ -163,6 +165,7 @@ export default {
 
       if (this.toolTipVisible) {
         this.currentResponse = null;
+        this.drawResponses();
         this.hideTooltip();
       }
     }
@@ -328,6 +331,17 @@ export default {
         .style('stroke', 'grey')
         .attr('responseId', d => d.value.responseId)
         .attr('subScaleId', d => d.id)
+        .style('outline', d => {
+          if (
+            this.currentResponse &&
+            this.currentResponse.responseId == d.value.responseId &&
+            this.currentResponse.subScaleId == d.id
+          ) {
+            return 'blue auto 5px';
+          }
+
+          return ''
+        })
     },
 
     getValueExtent() {

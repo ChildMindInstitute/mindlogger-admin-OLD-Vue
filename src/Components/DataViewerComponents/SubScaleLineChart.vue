@@ -210,6 +210,8 @@ export default {
             } else {
               this.hideTooltip();
             }
+
+            this.drawResponses();
           }
 
           return ;
@@ -218,6 +220,7 @@ export default {
 
       if (this.toolTipVisible) {
         this.currentResponse = null;
+        this.drawResponses();
         this.hideTooltip();
       }
     }
@@ -422,6 +425,17 @@ export default {
           .attr('r', d => d.value.outputText ? this.radius / 2 : 2)
           .attr('responseId', d => d.value.responseId)
           .attr('subScaleId', i)
+          .style('outline', d => {
+            if (
+              this.currentResponse &&
+              this.currentResponse.responseId == d.value.responseId &&
+              this.currentResponse.subScaleId == i
+            ) {
+              return 'blue auto 5px';
+            }
+
+            return ''
+          })
       }
     },
 
