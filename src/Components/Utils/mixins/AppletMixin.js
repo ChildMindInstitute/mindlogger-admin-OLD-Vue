@@ -122,7 +122,6 @@ export const AppletMixin = {
           for (let response of data.responses) {
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
             const outputTexts = {};
-
             for (let subScaleName in response.subScales) {
               let subScale = response.subScales[subScaleName];
               let textColumn = `Optional text for ${subScaleName}`;
