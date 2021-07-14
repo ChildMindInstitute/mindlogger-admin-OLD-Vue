@@ -218,7 +218,7 @@ export default {
         }
       }
 
-      if (this.toolTipVisible) {
+      if (this.currentResponse) {
         this.currentResponse = null;
         this.drawResponses();
         this.hideTooltip();
