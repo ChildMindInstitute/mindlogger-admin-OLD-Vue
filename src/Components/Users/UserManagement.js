@@ -190,7 +190,11 @@ export default {
     exportData() {
       const applet = this.accountApplets.find(applet => applet.id === this.appletPasswordDialog.appletId);
 
-      this.exportUserData(applet);
+      this.isExporting = true,
+      this.exportUserData(applet)
+        .then(response => {
+          this.isExporting = false;
+        });
     },
 
     onAppletPassword(appletPassword) {
