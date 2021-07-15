@@ -18,6 +18,7 @@
         >
           <v-text-field
             v-model="email"
+            :rules="emailRules"
             :label="$t('login')"
             prepend-icon="mdi-account"
           />
@@ -99,8 +100,10 @@
 <script>
 import api from "../Utils/api/api.vue";
 import _ from "lodash";
+import { AccountMixin } from '../Utils/mixins/AccountMixin';
 
 export default {
+  mixins: [AccountMixin],
   data() {
     return {
       valid: true,
@@ -167,43 +170,11 @@ export default {
           password: this.password,
         })
         .then((resp) => {
-          this.$store.commit("setAuth", { auth: resp.data, email: this.email });
-         
-          this.setAccounts();
-          this.setUserDetails();
+          this.setAuth({ auth: resp.data, email: this.email });
+          this.onLoginSuccess();
         })
         .catch((e) => {
           this.error = e.response.data.message;
-        });
-    },
-
-    setAccounts() {
-      api
-        .getAccounts({
-          apiHost: this.apiHost,
-          token: this.$store.state.auth.authToken.token,
-        })
-        .then((resp) => {
-          this.$store.commit("setAccounts", resp.data);
-          this.$router.push("/dashboard").catch(err => {});
-        })
-        .catch((err) => {
-          console.warn(err);
-        });
-    },
-    setUserDetails()
-    {
-      api
-        .getUserDetails({
-          apiHost: this.apiHost,
-          token: this.$store.state.auth.authToken.token,
-        })
-        .then((resp) => {
-          this.$store.commit("setUserDetails", resp.data);
-          this.$router.push("/dashboard").catch(err => {});
-        })
-        .catch((err) => {
-          console.warn(err);
         });
     },
     onCreateAccount() {
@@ -215,6 +186,9 @@ export default {
     onForgotPassword() {
       this.$emit("forgotPassword", null);
     },
+    onLoginSuccess() {
+      this.$emit("loginSuccess");
+    }
   },
 };
 </script>

@@ -9,8 +9,12 @@
         <h3>{{ $t('appletUrl') }}</h3>
 
         <v-text-field
+          ref="url"
           v-model="appletUrl"
+          :rules="[() => state]"
+          :error-messages="errorMsg"
           label="Enter Applet URL"
+          required
         />
 
         <v-btn
@@ -35,11 +39,38 @@ export default {
   },
   data: () => ({
     appletUrl: '',
+    errorMsg: '',
+    state: true,
   }),
+  watch: {
+    appletUrl () {
+      this.checkAppletUrl();
+    },
+  },
   methods: {
     onClickSubmit() {
-      this.$emit('set-value', this.appletUrl);
+      const res = this.checkAppletUrl();
+      if (this.appletUrl && this.state) {
+        this.$emit('set-value', this.appletUrl);
+      }
     },
+
+    checkAppletUrl() {
+      const gitHubPattern = /^(https?|chrome):\/\/[^\s$.?#].[^\s]*$/;
+
+      this.errorMsg = '';
+      this.state = true;
+
+      if (!this.appletUrl) {
+        this.errorMsg = 'This field is required';
+        this.$refs['url'].validate(true);
+        this.state = false;
+      } else if (!gitHubPattern.test(this.appletUrl)) {
+        this.errorMsg = 'Invalid GitHub URL';
+        this.$refs['url'].validate(true);
+        this.state = false;
+      }
+    }
   },
 };
 </script>

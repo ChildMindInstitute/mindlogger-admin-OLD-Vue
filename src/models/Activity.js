@@ -27,6 +27,8 @@ export default class Activity {
     this.items = [];
     this.responses = [];
 
+    this.lastResponseDate = null;
+
     this.subScales = this.parseSubScales(data[ReproLib.subScales]);
     this.finalSubScale = this.parseFinalSubScale(data[ReproLib.finalSubScale] && data[ReproLib.finalSubScale][0]);
 
@@ -98,7 +100,9 @@ export default class Activity {
         variableName,
         dataColor: RESPONSE_COLORS[index % RESPONSE_COLORS.length],
         slug: slugify(variableName),
-        latest: { tScore: 0, outputText: '' }
+        current: { tScore: 0, outputText: '' },
+        partOfSubScale: false,
+        subScales: []
       }
     })
   }
@@ -119,16 +123,26 @@ export default class Activity {
       lookupTable,
       dataColor: RESPONSE_COLORS[this.subScales.length % RESPONSE_COLORS.length],
       slug: slugify(variableName),
-      latest: { tScore: 0, outputText: '' },
-      isFinalSubScale: true
+      current: { tScore: 0, outputText: '' },
+      isFinalSubScale: true,
+      partOfSubScale: false
     }
   }
 
   initSubScaleItems() {
     for (let subScale of this.subScales) {
       let itemNames = (subScale.jsExpression || '').split(' + ').map(name => name.trim());
+      let subScaleNames = itemNames.filter(name => name.match(/^\(.*\)$/i)).map(name => name.substr(1, name.length-2));
 
       subScale.items = [];
+      subScale.subScales = [];
+      subScaleNames.forEach(name => {
+        const innerSubScale = this.subScales.find(d => d.variableName == name);
+        if (innerSubScale) {
+          innerSubScale.partOfSubScale = true;
+          subScale.subScales.push(innerSubScale);
+        }
+      });
 
       for (let i = 0; i < this.items.length; i++) {
         if (itemNames.includes(this.items[i].label.en)) {
@@ -165,7 +179,7 @@ export default class Activity {
       }
 
       if (subScale.values.length) {
-        subScale.latest = {
+        subScale.current = {
           ...subScale.values[0].value,
           outputText: await this.getOutputText(subScale.values[0].value.outputText)
         };
@@ -174,8 +188,8 @@ export default class Activity {
   }
 
   getLatestActivityScore() {
-    if (this.finalSubScale && this.finalSubScale.latest) {
-      return Number(this.finalSubScale.latest.tScore.toFixed(10));
+    if (this.finalSubScale && this.finalSubScale.current) {
+      return Number(this.finalSubScale.current.tScore.toFixed(3));
     }
 
     let total = 0;
@@ -191,7 +205,7 @@ export default class Activity {
       }
     }
 
-    return Number(total.toFixed(10));
+    return Number(total.toFixed(3));
   }
 
   getFrequency() {

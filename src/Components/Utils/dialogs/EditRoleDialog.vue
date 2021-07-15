@@ -200,6 +200,14 @@
             roleInfo['reviewer'] = profile.userList || [];
           }
 
+          if (oldRoles.includes('manager') && !newRoles.includes('manager')) {
+            for (let role of this.allRoles) {
+              if (roleInfo[role.name] === undefined) {
+                roleInfo[role.name] = 0;
+              }
+            }
+          }
+
           if (Object.keys(roleInfo).length) {
             tasks.push(api.updateUserRoles({ apiHost, token, appletId: profile.appletId, userId: profile['_id'], roleInfo }));
           }

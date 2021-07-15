@@ -5,7 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.6.11] - 2021-04-19
+## [0.6.23] - 2021-06-26
+- Fix response chart on admin dashboard 
+
+## [0.6.22] - 2021-06-23
+- Fix invite confirmation
+- Fix transfering ownership for managers and editors
+
+## [0.6.21] - 2021-06-17
+- Added start and end times
+
+## [0.6.20] - 2021-06-10
+- Fixed week height on calendar
+
+## [0.6.19] - 2021-06-06
+- Fixed image width and height for items
+
+## [0.6.18] - 2021-05-25
+- Fixed idle time setup
+
+## [0.6.17] - 2021-05-02
+- Fixed env for applet library
+
+## [0.6.16] - 2021-04-27
+
+## [0.6.15] - 2021-04-27
+- Fixed idle timer input
+- Fixed Github url validation
+
+## [0.6.13] - 2021-04-22
+- Integrate applet library
+
+## [0.6.12] - 2021-04-23
+- Add applet url validation
+- Modified clickable area in calendar settings
+
+# [0.6.11] - 2021-04-23
+- Modify folder delete
+- Fix UI issues on calendar and data vis
 - Modified frequency graph
 
 ## [0.6.10] - 2021-04-09

@@ -54,53 +54,25 @@ export const DrawingMixin = {
     }
   },
   computed: {
-    versionsLength() {
-      const versionsLength = {};
-      this.versions.forEach(version => {
-        if (version.updated) {
-          const updatedDay = new Date(version.updated).getDay();
-          versionsLength[updatedDay] = versionsLength[updatedDay]
-            ? versionsLength[updatedDay] + 1
-            : 2;
-        }
-      });
-
-      return versionsLength;
-    },
     formattedVersions() {
       let offset = `${this.timezone[0] === '+' ? '-' : '+'}${this.timezone.substr(1)}`;
-      let timeZoneIndex = new Date().getTimezoneOffset() / (-60);
-      let versionHours = 24;
 
       return this.versions.map(version => {
         if (!version.updated) {
           return version;
         }
 
-        const hour = 24 / this.versionsLength[new Date(version.updated).getDay()];
-        const formatted = new Date(version.updated.slice(0, -6) + offset);
-        const versionDate = new Date(formatted).setHours(versionHours - hour + timeZoneIndex, 0, 1);
-        versionHours = (versionHours === hour * 2) ? 24 : versionHours - hour;
-
-        const formattedDate = new Date(versionDate).toISOString();
         return {
           version: version.version,
           barColor: version.barColor || "#000000",
-          updated: new Date(formattedDate.slice(0, -5))
+          updated: new Date(version.updated.slice(0, -6) + offset)
         }
       })
     }
   },
   methods: {
     getX(d) {
-      let responseDate = new Date(d.date);
-      const dataVersion = this.formattedVersions.find(v => v.version === d.version );
-
-      if (dataVersion && dataVersion.updated) {
-        const offset = this.versionsLength[new Date(dataVersion.updated).getDay()] / 2;
-        responseDate = new Date(d.date).setHours(new Date (dataVersion.updated).getHours() + offset);
-      }
-      return this.x(responseDate);
+      return this.x(new Date(d.date));
     },
 
     drawVersions() {
@@ -113,7 +85,9 @@ export const DrawingMixin = {
         return;
       }
 
-      const newVersions = this.formattedVersions.filter(d => this.selectedVersions.indexOf(d.version) >= 0 && d.updated);
+      const newVersions = this.formattedVersions.filter(
+        d => this.selectedVersions.indexOf(d.version) >= 0 && d.updated && this.x(d.updated) > 0
+      );
 
       this.svg
         .select('.versions')
@@ -148,7 +122,7 @@ export const DrawingMixin = {
       return width >= 1024 ? 250 : width >= 768 ? 200 : 150;
     },
 
-    showTooltip(x, y, value, labelWidth, width, height) {
+    showSubScaleToolTip(x, y, value, labelWidth, width, height) {
       this.toolTipVisible = true;
 
       this.outputText = value.outputText;
@@ -182,6 +156,20 @@ export const DrawingMixin = {
       }
       if (x + this.tooltipWidth + 10 > width) {
         x = x - this.tooltipWidth - 10;
+      }
+
+      this.toolTipX = x;
+      this.toolTipY = y;
+    },
+
+    showReviewingTooltip(x, y, labelWidth, width, height) {
+      this.toolTipVisible = true;
+
+      x = x + labelWidth;
+      y = y + 20;
+
+      if (x + this.tooltipWidth > width) {
+        x = x - this.tooltipWidth / 2;
       }
 
       this.toolTipX = x;

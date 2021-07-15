@@ -12,6 +12,7 @@ import Item from './Item';
 import ReproLib from '../schema/ReproLib';
 import SKOS from '../schema/SKOS';
 import encryptionUtils from '../Components/Utils/encryption/encryption.vue'
+import api from '../Components/Utils/api/api';
 
 export const RESPONSE_COLORS = [
   '#1C7AB3',
@@ -43,6 +44,7 @@ export default class Applet {
     this.subScales = {};
     this.tokens = {};
     this.hasTokenItem = false;
+    this.availableDates = {};
 
     this.selectedActivites = [];
 
@@ -126,7 +128,10 @@ export default class Applet {
 
           for (let subScale of subScales) {
             if (subScale.value && subScale.value.ptr !== undefined && subScale.value.src !== undefined) {
+              const src = subScale.value.src;
+
               subScale.value = data.subScaleSources[subScale.value.src].data[subScale.value.ptr];
+              subScale.value.responseId = src;
 
               if (subScale.value.rawScore && !subScale.value.tScore) {
                 subScale.value.tScore = subScale.value.rawScore;
@@ -223,6 +228,7 @@ export default class Applet {
     /** sort data responses according to date/versions */
     let itemIDGroup = Object.keys(data.responses);
     itemIDGroup = itemIDGroup.filter(id => id.startsWith('https://')).concat(itemIDGroup.filter(id => !id.startsWith('https://')));
+    itemIDGroup = itemIDGroup.filter(id => this.items[id]);
 
     for (let itemId of itemIDGroup) {
       data.responses[itemId] = data.responses[itemId].filter(resp => resp.value !== undefined && resp.value !== null);
@@ -277,7 +283,8 @@ export default class Applet {
       for (let item of activity.items) {
         activity.responses.push(...item.responses.map(response => ({
           date: response.date,
-          version: response.version
+          version: response.version,
+          responseId: response.responseId
         })));
       }
 
@@ -291,6 +298,16 @@ export default class Applet {
 
         return true;
       });
+
+      for (const response of activity.responses) {
+        this.availableDates[moment(response.date).format('L')] = true;
+
+        for (const response of activity.responses) {
+          if (!activity.lastResponseDate || activity.lastResponseDate < response.date) {
+              activity.lastResponseDate = response.date;
+          }
+        }
+      }
     }
 
     for (let activity of this.activities) {
@@ -513,6 +530,7 @@ export default class Applet {
 
       for (let response of responses) {
         if (response.value && response.value.ptr !== undefined && response.value.src !== undefined) {
+          response.responseId = response.value.src;
           response.value = data.dataSources[response.value.src].data[response.value.ptr];
         }
       }
@@ -569,10 +587,13 @@ export default class Applet {
     const id = appletId.split('/').pop();
 
     try {
-      const response = await axios({
-        method: 'GET',
-        url: `${store.state.backend}/applet/${id}`,
-        headers: { 'Girder-Token': store.state.auth.authToken.token },
+      const response = await api.getApplet({
+        apiHost: store.state.backend,
+        token: store.state.auth.authToken.token,
+        allEvent: false,
+        retrieveSchedule: false,
+        id,
+        nextActivity: null
       });
 
       response.data.applet.encryption = encryptionInfo;

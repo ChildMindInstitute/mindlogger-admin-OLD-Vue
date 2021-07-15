@@ -108,14 +108,42 @@ const setAccountName = ({ apiHost, token, accountName }) =>
     },
   });
 
-const getApplet = ({ apiHost, token, allEvent, id }) =>
-  axios({
+const getApplet = ({ apiHost, token, retrieveSchedule, allEvent, id, nextActivity }) => {
+  let url = `${apiHost}/applet/${id}?retrieveSchedule=${retrieveSchedule}&retrieveAllEvents=${allEvent}&retrieveItems=true`;
+  if (nextActivity) {
+    url = url + `&nextActivity=${nextActivity}`;
+  }
+
+  return axios({
     method: "get",
-    url: `${apiHost}/applet/${id}?retrieveSchedule=true&retrieveAllEvents=${allEvent}&retrieveItems=true`,
+    url,
     headers: {
       "Girder-Token": token,
     },
-  });
+  }).then(resp => {
+    const response = resp.data;
+
+    if (response.nextActivity)
+    {
+      return new Promise(resolve => setTimeout(() => resolve(getApplet({ apiHost, token, retrieveSchedule, allEvent, id, nextActivity: response.nextActivity }).then(next => {
+        for (const activityIRI in next.data.activities) {
+          response.activities[activityIRI] = next.data.activities[activityIRI];
+        }
+        for (const itemIRI in next.data.items) {
+          response.items[itemIRI] = next.data.items[itemIRI];
+        }
+
+        return {
+          data: {
+            ...response
+          }
+        };
+      })), 50));
+    }
+
+    return resp;
+  })
+}
 
 const getActivityByUrl = ({ apiHost, token, url }) =>
   axios({
@@ -250,6 +278,15 @@ const postAppletInvitation = ({ apiHost, token, appletId, options }) =>
     params: options,
   });
 
+const getOneTimeToken = ({ apiHost, token }) =>
+  axios({
+    method: "POST",
+    url: `${apiHost}/user/token`,
+    headers: {
+      "Girder-Token": token,
+    }
+  });
+
 const deleteApplet = ({ apiHost, token, appletId }) =>
   axios({
     method: "DELETE",
@@ -283,10 +320,10 @@ const updateApplet = ({ apiHost, token, data, appletId }) =>
     data,
   })
 
-const prepareApplet = ({ apiHost, token, data, appletId }) =>
+const prepareApplet = ({ apiHost, token, data, appletId, thread }) =>
   axios({
     method: "PUT",
-    url: `${apiHost}/applet/${appletId}/prepare`,
+    url: `${apiHost}/applet/${appletId}/prepare?thread=${thread}`,
     headers: {
       "Girder-Token": token,
     },
@@ -476,7 +513,7 @@ const addAppletToFolder = (apiHost, token, folderId, appletId) => axios({
     'Girder-Token': token
   },
   params: {
-    id: folderId, 
+    id: folderId,
     appletId
   }
 })
@@ -488,7 +525,7 @@ const removeApplet = (apiHost, token, folderId, appletId) => axios({
     'Girder-Token': token
   },
   params: {
-    id: folderId, 
+    id: folderId,
     appletId
   }
 })
@@ -547,6 +584,150 @@ const updateAlertStatus = (apiHost, token, alertId) => {
   })
 }
 
+const getBasketContent = ({ apiHost, token }) =>
+  axios({
+    method: 'get',
+    url: `${apiHost}/library/basket/content`,
+    headers: {
+      'Girder-Token': token,
+    },
+  });
+
+const checkAppletNameInLibrary = (apiHost, token, appletId, appletName) => {
+  return axios({
+    method: 'get',
+    url: `${apiHost}/library/${appletId}/checkName`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      name: appletName
+    }
+  })
+}
+
+const changeAppletName = (apiHost, token, appletId, appletName) => {
+  return axios({
+    method: 'put',
+    url: `${apiHost}/applet/${appletId}/name`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      id: appletId,
+      name: appletName
+    }
+  })
+}
+
+const getLibraryCategories = (apiHost, token) => {
+  return axios({
+    method: 'get',
+    url: `${apiHost}/library/categories`,
+    headers: {
+      'Girder-Token': token
+    }
+  })
+}
+
+const publishAppletToLibrary = (apiHost, token, appletId, publish = true) => {
+  return axios({
+    method: 'put',
+    url: `${apiHost}/applet/${appletId}/status`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      id: appletId,
+      publish
+    }
+  })
+}
+
+const updateAppletSearchTerms = (apiHost, token, appletId, params) => {
+  return axios({
+    method: 'put',
+    url: `${apiHost}/applet/${appletId}/searchTerms`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      ...params,
+      id: appletId,
+    }
+  })
+}
+
+const getAppletSearchTerms = (apiHost, token, appletId) => {
+  return axios({
+    method: 'get',
+    url: `${apiHost}/applet/${appletId}/searchTerms`,
+    headers: {
+      'Girder-Token': token
+    }
+  })
+}
+
+const getAppletLibraryUrl = (apiHost, token, appletId) => {
+  return axios({
+    method: 'get',
+    url: `${apiHost}/applet/${appletId}/libraryUrl`,
+    headers: {
+      'Girder-Token': token
+    }
+  })
+}
+
+const getNotes = (apiHost, token, appletId, responseId) =>
+  axios({
+    method: 'get',
+    url: `${apiHost}/response/${appletId}/notes`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      responseId
+    }
+  })
+
+const addNote = (apiHost, token, appletId, responseId, note) =>
+  axios({
+    method: 'post',
+    url: `${apiHost}/response/${appletId}/note`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      responseId,
+      note
+    }
+  })
+
+const updateNote = (apiHost, token, appletId, noteId, note) =>
+  axios({
+    method: 'put',
+    url: `${apiHost}/response/${appletId}/note`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      noteId,
+      note
+    }
+  })
+
+const deleteNote = (apiHost, token, appletId, noteId) =>
+  axios({
+    method: 'delete',
+    url: `${apiHost}/response/${appletId}/note`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      noteId,
+    }
+  })
+
 export default {
   signIn,
   signUp,
@@ -562,6 +743,7 @@ export default {
   deleteUserFromRole,
   updateUserRoles,
   getAppletUsers,
+  getOneTimeToken,
   transferOwnership,
   postAppletInvitation,
   revokeAppletUser,
@@ -598,5 +780,17 @@ export default {
   deleteFolder,
   togglePin,
   updateAlertStatus,
+  getBasketContent,
+  checkAppletNameInLibrary,
+  changeAppletName,
+  getLibraryCategories,
+  publishAppletToLibrary,
+  updateAppletSearchTerms,
+  getAppletSearchTerms,
+  getAppletLibraryUrl,
+  getNotes,
+  addNote,
+  updateNote,
+  deleteNote
 }
 </script>

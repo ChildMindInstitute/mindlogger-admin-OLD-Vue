@@ -45,7 +45,7 @@
         class="d-block ma-auto mt-2"
         color="black"
         indeterminate
-        :size="50"
+        :size="25"
       >
       </v-progress-circular>
   </div>
@@ -312,28 +312,6 @@ export default {
 
         if (this.item.multiChoiceStatusByVersion[response.version]) {
           x = y = -1;
-        }
-
-        if (x >= 0 && prevX >= 0) {
-          let delta = this.radius + 2;
-          let dx = x - prevX,
-              dy = y - prevY;
-
-          let r = Math.sqrt(dx * dx + dy * dy);
-
-          dx /= r, dy /= r;
-
-          if (r >= this.radius * 2) {
-            this.svg
-              .select('.responses')
-              .append('line')
-              .style('stroke-width', 1.5)
-              .attr('x1', prevX + dx * delta)
-              .attr('y1', prevY + dy * delta)
-              .attr('x2', x - dx * delta)
-              .attr('y2', y - dy * delta)
-              .attr('stroke', 'black')
-          }
         }
 
         prevX = x;

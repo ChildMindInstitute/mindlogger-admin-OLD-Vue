@@ -32,6 +32,8 @@ const getDefaultState = () => {
     },
     currentLanguage: 'en_US',
     currentRetentions: null,
+    currentAppletBuilderData: null,
+    basketApplets: {},
   };
 };
 
@@ -144,6 +146,9 @@ const mutations = {
 
     state.userEmail = userData.email;
   },
+  setOwnerAccount(state, account) {
+    state.ownerAccount = account;
+  },
   setCachedEvents(state, events) {
     if (events) {
       state.cachedEvents = events;
@@ -197,18 +202,33 @@ const mutations = {
   removeDeletedApplet(state, applet) {
     state.currentAccount.applets = state.currentAccount.applets.filter(item => item.id != applet.id);
     state.fullDirectory = state.fullDirectory.filter(item => item.id != applet.id);
+  },
+  cacheAppletBuilderData(state, appletBuilderData) {
+    state.currentAppletBuilderData = appletBuilderData;
+  },
+  setBasketApplets(state, basketApplets) {
+    state.basketApplets = basketApplets;
   }
 };
 
-const stateCopy = (({ 
+const getters = {
+  isLoggedIn (state) {
+    return !_.isEmpty(state.auth)
+  },
+};
+
+const stateCopy = (({
   // Excluded properties.
   currentLanguage,
+  allApplets,
+  currentAppletData,
   ...o
 }) => o)(state);
 const stateToPersist = Object.keys(stateCopy);
 
 export const storeConfig = {
   state,
+  getters,
   mutations,
   plugins: [
     createPersistedState({

@@ -85,6 +85,7 @@
           class="toolbar-btn"
           v-on="on"
           @click="onEditApplet"
+          :disabled="currentApplet.editing"
         >
           <v-icon>mdi-square-edit-outline</v-icon>
         </v-btn>
@@ -144,7 +145,7 @@
     </v-tooltip>
 
     <v-tooltip
-      v-if="currentApplet && hasRoles(currentApplet, 'editor', 'manager')"
+      v-if="currentApplet && hasRoles(currentApplet, 'owner')"
       bottom
     >
       <template v-slot:activator="{ on }">
@@ -247,14 +248,14 @@
       <v-card>
         <v-list>
           <v-list-item>
-            <v-list-item-title @click="switchAccount(ownerAccountId)">
+            <v-list-item-title @click="onSwitchAccount(ownerAccountId)">
               {{ ownerAccountName }}
             </v-list-item-title>
           </v-list-item>
           <v-list-item
             v-for="(account, index) in accounts"
             :key="index"
-            @click="switchAccount(account.accountId)"
+            @click="onSwitchAccount(account.accountId)"
           >
             <v-list-item-title>{{ account.accountName }}</v-list-item-title>
           </v-list-item>
@@ -402,12 +403,14 @@ import Information from "../dialogs/InformationDialog.vue";
 import AppletName from "../dialogs/AppletName";
 import { AppletMixin } from '../mixins/AppletMixin';
 import { RolesMixin } from '../mixins/RolesMixin';
+import { AccountMixin } from '../mixins/AccountMixin';
 import encryption from '../encryption/encryption.vue';
 
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import fr from 'javascript-time-ago/locale/fr';
 import TransferOwnershipDialog from '../dialogs/TransferOwnershipDialog.vue';
+import Builder from 'applet-schema-builder';
 
 TimeAgo.addLocale(en);
 TimeAgo.addLocale(fr);
@@ -422,7 +425,7 @@ export default {
     AppletName,
     TransferOwnershipDialog,
   },
-  mixins: [AppletMixin, RolesMixin],
+  mixins: [AppletMixin, RolesMixin, AccountMixin],
   data() {
     return {
       appletEditDialog: false,
@@ -568,23 +571,12 @@ export default {
       this.$router.push('/login').catch(err => {});
     },
 
-    switchAccount(accountId) {
-      api
-        .switchAccount({
-          apiHost: this.$store.state.backend,
-          token: this.$store.state.auth.authToken.token,
-          accountId,
-        })
-        .then((resp) => {
-          this.$store.commit('setCurrentApplet', null);
-          this.$store.commit('setCurrentUsers', {});
-          this.$store.commit('switchAccount', resp.data.account);
-          this.$router.push('/build').catch(err => {});
-          this.$router.push('/dashboard').catch(err => {});
-        })
-        .catch((err) => {
-          console.warn(err);
-        });
+    async onSwitchAccount(accountId) {
+      this.$store.commit('setCurrentApplet', null);
+      this.$store.commit('setCurrentUsers', {});
+      await this.switchAccount(accountId);
+      this.$router.push('/build').catch(err => {});
+      this.$router.push('/dashboard').catch(err => {});
     },
 
     onDashboard() {
@@ -611,11 +603,39 @@ export default {
       }
     },
 
-    editApplet() {
-      this.$router.push({
-        name: 'Builder',
-        params: { isEditing: true },
-      }).catch(err => {});
+    async editApplet() {
+      if (this.currentApplet.largeApplet && this.currentApplet.hasUrl) {
+        if (!this.isLatestApplet(this.currentApplet)) {
+          await this.loadApplet(this.currentApplet.id);
+        }
+
+        const appletId = this.currentApplet.id;
+        const token = this.$store.state.auth.authToken.token;
+        const apiHost = this.$store.state.backend;
+
+        const data = await Builder.getBuilderFormat(this.currentAppletData, true)
+        const protocol = new FormData();
+        protocol.append('protocol', new Blob([JSON.stringify(data || {})], { type: 'application/json' }));
+
+        api
+          .prepareApplet({
+            apiHost,
+            token,
+            data: protocol,
+            appletId,
+            thread: true
+          })
+          .then(resp => {
+            this.dialogText = this.$t('appletEditProgress');
+            this.dialogTitle = this.$t('appletStatusUpdate');
+            this.dialog = true;
+          })
+      } else {
+        this.$router.push({
+          name: 'Builder',
+          params: { isEditing: true },
+        }).catch(err => {});
+      }
     },
 
     onAppletPassword(appletPassword) {
@@ -799,8 +819,7 @@ export default {
           })
           .then((resp) => {
             this.ownershipDialog = false;
-
-            this.dialogText = this.$t('requestSuccess', { ownershipEmail });
+            this.dialogText = this.$t('requestSuccess', { email: ownershipEmail });
             this.dialogTitle = this.$t('requestSent');
             this.dialog = true;
           })

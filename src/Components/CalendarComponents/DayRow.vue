@@ -1,6 +1,9 @@
 <template>
 
-	<div class="ds-week">
+	<div
+		v-if="visible"
+		class="ds-week"
+	>
 
 		<template v-for="(day, i) in days">
 
@@ -16,6 +19,19 @@
 
 		</template>
 
+	</div>
+
+	<div
+		v-else
+		class="ds-week"
+	>
+		<v-progress-circular
+			class="d-block ma-auto mt-2"
+			color="black"
+			indeterminate
+			:size="50"
+		>
+		</v-progress-circular>
 	</div>
 
 </template>
@@ -55,6 +71,29 @@ export default {
 					default: false
 				}
 		},
+	data() {
+		return {
+			visible: false,
+		}
+	},
+
+	mounted() {
+		if (('IntersectionObserver' in window)) {
+			const observer = new IntersectionObserver((entries) => {
+				if (entries[0].intersectionRatio <= 0) {
+				  return;
+				}
+
+				if (!this.visible) {
+				  this.visible = true;
+				}
+			});
+
+			observer.observe(this.$el);
+		} else {
+			this.visible = true;
+		}
+	},
 
 	methods:
 		{}
@@ -65,7 +104,7 @@ export default {
 
 	.ds-week {
 		display: flex;
-		flex: 1;
+		flex: 1 1 0%;
 	}
 
 </style>

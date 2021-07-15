@@ -137,8 +137,9 @@ export default {
         return _.map(activities, (a, URI) => {
           const name =
             a["http://www.w3.org/2004/02/skos/core#prefLabel"][0]["@value"];
-          const color = this.$dayspan.colors[index].text;
+          const color = this.$dayspan.colors[index % this.$dayspan.colors.length].text;
           index += 1;
+
           addActivityColor(a._id, color); // add the activity color
           return {
             name,
@@ -204,9 +205,10 @@ export default {
         this.saveSuccess = false;
         this.saveError = false;
         this.loading = true;
+
         const schedule = this.addEventType(this.currentAppletData.applet.schedule);
         const removedEvents = this.$store.state.removedEvents;
-        console.log('schedule', schedule);
+
         scheduleForm.set("schedule", JSON.stringify(schedule || {}));
         scheduleForm.set("deleted", JSON.stringify(removedEvents || {}));
         api

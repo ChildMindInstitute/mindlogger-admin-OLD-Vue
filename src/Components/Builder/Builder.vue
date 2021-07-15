@@ -10,6 +10,8 @@
       :getProtocols="getProtocols"
       :versions="versions"
       :templates="itemTemplates"
+      :cacheData="currentAppletBuilderData"
+      :basketApplets="basketApplets"
       @removeTemplate="onRemoveTemplate"
       @updateTemplates="onAddTemplate"
       @uploadProtocol="onUploadProtocol"
@@ -17,6 +19,7 @@
       @prepareApplet="onPrepareApplet"
       @onUploadError="onUploadError"
       @setLoading="setLoading"
+      @switchToLibrary="onSwitchToLibrary"
     />
 
     <Information
@@ -36,19 +39,28 @@
 .v-card__text {
   padding: 16px !important;
 }
+.v-dialog {
+  .v-card {
+    .v-card__title {
+      display: block !important;
+    }
+  }
+}
 </style>
 
 <script>
-import About from './AboutBuilder';
-import PackageJson from '../../../package.json';
-import api from '../Utils/api/api.vue';
-import { cloneDeep } from 'lodash';
-import axios from 'axios';
-import { AppletMixin } from '../Utils/mixins/AppletMixin';
+import About from "./AboutBuilder";
+import PackageJson from "../../../package.json";
+import api from "../Utils/api/api.vue";
+import { cloneDeep } from "lodash";
+import axios from "axios";
+import { mapState, mapGetters, mapMutations } from "vuex";
+import { AppletMixin } from "../Utils/mixins/AppletMixin";
+import { AccountMixin } from "../Utils/mixins/AccountMixin";
 
-import encryption from '../Utils/encryption/encryption.vue';
-import AppletPassword from '../Utils/dialogs/AppletPassword';
-import Information from '../Utils/dialogs/InformationDialog.vue';
+import encryption from "../Utils/encryption/encryption.vue";
+import AppletPassword from "../Utils/dialogs/AppletPassword";
+import Information from "../Utils/dialogs/InformationDialog.vue";
 
 const RESPONSE_OPTIONS = "reprolib:terms/responseOptions";
 const ITEM_LIST_ELEMENT = "schema:itemListElement";
@@ -59,21 +71,21 @@ const TYPE = "@type";
 const CONTEXT = "@context";
 
 export default {
-  name: 'Builder',
+  name: "Builder",
   components: {
     About,
     AppletPassword,
     Information,
   },
-  mixins: [AppletMixin],
+  mixins: [AppletMixin, AccountMixin],
   data() {
     return {
       loading: true,
       initializing: true,
       package: PackageJson,
       dialog: false,
-      dialogText: '',
-      dialogTitle: '',
+      dialogText: "",
+      dialogTitle: "",
       appletPasswordDialog: false,
       newApplet: {},
       isEditing: false,
@@ -84,34 +96,61 @@ export default {
       tokenTemplate: [
         {
           "@context": [
-            "https://raw.githubusercontent.com/jj105/reproschema-context/master/context.json"
+            "https://raw.githubusercontent.com/jj105/reproschema-context/master/context.json",
           ],
-          "name": "token",
+          name: "token",
           "@id": "token",
           "skos:prefLabel": "token_template",
           "skos:altLabel": "token_template",
           "schema:description": "token_template",
-          "ui": {
-            "inputType": "radio",
-            "allow": [
-              "autoAdvance"
-            ]
+          ui: {
+            inputType: "radio",
+            allow: ["autoAdvance"],
           },
-          "responseOptions": {
+          responseOptions: {
             "@valueType": "xsd:anyURI",
-            "multipleChoice": false,
+            multipleChoice: false,
             "schema:minValue": 1,
             "schema:maxValue": 2,
-            "choices": []
+            choices: [],
           },
-        }
-      ]
+        },
+      ],
+      cacheData: null,
     };
+  },
+  computed: {
+    ...mapState(["currentAppletBuilderData", "basketApplets"]),
+    accountApplets() {
+      return (
+        (this.$store.state.currentAccount &&
+          this.$store.state.currentAccount.applets) ||
+        []
+      );
+    },
   },
   async beforeMount() {
     const { apiHost, token } = this;
     this.versions = [];
-    if (this.$route.params.isEditing) {
+    if (!this.$route.params.isLibrary) {
+      this.$store.commit("setBasketApplets", {});
+      this.$store.commit("cacheAppletBuilderData", null);
+    }
+
+    if (this.$route.query.accountId) {
+      await this.switchAccount(this.$route.query.accountId);
+    }
+
+    if (this.$route.query.appletId) {
+      this.$store.commit(
+        "setCurrentApplet",
+        this.accountApplets.find(
+          (applet) => applet.id === this.$route.query.appletId
+        )
+      );
+    }
+
+    if (this.$route.params.isEditing || this.$route.query.appletId) {
       const appletId = this.currentAppletMeta.id;
       this.isEditing = true;
 
@@ -119,7 +158,11 @@ export default {
         await this.loadApplet(this.currentAppletMeta.id);
       }
 
-      const versions = await api.getAppletVersions({ apiHost, token, appletId });
+      const versions = await api.getAppletVersions({
+        apiHost,
+        token,
+        appletId,
+      });
       this.versions = versions.data;
     }
     const templateResp = await api.getItemTemplates({ apiHost, token });
@@ -132,6 +175,8 @@ export default {
     this.initializing = false;
   },
   methods: {
+    ...mapMutations(["cacheAppletBuilderData"]),
+
     onClickSubmitPassword(appletPassword) {
       this.appletPasswordDialog = false;
       this.addNewApplet(appletPassword);
@@ -141,40 +186,48 @@ export default {
       this.appletPasswordDialog = true;
     },
     async onAddTemplate(option) {
-      this.itemTemplates = [...this.itemTemplates, option]
-      await this.onUpdateTemplates(option)
+      this.itemTemplates = [...this.itemTemplates, option];
+      await this.onUpdateTemplates(option);
     },
     async onRemoveTemplate(option) {
-      const updatedItems = this.itemTemplates.filter(({ text, value, description }) => text !== option.text || value !== option.value || description !== option.description)
-      this.itemTemplates = [...updatedItems]
-      await this.onUpdateTemplates(option)
+      const updatedItems = this.itemTemplates.filter(
+        ({ text, value, description }) =>
+          text !== option.text ||
+          value !== option.value ||
+          description !== option.description
+      );
+      this.itemTemplates = [...updatedItems];
+      await this.onUpdateTemplates(option);
     },
     async onUpdateTemplates(option) {
       const form = new FormData();
       const { apiHost, token, tokenTemplate } = this;
-      const contextURL = "https://raw.githubusercontent.com/jj105/reproschema-context/master/context.json";
+      const contextURL =
+        "https://raw.githubusercontent.com/jj105/reproschema-context/master/context.json";
       const optionData = {
         contexts: {},
-        templates: tokenTemplate
-      }
-      const choices = this.itemTemplates.map(template => {
+        templates: tokenTemplate,
+      };
+      const choices = this.itemTemplates.map((template) => {
         return {
           [TYPE]: "schema:option",
           [ITEM_NAME]: template.text,
           [ITEM_VALUE]: template.value,
           [ITEM_DESCRIPTION]: template.description,
-        }
-      })
-      optionData.contexts[contextURL] = (await axios.get(contextURL)).data[CONTEXT];
+        };
+      });
+      optionData.contexts[contextURL] = (await axios.get(contextURL)).data[
+        CONTEXT
+      ];
       optionData.templates[0]["responseOptions"]["choices"] = choices;
       if (this.templateId) {
-        optionData.templates[0]["_id"] = this.templateId
+        optionData.templates[0]["_id"] = this.templateId;
       }
       form.set("templateInfo", JSON.stringify(optionData));
       const updatedTemplates = await api.updateItemTemplates({
         apiHost,
         token,
-        data: form
+        data: form,
       });
       if (updatedTemplates.data.length) {
         this.templateId = updatedTemplates.data[0]["_id"];
@@ -182,14 +235,14 @@ export default {
     },
     addNewApplet(appletPassword) {
       const form = new FormData();
-      form.set('protocol', JSON.stringify(this.newApplet || {}));
+      form.set("protocol", JSON.stringify(this.newApplet || {}));
 
       const encryptionInfo = encryption.getAppletEncryptionInfo({
         appletPassword: appletPassword,
         accountId: this.$store.state.currentAccount.accountId,
       });
       form.set(
-        'encryption',
+        "encryption",
         JSON.stringify({
           appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
           appletPrime: Array.from(encryptionInfo.getPrime()),
@@ -213,31 +266,41 @@ export default {
         });
     },
     formatItemTemplates(templatesData) {
-      const templates = []
-      templatesData.forEach(data => {
-        data[RESPONSE_OPTIONS].forEach(responseOption => {
-          responseOption[ITEM_LIST_ELEMENT].forEach(itemElement => {
+      const templates = [];
+      templatesData.forEach((data) => {
+        data[RESPONSE_OPTIONS].forEach((responseOption) => {
+          responseOption[ITEM_LIST_ELEMENT].forEach((itemElement) => {
             const template = {
               text: itemElement[ITEM_NAME][0]["@value"],
               value: itemElement[ITEM_VALUE][0]["@value"],
-              description: (itemElement[ITEM_DESCRIPTION] && itemElement[ITEM_DESCRIPTION][0]["@value"]) || '',
-            }
-            if (templates.some(({ text, value, description }) => text === template.text && value === template.value && description === template.description)) {
+              description:
+                (itemElement[ITEM_DESCRIPTION] &&
+                  itemElement[ITEM_DESCRIPTION][0]["@value"]) ||
+                "",
+            };
+            if (
+              templates.some(
+                ({ text, value, description }) =>
+                  text === template.text &&
+                  value === template.value &&
+                  description === template.description
+              )
+            ) {
               // template found inside the array
             } else {
-              templates.push(template)
+              templates.push(template);
             }
-          })
-        })
-      })
+          });
+        });
+      });
       if (templatesData.length) {
-        this.templateId = templatesData[0]["_id"]
+        this.templateId = templatesData[0]["_id"];
       }
-      this.itemTemplates = [...templates]
+      this.itemTemplates = [...templates];
     },
     onUpdateProtocol(updateData) {
       const protocol = new FormData();
-      protocol.set('protocol', JSON.stringify(updateData || {}));
+      protocol.set("protocol", JSON.stringify(updateData || {}));
 
       const appletId = this.currentAppletMeta.id;
       const token = this.$store.state.auth.authToken.token;
@@ -249,9 +312,10 @@ export default {
           token,
           apiHost,
         })
-        .then((resp) => {
-          this.$store.commit('updateAppletData', {
-            ...resp.data,
+        .then((resp) => this.loadApplet(appletId))
+        .then((data) => {
+          this.$store.commit("updateAppletData", {
+            ...data,
             roles: this.currentAppletMeta.roles,
           });
 
@@ -268,7 +332,11 @@ export default {
     },
     onPrepareApplet(data) {
       const protocol = new FormData();
-      protocol.set('protocol', JSON.stringify(data || {}));
+
+      const blob = new Blob([JSON.stringify(data || {})], {
+        type: "application/json",
+      });
+      protocol.append("protocol", blob);
 
       const appletId = this.currentAppletMeta.id;
       const token = this.$store.state.auth.authToken.token;
@@ -280,27 +348,25 @@ export default {
           token,
           data: protocol,
           appletId,
+          thread: false,
         })
-        .then((resp) => {
-          this.$store.commit("updateAppletData", resp.data);
-
-          return api.getAppletVersions({ apiHost, token, appletId })
-        })
+        .then((resp) => this.loadApplet(appletId))
+        .then(() => api.getAppletVersions({ apiHost, token, appletId }))
         .then((resp) => {
           this.versions = resp.data;
           this.componentKey = this.componentKey + 1;
         });
     },
     onUploadSucess(msg) {
-      this.dialogText = msg || 'Your applet is successfully updated';
-      this.dialogTitle = 'Upload Received';
+      this.dialogText = msg || "Your applet is successfully updated";
+      this.dialogTitle = "Upload Received";
       this.dialog = true;
     },
     onUploadError(msg) {
       this.dialogText =
         msg ||
-        'There was an error uploading your applet. Please try again or report the issue.';
-      this.dialogTitle = 'Upload Error';
+        "There was an error uploading your applet. Please try again or report the issue.";
+      this.dialogTitle = "Upload Error";
       this.dialog = true;
     },
     getProtocols(versions) {
@@ -316,6 +382,18 @@ export default {
     },
     setLoading(isLoading) {
       this.loading = isLoading;
+    },
+    onSwitchToLibrary(appletBuilderData) {
+      api
+        .getOneTimeToken({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+        })
+        .then((res) => {
+          const { token } = res.data;
+          this.cacheAppletBuilderData(appletBuilderData);
+          window.location.href = `${process.env.VUE_APP_LIBRARY_URI}/#/?from=builder&token=${token}`;
+        });
     },
   },
 };

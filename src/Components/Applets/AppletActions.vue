@@ -1,5 +1,5 @@
 <template>
-    <div >
+		<div>
 		<span class="laptop-only ">
 
 			<action-button :tooltip="$t('viewUsers')" icon="mdi-account-multiple" @click="onViewUsers(item)"
@@ -7,25 +7,26 @@
 
 			<action-button :tooltip="$t('viewCalendar')" icon="mdi-calendar-month" @click="onViewGeneralCalendar(item)"
 					v-if="canViewGeneralCalendar" />
-        
+
 			<action-button :tooltip="$t('editApplet')" icon="mdi-square-edit-outline" @click="onEditApplet(item)"
-					v-if="canEditApplet" />
-					
-			<action-button :tooltip="$t('duplicateApplet')" imageName="copy-clipart.png"  @click="onDuplicateApplet(item)"
+					v-if="canEditApplet" :disabled="item.editing" />
+
+			<action-button :tooltip="$t('duplicateApplet')" imageName="copy-clipart.png" @click="onDuplicateApplet(item)"
 					v-if="canDuplicate" />
 			<action-button :tooltip="$t('deleteApplet')" icon="mdi-delete" @click="onDeleteApplet(item)"
 					v-if="canDeleteApplet" />
 
-
 			<action-button :tooltip="$t('refreshApplet')" icon="mdi-refresh" @click="onRefreshApplet(item)"
-					  v-if="canRefresh" />           	
+					v-if="canRefresh" />
 
-		  <action-button :tooltip="$t('transferOwnership')"  imageName="transfer-ownership.png" @click="onTransferOwnership(item)"
-					v-if="canTransferOwnership"/> 
+			<action-button :tooltip="$t('transferOwnership')" imageName="transfer-ownership.png" @click="onTransferOwnership(item)"
+					v-if="canTransferOwnership" />
 
-	  	<action-button :tooltip="$t('removeFromFolder')" @click="removeFromFolder"  imageName="folder-eject.png" 
-			    v-if="canRemoveFromFolder"/>
-     		
+			<action-button :tooltip="$t('removeFromFolder')" imageName="folder-eject.png" @click="removeFromFolder"
+					v-if="canRemoveFromFolder" />
+
+			<action-button :tooltip="$t('shareWithLibrary')" icon="mdi-web" @click="onShareWithLibrary"
+					v-if="canShareWithLibrary" />
 		</span>
 		<span class="laptop-hidden">
             <v-menu offset-y>
@@ -68,8 +69,12 @@
                   <v-list-item-title>{{ $t('transferOwnership') }}</v-list-item-title>
                 </v-list-item>
 
-                <v-list-item v-if="canRemoveFromFolder" @click="removeFromFolder">
+                <v-list-item  @click="removeFromFolder">
                   <v-list-item-title>{{ $t('removeFromFolder') }}</v-list-item-title>
+                </v-list-item>
+
+                <v-list-item v-if="canShareWithLibrary" @click="onShareWithLibrary">
+                  <v-list-item-title>{{ $t('shareWithLibrary') }}</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
@@ -123,6 +128,10 @@ export default {
 
 		canRemoveFromFolder() {
 			return this.item.parentId && this.hasRoles(this.item, 'coordinator', 'editor', 'reviewer', 'manager');
+		},
+
+		canShareWithLibrary() {
+			return this.hasRoles(this.item, 'owner', 'manager');
 		}
 	},
 
@@ -148,7 +157,11 @@ export default {
 		},
 
 		onDeleteApplet() {
-			this.publishEvent("onDeleteApplet");
+			if (this.item.parentId) {
+				this.publishEvent("removeFromFolder");
+			} else {
+				this.publishEvent("onDeleteApplet");
+			}
 		},
 
 		onDuplicateApplet() {
@@ -162,6 +175,11 @@ export default {
 		onTransferOwnership() {
 			this.publishEvent("onTransferOwnership");
 		},
+
+		onShareWithLibrary() {
+			this.publishEvent("onShareWithLibrary");
+		},
+
 	}
 }
 

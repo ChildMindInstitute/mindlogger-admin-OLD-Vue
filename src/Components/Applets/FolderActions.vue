@@ -5,11 +5,11 @@
 			<action-button icon="mdi-content-save" :tooltip="$t('save')" 
 						@click="$emit('onSave', item)" v-if="item.isNew" />
 
-			<action-button icon="mdi-delete" :disabled="item.isFolder && item.items.length > 0" 
+			<action-button icon="mdi-delete" :disabled="item.isFolder && appletCount > 0" 
 				@click="$emit('onDelete', item)" >
 				<template v-slot:tooltip>
-				 	<span v-if="item.isFolder && item.items.length > 0">{{$t('deleteFolderWarning')}}</span>
-                  	<span v-else-if="item.isFolder">{{$t('delete')}}</span>
+				 	<span v-if="item.isFolder && appletCount > 0">{{$t('deleteFolderWarning')}}</span>
+					<span v-else-if="item.isFolder">{{$t('delete')}}</span>
 				</template>
 			</action-button>
 
@@ -30,7 +30,12 @@ export default {
 			type: Object,
 			required: true
 		}
-	}
+	},
+	computed : {
+    appletCount() {
+      return this.item.items.filter(item => !item.isFolder).length;
+    },
+	},
 }
 
 </script>

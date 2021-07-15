@@ -2,12 +2,46 @@
   <div
     class="activity-summary"
   >
+    <v-list
+      v-show="toolTipVisible"
+      class="tooltip"
+      :style="`left: ${toolTipX}px; top: ${toolTipY}px; width: ${tooltipWidth}px; max-height: ${tooltipHeight}px`"
+    >
+      <v-list-item
+        class="tooltip-item"
+        @mousedown="onReviewResponse"
+      >
+        Review
+      </v-list-item>
+
+      <v-list-item
+        v-if="currentResponseId"
+        class="tooltip-item"
+        @mousedown="onShowSubScale"
+      >
+        Show SubScale Results
+      </v-list-item>
+    </v-list>
+
+    <div
+      v-if="fullActivityName"
+      class="tooltip pa-2 tooltip-text"
+      :style="`left: ${labelWidth/4}px; top: ${padding.top + radius + 30}px; width: ${tooltipWidth}px; max-height: ${tooltipHeight}px`"
+    >
+      {{ label }}
+    </div>
+
     <svg
       :id="plotId"
       :height="height"
       width="100%"
+      ref="responses"
     >
-      <g class="labels">
+      <g
+        @mouseenter="fullActivityName = true"
+        @mouseleave="fullActivityName = false"
+        class="labels"
+      >
         <text
           :y="padding.top + radius + 15/2"
           :x="labelWidth/2 + 20"
@@ -39,7 +73,11 @@
       >
         <g class="x-axis" />
         <g class="versions" />
-        <g class="responses" />
+        <g
+          @click="onClickSVG"
+          @mousedown="onClickSVG"
+          class="responses"
+        />
       </g>
     </svg>
   </div>
@@ -54,6 +92,36 @@
   user-select: none;
 }
 
+.tooltip {
+  border: 1px solid black;
+  position: absolute;
+  border-radius: 2px;
+  padding: 2px;
+  background: white;
+  z-index: 100;
+}
+
+.tooltip-text {
+  border-radius: 4px;
+  background: black;
+  color: white;
+  text-align: center;
+  opacity: 0.75;
+}
+
+.tooltip-item:hover {
+  color: rgba(0, 0, 0, 0.7);
+  opacity: .7;
+}
+
+.tooltip-item {
+  text-align: center;
+  background-color: #f5f5f5;
+}
+
+.tooltip-item:not(:last-child) {
+  border-bottom: 1px solid black;
+}
 </style>
 
 <script>
@@ -102,12 +170,18 @@ export default {
   data: function() {
     let margin = { left: 20, right: 60 };
     let width = this.parentWidth - margin.left - margin.right;
+    let currentResponseId = this.subScales.length ? this.subScales[0].current.responseId : null;
 
     return {
       height: 50,
       margin,
       width,
       labelWidth: width / 4,
+      tooltipWidth: 200,
+      tooltipHeight: 110,
+      currentResponse: null,
+      fullActivityName: false,
+      currentResponseId,
     }
   },
   computed: {
@@ -149,10 +223,45 @@ export default {
       }
     }
   },
+  created() {
+    this.onMouseDown = (evt) => {
+      const src = evt.srcElement;
+
+      if (this.$refs && this.$refs.responses) {
+        if (this.$refs.responses.contains(src) && src.tagName == 'circle') {
+          const responseId = src.getAttribute('responseId');
+
+          if (!this.currentResponse || this.currentResponse.responseId != responseId) {
+            this.currentResponse = this.data.find(d => d.responseId == responseId);
+
+            this.showReviewingTooltip(
+              this.getX(this.currentResponse),
+              this.radius + this.padding.top,
+              this.labelWidth,
+              this.width,
+              this.height
+            )
+          }
+
+          return ;
+        }
+      }
+
+      if (this.toolTipVisible) {
+        this.currentResponse = null;
+        this.hideTooltip()
+      }
+    }
+
+    window.addEventListener('mousedown', this.onMouseDown);
+  },
   mounted() {
     this.$nextTick(() => {
       this.render();
     });
+  },
+  beforeDestroy() {
+    window.removeEventListener('mousedown', this.onMouseDown);
   },
   methods: {
     render() {
@@ -172,6 +281,12 @@ export default {
         return d3.timeMonth;
       }
       return d3.timeDay;
+    },
+
+    onClickSVG(e) {
+      if (this.currentResponse) {
+        e.stopPropagation();
+      }
     },
 
     drawAxes() {
@@ -210,20 +325,30 @@ export default {
         .data(this.data.filter(d => this.selectedVersions.indexOf(d.version) >= 0 && d.date >= this.focusExtent[0] && d.date <= this.focusExtent[1]))
         .join('circle')
         .attr('fill', this.color)
-        .attr('cx', d => {
-          const dataVersion = this.formattedVersions.find(v => v.version === d.version );
-          let responseDate = new Date(d.date);
-
-          if (dataVersion.updated) {
-            const offset = this.versionsLength[new Date(dataVersion.updated).getDay()] / 2;
-            responseDate = new Date(d.date).setHours(new Date (dataVersion.updated).getHours() + offset);
-          }
-
-          return this.x(responseDate);
-        })
+        .attr('cx', d => this.x(d.date))
         .attr('cy', this.radius + this.padding.top)
-        .attr('r', d => this.x(d.date) >= 0 ? this.radius : 0);
+        .attr('r', d => this.x(d.date) >= 0 ? this.radius : 0)
+        .attr('responseId', d => d.responseId)
+        .style('outline', d =>
+          d.responseId == this.currentResponseId ? 'black auto 5px' : ''
+        )
     },
+
+    onReviewResponse() {
+      this.$emit('selectResponse', {
+        date: this.currentResponse.date.toString(),
+        responseId: this.currentResponse.responseId,
+      });
+    },
+
+    onShowSubScale() {
+      this.$emit('showSubScale', {
+        responseId: this.currentResponse.responseId
+      });
+
+      this.currentResponseId = this.currentResponse.responseId;
+      this.render();
+    }
   }
 }
 </script>
