@@ -222,3 +222,7 @@ pre.prettyprint {
 .footer, .push {
   height: 48px;
 }
+
+.v-card__title {
+  display: inline;
+}

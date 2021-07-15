@@ -78,7 +78,6 @@ export default {
   idleTime: "Temps d'inactivité",
   allDay: 'Toute la journée ',
   startTime: 'Heure de début',
-  days: 'jours',
   hours: 'heures',
   minutes: 'minutes',
   seconds: 'secondes',
@@ -353,6 +352,7 @@ export default {
   assessment: 'Évaluation',
   notes: 'Remarques',
   reviewed: 'Révisé',
+  latestScore: 'Dernière Score',
   appletStatusUpdate: `Mise à jour de l'état de l'applet`,
   appletEditProgress: 'Votre applet est en cours de modification.'
 };
