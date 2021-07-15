@@ -189,7 +189,7 @@ export default class Activity {
 
   getLatestActivityScore() {
     if (this.finalSubScale && this.finalSubScale.current) {
-      return Number(this.finalSubScale.current.tScore.toFixed(10));
+      return Number(this.finalSubScale.current.tScore.toFixed(3));
     }
 
     let total = 0;
@@ -205,7 +205,7 @@ export default class Activity {
       }
     }
 
-    return Number(total.toFixed(10));
+    return Number(total.toFixed(3));
   }
 
   getFrequency() {

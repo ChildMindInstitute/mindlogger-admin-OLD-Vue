@@ -85,7 +85,6 @@ export default {
   allDay: 'All day ',
   startTime: 'begins at',
   endTime: ', ends at',
-  days: 'days',
   hours: 'hours',
   minutes: 'minutes',
   seconds: 'seconds',
@@ -349,7 +348,6 @@ export default {
   secretUserIdRequired: 'Secret User ID is required',
   subScaleScores: 'Subscale Scores',
   score: 'Score',
-  frequency: 'Frequency',
   new: 'new',
   takeToResponseData: 'Take me to the response data',
   alertMessage: 'A question was answered by {userIdentifier} that an alert was created for.',
@@ -368,6 +366,7 @@ export default {
   assessment: 'Assessment',
   notes: 'Notes',
   reviewed: 'Reviewed',
+  latestScore: 'Latest Score',
   appletStatusUpdate: 'Updating Applet Status',
   appletEditProgress: 'Your applet is being edited.'
 };

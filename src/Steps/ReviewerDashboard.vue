@@ -781,7 +781,8 @@ export default {
       selectedReviewTab: 1,
       panel: [],
       tabs: ["responses", "tokens"],
-      reviewingTabs: ["assessment", "notes", "reviewed"],
+      // reviewingTabs: ["assessment", "notes", "reviewed"], // TODO: to be uncomment after proper implementation
+      reviewingTabs: ["notes"],
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
       timeRange: "Default",
@@ -957,7 +958,9 @@ export default {
       const activityIndex = this.applet.activities.indexOf(activity);
       if (
         activityIndex >= 0 &&
-        this.applet.selectedActivites.indexOf(activityIndex) < 0) {
+        activityIndex < this.applet.activities.length - 1 &&
+        this.applet.selectedActivites.indexOf(activityIndex) < 0
+      ) {
         this.applet.selectedActivites.push(activityIndex);
       }
 

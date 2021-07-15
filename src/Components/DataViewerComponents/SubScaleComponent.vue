@@ -3,7 +3,7 @@
     <v-expansion-panel-header>
       <h4>
         {{ subScale.variableName }}
-        ( {{ $t("score") }}: {{ subScale.current.tScore }} )
+        ( {{ $t("score") }}: {{ tScore }} )
       </h4>
     </v-expansion-panel-header>
 
@@ -157,6 +157,11 @@ export default {
       type: Number,
       required: true
     },
+  },
+  computed: {
+    tScore() {
+      return this.subScale.current.tScore && Number(Number(this.subScale.current.tScore).toFixed(3))
+    }
   }
 }
 </script>
