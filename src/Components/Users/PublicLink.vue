@@ -1,9 +1,29 @@
 <template>
   <div>
-    <h1>{{ $t("inviteLink") }}</h1>
+    <h1>
+      {{ $t("publicLink") }}
+
+      <v-tooltip
+        v-if="!inviteLink"
+        bottom
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            class="mx-4"
+            color="primary"
+            v-bind="attrs"
+            v-on="on"
+            @click="postAppletPublicLink()"
+          >
+            {{ $t("generate") }}
+          </v-btn>
+        </template>
+        <span>{{ $t("createInviteLinkText") }}</span>
+      </v-tooltip>
+    </h1>
 
     <v-container>
-      <v-row v-if="inviteLink !== undefined">
+      <v-row v-if="inviteLink">
         <v-col
             cols="12"
         >
@@ -31,13 +51,13 @@
         </v-col>
       </v-row>
 
-      <v-row v-if="inviteLink !== undefined">
+      <v-row v-if="inviteLink">
         <v-col
             align-self="center"
             cols="12"
             md="4"
         >
-          <v-btn color="error" @click="deleteAppletInviteLink()">
+          <v-btn color="error" @click="deleteAppletPublicLink()">
             {{ $t("deleteInviteLink") }}
           </v-btn>
         </v-col>
@@ -47,25 +67,6 @@
             md="8"
         >
           <p class="ma-0">Delete this link no longer allow anyone to</p>
-        </v-col>
-      </v-row>
-
-      <v-row v-if="inviteLink === undefined">
-        <v-col
-            align-self="center"
-            cols="12"
-            md="4"
-        >
-          <v-btn color="primary" @click="postAppletInviteLink()">
-            {{ $t("createInviteLink") }}
-          </v-btn>
-        </v-col>
-
-        <v-col
-            cols="12"
-            md="8"
-        >
-          <p class="ma-0">{{ $t("createInviteLinkText") }}</p>
         </v-col>
       </v-row>
     </v-container>
@@ -82,7 +83,7 @@ export default {
   mixins: [RolesMixin],
   data() {
     return {
-      inviteLink: undefined
+      inviteLink: null
     }
   },
   computed: {
@@ -103,44 +104,44 @@ export default {
       document.execCommand("copy");
     },
 
-    populateAppletInviteLink(invite) {
+    populateAppletPublicLink(invite) {
       this.inviteLink = invite && invite.data && invite.data.inviteId ? {
         ...invite.data,
         url: `${process.env.VUE_APP_WEB_URI}/#/join/${invite.data.inviteId}`
-      } : undefined;
+      } : null;
     },
 
-    postAppletInviteLink() {
-      api.appletInviteLink({
+    postAppletPublicLink() {
+      api.appletPublicLink({
         method: "POST",
         apiHost: this.apiHost,
         token: this.token,
         appletId: this.currentAppletMeta.id
-      }).then((invite) => this.populateAppletInviteLink(invite))
+      }).then((invite) => this.populateAppletPublicLink(invite))
     },
 
-    deleteAppletInviteLink() {
-      api.appletInviteLink({
+    deleteAppletPublicLink() {
+      api.appletPublicLink({
         method: "DELETE",
         apiHost: this.apiHost,
         token: this.token,
         appletId: this.currentAppletMeta.id
-      }).then(() => this.inviteLink = undefined)
+      }).then(() => this.inviteLink = null)
     },
 
-    async getAppletInviteLink() {
-      const invite = await api.appletInviteLink({
+    async getAppletPublicLink() {
+      const invite = await api.appletPublicLink({
         method: "GET",
         apiHost: this.apiHost,
         token: this.token,
         appletId: this.currentAppletMeta.id
       });
 
-      this.populateAppletInviteLink(invite);
+      this.populateAppletPublicLink(invite);
     }
   },
   async mounted() {
-    await this.getAppletInviteLink();
+    await this.getAppletPublicLink();
   }
 }
 </script>

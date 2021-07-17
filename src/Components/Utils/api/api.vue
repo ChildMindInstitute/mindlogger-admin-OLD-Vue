@@ -727,10 +727,10 @@ const deleteNote = (apiHost, token, appletId, noteId) =>
       noteId,
     }
   })
-const appletInviteLink = ({ apiHost, token, appletId, method }) =>
+const appletPublicLink = ({ apiHost, token, appletId, method }) =>
   axios({
     method,
-    url: `${apiHost}/applet/${appletId}/inviteLink`,
+    url: `${apiHost}/applet/${appletId}/publicLink`,
     headers: {
       "Girder-Token": token,
     }
@@ -801,6 +801,6 @@ export default {
   addNote,
   updateNote,
   deleteNote,
-  appletInviteLink,
+  appletPublicLink,
 }
 </script>
