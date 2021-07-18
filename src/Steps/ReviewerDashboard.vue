@@ -381,78 +381,25 @@
                         <v-expansion-panels
                           v-if="tab != 'tokens'"
                           v-model="activity.selectedSubScales"
-                          class="mt-4 sub-scale"
+                          class="mt-4"
                           focusable
                           multiple
                         >
                           <template v-for="subScale in activity.subScales">
-                            <v-expansion-panel
-                              v-if="applet && !subScale.isFinalSubScale"
+                            <SubScaleComponent
+                              v-if="applet && !subScale.isFinalSubScale && !subScale.partOfSubScale"
                               :key="subScale.variableName"
-                            >
-                              <v-expansion-panel-header>
-                                <h4>
-                                  {{ subScale.variableName }}
-                                  ( {{ $t("score") }}: {{ subScale.current.tScore }} )
-                                </h4>
-                              </v-expansion-panel-header>
-
-                              <v-expansion-panel-content>
-                                <div>
-                                  <div
-                                    v-if="subScale.current.outputText"
-                                    class="additional-note"
-                                  >
-                                    <header>
-                                      <h3>- Additional Information</h3>
-                                    </header>
-                                    <div class="subscale-output">
-                                      <mavon-editor
-                                        :value="subScale.current.outputText"
-                                        :language="'en'"
-                                        :toolbarsFlag="false"
-                                      >
-                                      </mavon-editor>
-                                    </div>
-                                  </div>
-                                  <template v-for="item in subScale.items">
-                                    <div :key="item['id']" class="chart-card">
-                                      <header>
-                                        <h3 v-if="item.inputType !== 'markdownMessage'">
-                                          <vue-markdown class="item-question">
-                                            {{ item.getFormattedQuestion() }}
-                                          </vue-markdown>
-                                        </h3>
-
-                                        <h3 v-else>- {{ item.label.en }}</h3>
-                                      </header>
-
-                                      <RadioSlider
-                                        v-if="
-                                          tab == 'responses' &&
-                                          item.responseOptions &&
-                                          applet.selectedActivites.includes(
-                                            index
-                                          )
-                                        "
-                                        :plot-id="`RadioSlider-${activity.slug}-${subScale.slug}-${item.slug}`"
-                                        :item="item"
-                                        :versions="applet.versions"
-                                        :focus-extent="focusExtent"
-                                        :selected-versions="selectedVersions"
-                                        :timezone="applet.timezoneStr"
-                                        :has-version-bars="hasVersionBars"
-                                        :time-range="timeRange"
-                                        :parent-width="panelWidth"
-                                        :color="item.dataColor"
-                                        :secret-ids="selectedSecretIds"
-                                        :has-response-identifier="activity.hasResponseIdentifier"
-                                      />
-                                    </div>
-                                  </template>
-                                </div>
-                              </v-expansion-panel-content>
-                            </v-expansion-panel>
+                              :applet="applet"
+                              :activity="activity"
+                              :subScale="subScale"
+                              :tab="tab"
+                              :index="index"
+                              :focusExtent="focusExtent"
+                              :selectedVersions="selectedVersions"
+                              :hasVersionBars="hasVersionBars"
+                              :timeRange="timeRange"
+                              :panelWidth="panelWidth"
+                            />
                           </template>
                         </v-expansion-panels>
 
@@ -751,10 +698,6 @@
   padding: 24px;
 }
 
-.sub-scale .chart-card {
-  padding: 24px 0px;
-}
-
 .activity-header {
   margin: 24px 0;
 }
@@ -820,6 +763,7 @@ import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChar
 import ResponseSelectionDialog from "../Components/Utils/dialogs/ResponseSelectionDialog";
 import Responses from "../Components/DataViewerComponents/Responses";
 import Notes from "../Components/DataViewerComponents/Notes";
+import SubScaleComponent from "../Components/DataViewerComponents/SubScaleComponent";
 
 import * as moment from "moment-timezone";
 
@@ -842,6 +786,7 @@ export default {
     ResponseSelectionDialog,
     Responses,
     Notes,
+    SubScaleComponent,
   },
 
   /**
@@ -871,7 +816,8 @@ export default {
       selectedReviewTab: 1,
       panel: [],
       tabs: ["responses", "tokens"],
-      reviewingTabs: ["assessment", "notes", "reviewed"],
+      // reviewingTabs: ["assessment", "notes", "reviewed"], // TODO: to be uncomment after proper implementation
+      reviewingTabs: ["notes"],
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
       timeRange: "Default",
@@ -921,7 +867,8 @@ export default {
     reviewingTime() {
       return (
         this.reviewing.date &&
-        moment(new Date(this.reviewing.date)).format("hh:mm:ss A")
+        this.reviewing.responseId && moment.utc(new Date(this.reviewing.date)).format("hh:mm:ss A") ||
+        '00:00:00 AM'
       );
     },
   },
@@ -1061,6 +1008,15 @@ export default {
     },
 
     async showSubScale({ activity, responseId }) {
+      const activityIndex = this.applet.activities.indexOf(activity);
+      if (
+        activityIndex >= 0 &&
+        activityIndex < this.applet.activities.length - 1 &&
+        this.applet.selectedActivites.indexOf(activityIndex) < 0
+      ) {
+        this.applet.selectedActivites.push(activityIndex);
+      }
+
       for (let subScale of activity.subScales) {
         const current = subScale.values.find(data => data.value.responseId == responseId);
 
@@ -1128,9 +1084,20 @@ export default {
     isAllowedEndDate(date) {
       let NOW = new Date();
       NOW.setDate(NOW.getDate() + 1);
+      let endDate = moment.utc(date);
+
+      if (this.endTime) {
+        const time = moment(this.endTime, "HH:mm");
+
+        endDate.set({
+          hour:   time.get('hour'),
+          minute: time.get('minute')
+        });
+      }
+
       return (
-        moment.utc(date) > this.focusExtent[0] &&
-        moment.utc(date) <= moment.utc(NOW)
+        moment.utc(endDate) >= this.focusExtent[0] &&
+        moment.utc(endDate) <= moment.utc(NOW)
       );
     },
 
@@ -1230,14 +1197,11 @@ export default {
      */
     setStartDate(date) {
       let startDate = moment.utc(date);
-
       if (this.startTime) {
         const time = moment(this.startTime, "HH:mm");
 
-        startDate.set({
-          hour:   time.get('hour'),
-          minute: time.get('minute')
-        });
+        startDate.set("hours", time.get('hours'));
+        startDate.set("minutes", time.get('minutes'));
       }
 
       this.$set(this.focusExtent, 0, startDate.toDate());
@@ -1255,10 +1219,9 @@ export default {
       if (this.endTime) {
         const time = moment(this.endTime, "HH:mm");
 
-        endDate.set({
-          hour:   time.get('hour'),
-          minute: time.get('minute')
-        });
+
+        endDate.set("hours", time.get('hours'));
+        endDate.set("minutes", time.get('minutes'));
       }
 
       this.$set(this.focusExtent, 1, endDate.toDate());

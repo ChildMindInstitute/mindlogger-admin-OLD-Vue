@@ -12,11 +12,10 @@ export const AccountMixin = {
   methods: {
     setAuth(authData) {
       this.$store.commit("setAuth", authData);
-      this.setAccounts();
-      this.setUserDetails();
+      return this.setAccounts().then(() => this.setUserDetails());
     },
     setAccounts() {
-      api
+      return api
         .getAccounts({
           apiHost: this.apiHost,
           token: this.token,
@@ -29,7 +28,7 @@ export const AccountMixin = {
         });
     },
     setUserDetails() {
-      api
+      return api
         .getUserDetails({
           apiHost: this.apiHost,
           token: this.token,

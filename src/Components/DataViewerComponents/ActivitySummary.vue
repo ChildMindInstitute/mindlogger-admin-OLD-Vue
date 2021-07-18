@@ -23,12 +23,25 @@
       </v-list-item>
     </v-list>
 
+    <div
+      v-if="fullActivityName"
+      class="tooltip pa-2 tooltip-text"
+      :style="`left: ${labelWidth/4}px; top: ${padding.top + radius + 30}px; width: ${tooltipWidth}px; max-height: ${tooltipHeight}px`"
+    >
+      {{ label }}
+    </div>
+
     <svg
       :id="plotId"
       :height="height"
       width="100%"
+      ref="responses"
     >
-      <g class="labels">
+      <g
+        @mouseenter="fullActivityName = true"
+        @mouseleave="fullActivityName = false"
+        class="labels"
+      >
         <text
           :y="padding.top + radius + 15/2"
           :x="labelWidth/2 + 20"
@@ -60,7 +73,11 @@
       >
         <g class="x-axis" />
         <g class="versions" />
-        <g class="responses" />
+        <g
+          @click="onClickSVG"
+          @mousedown="onClickSVG"
+          class="responses"
+        />
       </g>
     </svg>
   </div>
@@ -82,6 +99,14 @@
   padding: 2px;
   background: white;
   z-index: 100;
+}
+
+.tooltip-text {
+  border-radius: 4px;
+  background: black;
+  color: white;
+  text-align: center;
+  opacity: 0.75;
 }
 
 .tooltip-item:hover {
@@ -155,7 +180,8 @@ export default {
       tooltipWidth: 200,
       tooltipHeight: 110,
       currentResponse: null,
-      currentResponseId
+      fullActivityName: false,
+      currentResponseId,
     }
   },
   computed: {
@@ -205,10 +231,45 @@ export default {
       }
     }
   },
+  created() {
+    this.onMouseDown = (evt) => {
+      const src = evt.srcElement;
+
+      if (this.$refs && this.$refs.responses) {
+        if (this.$refs.responses.contains(src) && src.tagName == 'circle') {
+          const responseId = src.getAttribute('responseId');
+
+          if (!this.currentResponse || this.currentResponse.responseId != responseId) {
+            this.currentResponse = this.data.find(d => d.responseId == responseId);
+
+            this.showReviewingTooltip(
+              this.getX(this.currentResponse),
+              this.radius + this.padding.top,
+              this.labelWidth,
+              this.width,
+              this.height
+            )
+          }
+
+          return ;
+        }
+      }
+
+      if (this.toolTipVisible) {
+        this.currentResponse = null;
+        this.hideTooltip()
+      }
+    }
+
+    window.addEventListener('mousedown', this.onMouseDown);
+  },
   mounted() {
     this.$nextTick(() => {
       this.render();
     });
+  },
+  beforeDestroy() {
+    window.removeEventListener('mousedown', this.onMouseDown);
   },
   methods: {
     render() {
@@ -228,6 +289,12 @@ export default {
         return d3.timeMonth;
       }
       return d3.timeDay;
+    },
+
+    onClickSVG(e) {
+      if (this.currentResponse) {
+        e.stopPropagation();
+      }
     },
 
     drawAxes() {
@@ -271,23 +338,13 @@ export default {
         ))
         .join('circle')
         .attr('fill', this.color)
-        .attr('cx', d => {
-          return this.getX(d);
-        })
+        .attr('cx', d => this.x(d.date))
         .attr('cy', this.radius + this.padding.top)
         .attr('r', d => this.x(d.date) >= 0 ? this.radius : 0)
+        .attr('responseId', d => d.responseId)
         .style('outline', d =>
           d.responseId == this.currentResponseId ? 'black auto 5px' : ''
         )
-        .on('focus', (d) => {
-          this.currentResponse = d;
-
-          this.showReviewingTooltip(this.getX(d), this.radius + this.padding.top, this.labelWidth, this.width, this.height);
-        })
-        .on('blur', d => {
-          this.currentResponse = null;
-          this.hideTooltip()
-        });
     },
 
     onReviewResponse() {

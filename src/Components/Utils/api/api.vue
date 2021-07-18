@@ -593,14 +593,6 @@ const getBasketContent = ({ apiHost, token }) =>
     },
   });
 
-const createToken = ({ apiHost, token }) =>
-  axios({
-    method: 'post',
-    url: `${apiHost}/user/token`,
-    headers: {
-      'Girder-Token': token,
-    },
-  });
 const checkAppletNameInLibrary = (apiHost, token, appletId, appletName) => {
   return axios({
     method: 'get',
@@ -736,6 +728,15 @@ const deleteNote = (apiHost, token, appletId, noteId) =>
     }
   })
 
+const appletInviteLink = ({ apiHost, token, appletId, method }) =>
+  axios({
+    method,
+    url: `${apiHost}/applet/${appletId}/inviteLink`,
+    headers: {
+      "Girder-Token": token,
+    }
+  });
+
 export default {
   signIn,
   signUp,
@@ -789,7 +790,6 @@ export default {
   togglePin,
   updateAlertStatus,
   getBasketContent,
-  createToken,
   checkAppletNameInLibrary,
   changeAppletName,
   getLibraryCategories,
@@ -800,6 +800,7 @@ export default {
   getNotes,
   addNote,
   updateNote,
-  deleteNote
+  deleteNote,
+  appletInviteLink
 }
 </script>
