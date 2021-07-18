@@ -31,6 +31,7 @@ export default {
   pendingInvitations: 'Pending Invitations',
   createInvitation: 'Create Invitation ',
   publicLink: 'Public Link',
+  requireCreateAccount: 'Do you want to require user to create account?',
   shareLinkText: 'Share the following link to invite anyone to this study.',
   deleteInviteLink: 'Delete invite link',
   deleteInviteLinkText: 'Delete this link no longer allow anyone to invite themselves to this study. Users who have already have invited themselves, but have a pending invitation can still join.',

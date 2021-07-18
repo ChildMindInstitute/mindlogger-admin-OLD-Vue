@@ -727,14 +727,21 @@ const deleteNote = (apiHost, token, appletId, noteId) =>
       noteId,
     }
   })
-const appletPublicLink = ({ apiHost, token, appletId, method }) =>
-  axios({
+const appletPublicLink = ({ apiHost, token, appletId, method, requireLogin }) => {
+  let url = `${apiHost}/applet/${appletId}/publicLink`;
+
+  if (requireLogin !== undefined) {
+    url = url + `?requireLogin=${requireLogin}`;
+  }
+
+  return axios({
     method,
-    url: `${apiHost}/applet/${appletId}/publicLink`,
+    url,
     headers: {
       "Girder-Token": token,
     }
   });
+}
 
 
 export default {

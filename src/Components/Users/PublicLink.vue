@@ -4,7 +4,7 @@
       {{ $t("publicLink") }}
 
       <v-tooltip
-        v-if="!inviteLink"
+        v-if="!publicLink"
         bottom
       >
         <template v-slot:activator="{ on, attrs }">
@@ -13,7 +13,7 @@
             color="primary"
             v-bind="attrs"
             v-on="on"
-            @click="postAppletPublicLink()"
+            @click="publicLinkDialog = true"
           >
             {{ $t("generate") }}
           </v-btn>
@@ -23,20 +23,28 @@
     </h1>
 
     <v-container>
-      <v-row v-if="inviteLink">
+      <v-row v-if="publicLink">
         <v-col
-            cols="12"
+          cols="12"
         >
-          <p class="ma-0">{{ $t("shareLinkText") }}</p>
+          <p
+            v-if="publicLink.requireLogin"
+            class="ma-0"
+          >{{ $t("shareLinkText") }}</p>
+
+          <p
+            v-else
+            class="ma-0"
+          >Share the following link for users to take assessment without account.</p>
         </v-col>
 
         <v-col
-            cols="11"
+          cols="11"
         >
           <v-text-field class="pa-0 ma-0"
-              :value="inviteLink.url"
-              ref="textToCopy"
-              readonly="readonly"
+            :value="publicLink.url"
+            ref="textToCopy"
+            readonly="readonly"
           />
         </v-col>
 
@@ -51,7 +59,7 @@
         </v-col>
       </v-row>
 
-      <v-row v-if="inviteLink">
+      <v-row v-if="publicLink">
         <v-col
             align-self="center"
             cols="12"
@@ -66,10 +74,53 @@
             cols="12"
             md="8"
         >
-          <p class="ma-0">Delete this link no longer allow anyone to</p>
+          <p class="ma-0">Delete this link no longer allow anyone to access url</p>
         </v-col>
       </v-row>
     </v-container>
+
+    <v-dialog
+      max-width="800"
+      v-model="publicLinkDialog"
+    >
+      <v-card>
+        <v-card-title class="headline">
+          {{ $t('publicLink') }}
+        </v-card-title>
+
+        <v-card-text>
+          {{ $t('requireCreateAccount') }}
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer />
+
+          <v-btn
+            color="primary darken-1"
+            text
+            @click="postAppletPublicLink(true)"
+          >
+            {{ $t('Yes') }}
+          </v-btn>
+
+          <v-btn
+            color="primary darken-1"
+            text
+            @click="postAppletPublicLink(false)"
+          >
+            {{ $t('No') }}
+          </v-btn>
+
+          <v-btn
+            color="primary darken-1"
+            text
+            @click="publicLinkDialog=false"
+          >
+            {{ $t('cancel') }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -83,7 +134,8 @@ export default {
   mixins: [RolesMixin],
   data() {
     return {
-      inviteLink: null
+      publicLink: null,
+      publicLinkDialog: false
     }
   },
   computed: {
@@ -105,18 +157,31 @@ export default {
     },
 
     populateAppletPublicLink(invite) {
-      this.inviteLink = invite && invite.data && invite.data.inviteId ? {
+      if (!invite || !invite.data || !invite.data.inviteId) {
+        return null;
+      }
+
+      let url = `${process.env.VUE_APP_WEB_URI}/#/join/${invite.data.inviteId}`;
+
+      if (invite.data.requireLogin === false) {
+        url = `${process.env.VUE_APP_WEB_URI}/applet/public/${invite.data.inviteId}`;
+      }
+
+      this.publicLink = {
         ...invite.data,
-        url: `${process.env.VUE_APP_WEB_URI}/#/join/${invite.data.inviteId}`
-      } : null;
+        url
+      }
     },
 
-    postAppletPublicLink() {
+    postAppletPublicLink(requireLogin) {
+      this.publicLinkDialog = false;
+
       api.appletPublicLink({
         method: "POST",
         apiHost: this.apiHost,
         token: this.token,
-        appletId: this.currentAppletMeta.id
+        appletId: this.currentAppletMeta.id,
+        requireLogin
       }).then((invite) => this.populateAppletPublicLink(invite))
     },
 
@@ -126,7 +191,7 @@ export default {
         apiHost: this.apiHost,
         token: this.token,
         appletId: this.currentAppletMeta.id
-      }).then(() => this.inviteLink = null)
+      }).then(() => this.publicLink = null)
     },
 
     async getAppletPublicLink() {
