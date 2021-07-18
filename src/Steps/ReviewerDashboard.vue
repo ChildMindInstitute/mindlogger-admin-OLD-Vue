@@ -289,7 +289,7 @@
                           </v-icon>
                         </div>
 
-                        <ActivitySummary
+                        <ActivityHeader
                           :plot-id="`Activity-Summary-${activity.slug}-${tab}`"
                           :versions="applet.versions"
                           :focus-extent="focusExtent"
@@ -397,6 +397,8 @@
                               :focusExtent="focusExtent"
                               :selectedVersions="selectedVersions"
                               :hasVersionBars="hasVersionBars"
+                              :secret-ids="selectedSecretIds"
+                              :has-response-identifier="activity.hasResponseIdentifier"
                               :timeRange="timeRange"
                               :panelWidth="panelWidth"
                             />
@@ -753,7 +755,7 @@ import Applet from "../models/Applet";
 import Activity from "../models/Activity";
 import Item from "../models/Item";
 import TokenChart from "../Components/DataViewerComponents/TokenChart.vue";
-import ActivitySummary from "../Components/DataViewerComponents/ActivitySummary.vue";
+import ActivityHeader from "../Components/DataViewerComponents/ActivityHeader.vue";
 import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue";
 import Frequency from "../Components/DataViewerComponents/Frequency.vue";
 import TimePicker from "../Components/DataViewerComponents/TimePicker.vue";
@@ -775,7 +777,7 @@ export default {
    */
   components: {
     TokenChart,
-    ActivitySummary,
+    ActivityHeader,
     RadioSlider,
     Frequency,
     TimePicker,
