@@ -88,28 +88,22 @@ router.beforeEach((to, from, next) => {
   // Redirect unauthenticated users to the login page if they are trying to
   // access a page that requires authentication.
   if ( (isPrivatePage || !to.matched.length) && !isLoggedIn) {
-    const query = Object.keys(to.query).filter(
-      key => key != 'token'
-    ).map(
-      key => `${key}=${to.query[key]}`
-    ).join('&');
-
     return next({
       path: "/login",
-      query: { nextUrl: to.path + (query ? '?'+query : ''), lang, token: to.query.token },
+      query: { nextUrl: to.fullPath, lang },
     });
-  }
+  } 
 
   // Prevent users from accessing the login page if they are already
   // authenticated.
   if ( (isGuestPage || !to.matched.length) && isLoggedIn) {
     return next({ path: "/dashboard", query: { lang }});
-  }
+  } 
 
   // Evaluates to true if the lang parameter is set to just 'en' instead of
   // 'en_US'.
   const isShortLangCode =  to.query.lang && to.query.lang.length < 5;
-
+  
   // When navigating to a page, make sure that the current language is persisted
   // in the URL.
   if (to && !to.query.lang || isShortLangCode) {
@@ -119,7 +113,7 @@ router.beforeEach((to, from, next) => {
       query: { ...to.query, lang },
       params: to.params,
     });
-  }
+  } 
   return next();
 });
 

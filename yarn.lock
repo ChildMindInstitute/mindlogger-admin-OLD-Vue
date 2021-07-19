@@ -1177,6 +1177,15 @@
     "@sentry/utils" "5.29.2"
     "tslib" "^1.9.3"
 
+"@sentry/hub@5.30.0":
+  version "5.30.0"
+  resolved "https://registry.yarnpkg.com/@sentry/hub/-/hub-5.30.0.tgz#2453be9b9cb903404366e198bd30c7ca74cdc100"
+  integrity sha512-2tYrGnzb1gKz2EkMDQcfLrDTvmGcQPuWxLnJKXJvYTQDGLlEvi2tWz1VIHjunmOvJrB5aIQLhm+dcMRwFZDCqQ==
+  dependencies:
+    "@sentry/types" "5.30.0"
+    "@sentry/utils" "5.30.0"
+    tslib "^1.9.3"
+
 "@sentry/integrations@^5.19.0":
   "integrity" "sha512-vCmej1zfumVRKnxKw0RlwVjZ/TWBJZTAWIzqoAxXZyo67bKRy3fP408nj0QL5QAWKw+sUelqvzNqvY94cy+b0w=="
   "resolved" "https://registry.npmjs.org/@sentry/integrations/-/integrations-5.19.0.tgz"
@@ -1264,6 +1273,21 @@
   dependencies:
     "@toast-ui/editor" "^2.5.1"
 
+"@toast-ui/editor@^2.5.2":
+  version "2.5.2"
+  resolved "https://registry.yarnpkg.com/@toast-ui/editor/-/editor-2.5.2.tgz#0637e1bbdb205c1ab53b6d3722ced26399b2f0ca"
+  integrity sha512-ldTOMCVKpSIummf9X3JqPuOUMjlAxyFePniHChmCMst9j+ZbHxdalOhEUDV/ASrq4jkjgRm4m0nCCUvjdljZSw==
+  dependencies:
+    "@types/codemirror" "0.0.71"
+    codemirror "^5.48.4"
+
+"@toast-ui/vue-editor@^2.4.0":
+  version "2.5.2"
+  resolved "https://registry.yarnpkg.com/@toast-ui/vue-editor/-/vue-editor-2.5.2.tgz#0b54107a196471eacb18aabb7100101606917b27"
+  integrity sha512-zF33zKsG4wusL/OgwIUHWWDAXHuNx94tL1Jzgww9SbJ/mF23WRbvbOT4tvhpr6KZhbIbUUwzxwhPQabYSLjNRw==
+  dependencies:
+    "@toast-ui/editor" "^2.5.2"
+
 "@types/babel__core@^7.1.0":
   "integrity" "sha512-tTnhWszAqvXnhW7m5jQU9PomXSiKXk2sFxpahXvI20SZKu9ylPi8WtIxueZ6ehDWikPT0jeFujMj3X4ZHuf3Tg=="
   "resolved" "https://registry.npmjs.org/@types/babel__core/-/babel__core-7.1.6.tgz"
@@ -1318,6 +1342,11 @@
   "integrity" "sha512-EaObqwIvayI5a8dCzhFrjKzVwKLxjoG9T6Ppd5CEo07LRKfQ8Yokw54r5+Wq7FaBQ+yXRvQAYPrHwya1/UFt9g=="
   "resolved" "https://registry.npmjs.org/@types/events/-/events-3.0.0.tgz"
   "version" "3.0.0"
+
+"@types/estree@*":
+  version "0.0.47"
+  resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.47.tgz#d7a51db20f0650efec24cd04994f523d93172ed4"
+  integrity sha512-c5ciR06jK8u9BstrmJyO97m+klJrrhCf9u3rLu3DEAJBirxRqSCvDQoYKmxuYwQI5SZChAWu+tq9oVlGRuzPAg==
 
 "@types/glob@^7.1.1":
   "integrity" "sha512-1Bh06cbWJUHMC97acuD6UMG29nMt0Aqz1vF3guLfG+kHHJhy3AyohZFFxYk2f7Q1SQIrNwvncxAE0N/9s70F2w=="
@@ -1394,6 +1423,13 @@
   "integrity" "sha512-imDtS4TAoTcXk0g7u4kkWqedB3E4qpjXzCpD2LU5M5NAXHzCDsypyvXSaG7mM8DKYkCRa7tFp4tS/lp/Wo7Q3w=="
   "resolved" "https://registry.npmjs.org/@types/tern/-/tern-0.23.3.tgz"
   "version" "0.23.3"
+  dependencies:
+    "@types/estree" "*"
+
+"@types/tern@*":
+  version "0.23.3"
+  resolved "https://registry.yarnpkg.com/@types/tern/-/tern-0.23.3.tgz#4b54538f04a88c9ff79de1f6f94f575a7f339460"
+  integrity sha512-imDtS4TAoTcXk0g7u4kkWqedB3E4qpjXzCpD2LU5M5NAXHzCDsypyvXSaG7mM8DKYkCRa7tFp4tS/lp/Wo7Q3w==
   dependencies:
     "@types/estree" "*"
 

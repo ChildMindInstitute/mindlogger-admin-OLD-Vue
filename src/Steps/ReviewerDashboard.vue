@@ -791,7 +791,8 @@ export default {
       selectedReviewTab: 1,
       panel: [],
       tabs: ["responses", "tokens"],
-      reviewingTabs: ["assessment", "notes", "reviewed"],
+      // reviewingTabs: ["assessment", "notes", "reviewed"], // TODO: to be uncomment after proper implementation
+      reviewingTabs: ["notes"],
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
       timeRange: "Default",
@@ -840,7 +841,8 @@ export default {
     reviewingTime() {
       return (
         this.reviewing.date &&
-        moment(new Date(this.reviewing.date)).format("hh:mm:ss A")
+        this.reviewing.responseId && moment.utc(new Date(this.reviewing.date)).format("hh:mm:ss A") ||
+        '00:00:00 AM'
       );
     },
   },
@@ -963,6 +965,15 @@ export default {
     },
 
     async showSubScale({ activity, responseId }) {
+      const activityIndex = this.applet.activities.indexOf(activity);
+      if (
+        activityIndex >= 0 &&
+        activityIndex < this.applet.activities.length - 1 &&
+        this.applet.selectedActivites.indexOf(activityIndex) < 0
+      ) {
+        this.applet.selectedActivites.push(activityIndex);
+      }
+
       for (let subScale of activity.subScales) {
         const current = subScale.values.find(data => data.value.responseId == responseId);
 

@@ -167,7 +167,7 @@ export default {
 		},
 
 		setAppletDirectoryProperties(appletInfo, isExpanded) {
-			if (!appletInfo.name) {
+			if (!appletInfo.name && appletInfo.applet) {
 				appletInfo.name = appletInfo.applet.displayName;
 			}
 

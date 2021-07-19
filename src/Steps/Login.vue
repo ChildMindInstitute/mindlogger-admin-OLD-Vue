@@ -103,16 +103,13 @@ export default {
         });
 
         if (resp.data) {
-          await this.setAuth({
+          this.setAuth({
             auth: {
               authToken: {
                 token
               }
             }
           });
-
-          const ownerAccount = this.$store.state.allAccounts.find(account => account.owned);
-          this.$store.commit('setOwnerAccount', { ...ownerAccount });
 
           this.loginSuccess();
         }

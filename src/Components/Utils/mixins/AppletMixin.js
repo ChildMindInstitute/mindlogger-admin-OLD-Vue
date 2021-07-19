@@ -90,12 +90,13 @@ export const AppletMixin = {
           const result = [];
 
           const currentItems = {};
-          const currentActivities = [];
+          const currentActivities = {};
           for (let itemUrl in appletData.items) {
             currentItems[itemUrl] = new Item(appletData.items[itemUrl]);
           }
           for (let activityUrl in appletData.activities) {
-            currentActivities.push(new Activity(appletData.activities[activityUrl]));
+            const activity = new Activity(appletData.activities[activityUrl]);
+            currentActivities[activity.data._id.split('/')[1]] = activity;
           }
 
           for (let itemId in data.items) {
@@ -117,11 +118,10 @@ export const AppletMixin = {
             }
           }
 
-          let subScaleNames = [];
+          let subScaleNames = [], previousResponse = [];
           for (let response of data.responses) {
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
             const outputTexts = {};
-
             for (let subScaleName in response.subScales) {
               let subScale = response.subScales[subScaleName];
               let textColumn = `Optional text for ${subScaleName}`;
@@ -158,7 +158,6 @@ export const AppletMixin = {
 
             for (let itemUrl in response.data) {
               let itemData = response.data[itemUrl];
-
               let item = (data.itemReferences[response.version] && data.itemReferences[response.version][itemUrl]) || currentItems[itemUrl];
 
               if (!item) {
@@ -166,11 +165,14 @@ export const AppletMixin = {
               }
 
               if (itemData && itemData.ptr !== undefined && itemData.src !== undefined) {
-                response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr];
+                if (_.isArray(data.dataSources[itemData.src].data) && itemData.ptr && typeof itemData.ptr === "object" && itemData.ptr.latitude)
+                  response.data[itemUrl] = itemData.ptr;
+                else
+                  response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr];
               }
 
               let activity = currentItems[itemUrl] ?
-                currentActivities.find(activity => activity.data._id.split('/')[1] == response.activity['@id']) :
+                currentActivities[response.activity['@id']] :
                 data.activities[item.data.activityId];
 
               let flag = 'completed';
@@ -205,7 +207,7 @@ export const AppletMixin = {
                   for (const [key, value] of Object.entries(responseDataObj)) {
                     if (item.inputType === 'timeRange' && value.from && value.to) {
                       responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
-                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing') && value.filename) {
+                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType === 'audioImageRecord') && value.filename) {
                       this.getMediaResponseObject(value.uri, response, item);
                       responseData += `filename: ${value.filename}`;
                     } else if (item.inputType === 'date' && (value.day || value.month || value.year)) {
@@ -276,6 +278,17 @@ export const AppletMixin = {
                 ... (!isSubScaleExported ? outputTexts : {})
               }
 
+              if (!csvObj.activity_start_time && csvObj.activity_id && csvObj.item && csvObj.response) {
+                previousResponse.push(csvObj);
+                continue;
+              } else if (previousResponse.length > 0 && _.find(previousResponse, o => (o.activity_id === csvObj.activity_id) && (o.item === csvObj.item)) && csvObj.activity_start_time && !csvObj.response) {
+                const index = _.findIndex(previousResponse, o => (o.activity_id === csvObj.activity_id) && (o.item === csvObj.item));
+                if (index > -1) {
+                  csvObj['response'] = previousResponse[index].response;
+                  previousResponse.splice(index, 1);
+                }
+              }
+
               if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined) continue;
               result.push(csvObj);
 
@@ -312,13 +325,22 @@ export const AppletMixin = {
             data: result,
           });
 
-          let anchor = document.createElement('a');
-          anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(otc.getCSV());
-          anchor.target = '_blank';
-          anchor.download = 'report.csv';
-          anchor.click();
+          this.downloadFile({
+            name: 'report.csv',
+            content: otc.getCSV(),
+            type: 'text/csv;charset=utf-8'
+          })
         })
     },
+
+    downloadFile ({ name, content, type }) {
+      const file = new Blob([content], { type })
+      return new Promise(resolve => {
+       saveAs(file, name)
+       resolve(true)
+      })
+    },
+
     isLatestApplet(appletMeta) {
       const applet = this.$store.state.allApplets[appletMeta.id];
 
