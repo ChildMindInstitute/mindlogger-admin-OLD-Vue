@@ -68,6 +68,7 @@
               :key="invitationFormKey"
               @createInvitation="createInvitation"
             />
+            <invite-link></invite-link>
             <div style="height: 58px;" />
           </v-card>
           <v-card
@@ -140,6 +141,7 @@ import _ from 'lodash';
 import UserList from "../Components/Users/UserList";
 
 import PendingInviteTable from '../Components/Users/PendingInviteTable.vue';
+import InviteLink from '../Components/Users/InviteLink.vue';
 import CreateInvitationForm from '../Components/Users/CreateInvitationForm.vue';
 import api from '../Components/Utils/api/api.vue';
 import AppletPassword from '../Components/Utils/dialogs/AppletPassword';
@@ -155,6 +157,7 @@ export default {
   name: 'SetUsers',
   components: {
     PendingInviteTable,
+    InviteLink,
     CreateInvitationForm,
     AppletPassword,
     Information,
@@ -206,8 +209,8 @@ export default {
 
       const items = Object.values(currentApplet.items);
 
-      return hasPermission && 
-              items.length === 1 && 
+      return hasPermission &&
+              items.length === 1 &&
               new Item(items[0]).inputType == 'radio';
     },
     activeUserList() {
@@ -353,7 +356,7 @@ export default {
         sort
       });
     },
-    
+
     getInvitations() {
       return api.getInvitations({
         apiHost: this.$store.state.backend,
