@@ -662,6 +662,7 @@ export default {
     },
 
     onAppletPassword(appletPassword) {
+      this.isExporting = true;
       let applet = this.appletPasswordDialog.applet;
       const encryptionInfo = encryption.getAppletEncryptionInfo({
         appletPassword,
@@ -676,7 +677,7 @@ export default {
           .equals(Buffer.from(applet.encryption.appletPublicKey))
       ) {
         this.appletPasswordDialog.visible = false;
-        this.appletPasswordDialog.requestedAction(Array.from(encryptionInfo.getPrivateKey()));
+        this.appletPasswordDialog.requestedAction(Array.from(encryptionInfo.getPrivateKey())).then(() => this.isExporting = false);
       } else {
         this.$refs.appletPasswordDialog.defaultErrorMsg = this.$t('incorrectAppletPassword');
       }
@@ -690,22 +691,19 @@ export default {
         !encryptionInfo.appletPrime ||
         encryptionInfo.appletPrivateKey
       ) {
-        this.onExportUserData(this.currentApplet, encryptionInfo && encryptionInfo.appletPrivateKey)
+        this.isExporting = true;
+        this.exportUserData(this.currentApplet, encryptionInfo && encryptionInfo.appletPrivateKey)
+          .then(response => {
+            this.isExporting = false;
+        })
+
       } else {
         this.$set(this, 'appletPasswordDialog', {
           applet: this.currentApplet,
           visible: true,
-          requestedAction: this.onExportUserData.bind(this)
+          requestedAction: this.exportUserData.bind(this, this.currentApplet)
         });
       }
-    },
-
-    onExportUserData(encryptionInfo = null) {
-      this.isExporting = true;
-      this.exportUserData(this.currentApplet)
-        .then(response => {
-          this.isExporting = false;
-        })
     },
 
     onViewAlert(alert) {
