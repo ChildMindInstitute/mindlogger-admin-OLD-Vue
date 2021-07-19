@@ -317,7 +317,29 @@
       @submit="transferOwnership"
       @close="ownershipDialog = false"
     />
+
+    <v-dialog
+      v-model="isExporting"
+      hide-overlay
+      persistent
+      width="360"
+    >
+      <v-card
+        color="primary"
+        dark
+      >
+        <v-card-text>
+          Please wait. This could take up to 1 minute to download.
+          <v-progress-linear
+            indeterminate
+            color="white"
+            class="ma-2"
+          ></v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-app-bar>
+
 </template>
 
 <style scoped>
@@ -447,6 +469,7 @@ export default {
       appletDuplicateDialog: false,
       appletDeleteDialog: false,
       appletPendingDelete: undefined,
+      isExporting: false,
       ownershipDialog: false,
     }
   },
@@ -667,14 +690,22 @@ export default {
         !encryptionInfo.appletPrime ||
         encryptionInfo.appletPrivateKey
       ) {
-        this.exportUserData(this.currentApplet, encryptionInfo && encryptionInfo.appletPrivateKey);
+        this.onExportUserData(this.currentApplet, encryptionInfo && encryptionInfo.appletPrivateKey)
       } else {
         this.$set(this, 'appletPasswordDialog', {
           applet: this.currentApplet,
           visible: true,
-          requestedAction: this.exportUserData.bind(this, this.currentApplet)
+          requestedAction: this.onExportUserData.bind(this)
         });
       }
+    },
+
+    onExportUserData(encryptionInfo = null) {
+      this.isExporting = true;
+      this.exportUserData(this.currentApplet)
+        .then(response => {
+          this.isExporting = false;
+        })
     },
 
     onViewAlert(alert) {

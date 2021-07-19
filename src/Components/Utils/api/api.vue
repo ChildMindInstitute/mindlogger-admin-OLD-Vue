@@ -728,6 +728,15 @@ const deleteNote = (apiHost, token, appletId, noteId) =>
     }
   })
 
+const appletInviteLink = ({ apiHost, token, appletId, method }) =>
+  axios({
+    method,
+    url: `${apiHost}/applet/${appletId}/inviteLink`,
+    headers: {
+      "Girder-Token": token,
+    }
+  });
+
 export default {
   signIn,
   signUp,
@@ -791,6 +800,7 @@ export default {
   getNotes,
   addNote,
   updateNote,
-  deleteNote
+  deleteNote,
+  appletInviteLink
 }
 </script>

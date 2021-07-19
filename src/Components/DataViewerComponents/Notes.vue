@@ -15,7 +15,7 @@
           </div>
           <div class="my-1">
             <v-textarea
-              :value="note.note"
+              v-model="note.note"
               :rows="note.open ? 4 : 2"
               :disabled="!note.my_note"
               :readonly="!note.open"
@@ -66,7 +66,7 @@
           <v-btn
             v-else
             icon
-            @click="note.open=false"
+            @click="note.open=false, note.note=note.current"
           >
             <v-icon color="grey lighten-1">
               mdi-cancel
@@ -159,6 +159,7 @@ export default {
         reviewerName: name,
         ago: this.timeAgo.format(new Date(note.created), 'round'),
         datetime: moment(new Date(note.created)).format("ddd, D MMM YYYY hh:mm:ss A"),
+        current: note.note,
         open: false,
         hover: false,
       }
