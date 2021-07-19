@@ -207,6 +207,27 @@
       :employer="editRoleDialog.employer"
       @updated="onEditRoleSuccessfull"
     />
+
+    <v-dialog
+      v-model="isExporting"
+      hide-overlay
+      persistent
+      width="360"
+    >
+      <v-card
+        color="primary"
+        dark
+      >
+        <v-card-text>
+          Please wait. This could take up to 1 minute to download.
+          <v-progress-linear
+            indeterminate
+            color="white"
+            class="ma-2"
+          ></v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -444,7 +465,7 @@ export default {
       totalUsers: 0,
       formattedUsers: [],
       updateUserList: null,
-
+      isExporting: false,
       shiftKeyOn: false,
       startRow: -1,
       previousEndRow: -1,
