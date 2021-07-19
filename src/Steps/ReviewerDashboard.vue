@@ -305,6 +305,14 @@
                           (tab !== 'tokens' || activity.hasTokenItem)
                         "
                       >
+                        <h2 class="mt-4">
+                          {{ $t("summary") }}
+                        </h2>
+
+                        <template v-if="tab !== 'tokens'">
+                          <CumulativeScore :activity="activity" />
+                        </template>
+
                         <div
                           v-if="
                             activity.finalSubScale &&
@@ -730,6 +738,7 @@ import ResponseSelectionDialog from "../Components/Utils/dialogs/ResponseSelecti
 import Responses from "../Components/DataViewerComponents/Responses";
 import Notes from "../Components/DataViewerComponents/Notes";
 import SubScaleComponent from "../Components/DataViewerComponents/SubScaleComponent";
+import CumulativeScore from "../Components/DataViewerComponents/CumulativeScore";
 
 import * as moment from "moment-timezone";
 
@@ -753,6 +762,7 @@ export default {
     Responses,
     Notes,
     SubScaleComponent,
+    CumulativeScore,
   },
 
   /**
