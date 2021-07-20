@@ -19,6 +19,7 @@
       :id="plotId"
       :width="width + 20"
       :height="height + padding.top + padding.bottom + 20"
+      ref="responses"
     >
       <g>
         <text
@@ -119,8 +120,60 @@ export default {
       tooltipWidth: 350,
       tooltipHeight: 120,
       outputText: '',
-      cachedContents: {}
+      cachedContents: {},
+      currentResponse: null
     }
+  },
+
+  created() {
+    this.onMouseDown = (evt) => {
+      const src = evt.srcElement;
+
+      if (this.$refs && this.$refs.responses) {
+        const responseId = src.getAttribute('responseId');
+        const subScaleId = src.getAttribute('subScaleId');
+
+        if (this.$refs.responses.contains(src) && responseId) {
+          if (
+            !this.currentResponse ||
+            this.currentResponse.responseId != responseId ||
+            this.currentResponse.subScaleId != subScaleId
+          ) {
+            this.subScale = this.activity.subScales[subScaleId];
+            this.currentResponse = { responseId, subScaleId };
+            const d = this.subScale.values.find(d => d.value.responseId == responseId)
+
+            if (d.value.outputText) {
+              this.showSubScaleToolTip(
+                this.x(( subScaleId * this.xRangePerBar) + 2),
+                this.y(d.value.tScore),
+                d.value,
+                (this.width - this.chartWidth) / 2,
+                this.width,
+                this.height
+              )
+            } else {
+              this.hideTooltip();
+            }
+
+            this.drawResponses();
+          }
+
+          return ;
+        }
+      }
+
+      if (this.currentResponse) {
+        this.currentResponse = null;
+        this.drawResponses();
+        this.hideTooltip();
+      }
+    }
+
+    window.addEventListener('mousedown', this.onMouseDown);
+  },
+  beforeDestroy() {
+    window.removeEventListener('mousedown', this.onMouseDown);
   },
 
   /**
@@ -248,6 +301,7 @@ export default {
         .remove();
 
       const baseY = this.y(this.divergingExtent.min);
+
       this.svg
         .select('.responses')
         .selectAll('.sub-scale')
@@ -275,15 +329,19 @@ export default {
         .attr('height', d => baseY - this.y(d.value.tScore))
         .style('stroke-width', this.responseStrokeWidth)
         .style('stroke', 'grey')
-        .on('focus', d => d.value.outputText ? this.showSubScaleToolTip(
-          this.x(( d.id * this.xRangePerBar) + 2),
-          this.y(d.value.tScore),
-          d.value,
-          (this.width - this.chartWidth) / 2,
-          this.width,
-          this.height
-        ) : '')
-        .on('blur', d => this.hideTooltip())
+        .attr('responseId', d => d.value.responseId)
+        .attr('subScaleId', d => d.id)
+        .style('outline', d => {
+          if (
+            this.currentResponse &&
+            this.currentResponse.responseId == d.value.responseId &&
+            this.currentResponse.subScaleId == d.id
+          ) {
+            return 'blue auto 5px';
+          }
+
+          return ''
+        })
     },
 
     getValueExtent() {

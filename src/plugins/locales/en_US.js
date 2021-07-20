@@ -129,6 +129,7 @@ export default {
   itemName: 'Item Name ',
   editItem: 'Edit Item',
   description: 'Description ',
+  splash: 'Splash Screen ',
   question: 'Question ',
   inputType: 'Input type ',
   discardChanges: 'Discard changes ',
@@ -371,5 +372,6 @@ export default {
   latestScore: 'Latest Score',
   appletStatusUpdate: 'Updating Applet Status',
   appletEditProgress: 'Your applet is being edited.',
-  secretId: 'Secret Id'
+  secretId: 'Secret Id',
+  summary: 'Summary',
 };

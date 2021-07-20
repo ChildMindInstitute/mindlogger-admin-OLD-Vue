@@ -83,7 +83,7 @@ export default {
           firstName: invitation.firstName,
           lastName: invitation.lastName,
           userType: this.localizedRoles.find(role => role.name == invitation.role).title,
-          invitationLink: `${process.env.VUE_APP_WEB_URI}/#/invitation/${
+          invitationLink: `${process.env.VUE_APP_WEB_URI}/invitation/${
             invitation._id
           }`,
           dateTime: moment(invitation.created).format("YYYY-MM-DD hh:mm:ss"),
