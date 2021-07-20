@@ -364,6 +364,19 @@ export const AppletMixin = {
       for (const response of responses) {
         const question = response.question.includes('left') ? 'L' : 'R';
         const offset = response.timestamp - response.delay - response.image_time;
+        let stimulusType = '';
+
+        if (response.question.includes('incongruent')) {
+          stimulusType += 'incongruent-';
+        } else {
+          stimulusType += 'congruent-';
+        }
+
+        if (response.question.includes('right')) {
+          stimulusType += 'right';
+        } else {
+          stimulusType += 'left';
+        }
 
         result.push({
           actualDisplayOnset: response.start_time,
@@ -376,12 +389,17 @@ export const AppletMixin = {
 
           actualDisplayOnsetClock: response.start_time + offset,
           actualDisplayOffsetClock: response.image_time + offset,
-          responseTimeClock: response.delay + response.image_time + offset
+          responseTimeClock: response.delay + response.image_time + offset,
+          stimulusType,
         })
       }
 
       let otc = new ObjectToCSV({
         keys: [
+          {
+            key: 'stimulusType',
+            as: 'Stimulus Type'
+          },
           {
             key: 'actualDisplayOnset',
             as: 'Actual Display Onset'
