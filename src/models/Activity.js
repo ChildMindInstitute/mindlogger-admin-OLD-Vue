@@ -19,6 +19,7 @@ export default class Activity {
     this.slug = slugify(this.id);
     this.label = i18n.arrayToObject(data[SKOS.prefLabel]);
     this.description = i18n.arrayToObject(data['schema:description']);
+    this.splash = i18n.arrayToObject(data['schema:splash']);
     this.question = i18n.arrayToObject(data['schema:question']);
     this.version = i18n.arrayToObject(data['schema:version']);
     this.order = data[ReproLib.order][0]['@list'].map(item => item['@id']);
@@ -31,7 +32,7 @@ export default class Activity {
 
     this.subScales = this.parseSubScales(data[ReproLib.subScales]);
     this.finalSubScale = this.parseFinalSubScale(data[ReproLib.finalSubScale] && data[ReproLib.finalSubScale][0]);
-
+    this.hasResponseIdentifier = _.get(data, ["reprolib:terms/hasResponseIdentifier", 0, "@value"], false);
     if (this.finalSubScale) {
       this.subScales.push(this.finalSubScale);
     }
@@ -187,7 +188,7 @@ export default class Activity {
     }
   }
 
-  getLatestActivityScore() {
+  getLatestActivityScore(selectedSecretIds) {
     if (this.finalSubScale && this.finalSubScale.current) {
       return Number(this.finalSubScale.current.tScore.toFixed(3));
     }
@@ -200,15 +201,20 @@ export default class Activity {
         continue;
       }
 
-      if (values.length) {
-        total += values[0].value.tScore;
+      const index = values.findIndex(d => selectedSecretIds.includes(d.value.secretId));
+      if (index >= 0) {
+        total += values[index].value.tScore;
       }
     }
 
     return Number(total.toFixed(3));
   }
 
-  getFrequency() {
+  getFrequency(secretIds) {
+    if (this.hasResponseIdentifier) {
+      return this.responses.filter(response => secretIds.includes(response.secretId)).length;
+    }
+
     return this.responses.length;
   }
 

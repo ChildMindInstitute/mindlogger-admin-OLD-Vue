@@ -32,6 +32,12 @@ export default {
   activeUsers: 'Utilisateurs actifs',
   pendingInvitations: 'Invitations en attente',
   createInvitation: 'Créer une invitation ',
+  publicLink: 'Lien public',
+  shareLinkText: 'Partagez le lien suivant pour inviter n\'importe qui à participer à cette étude.',
+  deleteInviteLink: 'Supprimer l\'invitation publique',
+  deleteInviteLinkText: 'Supprimer cette invitation ne permet plus à personne de s\'inviter pour cette étude. Les utilisateurs qui se sont déjà invités, mais qui ont une invitation en attente, peuvent toujours la rejoindre.',
+  generate: 'produire',
+  createInviteLinkText: 'Générez un lien qui permettra à n\'importe qui de s\'inviter à cette étude en tant qu\'utilisateur.',
   id: 'Identifiant',
   displayName: 'Afficher le nom',
   applets: 'Applets',
@@ -276,6 +282,7 @@ export default {
   deleteApplet: "Supprimer l'applet",
   remove: 'Retirer',
   cancel: 'Annuler',
+  latestScore: 'Latest Score',
   welcomeMindLogger: 'Bienvenue sur MindLogger!',
   getStarted: 'Pour commencer, téléchargez votre première applet ou créez-en une.',
   navigateSpaceText: 'Si vous avez été invité à MindLogger en tant que membre d\'une équipe, utilisez l\'icône de personnes en haut à droite pour accéder à cet espace',
@@ -354,5 +361,6 @@ export default {
   reviewed: 'Révisé',
   latestScore: 'Dernière Score',
   appletStatusUpdate: `Mise à jour de l'état de l'applet`,
-  appletEditProgress: 'Votre applet est en cours de modification.'
+  appletEditProgress: 'Votre applet est en cours de modification.',
+  secretId: 'Identifiant secret'
 };

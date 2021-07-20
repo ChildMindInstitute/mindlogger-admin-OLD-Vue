@@ -68,6 +68,7 @@
               :key="invitationFormKey"
               @createInvitation="createInvitation"
             />
+            <public-link></public-link>
             <div style="height: 58px;" />
           </v-card>
           <v-card
@@ -140,6 +141,7 @@ import _ from 'lodash';
 import UserList from "../Components/Users/UserList";
 
 import PendingInviteTable from '../Components/Users/PendingInviteTable.vue';
+import PublicLink from '../Components/Users/PublicLink.vue';
 import CreateInvitationForm from '../Components/Users/CreateInvitationForm.vue';
 import api from '../Components/Utils/api/api.vue';
 import AppletPassword from '../Components/Utils/dialogs/AppletPassword';
@@ -155,6 +157,7 @@ export default {
   name: 'SetUsers',
   components: {
     PendingInviteTable,
+    PublicLink,
     CreateInvitationForm,
     AppletPassword,
     Information,

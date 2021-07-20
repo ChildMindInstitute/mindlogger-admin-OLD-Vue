@@ -179,10 +179,49 @@ export default {
       labelWidth: width / 4,
       tooltipWidth: 200,
       tooltipHeight: 110,
-      currentResponse: null,
       fullActivityName: false,
       currentResponseId,
+      currentResponse: null,
+      onMouseDown: null
     }
+  },
+  created() {
+    this.onMouseDown = (evt) => {
+      const src = evt.srcElement;
+
+      if (this.$refs && this.$refs.responses) {
+        const responseId = src.getAttribute('responseId');
+
+        if (this.$refs.responses.contains(src) && responseId) {
+          if (!this.currentResponse || this.currentResponse.responseId != responseId) {
+            this.currentResponse = this.data.find(d => d.responseId == responseId);
+
+            this.showReviewingTooltip(
+              this.getX(this.currentResponse),
+              this.radius + this.padding.top,
+              this.labelWidth,
+              this.width,
+              this.height
+            )
+
+            this.drawResponses();
+          }
+
+          return ;
+        }
+      }
+
+      if (this.toolTipVisible) {
+        this.currentResponse = null;
+        this.drawResponses();
+        this.hideTooltip();
+      }
+    }
+
+    window.addEventListener('mousedown', this.onMouseDown);
+  },
+  beforeDestroy() {
+    window.removeEventListener('mousedown', this.onMouseDown);
   },
   computed: {
     compressedLabel() {
@@ -221,47 +260,20 @@ export default {
         this.labelWidth = this.width / 4;
         this.render();
       }
-    }
-  },
-  created() {
-    this.onMouseDown = (evt) => {
-      const src = evt.srcElement;
-
-      if (this.$refs && this.$refs.responses) {
-        if (this.$refs.responses.contains(src) && src.tagName == 'circle') {
-          const responseId = src.getAttribute('responseId');
-
-          if (!this.currentResponse || this.currentResponse.responseId != responseId) {
-            this.currentResponse = this.data.find(d => d.responseId == responseId);
-
-            this.showReviewingTooltip(
-              this.getX(this.currentResponse),
-              this.radius + this.padding.top,
-              this.labelWidth,
-              this.width,
-              this.height
-            )
-          }
-
-          return ;
+    },
+    secretIds: {
+      deep: true,
+      handler() {
+        if (this.hasResponseIdentifier) {
+          this.render();
         }
       }
-
-      if (this.toolTipVisible) {
-        this.currentResponse = null;
-        this.hideTooltip()
-      }
     }
-
-    window.addEventListener('mousedown', this.onMouseDown);
   },
   mounted() {
     this.$nextTick(() => {
       this.render();
     });
-  },
-  beforeDestroy() {
-    window.removeEventListener('mousedown', this.onMouseDown);
   },
   methods: {
     render() {
@@ -322,16 +334,29 @@ export default {
       this.svg
         .select('.responses')
         .selectAll('circle')
-        .data(this.data.filter(d => this.selectedVersions.indexOf(d.version) >= 0 && d.date >= this.focusExtent[0] && d.date <= this.focusExtent[1]))
+        .data(this.data.filter(
+          d => this.selectedVersions.indexOf(d.version) >= 0
+                && d.date >= this.focusExtent[0]
+                && d.date <= this.focusExtent[1]
+                && (!this.hasResponseIdentifier || this.secretIds.includes(d.secretId))
+        ))
         .join('circle')
         .attr('fill', this.color)
         .attr('cx', d => this.x(d.date))
         .attr('cy', this.radius + this.padding.top)
         .attr('r', d => this.x(d.date) >= 0 ? this.radius : 0)
         .attr('responseId', d => d.responseId)
-        .style('outline', d =>
-          d.responseId == this.currentResponseId ? 'black auto 5px' : ''
-        )
+        .style('outline', d => {
+          if (d.responseId == this.currentResponseId) {
+            return 'black auto 5px'
+          }
+
+          if (this.currentResponse && this.currentResponse.responseId == d.responseId) {
+            return 'blue auto 5px';
+          }
+
+          return ''
+        })
     },
 
     onReviewResponse() {

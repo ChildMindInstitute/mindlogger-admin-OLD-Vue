@@ -15,7 +15,7 @@
       :width="width + 20"
       :height="(height + space) * features.length + padding.bottom + padding.top"
     >
-      <g 
+      <g
         v-for="(feature, index) in features"
         class="features"
         :key="feature.slug"
@@ -98,42 +98,15 @@ export default {
     const margin = { left: 20, right: 60 };
     const width = this.parentWidth - margin.left - margin.right;
     const { data, features } = this.item.getFormattedResponseData();
-    const responseDates = {};
-    let max = 6;
-
-    for (let response of data) {
-      for (let feature of features) {
-        if (response[feature.slug] !== undefined) {
-          let dateStr = moment(response.date).format('MMM-DD, YYYY');
-          responseDates[feature.slug] = responseDates[feature.slug] || []
-          const index = responseDates[feature.slug].findIndex(({ date }) => date === dateStr );
-
-          if (index === -1) {
-            responseDates[feature.slug].push({
-              date: dateStr,
-              value: 1,
-            })
-          } else {
-            responseDates[feature.slug][index].value += 1;
-          }
-        }
-      }
-    }
-
-    features.forEach((feature) => {
-      if (responseDates[feature.slug]) {
-        max = Math.max(Math.max.apply(Math, responseDates[feature.slug].map(({ value }) => value)), max);
-      }
-    });
 
     return {
-      height: max * 30,
+      height: 100,
       margin,
       width,
       labelWidth: width / 4,
       data,
       space: 60,
-      responseDates,
+      responseDates: {},
       features: features.map((feature, index) => ({
         ...feature,
         index
@@ -171,7 +144,19 @@ export default {
 
         this.render();
       }
+    },
+    secretIds: {
+      deep: true,
+      handler() {
+        if (this.hasResponseIdentifier) {
+          this.initResponseDates();
+          this.render();
+        }
+      }
     }
+  },
+  beforeMount() {
+    this.initResponseDates();
   },
   mounted() {
     if (('IntersectionObserver' in window)) {
@@ -198,6 +183,41 @@ export default {
     });
   },
   methods: {
+    initResponseDates() {
+      const responseDates = {};
+      let max = 6;
+
+      for (let response of this.data) {
+        if (!this.secretIds.includes(response.secretId)) {
+          continue;
+        }
+        for (let feature of this.features) {
+          if (response[feature.slug] !== undefined) {
+            let dateStr = moment(response.date).format('MMM-DD, YYYY');
+            responseDates[feature.slug] = responseDates[feature.slug] || []
+            const index = responseDates[feature.slug].findIndex(({ date }) => date === dateStr );
+
+            if (index === -1) {
+              responseDates[feature.slug].push({
+                date: dateStr,
+                value: 1,
+              })
+            } else {
+              responseDates[feature.slug][index].value += 1;
+            }
+          }
+        }
+      }
+
+      this.features.forEach((feature) => {
+        if (responseDates[feature.slug]) {
+          max = Math.max(Math.max.apply(Math, responseDates[feature.slug].map(({ value }) => value)), max);
+        }
+      });
+
+      this.responseDates = responseDates;
+      this.height = max * 30;
+    },
     render() {
       if (this.visible) {
         this.svg = d3.select('#' + this.plotId);
@@ -229,9 +249,9 @@ export default {
     },
 
     drawAxis(feature, index) {
-      let max = 6; 
+      let max = 6;
       let min = 0;
-      
+
       if (this.responseDates[feature.slug]) {
         max = Math.max(Math.max.apply(Math, this.responseDates[feature.slug].map(({ value }) => value)), 6);
         min = Math.min(Math.min.apply(Math, this.responseDates[feature.slug].map(({ value }) => value)), 0);
@@ -328,7 +348,7 @@ export default {
 
         if (x >= 0 && prevX >= 0) {
           let delta = this.radius;
-          let dx = x - prevX, 
+          let dx = x - prevX,
               dy = y - prevY;
 
           let r = Math.sqrt(dx * dx + dy * dy);

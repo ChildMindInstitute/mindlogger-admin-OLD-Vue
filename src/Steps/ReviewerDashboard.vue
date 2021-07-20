@@ -159,6 +159,21 @@
                 multiple
               />
             </div>
+
+            <div
+              v-if="secretIDs.length"
+              class="secret-id"
+            >
+              <v-select
+                v-model="selectedSecretIds"
+                @input="onChangeSecretId"
+                :items="secretIDs"
+                class="secret-id-list"
+                :menu-props="{ maxHeight: 232 }"
+                :label="$t('secretId')"
+                multiple
+              />
+            </div>
           </div>
           <div v-else class="review-header mb-2">
             <v-menu>
@@ -274,7 +289,7 @@
                           </v-icon>
                         </div>
 
-                        <ActivitySummary
+                        <ActivityHeader
                           :plot-id="`Activity-Summary-${activity.slug}-${tab}`"
                           :versions="applet.versions"
                           :focus-extent="focusExtent"
@@ -284,10 +299,12 @@
                           :data="activity.responses"
                           :label="activity.label.en || activity.description.en"
                           :color="activity.dataColor"
-                          :latest-score="activity.getLatestActivityScore()"
-                          :frequency="activity.getFrequency()"
+                          :latest-score="activity.getLatestActivityScore(selectedSecretIds)"
+                          :frequency="activity.getFrequency(selectedSecretIds)"
                           :sub-scales="activity.subScales"
                           :parent-width="panelWidth"
+                          :secret-ids="selectedSecretIds"
+                          :has-response-identifier="activity.hasResponseIdentifier"
                           :time-range="timeRange"
                           :item-padding="itemPadding"
                           @selectResponse="
@@ -305,6 +322,14 @@
                           (tab !== 'tokens' || activity.hasTokenItem)
                         "
                       >
+                        <h2 class="mt-4">
+                          {{ $t("summary") }}
+                        </h2>
+
+                        <template v-if="tab !== 'tokens'">
+                          <CumulativeScore :activity="activity" />
+                        </template>
+
                         <div
                           v-if="
                             activity.finalSubScale &&
@@ -333,7 +358,7 @@
                           v-if="tab != 'tokens' && activity.subScales.length"
                         >
                           <SubScaleLineChart
-                            v-if="activity.getFrequency() > 1"
+                            v-if="activity.getFrequency(selectedSecretIds) > 1"
                             :plot-id="`subscale-line-chart-${activity.slug}`"
                             :versions="applet.versions"
                             :focus-extent="focusExtent"
@@ -342,10 +367,12 @@
                             :timezone="applet.timezoneStr"
                             :activity="activity"
                             :parent-width="panelWidth"
+                            :secret-ids="selectedSecretIds"
+                            :has-response-identifier="activity.hasResponseIdentifier"
                           />
 
                           <SubScaleBarChart
-                            v-if="activity.getFrequency() == 1"
+                            v-if="activity.getFrequency(selectedSecretIds) == 1"
                             :plot-id="`subscale-bar-chart-${activity.slug}`"
                             :versions="applet.versions"
                             :focus-extent="focusExtent"
@@ -354,6 +381,8 @@
                             :timezone="applet.timezoneStr"
                             :activity="activity"
                             :parent-width="panelWidth"
+                            :secret-ids="selectedSecretIds"
+                            :has-response-identifier="activity.hasResponseIdentifier"
                           />
                         </template>
 
@@ -376,6 +405,8 @@
                               :focusExtent="focusExtent"
                               :selectedVersions="selectedVersions"
                               :hasVersionBars="hasVersionBars"
+                              :secret-ids="selectedSecretIds"
+                              :has-response-identifier="activity.hasResponseIdentifier"
                               :timeRange="timeRange"
                               :panelWidth="panelWidth"
                             />
@@ -387,7 +418,8 @@
                             v-if="
                               item.allowEdit &&
                               (tab == 'tokens' || !item.partOfSubScale) &&
-                              (tab != 'tokens' || item.isTokenItem)
+                              (tab != 'tokens' || item.isTokenItem) &&
+                              (item.inputType !== 'text' || !item.correctAnswer && !item.isResponseIdentifier)
                             "
                             :key="item['id']"
                             class="chart-card"
@@ -428,6 +460,8 @@
                               :time-range="timeRange"
                               :maxValue="getMaxValue(activity.items)"
                               :minValue="getMinValue(activity.items)"
+                              :secret-ids="selectedSecretIds"
+                              :has-response-identifier="activity.hasResponseIdentifier"
                             />
                             <RadioSlider
                               v-else-if="
@@ -445,6 +479,8 @@
                               :parent-width="panelWidth"
                               :time-range="timeRange"
                               :color="item.dataColor"
+                              :secret-ids="selectedSecretIds"
+                              :has-response-identifier="activity.hasResponseIdentifier"
                             />
 
                             <Frequency
@@ -461,6 +497,8 @@
                               :parent-width="panelWidth"
                               :time-range="timeRange"
                               :color="item.dataColor"
+                              :secret-ids="selectedSecretIds"
+                              :has-response-identifier="activity.hasResponseIdentifier"
                             />
 
                             <FreeTextTable
@@ -472,6 +510,8 @@
                               :selected-versions="selectedVersions"
                               :timezone="applet.timezoneStr"
                               :responses="applet.responses[item.schemas[0]]"
+                              :secret-ids="selectedSecretIds"
+                              :has-response-identifier="activity.hasResponseIdentifier"
                             />
                           </div>
                         </template>
@@ -491,6 +531,8 @@
                           :key="`response-${reviewing.key}`"
                           :activity="reviewing.activity"
                           :response-id="reviewing.responseId"
+                          :secret-ids="selectedSecretIds"
+                          :has-response-identifier="reviewing.activity.hasResponseIdentifier"
                         />
                       </v-card>
 
@@ -540,6 +582,7 @@
         :applet="applet"
         :date="reviewing.date"
         :current-response="reviewing.responseId"
+        :secret-ids="selectedSecretIds"
         @selectResponse="selectResponse"
       />
     </v-card>
@@ -601,7 +644,8 @@
 }
 
 .time-range,
-.version {
+.version,
+.secret-id {
   position: relative;
   display: flex;
   align-items: baseline;
@@ -719,7 +763,7 @@ import Applet from "../models/Applet";
 import Activity from "../models/Activity";
 import Item from "../models/Item";
 import TokenChart from "../Components/DataViewerComponents/TokenChart.vue";
-import ActivitySummary from "../Components/DataViewerComponents/ActivitySummary.vue";
+import ActivityHeader from "../Components/DataViewerComponents/ActivityHeader.vue";
 import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue";
 import Frequency from "../Components/DataViewerComponents/Frequency.vue";
 import TimePicker from "../Components/DataViewerComponents/TimePicker.vue";
@@ -730,6 +774,7 @@ import ResponseSelectionDialog from "../Components/Utils/dialogs/ResponseSelecti
 import Responses from "../Components/DataViewerComponents/Responses";
 import Notes from "../Components/DataViewerComponents/Notes";
 import SubScaleComponent from "../Components/DataViewerComponents/SubScaleComponent";
+import CumulativeScore from "../Components/DataViewerComponents/CumulativeScore";
 
 import * as moment from "moment-timezone";
 
@@ -741,7 +786,7 @@ export default {
    */
   components: {
     TokenChart,
-    ActivitySummary,
+    ActivityHeader,
     RadioSlider,
     Frequency,
     TimePicker,
@@ -753,6 +798,7 @@ export default {
     Responses,
     Notes,
     SubScaleComponent,
+    CumulativeScore,
   },
 
   /**
@@ -777,6 +823,7 @@ export default {
       },
       allExpanded: false,
       responses: [],
+      selectedSecretIds: [],
       selectedTab: 0,
       selectedReviewTab: 1,
       panel: [],
@@ -800,6 +847,7 @@ export default {
         responseId: "",
         key: 0,
       },
+      secretIDs: [],
       responseDialog: false,
       cachedContents: {}
     };
@@ -864,6 +912,10 @@ export default {
         this.$store.state.currentAppletData.applet.encryption
       );
 
+      const secretIDs = Object.values(this.applet.secretIDs);
+      this.secretIDs = secretIDs.filter((value, index) => secretIDs.indexOf(value) == index);
+      this.selectedSecretIds = this.secretIDs.map(id => id);
+
       this.setDashboardTabs();
       this.selectedVersions = this.appletVersions;
       this.loading = false;
@@ -924,9 +976,22 @@ export default {
 
       if (
         this.applet.activities &&
-        this.applet.activities.some((activity) => activity.getFrequency() > 0)
+        this.applet.activities.some((activity) => activity.getFrequency(this.selectedSecretIds) > 0)
       ) {
         this.tabs.push("review");
+      }
+    },
+
+    onChangeSecretId() {
+      for (let activity of this.applet.activities) {
+        if (activity.subScales.length) {
+          if (this.secretIDs.indexOf(activity.subScales[0].current.secretId)) {
+            this.showSubScale({
+              activity,
+              responseId: null
+            });
+          }
+        }
       }
     },
 
@@ -958,7 +1023,6 @@ export default {
       const activityIndex = this.applet.activities.indexOf(activity);
       if (
         activityIndex >= 0 &&
-        activityIndex < this.applet.activities.length - 1 &&
         this.applet.selectedActivites.indexOf(activityIndex) < 0
       ) {
         this.applet.selectedActivites.push(activityIndex);
@@ -1008,8 +1072,15 @@ export default {
      * @return {boolean} whether this options should be enabled.
      */
     responseExists(date) {
-      if (this.applet.availableDates[moment(date).format("L")]) {
-        return true;
+      const responseId = this.applet.availableDates[moment(date).format("L")];
+
+      if (responseId) {
+        if (
+          !this.secretIDs.length ||
+          this.selectedSecretIds.includes(this.applet.secretIDs[responseId])
+        ) {
+          return true;
+        }
       }
 
       return false;

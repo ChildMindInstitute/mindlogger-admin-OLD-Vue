@@ -732,6 +732,32 @@ const deleteNote = (apiHost, token, appletId, noteId) =>
     }
   })
 
+const appletPublicLink = ({ apiHost, token, appletId, method, requireLogin }) => {
+  let url = `${apiHost}/applet/${appletId}/publicLink`;
+
+  if (requireLogin !== undefined) {
+    url = url + `?requireLogin=${requireLogin}`;
+  }
+
+  return axios({
+    method,
+    url,
+    headers: {
+      "Girder-Token": token,
+    }
+  });
+}
+
+
+const appletInviteLink = ({ apiHost, token, appletId, method }) =>
+  axios({
+    method,
+    url: `${apiHost}/applet/${appletId}/inviteLink`,
+    headers: {
+      "Girder-Token": token,
+    }
+  });
+
 const getThemes = (apiHost, token) => {
   return axios({
     method: 'get',
@@ -806,6 +832,7 @@ export default {
   addNote,
   updateNote,
   deleteNote,
+  appletPublicLink,
   getThemes
 }
 </script>
