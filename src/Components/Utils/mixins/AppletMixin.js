@@ -369,7 +369,7 @@ export const AppletMixin = {
           actualDisplayOnset: response.start_time,
           actualDisplayOffset: response.image_time,
           displayDuration: response.image_time - response.start_time,
-          responseValue: response.button_pressed === null ? '.' ? response.button_pressed === '0' : 'L' : 'R',
+          responseValue: response.button_pressed === null ? '.' : response.button_pressed === '0' ? 'L' : 'R',
           responseExpected: question,
           responseAccuracy: response.button_pressed === null ? '.' : response.correct ? 1 : 0,
           responseTime: response.delay + response.image_time,
