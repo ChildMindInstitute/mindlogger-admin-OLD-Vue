@@ -260,6 +260,14 @@ export default {
         this.labelWidth = this.width / 4;
         this.render();
       }
+    },
+    secretIds: {
+      deep: true,
+      handler() {
+        if (this.hasResponseIdentifier) {
+          this.render();
+        }
+      }
     }
   },
   mounted() {
@@ -326,7 +334,12 @@ export default {
       this.svg
         .select('.responses')
         .selectAll('circle')
-        .data(this.data.filter(d => this.selectedVersions.indexOf(d.version) >= 0 && d.date >= this.focusExtent[0] && d.date <= this.focusExtent[1]))
+        .data(this.data.filter(
+          d => this.selectedVersions.indexOf(d.version) >= 0
+                && d.date >= this.focusExtent[0]
+                && d.date <= this.focusExtent[1]
+                && (!this.hasResponseIdentifier || this.secretIds.includes(d.secretId))
+        ))
         .join('circle')
         .attr('fill', this.color)
         .attr('cx', d => this.x(d.date))

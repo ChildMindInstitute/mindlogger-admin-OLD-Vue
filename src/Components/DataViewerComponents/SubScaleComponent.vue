@@ -56,6 +56,8 @@
               :time-range="timeRange"
               :parent-width="panelWidth"
               :color="item.dataColor"
+              :secret-ids="secretIds"
+              :has-response-identifier="hasResponseIdentifier"
             />
           </div>
         </template>
@@ -78,6 +80,8 @@
               :hasVersionBars="hasVersionBars"
               :timeRange="timeRange"
               :panelWidth="panelWidth - 24"
+              :secret-ids="secretIds"
+              :has-response-identifier="hasResponseIdentifier"
             />
           </v-card>
         </template>
@@ -155,6 +159,14 @@ export default {
     },
     panelWidth: {
       type: Number,
+      required: true
+    },
+    secretIds: {
+      type: Array,
+      required: true
+    },
+    hasResponseIdentifier: {
+      type: Boolean,
       required: true
     },
   },

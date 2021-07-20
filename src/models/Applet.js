@@ -45,6 +45,7 @@ export default class Applet {
     this.tokens = {};
     this.hasTokenItem = false;
     this.availableDates = {};
+    this.secretIDs = {};
 
     this.selectedActivites = [];
 
@@ -249,9 +250,25 @@ export default class Applet {
       });
     }
 
+    const secretIDs = {};
+
+    for (const itemIRI of itemIDGroup) {
+      const item = this.items[itemIRI];
+
+      if (item.isResponseIdentifier) {
+        for (const response of data.responses[itemIRI]) {
+          if (!secretIDs[response.responseId]) {
+            secretIDs[response.responseId] = response.value;
+          }
+        }
+      }
+    }
+
+    this.secretIDs = secretIDs;
+
     /** append responses */
     for (let itemId of itemIDGroup) {
-      this.items[itemId].appendResponses(data.responses[itemId], this.items[itemId].inputType);
+      this.items[itemId].appendResponses(data.responses[itemId], this.items[itemId].inputType, secretIDs);
     }
 
     for (let itemId of itemIDGroup) {
@@ -284,7 +301,8 @@ export default class Applet {
         activity.responses.push(...item.responses.map(response => ({
           date: response.date,
           version: response.version,
-          responseId: response.responseId
+          responseId: response.responseId,
+          secretId: response.secretId
         })));
       }
 
@@ -300,7 +318,7 @@ export default class Applet {
       });
 
       for (const response of activity.responses) {
-        this.availableDates[moment(response.date).format('L')] = true;
+        this.availableDates[moment(response.date).format('L')] = response.responseId;
 
         for (const response of activity.responses) {
           if (!activity.lastResponseDate || activity.lastResponseDate < response.date) {
@@ -314,6 +332,15 @@ export default class Applet {
       activity.initSubScaleItems();
 
       const activityId = activity.data._id.split('/')[1];
+
+      for (const subScaleName in this.subScales[activityId]) {
+        const responses = this.subScales[activityId][subScaleName];
+
+        for (const response of responses) {
+          response.value.secretId = secretIDs[response.value.responseId];
+        }
+      }
+
       await activity.addSubScaleValues(this.subScales[activityId] || {});
     }
   }

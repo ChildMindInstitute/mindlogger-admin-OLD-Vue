@@ -254,7 +254,7 @@
     justify-content: center;
     cursor: pointer;
     font-size: 14px;
-  } 
+  }
   .btn-user-request:hover {
     color: rgb(100, 0, 0);
   }
@@ -410,13 +410,13 @@ export default {
 
     if (this.currentRole !== 'user') {
       headers = headers.filter(header =>
-        header.value != 'MRN' && 
+        header.value != 'MRN' &&
         header.value !== 'pinned'
       );
     } else {
       headers = headers.filter(header =>
         header.value !== 'firstName' &&
-        header.value !== 'lastName' && 
+        header.value !== 'lastName' &&
         header.value !== 'roles' &&
         header.value !== 'email'
       )
@@ -424,9 +424,9 @@ export default {
 
     if (!this.multiSelectionEnabled) {
       /** hide some headers in dashboard page */
-      headers = headers.filter((header) => 
-        header.value !== 'refreshRequest' && 
-        header.value !== 'currentScheduleStatus' && 
+      headers = headers.filter((header) =>
+        header.value !== 'refreshRequest' &&
+        header.value !== 'currentScheduleStatus' &&
         header.value !== 'selected' &&
         header.value !== 'roles'
       );
@@ -435,12 +435,12 @@ export default {
 
       if (
         !currentApplet || !(
-          currentApplet.roles.includes('coordinator') || 
+          currentApplet.roles.includes('coordinator') ||
           currentApplet.roles.includes('manager') ||
           currentApplet.roles.includes('owner')
         )
       ) {
-        headers = headers.filter((header) => 
+        headers = headers.filter((header) =>
           header.value != 'currentScheduleStatus'
         )
       }
@@ -661,7 +661,7 @@ export default {
 
         formattedUsers.push({
           MRN: MRNs.filter(function(item, pos){
-            return MRNs.indexOf(item) == pos; 
+            return MRNs.indexOf(item) == pos;
           }).join(', '),
           pinned,
           ...this.getUserStatus(user),
@@ -686,7 +686,7 @@ export default {
         const employer = this.users[i];
         const data = Object.values(employer)[0];
 
-        if (data.firstName.includes(this.searchText) || data.lastName.includes(this.searchText) || data.email.includes(this.searchText)) {
+        if (data.firstName.includes(this.searchText) || data.lastName.includes(this.searchText) || data.identifiers.includes(this.searchText) || data.email.includes(this.searchText)) {
           const formattedInfo = {
             firstName: data.firstName,
             lastName: data.lastName,

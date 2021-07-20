@@ -61,6 +61,15 @@ export default {
       type: Object,
       required: true
     },
+    secretIds: {
+      type: Array,
+      required: []
+    },
+    hasResponseIdentifier: {
+      type: Boolean,
+      required: false,
+      default: false
+    }
   },
   data: function() {
     return {
@@ -87,7 +96,11 @@ export default {
   },
   computed: {
     itemResponses() {
-      const itemResponses = this.responses.filter(response => this.selectedVersions.includes(response.version));
+      const itemResponses = this.responses.filter(
+        response =>
+          this.selectedVersions.includes(response.version) &&
+          (!this.hasResponseIdentifier || this.secretIds.includes(response.secretId))
+      );
 
       return itemResponses.map(response => {
         return {
