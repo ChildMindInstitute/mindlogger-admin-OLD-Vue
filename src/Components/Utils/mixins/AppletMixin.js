@@ -119,6 +119,7 @@ export const AppletMixin = {
           }
 
           let subScaleNames = [], previousResponse = [];
+          const flankerCSVs = [];
           for (let response of data.responses) {
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
             const outputTexts = {};
@@ -190,16 +191,25 @@ export const AppletMixin = {
                 responseData = null;
               } else {
                 if (responseDataObj instanceof Array) {
-                  responseDataObj.forEach((value, index) => {
-                    if (value instanceof Object && !Array.isArray(value)) {
-                      responseData += Object.entries(value).map(entry => `${entry[0]}: ${entry[1]}`).join(', ');
-                    } else {
-                      responseData += `${index}: ${value}`;
-                    }
+                  if (item.inputType == 'visual-stimulus-response') {
+                    flankerCSVs.push({
+                      name: `${response._id}.csv`,
+                      data: this.getFlankerAsCSV(responseDataObj)
+                    });
+                    responseData = `filename: ${response._id}.csv`;
 
-                    if (index !== responseDataObj.length - 1)
-                      responseData += '\r\n\r\n';
-                  });
+                  } else {
+                    responseDataObj.forEach((value, index) => {
+                      if (value instanceof Object && !Array.isArray(value)) {
+                        responseData += Object.entries(value).map(entry => `${entry[0]}: ${entry[1]}`).join(', ');
+                      } else {
+                        responseData += `${index}: ${value}`;
+                      }
+
+                      if (index !== responseDataObj.length - 1)
+                        responseData += '\r\n\r\n';
+                    });
+                  }
 
                 } else if (responseDataObj instanceof Object) {
 
@@ -330,7 +340,93 @@ export const AppletMixin = {
           })
 
           await this.generateMediaResponsesZip(this.mediaResponseObjects);
+          await this.generateFlankerZip(flankerCSVs);
         })
+    },
+
+    async generateFlankerZip(flankerCSVs) {
+      try {
+        const zip = new JSZip();
+
+        for (const csvData of flankerCSVs) {
+          zip.file(csvData.name, csvData.data);
+        }
+
+        const generatedZip = await zip.generateAsync({ type: 'blob' });
+        saveAs(generatedZip, `flanker-responses-${(new Date()).toDateString()}.zip`);
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    getFlankerAsCSV(responses) {
+      const result = [];
+      for (const response of responses) {
+        const question = response.question.includes('left') ? 'L' : 'R';
+        const offset = response.timestamp - response.delay - response.image_time;
+
+        result.push({
+          actualDisplayOnset: response.start_time,
+          actualDisplayOffset: response.image_time,
+          displayDuration: response.image_time - response.start_time,
+          responseValue: response.button_pressed === null ? '.' ? response.button_pressed === '0' : 'L' : 'R',
+          responseExpected: question,
+          responseAccuracy: response.button_pressed === null ? '.' : response.correct ? 1 : 0,
+          responseTime: response.delay + response.image_time,
+
+          actualDisplayOnsetClock: response.start_time + offset,
+          actualDisplayOffsetClock: response.image_time + offset,
+          responseTimeClock: response.delay + response.image_time + offset
+        })
+      }
+
+      let otc = new ObjectToCSV({
+        keys: [
+          {
+            key: 'actualDisplayOnset',
+            as: 'Actual Display Onset'
+          },
+          {
+            key: 'actualDisplayOffset',
+            as: 'Actual Display Offset'
+          },
+          {
+            key: 'displayDuration',
+            as: 'Display Duration'
+          },
+          {
+            key: 'responseValue',
+            as: 'Response Value'
+          },
+          {
+            key: 'responseExpected',
+            as: 'Response Expected'
+          },
+          {
+            key: 'responseAccuracy',
+            as: 'Response Accuracy'
+          },
+          {
+            key: 'responseTime',
+            as: 'Response Time'
+          },
+          {
+            key: 'actualDisplayOnsetClock',
+            as: 'Actual Display Onset(Clockstamp)'
+          },
+          {
+            key: 'actualDisplayOffsetClock',
+            as: 'Actual Display Offset(Clockstamp)'
+          },
+          {
+            key: 'responseTimeClock',
+            as: 'Response(Clockstamp)'
+          }
+        ],
+        data: result,
+      });
+
+      return otc.getCSV();
     },
 
     downloadFile ({ name, content, type }) {
