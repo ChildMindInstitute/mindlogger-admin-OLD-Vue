@@ -509,7 +509,7 @@
                               :item="item"
                               :selected-versions="selectedVersions"
                               :timezone="applet.timezoneStr"
-                              :responses="applet.responses[item.schemas[0]]"
+                              :responses="item.responses"
                               :secret-ids="selectedSecretIds"
                               :has-response-identifier="activity.hasResponseIdentifier"
                             />
