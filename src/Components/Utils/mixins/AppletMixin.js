@@ -208,8 +208,8 @@ export const AppletMixin = {
                     if (item.inputType === 'timeRange' && value.from && value.to) {
                       responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
                     } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType === 'audioImageRecord') && value.filename) {
-                      this.getMediaResponseObject(value.uri, response, item);
-                      responseData += `filename: ${value.filename}`;
+                      const name = this.getMediaResponseObject(value.uri, response, item);
+                      responseData += `filename: ${name}`;
                     } else if (item.inputType === 'date' && (value.day || value.month || value.year)) {
                       responseData += `date: ${value.day}/${value.month}/${value.year}`;
                     } else if (item.inputType === 'drawing' && value.svgString) {
@@ -217,11 +217,11 @@ export const AppletMixin = {
                     } else if (item.inputType === 'geolocation' && typeof value === 'object') {
                       responseData += `geo: lat (${value.latitude}) / long (${value.longitude})`;
                     } else if (item.inputType === 'audioImageRecord') {
-                      if (key === 'filename') {
-                        responseData = `filename: ${value}`;
+                      if (key === 'uri') {
+                        const name = this.getMediaResponseObject(value, response, item);
+
+                        responseData = `filename: ${name}`;
                         index = Object.keys(responseDataObj).length;
-                      } else if (key === 'uri') {
-                        this.getMediaResponseObject(value, response, item);
                       }
                     } else {
                       responseData += `${key}: ${value}`;
@@ -366,6 +366,8 @@ export const AppletMixin = {
       const name = `${response._id}-${response.userId}-${item.id}${extension}`;
 
       this.mediaResponseObjects.push({ bucket, name, key });
+
+      return name;
     },
     async generateMediaResponsesZip(mediaObjects) {
       if (mediaObjects.length < 1) return;
