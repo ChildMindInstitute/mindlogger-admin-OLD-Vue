@@ -174,6 +174,13 @@
                 multiple
               />
             </div>
+
+            <v-btn
+              class="ml-2"
+              @click="onDownloadReport"
+            >
+              Download Report
+            </v-btn>
           </div>
           <div v-else class="review-header mb-2">
             <v-menu>
@@ -575,6 +582,12 @@
             </v-tabs-items>
           </div>
         </div>
+
+        <div>
+          <div ref="report">
+            <CumulativeScoreReport :activities="applet.activities" />
+          </div>
+        </div>
       </div>
 
       <ResponseSelectionDialog
@@ -758,10 +771,7 @@
 <script>
 import _ from "lodash";
 import VueMarkdown from "vue-markdown";
-import api from "../Components/Utils/api/api.vue";
 import Applet from "../models/Applet";
-import Activity from "../models/Activity";
-import Item from "../models/Item";
 import TokenChart from "../Components/DataViewerComponents/TokenChart.vue";
 import ActivityHeader from "../Components/DataViewerComponents/ActivityHeader.vue";
 import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue";
@@ -775,8 +785,10 @@ import Responses from "../Components/DataViewerComponents/Responses";
 import Notes from "../Components/DataViewerComponents/Notes";
 import SubScaleComponent from "../Components/DataViewerComponents/SubScaleComponent";
 import CumulativeScore from "../Components/DataViewerComponents/CumulativeScore";
+import CumulativeScoreReport from "../Components/DataViewerComponents/CumulativeScoreReport";
 
 import * as moment from "moment-timezone";
+import { jsPDF } from "jspdf";
 
 export default {
   name: "ReviewerDashboard",
@@ -799,6 +811,7 @@ export default {
     Notes,
     SubScaleComponent,
     CumulativeScore,
+    CumulativeScoreReport,
   },
 
   /**
@@ -1271,6 +1284,19 @@ export default {
 
     onUpdateFocusExtent(focusExtent) {
       this.$set(this, "focusExtent", focusExtent);
+    },
+
+    onDownloadReport() {
+      const pdf = new jsPDF('p', 'pt', 'A4');
+
+      pdf.html(this.$refs.report, {
+        callback: function (pdf) {
+          pdf.save();
+        },
+        x: 50,
+        y: 50,
+        fontSize: 5,
+      })
     },
   },
 };

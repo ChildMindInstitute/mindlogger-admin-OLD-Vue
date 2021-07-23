@@ -31,6 +31,7 @@
 <script>
 import { Parser } from "expr-eval";
 import moment from "moment";
+import _ from "lodash";
 import {
   getScoreFromResponse,
   getMaxScore,
@@ -38,6 +39,7 @@ import {
 } from "../Utils/scoring";
 
 export default {
+  name: 'CumulativeScore',
   props: {
     activity: {
       type: Object,
@@ -52,15 +54,15 @@ export default {
 
     this.activity.compute = this.activity.data["reprolib:terms/compute"].map(
       (itemCompute) => ({
-        jsExpression: itemCompute["reprolib:terms/jsExpression"][0]["@value"],
-        variableName: itemCompute["reprolib:terms/variableName"][0]["@value"],
+        jsExpression: _.get(itemCompute, ["reprolib:terms/jsExpression", 0, "@value"]),
+        variableName: _.get(itemCompute, ["reprolib:terms/variableName", 0, "@value"]),
       })
     );
     this.activity.messages = this.activity.data["reprolib:terms/messages"].map(
       (itemMessage) => ({
-        jsExpression: itemMessage["reprolib:terms/jsExpression"][0]["@value"],
-        message: itemMessage["reprolib:terms/message"][0]["@value"],
-        outputType: itemMessage["reprolib:terms/outputType"][0]["@value"],
+        jsExpression: _.get(itemMessage, ["reprolib:terms/jsExpression", 0, "@value"]),
+        message: _.get(itemMessage, ["reprolib:terms/message", 0, "@value"]),
+        outputType: _.get(itemMessage, ["reprolib:terms/outputType", 0, "@value"]),
       })
     );
 
@@ -70,7 +72,7 @@ export default {
           getScoreFromResponse(item, activityResponse)
         );
         const maxScores = (this.activity.items || []).map((item) =>
-          getMaxScore(item, activityResponse)
+          getMaxScore(item)
         );
 
         const cumulativeScores = this.activity.compute.reduce((accumulator, itemCompute) => ({
