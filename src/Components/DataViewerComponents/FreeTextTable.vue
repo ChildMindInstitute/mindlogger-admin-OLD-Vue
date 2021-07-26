@@ -106,7 +106,7 @@ export default {
         return {
           date: moment(response.date).format('MM/DD'),
           time: moment(response.date).format('hh:mm A'),
-          response: response.value[0],
+          response: response.value,
         }
       });
 
