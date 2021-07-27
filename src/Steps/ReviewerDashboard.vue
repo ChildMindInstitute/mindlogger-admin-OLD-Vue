@@ -164,6 +164,12 @@
               v-if="secretIDs.length"
               class="secret-id"
             >
+              <v-checkbox
+                v-model="applySecretIdSelector"
+                :label="$t('useSecretIdSelector')"
+                hide-details
+              />
+
               <v-select
                 v-model="selectedSecretIds"
                 @input="onChangeSecretId"
@@ -172,6 +178,7 @@
                 :menu-props="{ maxHeight: 232 }"
                 :label="$t('secretId')"
                 multiple
+                :disabled="!applySecretIdSelector"
               />
             </div>
           </div>
@@ -304,7 +311,7 @@
                           :sub-scales="activity.subScales"
                           :parent-width="panelWidth"
                           :secret-ids="selectedSecretIds"
-                          :has-response-identifier="activity.hasResponseIdentifier"
+                          :apply-secret-id-selector="applySecretIdSelector"
                           :time-range="timeRange"
                           :item-padding="itemPadding"
                           @selectResponse="
@@ -368,7 +375,7 @@
                             :activity="activity"
                             :parent-width="panelWidth"
                             :secret-ids="selectedSecretIds"
-                            :has-response-identifier="activity.hasResponseIdentifier"
+                            :apply-secret-id-selector="applySecretIdSelector"
                           />
 
                           <SubScaleBarChart
@@ -382,7 +389,7 @@
                             :activity="activity"
                             :parent-width="panelWidth"
                             :secret-ids="selectedSecretIds"
-                            :has-response-identifier="activity.hasResponseIdentifier"
+                            :apply-secret-id-selector="applySecretIdSelector"
                           />
                         </template>
 
@@ -406,7 +413,7 @@
                               :selectedVersions="selectedVersions"
                               :hasVersionBars="hasVersionBars"
                               :secret-ids="selectedSecretIds"
-                              :has-response-identifier="activity.hasResponseIdentifier"
+                              :apply-secret-id-selector="applySecretIdSelector"
                               :timeRange="timeRange"
                               :panelWidth="panelWidth"
                             />
@@ -461,7 +468,7 @@
                               :maxValue="getMaxValue(activity.items)"
                               :minValue="getMinValue(activity.items)"
                               :secret-ids="selectedSecretIds"
-                              :has-response-identifier="activity.hasResponseIdentifier"
+                              :apply-secret-id-selector="applySecretIdSelector"
                             />
                             <RadioSlider
                               v-else-if="
@@ -480,7 +487,7 @@
                               :time-range="timeRange"
                               :color="item.dataColor"
                               :secret-ids="selectedSecretIds"
-                              :has-response-identifier="activity.hasResponseIdentifier"
+                              :apply-secret-id-selector="applySecretIdSelector"
                             />
 
                             <Frequency
@@ -498,7 +505,7 @@
                               :time-range="timeRange"
                               :color="item.dataColor"
                               :secret-ids="selectedSecretIds"
-                              :has-response-identifier="activity.hasResponseIdentifier"
+                              :apply-secret-id-selector="applySecretIdSelector"
                             />
 
                             <FreeTextTable
@@ -511,7 +518,7 @@
                               :timezone="applet.timezoneStr"
                               :responses="item.responses"
                               :secret-ids="selectedSecretIds"
-                              :has-response-identifier="activity.hasResponseIdentifier"
+                              :apply-secret-id-selector="applySecretIdSelector"
                             />
                           </div>
                         </template>
@@ -532,7 +539,7 @@
                           :activity="reviewing.activity"
                           :response-id="reviewing.responseId"
                           :secret-ids="selectedSecretIds"
-                          :has-response-identifier="reviewing.activity.hasResponseIdentifier"
+                          :apply-secret-id-selector="reviewing.applySecretIdSelector"
                         />
                       </v-card>
 
@@ -654,6 +661,14 @@
   font-weight: 600;
   color: #777;
   text-transform: uppercase;
+}
+
+.secret-id {
+  flex-direction: column;
+}
+
+.secret-id-list {
+  margin-top: 10px;
 }
 
 .toDate,
@@ -824,6 +839,7 @@ export default {
       allExpanded: false,
       responses: [],
       selectedSecretIds: [],
+      applySecretIdSelector: false,
       selectedTab: 0,
       selectedReviewTab: 1,
       panel: [],

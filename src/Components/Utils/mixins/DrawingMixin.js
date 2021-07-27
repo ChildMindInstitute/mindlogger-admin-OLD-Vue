@@ -36,7 +36,7 @@ export const DrawingMixin = {
       type: Array,
       required: []
     },
-    hasResponseIdentifier: {
+    applySecretIdSelector: {
       type: Boolean,
       required: false,
       default: false
