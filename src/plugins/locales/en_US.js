@@ -374,4 +374,5 @@ export default {
   appletEditProgress: 'Your applet is being edited.',
   secretId: 'Secret Id',
   summary: 'Summary',
+  useSecretIdSelector: 'Secret Id Selector'
 };

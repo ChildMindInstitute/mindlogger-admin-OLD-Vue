@@ -145,10 +145,13 @@ export default {
         this.render();
       }
     },
+    applySecretIdSelector() {
+      this.render();
+    },
     secretIds: {
       deep: true,
       handler() {
-        if (this.hasResponseIdentifier) {
+        if (this.applySecretIdSelector) {
           this.initResponseDates();
           this.render();
         }

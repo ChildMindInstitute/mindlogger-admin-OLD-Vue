@@ -261,10 +261,13 @@ export default {
         this.render();
       }
     },
+    applySecretIdSelector() {
+      this.render();
+    },
     secretIds: {
       deep: true,
       handler() {
-        if (this.hasResponseIdentifier) {
+        if (this.applySecretIdSelector) {
           this.render();
         }
       }
@@ -338,7 +341,7 @@ export default {
           d => this.selectedVersions.indexOf(d.version) >= 0
                 && d.date >= this.focusExtent[0]
                 && d.date <= this.focusExtent[1]
-                && (!this.hasResponseIdentifier || this.secretIds.includes(d.secretId))
+                && (!this.applySecretIdSelector || this.secretIds.includes(d.secretId))
         ))
         .join('circle')
         .attr('fill', this.color)

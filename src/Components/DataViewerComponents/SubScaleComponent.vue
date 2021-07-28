@@ -57,7 +57,7 @@
               :parent-width="panelWidth"
               :color="item.dataColor"
               :secret-ids="secretIds"
-              :has-response-identifier="hasResponseIdentifier"
+              :apply-secret-id-selector="applySecretIdSelector"
             />
           </div>
         </template>
@@ -81,7 +81,7 @@
               :timeRange="timeRange"
               :panelWidth="panelWidth - 24"
               :secret-ids="secretIds"
-              :has-response-identifier="hasResponseIdentifier"
+              :apply-secret-id-selector="applySecretIdSelector"
             />
           </v-card>
         </template>
@@ -165,7 +165,7 @@ export default {
       type: Array,
       required: true
     },
-    hasResponseIdentifier: {
+    applySecretIdSelector: {
       type: Boolean,
       required: true
     },

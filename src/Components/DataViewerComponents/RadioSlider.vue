@@ -164,10 +164,13 @@ export default {
         this.render();
       }
     },
+    applySecretIdSelector() {
+      this.render();
+    },
     secretIds: {
       deep: true,
       handler() {
-        if (this.hasResponseIdentifier) {
+        if (this.applySecretIdSelector) {
           this.render();
         }
       }
@@ -284,7 +287,7 @@ export default {
           break;
         }
 
-        if (this.hasResponseIdentifier && !this.secretIds.includes(response.secretId)) {
+        if (this.applySecretIdSelector && !this.secretIds.includes(response.secretId)) {
           continue;
         }
 
