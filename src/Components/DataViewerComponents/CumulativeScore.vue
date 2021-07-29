@@ -119,11 +119,15 @@ export default {
             category + jsExpression.substr(variableName.length)
           );
 
-          if (expr.evaluate(cumulativeScores)) {
+          const variableScores = {
+            [category]: outputType == "percentage" ? Math.round(cumulativeMaxScores[category] ? cumulativeScores[category] * 100 / cumulativeMaxScores[category] : 0) : cumulativeScores[category]
+          }
+
+          if (expr.evaluate(variableScores)) {
             reportMessages.push({
               category,
               message,
-              score: outputType == "percentage" ? Math.round(cumulativeMaxScores[category] ? (cumulativeScores[category] * 100) / cumulativeMaxScores[category] : 0) + "%" : cumulativeScores[category]
+              score: variableScores[category] + (outputType == "percentage" ? "%" : ""),
             });
           }
         });
