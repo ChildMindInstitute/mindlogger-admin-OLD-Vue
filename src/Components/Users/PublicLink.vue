@@ -161,7 +161,7 @@ export default {
         return null;
       }
 
-      let url = `${process.env.VUE_APP_WEB_URI}/#/join/${invite.data.inviteId}`;
+      let url = `${process.env.VUE_APP_WEB_URI}/join/${invite.data.inviteId}`;
 
       if (invite.data.requireLogin === false) {
         url = `${process.env.VUE_APP_WEB_URI}/applet/public/${invite.data.inviteId}`;
