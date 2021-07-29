@@ -334,7 +334,11 @@
                         </h2>
 
                         <template v-if="tab !== 'tokens'">
-                          <CumulativeScore :activity="activity" />
+                          <CumulativeScore
+                            :activity="activity"
+                            :secret-ids="selectedSecretIds"
+                            :apply-secret-id-selector="applySecretIdSelector"
+                          />
                         </template>
 
                         <div
@@ -1001,11 +1005,18 @@ export default {
 
     onChangeSecretId() {
       for (let activity of this.applet.activities) {
-        if (activity.subScales.length) {
-          if (this.secretIDs.indexOf(activity.subScales[0].current.secretId)) {
+        if (activity.subScales.length && activity.hasResponseIdentifier) {
+          if (
+            this.applySecretIdSelector &&
+            !this.selectedSecretIds.includes(activity.subScales[0].current.secretId)
+          ) {
+            const d = activity.subScales[0].values.find(
+              d => d.value && this.selectedSecretIds.includes(d.value.secretId)
+            )
+
             this.showSubScale({
               activity,
-              responseId: null
+              responseId: d ? d.value.responseId : null
             });
           }
         }
@@ -1050,6 +1061,9 @@ export default {
 
         if (!current) {
           subScale.current.outputText = '';
+          subScale.current.tScore = 0;
+          subScale.current.secretId = null;
+
           continue;
         }
 
