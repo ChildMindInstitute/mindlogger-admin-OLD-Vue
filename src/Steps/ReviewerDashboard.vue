@@ -329,10 +329,6 @@
                           (tab !== 'tokens' || activity.hasTokenItem)
                         "
                       >
-                        <h2 class="mt-4">
-                          {{ $t("summary") }}
-                        </h2>
-
                         <template v-if="tab !== 'tokens'">
                           <CumulativeScore
                             :activity="activity"

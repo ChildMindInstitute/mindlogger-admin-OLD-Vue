@@ -1,21 +1,16 @@
 <template>
-  <div class="cumulative-results">
-    <template
-      v-for="cumulativeResult in cumulativeResults"
-    >
+  <div v-if="cumulativeReportsCount" class="cumulative-results">
+    <h2>{{ $t("summary") }}</h2>
+    <template v-for="cumulativeResult in cumulativeResults">
       <div
         v-if="!applySecretIdSelector || secretIds.includes(cumulativeResult.response.secretId)"
         :key="cumulativeResult.response.responseId"
       >
-        <div
-          class="cumulative-date"
-        >
+        <div class="cumulative-date">
           {{ cumulativeResult.response.date }}
         </div>
 
-        <div
-          class="cumulative-result"
-        >
+        <div class="cumulative-result">
           <div
             v-for="(item, index) in cumulativeResult.reportMessages"
             :key="index"
@@ -92,6 +87,7 @@ export default {
       })
     );
 
+    let cumulativeReportsCount = 0;
     const cumulativeResults = this.activity.responses.map(
       (activityResponse) => {
         const scores = (this.activity.items || []).map((item) =>
@@ -130,6 +126,7 @@ export default {
               message,
               score: variableScores[category] + (outputType == "percentage" ? "%" : ""),
             });
+            cumulativeReportsCount ++;
           }
         });
 
@@ -145,6 +142,7 @@ export default {
 
     return {
       cumulativeResults,
+      cumulativeReportsCount,
     };
   },
 };
