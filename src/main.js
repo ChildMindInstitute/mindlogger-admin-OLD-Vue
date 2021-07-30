@@ -12,6 +12,7 @@ import i18n from "./plugins/language";
 import AppletSchemaBuilder from 'applet-schema-builder';
 import mavonEditor from 'mavon-editor';
 import 'mavon-editor/dist/css/index.css'
+import VueMarkdown from "vue-markdown";
 
 import store from './State/state';
 
@@ -56,6 +57,8 @@ Vue.use(VuetifyDialog, {
     vuetify,
   },
 });
+
+Vue.use(VueMarkdown);
 
 new Vue({
   el: "#app",
