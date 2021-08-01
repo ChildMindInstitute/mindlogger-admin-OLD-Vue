@@ -44,6 +44,10 @@
 .cumulative-score {
   border-bottom: 1px solid #aaa;
 }
+
+.cumulative-score /deep/ img {
+  max-width: 100%;
+}
 </style>
 
 <script>
