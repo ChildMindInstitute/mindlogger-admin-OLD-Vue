@@ -258,7 +258,8 @@ export default class Applet {
       if (item.isResponseIdentifier) {
         for (const response of data.responses[itemIRI]) {
           if (!secretIDs[response.responseId]) {
-            secretIDs[response.responseId] = response.value;
+            const d = response.value;
+            secretIDs[response.responseId] = d.value ? d.value : d;
           }
         }
       }
