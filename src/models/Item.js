@@ -302,8 +302,11 @@ export default class Item {
     }
   }
 
-  getFormattedQuestion() {
-    return this.question.en && this.question.en.replace(/(!\[.*\]\s*\(.*?) =\d*x\d*(\))/g, '$1$2') || this.label.en;
+  getQuestionImage() {
+    const imageUrlRE = new RegExp(/http([\S]+)/i);
+    const imageMatch = this.question.en && this.question.en.match(imageUrlRE);
+
+    return imageMatch && imageMatch[0] || '';  // The image URL.
   }
 
   getQuizWithoutImage() {

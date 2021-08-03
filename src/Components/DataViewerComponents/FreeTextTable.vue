@@ -65,7 +65,7 @@ export default {
       type: Array,
       required: []
     },
-    hasResponseIdentifier: {
+    applySecretIdSelector: {
       type: Boolean,
       required: false,
       default: false
@@ -99,14 +99,14 @@ export default {
       const itemResponses = this.responses.filter(
         response =>
           this.selectedVersions.includes(response.version) &&
-          (!this.hasResponseIdentifier || this.secretIds.includes(response.secretId))
+          (!this.applySecretIdSelector || this.secretIds.includes(response.secretId))
       );
 
       return itemResponses.map(response => {
         return {
           date: moment(response.date).format('MM/DD'),
           time: moment(response.date).format('hh:mm A'),
-          response: response.value[0],
+          response: response.value,
         }
       });
 

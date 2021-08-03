@@ -81,7 +81,7 @@ export const AppletMixin = {
           options: payload,
         })
       })
-        .then((resp) => {
+        .then(async (resp) => {
           const { data } = resp;
           const appletData = this.$store.state.allApplets[appletId];
 
@@ -302,8 +302,6 @@ export const AppletMixin = {
             }
           }
 
-          this.generateMediaResponsesZip(this.mediaResponseObjects);
-
           let otc = new ObjectToCSV({
             keys: [
               'id',
@@ -330,6 +328,8 @@ export const AppletMixin = {
             content: otc.getCSV(),
             type: 'text/csv;charset=utf-8'
           })
+
+          await this.generateMediaResponsesZip(this.mediaResponseObjects);
         })
     },
 

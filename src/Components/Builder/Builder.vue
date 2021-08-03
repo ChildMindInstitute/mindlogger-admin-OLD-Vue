@@ -12,6 +12,7 @@
       :templates="itemTemplates"
       :cacheData="currentAppletBuilderData"
       :basketApplets="basketApplets"
+      :themes="themes"
       @removeTemplate="onRemoveTemplate"
       @updateTemplates="onAddTemplate"
       @uploadProtocol="onUploadProtocol"
@@ -88,6 +89,7 @@ export default {
       dialogTitle: "",
       appletPasswordDialog: false,
       newApplet: {},
+      themeId: null,
       isEditing: false,
       versions: [],
       componentKey: 1,
@@ -120,7 +122,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(["currentAppletBuilderData", "basketApplets"]),
+    ...mapState(["currentAppletBuilderData", "basketApplets", "themes"]),
     accountApplets() {
       return (
         (this.$store.state.currentAccount &&
@@ -181,8 +183,9 @@ export default {
       this.appletPasswordDialog = false;
       this.addNewApplet(appletPassword);
     },
-    onUploadProtocol(newApplet) {
-      this.newApplet = newApplet;
+    onUploadProtocol({applet, themeId}) {
+      this.newApplet = applet;
+      this.themeId = themeId;
       this.appletPasswordDialog = true;
     },
     async onAddTemplate(option) {
@@ -256,6 +259,7 @@ export default {
           email: this.$store.state.userEmail,
           token: this.$store.state.auth.authToken.token,
           apiHost: this.$store.state.backend,
+          themeId: this.themeId
         })
         .then((resp) => {
           this.onUploadSucess(resp.data.message);
@@ -298,19 +302,24 @@ export default {
       }
       this.itemTemplates = [...templates];
     },
-    onUpdateProtocol(updateData) {
-      const protocol = new FormData();
-      protocol.set("protocol", JSON.stringify(updateData || {}));
+    onUpdateProtocol({protocol, themeId}) {
+     let protocolData;
+
+      if (protocol) {
+        protocolData = new FormData();
+        protocolData.set("protocol", JSON.stringify(protocol));
+      }
 
       const appletId = this.currentAppletMeta.id;
       const token = this.$store.state.auth.authToken.token;
       const apiHost = this.$store.state.backend;
       api
         .updateApplet({
-          data: protocol,
+          ...(protocolData && {data: protocolData}),
           appletId,
           token,
           apiHost,
+          themeId
         })
         .then((resp) => this.loadApplet(appletId))
         .then((data) => {

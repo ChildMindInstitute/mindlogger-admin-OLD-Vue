@@ -30,9 +30,10 @@
           <div :key="item['id']" class="chart-card">
             <header>
             <h3 v-if="item.inputType !== 'markdownMessage'">
-              <vue-markdown class="item-question">
-                {{ item.getFormattedQuestion() }}
-              </vue-markdown>
+              <div class="item-question">
+                <p><img :src="item.getQuestionImage()"></p>
+                <p>{{ item.getQuizWithoutImage() }}</p>
+              </div>
             </h3>
 
             <h3 v-else>- {{ item.label.en }}</h3>
@@ -57,7 +58,7 @@
               :parent-width="panelWidth"
               :color="item.dataColor"
               :secret-ids="secretIds"
-              :has-response-identifier="hasResponseIdentifier"
+              :apply-secret-id-selector="applySecretIdSelector"
             />
           </div>
         </template>
@@ -81,7 +82,7 @@
               :timeRange="timeRange"
               :panelWidth="panelWidth - 24"
               :secret-ids="secretIds"
-              :has-response-identifier="hasResponseIdentifier"
+              :apply-secret-id-selector="applySecretIdSelector"
             />
           </v-card>
         </template>
@@ -165,7 +166,7 @@ export default {
       type: Array,
       required: true
     },
-    hasResponseIdentifier: {
+    applySecretIdSelector: {
       type: Boolean,
       required: true
     },

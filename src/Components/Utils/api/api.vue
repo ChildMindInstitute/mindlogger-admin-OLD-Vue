@@ -296,7 +296,7 @@ const deleteApplet = ({ apiHost, token, appletId }) =>
     },
   });
 
-const createApplet = ({ apiHost, token, email, data }) =>
+const createApplet = ({ apiHost, token, email, data, themeId }) =>
   axios({
     method: "POST",
     url: `${apiHost}/applet/fromJSON`,
@@ -306,11 +306,12 @@ const createApplet = ({ apiHost, token, email, data }) =>
     params: {
       email,
       lang: store.state.currentLanguage,
+      ...(themeId && {themeId})
     },
     data,
   });
 
-const updateApplet = ({ apiHost, token, data, appletId }) =>
+const updateApplet = ({ apiHost, token, data, appletId, themeId }) =>
   axios({
     method: "PUT",
     url: `${apiHost}/applet/${appletId}/fromJSON`,
@@ -318,6 +319,9 @@ const updateApplet = ({ apiHost, token, data, appletId }) =>
       "Girder-Token": token,
     },
     data,
+    params: {
+      ...(themeId && {themeId})
+    },
   })
 
 const prepareApplet = ({ apiHost, token, data, appletId, thread }) =>
@@ -754,6 +758,16 @@ const appletInviteLink = ({ apiHost, token, appletId, method }) =>
     }
   });
 
+const getThemes = (apiHost, token) => {
+  return axios({
+    method: 'get',
+    url: `${apiHost}/theme`,
+    headers: {
+      'Girder-Token': token
+    },
+  })
+}
+
 export default {
   signIn,
   signUp,
@@ -819,5 +833,6 @@ export default {
   updateNote,
   deleteNote,
   appletPublicLink,
+  getThemes
 }
 </script>

@@ -265,10 +265,13 @@ export default {
     currentResponseDate() {
       this.render();
     },
+    applySecretIdSelector() {
+      this.render();
+    },
     secretIds: {
       deep: true,
       handler() {
-        if (this.hasResponseIdentifier) {
+        if (this.applySecretIdSelector) {
           this.render();
         }
       }
@@ -393,7 +396,7 @@ export default {
           const d = subScale.values.filter(
             value =>
               (!this.currentResponseDate || new Date(value.date) >= this.currentResponseDate) &&
-              (!this.hasResponseIdentifier || this.secretIds.includes(value.secretId))
+              (!this.applySecretIdSelector || this.secretIds.includes(value.secretId))
           ).map(d => {
             if (this.selectedVersions.includes(d.version)) {
               const x = this.getX(d);

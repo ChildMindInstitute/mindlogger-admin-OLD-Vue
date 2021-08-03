@@ -164,6 +164,12 @@
               v-if="secretIDs.length"
               class="secret-id"
             >
+              <v-checkbox
+                v-model="applySecretIdSelector"
+                :label="$t('useSecretIdSelector')"
+                hide-details
+              />
+
               <v-select
                 v-model="selectedSecretIds"
                 @input="onChangeSecretId"
@@ -172,6 +178,7 @@
                 :menu-props="{ maxHeight: 232 }"
                 :label="$t('secretId')"
                 multiple
+                :disabled="!applySecretIdSelector"
               />
             </div>
 
@@ -311,7 +318,7 @@
                           :sub-scales="activity.subScales"
                           :parent-width="panelWidth"
                           :secret-ids="selectedSecretIds"
-                          :has-response-identifier="activity.hasResponseIdentifier"
+                          :apply-secret-id-selector="applySecretIdSelector"
                           :time-range="timeRange"
                           :item-padding="itemPadding"
                           @selectResponse="
@@ -329,12 +336,12 @@
                           (tab !== 'tokens' || activity.hasTokenItem)
                         "
                       >
-                        <h2 class="mt-4">
-                          {{ $t("summary") }}
-                        </h2>
-
                         <template v-if="tab !== 'tokens'">
-                          <CumulativeScore :activity="activity" />
+                          <CumulativeScore
+                            :activity="activity"
+                            :secret-ids="selectedSecretIds"
+                            :apply-secret-id-selector="applySecretIdSelector"
+                          />
                         </template>
 
                         <div
@@ -375,7 +382,7 @@
                             :activity="activity"
                             :parent-width="panelWidth"
                             :secret-ids="selectedSecretIds"
-                            :has-response-identifier="activity.hasResponseIdentifier"
+                            :apply-secret-id-selector="applySecretIdSelector"
                           />
 
                           <SubScaleBarChart
@@ -389,7 +396,7 @@
                             :activity="activity"
                             :parent-width="panelWidth"
                             :secret-ids="selectedSecretIds"
-                            :has-response-identifier="activity.hasResponseIdentifier"
+                            :apply-secret-id-selector="applySecretIdSelector"
                           />
                         </template>
 
@@ -413,7 +420,7 @@
                               :selectedVersions="selectedVersions"
                               :hasVersionBars="hasVersionBars"
                               :secret-ids="selectedSecretIds"
-                              :has-response-identifier="activity.hasResponseIdentifier"
+                              :apply-secret-id-selector="applySecretIdSelector"
                               :timeRange="timeRange"
                               :panelWidth="panelWidth"
                             />
@@ -433,9 +440,10 @@
                           >
                             <header>
                               <h3 v-if="item.inputType !== 'markdownMessage'">
-                                <vue-markdown class="item-question">
-                                  {{ item.getFormattedQuestion() }}
-                                </vue-markdown>
+                                <div class="item-question">
+                                  <p><img :src="item.getQuestionImage()"></p>
+                                  <p>{{ item.getQuizWithoutImage() }}</p>
+                                </div>
                               </h3>
 
                               <h3 v-else>- {{ item.label.en }}</h3>
@@ -468,7 +476,7 @@
                               :maxValue="getMaxValue(activity.items)"
                               :minValue="getMinValue(activity.items)"
                               :secret-ids="selectedSecretIds"
-                              :has-response-identifier="activity.hasResponseIdentifier"
+                              :apply-secret-id-selector="applySecretIdSelector"
                             />
                             <RadioSlider
                               v-else-if="
@@ -487,7 +495,7 @@
                               :time-range="timeRange"
                               :color="item.dataColor"
                               :secret-ids="selectedSecretIds"
-                              :has-response-identifier="activity.hasResponseIdentifier"
+                              :apply-secret-id-selector="applySecretIdSelector"
                             />
 
                             <Frequency
@@ -505,7 +513,7 @@
                               :time-range="timeRange"
                               :color="item.dataColor"
                               :secret-ids="selectedSecretIds"
-                              :has-response-identifier="activity.hasResponseIdentifier"
+                              :apply-secret-id-selector="applySecretIdSelector"
                             />
 
                             <FreeTextTable
@@ -516,9 +524,9 @@
                               :item="item"
                               :selected-versions="selectedVersions"
                               :timezone="applet.timezoneStr"
-                              :responses="applet.responses[item.schemas[0]]"
+                              :responses="item.responses"
                               :secret-ids="selectedSecretIds"
-                              :has-response-identifier="activity.hasResponseIdentifier"
+                              :apply-secret-id-selector="applySecretIdSelector"
                             />
                           </div>
                         </template>
@@ -539,7 +547,7 @@
                           :activity="reviewing.activity"
                           :response-id="reviewing.responseId"
                           :secret-ids="selectedSecretIds"
-                          :has-response-identifier="reviewing.activity.hasResponseIdentifier"
+                          :apply-secret-id-selector="reviewing.applySecretIdSelector"
                         />
                       </v-card>
 
@@ -667,6 +675,14 @@
   font-weight: 600;
   color: #777;
   text-transform: uppercase;
+}
+
+.secret-id {
+  flex-direction: column;
+}
+
+.secret-id-list {
+  margin-top: 10px;
 }
 
 .toDate,
@@ -837,6 +853,7 @@ export default {
       allExpanded: false,
       responses: [],
       selectedSecretIds: [],
+      applySecretIdSelector: false,
       selectedTab: 0,
       selectedReviewTab: 1,
       panel: [],
@@ -997,11 +1014,18 @@ export default {
 
     onChangeSecretId() {
       for (let activity of this.applet.activities) {
-        if (activity.subScales.length) {
-          if (this.secretIDs.indexOf(activity.subScales[0].current.secretId)) {
+        if (activity.subScales.length && activity.hasResponseIdentifier) {
+          if (
+            this.applySecretIdSelector &&
+            !this.selectedSecretIds.includes(activity.subScales[0].current.secretId)
+          ) {
+            const d = activity.subScales[0].values.find(
+              d => d.value && this.selectedSecretIds.includes(d.value.secretId)
+            )
+
             this.showSubScale({
               activity,
-              responseId: null
+              responseId: d ? d.value.responseId : null
             });
           }
         }
@@ -1046,6 +1070,9 @@ export default {
 
         if (!current) {
           subScale.current.outputText = '';
+          subScale.current.tScore = 0;
+          subScale.current.secretId = null;
+
           continue;
         }
 

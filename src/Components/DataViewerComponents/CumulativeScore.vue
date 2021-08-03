@@ -1,15 +1,28 @@
 <template>
-  <div class="cumulative-results">
-    <div v-for="cumulativeResult in cumulativeResults" :key="cumulativeResult.response.responseId">
-      <div class="cumulative-date">{{ cumulativeResult.response.date }}</div>
-      <div class="cumulative-result">
-        <div v-for="(item, index) in cumulativeResult.reportMessages" :key="index" class="cumulative-score">
-          <div>{{ item.category.replace(/_/g, " ") }}</div>
-          <div>{{ item.score }}</div>
-          <div>{{ item.message }}</div>
+  <div v-if="cumulativeReportsCount" class="cumulative-results">
+    <h2>{{ $t("summary") }}</h2>
+    <template v-for="cumulativeResult in cumulativeResults">
+      <div
+        v-if="!applySecretIdSelector || secretIds.includes(cumulativeResult.response.secretId)"
+        :key="cumulativeResult.response.responseId"
+      >
+        <div class="cumulative-date">
+          {{ cumulativeResult.response.date }}
+        </div>
+
+        <div class="cumulative-result">
+          <div
+            v-for="(item, index) in cumulativeResult.reportMessages"
+            :key="index"
+            class="cumulative-score"
+          >
+            <div>{{ item.category.replace(/_/g, " ") }}</div>
+            <div>{{ item.score }}</div>
+            <vue-markdown>{{ item.message }}</vue-markdown>
+          </div>
         </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -26,6 +39,10 @@
 .cumulative-score {
   border-bottom: 1px solid #aaa;
 }
+
+.cumulative-score /deep/ img {
+  max-width: 100%;
+}
 </style>
 
 <script>
@@ -37,14 +54,23 @@ import {
   getMaxScore,
   evaluateScore,
 } from "../Utils/scoring";
+import VueMarkdown from "vue-markdown";
 
 export default {
-  name: 'CumulativeScore',
+  name: "CumulativeScore",
+  components: {
+    VueMarkdown,
+  },
   props: {
     activity: {
       type: Object,
       required: true,
     },
+    applySecretIdSelector: {
+      type: Boolean,
+      required: false,
+      default: false
+    }
   },
   data() {
     const parser = new Parser({
@@ -52,13 +78,13 @@ export default {
       comparison: true,
     });
 
-    this.activity.compute = this.activity.data["reprolib:terms/compute"].map(
+    this.activity.compute = (this.activity.data["reprolib:terms/compute"] || []).map(
       (itemCompute) => ({
         jsExpression: _.get(itemCompute, ["reprolib:terms/jsExpression", 0, "@value"]),
         variableName: _.get(itemCompute, ["reprolib:terms/variableName", 0, "@value"]),
       })
     );
-    this.activity.messages = this.activity.data["reprolib:terms/messages"].map(
+    this.activity.messages = (this.activity.data["reprolib:terms/messages"] || []).map(
       (itemMessage) => ({
         jsExpression: _.get(itemMessage, ["reprolib:terms/jsExpression", 0, "@value"]),
         message: _.get(itemMessage, ["reprolib:terms/message", 0, "@value"]),
@@ -66,6 +92,7 @@ export default {
       })
     );
 
+    let cumulativeReportsCount = 0;
     const cumulativeResults = this.activity.responses.map(
       (activityResponse) => {
         const scores = (this.activity.items || []).map((item) =>
@@ -94,12 +121,17 @@ export default {
             category + jsExpression.substr(variableName.length)
           );
 
-          if (expr.evaluate(cumulativeScores)) {
+          const variableScores = {
+            [category]: outputType == "percentage" ? Math.round(cumulativeMaxScores[category] ? cumulativeScores[category] * 100 / cumulativeMaxScores[category] : 0) : cumulativeScores[category]
+          }
+
+          if (expr.evaluate(variableScores)) {
             reportMessages.push({
               category,
               message,
-              score: outputType == "percentage" ? Math.round(cumulativeMaxScores[category] ? (cumulativeScores[category] * 100) / cumulativeMaxScores[category] : 0) + "%" : cumulativeScores[category]
+              score: variableScores[category] + (outputType == "percentage" ? "%" : ""),
             });
+            cumulativeReportsCount ++;
           }
         });
 
@@ -115,6 +147,7 @@ export default {
 
     return {
       cumulativeResults,
+      cumulativeReportsCount,
     };
   },
 };
