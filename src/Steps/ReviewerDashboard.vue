@@ -591,7 +591,7 @@
           </div>
         </div>
 
-        <div>
+        <div v-show="false">
           <div ref="report">
             <CumulativeScoreReport :activities="applet.activities" />
           </div>
@@ -1317,11 +1317,12 @@ export default {
       const pdf = new jsPDF('p', 'pt', 'A4');
 
       pdf.html(this.$refs.report, {
-        callback: function (pdf) {
+        callback: (pdf) => {
           pdf.save();
         },
         x: 50,
         y: 50,
+        margin: 50,
         fontSize: 5,
       })
     },
