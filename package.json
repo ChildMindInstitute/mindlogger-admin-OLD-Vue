@@ -44,6 +44,7 @@
     "object-to-csv": "^1.0.5",
     "protocol-builder": "^0.1.20",
     "vue": "2.6.10",
+    "vue-html2pdf": "^1.8.0",
     "vue-i18n": "^8.21.1",
     "vue-markdown": "^2.2.4",
     "vue-property-decorator": "^8.4.0",

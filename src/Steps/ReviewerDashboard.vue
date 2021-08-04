@@ -591,11 +591,37 @@
           </div>
         </div>
 
-        <div v-show="false">
-          <div ref="report">
+        <vue-html2pdf
+          ref="html2Pdf"
+          :show-layout="false"
+          :float-layout="true"
+          :enable-download="true"
+          :preview-modal="true"
+          :paginate-elements-by-height="3000"
+          filename="report"
+          :pdf-quality="2"
+          :manual-pagination="false"
+          pdf-format="a4"
+          pdf-orientation="landscape"
+          pdf-content-width="800px"
+          :html-to-pdf-options="{
+            margin: 70,
+            enableLinks: true,
+            html2canvas: {
+              scale: 1,
+              useCORS: true,
+            },
+            jsPDF: {
+              unit: 'pt',
+              format: 'a4',
+              orientation: 'portrait',
+            },
+          }"
+        >
+          <section slot="pdf-content">
             <CumulativeScoreReport :activities="applet.activities" />
-          </div>
-        </div>
+          </section>
+        </vue-html2pdf>
       </div>
 
       <ResponseSelectionDialog
@@ -804,7 +830,6 @@ import CumulativeScore from "../Components/DataViewerComponents/CumulativeScore"
 import CumulativeScoreReport from "../Components/DataViewerComponents/CumulativeScoreReport";
 
 import * as moment from "moment-timezone";
-import { jsPDF } from "jspdf";
 
 export default {
   name: "ReviewerDashboard",
@@ -821,7 +846,6 @@ export default {
     FreeTextTable,
     SubScaleLineChart,
     SubScaleBarChart,
-    VueMarkdown,
     ResponseSelectionDialog,
     Responses,
     Notes,
@@ -1314,17 +1338,7 @@ export default {
     },
 
     onDownloadReport() {
-      const pdf = new jsPDF('p', 'pt', 'A4');
-
-      pdf.html(this.$refs.report, {
-        callback: (pdf) => {
-          pdf.save();
-        },
-        x: 50,
-        y: 50,
-        margin: 50,
-        fontSize: 5,
-      })
+      this.$refs.html2Pdf.generatePdf()
     },
   },
 };

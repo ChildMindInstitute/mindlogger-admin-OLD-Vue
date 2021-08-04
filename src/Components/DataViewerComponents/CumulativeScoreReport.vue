@@ -1,6 +1,6 @@
 <template>
   <div class="cumulative-score-report">
-    <div v-for="activity in activities" :key="activity.id">
+    <div v-for="activity in activities" :key="activity.id" class="mb-5">
       <p class="text-decoration-underline font-weight-bold mb-4">
         {{ activity.id }} Report
       </p>
@@ -40,34 +40,18 @@
         </div>
       </div>
     </div>
-    <p>
+    <p class="text-footer text-body-2 mb-5">
       {{ termsText }}
     </p>
-    <p>
+    <p class="text-footer">
       {{ footerText }}
     </p>
   </div>
 </template>
 
 <style scoped>
-  @media all {
-    .page-break {
-      display: none;
-    }
-  }
-
-  @media print {
-    .page-break {
-      display: block;
-      page-break-before: always;
-    }
-  }
-
   .cumulative-score-report {
-    width: 500px;
-  }
-  div, p {
-    font-size: 0.8rem;
+    width: 600px;
   }
   .text-decoration-underline {
     text-decoration: underline;
@@ -82,17 +66,10 @@
     font-style: italic;
   }
   .text-body-2 {
-    font-size: 0.7rem;
+    font-size: 0.9rem;
   }
   .blue--text {
     color: #2196f3;
-  }
-  .my-4 {
-    margin-top: 1em;
-    margin-bottom: 1em;
-  }
-  .mb-4 {
-    margin-bottom: 1em;
   }
   .mb-1 {
     margin-bottom: 0.25em;
@@ -100,8 +77,21 @@
   .ml-2 {
     margin-left: 0.5em;
   }
+  .mb-4 {
+    margin-bottom: 1em;
+  }
+  .my-4 {
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+  .mb-5 {
+    margin-bottom: 2em;
+  }
   .score-bar {
-    width: 300px;
+    width: 400px;
+  }
+  .text-footer {
+    line-height: 2em;
   }
 </style>
 
