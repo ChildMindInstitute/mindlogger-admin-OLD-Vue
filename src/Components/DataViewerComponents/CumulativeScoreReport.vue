@@ -24,20 +24,6 @@
             <vue-markdown>{{ item.message }}</vue-markdown>
           </p>
         </div>
-        <p class="text-body-2 mb-4">
-          {{ additionalText }}
-        </p>
-        <p class="text-body-2 mb-4">
-          Helpful Resources:
-        </p>
-        <div
-          v-for="(resource, index) in resources"
-          :key="resource.text + index"
-        >
-          <a :href="resource.link">
-            {{ resource.text }}
-          </a>
-        </div>
       </div>
     </div>
     <p class="text-footer text-body-2 mb-5">
@@ -112,22 +98,6 @@ export default {
     },
   },
   data: () => ({
-    resources: [
-      {
-        text: "Teen Suicides: What Are the Warning Signs?",
-        link: "https://google.com",
-      },
-      {
-        text: "Taking a Child to the Emergency Room",
-        link: "https://google.com",
-      },
-      {
-        text: "Signs a Child Might Be Suicidal",
-        link: "/",
-      },
-    ],
-    additionalText:
-      "If not currently being addressed, high scores on this scale may signal the need for further clinical evaluation and attention depending on the level of difficulties encountered in the home, work, or social environments.",
     termsText:
       "I understand that the information provided by this questionnaire is not intended to replace the advice, diagnosis, or treatment offered by a medical or mental health professional, and that my anonymous responses may be used and shared for general research on children’s mental health.",
     footerText:
