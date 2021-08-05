@@ -518,7 +518,7 @@ export default {
           .axisBottom()
           .scale(this.x)
           .tickSize(this.focusHeight)  // Height of the tick line.
-          .ticks(d3.timeDay)
+          .ticks(30)
           .tickFormat(d => moment(d).format('MMM D'));
       const contextXAxis = d3
           .axisBottom()
