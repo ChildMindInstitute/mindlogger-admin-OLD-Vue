@@ -121,6 +121,7 @@ export default {
     focusExtent: {
       deep: true,
       handler() {
+        this.initResponseDates();
         this.render();
       }
     },
@@ -191,7 +192,7 @@ export default {
       let max = 6;
 
       for (let response of this.data) {
-        if (!this.secretIds.includes(response.secretId)) {
+        if (this.applySecretIdSelector && !this.secretIds.includes(d.secretId)) {
           continue;
         }
         for (let feature of this.features) {
