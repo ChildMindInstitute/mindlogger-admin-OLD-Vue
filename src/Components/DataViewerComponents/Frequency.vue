@@ -122,6 +122,7 @@ export default {
       deep: true,
       handler() {
         this.render();
+        this.initResponseDates();
       }
     },
     selectedVersions: {
@@ -194,6 +195,12 @@ export default {
         if (!this.secretIds.includes(response.secretId)) {
           continue;
         }
+
+        const repsonseDate = new Date(response.date);
+        if (responseDates < this.focusExtent[0] || responseDates > this.focusExtent[1]) {
+          continue
+        }
+
         for (let feature of this.features) {
           if (response[feature.slug] !== undefined) {
             let dateStr = moment(response.date).format('MMM-DD, YYYY');
@@ -260,10 +267,16 @@ export default {
         min = Math.min(Math.min.apply(Math, this.responseDates[feature.slug].map(({ value }) => value)), 0);
       }
 
+      let beforeDay = new Date(this.focusExtent[0]);
+      beforeDay.setDate(beforeDay.getDate() - 1);
+
       this.x = d3
         .scaleUtc()
         .nice()
-        .domain(this.focusExtent)
+        .domain([
+          beforeDay,
+          this.focusExtent[1]
+        ])
         .range([0, this.width - this.labelWidth]);
 
       this.y = d3
@@ -271,8 +284,6 @@ export default {
         .domain([min, max])
         .nice()
         .range([(this.height + this.space) * index, this.height * (index - 1) + this.space * index])
-
-      // const tickType = this.getTickType();
 
       const xAxis = d3
         .axisBottom()
@@ -323,10 +334,13 @@ export default {
 
       let prevX = -1, prevY = -1;
 
+      let beforeDay = new Date(this.focusExtent[0]);
+      beforeDay.setDate(beforeDay.getDate() - 1);
+
       for (let i = 0; i < this.responseDates[feature.slug].length; i++) {
         let response = this.responseDates[feature.slug][i];
 
-        if (new Date(response.date) < this.focusExtent[0]) {
+        if (new Date(response.date) < beforeDay) {
           continue;
         }
 
