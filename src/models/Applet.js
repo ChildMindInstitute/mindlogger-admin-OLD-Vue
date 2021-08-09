@@ -470,7 +470,7 @@ export default class Applet {
           positive,
           negative,
           cummulative,
-          date: new Date(response.date)
+          date: moment(response.date).toDate()
         }
       }),
       versionsByDate: dateToVersions,
