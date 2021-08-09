@@ -5,16 +5,16 @@
         {{ activity.id }} Report
       </p>
       <p class="text-body-2 mb-4">
-        {{ activity.scoreOverview }}
+        <vue-markdown>{{ activity.scoreOverview }}</vue-markdown>
       </p>
       <div v-for="report in activity.reports" :key="report.name" class="my-4">
         <p class="blue--text font-weight-bold mb-1">
           {{ report.name }}
         </p>
         <p class="text-body-2 mb-4">
-          {{ report.description }}
+          <vue-markdown>{{ report.description }}</vue-markdown>
         </p>
-        <img src="@/assets/score_bar.png" class="score-bar" />
+        <img src="@/assets/score_bar.png" class="score-bar" :class="{reverse: report.direction === false}">
         <div v-for="(item, index) in report.messages" :key="index">
           <p class="text-uppercase font-weight-bold font-italic mb-1">
             If score
@@ -79,6 +79,10 @@
   .text-footer {
     line-height: 2em;
   }
+  .score-bar.reverse{
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+  }
 </style>
 
 <script>
@@ -104,11 +108,6 @@ export default {
       "CHILD MIND INSTITUTE, INC. AND CHILD MIND MEDICAL PRACTICE, PLLC (TOGETHER, “CMI”) DOES NOT DIRECTLY OR INDIRECTLY PRACTICE MEDICINE OR DISPENSE MEDICAL ADVICE AS PART OF THIS QUESTIONNAIRE. CMI ASSUMES NO LIABILITY FOR ANY DIAGNOSIS, TREATMENT, DECISION MADE, OR ACTION TAKEN IN RELIANCE UPON INFORMATION PROVIDED BY THIS QUESTIONNAIRE, AND ASSUMES NO RESPONSIBILITY FOR YOUR USE OF THIS QUESTIONNAIRE.",
   }),
   beforeMount() {
-    const parser = new Parser({
-      logical: true,
-      comparison: true,
-    });
-
     for (const activity of this.activities) {
       const maxScores = (activity.items || []).map((item) => getMaxScore(item));
 
@@ -130,7 +129,7 @@ export default {
         })
         return {
           name: computeName,
-          description: _.get(itemCompute, ["reprolib:terms/description", 0, "@value"]),
+          description: _.get(itemCompute, ["schema:description", 0, "@value"]),
           direction: _.get(itemCompute, ["reprolib:terms/direction", 0, "@value"], true),
           cumulativeMaxScore: evaluateScore(itemCompute.jsExpression, activity.items, maxScores),
           messages,

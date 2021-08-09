@@ -596,7 +596,7 @@
           :show-layout="false"
           :float-layout="true"
           :enable-download="true"
-          :preview-modal="true"
+          :preview-modal="false"
           :paginate-elements-by-height="3000"
           filename="report"
           :pdf-quality="2"
