@@ -495,7 +495,7 @@
                               v-else-if="
                                 tab == 'frequency' && item.inputType === 'radio'
                               "
-                              :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
+                              :plot-id="`frequency-${activity.slug}-${item.slug}`"
                               :item="item"
                               :versions="applet.versions"
                               :focus-extent="focusExtent"

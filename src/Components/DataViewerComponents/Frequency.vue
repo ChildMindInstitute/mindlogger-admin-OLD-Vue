@@ -1,8 +1,8 @@
 <template>
   <div
     v-if="visible"
-    class="radio-slider"
-    :class="`radio-slider-${plotId}`"
+    class="frequency-chart"
+    :class="`frequency-chart-${plotId}`"
   >
     <div
       class="tooltip"
@@ -55,7 +55,7 @@
   margin: auto 40px;
 }
 
-.radio-slider {
+.frequency-chart {
   display: inline-block;
   position: relative;
   width: calc(100% - 40px);
@@ -295,7 +295,6 @@ export default {
       const yAxis = d3
         .axisLeft()
         .scale(this.y)
-        // .tickSize(this.tickHeight)
         .ticks(3);
 
       this.svg
@@ -325,7 +324,7 @@ export default {
     },
 
     drawResponses(feature, index) {
-      const tooltip = document.querySelector(`.radio-slider.radio-slider-${this.plotId} .tooltip`);
+      const tooltip = document.querySelector(`.frequency-chart.frequency-chart-${this.plotId} .tooltip`);
 
       this.radius = 7;
       this.svg
