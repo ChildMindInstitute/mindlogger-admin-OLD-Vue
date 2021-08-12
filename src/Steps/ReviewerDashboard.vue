@@ -435,11 +435,11 @@
                               <h3 v-if="item.inputType !== 'markdownMessage'">
                                 <div class="item-question">
                                   <p><img :src="item.getQuestionImage()"></p>
-                                  <p>{{ item.getQuizWithoutImage() }}</p>
+                                  <vue-markdown>{{ item.getQuizWithoutImage() }}</vue-markdown>
                                 </div>
                               </h3>
 
-                              <h3 v-else>- {{ item.label.en }}</h3>
+                              <h3 v-else>- <vue-markdown>{{ item.label.en }}</vue-markdown></h3>
                             </header>
                             <div v-if="item.inputType == 'markdownMessage'">
                               <div class="markdown">
