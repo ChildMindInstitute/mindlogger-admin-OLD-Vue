@@ -408,11 +408,25 @@ export default class Applet {
   getItemsFormatted() {
     let merged = [], features = [], last = null;
     let dateToVersions = {};
+    let hashItems = [];
+
+    console.log('items', this.items)
 
     Object.keys(this.items).forEach(itemId => {
       const item = this.items[itemId];
+      let isAvailable = false;
 
-      if (item.isTokenItem && item.inputType !== 'stackedRadio') {
+      if (item.schemas.length < 2) {
+        isAvailable = true;
+      } else if (!hashItems.includes(itemId)) {
+        isAvailable = true;
+        hashItems.push(...item.schemas);
+      }
+
+      console.log('isAvailable', isAvailable)
+
+      if (item.isTokenItem && item.inputType !== 'stackedRadio' && isAvailable) {
+        // console.log('item.responses=======', item.responses)
         item.responses.forEach(resp => {
           let dateStr = moment.utc(resp.date).format('YYYY-MM-DD');
 
@@ -444,6 +458,8 @@ export default class Applet {
         });
       }
     });
+
+    console.log('merged----------', merged)
 
     return {
       data: merged.map(response => {
