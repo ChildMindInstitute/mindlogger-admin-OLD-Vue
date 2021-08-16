@@ -526,7 +526,7 @@ export default {
       const contextXAxis = d3
           .axisBottom()
           .scale(this.contextX)
-          .ticks(30)
+          .ticks(25)
           .tickSize(this.contextHeight)  // Height of the tick line.
           .tickFormat(d => moment(d).format('M/D'));
       const yAxisTicks = this.y.ticks().filter(Number.isInteger);
