@@ -61,6 +61,15 @@ export default {
       type: Object,
       required: true
     },
+    secretIds: {
+      type: Array,
+      required: []
+    },
+    applySecretIdSelector: {
+      type: Boolean,
+      required: false,
+      default: false
+    }
   },
   data: function() {
     return {
@@ -87,13 +96,17 @@ export default {
   },
   computed: {
     itemResponses() {
-      const itemResponses = this.responses.filter(response => this.selectedVersions.includes(response.version));
+      const itemResponses = this.responses.filter(
+        response =>
+          this.selectedVersions.includes(response.version) &&
+          (!this.applySecretIdSelector || this.secretIds.includes(response.secretId))
+      );
 
       return itemResponses.map(response => {
         return {
           date: moment(response.date).format('MM/DD'),
           time: moment(response.date).format('hh:mm A'),
-          response: response.value[0],
+          response: response.value,
         }
       });
 

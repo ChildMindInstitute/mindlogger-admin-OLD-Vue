@@ -81,7 +81,7 @@ export const AppletMixin = {
           options: payload,
         })
       })
-        .then((resp) => {
+        .then(async (resp) => {
           const { data } = resp;
           const appletData = this.$store.state.allApplets[appletId];
 
@@ -208,8 +208,8 @@ export const AppletMixin = {
                     if (item.inputType === 'timeRange' && value.from && value.to) {
                       responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
                     } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType === 'audioImageRecord') && value.filename) {
-                      this.getMediaResponseObject(value.uri, response, item);
-                      responseData += `filename: ${value.filename}`;
+                      const name = this.getMediaResponseObject(value.uri, response, item);
+                      responseData += `filename: ${name}`;
                     } else if (item.inputType === 'date' && (value.day || value.month || value.year)) {
                       responseData += `date: ${value.day}/${value.month}/${value.year}`;
                     } else if (item.inputType === 'drawing' && value.svgString) {
@@ -217,11 +217,11 @@ export const AppletMixin = {
                     } else if (item.inputType === 'geolocation' && typeof value === 'object') {
                       responseData += `geo: lat (${value.latitude}) / long (${value.longitude})`;
                     } else if (item.inputType === 'audioImageRecord') {
-                      if (key === 'filename') {
-                        responseData = `filename: ${value}`;
+                      if (key === 'uri') {
+                        const name = this.getMediaResponseObject(value, response, item);
+
+                        responseData = `filename: ${name}`;
                         index = Object.keys(responseDataObj).length;
-                      } else if (key === 'uri') {
-                        this.getMediaResponseObject(value, response, item);
                       }
                     } else {
                       responseData += `${key}: ${value}`;
@@ -282,13 +282,21 @@ export const AppletMixin = {
               if (!csvObj.activity_start_time && csvObj.activity_id && csvObj.item && csvObj.response) {
                 previousResponse.push(csvObj);
                 continue;
-              } else if (previousResponse.length > 0 && _.find(previousResponse, o => (o.activity_id === csvObj.activity_id) && (o.item === csvObj.item)) && csvObj.activity_start_time && !csvObj.response) {
+              } else if (
+                previousResponse.length > 0 &&
+                _.find(previousResponse, o => (o.activity_id === csvObj.activity_id) && (o.item === csvObj.item)) &&
+                csvObj.activity_start_time &&
+                !csvObj.response
+              ) {
                 const index = _.findIndex(previousResponse, o => (o.activity_id === csvObj.activity_id) && (o.item === csvObj.item));
                 if (index > -1) {
                   csvObj['response'] = previousResponse[index].response;
                   previousResponse.splice(index, 1);
                 }
               }
+
+              if (csvObj['response'] && csvObj['response'].includes('.quicktime'))
+                csvObj['response'] = csvObj['response'].replace('.quicktime', '.MOV');
 
               if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined) continue;
               result.push(csvObj);
@@ -302,8 +310,6 @@ export const AppletMixin = {
               row[subScaleName] = row[subScaleName] || '';
             }
           }
-
-          this.generateMediaResponsesZip(this.mediaResponseObjects);
 
           let otc = new ObjectToCSV({
             keys: [
@@ -332,14 +338,16 @@ export const AppletMixin = {
             content: otc.getCSV(),
             type: 'text/csv;charset=utf-8'
           })
+
+          await this.generateMediaResponsesZip(this.mediaResponseObjects);
         })
     },
 
-    downloadFile ({ name, content, type }) {
+    downloadFile({ name, content, type }) {
       const file = new Blob([content], { type })
       return new Promise(resolve => {
-       saveAs(file, name)
-       resolve(true)
+        saveAs(file, name)
+        resolve(true)
       })
     },
 
@@ -368,6 +376,8 @@ export const AppletMixin = {
       const name = `${response._id}-${response.userId}-${item.id}${extension}`;
 
       this.mediaResponseObjects.push({ bucket, name, key });
+
+      return name;
     },
     async generateMediaResponsesZip(mediaObjects) {
       if (mediaObjects.length < 1) return;
@@ -387,7 +397,9 @@ export const AppletMixin = {
           };
 
           const data = await client.getObject(params).promise();
-          zip.file(mediaObject.name, data.Body);
+          let filename = mediaObject.name;
+          if (filename && filename.includes('.quicktime')) filename = filename.replace('.quicktime', '.MOV');
+          zip.file(filename, data.Body);
         }
 
         const generatedZip = await zip.generateAsync({ type: 'blob' });

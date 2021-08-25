@@ -163,6 +163,17 @@ export default {
 
         this.render();
       }
+    },
+    applySecretIdSelector() {
+      this.render();
+    },
+    secretIds: {
+      deep: true,
+      handler() {
+        if (this.applySecretIdSelector) {
+          this.render();
+        }
+      }
     }
   },
   mounted() {
@@ -274,6 +285,10 @@ export default {
 
         if (response.date > this.focusExtent[1]) {
           break;
+        }
+
+        if (this.applySecretIdSelector && !this.secretIds.includes(response.secretId)) {
+          continue;
         }
 
         for (let [index, feature] of this.features.entries()) {

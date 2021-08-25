@@ -261,7 +261,7 @@ export default {
         }
 
         /** coordinator can update schedule for anyone */
-        if (applet.roles.includes('coordinator')) {
+        if (applet.roles.includes('coordinator') && !profile.fake) {
           scheduling.push(appletId);
         }
 

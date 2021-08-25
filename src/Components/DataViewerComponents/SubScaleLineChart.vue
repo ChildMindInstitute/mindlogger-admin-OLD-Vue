@@ -18,6 +18,7 @@
       :id="plotId"
       :width="width + 20"
       :height="height + padding.top + padding.bottom + 20"
+      ref="responses"
     >
       <foreignObject
         class="labels"
@@ -174,7 +175,60 @@ export default {
       height: this.getChartHeight(width),
       divergingExtent: this.getValueExtent(),
       responseLineWidth: 2.5,
+      currentResponse: null
     }
+  },
+
+
+  created() {
+    this.onMouseDown = (evt) => {
+      const src = evt.srcElement;
+
+      if (this.$refs && this.$refs.responses) {
+        const responseId = src.getAttribute('responseId');
+        const subScaleId = src.getAttribute('subScaleId');
+
+        if (this.$refs.responses.contains(src) && responseId) {
+          if (
+            !this.currentResponse ||
+            this.currentResponse.responseId != responseId ||
+            this.currentResponse.subScaleId != subScaleId
+          ) {
+            this.subScale = this.activity.subScales[subScaleId];
+            this.currentResponse = { responseId, subScaleId };
+            const d = this.subScale.values.find(d => d.value.responseId == responseId)
+
+            if (d.value.outputText) {
+              this.showSubScaleToolTip(
+                this.getX(d),
+                this.y(d.value.tScore),
+                d.value,
+                this.labelWidth,
+                this.width,
+                this.height
+              )
+            } else {
+              this.hideTooltip();
+            }
+
+            this.drawResponses();
+          }
+
+          return ;
+        }
+      }
+
+      if (this.currentResponse) {
+        this.currentResponse = null;
+        this.drawResponses();
+        this.hideTooltip();
+      }
+    }
+
+    window.addEventListener('mousedown', this.onMouseDown);
+  },
+  beforeDestroy() {
+    window.removeEventListener('mousedown', this.onMouseDown);
   },
 
   /**
@@ -210,6 +264,17 @@ export default {
     },
     currentResponseDate() {
       this.render();
+    },
+    applySecretIdSelector() {
+      this.render();
+    },
+    secretIds: {
+      deep: true,
+      handler() {
+        if (this.applySecretIdSelector) {
+          this.render();
+        }
+      }
     }
   },
   mounted() {
@@ -223,7 +288,7 @@ export default {
         const responseId = this.activity.subScales[0].current.responseId;
         const d = this.activity.subScales[0].values.find(d => d.value.responseId == responseId);
 
-        return new Date(d.date);
+        return d ? new Date(d.date) : null;
       }
 
       return null;
@@ -329,7 +394,9 @@ export default {
         .attr('fill', 'transparent')
         .attr('d', subScale => {
           const d = subScale.values.filter(
-            value => !this.currentResponseDate || new Date(value.date) >= this.currentResponseDate
+            value =>
+              (!this.currentResponseDate || new Date(value.date) >= this.currentResponseDate) &&
+              (!this.applySecretIdSelector || this.secretIds.includes(value.secretId))
           ).map(d => {
             if (this.selectedVersions.includes(d.version)) {
               const x = this.getX(d);
@@ -369,15 +436,19 @@ export default {
           .attr('cx', d => d.position.x)
           .attr('cy', d => d.position.y)
           .attr('r', d => d.value.outputText ? this.radius / 2 : 2)
-          .on('focus', d => d.value.outputText ? this.showSubScaleToolTip(
-            d.position.x,
-            d.position.y,
-            d.value,
-            this.labelWidth,
-            this.width,
-            this.height
-          ) : '')
-          .on('blur', d => this.hideTooltip())
+          .attr('responseId', d => d.value.responseId)
+          .attr('subScaleId', i)
+          .style('outline', d => {
+            if (
+              this.currentResponse &&
+              this.currentResponse.responseId == d.value.responseId &&
+              this.currentResponse.subScaleId == i
+            ) {
+              return 'blue auto 5px';
+            }
+
+            return ''
+          })
       }
     },
 

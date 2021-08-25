@@ -132,8 +132,8 @@ export default {
         const activityTypeColorMap = {}
         let index = 0;
         const activities = _.pickBy(this.currentAppletData.activities, (a) => (
-          !(_.get(a, ["reprolib:terms/isPrize", 0, "@value"], false))
-            &&
+          !(_.get(a, ["reprolib:terms/isPrize", 0, "@value"], false)) &&
+          !(_.get(a, ["reprolib:terms/hasResponseIdentifier", 0, "@value"], false)) &&
           !(_.get(a, ["reprolib:terms/isReviewerActivity", 0, "@value"], false))
         ));
         return _.map(activities, (a, URI) => {

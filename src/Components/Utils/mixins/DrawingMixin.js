@@ -31,6 +31,15 @@ export const DrawingMixin = {
     timezone: {
       type: String,
       required: true,
+    },
+    secretIds: {
+      type: Array,
+      required: []
+    },
+    applySecretIdSelector: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data: function () {
@@ -166,7 +175,7 @@ export const DrawingMixin = {
       this.toolTipVisible = true;
 
       x = x + labelWidth;
-      y = y + 20;
+      y = y - 110 - 20;
 
       if (x + this.tooltipWidth > width) {
         x = x - this.tooltipWidth / 2;
