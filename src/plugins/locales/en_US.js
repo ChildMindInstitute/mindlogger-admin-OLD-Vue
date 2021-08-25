@@ -270,6 +270,7 @@ export default {
   areYouSureRemoveEvent: 'Are you sure you want to remove this event?',
   areYouSure: 'Are you sure?',
   deleteAppletConfirmation: 'Are you sure that you want to delete this applet?',
+  deleteAppletFromFolderConfirmation: 'Are you sure that you want to delete this applet from folder?',
   deleteApplet: 'Delete Applet',
   dataRetentionSettings: 'Data Retention Settings',
   userDataStoredFor: 'User data will be stored for',
