@@ -1081,7 +1081,9 @@ export default {
           this.apiHost,
           this.token,
           data
-        ).then(() => this.selectResponse(this.reviewing))
+        ).then(() => this.selectResponse(this.reviewing)).then(() => {
+          this.selectedReviewTab = this.reviewingTabs.indexOf("reviewed")
+        })
       }
     },
     onChangeSecretId() {
