@@ -372,6 +372,8 @@ export default {
   latestScore: 'Latest Score',
   appletStatusUpdate: 'Updating Applet Status',
   appletEditProgress: 'Your applet is being edited.',
+  responseSubmit: 'Response Submit',
+  responseSubmitConfirmation: 'Would you like to submit response?',
   secretId: 'Secret Id',
   summary: 'Summary',
   useSecretIdSelector: 'Secret Id Selector'

@@ -757,6 +757,33 @@ const appletInviteLink = ({ apiHost, token, appletId, method }) =>
       "Girder-Token": token,
     }
   });
+const downloadReviews = (apiHost, token, appletId, responseId) =>
+  axios({
+    method: 'get',
+    url: `${apiHost}/response/${appletId}/reviews`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      responseId
+    }
+  })
+
+
+const postReviewerResponse = (apiHost, token, response) => {
+  const form = new FormData();
+
+  form.set('metadata', JSON.stringify(response))
+
+  return axios({
+    method: 'post',
+    url: `${apiHost}/response/${response.applet.id}/${response.activity.id}`,
+    headers: {
+      'Girder-Token': token
+    },
+    data: form
+  });
+}
 
 const getThemes = (apiHost, token) => {
   return axios({
@@ -832,7 +859,10 @@ export default {
   addNote,
   updateNote,
   deleteNote,
+  appletInviteLink,
+  downloadReviews,
+  postReviewerResponse,
   appletPublicLink,
-  getThemes
+  getThemes,
 }
 </script>
