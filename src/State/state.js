@@ -34,6 +34,7 @@ const getDefaultState = () => {
     currentRetentions: null,
     currentAppletBuilderData: null,
     basketApplets: {},
+    themes: null
   };
 };
 
@@ -208,6 +209,9 @@ const mutations = {
   },
   setBasketApplets(state, basketApplets) {
     state.basketApplets = basketApplets;
+  },
+  setThemes(state, themes) {
+    state.themes = themes;
   }
 };
 

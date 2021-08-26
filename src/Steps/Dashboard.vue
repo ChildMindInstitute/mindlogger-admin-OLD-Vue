@@ -269,7 +269,7 @@ export default {
       }
     }
   },
-  mounted() {
+  async mounted() {
     for (let tab of ['applets', 'users', 'reviewers', 'editors', 'coordinators', 'managers']) {
       this.$set(this.tabData, tab, {
         loading: false,
@@ -277,7 +277,7 @@ export default {
         total: 0,
       });
     }
-    this.getAccountData();
+    await Promise.all([this.getAccountData(), this.initThemes()]);
   },
   methods: {
     setVisibleTabs() {
@@ -363,6 +363,18 @@ export default {
         });
     },
 
+    async initThemes() {
+      if (this.$store.state.themes) {
+        return;
+      }
+
+      try {
+        const { data } = await api.getThemes(this.$store.state.backend, this.$store.state.auth.authToken.token);
+        this.$store.commit("setThemes", data);
+      } catch (err) {
+        console.error(err);
+      }
+    },
 
     async setupApplets() {
       const { fullDirectory, appletsOnly } = await this.getOrganisedAppletsDirectory();

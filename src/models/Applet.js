@@ -45,6 +45,7 @@ export default class Applet {
     this.tokens = {};
     this.hasTokenItem = false;
     this.availableDates = {};
+    this.secretIDs = {};
 
     this.selectedActivites = [];
 
@@ -249,9 +250,26 @@ export default class Applet {
       });
     }
 
+    const secretIDs = {};
+
+    for (const itemIRI of itemIDGroup) {
+      const item = this.items[itemIRI];
+
+      if (item.isResponseIdentifier) {
+        for (const response of data.responses[itemIRI]) {
+          if (!secretIDs[response.responseId]) {
+            const d = response.value;
+            secretIDs[response.responseId] = d.value ? d.value : d;
+          }
+        }
+      }
+    }
+
+    this.secretIDs = secretIDs;
+
     /** append responses */
     for (let itemId of itemIDGroup) {
-      this.items[itemId].appendResponses(data.responses[itemId], this.items[itemId].inputType);
+      this.items[itemId].appendResponses(data.responses[itemId], this.items[itemId].inputType, secretIDs);
     }
 
     for (let itemId of itemIDGroup) {
@@ -284,7 +302,8 @@ export default class Applet {
         activity.responses.push(...item.responses.map(response => ({
           date: response.date,
           version: response.version,
-          responseId: response.responseId
+          responseId: response.responseId,
+          secretId: response.secretId
         })));
       }
 
@@ -300,7 +319,7 @@ export default class Applet {
       });
 
       for (const response of activity.responses) {
-        this.availableDates[moment(response.date).format('L')] = true;
+        this.availableDates[moment(response.date).format('L')] = response.responseId;
 
         for (const response of activity.responses) {
           if (!activity.lastResponseDate || activity.lastResponseDate < response.date) {
@@ -314,6 +333,15 @@ export default class Applet {
       activity.initSubScaleItems();
 
       const activityId = activity.data._id.split('/')[1];
+
+      for (const subScaleName in this.subScales[activityId]) {
+        const responses = this.subScales[activityId][subScaleName];
+
+        for (const response of responses) {
+          response.value.secretId = secretIDs[response.value.responseId];
+        }
+      }
+
       await activity.addSubScaleValues(this.subScales[activityId] || {});
     }
   }
@@ -380,11 +408,25 @@ export default class Applet {
   getItemsFormatted() {
     let merged = [], features = [], last = null;
     let dateToVersions = {};
+    let hashItems = [];
+
+    console.log('items', this.items)
 
     Object.keys(this.items).forEach(itemId => {
       const item = this.items[itemId];
+      let isAvailable = false;
 
-      if (item.isTokenItem && item.inputType !== 'stackedRadio') {
+      if (item.schemas.length < 2) {
+        isAvailable = true;
+      } else if (!hashItems.includes(itemId)) {
+        isAvailable = true;
+        hashItems.push(...item.schemas);
+      }
+
+      console.log('isAvailable', isAvailable)
+
+      if (item.isTokenItem && item.inputType !== 'stackedRadio' && isAvailable) {
+        // console.log('item.responses=======', item.responses)
         item.responses.forEach(resp => {
           let dateStr = moment.utc(resp.date).format('YYYY-MM-DD');
 
@@ -417,6 +459,8 @@ export default class Applet {
       }
     });
 
+    console.log('merged----------', merged)
+
     return {
       data: merged.map(response => {
         let positive = 0, negative = 0, cummulative = 0;
@@ -442,7 +486,7 @@ export default class Applet {
           positive,
           negative,
           cummulative,
-          date: new Date(response.date)
+          date: moment(response.date).toDate()
         }
       }),
       versionsByDate: dateToVersions,

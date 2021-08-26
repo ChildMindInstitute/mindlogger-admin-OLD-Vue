@@ -223,6 +223,44 @@ export default {
   beforeDestroy() {
     window.removeEventListener('mousedown', this.onMouseDown);
   },
+  created() {
+    this.onMouseDown = (evt) => {
+      const src = evt.srcElement;
+
+      if (this.$refs && this.$refs.responses) {
+        const responseId = src.getAttribute('responseId');
+
+        if (this.$refs.responses.contains(src) && responseId) {
+          if (!this.currentResponse || this.currentResponse.responseId != responseId) {
+            this.currentResponse = this.data.find(d => d.responseId == responseId);
+
+            this.showReviewingTooltip(
+              this.getX(this.currentResponse),
+              this.radius + this.padding.top,
+              this.labelWidth,
+              this.width,
+              this.height
+            )
+
+            this.drawResponses();
+          }
+
+          return ;
+        }
+      }
+
+      if (this.toolTipVisible) {
+        this.currentResponse = null;
+        this.drawResponses();
+        this.hideTooltip();
+      }
+    }
+
+    window.addEventListener('mousedown', this.onMouseDown);
+  },
+  beforeDestroy() {
+    window.removeEventListener('mousedown', this.onMouseDown);
+  },
   computed: {
     compressedLabel() {
       return this.label.length > 28
@@ -259,6 +297,17 @@ export default {
         this.width = newValue - this.margin.left - this.margin.right;
         this.labelWidth = this.width / 4;
         this.render();
+      }
+    },
+    applySecretIdSelector() {
+      this.render();
+    },
+    secretIds: {
+      deep: true,
+      handler() {
+        if (this.applySecretIdSelector) {
+          this.render();
+        }
       }
     }
   },
@@ -326,7 +375,12 @@ export default {
       this.svg
         .select('.responses')
         .selectAll('circle')
-        .data(this.data.filter(d => this.selectedVersions.indexOf(d.version) >= 0 && d.date >= this.focusExtent[0] && d.date <= this.focusExtent[1]))
+        .data(this.data.filter(
+          d => this.selectedVersions.indexOf(d.version) >= 0
+                && d.date >= this.focusExtent[0]
+                && d.date <= this.focusExtent[1]
+                && (!this.applySecretIdSelector || this.secretIds.includes(d.secretId))
+        ))
         .join('circle')
         .attr('fill', this.color)
         .attr('cx', d => this.x(d.date))

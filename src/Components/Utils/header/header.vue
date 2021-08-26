@@ -317,7 +317,29 @@
       @submit="transferOwnership"
       @close="ownershipDialog = false"
     />
+
+    <v-dialog
+      v-model="isExporting"
+      hide-overlay
+      persistent
+      width="360"
+    >
+      <v-card
+        color="primary"
+        dark
+      >
+        <v-card-text>
+          Please wait. This could take up to 1 minute to download.
+          <v-progress-linear
+            indeterminate
+            color="white"
+            class="ma-2"
+          ></v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-app-bar>
+
 </template>
 
 <style scoped>
@@ -447,6 +469,7 @@ export default {
       appletDuplicateDialog: false,
       appletDeleteDialog: false,
       appletPendingDelete: undefined,
+      isExporting: false,
       ownershipDialog: false,
     }
   },
@@ -639,6 +662,7 @@ export default {
     },
 
     onAppletPassword(appletPassword) {
+      this.isExporting = true;
       let applet = this.appletPasswordDialog.applet;
       const encryptionInfo = encryption.getAppletEncryptionInfo({
         appletPassword,
@@ -653,7 +677,7 @@ export default {
           .equals(Buffer.from(applet.encryption.appletPublicKey))
       ) {
         this.appletPasswordDialog.visible = false;
-        this.appletPasswordDialog.requestedAction(Array.from(encryptionInfo.getPrivateKey()));
+        this.appletPasswordDialog.requestedAction(Array.from(encryptionInfo.getPrivateKey())).then(() => this.isExporting = false);
       } else {
         this.$refs.appletPasswordDialog.defaultErrorMsg = this.$t('incorrectAppletPassword');
       }
@@ -667,7 +691,12 @@ export default {
         !encryptionInfo.appletPrime ||
         encryptionInfo.appletPrivateKey
       ) {
-        this.exportUserData(this.currentApplet, encryptionInfo && encryptionInfo.appletPrivateKey);
+        this.isExporting = true;
+        this.exportUserData(this.currentApplet, encryptionInfo && encryptionInfo.appletPrivateKey)
+          .then(response => {
+            this.isExporting = false;
+        })
+
       } else {
         this.$set(this, 'appletPasswordDialog', {
           applet: this.currentApplet,

@@ -190,7 +190,11 @@ export default {
     exportData() {
       const applet = this.accountApplets.find(applet => applet.id === this.appletPasswordDialog.appletId);
 
-      this.exportUserData(applet);
+      this.isExporting = true,
+      this.exportUserData(applet)
+        .then(response => {
+          this.isExporting = false;
+        });
     },
 
     onAppletPassword(appletPassword) {
@@ -217,7 +221,7 @@ export default {
 
         this.appletPasswordDialog.visible = false;
       } else {
-        this.$refs.appletPasswordDialog.defaultErrorMsg 
+        this.$refs.appletPasswordDialog.defaultErrorMsg
           = this.$t('incorrectAppletPassword');
       }
     },
@@ -249,7 +253,7 @@ export default {
         if (
           profile.roles && applet.roles.includes('coordinator') && !profile.roles.includes('owner') &&
           (
-            applet.roles.includes('owner') || 
+            applet.roles.includes('owner') ||
             (!applet.roles.includes('manager') && profile.roles.length == 1 || applet.roles.includes('manager') && !profile.roles.includes('manager'))
           )
         ) {
@@ -257,13 +261,13 @@ export default {
         }
 
         /** coordinator can update schedule for anyone */
-        if (applet.roles.includes('coordinator')) {
+        if (applet.roles.includes('coordinator') && !profile.fake) {
           scheduling.push(appletId);
         }
 
         /** manager can update others' roles */
         if (
-          profile.roles && !profile.roles.includes('owner') && 
+          profile.roles && !profile.roles.includes('owner') &&
           (!profile.roles.includes('manager') || applet.roles.includes('owner'))
         ) {
           editable.push(appletId);
@@ -275,7 +279,7 @@ export default {
         }
 
         if (
-          profile.updated && 
+          profile.updated &&
           (!updated || new Date(updated).getTime() < new Date(profile.updated).getTime())
         ) {
           updated = profile.updated;

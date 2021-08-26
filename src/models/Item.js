@@ -80,6 +80,8 @@ export default class Item {
     this.allowEdit = data[ReproLib.allowEdit] && data[ReproLib.allowEdit][0]
       ? data[ReproLib.allowEdit][0]['@value'] : true;
     this.enableNegativeTokens = _.get(data, [ReproLib.responseOptions, 0, ReproLib.enableNegativeTokens, 0, '@value'], false);
+    this.isResponseIdentifier = _.get(data, [ReproLib.responseOptions, 0, 'reprolib:terms/isResponseIdentifier', 0, '@value'], false);
+    this.correctAnswer = _.get(data, ['schema:correctAnswer', 0, '@value'], null);
   }
 
   /**
@@ -157,7 +159,7 @@ export default class Item {
     return this.inputType == 'radio' && this.multipleChoice;
   }
 
-  appendResponses(responses, inputType) {
+  appendResponses(responses, inputType, secretIDs) {
     this.responses = this.responses.concat(responses.map(response => {
       if (response.value.value !== undefined) {
         response.value = response.value.value;
@@ -175,7 +177,8 @@ export default class Item {
           date: new Date(response.date),
           value: response.value[0],
           version: response.version,
-          responseId: response.responseId
+          responseId: response.responseId,
+          secretId: (secretIDs[response.responseId] || null)
         };
       }
 
@@ -197,7 +200,8 @@ export default class Item {
         {
           date: new Date(response.date),
           version: response.version,
-          responseId: response.responseId
+          responseId: response.responseId,
+          secretId: (secretIDs[response.responseId] || null)
         },
       );
     }));
@@ -298,8 +302,11 @@ export default class Item {
     }
   }
 
-  getFormattedQuestion() {
-    return this.question.en && this.question.en.replace(/(!\[.*\]\s*\(.*?) =\d*x\d*(\))/g, '$1$2') || this.label.en;
+  getQuestionImage() {
+    const imageUrlRE = new RegExp(/http([\S]+)/i);
+    const imageMatch = this.question.en && this.question.en.match(imageUrlRE);
+
+    return imageMatch && imageMatch[0] || '';  // The image URL.
   }
 
   getQuizWithoutImage() {

@@ -1,8 +1,8 @@
 <template>
   <div
     v-if="visible"
-    class="radio-slider"
-    :class="`radio-slider-${plotId}`"
+    class="frequency-chart"
+    :class="`frequency-chart-${plotId}`"
   >
     <div
       class="tooltip"
@@ -15,7 +15,7 @@
       :width="width + 20"
       :height="(height + space) * features.length + padding.bottom + padding.top"
     >
-      <g 
+      <g
         v-for="(feature, index) in features"
         class="features"
         :key="feature.slug"
@@ -55,7 +55,7 @@
   margin: auto 40px;
 }
 
-.radio-slider {
+.frequency-chart {
   display: inline-block;
   position: relative;
   width: calc(100% - 40px);
@@ -98,42 +98,15 @@ export default {
     const margin = { left: 20, right: 60 };
     const width = this.parentWidth - margin.left - margin.right;
     const { data, features } = this.item.getFormattedResponseData();
-    const responseDates = {};
-    let max = 6;
-
-    for (let response of data) {
-      for (let feature of features) {
-        if (response[feature.slug] !== undefined) {
-          let dateStr = moment(response.date).format('MMM-DD, YYYY');
-          responseDates[feature.slug] = responseDates[feature.slug] || []
-          const index = responseDates[feature.slug].findIndex(({ date }) => date === dateStr );
-
-          if (index === -1) {
-            responseDates[feature.slug].push({
-              date: dateStr,
-              value: 1,
-            })
-          } else {
-            responseDates[feature.slug][index].value += 1;
-          }
-        }
-      }
-    }
-
-    features.forEach((feature) => {
-      if (responseDates[feature.slug]) {
-        max = Math.max(Math.max.apply(Math, responseDates[feature.slug].map(({ value }) => value)), max);
-      }
-    });
 
     return {
-      height: max * 30,
+      height: 100,
       margin,
       width,
       labelWidth: width / 4,
       data,
       space: 60,
-      responseDates,
+      responseDates: {},
       features: features.map((feature, index) => ({
         ...feature,
         index
@@ -148,7 +121,9 @@ export default {
     focusExtent: {
       deep: true,
       handler() {
+        this.initResponseDates();
         this.render();
+        this.initResponseDates();
       }
     },
     selectedVersions: {
@@ -171,7 +146,22 @@ export default {
 
         this.render();
       }
+    },
+    applySecretIdSelector() {
+      this.render();
+    },
+    secretIds: {
+      deep: true,
+      handler() {
+        if (this.applySecretIdSelector) {
+          this.initResponseDates();
+          this.render();
+        }
+      }
     }
+  },
+  beforeMount() {
+    this.initResponseDates();
   },
   mounted() {
     if (('IntersectionObserver' in window)) {
@@ -198,6 +188,47 @@ export default {
     });
   },
   methods: {
+    initResponseDates() {
+      const responseDates = {};
+      let max = 6;
+
+      for (let response of this.data) {
+        if (this.applySecretIdSelector && !this.secretIds.includes(d.secretId)) {
+          continue;
+        }
+
+        const repsonseDate = new Date(response.date);
+        if (responseDates < this.focusExtent[0] || responseDates > this.focusExtent[1]) {
+          continue
+        }
+
+        for (let feature of this.features) {
+          if (response[feature.slug] !== undefined) {
+            let dateStr = moment(response.date).format('MMM-DD, YYYY');
+            responseDates[feature.slug] = responseDates[feature.slug] || []
+            const index = responseDates[feature.slug].findIndex(({ date }) => date === dateStr );
+
+            if (index === -1) {
+              responseDates[feature.slug].push({
+                date: dateStr,
+                value: 1,
+              })
+            } else {
+              responseDates[feature.slug][index].value += 1;
+            }
+          }
+        }
+      }
+
+      this.features.forEach((feature) => {
+        if (responseDates[feature.slug]) {
+          max = Math.max(Math.max.apply(Math, responseDates[feature.slug].map(({ value }) => value)), max);
+        }
+      });
+
+      this.responseDates = responseDates;
+      this.height = max * 30;
+    },
     render() {
       if (this.visible) {
         this.svg = d3.select('#' + this.plotId);
@@ -229,18 +260,24 @@ export default {
     },
 
     drawAxis(feature, index) {
-      let max = 6; 
+      let max = 6;
       let min = 0;
-      
+
       if (this.responseDates[feature.slug]) {
         max = Math.max(Math.max.apply(Math, this.responseDates[feature.slug].map(({ value }) => value)), 6);
         min = Math.min(Math.min.apply(Math, this.responseDates[feature.slug].map(({ value }) => value)), 0);
       }
 
+      let beforeDay = new Date(this.focusExtent[0]);
+      beforeDay.setDate(beforeDay.getDate() - 1);
+
       this.x = d3
         .scaleUtc()
         .nice()
-        .domain(this.focusExtent)
+        .domain([
+          beforeDay,
+          this.focusExtent[1]
+        ])
         .range([0, this.width - this.labelWidth]);
 
       this.y = d3
@@ -248,8 +285,6 @@ export default {
         .domain([min, max])
         .nice()
         .range([(this.height + this.space) * index, this.height * (index - 1) + this.space * index])
-
-      // const tickType = this.getTickType();
 
       const xAxis = d3
         .axisBottom()
@@ -260,7 +295,6 @@ export default {
       const yAxis = d3
         .axisLeft()
         .scale(this.y)
-        // .tickSize(this.tickHeight)
         .ticks(3);
 
       this.svg
@@ -290,7 +324,7 @@ export default {
     },
 
     drawResponses(feature, index) {
-      const tooltip = document.querySelector(`.radio-slider.radio-slider-${this.plotId} .tooltip`);
+      const tooltip = document.querySelector(`.frequency-chart.frequency-chart-${this.plotId} .tooltip`);
 
       this.radius = 7;
       this.svg
@@ -300,10 +334,13 @@ export default {
 
       let prevX = -1, prevY = -1;
 
+      let beforeDay = new Date(this.focusExtent[0]);
+      beforeDay.setDate(beforeDay.getDate() - 1);
+
       for (let i = 0; i < this.responseDates[feature.slug].length; i++) {
         let response = this.responseDates[feature.slug][i];
 
-        if (new Date(response.date) < this.focusExtent[0]) {
+        if (new Date(response.date) < beforeDay) {
           continue;
         }
 
@@ -328,7 +365,7 @@ export default {
 
         if (x >= 0 && prevX >= 0) {
           let delta = this.radius;
-          let dx = x - prevX, 
+          let dx = x - prevX,
               dy = y - prevY;
 
           let r = Math.sqrt(dx * dx + dy * dy);

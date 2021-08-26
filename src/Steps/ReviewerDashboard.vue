@@ -159,6 +159,28 @@
                 multiple
               />
             </div>
+
+            <div
+              v-if="secretIDs.length"
+              class="secret-id"
+            >
+              <v-checkbox
+                v-model="applySecretIdSelector"
+                :label="$t('useSecretIdSelector')"
+                hide-details
+              />
+
+              <v-select
+                v-model="selectedSecretIds"
+                @input="onChangeSecretId"
+                :items="secretIDs"
+                class="secret-id-list"
+                :menu-props="{ maxHeight: 232 }"
+                :label="$t('secretId')"
+                multiple
+                :disabled="!applySecretIdSelector"
+              />
+            </div>
           </div>
           <div v-else class="review-header mb-2">
             <v-menu>
@@ -274,7 +296,7 @@
                           </v-icon>
                         </div>
 
-                        <ActivitySummary
+                        <ActivityHeader
                           :plot-id="`Activity-Summary-${activity.slug}-${tab}`"
                           :versions="applet.versions"
                           :focus-extent="focusExtent"
@@ -284,10 +306,12 @@
                           :data="activity.responses"
                           :label="activity.label.en || activity.description.en"
                           :color="activity.dataColor"
-                          :latest-score="activity.getLatestActivityScore()"
-                          :frequency="activity.getFrequency()"
+                          :latest-score="activity.getLatestActivityScore(selectedSecretIds)"
+                          :frequency="activity.getFrequency(selectedSecretIds)"
                           :sub-scales="activity.subScales"
                           :parent-width="panelWidth"
+                          :secret-ids="selectedSecretIds"
+                          :apply-secret-id-selector="applySecretIdSelector"
                           :time-range="timeRange"
                           :item-padding="itemPadding"
                           @selectResponse="
@@ -305,6 +329,14 @@
                           (tab !== 'tokens' || activity.hasTokenItem)
                         "
                       >
+                        <template v-if="tab !== 'tokens'">
+                          <CumulativeScore
+                            :activity="activity"
+                            :secret-ids="selectedSecretIds"
+                            :apply-secret-id-selector="applySecretIdSelector"
+                          />
+                        </template>
+
                         <div
                           v-if="
                             activity.finalSubScale &&
@@ -333,7 +365,7 @@
                           v-if="tab != 'tokens' && activity.subScales.length"
                         >
                           <SubScaleLineChart
-                            v-if="activity.getFrequency() > 1"
+                            v-if="activity.getFrequency(selectedSecretIds) > 1"
                             :plot-id="`subscale-line-chart-${activity.slug}`"
                             :versions="applet.versions"
                             :focus-extent="focusExtent"
@@ -342,10 +374,12 @@
                             :timezone="applet.timezoneStr"
                             :activity="activity"
                             :parent-width="panelWidth"
+                            :secret-ids="selectedSecretIds"
+                            :apply-secret-id-selector="applySecretIdSelector"
                           />
 
                           <SubScaleBarChart
-                            v-if="activity.getFrequency() == 1"
+                            v-if="activity.getFrequency(selectedSecretIds) == 1"
                             :plot-id="`subscale-bar-chart-${activity.slug}`"
                             :versions="applet.versions"
                             :focus-extent="focusExtent"
@@ -354,6 +388,8 @@
                             :timezone="applet.timezoneStr"
                             :activity="activity"
                             :parent-width="panelWidth"
+                            :secret-ids="selectedSecretIds"
+                            :apply-secret-id-selector="applySecretIdSelector"
                           />
                         </template>
 
@@ -376,6 +412,8 @@
                               :focusExtent="focusExtent"
                               :selectedVersions="selectedVersions"
                               :hasVersionBars="hasVersionBars"
+                              :secret-ids="selectedSecretIds"
+                              :apply-secret-id-selector="applySecretIdSelector"
                               :timeRange="timeRange"
                               :panelWidth="panelWidth"
                             />
@@ -387,19 +425,21 @@
                             v-if="
                               item.allowEdit &&
                               (tab == 'tokens' || !item.partOfSubScale) &&
-                              (tab != 'tokens' || item.isTokenItem)
+                              (tab != 'tokens' || item.isTokenItem) &&
+                              (item.inputType !== 'text' || !item.correctAnswer && !item.isResponseIdentifier)
                             "
                             :key="item['id']"
                             class="chart-card"
                           >
                             <header>
                               <h3 v-if="item.inputType !== 'markdownMessage'">
-                                <vue-markdown class="item-question">
-                                  {{ item.getFormattedQuestion() }}
-                                </vue-markdown>
+                                <div class="item-question">
+                                  <p><img :src="item.getQuestionImage()"></p>
+                                  <vue-markdown>{{ item.getQuizWithoutImage() }}</vue-markdown>
+                                </div>
                               </h3>
 
-                              <h3 v-else>- {{ item.label.en }}</h3>
+                              <h3 v-else>- <vue-markdown>{{ item.label.en }}</vue-markdown></h3>
                             </header>
                             <div v-if="item.inputType == 'markdownMessage'">
                               <div class="markdown">
@@ -428,6 +468,8 @@
                               :time-range="timeRange"
                               :maxValue="getMaxValue(activity.items)"
                               :minValue="getMinValue(activity.items)"
+                              :secret-ids="selectedSecretIds"
+                              :apply-secret-id-selector="applySecretIdSelector"
                             />
                             <RadioSlider
                               v-else-if="
@@ -445,13 +487,15 @@
                               :parent-width="panelWidth"
                               :time-range="timeRange"
                               :color="item.dataColor"
+                              :secret-ids="selectedSecretIds"
+                              :apply-secret-id-selector="applySecretIdSelector"
                             />
 
                             <Frequency
                               v-else-if="
                                 tab == 'frequency' && item.inputType === 'radio'
                               "
-                              :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
+                              :plot-id="`frequency-${activity.slug}-${item.slug}`"
                               :item="item"
                               :versions="applet.versions"
                               :focus-extent="focusExtent"
@@ -461,6 +505,8 @@
                               :parent-width="panelWidth"
                               :time-range="timeRange"
                               :color="item.dataColor"
+                              :secret-ids="selectedSecretIds"
+                              :apply-secret-id-selector="applySecretIdSelector"
                             />
 
                             <FreeTextTable
@@ -471,7 +517,9 @@
                               :item="item"
                               :selected-versions="selectedVersions"
                               :timezone="applet.timezoneStr"
-                              :responses="applet.responses[item.schemas[0]]"
+                              :responses="item.responses"
+                              :secret-ids="selectedSecretIds"
+                              :apply-secret-id-selector="applySecretIdSelector"
                             />
                           </div>
                         </template>
@@ -491,6 +539,8 @@
                           :key="`response-${reviewing.key}`"
                           :activity="reviewing.activity"
                           :response-id="reviewing.responseId"
+                          :secret-ids="selectedSecretIds"
+                          :apply-secret-id-selector="reviewing.applySecretIdSelector"
                         />
                       </v-card>
 
@@ -540,6 +590,7 @@
         :applet="applet"
         :date="reviewing.date"
         :current-response="reviewing.responseId"
+        :secret-ids="selectedSecretIds"
         @selectResponse="selectResponse"
       />
     </v-card>
@@ -601,7 +652,8 @@
 }
 
 .time-range,
-.version {
+.version,
+.secret-id {
   position: relative;
   display: flex;
   align-items: baseline;
@@ -610,6 +662,14 @@
   font-weight: 600;
   color: #777;
   text-transform: uppercase;
+}
+
+.secret-id {
+  flex-direction: column;
+}
+
+.secret-id-list {
+  margin-top: 10px;
 }
 
 .toDate,
@@ -719,7 +779,7 @@ import Applet from "../models/Applet";
 import Activity from "../models/Activity";
 import Item from "../models/Item";
 import TokenChart from "../Components/DataViewerComponents/TokenChart.vue";
-import ActivitySummary from "../Components/DataViewerComponents/ActivitySummary.vue";
+import ActivityHeader from "../Components/DataViewerComponents/ActivityHeader.vue";
 import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue";
 import Frequency from "../Components/DataViewerComponents/Frequency.vue";
 import TimePicker from "../Components/DataViewerComponents/TimePicker.vue";
@@ -730,6 +790,7 @@ import ResponseSelectionDialog from "../Components/Utils/dialogs/ResponseSelecti
 import Responses from "../Components/DataViewerComponents/Responses";
 import Notes from "../Components/DataViewerComponents/Notes";
 import SubScaleComponent from "../Components/DataViewerComponents/SubScaleComponent";
+import CumulativeScore from "../Components/DataViewerComponents/CumulativeScore";
 
 import * as moment from "moment-timezone";
 
@@ -741,7 +802,7 @@ export default {
    */
   components: {
     TokenChart,
-    ActivitySummary,
+    ActivityHeader,
     RadioSlider,
     Frequency,
     TimePicker,
@@ -753,6 +814,7 @@ export default {
     Responses,
     Notes,
     SubScaleComponent,
+    CumulativeScore,
   },
 
   /**
@@ -777,6 +839,8 @@ export default {
       },
       allExpanded: false,
       responses: [],
+      selectedSecretIds: [],
+      applySecretIdSelector: false,
       selectedTab: 0,
       selectedReviewTab: 1,
       panel: [],
@@ -800,6 +864,7 @@ export default {
         responseId: "",
         key: 0,
       },
+      secretIDs: [],
       responseDialog: false,
       cachedContents: {}
     };
@@ -864,6 +929,10 @@ export default {
         this.$store.state.currentAppletData.applet.encryption
       );
 
+      const secretIDs = Object.values(this.applet.secretIDs);
+      this.secretIDs = secretIDs.filter((value, index) => secretIDs.indexOf(value) == index);
+      this.selectedSecretIds = this.secretIDs.map(id => id);
+
       this.setDashboardTabs();
       this.selectedVersions = this.appletVersions;
       this.loading = false;
@@ -924,9 +993,29 @@ export default {
 
       if (
         this.applet.activities &&
-        this.applet.activities.some((activity) => activity.getFrequency() > 0)
+        this.applet.activities.some((activity) => activity.getFrequency(this.selectedSecretIds) > 0)
       ) {
         this.tabs.push("review");
+      }
+    },
+
+    onChangeSecretId() {
+      for (let activity of this.applet.activities) {
+        if (activity.subScales.length && activity.hasResponseIdentifier) {
+          if (
+            this.applySecretIdSelector &&
+            !this.selectedSecretIds.includes(activity.subScales[0].current.secretId)
+          ) {
+            const d = activity.subScales[0].values.find(
+              d => d.value && this.selectedSecretIds.includes(d.value.secretId)
+            )
+
+            this.showSubScale({
+              activity,
+              responseId: d ? d.value.responseId : null
+            });
+          }
+        }
       }
     },
 
@@ -968,6 +1057,9 @@ export default {
 
         if (!current) {
           subScale.current.outputText = '';
+          subScale.current.tScore = 0;
+          subScale.current.secretId = null;
+
           continue;
         }
 
@@ -1007,8 +1099,15 @@ export default {
      * @return {boolean} whether this options should be enabled.
      */
     responseExists(date) {
-      if (this.applet.availableDates[moment(date).format("L")]) {
-        return true;
+      const responseId = this.applet.availableDates[moment(date).format("L")];
+
+      if (responseId) {
+        if (
+          !this.secretIDs.length ||
+          this.selectedSecretIds.includes(this.applet.secretIDs[responseId])
+        ) {
+          return true;
+        }
       }
 
       return false;

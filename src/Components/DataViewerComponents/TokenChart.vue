@@ -10,7 +10,7 @@
       >
         <div
           v-for="feature in features"
-          :key="feature.slug" 
+          :key="feature.slug"
           :class="feature.slug"
         />
         <div class="cumulative" />
@@ -500,10 +500,14 @@ export default {
           .scaleLinear()
           .domain([this.divergingExtent.min, this.divergingExtent.max])
           .range([this.contextHeight, 0]);
+
+      let beforeDay = new Date(this.focusExtent[0]);
+      beforeDay.setDate(beforeDay.getDate() - 1);
+
       this.x = d3
           .scaleUtc()
           .nice()
-          .domain(this.focusExtent)
+          .domain([beforeDay, this.focusExtent[1]])
           .range([0, this.width]);
       this.contextX = d3
           .scaleUtc()
@@ -519,11 +523,10 @@ export default {
           .scale(this.x)
           .tickSize(this.focusHeight)  // Height of the tick line.
           .ticks(d3.timeDay)
-          .tickFormat(d => moment(d).format('MMM D'));
       const contextXAxis = d3
           .axisBottom()
           .scale(this.contextX)
-          .ticks(30)
+          .ticks(25)
           .tickSize(this.contextHeight)  // Height of the tick line.
           .tickFormat(d => moment(d).format('M/D'));
       const yAxisTicks = this.y.ticks().filter(Number.isInteger);
@@ -545,7 +548,7 @@ export default {
       this.svg
           .select('.x-axis')
           .attr('transform', `translate(${focusBarWidth/2}, 0)`)
-          .call(xAxis);
+          .call(xAxis.tickFormat(d => moment(d).format('MMM-D')));
       this.svg
           .select('.y-axis')
           .call(yAxis)
