@@ -1,7 +1,7 @@
 <template>
   <div>
-    <v-switch 
-      :label="$t('turnOnNotifs')" 
+    <v-switch
+      :label="$t('turnOnNotifs')"
       v-model="details.useNotifications"
       flat
       class="mx-2 ds-inline-switch"
@@ -17,13 +17,13 @@
         <v-col class="no-padding" col="10" sm="10">
           <div>
             <div class="d-flex align-center ds-notif-ele">
-              <v-switch 
-                :label="$t('startNotifAt')" 
+              <v-switch
+                :label="$t('startNotifAt')"
                 v-model="notification.allow"
                 flat
                 class="mx-2"
               />
-              
+
               <v-text-field
                 class="ds-reminder-time"
                 v-model="notification.start"
@@ -36,8 +36,8 @@
             </div>
 
             <div class="d-flex align-center ds-notif-ele">
-              <v-switch 
-                :label="$t('randomizeEnds')" 
+              <v-switch
+                :label="$t('randomizeEnds')"
                 v-model="notification.random"
                 flat
                 class="mx-2"
@@ -70,8 +70,8 @@
     </v-container>
 
     <div class="ds-reminder-container">
-      <v-switch 
-        :label="$t('reminderNotif')" 
+      <v-switch
+        :label="$t('reminderNotif')"
         v-model="reminder.valid"
         flat
         class="mx-2 mt-0 ds-inline-switch"
@@ -80,7 +80,7 @@
         <div class="ds-reminder-flex">
           <label>
             {{ $t("activityCompletion") }}
-            <input type="number" class="ds-reminder-day" v-model="reminder.days" />
+            <input type="number" class="ds-reminder-day" v-model="reminder.days" min="0" />
             {{ $t("consecutiveDays") }}
           </label>
         </div>
@@ -99,13 +99,13 @@
     </div>
 
     <div class="d-flex justify-end">
-      <v-btn 
+      <v-btn
         v-if="details.useNotifications"
-        depressed 
-        color="secondary" 
+        depressed
+        color="secondary"
         class="ds-btn-cell"
         fab
-        small 
+        small
         @click="add(notificationTimes.length - 1)"
       >
         <v-icon dark>mdi-plus</v-icon>
@@ -180,7 +180,7 @@ export default {
   mounted() {
     if (this.details.notifications) {
       this.notificationTimes = this.details.notifications;
-      
+
       if (this.notificationTimes.length) {
         this.allowRandom = this.notificationTimes[0].random;
       }
