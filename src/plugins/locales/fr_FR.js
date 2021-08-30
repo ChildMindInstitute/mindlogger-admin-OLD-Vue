@@ -58,9 +58,9 @@ export default {
   sendLinkPswdHosted:
     'Envoyez un lien pour réinitialiser votre mot de passe hébergé à ',
   loadingApplets: 'Chargement de vos applets',
-  editingApplets: "Veuillez patienter pendant le chargement de votre applet dans le générateur d'applet",
+  editingApplets: "Veuillez attendre le chargement de votre applet",
   appletIs:
-    "Une applet est une collection d'enquêtes réutilisables avec des paramètres spécifiques à l'étude, comme vos utilisateurs et votre calendrier",
+    "Une applet est une collection activités réutilisables avec des paramètres spécifiques à l'étude, comme vos utilisateurs et votre calendrier",
   userType: "Type d'utilisateur",
   invitationLink: "Lien vers l'invitation",
   dateTimeInvited: "Date et heure de l'invitation",
