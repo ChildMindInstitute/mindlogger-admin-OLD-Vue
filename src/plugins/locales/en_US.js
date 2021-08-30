@@ -56,9 +56,9 @@ export default {
   institutionalID: 'Institutional ID',
   sendLinkPswdHosted: 'Send a link to reset your password hosted at ',
   loadingApplets: 'Loading Your Applets',
-  editingApplets: 'Please wait while your applet is being loaded into the applet builder',
+  editingApplets: 'Please wait for your applet to load',
   appletIs:
-    'An applet is a collection of reusable surveys along with study-specific settings, like your users and schedule',
+    'An applet is a collection of reusable activities along with study-specific settings, like your users and schedule',
   userType: 'User type',
   invitationLink: 'Invitation Link',
   dateTimeInvited: 'Date & Time Invited',
