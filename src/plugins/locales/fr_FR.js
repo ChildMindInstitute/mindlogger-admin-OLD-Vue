@@ -279,6 +279,7 @@ export default {
   dataRetentionSettings: 'Paramètres de conservation des données',
   userDataStoredFor: 'Les données utilisateur seront stockées pendant',
   deleteAppletConfirmation: 'Êtes-vous sûr de vouloir supprimer cette applet?',
+  deleteAppletFromFolderConfirmation: 'Êtes-vous sûr de vouloir supprimer cette applet du dossier?',
   deleteApplet: "Supprimer l'applet",
   remove: 'Retirer',
   cancel: 'Annuler',
