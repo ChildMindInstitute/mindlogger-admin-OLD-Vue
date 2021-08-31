@@ -294,7 +294,7 @@ export const AppletMixin = {
                 }
               }
 
-              if (csvObj['response'] && csvObj['response'].includes('.quicktime'))
+              if (Array.isArray(csvObj['response']) && csvObj['response'].includes('.quicktime'))
                 csvObj['response'] = csvObj['response'].replace('.quicktime', '.MOV');
 
               if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined) continue;
