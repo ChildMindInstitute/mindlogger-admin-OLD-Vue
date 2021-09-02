@@ -381,15 +381,57 @@ const getItemTemplates = ({ apiHost, token }) =>
     },
   });
 
-const getUsersData = ({ apiHost, token, appletId, options }) =>
-  axios({
+const getUsersData = ({ apiHost, token, appletId, options, pageIndex }) => {
+  const page = pageIndex || 0;
+  return axios({
     method: "GET",
     url: `${apiHost}/applet/${appletId}/data`,
     headers: {
       "Girder-Token": token,
     },
-    params: options,
-  });
+    params: {
+      ...options,
+      pagination: {
+        allow: true, pageIndex: page
+      }
+    },
+  }).then(resp => {
+    let { pageIndex, recordsPerPage, returnCount } = resp.data.pagination;
+
+    if (returnCount < recordsPerPage) {
+      return resp;
+    } else {
+      return getUsersData({ apiHost, token, appletId, options, pageIndex: pageIndex+1 }).then(next => {
+        const keyCount = resp.data.keys.length;
+
+        resp.data.responses = resp.data.responses.concat(next.data.responses);
+        resp.data.keys = resp.data.keys.concat(next.data.keys);
+
+        for (let key of ['dataSources', 'subScaleSources']) {
+          for (let responseId in next.data[key]) {
+            next.data[key][responseId].key += keyCount;
+          }
+        }
+
+        for (let key of ['items', 'activities', 'itemReferences', 'dataSources', 'subScaleSources']) {
+          if (key == 'itemReferences') {
+            for (const version in next.data[key]) {
+              if (resp.data[key][version]) {
+                Object.assign(resp.data[key][version], next.data[key][version])
+              } else {
+                resp.data[key][version] = next.data[key][version]
+              }
+            }
+          } else {
+            Object.assign(resp.data[key], next.data[key]);
+          }
+        }
+
+        return resp
+      })
+    }
+  })
+}
 
 const duplicateApplet = ({ apiHost, token, appletId, options }) =>
   axios({

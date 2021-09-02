@@ -289,7 +289,7 @@ export const AppletMixin = {
                 options: options.join(', '),
                 version: response.version,
                 rawScore: scores.reduce((accumulated, current) => current + accumulated, 0),
-                reviewing_id: response.reviewing,
+                reviewing_id: response.reviewing || '',
                 ... (!isSubScaleExported ? response.subScales : {}),
                 ... (!isSubScaleExported ? outputTexts : {})
               }
