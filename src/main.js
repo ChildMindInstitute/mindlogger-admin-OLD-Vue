@@ -13,9 +13,7 @@ import AppletSchemaBuilder from 'applet-schema-builder';
 import mavonEditor from 'mavon-editor';
 import 'mavon-editor/dist/css/index.css'
 import VueMarkdown from "vue-markdown";
-import browserDetect from "vue-browser-detect-plugin";
 import VueHtml2pdf from 'vue-html2pdf'
-
 import store from './State/state';
 
 import "vuetify-dialog/dist/vuetify-dialog.min.css";
@@ -25,8 +23,6 @@ import "vuetify-dialog/dist/vuetify-dialog.min.css";
 // })
 Vue.config.productionTip = false;
 const environment = process.env.NODE_ENV || "development";
-
-// window.$ = window.jQuery = $;
 
 // Avoid using sentry for development since it is not needed and it would waste
 // the log entries quota.
@@ -63,7 +59,6 @@ Vue.use(VuetifyDialog, {
 });
 
 Vue.use(VueMarkdown);
-Vue.use(browserDetect);
 Vue.use(VueHtml2pdf)
 
 new Vue({
