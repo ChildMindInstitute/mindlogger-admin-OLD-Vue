@@ -13,7 +13,7 @@ import AppletSchemaBuilder from 'applet-schema-builder';
 import mavonEditor from 'mavon-editor';
 import 'mavon-editor/dist/css/index.css'
 import VueMarkdown from "vue-markdown";
-
+import VueHtml2pdf from 'vue-html2pdf'
 import store from './State/state';
 
 import "vuetify-dialog/dist/vuetify-dialog.min.css";
@@ -59,6 +59,7 @@ Vue.use(VuetifyDialog, {
 });
 
 Vue.use(VueMarkdown);
+Vue.use(VueHtml2pdf)
 
 new Vue({
   el: "#app",
