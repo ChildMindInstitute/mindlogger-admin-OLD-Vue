@@ -1,0 +1,140 @@
+<template>
+  <div class="cumulative-score-report">
+    <div v-for="activity in activities" :key="activity.id" class="mb-5">
+      <p class="text-decoration-underline font-weight-bold mb-4">
+        {{ activity.id }} Report
+      </p>
+      <p class="text-body-2 mb-4">
+        <vue-markdown>{{ activity.scoreOverview }}</vue-markdown>
+      </p>
+      <div v-for="report in activity.reports" :key="report.name" class="my-4">
+        <p class="blue--text font-weight-bold mb-1">
+          {{ report.name }}
+        </p>
+        <p class="text-body-2 mb-4">
+          <vue-markdown>{{ report.description }}</vue-markdown>
+        </p>
+        <img src="@/assets/score_bar.png" class="score-bar" :class="{reverse: report.direction === false}">
+        <div v-for="(item, index) in report.messages" :key="index">
+          <p class="text-uppercase font-weight-bold font-italic mb-1">
+            If score
+            <span class="ml-2">{{ item.jsExpression }}</span>
+          </p>
+          <p class="text-body-2 mb-4">
+            <vue-markdown>{{ item.message }}</vue-markdown>
+          </p>
+        </div>
+      </div>
+    </div>
+    <p class="text-footer text-body-2 mb-5">
+      {{ termsText }}
+    </p>
+    <p class="text-footer">
+      {{ footerText }}
+    </p>
+  </div>
+</template>
+
+<style scoped>
+  .cumulative-score-report {
+    width: 600px;
+  }
+  .text-decoration-underline {
+    text-decoration: underline;
+  }
+  .text-uppercase {
+    text-transform: uppercase;
+  }
+  .font-weight-bold {
+    font-weight: bold;
+  }
+  .font-italic {
+    font-style: italic;
+  }
+  .text-body-2 {
+    font-size: 0.9rem;
+  }
+  .blue--text {
+    color: #2196f3;
+  }
+  .mb-1 {
+    margin-bottom: 0.25em;
+  }
+  .ml-2 {
+    margin-left: 0.5em;
+  }
+  .mb-4 {
+    margin-bottom: 1em;
+  }
+  .my-4 {
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+  .mb-5 {
+    margin-bottom: 2em;
+  }
+  .score-bar {
+    width: 400px;
+  }
+  .text-footer {
+    line-height: 2em;
+  }
+  .score-bar.reverse{
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+  }
+</style>
+
+<script>
+import { getMaxScore, evaluateScore } from "../Utils/scoring";
+import VueMarkdown from "vue-markdown";
+
+export default {
+  name: "CumulativeScoreReport",
+  components: {
+    VueMarkdown,
+  },
+  props: {
+    activities: {
+      type: Array,
+      required: true,
+    },
+  },
+  data: () => ({
+    termsText:
+      "I understand that the information provided by this questionnaire is not intended to replace the advice, diagnosis, or treatment offered by a medical or mental health professional, and that my anonymous responses may be used and shared for general research on children’s mental health.",
+    footerText:
+      "CHILD MIND INSTITUTE, INC. AND CHILD MIND MEDICAL PRACTICE, PLLC (TOGETHER, “CMI”) DOES NOT DIRECTLY OR INDIRECTLY PRACTICE MEDICINE OR DISPENSE MEDICAL ADVICE AS PART OF THIS QUESTIONNAIRE. CMI ASSUMES NO LIABILITY FOR ANY DIAGNOSIS, TREATMENT, DECISION MADE, OR ACTION TAKEN IN RELIANCE UPON INFORMATION PROVIDED BY THIS QUESTIONNAIRE, AND ASSUMES NO RESPONSIBILITY FOR YOUR USE OF THIS QUESTIONNAIRE.",
+  }),
+  beforeMount() {
+    for (const activity of this.activities) {
+      const maxScores = (activity.items || []).map((item) => getMaxScore(item));
+
+      activity.scoreOverview = _.get(activity.data, ["reprolib:terms/scoreOverview", 0, "@value"], "");
+
+      activity.reports = activity.data["reprolib:terms/compute"].map((itemCompute) => {
+        const computeName = _.get(itemCompute, ["reprolib:terms/variableName", 0, "@value"]).trim();
+        const messages = []
+        activity.data["reprolib:terms/messages"].map((itemMessage) => {
+          const jsExpression = _.get(itemMessage, ["reprolib:terms/jsExpression", 0, "@value"]);
+          const variableName = jsExpression.split(/[><]/g)[0];
+          if (variableName.trim() == computeName) {
+            messages.push({
+              jsExpression: jsExpression.substr(variableName.length),
+              message: _.get(itemMessage, ["reprolib:terms/message", 0, "@value"]),
+              outputType: _.get(itemMessage, ["reprolib:terms/outputType", 0, "@value"]),
+            });
+          }
+        })
+        return {
+          name: computeName,
+          description: _.get(itemCompute, ["schema:description", 0, "@value"]),
+          direction: _.get(itemCompute, ["reprolib:terms/direction", 0, "@value"], true),
+          cumulativeMaxScore: evaluateScore(itemCompute.jsExpression, activity.items, maxScores),
+          messages,
+        }
+      });
+    }
+  },
+};
+</script>
