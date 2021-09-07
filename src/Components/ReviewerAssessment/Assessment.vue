@@ -185,7 +185,7 @@ export default {
           }
         }
 
-        this.currentScreen++;
+        this.responseSubmitDialog = true
       }
     },
 
