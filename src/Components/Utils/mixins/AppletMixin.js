@@ -424,14 +424,16 @@ export const AppletMixin = {
 
     async generateDrawingZip(drawingCSVs) {
       try {
-        const zip = new JSZip();
+        if (drawingCSVs.length > 0) {
+          const zip = new JSZip();
 
-        for (const csvData of drawingCSVs) {
-          zip.file(csvData.name, csvData.data);
+          for (const csvData of drawingCSVs) {
+            zip.file(csvData.name, csvData.data);
+          }
+
+          const generatedZip = await zip.generateAsync({ type: 'blob' });
+          saveAs(generatedZip, `drawing-responses-${(new Date()).toDateString()}.zip`);
         }
-
-        const generatedZip = await zip.generateAsync({ type: 'blob' });
-        saveAs(generatedZip, `drawing-responses-${(new Date()).toDateString()}.zip`);
       } catch (err) {
         console.log(err);
       }
