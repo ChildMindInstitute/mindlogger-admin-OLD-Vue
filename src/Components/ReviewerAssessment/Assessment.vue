@@ -9,9 +9,13 @@
           class="screen"
           :key="item.slug"
         >
-          <v-card-title class="question">
-            <img :src="item.getQuestionImage()" />
-            <vue-markdown>{{ item.getQuizWithoutImage() }}</vue-markdown>
+          <v-card-title>
+            <div class="question text-center">
+              <div>
+                <img :src="item.getQuestionImage()" />
+              </div>
+              <vue-markdown>{{ item.getQuizWithoutImage() }}</vue-markdown>
+            </div>
           </v-card-title>
 
           <div
@@ -89,6 +93,7 @@
 .question {
   justify-content: center;
   padding-bottom: 0px;
+  width: 100%;
 }
 
 .question img {
