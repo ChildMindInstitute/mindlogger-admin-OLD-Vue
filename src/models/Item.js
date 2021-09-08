@@ -84,6 +84,9 @@ export default class Item {
     this.enableNegativeTokens = _.get(data, [ReproLib.responseOptions, 0, ReproLib.enableNegativeTokens, 0, '@value'], false);
     this.isResponseIdentifier = _.get(data, [ReproLib.responseOptions, 0, 'reprolib:terms/isResponseIdentifier', 0, '@value'], false);
     this.correctAnswer = _.get(data, ['schema:correctAnswer', 0, '@value'], null);
+
+    const allowList = _.get(data, [ReproLib.allow, 0, "@list"], [])
+    this.isSkippable = allowList.some(allow => allow && ( allow['@id'] == ReproLib.refusedToAnswer || allow['@id'] == ReproLib.doNotKnow ))
   }
 
   /**
