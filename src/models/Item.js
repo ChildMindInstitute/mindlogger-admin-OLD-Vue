@@ -114,7 +114,8 @@ export default class Item {
       color: choice['schema:value'][0]['@value'] > 0
         ? this.coldColors.shift()
         : this.warmColors.shift(),
-      image: choice['schema:image']
+      image: choice['schema:image'],
+      description: _.get(choice, ['schema:description', 0, "@value"], '')
     })).map(choice => ({
       ...choice,
       id: `${Object.values(choice.name)[0]} (${choice.value || 0})`

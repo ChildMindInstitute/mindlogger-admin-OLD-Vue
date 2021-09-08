@@ -1,31 +1,28 @@
 <template>
   <div class="option-list">
-    <v-checkbox
-      class="option"
-      v-for="(option, index) in options"
+    <Option
+      v-for="(option, index) in options.slice(0, options.length/2)"
       v-model="response[index]"
       :key="option.id"
-      :label="option.name.en"
+      :option="option"
+      :isTokenItem="isTokenItem"
       :disabled="disabled"
-      hide-details
-      @change="update"
+      type="checkbox"
+      @update="update"
     />
   </div>
 </template>
 
 <style scoped>
-.option-list {
-  display: flex;
-  flex-wrap: wrap;
-}
 
-.option {
-  width: 50%;
-}
 </style>
 
 <script>
+import Option from './Option';
 export default {
+  components: {
+    Option
+  },
   props: {
     value: {
       type: Object,
