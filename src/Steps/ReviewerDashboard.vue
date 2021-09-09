@@ -337,6 +337,7 @@
                               :activity="activity"
                               :secret-ids="selectedSecretIds"
                               :apply-secret-id-selector="applySecretIdSelector"
+                              :focus-extent="focusExtent"
                             />
                           </template>
 
