@@ -242,7 +242,7 @@ export const AppletMixin = {
                       responseData += `${key}: ${value}`;
                     }
 
-                    if (index < Object.keys(responseDataObj).length - 1)
+                    if ((index < Object.keys(responseDataObj).length - 1) && responseData)
                       responseData += ' | ';
 
                     index++;
@@ -310,10 +310,10 @@ export const AppletMixin = {
                 }
               }
 
-              if (Array.isArray(csvObj['response']) && csvObj['response'].includes('.quicktime'))
+              if (csvObj['response'] && csvObj['response'].includes('.quicktime'))
                 csvObj['response'] = csvObj['response'].replace('.quicktime', '.MOV');
 
-              if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined) continue;
+              if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined || csvObj['response'] === '') continue;
               result.push(csvObj);
 
               isSubScaleExported = true;
@@ -404,7 +404,7 @@ export const AppletMixin = {
             line_number: i.toString(),
             x: point.x.toString(),
             y: point.y.toString(),
-            time: point.time.toString()
+            time: point.time && point.time.toString()
           });
         }
       }
