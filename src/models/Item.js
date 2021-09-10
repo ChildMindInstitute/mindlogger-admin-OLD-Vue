@@ -84,6 +84,9 @@ export default class Item {
     this.enableNegativeTokens = _.get(data, [ReproLib.responseOptions, 0, ReproLib.enableNegativeTokens, 0, '@value'], false);
     this.isResponseIdentifier = _.get(data, [ReproLib.responseOptions, 0, 'reprolib:terms/isResponseIdentifier', 0, '@value'], false);
     this.correctAnswer = _.get(data, ['schema:correctAnswer', 0, '@value'], null);
+
+    const allowList = _.get(data, [ReproLib.allow, 0, "@list"], [])
+    this.isSkippable = allowList.some(allow => allow && ( allow['@id'] == ReproLib.refusedToAnswer || allow['@id'] == ReproLib.doNotKnow ))
   }
 
   /**
@@ -111,7 +114,8 @@ export default class Item {
       color: choice['schema:value'][0]['@value'] > 0
         ? this.coldColors.shift()
         : this.warmColors.shift(),
-      image: choice['schema:image']
+      image: choice['schema:image'],
+      description: _.get(choice, ['schema:description', 0, "@value"], '')
     })).map(choice => ({
       ...choice,
       id: `${Object.values(choice.name)[0]} (${choice.value || 0})`

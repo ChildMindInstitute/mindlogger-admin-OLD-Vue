@@ -9,8 +9,8 @@
       :max="maxValue"
       v-model="response"
       step="0.1"
-      @input="update"
       :disabled="disabled"
+      @click="update"
     />
 
     <div

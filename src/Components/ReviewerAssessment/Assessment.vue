@@ -9,8 +9,13 @@
           class="screen"
           :key="item.slug"
         >
-          <v-card-title class="question">
-            {{ item.question.en }}
+          <v-card-title>
+            <div class="question text-center">
+              <div>
+                <img :src="item.getQuestionImage()" />
+              </div>
+              <vue-markdown>{{ item.getQuizWithoutImage() }}</vue-markdown>
+            </div>
           </v-card-title>
 
           <div
@@ -56,6 +61,7 @@
             <v-btn
               @click="onNext"
               color="primary"
+              :disabled="!activity.items[index].isSkippable && responses[index].value === null"
               rounded
             >
               {{ isLastScreen ? 'Submit' : 'Next' }}
@@ -87,6 +93,12 @@
 .question {
   justify-content: center;
   padding-bottom: 0px;
+  width: 100%;
+}
+
+.question img {
+  max-width: 80%;
+  margin: auto;
 }
 
 .screen .content {
@@ -98,6 +110,7 @@
 import Checkbox from "./Checkbox";
 import Radio from "./Radio";
 import Slider from "./Slider";
+import VueMarkdown from "vue-markdown";
 import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
 import { Parser } from "expr-eval";
 
@@ -118,6 +131,7 @@ export default {
     Radio,
     Slider,
     ConfirmationDialog,
+    VueMarkdown,
   },
 
   data() {
