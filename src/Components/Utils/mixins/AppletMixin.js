@@ -120,7 +120,7 @@ export const AppletMixin = {
 
           let subScaleNames = [], previousResponse = [];
 
-          const drawingCSVs = [];
+          const drawingCSVs = [], stabilityCSVs = [];
 
           for (let response of data.responses) {
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
@@ -223,6 +223,16 @@ export const AppletMixin = {
 
                         responseData += `filename: ${src}.csv`;
 
+                        index = Object.keys(responseDataObj).length;
+                      }
+                    } else if (item.inputType == 'stabilityTracker') {
+                      if (Array.isArray(value)) {
+                        stabilityCSVs.push({
+                          name: `${response._id}_${item.id}.csv`,
+                          data: this.getStabilityCSV(value)
+                        })
+
+                        responseData += `filename: ${response._id}_${item.id}.csv`;
                         index = Object.keys(responseDataObj).length;
                       }
                     } else if (item.inputType === 'date' && (value.day || value.month || value.year)) {
@@ -355,6 +365,7 @@ export const AppletMixin = {
           })
 
           await this.generateDrawingZip(drawingCSVs);
+          await this.generateStabilityZip(stabilityCSVs);
           await this.generateMediaResponsesZip(this.mediaResponseObjects);
         })
     },
@@ -396,6 +407,62 @@ export const AppletMixin = {
       return name;
     },
 
+    getStabilityCSV(responses) {
+      const result = [];
+
+      const getPointStr = (pos) => {
+        return `(${pos[0]}, ${pos[1]})`
+      }
+
+      for (const response of responses) {
+        result.push({
+          lambda: response.lambda,
+          lambdaSlope: response.lambdaSlope,
+          score: response.score,
+          stimPos: getPointStr(response.stimPos),
+          targetPos: getPointStr(response.targetPos),
+          timestamp: response.timestamp,
+          userPos: getPointStr(response.userPos),
+        });
+      }
+
+      let otc = new ObjectToCSV({
+        keys: [
+          {
+            key: 'lambda',
+            as: 'lambda'
+          },
+          {
+            key: 'lambdaSlope',
+            as: 'Lambda Slope'
+          },
+          {
+            key: 'score',
+            as: 'score'
+          },
+          {
+            key: 'stimPos',
+            as: 'Stim Position',
+          },
+          {
+            key: 'targetPos',
+            as: 'Target Position',
+          },
+          {
+            key: 'timestamp',
+            as: 'timestamp'
+          },
+          {
+            key: 'userPos',
+            as: 'User Position'
+          }
+        ],
+        data: result,
+      });
+
+      return otc.getCSV();
+    },
+
     getLinesAsCSV(lines) {
       const result = [];
       for (let i = 0; i < lines.length; i++) {
@@ -433,6 +500,23 @@ export const AppletMixin = {
 
           const generatedZip = await zip.generateAsync({ type: 'blob' });
           saveAs(generatedZip, `drawing-responses-${(new Date()).toDateString()}.zip`);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    async generateStabilityZip(stabilityCSVs) {
+      try {
+        if (stabilityCSVs.length > 0) {
+          const zip = new JSZip();
+
+          for (const csvData of stabilityCSVs) {
+            zip.file(csvData.name, csvData.data);
+          }
+
+          const generatedZip = await zip.generateAsync({ type: 'blob' });
+          saveAs(generatedZip, `stability-tracker-responses-${(new Date()).toDateString()}.zip`);
         }
       } catch (err) {
         console.log(err);
