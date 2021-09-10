@@ -100,7 +100,7 @@
 }
 
 .question img {
-  max-width: 220px;
+  max-width: 200px;
   margin: auto;
 }
 
