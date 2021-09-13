@@ -1,9 +1,9 @@
 <template>
-  <div v-if="cumulativeReportsCount" class="cumulative-results">
+  <div v-if="reportCount" class="cumulative-results">
     <h2>{{ $t("summary") }}</h2>
-    <template v-for="cumulativeResult in cumulativeResults">
+    <template v-for="cumulativeResult in results">
       <div
-        v-if="!applySecretIdSelector || secretIds.includes(cumulativeResult.response.secretId)"
+        v-if="(!applySecretIdSelector || secretIds.includes(cumulativeResult.response.secretId))"
         :key="cumulativeResult.response.responseId"
       >
         <div class="cumulative-date">
@@ -69,6 +69,10 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    focusExtent: {
+      type: Array,
+      required: true
     }
   },
   data() {
@@ -138,6 +142,7 @@ export default {
           response: {
             ...activityResponse,
             date: moment(activityResponse.date).format("MM/DD hh:mm A"),
+            datetime: activityResponse.date
           },
           reportMessages,
         };
@@ -149,5 +154,21 @@ export default {
       cumulativeReportsCount,
     };
   },
+
+  computed: {
+    results () {
+      return this.cumulativeResults.filter(
+        result => result.response.datetime >= this.focusExtent[0] && result.response.datetime <= this.focusExtent[1]
+      )
+    },
+    reportCount () {
+      let count = 0;
+      for (let i = 0; i < this.results.length; i++) {
+        count += this.results[i].reportMessages.length
+      }
+
+      return count
+    }
+  }
 };
 </script>
