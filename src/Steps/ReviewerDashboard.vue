@@ -376,6 +376,7 @@
                               :selected-versions="selectedVersions"
                               :has-version-bars="hasVersionBars"
                               :timezone="applet.timezoneStr"
+                              :timeRange="timeRange"
                               :activity="activity"
                               :parent-width="panelWidth"
                               :secret-ids="selectedSecretIds"
