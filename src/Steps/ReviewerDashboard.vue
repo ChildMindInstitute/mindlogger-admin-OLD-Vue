@@ -181,6 +181,13 @@
                 :disabled="!applySecretIdSelector"
               />
             </div>
+
+            <v-btn
+              class="ml-2"
+              @click="onDownloadReport"
+            >
+              Download Report
+            </v-btn>
           </div>
           <div v-else class="review-header mb-2">
             <v-menu>
@@ -608,6 +615,38 @@
             </v-tabs-items>
           </div>
         </div>
+
+        <vue-html2pdf
+          ref="html2Pdf"
+          :show-layout="false"
+          :float-layout="true"
+          :enable-download="true"
+          :preview-modal="false"
+          :paginate-elements-by-height="3000"
+          filename="report"
+          :pdf-quality="2"
+          :manual-pagination="false"
+          pdf-format="a4"
+          pdf-orientation="landscape"
+          pdf-content-width="800px"
+          :html-to-pdf-options="{
+            margin: 70,
+            enableLinks: true,
+            html2canvas: {
+              scale: 1,
+              useCORS: true,
+            },
+            jsPDF: {
+              unit: 'pt',
+              format: 'a4',
+              orientation: 'portrait',
+            },
+          }"
+        >
+          <section slot="pdf-content">
+            <CumulativeScoreReport :activities="applet.activities" />
+          </section>
+        </vue-html2pdf>
       </div>
 
       <ResponseSelectionDialog
@@ -819,6 +858,7 @@ import Reviewed from "../Components/DataViewerComponents/Reviewed";
 import SubScaleComponent from "../Components/DataViewerComponents/SubScaleComponent";
 import { AppletMixin } from '../Components/Utils/mixins/AppletMixin';
 import CumulativeScore from "../Components/DataViewerComponents/CumulativeScore";
+import CumulativeScoreReport from "../Components/DataViewerComponents/CumulativeScoreReport";
 
 import * as moment from "moment-timezone";
 
@@ -846,6 +886,7 @@ export default {
     Reviewed,
     SubScaleComponent,
     CumulativeScore,
+    CumulativeScoreReport,
   },
 
   /**
@@ -1438,6 +1479,10 @@ export default {
 
     onUpdateFocusExtent(focusExtent) {
       this.$set(this, "focusExtent", focusExtent);
+    },
+
+    onDownloadReport() {
+      this.$refs.html2Pdf.generatePdf()
     },
   },
 };
