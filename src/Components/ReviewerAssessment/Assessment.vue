@@ -61,7 +61,10 @@
             <v-btn
               @click="onNext"
               color="primary"
-              :disabled="!activity.items[index].isSkippable && responses[index].value === null"
+              :disabled="
+                !activity.items[index].isSkippable &&
+                (responses[index].value === null || Array.isArray(responses[index].value) && !responses[index].value.length)
+              "
               rounded
             >
               {{ isLastScreen ? 'Submit' : 'Next' }}
@@ -97,7 +100,7 @@
 }
 
 .question img {
-  max-width: 80%;
+  max-width: 200px;
   margin: auto;
 }
 
@@ -168,9 +171,6 @@ export default {
     },
     isFirstScreen() {
       return this.currentScreen == 0;
-    },
-    nextEnabled() {
-      return true;
     }
   },
   methods: {
