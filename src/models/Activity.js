@@ -47,6 +47,7 @@ export default class Activity {
     this.selectedSubScales = [];
 
     this.dataColor = '#8076B2';
+    this.isCumulativeActivity = _.get(data, [ReproLib.compute], []).length > 0;
   }
 
 

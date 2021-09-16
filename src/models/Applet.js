@@ -46,6 +46,7 @@ export default class Applet {
     this.hasTokenItem = false;
     this.availableDates = {};
     this.reviewerActivity = null;
+    this.hasCumulativeActivity = false;
     this.secretIDs = {};
 
     this.selectedActivites = [];
@@ -87,6 +88,10 @@ export default class Applet {
 
       if (activity.isReviewerActivity) {
         this.reviewerActivity = activity;
+      }
+
+      if (activity.isCumulativeActivity) {
+        this.hasCumulativeActivity = true;
       }
 
       if (activity.hasTokenItem) {
