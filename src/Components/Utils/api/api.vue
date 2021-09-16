@@ -476,7 +476,7 @@ const getUsersData = ({ apiHost, token, appletId, options, pageIndex }) => {
   });
 };
 
-const duplicateApplet = ({ apiHost, token, appletId, options }) =>
+const duplicateApplet = ({ apiHost, token, appletId, options, form }) =>
   axios({
     method: "POST",
     url: `${apiHost}/applet/${appletId}/duplicate`,
@@ -487,6 +487,7 @@ const duplicateApplet = ({ apiHost, token, appletId, options }) =>
       ...options,
       lang: store.state.currentLanguage,
     },
+    data: form
   });
 
 const replaceResponseData = ({ apiHost, token, appletId, user, data }) =>
