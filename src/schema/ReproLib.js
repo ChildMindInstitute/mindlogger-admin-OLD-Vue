@@ -26,5 +26,7 @@ export default {
   continuousSlider: 'reprolib:terms/continousSlider',
   showTickMarks: 'reprolib:terms/showTickMarks',
   doNotKnow: 'reprolib:terms/dont_know_answer',
-  refusedToAnswer: 'reprolib:terms/refused_to_answer'
+  refusedToAnswer: 'reprolib:terms/refused_to_answer',
+  compute: 'reprolib:terms/compute',
+  messages: 'reprolib:terms/messages'
 };

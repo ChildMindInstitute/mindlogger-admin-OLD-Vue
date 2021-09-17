@@ -183,6 +183,7 @@
             </div>
 
             <v-btn
+              v-if="applet.hasCumulativeActivity"
               class="ml-2"
               @click="onDownloadReport"
             >
@@ -617,6 +618,7 @@
         </div>
 
         <vue-html2pdf
+          v-if="applet.hasCumulativeActivity"
           ref="html2Pdf"
           :show-layout="false"
           :float-layout="true"
