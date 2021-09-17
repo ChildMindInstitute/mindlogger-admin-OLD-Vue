@@ -321,18 +321,24 @@ export default {
 
       const xTicks = [];
 
-      for (let tick = this.focusExtent[0]; tick <= this.focusExtent[1]; tick = moment(tick).add(1, 'day').toDate()) {
+      for (let tick = moment(this.focusExtent[0]); tick <= this.focusExtent[1]; tick = moment(tick).add(1, 'day')) {
+        const date = new Date(tick.format('YYYY-MM-DD'));
+
+        if (date < this.focusExtent[0]) {
+          continue
+        }
+
         if (this.timeRange == "Daily") {
-          xTicks.push(tick);
+          xTicks.push(date);
         }
         else if (this.timeRange == "Weekly") {
           if (tick.getDay() == 0) {
-            xTicks.push(tick);
+            xTicks.push(date);
           }
         }
         else if (this.timeRange == "Monthly") {
           if (tick.getDate() == 1) {
-            xTicks.push(tick)
+            xTicks.push(date)
           }
         }
       }
@@ -345,7 +351,7 @@ export default {
         .tickSize(this.tickHeight)  // Height of the tick line.
         .tickValues(xTicks)
         .ticks(d3.timeDay)
-        .tickFormat(d => moment(d).format('MMM-D'));
+        .tickFormat(d => moment.utc(d).format('MMM-D'));
 
       this.svg
         .select('.x-axis .main-axis')

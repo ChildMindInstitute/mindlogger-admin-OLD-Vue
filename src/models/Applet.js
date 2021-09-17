@@ -394,6 +394,7 @@ export default class Applet {
         const responses = this.subScales[activityId][subScaleName];
 
         for (const response of responses) {
+          response.date = response.date.slice(0, -6);
           response.value.secretId = secretIDs[response.value.responseId];
         }
       }
