@@ -1,28 +1,57 @@
 <template>
   <div class="cumulative-score-report">
-    <div v-for="activity in activities" :key="activity.id" class="mb-5">
+    <div v-for="{activity, reportMessages} in activityResponses" :key="activity.id" class="mb-5">
       <p class="text-decoration-underline font-weight-bold mb-4">
         {{ activity.id }} Report
       </p>
       <p class="text-body-2 mb-4">
-        <vue-markdown>{{ activity.scoreOverview }}</vue-markdown>
+        <vue-markdown>{{ (activity.scoreOverview || '').replace(MARKDOWN_REGEX, '$1$2') }}</vue-markdown>
       </p>
-      <div v-for="report in activity.reports" :key="report.name" class="my-4">
+      <div v-for="item in reportMessages" :key="item.category" class="my-4">
         <p class="blue--text font-weight-bold mb-1">
-          {{ report.name }}
+          {{ (item.category || '').replace(/_/g, ' ') }}
         </p>
         <p class="text-body-2 mb-4">
-          <vue-markdown>{{ report.description }}</vue-markdown>
+          <vue-markdown>{{ (item.compute.description || '').replace(MARKDOWN_REGEX, '$1$2') }}</vue-markdown>
         </p>
-        <img src="@/assets/score_bar.png" class="score-bar" :class="{reverse: report.direction === false}">
-        <div v-for="(item, index) in report.messages" :key="index">
-          <p class="text-uppercase font-weight-bold font-italic mb-1">
-            If score
-            <span class="ml-2">{{ item.jsExpression }}</span>
+        <div class="score-area">
+          <p
+            class="score-title text-nowrap"
+            :style="{ left: `${(item.scoreValue / item.maxScoreValue) * 100}%` }">
+            Your/Your Child’s Score
           </p>
-          <p class="text-body-2 mb-4">
-            <vue-markdown>{{ item.message }}</vue-markdown>
+          <div
+            class="score-bar score-below"
+            :class="{
+              'score-positive': item.compute.direction,
+              'score-negative': !item.compute.direction,
+            }"
+            :style="{ width: `${(item.exprValue / item.maxScoreValue) * 100}%` }"
+          />
+          <div
+            class='score-bar score-above'
+            :class="{
+              'score-positive': !item.compute.direction,
+              'score-negative': item.compute.direction,
+            }"
+          />
+          <div
+            class='score-spliter'
+            :style="{ left: `${(item.scoreValue / item.maxScoreValue) * 100}%` }"
+          />
+          <p class="score-max-value">
+            <strong>{{item.maxScoreValue}}</strong>
           </p>
+        </div>
+        <p class="text-uppercase font-weight-bold font-italic mb-1">
+          If score
+          <span class="ml-2">{{item.jsExpression}}</span>
+        </p>
+
+        <div class="mb-4">
+          Your/Your child’s score on the {{item.category.replace(/_/g, ' ')}} subscale was 
+          <span class="red--text">{{item.scoreValue}}</span>.
+          <vue-markdown>{{ item.message.replace(MARKDOWN_REGEX, '$1$2') }}</vue-markdown>
         </div>
       </div>
     </div>
@@ -57,6 +86,9 @@
   .blue--text {
     color: #2196f3;
   }
+  .red--text {
+    color: #ff0000;
+  }
   .mb-1 {
     margin-bottom: 0.25em;
   }
@@ -79,15 +111,54 @@
   .text-footer {
     line-height: 2em;
   }
-  .score-bar.reverse{
-    -webkit-transform: scaleX(-1);
-    transform: scaleX(-1);
+  .score-area {
+    position: relative;
+    display: flex;
+    width: 100%;
+    max-width: 400px;
+    padding: 60px 0 20px;
+  }
+  .score-bar {
+    height: 40px;
+  }
+  .score-positive {
+    background-color: #a1cd63;
+  }
+  .score-negative {
+    background-color: #b02318;
+  }
+  .score-above {
+    flex: 1;
+  }
+  .score-spliter {
+    position: absolute;
+    top: 40px;
+    width: 5px;
+    height: 80px;
+    background-color: #000;
+  }
+  .score-title {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+  }
+  .score-max-value {
+    position: absolute;
+    margin: 0;
+    right: 0;
+    bottom: 0;
   }
 </style>
 
 <script>
-import { getMaxScore, evaluateScore } from "../Utils/scoring";
 import VueMarkdown from "vue-markdown";
+import { Parser } from "expr-eval";
+import _ from "lodash";
+import {
+  getScoreFromResponse,
+  getMaxScore,
+  evaluateScore,
+} from "../Utils/scoring";
 
 export default {
   name: "CumulativeScoreReport",
@@ -100,40 +171,100 @@ export default {
       required: true,
     },
   },
-  data: () => ({
-    termsText:
-      "I understand that the information provided by this questionnaire is not intended to replace the advice, diagnosis, or treatment offered by a medical or mental health professional, and that my anonymous responses may be used and shared for general research on children’s mental health.",
-    footerText:
-      "CHILD MIND INSTITUTE, INC. AND CHILD MIND MEDICAL PRACTICE, PLLC (TOGETHER, “CMI”) DOES NOT DIRECTLY OR INDIRECTLY PRACTICE MEDICINE OR DISPENSE MEDICAL ADVICE AS PART OF THIS QUESTIONNAIRE. CMI ASSUMES NO LIABILITY FOR ANY DIAGNOSIS, TREATMENT, DECISION MADE, OR ACTION TAKEN IN RELIANCE UPON INFORMATION PROVIDED BY THIS QUESTIONNAIRE, AND ASSUMES NO RESPONSIBILITY FOR YOUR USE OF THIS QUESTIONNAIRE.",
-  }),
-  beforeMount() {
+  data() {
+    const parser = new Parser({
+      logical: true,
+      comparison: true,
+    });
+    const activityResponses = [];
     for (const activity of this.activities) {
-      const maxScores = (activity.items || []).map((item) => getMaxScore(item));
+      if (activity.responses.length === 0) {
+        continue;
+      }
 
-      activity.scoreOverview = _.get(activity.data, ["reprolib:terms/scoreOverview", 0, "@value"], "");
-
-      activity.reports = activity.data["reprolib:terms/compute"].map((itemCompute) => {
-        const computeName = _.get(itemCompute, ["reprolib:terms/variableName", 0, "@value"]).trim();
-        const messages = []
-        activity.data["reprolib:terms/messages"].map((itemMessage) => {
-          const jsExpression = _.get(itemMessage, ["reprolib:terms/jsExpression", 0, "@value"]);
-          const variableName = jsExpression.split(/[><]/g)[0];
-          if (variableName.trim() == computeName) {
-            messages.push({
-              jsExpression: jsExpression.substr(variableName.length),
-              message: _.get(itemMessage, ["reprolib:terms/message", 0, "@value"]),
-              outputType: _.get(itemMessage, ["reprolib:terms/outputType", 0, "@value"]),
-            });
-          }
+      activity.compute = (activity.data["reprolib:terms/compute"] || []).map(
+        (itemCompute) => ({
+          jsExpression: _.get(itemCompute, ["reprolib:terms/jsExpression", 0, "@value"]),
+          variableName: _.get(itemCompute, ["reprolib:terms/variableName", 0, "@value"]),
         })
-        return {
-          name: computeName,
-          description: _.get(itemCompute, ["schema:description", 0, "@value"]),
-          direction: _.get(itemCompute, ["reprolib:terms/direction", 0, "@value"], true),
-          cumulativeMaxScore: evaluateScore(itemCompute.jsExpression, activity.items, maxScores),
-          messages,
+      );
+      activity.messages = (activity.data["reprolib:terms/messages"] || []).map(
+        (itemMessage) => ({
+          jsExpression: _.get(itemMessage, ["reprolib:terms/jsExpression", 0, "@value"]),
+          message: _.get(itemMessage, ["reprolib:terms/message", 0, "@value"]),
+          outputType: _.get(itemMessage, ["reprolib:terms/outputType", 0, "@value"]),
+        })
+      );
+
+      let scores = [], maxScores = [];
+      const lastResponseIndex = activity.responses.length - 1;
+      for (let i = 0; i < activity.items.length; i++) {
+        const { variableName, responses } = activity.items[i];
+        let score = getScoreFromResponse(
+          activity.items[i],
+          responses[lastResponseIndex][variableName] ? responses[lastResponseIndex][variableName] : responses[lastResponseIndex],
+        );
+        scores.push(score);
+        maxScores.push(getMaxScore(activity.items[i]));
+      }
+
+      const cumulativeScores = activity.compute.reduce((accumulator, itemCompute) => ({
+        ...accumulator,
+        [itemCompute.variableName.trim().replace(/\s/g, '__')]: evaluateScore(itemCompute.jsExpression, activity.items, scores),
+      }), {});
+
+      const cumulativeMaxScores = activity.compute.reduce((accumulator, itemCompute) => ({
+        ...accumulator,
+        [itemCompute.variableName.trim().replace(/\s/g, '__')]: evaluateScore(itemCompute.jsExpression, activity.items, maxScores),
+      }), {});
+
+      const reportMessages = [];
+      let cumActivities = [];
+      activity.messages.forEach((msg) => {
+        const { jsExpression, message, outputType, nextActivity } = msg;
+
+        const exprArr = jsExpression.split(/[><]/g);
+        const variableName = exprArr[0];
+        const exprValue = parseFloat(exprArr[1].split(' ')[1]);
+        const category = variableName.trim().replace(/\s/g, '__');
+        const expr = parser.parse(category + jsExpression.substr(variableName.length));
+
+        const variableScores = {
+          [category]: outputType == 'percentage' ? Math.round(cumulativeMaxScores[category] ? (cumulativeScores[category] * 100) / cumulativeMaxScores[category] : 0) : cumulativeScores[category],
+        };
+
+        if (expr.evaluate(variableScores)) {
+          if (nextActivity) cumActivities.push(nextActivity);
+
+          const compute = activity.compute.find(
+            (itemCompute) => itemCompute.variableName.trim() == variableName.trim(),
+          );
+
+          reportMessages.push({
+            category,
+            message,
+            score: variableScores[category] + (outputType == 'percentage' ? '%' : ''),
+            compute,
+            jsExpression: jsExpression.substr(variableName.length),
+            scoreValue: cumulativeScores[category],
+            maxScoreValue: cumulativeMaxScores[category],
+            exprValue: outputType == 'percentage' ? (exprValue * cumulativeMaxScores[category]) / 100 : exprValue,
+          });
         }
       });
+      activityResponses.push({
+        activity,
+        reportMessages
+      })
+    }
+
+    return {
+      MARKDOWN_REGEX: /(!\[.*\]\s*\(.*?) =\d*x\d*(\))/g,
+      termsText:
+        "I understand that the information provided by this questionnaire is not intended to replace the advice, diagnosis, or treatment offered by a medical or mental health professional, and that my anonymous responses may be used and shared for general research on children’s mental health.",
+      footerText:
+        "CHILD MIND INSTITUTE, INC. AND CHILD MIND MEDICAL PRACTICE, PLLC (TOGETHER, “CMI”) DOES NOT DIRECTLY OR INDIRECTLY PRACTICE MEDICINE OR DISPENSE MEDICAL ADVICE AS PART OF THIS QUESTIONNAIRE. CMI ASSUMES NO LIABILITY FOR ANY DIAGNOSIS, TREATMENT, DECISION MADE, OR ACTION TAKEN IN RELIANCE UPON INFORMATION PROVIDED BY THIS QUESTIONNAIRE, AND ASSUMES NO RESPONSIBILITY FOR YOUR USE OF THIS QUESTIONNAIRE.",
+      activityResponses,
     }
   },
 };
