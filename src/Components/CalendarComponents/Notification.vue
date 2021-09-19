@@ -30,11 +30,7 @@
                 v-model="notification.start"
                 @change="otherChangeHandler($event, index, 'start')"
                 close-on-complete
-                fixed-dropdown-button
               >
-                <template v-slot:dropdownButton>
-                  <img src="https://i.postimg.cc/CLkZcW46/custom-clock.png" />
-                </template>
               </vue-timepicker>
 
               <v-text-field
