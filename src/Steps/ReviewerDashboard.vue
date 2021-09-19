@@ -372,7 +372,6 @@
                           <h2 class="mt-4">
                             {{ $t("responseOptions") }}
                           </h2>
-
                           <template
                             v-if="tab != 'tokens' && activity.subScales.length"
                           >
@@ -447,8 +446,15 @@
                               <header>
                                 <h3 v-if="item.inputType !== 'markdownMessage'">
                                   <div class="item-question">
-                                    <p><img :src="item.getQuestionImage()"></p>
-                                    <vue-markdown>{{ item.getQuizWithoutImage() }}</vue-markdown>
+                                    <p v-if="Boolean(item.getQuestionImage())"><img :src="item.getQuestionImage()"></p>
+                                    <div class="markdown-none">
+                                      <mavon-editor
+                                        :value="item.getQuizWithoutImage()"
+                                        :language="'en'"
+                                        :toolbarsFlag="false"
+                                      >
+                                      </mavon-editor>
+                                    </div>
                                   </div>
                                 </h3>
 
@@ -799,6 +805,18 @@
 }
 
 .additional-note /deep/ .v-note-edit,
+.markdown-none /deep/ .v-note-edit {
+  display: none;
+}
+.markdown-none /deep/ .v-note-show {
+  width: 100% !important;
+  flex: 0 0 100% !important;
+  overflow-y: auto;
+  margin: 10px 0px;
+}
+.markdown-none /deep/ .markdown-body {
+  box-shadow: none !important;
+}
 .markdown /deep/ .v-note-edit {
   display: none;
 }
