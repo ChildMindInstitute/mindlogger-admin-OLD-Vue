@@ -96,7 +96,6 @@ export default {
       })
     );
 
-    let cumulativeReportsCount = 0;
     const cumulativeResults = this.activity.responses.map(
       (activityResponse) => {
         const scores = (this.activity.items || []).map((item) =>
@@ -135,14 +134,13 @@ export default {
               message,
               score: variableScores[category] + (outputType == "percentage" ? "%" : ""),
             });
-            cumulativeReportsCount ++;
           }
         });
 
         return {
           response: {
             ...activityResponse,
-            date: moment(activityResponse.date).format("MM/DD hh:mm A"),
+            date: moment.utc(activityResponse.date).format("MM/DD hh:mm A"),
             datetime: activityResponse.date
           },
           reportMessages,
@@ -152,7 +150,6 @@ export default {
 
     return {
       cumulativeResults,
-      cumulativeReportsCount,
     };
   },
 

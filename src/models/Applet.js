@@ -167,13 +167,16 @@ export default class Applet {
       0,
     ));
 
+    const nextDay = new Date();
+    nextDay.setDate(nextDay.getDate() + 1);
+
     let { data } = await axios({
       method: 'get',
       url: `${store.state.backend}/response/${appletId}`,
       headers: { 'Girder-Token': store.state.auth.authToken.token },
       params: {
         users: JSON.stringify(users),
-        toDate: `${NOW.getFullYear()}-${NOW.getMonth()+1}-${NOW.getDate()}`,
+        toDate: `${nextDay.getFullYear()}-${nextDay.getMonth()+1}-${nextDay.getDate()}`,
         fromDate: `${TODAY.getFullYear()-1}-${TODAY.getMonth()+1}-${TODAY.getDate()}`
       },
     });
@@ -399,6 +402,7 @@ export default class Applet {
         const responses = this.subScales[activityId][subScaleName];
 
         for (const response of responses) {
+          response.date = response.date.slice(0, -6);
           response.value.secretId = secretIDs[response.value.responseId];
         }
       }
@@ -471,8 +475,6 @@ export default class Applet {
     let dateToVersions = {};
     let hashItems = [];
 
-    console.log('items', this.items)
-
     Object.keys(this.items).forEach(itemId => {
       const item = this.items[itemId];
       let isAvailable = false;
@@ -483,8 +485,6 @@ export default class Applet {
         isAvailable = true;
         hashItems.push(...item.schemas);
       }
-
-      console.log('isAvailable', isAvailable)
 
       if (item.isTokenItem && item.inputType !== 'stackedRadio' && isAvailable) {
         // console.log('item.responses=======', item.responses)
@@ -568,12 +568,16 @@ export default class Applet {
     /** decrypt data */
     data.AESKeys = [];
     for (let userPublicKey of data.keys) {
-      data.AESKeys.push(encryptionUtils.getAESKey(
-        encryption.appletPrivateKey,
-        userPublicKey,
-        encryption.appletPrime,
-        encryption.base
-      ));
+      if (userPublicKey) {
+        data.AESKeys.push(encryptionUtils.getAESKey(
+          encryption.appletPrivateKey,
+          userPublicKey,
+          encryption.appletPrime,
+          encryption.base
+        ));
+      } else {
+        data.AESKeys.push(null);
+      }
     }
 
     for (let dataSourceName of ['dataSources', 'subScaleSources']) {
