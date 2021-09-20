@@ -213,8 +213,8 @@ export const AppletMixin = {
                       responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
                     } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType === 'audioImageRecord')) {
                       if (value.filename) {
-                        this.getMediaResponseObject(value.uri, response, item);
-                        responseData += `filename: ${value.filename}`;
+                        const name = this.getMediaResponseObject(value.uri, response, item);
+                        responseData += `filename: ${name}`;
                       } else if (Array.isArray(value)) {
                         drawingCSVs.push({
                           name: `${src}.csv`,
