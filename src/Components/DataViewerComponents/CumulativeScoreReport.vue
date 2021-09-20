@@ -14,11 +14,11 @@
         <p class="text-body-2 mb-4">
           <vue-markdown>{{ (item.compute.description || '').replace(MARKDOWN_REGEX, '$1$2') }}</vue-markdown>
         </p>
-        <div class="score-area">
+        <div class="score-area mb-4">
           <p
-            class="score-title text-nowrap"
+            class="score-title font-weight-bold text-nowrap"
             :style="{ left: `${(item.scoreValue / item.maxScoreValue) * 100}%` }">
-            Your/Your Child’s Score
+            Your/Your Child's Score
           </p>
           <div
             class="score-bar score-below"
@@ -39,7 +39,7 @@
             class='score-spliter'
             :style="{ left: `${(item.scoreValue / item.maxScoreValue) * 100}%` }"
           />
-          <p class="score-max-value">
+          <p class="score-max-value font-weight-bold">
             <strong>{{item.maxScoreValue}}</strong>
           </p>
         </div>
@@ -116,10 +116,10 @@
     display: flex;
     width: 100%;
     max-width: 400px;
-    padding: 60px 0 20px;
+    padding: 60px 0 30px;
   }
   .score-bar {
-    height: 40px;
+    height: 60px;
   }
   .score-positive {
     background-color: #a1cd63;
@@ -132,9 +132,9 @@
   }
   .score-spliter {
     position: absolute;
-    top: 40px;
+    top: 30px;
     width: 5px;
-    height: 80px;
+    height: 120px;
     background-color: #000;
   }
   .score-title {
