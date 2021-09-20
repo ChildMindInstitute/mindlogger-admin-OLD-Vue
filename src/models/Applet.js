@@ -167,13 +167,16 @@ export default class Applet {
       0,
     ));
 
+    const nextDay = new Date();
+    nextDay.setDate(nextDay.getDate() + 1);
+
     let { data } = await axios({
       method: 'get',
       url: `${store.state.backend}/response/${appletId}`,
       headers: { 'Girder-Token': store.state.auth.authToken.token },
       params: {
         users: JSON.stringify(users),
-        toDate: `${NOW.getFullYear()}-${NOW.getMonth()+1}-${NOW.getDate()}`,
+        toDate: `${nextDay.getFullYear()}-${nextDay.getMonth()+1}-${nextDay.getDate()}`,
         fromDate: `${TODAY.getFullYear()-1}-${TODAY.getMonth()+1}-${TODAY.getDate()}`
       },
     });
