@@ -411,7 +411,11 @@ export const AppletMixin = {
       const result = [];
 
       const getPointStr = (pos) => {
-        return `(${pos[0]}, ${pos[1]})`
+        if (pos.length == 2) {
+          return `(${pos[0]}, ${pos[1]})`
+        }
+
+        return `${pos[0]}`;
       }
 
       for (const response of responses) {
