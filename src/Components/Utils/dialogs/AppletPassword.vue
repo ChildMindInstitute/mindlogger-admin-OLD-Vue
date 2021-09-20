@@ -36,6 +36,13 @@
           {{ error || defaultErrorMsg }}
         </div>
 
+        <div
+          v-if="hasConfirmPassword"
+          class="my-2"
+        >
+          {{ $t('passwordWarning') }}
+        </div>
+
         <v-btn
           color="primary"
           :disabled="!!error"
