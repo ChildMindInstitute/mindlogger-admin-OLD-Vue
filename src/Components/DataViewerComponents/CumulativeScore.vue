@@ -142,7 +142,7 @@ export default {
         return {
           response: {
             ...activityResponse,
-            date: moment(activityResponse.date).format("MM/DD hh:mm A"),
+            date: moment.utc(activityResponse.date).format("MM/DD hh:mm A"),
             datetime: activityResponse.date
           },
           reportMessages,
