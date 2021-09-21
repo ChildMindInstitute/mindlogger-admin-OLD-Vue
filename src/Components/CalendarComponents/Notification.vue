@@ -56,7 +56,7 @@
               <vue-timepicker
                 v-if="$browserDetect.isSafari"
                 class="ds-reminder-time"
-                :disabled="!notification.allow"
+                :disabled="!notification.random"
                 v-model="notification.end"
                 @change="otherChangeHandler($event, index, 'end')"
                 close-on-complete
