@@ -69,6 +69,7 @@
 <style scoped>
 .cumulative-score-report {
   width: 600px;
+  font-family: Arial, Helvetica, sans-serif;
 }
 .text-uppercase {
   text-transform: uppercase;
@@ -142,6 +143,11 @@
   margin: 0;
   right: 0;
   bottom: 0;
+}
+</style>
+<style>
+img {
+  max-width: 100%;
 }
 </style>
 
