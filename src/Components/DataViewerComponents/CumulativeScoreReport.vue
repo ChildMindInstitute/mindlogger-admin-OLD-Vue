@@ -1,23 +1,24 @@
 <template>
   <div class="cumulative-score-report">
     <div v-for="{ activity, reportMessages } in activityResponses" :key="activity.id" class="mb-5">
-      <p class="text-decoration-underline font-weight-bold mb-4">{{ activity.id }} Report</p>
+      <p class="mb-4">
+        <b>
+          <u>{{ activity.id }} Report</u>
+        </b>
+      </p>
       <p class="text-body-2 mb-4">
         <vue-markdown>{{ activity.scoreOverview.replace(MARKDOWN_REGEX, "$1$2") }}</vue-markdown>
       </p>
       <div v-for="item in reportMessages" :key="item.category" class="my-4">
-        <p class="blue--text font-weight-bold mb-1">
-          {{ (item.category || "").replace(/_/g, " ") }}
+        <p class="blue--text mb-1">
+          <b>{{ (item.category || "").replace(/_/g, " ") }}</b>
         </p>
         <p class="text-body-2 mb-4">
           <vue-markdown>{{ item.compute.description.replace(MARKDOWN_REGEX, "$1$2") }}</vue-markdown>
         </p>
         <div class="score-area mb-4">
-          <p
-            class="score-title font-weight-bold text-nowrap"
-            :style="{ left: `${(item.scoreValue / item.maxScoreValue) * 100}%` }"
-          >
-            Your/Your Child's Score
+          <p class="score-title text-nowrap" :style="{ left: `${(item.scoreValue / item.maxScoreValue) * 100}%` }">
+            <b>Your/Your Child's Score</b>
           </p>
           <div
             class="score-bar score-below"
@@ -35,19 +36,23 @@
             }"
           />
           <div class="score-spliter" :style="{ left: `${(item.scoreValue / item.maxScoreValue) * 100}%` }" />
-          <p class="score-max-value font-weight-bold">
-            <strong>{{ item.maxScoreValue }}</strong>
+          <p class="score-max-value">
+            <b>{{ item.maxScoreValue }}</b>
           </p>
         </div>
-        <p class="text-uppercase font-weight-bold font-italic mb-1">
-          If score
-          <span class="ml-2">{{ item.jsExpression }}</span>
+        <p class="text-uppercase mb-1">
+          <b>
+            <i>
+              If score
+              <span class="ml-2">{{ item.jsExpression }}</span>
+            </i>
+          </b>
         </p>
 
         <div class="mb-4">
           Your/Your child’s score on the {{ item.category.replace(/_/g, " ") }} subscale was
-          <span class="red--text">{{ item.scoreValue }}</span
-          >.
+          <span class="red--text">{{ item.scoreValue }}</span>
+          .
           <vue-markdown>{{ item.message.replace(MARKDOWN_REGEX, "$1$2") }}</vue-markdown>
         </div>
       </div>
@@ -65,17 +70,8 @@
 .cumulative-score-report {
   width: 600px;
 }
-.text-decoration-underline {
-  text-decoration: underline;
-}
 .text-uppercase {
   text-transform: uppercase;
-}
-.font-weight-bold {
-  font-weight: bold;
-}
-.font-italic {
-  font-style: italic;
 }
 .text-body-2 {
   font-size: 0.9rem;
@@ -114,12 +110,11 @@
 .score-area {
   position: relative;
   display: flex;
-  width: 100%;
-  max-width: 400px;
-  padding: 60px 0 30px;
+  width: 400px;
+  padding: 50px 0 30px;
 }
 .score-bar {
-  height: 60px;
+  height: 40px;
 }
 .score-positive {
   background-color: #a1cd63;
@@ -134,7 +129,7 @@
   position: absolute;
   top: 30px;
   width: 5px;
-  height: 120px;
+  height: 80px;
   background-color: #000;
 }
 .score-title {
@@ -173,7 +168,6 @@ export default {
       comparison: true,
     });
     const activityResponses = [];
-    console.log("this.activities", JSON.stringify(this.activities));
     for (const activity of this.activities) {
       if (activity.responses.length === 0) {
         continue;
