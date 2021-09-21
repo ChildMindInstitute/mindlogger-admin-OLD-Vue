@@ -86,6 +86,9 @@
 .red--text {
   color: #ff0000;
 }
+.text-nowrap {
+  white-space: nowrap;
+}
 .mb-1 {
   margin-bottom: 0.25em;
 }
