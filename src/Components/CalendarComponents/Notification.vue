@@ -112,7 +112,18 @@
         </div>
 
         <div class="ds-reminder-flex">
+          <vue-timepicker
+            v-if="$browserDetect.isSafari"
+            class="ds-reminder-time"
+            v-model="reminder.time"
+            :drop-direction='"up"'
+            @change="timeChangeHandler($event, 'time')"
+            close-on-complete
+          >
+          </vue-timepicker>
+
           <v-text-field
+            v-else
             type="time"
             class="ds-reminder-time"
             v-model="reminder.time"
@@ -233,6 +244,10 @@ export default {
       const start = `${eventData.data.HH}:${eventData.data.mm}`;
       this.notificationTimes[index][type] = start;
       this.$emit("updatedNotification", this.notificationTimes);
+    },
+    timeChangeHandler(eventData, type) {
+      this.reminder[type] = `${eventData.data.HH}:${eventData.data.mm}`;
+      this.$emit("updatedReminder", this.reminder);
     },
   },
 };
