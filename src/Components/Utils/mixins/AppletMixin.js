@@ -216,12 +216,22 @@ export const AppletMixin = {
                         const name = this.getMediaResponseObject(value.uri, response, item);
                         responseData += `filename: ${name}`;
                       } else if (Array.isArray(value)) {
+                        const responseIndex = _.findIndex(previousResponse, o => (o.activity_id === response.activity['@id']) && (o.item === item.id));
+
+                        if (responseIndex > -1) {
+                          responseData = previousResponse[responseIndex].response;
+                          previousResponse.splice(responseIndex, 1);
+                        } else {
+                          responseData = `filename: ${src}-${item.id}.csv`
+                        }
+
+                        const nameRegex = responseData.match(/filename: ([^.]*)/i)
+                        responseData = `filename: ${nameRegex[1]}`
+
                         drawingCSVs.push({
-                          name: `${src}.csv`,
+                          name: `${nameRegex[1]}.csv`,
                           data: this.getLinesAsCSV(value)
                         });
-
-                        responseData += `filename: ${src}.csv`;
 
                         index = Object.keys(responseDataObj).length;
                       }
