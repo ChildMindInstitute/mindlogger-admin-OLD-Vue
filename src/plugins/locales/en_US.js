@@ -56,9 +56,9 @@ export default {
   institutionalID: 'Institutional ID',
   sendLinkPswdHosted: 'Send a link to reset your password hosted at ',
   loadingApplets: 'Loading Your Applets',
-  editingApplets: 'Please wait while your applet is being loaded into the applet builder',
+  editingApplets: 'Please wait for your applet to load',
   appletIs:
-    'An applet is a collection of reusable surveys along with study-specific settings, like your users and schedule',
+    'An applet is a collection of reusable activities along with study-specific settings, like your users and schedule',
   userType: 'User type',
   invitationLink: 'Invitation Link',
   dateTimeInvited: 'Date & Time Invited',
@@ -278,6 +278,7 @@ export default {
   areYouSureRemoveEvent: 'Are you sure you want to remove this event?',
   areYouSure: 'Are you sure?',
   deleteAppletConfirmation: 'Are you sure that you want to delete this applet?',
+  deleteAppletFromFolderConfirmation: 'Are you sure that you want to delete this applet from folder?',
   deleteApplet: 'Delete Applet',
   dataRetentionSettings: 'Data Retention Settings',
   userDataStoredFor: 'User data will be stored for',
@@ -372,7 +373,10 @@ export default {
   latestScore: 'Latest Score',
   appletStatusUpdate: 'Updating Applet Status',
   appletEditProgress: 'Your applet is being edited.',
+  responseSubmit: 'Response Submit',
+  responseSubmitConfirmation: 'Would you like to submit response?',
   secretId: 'Secret Id',
   summary: 'Summary',
-  useSecretIdSelector: 'Secret Id Selector'
+  useSecretIdSelector: 'Secret Id Selector',
+  passwordWarning: 'Please ensure this password is stored securely outside of MindLogger. This password can never be changed or retrieved if forgotten due to security reasons. You will lose all data previously collected if this password is lost.'
 };

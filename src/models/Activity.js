@@ -6,6 +6,7 @@ import ReproLib from '../schema/ReproLib';
 import SKOS from '../schema/SKOS';
 import { RESPONSE_COLORS } from './Applet';
 import slugify from '../core/slugify';
+import _ from 'lodash';
 
 export default class Activity {
   /**
@@ -16,6 +17,7 @@ export default class Activity {
   constructor(data) {
     this.data = data;
     this.id = data['@id'];
+    this._id = data['_id'];
     this.slug = slugify(this.id);
     this.label = i18n.arrayToObject(data[SKOS.prefLabel]);
     this.description = i18n.arrayToObject(data['schema:description']);
@@ -24,6 +26,11 @@ export default class Activity {
     this.version = i18n.arrayToObject(data['schema:version']);
     this.order = data[ReproLib.order][0]['@list'].map(item => item['@id']);
     this.schemaVersion = i18n.arrayToObject(data['schema:schemaVersion']);
+    this.isReviewerActivity = _.get(data, [
+      'reprolib:terms/isReviewerActivity', 0, '@value'
+    ], false);
+    this.addProperties = this.parseAddProperties(data[ReproLib.addProperties]);
+
     this.url = data['schema:url'];
     this.items = [];
     this.responses = [];
@@ -40,6 +47,7 @@ export default class Activity {
     this.selectedSubScales = [];
 
     this.dataColor = '#8076B2';
+    this.isCumulativeActivity = _.get(data, [ReproLib.compute], []).length > 0;
   }
 
 
@@ -84,6 +92,24 @@ export default class Activity {
     } catch(error) {
       console.error(error);
     }
+  }
+
+  getItemIndexFromIRI(IRI) {
+    for (let i = 0; i < this.items.length; i++) {
+      if (this.items[i].schemas.includes(IRI)) {
+        return i;
+      }
+    }
+
+    return -1;
+  }
+
+  parseAddProperties(addProperties) {
+    return addProperties.map(property => ({
+      isAbout: _.get(property, [ReproLib.isAbout, 0, '@id']),
+      isVis: _.get(property, [ReproLib.isVis, 0, '@value']),
+      variableName: _.get(property, [ReproLib.variableName, 0, '@value'])
+    }))
   }
 
   parseSubScales(subScales) {

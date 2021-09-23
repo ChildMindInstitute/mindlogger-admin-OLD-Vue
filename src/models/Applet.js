@@ -33,7 +33,7 @@ export default class Applet {
     this.encryption = data.applet.encryption;
     this.label = i18n.arrayToObject(data.applet[SKOS.prefLabel]);
     this.description = data.applet['schema:description'];
-    this.schemaVersion = data.applet['schema:schemaVersion'];
+    this.schemaVersion = i18n.arrayToObject(data.applet['schema:schemaVersion']);
     this.version = data.applet['schema:version'];
     this.landingPage = i18n.arrayToObject(data.applet[ReproLib.landingPage]);
     //this.shuffle = data.applet[ReproLib.shuffle]['@value'];
@@ -45,6 +45,8 @@ export default class Applet {
     this.tokens = {};
     this.hasTokenItem = false;
     this.availableDates = {};
+    this.reviewerActivity = null;
+    this.hasCumulativeActivity = false;
     this.secretIDs = {};
 
     this.selectedActivites = [];
@@ -80,12 +82,71 @@ export default class Applet {
       activity = new Activity(this.data.activities[activityId]);
       activity.items = activity.order.map(itemId => this.items[itemId]);
       activity.hasTokenItem = activity.items.some(item => item.isTokenItem);
+      activity.schema = activityId;
+
       this.activities.push(activity);
+
+      if (activity.isReviewerActivity) {
+        this.reviewerActivity = activity;
+      }
+
+      if (activity.isCumulativeActivity) {
+        this.hasCumulativeActivity = true;
+      }
 
       if (activity.hasTokenItem) {
         this.hasTokenItem = true;
       }
     }
+  }
+
+  prepareResponseForUpload(responses, activity, timeStarted, reviewingResponseId) {
+    const responseData = {
+      activity: {
+        id: activity._id.split('/')[1],
+        schema: activity.schema,
+        schemaVersion: activity.schemaVersion.en,
+      },
+      applet: {
+        id: this._id.split('/')[1],
+        schemaVersion: this.schemaVersion.en,
+      },
+      subject: store.state.auth.user._id,
+      responseStarted: timeStarted,
+      responseCompleted: Date.now(),
+      client: {
+        appId: "mindlogger-admin",
+      },
+      languageCode: '',
+      reviewing: {
+        responseId: reviewingResponseId
+      }
+    };
+
+    const formattedResponses = activity.items.reduce(
+      (accumulator, item, index) => ({ ...accumulator, [item.schemas[0]]: index }),
+      {},
+    );
+
+    const accountId = store.state.currentAccount.accountId;
+
+    const AESKey = encryptionUtils.getAESKey(
+      this.encryption.appletPrivateKey,
+      accountId,
+      this.encryption.appletPrime,
+      this.encryption.base
+    )
+
+    const dataSource = encryptionUtils.encryptData({
+      text: JSON.stringify(responses),
+      key: AESKey
+    });
+
+    responseData['responses'] = formattedResponses;
+    responseData['dataSource'] = dataSource;
+    responseData['userPublicKey'] = accountId;
+
+    return responseData;
   }
 
   /**
@@ -106,13 +167,16 @@ export default class Applet {
       0,
     ));
 
+    const nextDay = new Date();
+    nextDay.setDate(nextDay.getDate() + 1);
+
     let { data } = await axios({
       method: 'get',
       url: `${store.state.backend}/response/${appletId}`,
       headers: { 'Girder-Token': store.state.auth.authToken.token },
       params: {
         users: JSON.stringify(users),
-        toDate: `${NOW.getFullYear()}-${NOW.getMonth()+1}-${NOW.getDate()}`,
+        toDate: `${nextDay.getFullYear()}-${nextDay.getMonth()+1}-${nextDay.getDate()}`,
         fromDate: `${TODAY.getFullYear()-1}-${TODAY.getMonth()+1}-${TODAY.getDate()}`
       },
     });
@@ -338,6 +402,7 @@ export default class Applet {
         const responses = this.subScales[activityId][subScaleName];
 
         for (const response of responses) {
+          response.date = response.date.slice(0, -6);
           response.value.secretId = secretIDs[response.value.responseId];
         }
       }
@@ -410,8 +475,6 @@ export default class Applet {
     let dateToVersions = {};
     let hashItems = [];
 
-    console.log('items', this.items)
-
     Object.keys(this.items).forEach(itemId => {
       const item = this.items[itemId];
       let isAvailable = false;
@@ -422,8 +485,6 @@ export default class Applet {
         isAvailable = true;
         hashItems.push(...item.schemas);
       }
-
-      console.log('isAvailable', isAvailable)
 
       if (item.isTokenItem && item.inputType !== 'stackedRadio' && isAvailable) {
         // console.log('item.responses=======', item.responses)
@@ -458,8 +519,6 @@ export default class Applet {
         });
       }
     });
-
-    console.log('merged----------', merged)
 
     return {
       data: merged.map(response => {
@@ -509,12 +568,16 @@ export default class Applet {
     /** decrypt data */
     data.AESKeys = [];
     for (let userPublicKey of data.keys) {
-      data.AESKeys.push(encryptionUtils.getAESKey(
-        encryption.appletPrivateKey,
-        userPublicKey,
-        encryption.appletPrime,
-        encryption.base
-      ));
+      if (userPublicKey) {
+        data.AESKeys.push(encryptionUtils.getAESKey(
+          encryption.appletPrivateKey,
+          userPublicKey,
+          encryption.appletPrime,
+          encryption.base
+        ));
+      } else {
+        data.AESKeys.push(null);
+      }
     }
 
     for (let dataSourceName of ['dataSources', 'subScaleSources']) {

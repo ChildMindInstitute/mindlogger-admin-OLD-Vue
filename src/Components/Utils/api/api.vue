@@ -3,7 +3,7 @@
  * Admin-panel API routes
  */
 import axios from "axios";
-import store from '../../../State/state';
+import store from "../../../State/state";
 
 const signIn = ({ apiHost, user, password }) =>
   axios({
@@ -108,7 +108,14 @@ const setAccountName = ({ apiHost, token, accountName }) =>
     },
   });
 
-const getApplet = ({ apiHost, token, retrieveSchedule, allEvent, id, nextActivity }) => {
+const getApplet = ({
+  apiHost,
+  token,
+  retrieveSchedule,
+  allEvent,
+  id,
+  nextActivity,
+}) => {
   let url = `${apiHost}/applet/${id}?retrieveSchedule=${retrieveSchedule}&retrieveAllEvents=${allEvent}&retrieveItems=true`;
   if (nextActivity) {
     url = url + `&nextActivity=${nextActivity}`;
@@ -120,30 +127,45 @@ const getApplet = ({ apiHost, token, retrieveSchedule, allEvent, id, nextActivit
     headers: {
       "Girder-Token": token,
     },
-  }).then(resp => {
+  }).then((resp) => {
     const response = resp.data;
 
-    if (response.nextActivity)
-    {
-      return new Promise(resolve => setTimeout(() => resolve(getApplet({ apiHost, token, retrieveSchedule, allEvent, id, nextActivity: response.nextActivity }).then(next => {
-        for (const activityIRI in next.data.activities) {
-          response.activities[activityIRI] = next.data.activities[activityIRI];
-        }
-        for (const itemIRI in next.data.items) {
-          response.items[itemIRI] = next.data.items[itemIRI];
-        }
+    if (response.nextActivity) {
+      return new Promise((resolve) =>
+        setTimeout(
+          () =>
+            resolve(
+              getApplet({
+                apiHost,
+                token,
+                retrieveSchedule,
+                allEvent,
+                id,
+                nextActivity: response.nextActivity,
+              }).then((next) => {
+                for (const activityIRI in next.data.activities) {
+                  response.activities[activityIRI] =
+                    next.data.activities[activityIRI];
+                }
+                for (const itemIRI in next.data.items) {
+                  response.items[itemIRI] = next.data.items[itemIRI];
+                }
 
-        return {
-          data: {
-            ...response
-          }
-        };
-      })), 50));
+                return {
+                  data: {
+                    ...response,
+                  },
+                };
+              })
+            ),
+          50
+        )
+      );
     }
 
     return resp;
-  })
-}
+  });
+};
 
 const getActivityByUrl = ({ apiHost, token, url }) =>
   axios({
@@ -157,14 +179,22 @@ const getActivityByUrl = ({ apiHost, token, url }) =>
     },
   });
 
-const getUserResponses = ({ apiHost, token, appletId, users, fromDate, toDate }) => axios({
-  method: 'get',
-  url: `${apiHost}/response/${appletId}`,
-  headers: {
-    'Girder-Token': token,
-  },
-  params: { users: JSON.stringify(users), fromDate, toDate },
-});
+const getUserResponses = ({
+  apiHost,
+  token,
+  appletId,
+  users,
+  fromDate,
+  toDate,
+}) =>
+  axios({
+    method: "get",
+    url: `${apiHost}/response/${appletId}`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: { users: JSON.stringify(users), fromDate, toDate },
+  });
 
 const addNewApplet = ({ apiHost, token, protocolUrl, email, data }) =>
   axios({
@@ -190,7 +220,7 @@ const refreshApplet = ({ apiHost, token, appletId }) =>
     },
     params: {
       lang: store.state.currentLanguage,
-    }
+    },
   });
 
 const revokeAppletUser = ({
@@ -284,7 +314,7 @@ const getOneTimeToken = ({ apiHost, token }) =>
     url: `${apiHost}/user/token`,
     headers: {
       "Girder-Token": token,
-    }
+    },
   });
 
 const deleteApplet = ({ apiHost, token, appletId }) =>
@@ -306,7 +336,7 @@ const createApplet = ({ apiHost, token, email, data, themeId }) =>
     params: {
       email,
       lang: store.state.currentLanguage,
-      ...(themeId && {themeId})
+      ...(themeId && { themeId }),
     },
     data,
   });
@@ -320,9 +350,9 @@ const updateApplet = ({ apiHost, token, data, appletId, themeId }) =>
     },
     data,
     params: {
-      ...(themeId && {themeId})
+      ...(themeId && { themeId }),
     },
-  })
+  });
 
 const prepareApplet = ({ apiHost, token, data, appletId, thread }) =>
   axios({
@@ -332,7 +362,7 @@ const prepareApplet = ({ apiHost, token, data, appletId, thread }) =>
       "Girder-Token": token,
     },
     data,
-  })
+  });
 
 const updateRegistration = ({ apiHost, token, groupId, open }) =>
   axios({
@@ -369,7 +399,7 @@ const updateItemTemplates = ({ apiHost, token, data }) =>
     headers: {
       "Girder-Token": token,
     },
-    data
+    data,
   });
 
 const getItemTemplates = ({ apiHost, token }) =>
@@ -381,17 +411,72 @@ const getItemTemplates = ({ apiHost, token }) =>
     },
   });
 
-const getUsersData = ({ apiHost, token, appletId, options }) =>
-  axios({
+const getUsersData = ({ apiHost, token, appletId, options, pageIndex }) => {
+  const page = pageIndex || 0;
+  return axios({
     method: "GET",
     url: `${apiHost}/applet/${appletId}/data`,
     headers: {
       "Girder-Token": token,
     },
-    params: options,
-  });
+    params: {
+      ...options,
+      pagination: {
+        allow: true,
+        pageIndex: page,
+      },
+    },
+  }).then((resp) => {
+    let { pageIndex, recordsPerPage, returnCount } = resp.data.pagination || {};
 
-const duplicateApplet = ({ apiHost, token, appletId, options }) =>
+    if (!resp.data.pagination || returnCount < recordsPerPage) {
+      return resp;
+    } else {
+      return getUsersData({
+        apiHost,
+        token,
+        appletId,
+        options,
+        pageIndex: pageIndex + 1,
+      }).then((next) => {
+        const keyCount = resp.data.keys.length;
+
+        resp.data.responses = resp.data.responses.concat(next.data.responses);
+        resp.data.keys = resp.data.keys.concat(next.data.keys);
+
+        for (let key of ["dataSources", "subScaleSources"]) {
+          for (let responseId in next.data[key]) {
+            next.data[key][responseId].key += keyCount;
+          }
+        }
+
+        for (let key of [
+          "items",
+          "activities",
+          "itemReferences",
+          "dataSources",
+          "subScaleSources",
+        ]) {
+          if (key == "itemReferences") {
+            for (const version in next.data[key]) {
+              if (resp.data[key][version]) {
+                Object.assign(resp.data[key][version], next.data[key][version]);
+              } else {
+                resp.data[key][version] = next.data[key][version];
+              }
+            }
+          } else {
+            Object.assign(resp.data[key], next.data[key]);
+          }
+        }
+
+        return resp;
+      });
+    }
+  });
+};
+
+const duplicateApplet = ({ apiHost, token, appletId, options, form }) =>
   axios({
     method: "POST",
     url: `${apiHost}/applet/${appletId}/duplicate`,
@@ -402,56 +487,60 @@ const duplicateApplet = ({ apiHost, token, appletId, options }) =>
       ...options,
       lang: store.state.currentLanguage,
     },
+    data: form
   });
 
+const replaceResponseData = ({ apiHost, token, appletId, user, data }) =>
+  axios({
+    method: "put",
+    url: `${apiHost}/response/${appletId}`,
+    headers: {
+      "Girder-Token": token,
+    },
+    data,
+    params: {
+      user,
+    },
+  });
 
-const replaceResponseData = ({ apiHost, token, appletId, user, data }) => axios({
-  method: 'put',
-  url: `${apiHost}/response/${appletId}`,
-  headers: {
-    'Girder-Token': token,
-  },
-  data,
-  params: {
-    user
-  }
-});
+const setAppletEncryption = ({ apiHost, token, appletId, data }) =>
+  axios({
+    method: "put",
+    url: `${apiHost}/applet/${appletId}/encryption`,
+    headers: {
+      "Girder-Token": token,
+    },
+    data,
+  });
 
-const setAppletEncryption = ({ apiHost, token, appletId, data }) => axios({
-  method: 'put',
-  url: `${apiHost}/applet/${appletId}/encryption`,
-  headers: {
-    'Girder-Token': token,
-  },
-  data
-});
+const getAppletVersions = ({ apiHost, token, appletId }) =>
+  axios({
+    method: "get",
+    url: `${apiHost}/applet/${appletId}/versions`,
+    headers: {
+      "Girder-Token": token,
+    },
+  });
 
-const getAppletVersions = ({ apiHost, token, appletId }) => axios({
-  method: 'get',
-  url: `${apiHost}/applet/${appletId}/versions`,
-  headers: {
-    'Girder-Token': token
-  }
-});
+const getProtocolData = ({ apiHost, token, appletId, versions }) =>
+  axios({
+    method: "get",
+    url: `${apiHost}/applet/${appletId}/protocolData`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: { versions: JSON.stringify(versions) },
+  });
 
-const getProtocolData = ({ apiHost, token, appletId, versions }) => axios({
-  method: 'get',
-  url: `${apiHost}/applet/${appletId}/protocolData`,
-  headers: {
-    'Girder-Token': token
-  },
-  params: { versions: JSON.stringify(versions) },
-})
-
-
-const validateAppletName = ({ apiHost, token, name }) => axios({
-  method: 'get',
-  url: `${apiHost}/applet/validateName`,
-  headers: {
-    'Girder-Token': token
-  },
-  params: { name }
-});
+const validateAppletName = ({ apiHost, token, name }) =>
+  axios({
+    method: "get",
+    url: `${apiHost}/applet/validateName`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: { name },
+  });
 
 const updateRetainingSettings = ({ apiHost, token, appletId, options }) =>
   axios({
@@ -463,276 +552,302 @@ const updateRetainingSettings = ({ apiHost, token, appletId, options }) =>
     params: options,
   });
 
-const getAccountUserList = ({ apiHost, token, appletId, role, MRN, pagination, sort }) => axios({
-  method: 'get',
-  url: `${apiHost}/account/users`,
-  headers: {
-    'Girder-Token': token
-  },
-  params: {
-    appletId, role, MRN, pagination, sort
-  },
-});
-
-const getInvitations = ({ apiHost, token, appletId }) => axios({
-  method: 'get',
-  url: `${apiHost}/applet/${appletId}/invitations`,
-  headers: {
-    'Girder-Token': token,
-  },
-});
-
-
-const updatePin = ({ apiHost, token, profileId, newState }) => axios({
-  method: 'put',
-  url: `${apiHost}/account/manage/pin`,
-  headers: {
-    'Girder-Token': token
-  },
-  params: {
-    profileId, newState
-  }
-})
-
-const getAppletsInFolder = (apiHost, token, folderId) => axios({
-  method: 'get',
-  url: `${apiHost}/folder/${folderId}/applets`,
-  headers: {
-    'Girder-Token': token
-  }
-})
-
-const deleteFolder = (apiHost, token, folderId) => axios({
-  method: 'delete',
-  url: `${apiHost}/folder/${folderId}`,
-  headers: {
-    'Girder-Token': token
-  }
-})
-
-const addAppletToFolder = (apiHost, token, folderId, appletId) => axios({
-  method: 'put',
-  url: `${apiHost}/folder/${folderId}/add`,
-  headers: {
-    'Girder-Token': token
-  },
-  params: {
-    id: folderId,
-    appletId
-  }
-})
-
-const removeApplet = (apiHost, token, folderId, appletId) => axios({
-  method: 'delete',
-  url: `${apiHost}/folder/${folderId}/remove`,
-  headers: {
-    'Girder-Token': token
-  },
-  params: {
-    id: folderId,
-    appletId
-  }
-})
-
-
-const saveFolder = (apiHost, token, folder) =>  {
-  return axios({
-    method: 'post',
-    url: `${apiHost}/folder`,
+const getAccountUserList = ({
+  apiHost,
+  token,
+  appletId,
+  role,
+  MRN,
+  pagination,
+  sort,
+}) =>
+  axios({
+    method: "get",
+    url: `${apiHost}/account/users`,
     headers: {
-      'Girder-Token': token
+      "Girder-Token": token,
     },
     params: {
-    name: folder.name,
-    parentType: 'user',
-    parentId: folder.parentId
-    }
-  })
-}
-const updateFolder = (apiHost, token, folder,  folderId) =>  {
-  return axios({
-    method: 'put',
+      appletId,
+      role,
+      MRN,
+      pagination,
+      sort,
+    },
+  });
+
+const getInvitations = ({ apiHost, token, appletId }) =>
+  axios({
+    method: "get",
+    url: `${apiHost}/applet/${appletId}/invitations`,
+    headers: {
+      "Girder-Token": token,
+    },
+  });
+
+const updatePin = ({ apiHost, token, profileId, newState }) =>
+  axios({
+    method: "put",
+    url: `${apiHost}/account/manage/pin`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: {
+      profileId,
+      newState,
+    },
+  });
+
+const getAppletsInFolder = (apiHost, token, folderId) =>
+  axios({
+    method: "get",
+    url: `${apiHost}/folder/${folderId}/applets`,
+    headers: {
+      "Girder-Token": token,
+    },
+  });
+
+const deleteFolder = (apiHost, token, folderId) =>
+  axios({
+    method: "delete",
     url: `${apiHost}/folder/${folderId}`,
     headers: {
-      'Girder-Token': token
+      "Girder-Token": token,
+    },
+  });
+
+const addAppletToFolder = (apiHost, token, folderId, appletId) =>
+  axios({
+    method: "put",
+    url: `${apiHost}/folder/${folderId}/add`,
+    headers: {
+      "Girder-Token": token,
     },
     params: {
-    name: folder.name,
-    parentType: 'user',
-    parentId: folder.parentId
-    }
-  })
-}
-const togglePin = (apiHost, token, applet, isPinned) => {
-  const url = isPinned ? `${apiHost}/folder/${applet.parentId}/pin` : `${apiHost}/folder/${applet.parentId}/unpin`
+      id: folderId,
+      appletId,
+    },
+  });
+
+const removeApplet = (apiHost, token, folderId, appletId) =>
+  axios({
+    method: "delete",
+    url: `${apiHost}/folder/${folderId}/remove`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: {
+      id: folderId,
+      appletId,
+    },
+  });
+
+const saveFolder = (apiHost, token, folder) => {
   return axios({
-        method: 'put',
-        url,
-        headers: {
-          'Girder-Token': token
-        },
-        params: {
-         id: applet.parentId,
-         appletId: applet.id
-        }
-    })
-}
+    method: "post",
+    url: `${apiHost}/folder`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: {
+      name: folder.name,
+      parentType: "user",
+      parentId: folder.parentId,
+    },
+  });
+};
+const updateFolder = (apiHost, token, folder, folderId) => {
+  return axios({
+    method: "put",
+    url: `${apiHost}/folder/${folderId}`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: {
+      name: folder.name,
+      parentType: "user",
+      parentId: folder.parentId,
+    },
+  });
+};
+const togglePin = (apiHost, token, applet, isPinned) => {
+  const url = isPinned
+    ? `${apiHost}/folder/${applet.parentId}/pin`
+    : `${apiHost}/folder/${applet.parentId}/unpin`;
+  return axios({
+    method: "put",
+    url,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: {
+      id: applet.parentId,
+      appletId: applet.id,
+    },
+  });
+};
 
 const updateAlertStatus = (apiHost, token, alertId) => {
   return axios({
-    method: 'put',
+    method: "put",
     url: `${apiHost}/account/updateAlertStatus/${alertId}`,
     headers: {
-      'Girder-Token': token
-    }
-  })
-}
+      "Girder-Token": token,
+    },
+  });
+};
 
 const getBasketContent = ({ apiHost, token }) =>
   axios({
-    method: 'get',
+    method: "get",
     url: `${apiHost}/library/basket/content`,
     headers: {
-      'Girder-Token': token,
+      "Girder-Token": token,
     },
   });
 
 const checkAppletNameInLibrary = (apiHost, token, appletId, appletName) => {
   return axios({
-    method: 'get',
+    method: "get",
     url: `${apiHost}/library/${appletId}/checkName`,
     headers: {
-      'Girder-Token': token
+      "Girder-Token": token,
     },
     params: {
-      name: appletName
-    }
-  })
-}
+      name: appletName,
+    },
+  });
+};
 
 const changeAppletName = (apiHost, token, appletId, appletName) => {
   return axios({
-    method: 'put',
+    method: "put",
     url: `${apiHost}/applet/${appletId}/name`,
     headers: {
-      'Girder-Token': token
+      "Girder-Token": token,
     },
     params: {
       id: appletId,
-      name: appletName
-    }
-  })
-}
+      name: appletName,
+    },
+  });
+};
 
 const getLibraryCategories = (apiHost, token) => {
   return axios({
-    method: 'get',
+    method: "get",
     url: `${apiHost}/library/categories`,
     headers: {
-      'Girder-Token': token
-    }
-  })
-}
+      "Girder-Token": token,
+    },
+  });
+};
 
 const publishAppletToLibrary = (apiHost, token, appletId, publish = true) => {
   return axios({
-    method: 'put',
+    method: "put",
     url: `${apiHost}/applet/${appletId}/status`,
     headers: {
-      'Girder-Token': token
+      "Girder-Token": token,
     },
     params: {
       id: appletId,
-      publish
-    }
-  })
-}
+      publish,
+    },
+  });
+};
 
 const updateAppletSearchTerms = (apiHost, token, appletId, params) => {
   return axios({
-    method: 'put',
+    method: "put",
     url: `${apiHost}/applet/${appletId}/searchTerms`,
     headers: {
-      'Girder-Token': token
+      "Girder-Token": token,
     },
     params: {
       ...params,
       id: appletId,
-    }
-  })
-}
+    },
+  });
+};
 
 const getAppletSearchTerms = (apiHost, token, appletId) => {
   return axios({
-    method: 'get',
+    method: "get",
     url: `${apiHost}/applet/${appletId}/searchTerms`,
     headers: {
-      'Girder-Token': token
-    }
-  })
-}
+      "Girder-Token": token,
+    },
+  });
+};
 
 const getAppletLibraryUrl = (apiHost, token, appletId) => {
   return axios({
-    method: 'get',
+    method: "get",
     url: `${apiHost}/applet/${appletId}/libraryUrl`,
     headers: {
-      'Girder-Token': token
-    }
-  })
-}
+      "Girder-Token": token,
+    },
+  });
+};
 
 const getNotes = (apiHost, token, appletId, responseId) =>
   axios({
-    method: 'get',
+    method: "get",
     url: `${apiHost}/response/${appletId}/notes`,
     headers: {
-      'Girder-Token': token
-    },
-    params: {
-      responseId
-    }
-  })
-
-const addNote = (apiHost, token, appletId, responseId, note) =>
-  axios({
-    method: 'post',
-    url: `${apiHost}/response/${appletId}/note`,
-    headers: {
-      'Girder-Token': token
+      "Girder-Token": token,
     },
     params: {
       responseId,
-      note
-    }
-  })
+    },
+  });
+
+const addNote = (apiHost, token, appletId, responseId, note) =>
+  axios({
+    method: "post",
+    url: `${apiHost}/response/${appletId}/note`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: {
+      responseId,
+      note,
+    },
+  });
 
 const updateNote = (apiHost, token, appletId, noteId, note) =>
   axios({
-    method: 'put',
+    method: "put",
     url: `${apiHost}/response/${appletId}/note`,
     headers: {
-      'Girder-Token': token
+      "Girder-Token": token,
     },
     params: {
       noteId,
-      note
-    }
-  })
+      note,
+    },
+  });
 
 const deleteNote = (apiHost, token, appletId, noteId) =>
   axios({
-    method: 'delete',
+    method: "delete",
     url: `${apiHost}/response/${appletId}/note`,
     headers: {
-      'Girder-Token': token
+      "Girder-Token": token,
     },
     params: {
       noteId,
-    }
-  })
+    },
+  });
 
-const appletPublicLink = ({ apiHost, token, appletId, method, requireLogin }) => {
+const appletPublicLink = ({
+  apiHost,
+  token,
+  appletId,
+  method,
+  requireLogin,
+}) => {
   let url = `${apiHost}/applet/${appletId}/publicLink`;
 
   if (requireLogin !== undefined) {
@@ -744,10 +859,9 @@ const appletPublicLink = ({ apiHost, token, appletId, method, requireLogin }) =>
     url,
     headers: {
       "Girder-Token": token,
-    }
+    },
   });
-}
-
+};
 
 const appletInviteLink = ({ apiHost, token, appletId, method }) =>
   axios({
@@ -755,18 +869,44 @@ const appletInviteLink = ({ apiHost, token, appletId, method }) =>
     url: `${apiHost}/applet/${appletId}/inviteLink`,
     headers: {
       "Girder-Token": token,
-    }
+    },
   });
+const downloadReviews = (apiHost, token, appletId, responseId) =>
+  axios({
+    method: "get",
+    url: `${apiHost}/response/${appletId}/reviews`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: {
+      responseId,
+    },
+  });
+
+const postReviewerResponse = (apiHost, token, response) => {
+  const form = new FormData();
+
+  form.set("metadata", JSON.stringify(response));
+
+  return axios({
+    method: "post",
+    url: `${apiHost}/response/${response.applet.id}/${response.activity.id}`,
+    headers: {
+      "Girder-Token": token,
+    },
+    data: form,
+  });
+};
 
 const getThemes = (apiHost, token) => {
   return axios({
-    method: 'get',
+    method: "get",
     url: `${apiHost}/theme`,
     headers: {
-      'Girder-Token': token
+      "Girder-Token": token,
     },
-  })
-}
+  });
+};
 
 export default {
   signIn,
@@ -832,7 +972,10 @@ export default {
   addNote,
   updateNote,
   deleteNote,
+  appletInviteLink,
+  downloadReviews,
+  postReviewerResponse,
   appletPublicLink,
-  getThemes
-}
+  getThemes,
+};
 </script>

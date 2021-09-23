@@ -58,9 +58,9 @@ export default {
   sendLinkPswdHosted:
     'Envoyez un lien pour réinitialiser votre mot de passe hébergé à ',
   loadingApplets: 'Chargement de vos applets',
-  editingApplets: "Veuillez patienter pendant le chargement de votre applet dans le générateur d'applet",
+  editingApplets: "Veuillez attendre le chargement de votre applet",
   appletIs:
-    "Une applet est une collection d'enquêtes réutilisables avec des paramètres spécifiques à l'étude, comme vos utilisateurs et votre calendrier",
+    "Une applet est une collection activités réutilisables avec des paramètres spécifiques à l'étude, comme vos utilisateurs et votre calendrier",
   userType: "Type d'utilisateur",
   invitationLink: "Lien vers l'invitation",
   dateTimeInvited: "Date et heure de l'invitation",
@@ -279,6 +279,7 @@ export default {
   dataRetentionSettings: 'Paramètres de conservation des données',
   userDataStoredFor: 'Les données utilisateur seront stockées pendant',
   deleteAppletConfirmation: 'Êtes-vous sûr de vouloir supprimer cette applet?',
+  deleteAppletFromFolderConfirmation: 'Êtes-vous sûr de vouloir supprimer cette applet du dossier?',
   deleteApplet: "Supprimer l'applet",
   remove: 'Retirer',
   cancel: 'Annuler',
@@ -362,5 +363,6 @@ export default {
   latestScore: 'Dernière Score',
   appletStatusUpdate: `Mise à jour de l'état de l'applet`,
   appletEditProgress: 'Votre applet est en cours de modification.',
-  secretId: 'Identifiant secret'
+  secretId: 'Identifiant secret',
+  passwordWarning: `Veuillez vous assurer que ce mot de passe soit stocké en toute sécurité en dehors de MindLogger. Pour des raisons de sécurité, ce mot de passe ne pourra jamais être modifié ou récupéré en cas d'oubli. Si vous perdez ce mot de passe, vous perdrez toutes les données collectées précédemment.`
 };

@@ -44,6 +44,7 @@ export default class Item {
 
     this.data = data;
     this.id = data['@id'];
+    this._id = data['_id'];
     this.slug = slugify(this.id);
     this.type = data['@type'];
     this.label = i18n.arrayToObject(data[SKOS.prefLabel]);
@@ -55,17 +56,15 @@ export default class Item {
     this.schemaVersion = data['schema:schemaVersion'] && i18n.arrayToObject(data['schema:schemaVersion']);
     this.responseOptions = this.parseResponseOptions(data[ReproLib.responseOptions]);
     this.responses = [];
-    this.maxValue = data[ReproLib.responseOptions] && 'schema:maxValue' in data[ReproLib.responseOptions][0]
-      ? data[ReproLib.responseOptions][0]['schema:maxValue'][0]['@value']
-      : 0;
-    this.minValue = data[ReproLib.responseOptions] && 'schema:minValue' in data[ReproLib.responseOptions][0]
-      ? data[ReproLib.responseOptions][0]['schema:minValue'][0]['@value']
-      : 0;
+    this.maxValue = _.get(data, [ReproLib.responseOptions, 0, 'schema:maxValue', 0, '@value'], 0);
+    this.maxValueImg = _.get(data, [ReproLib.responseOptions, 0, 'schema:maxValueImg', 0, '@value'], '');
+
+    this.minValue = _.get(data, [ReproLib.responseOptions, 0, 'schema:minValue', 0, '@value'], 0);
+    this.minValueImg = _.get(data, [ReproLib.responseOptions, 0, 'schema:minValueImg', 0, '@value'], 0);
+
     this.scoring = data[ReproLib.responseOptions] && ReproLib.scoring in data[ReproLib.responseOptions][0]
       && data[ReproLib.responseOptions][0][ReproLib.scoring][0]['@value'];
-    this.chart = {
-      data: [],
-    };
+
     this.dateToVersions = {};
     this.multiChoiceStatusByVersion = {};
     this.schemas = [];
@@ -75,6 +74,9 @@ export default class Item {
     this.isMultipleChoice = data[ReproLib.responseOptions] && ReproLib.multipleChoice in data[ReproLib.responseOptions][0]
       ? data[ReproLib.responseOptions][0][ReproLib.multipleChoice][0]['@value'] : false;
 
+    this.isContinuousSlider = _.get(data, [ReproLib.responseOptions, 0, ReproLib.continuousSlider, 0, '@value'], false);
+    this.showTickMarks = _.get(data, [ReproLib.responseOptions, 0, ReproLib.showTickMarks, 0, '@value']);
+
     this.dataColor = '#8076B2';
     this.partOfSubScale = false;
     this.allowEdit = data[ReproLib.allowEdit] && data[ReproLib.allowEdit][0]
@@ -82,6 +84,9 @@ export default class Item {
     this.enableNegativeTokens = _.get(data, [ReproLib.responseOptions, 0, ReproLib.enableNegativeTokens, 0, '@value'], false);
     this.isResponseIdentifier = _.get(data, [ReproLib.responseOptions, 0, 'reprolib:terms/isResponseIdentifier', 0, '@value'], false);
     this.correctAnswer = _.get(data, ['schema:correctAnswer', 0, '@value'], null);
+
+    const allowList = _.get(data, [ReproLib.allow, 0, "@list"], [])
+    this.isSkippable = allowList.some(allow => allow && ( allow['@id'] == ReproLib.refusedToAnswer || allow['@id'] == ReproLib.doNotKnow ))
   }
 
   /**
@@ -109,6 +114,8 @@ export default class Item {
       color: choice['schema:value'][0]['@value'] > 0
         ? this.coldColors.shift()
         : this.warmColors.shift(),
+      image: choice['schema:image'],
+      description: _.get(choice, ['schema:description', 0, "@value"], '')
     })).map(choice => ({
       ...choice,
       id: `${Object.values(choice.name)[0]} (${choice.value || 0})`

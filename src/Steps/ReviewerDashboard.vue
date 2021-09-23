@@ -181,6 +181,14 @@
                 :disabled="!applySecretIdSelector"
               />
             </div>
+
+            <v-btn
+              v-if="applet.hasCumulativeActivity"
+              class="ml-2"
+              @click="onDownloadReport"
+            >
+              Download Report
+            </v-btn>
           </div>
           <div v-else class="review-header mb-2">
             <v-menu>
@@ -248,291 +256,303 @@
                         </h4>
                       </v-expansion-panel-content>
                     </v-expansion-panel>
-                    <v-expansion-panel
+                    <template
                       v-else-if="tab != 'review'"
                       v-for="(activity, index) in applet.activities"
-                      :key="index"
                     >
-                      <v-expansion-panel-header>
-                        <div
-                          v-if="!allExpanded && applet.activities.length > 1"
-                          class="ds-expand-action"
-                          @click.stop="onAllExpand"
-                        >
-                          <v-icon
-                            v-show="index === 0"
-                            class="ds-expand-all"
-                            medium
-                          >
-                            mdi-chevron-up
-                          </v-icon>
-                          <v-icon
-                            v-show="index === 0"
-                            class="ds-expand-all"
-                            medium
-                          >
-                            mdi-chevron-down
-                          </v-icon>
-                        </div>
-
-                        <div
-                          v-if="allExpanded && applet.activities.length > 1"
-                          class="ds-expand-action"
-                          @click.stop="onAllCollapsed"
-                        >
-                          <v-icon
-                            v-show="index === 0"
-                            class="ds-expand-all"
-                            medium
-                          >
-                            mdi-chevron-down
-                          </v-icon>
-                          <v-icon
-                            v-show="index === 0"
-                            class="ds-expand-all"
-                            medium
-                          >
-                            mdi-chevron-up
-                          </v-icon>
-                        </div>
-
-                        <ActivityHeader
-                          :plot-id="`Activity-Summary-${activity.slug}-${tab}`"
-                          :versions="applet.versions"
-                          :focus-extent="focusExtent"
-                          :selected-versions="selectedVersions"
-                          :has-version-bars="hasVersionBars"
-                          :timezone="applet.timezoneStr"
-                          :data="activity.responses"
-                          :label="activity.label.en || activity.description.en"
-                          :color="activity.dataColor"
-                          :latest-score="activity.getLatestActivityScore(selectedSecretIds)"
-                          :frequency="activity.getFrequency(selectedSecretIds)"
-                          :sub-scales="activity.subScales"
-                          :parent-width="panelWidth"
-                          :secret-ids="selectedSecretIds"
-                          :apply-secret-id-selector="applySecretIdSelector"
-                          :time-range="timeRange"
-                          :item-padding="itemPadding"
-                          @selectResponse="
-                            selectResponse({ activity, ...$event })
-                          "
-                          @showSubScale="
-                            showSubScale({ activity, ...$event })
-                          "
-                        />
-                      </v-expansion-panel-header>
-                      <v-expansion-panel-content
-                        v-if="
-                          activity.responses &&
-                          activity.responses.length &&
-                          (tab !== 'tokens' || activity.hasTokenItem)
-                        "
+                      <v-expansion-panel
+                        v-if="!activity.isReviewerActivity"
+                        :key="index"
                       >
-                        <template v-if="tab !== 'tokens'">
-                          <CumulativeScore
-                            :activity="activity"
-                            :secret-ids="selectedSecretIds"
-                            :apply-secret-id-selector="applySecretIdSelector"
-                          />
-                        </template>
-
-                        <div
-                          v-if="
-                            activity.finalSubScale &&
-                            activity.finalSubScale.current.outputText
-                          "
-                          class="additional-note mt-4"
-                        >
-                          <header>
-                            <h2>- Additional Information</h2>
-                          </header>
-                          <div class="subscale-output">
-                            <mavon-editor
-                              :value="activity.finalSubScale.current.outputText"
-                              :language="'en'"
-                              :toolbarsFlag="false"
+                        <v-expansion-panel-header>
+                          <div
+                            v-if="!allExpanded && applet.activities.length > 1"
+                            class="ds-expand-action"
+                            @click.stop="onAllExpand"
+                          >
+                            <v-icon
+                              v-show="index === 0"
+                              class="ds-expand-all"
+                              medium
                             >
-                            </mavon-editor>
+                              mdi-chevron-up
+                            </v-icon>
+                            <v-icon
+                              v-show="index === 0"
+                              class="ds-expand-all"
+                              medium
+                            >
+                              mdi-chevron-down
+                            </v-icon>
                           </div>
-                        </div>
 
-                        <h2 class="mt-4">
-                          {{ $t("responseOptions") }}
-                        </h2>
+                          <div
+                            v-if="allExpanded && applet.activities.length > 1"
+                            class="ds-expand-action"
+                            @click.stop="onAllCollapsed"
+                          >
+                            <v-icon
+                              v-show="index === 0"
+                              class="ds-expand-all"
+                              medium
+                            >
+                              mdi-chevron-down
+                            </v-icon>
+                            <v-icon
+                              v-show="index === 0"
+                              class="ds-expand-all"
+                              medium
+                            >
+                              mdi-chevron-up
+                            </v-icon>
+                          </div>
 
-                        <template
-                          v-if="tab != 'tokens' && activity.subScales.length"
-                        >
-                          <SubScaleLineChart
-                            v-if="activity.getFrequency(selectedSecretIds) > 1"
-                            :plot-id="`subscale-line-chart-${activity.slug}`"
+                          <ActivityHeader
+                            :plot-id="`Activity-Summary-${activity.slug}-${tab}`"
                             :versions="applet.versions"
                             :focus-extent="focusExtent"
                             :selected-versions="selectedVersions"
                             :has-version-bars="hasVersionBars"
                             :timezone="applet.timezoneStr"
-                            :activity="activity"
+                            :data="activity.responses"
+                            :label="activity.label.en || activity.description.en"
+                            :color="activity.dataColor"
+                            :latest-score="activity.getLatestActivityScore(selectedSecretIds)"
+                            :frequency="activity.getFrequency(selectedSecretIds)"
+                            :sub-scales="activity.subScales"
                             :parent-width="panelWidth"
                             :secret-ids="selectedSecretIds"
                             :apply-secret-id-selector="applySecretIdSelector"
+                            :time-range="timeRange"
+                            :item-padding="itemPadding"
+                            @selectResponse="
+                              selectResponse({ activity, ...$event })
+                            "
+                            @showSubScale="
+                              showSubScale({ activity, ...$event })
+                            "
                           />
-
-                          <SubScaleBarChart
-                            v-if="activity.getFrequency(selectedSecretIds) == 1"
-                            :plot-id="`subscale-bar-chart-${activity.slug}`"
-                            :versions="applet.versions"
-                            :focus-extent="focusExtent"
-                            :selected-versions="appletVersions"
-                            :has-version-bars="false"
-                            :timezone="applet.timezoneStr"
-                            :activity="activity"
-                            :parent-width="panelWidth"
-                            :secret-ids="selectedSecretIds"
-                            :apply-secret-id-selector="applySecretIdSelector"
-                          />
-                        </template>
-
-                        <v-expansion-panels
-                          v-if="tab != 'tokens'"
-                          v-model="activity.selectedSubScales"
-                          class="mt-4"
-                          focusable
-                          multiple
+                        </v-expansion-panel-header>
+                        <v-expansion-panel-content
+                          v-if="
+                            activity.responses &&
+                            activity.responses.length &&
+                            (tab !== 'tokens' || activity.hasTokenItem)
+                          "
                         >
-                          <template v-for="subScale in activity.subScales">
-                            <SubScaleComponent
-                              v-if="applet && !subScale.isFinalSubScale && !subScale.partOfSubScale"
-                              :key="subScale.variableName"
-                              :applet="applet"
+                          <template v-if="tab !== 'tokens'">
+                            <CumulativeScore
                               :activity="activity"
-                              :subScale="subScale"
-                              :tab="tab"
-                              :index="index"
-                              :focusExtent="focusExtent"
-                              :selectedVersions="selectedVersions"
-                              :hasVersionBars="hasVersionBars"
                               :secret-ids="selectedSecretIds"
                               :apply-secret-id-selector="applySecretIdSelector"
-                              :timeRange="timeRange"
-                              :panelWidth="panelWidth"
+                              :focus-extent="focusExtent"
                             />
                           </template>
-                        </v-expansion-panels>
 
-                        <template v-for="item in activity.items">
                           <div
                             v-if="
-                              item.allowEdit &&
-                              (tab == 'tokens' || !item.partOfSubScale) &&
-                              (tab != 'tokens' || item.isTokenItem) &&
-                              (item.inputType !== 'text' || !item.correctAnswer && !item.isResponseIdentifier)
+                              activity.finalSubScale &&
+                              activity.finalSubScale.current.outputText
                             "
-                            :key="item['id']"
-                            class="chart-card"
+                            class="additional-note mt-4"
                           >
                             <header>
-                              <h3 v-if="item.inputType !== 'markdownMessage'">
-                                <div class="item-question">
-                                  <p><img :src="item.getQuestionImage()"></p>
-                                  <vue-markdown>{{ item.getQuizWithoutImage() }}</vue-markdown>
-                                </div>
-                              </h3>
-
-                              <h3 v-else>- <vue-markdown>{{ item.label.en }}</vue-markdown></h3>
+                              <h2>- Additional Information</h2>
                             </header>
-                            <div v-if="item.inputType == 'markdownMessage'">
-                              <div class="markdown">
-                                <mavon-editor
-                                  :value="item.question.en"
-                                  :language="'en'"
-                                  :toolbarsFlag="false"
-                                >
-                                </mavon-editor>
-                              </div>
+                            <div class="subscale-output">
+                              <mavon-editor
+                                :value="activity.finalSubScale.current.outputText"
+                                :language="'en'"
+                                :toolbarsFlag="false"
+                              >
+                              </mavon-editor>
                             </div>
-
-                            <TimePicker
-                              v-if="
-                                tab == 'responses' && item.inputType === 'time'
-                              "
-                              :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
-                              :item="item"
-                              :versions="applet.versions"
-                              :focus-extent="focusExtent"
-                              :selected-versions="selectedVersions"
-                              :timezone="applet.timezoneStr"
-                              :has-version-bars="hasVersionBars"
-                              :parent-width="panelWidth"
-                              :color="item.dataColor"
-                              :time-range="timeRange"
-                              :maxValue="getMaxValue(activity.items)"
-                              :minValue="getMinValue(activity.items)"
-                              :secret-ids="selectedSecretIds"
-                              :apply-secret-id-selector="applySecretIdSelector"
-                            />
-                            <RadioSlider
-                              v-else-if="
-                                tab == 'responses' &&
-                                item.responseOptions &&
-                                applet.selectedActivites.includes(index)
-                              "
-                              :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
-                              :item="item"
-                              :versions="applet.versions"
-                              :focus-extent="focusExtent"
-                              :selected-versions="selectedVersions"
-                              :timezone="applet.timezoneStr"
-                              :has-version-bars="hasVersionBars"
-                              :parent-width="panelWidth"
-                              :time-range="timeRange"
-                              :color="item.dataColor"
-                              :secret-ids="selectedSecretIds"
-                              :apply-secret-id-selector="applySecretIdSelector"
-                            />
-
-                            <Frequency
-                              v-else-if="
-                                tab == 'frequency' && item.inputType === 'radio'
-                              "
-                              :plot-id="`frequency-${activity.slug}-${item.slug}`"
-                              :item="item"
-                              :versions="applet.versions"
-                              :focus-extent="focusExtent"
-                              :selected-versions="selectedVersions"
-                              :timezone="applet.timezoneStr"
-                              :has-version-bars="hasVersionBars"
-                              :parent-width="panelWidth"
-                              :time-range="timeRange"
-                              :color="item.dataColor"
-                              :secret-ids="selectedSecretIds"
-                              :apply-secret-id-selector="applySecretIdSelector"
-                            />
-
-                            <FreeTextTable
-                              v-if="
-                                tab == 'responses' && item.inputType === 'text'
-                              "
-                              :plot-id="`FreeText-${activity.data['_id']}-${item.data['_id']}`"
-                              :item="item"
-                              :selected-versions="selectedVersions"
-                              :timezone="applet.timezoneStr"
-                              :responses="item.responses"
-                              :secret-ids="selectedSecretIds"
-                              :apply-secret-id-selector="applySecretIdSelector"
-                            />
                           </div>
-                        </template>
-                      </v-expansion-panel-content>
-                      <v-expansion-panel-content v-else>
-                        <h4 v-if="tab != 'tokens'" class="ma-4">
-                          {{ $t("noDataAvailable") }}
-                        </h4>
-                        <h4 v-else>
-                          {{ $t("noTokenDataAvailable") }}
-                        </h4>
-                      </v-expansion-panel-content>
-                    </v-expansion-panel>
+
+                          <h2 class="mt-4">
+                            {{ $t("responseOptions") }}
+                          </h2>
+                          <template
+                            v-if="tab != 'tokens' && activity.subScales.length"
+                          >
+                            <SubScaleLineChart
+                              v-if="activity.getFrequency(selectedSecretIds) > 1"
+                              :plot-id="`subscale-line-chart-${activity.slug}`"
+                              :versions="applet.versions"
+                              :focus-extent="focusExtent"
+                              :selected-versions="selectedVersions"
+                              :has-version-bars="hasVersionBars"
+                              :timezone="applet.timezoneStr"
+                              :timeRange="timeRange"
+                              :activity="activity"
+                              :parent-width="panelWidth"
+                              :secret-ids="selectedSecretIds"
+                              :apply-secret-id-selector="applySecretIdSelector"
+                            />
+
+                            <SubScaleBarChart
+                              v-if="activity.getFrequency(selectedSecretIds) == 1"
+                              :plot-id="`subscale-bar-chart-${activity.slug}`"
+                              :versions="applet.versions"
+                              :focus-extent="focusExtent"
+                              :selected-versions="appletVersions"
+                              :has-version-bars="false"
+                              :timezone="applet.timezoneStr"
+                              :activity="activity"
+                              :parent-width="panelWidth"
+                              :secret-ids="selectedSecretIds"
+                              :apply-secret-id-selector="applySecretIdSelector"
+                            />
+                          </template>
+
+                          <v-expansion-panels
+                            v-if="tab != 'tokens'"
+                            v-model="activity.selectedSubScales"
+                            class="mt-4"
+                            focusable
+                            multiple
+                          >
+                            <template v-for="subScale in activity.subScales">
+                              <SubScaleComponent
+                                v-if="applet && !subScale.isFinalSubScale && !subScale.partOfSubScale"
+                                :key="subScale.variableName"
+                                :applet="applet"
+                                :activity="activity"
+                                :subScale="subScale"
+                                :tab="tab"
+                                :index="index"
+                                :focusExtent="focusExtent"
+                                :selectedVersions="selectedVersions"
+                                :hasVersionBars="hasVersionBars"
+                                :secret-ids="selectedSecretIds"
+                                :apply-secret-id-selector="applySecretIdSelector"
+                                :timeRange="timeRange"
+                                :panelWidth="panelWidth"
+                              />
+                            </template>
+                          </v-expansion-panels>
+
+                          <template v-for="item in activity.items">
+                            <div
+                              v-if="
+                                item.allowEdit &&
+                                (tab == 'tokens' || !item.partOfSubScale) &&
+                                (tab != 'tokens' || item.isTokenItem) &&
+                                (item.inputType !== 'text' || !item.correctAnswer && !item.isResponseIdentifier)
+                              "
+                              :key="item['id']"
+                              class="chart-card"
+                            >
+                              <header>
+                                <h3 v-if="item.inputType !== 'markdownMessage'">
+                                  <div class="item-question">
+                                    <p v-if="Boolean(item.getQuestionImage())"><img :src="item.getQuestionImage()"></p>
+                                    <div class="markdown">
+                                      <mavon-editor
+                                        :value="item.getQuizWithoutImage()"
+                                        :language="'en'"
+                                        :toolbarsFlag="false"
+                                      >
+                                      </mavon-editor>
+                                    </div>
+                                  </div>
+                                </h3>
+
+                                <h3 v-else>- <vue-markdown>{{ item.label.en }}</vue-markdown></h3>
+                              </header>
+                              <div v-if="item.inputType == 'markdownMessage'">
+                                <div class="markdown">
+                                  <mavon-editor
+                                    :value="item.question.en"
+                                    :language="'en'"
+                                    :toolbarsFlag="false"
+                                  >
+                                  </mavon-editor>
+                                </div>
+                              </div>
+
+                              <TimePicker
+                                v-if="
+                                  tab == 'responses' && item.inputType === 'time'
+                                "
+                                :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
+                                :item="item"
+                                :versions="applet.versions"
+                                :focus-extent="focusExtent"
+                                :selected-versions="selectedVersions"
+                                :timezone="applet.timezoneStr"
+                                :has-version-bars="hasVersionBars"
+                                :parent-width="panelWidth"
+                                :color="item.dataColor"
+                                :time-range="timeRange"
+                                :maxValue="getMaxValue(activity.items)"
+                                :minValue="getMinValue(activity.items)"
+                                :secret-ids="selectedSecretIds"
+                                :apply-secret-id-selector="applySecretIdSelector"
+                              />
+                              <RadioSlider
+                                v-else-if="
+                                  tab == 'responses' &&
+                                  item.responseOptions &&
+                                  applet.selectedActivites.includes(index)
+                                "
+                                :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
+                                :item="item"
+                                :versions="applet.versions"
+                                :focus-extent="focusExtent"
+                                :selected-versions="selectedVersions"
+                                :timezone="applet.timezoneStr"
+                                :has-version-bars="hasVersionBars"
+                                :parent-width="panelWidth"
+                                :time-range="timeRange"
+                                :color="item.dataColor"
+                                :secret-ids="selectedSecretIds"
+                                :apply-secret-id-selector="applySecretIdSelector"
+                              />
+
+                              <Frequency
+                                v-else-if="
+                                  tab == 'frequency' && item.inputType === 'radio'
+                                "
+                                :plot-id="`frequency-${activity.slug}-${item.slug}`"
+                                :item="item"
+                                :versions="applet.versions"
+                                :focus-extent="focusExtent"
+                                :selected-versions="selectedVersions"
+                                :timezone="applet.timezoneStr"
+                                :has-version-bars="hasVersionBars"
+                                :parent-width="panelWidth"
+                                :time-range="timeRange"
+                                :color="item.dataColor"
+                                :secret-ids="selectedSecretIds"
+                                :apply-secret-id-selector="applySecretIdSelector"
+                              />
+
+                              <FreeTextTable
+                                v-if="
+                                  tab == 'responses' && item.inputType === 'text'
+                                "
+                                :plot-id="`FreeText-${activity.data['_id']}-${item.data['_id']}`"
+                                :item="item"
+                                :selected-versions="selectedVersions"
+                                :timezone="applet.timezoneStr"
+                                :responses="item.responses"
+                                :secret-ids="selectedSecretIds"
+                                :apply-secret-id-selector="applySecretIdSelector"
+                              />
+                            </div>
+                          </template>
+                        </v-expansion-panel-content>
+                        <v-expansion-panel-content v-else>
+                          <h4 v-if="tab != 'tokens'" class="ma-4">
+                            {{ $t("noDataAvailable") }}
+                          </h4>
+                          <h4 v-else>
+                            {{ $t("noTokenDataAvailable") }}
+                          </h4>
+                        </v-expansion-panel-content>
+                      </v-expansion-panel>
+                    </template>
                     <v-expansion-panels v-else class="reviewing-section">
                       <v-card class="reviewing-item">
                         <Responses
@@ -547,6 +567,7 @@
                       <v-card class="reviewing-item">
                         <v-tabs
                           v-model="selectedReviewTab"
+                          @change="onChangeReviewingTab"
                           hide-slider
                           light
                           left
@@ -564,14 +585,32 @@
                             :key="reviewingTab"
                             class="mx-2"
                           >
-                            <div v-if="reviewingTab == 'notes'">
+                            <div
+                              v-if="reviewingTab == 'notes'"
+                            >
                               <Notes
                                 :key="`note-${reviewing.key}`"
                                 :response-id="reviewing.responseId"
                               />
                             </div>
-                            <div v-else>
-                              {{ $t(reviewingTab) }}
+                            <div
+                              v-else-if="reviewingTab == 'assessment'"
+                            >
+                              <Assessment
+                                :key="`assessment-${reviewing.key}`"
+                                :activity="applet.reviewerActivity"
+                                :response-history="reviewing.currentReview.data"
+                                @submit="submitAssessment"
+                              />
+                            </div>
+                            <div
+                              v-else-if="reviewingTab == 'reviewed'"
+                            >
+                              <Reviewed
+                                :key="`reviewed-${reviewing.key}`"
+                                :activity="applet.reviewerActivity"
+                                :reviews="reviewing.reviews"
+                              />
                             </div>
                           </v-tab-item>
                         </v-tabs-items>
@@ -583,6 +622,39 @@
             </v-tabs-items>
           </div>
         </div>
+
+        <vue-html2pdf
+          v-if="applet.hasCumulativeActivity"
+          ref="html2Pdf"
+          :show-layout="false"
+          :float-layout="true"
+          :enable-download="true"
+          :preview-modal="false"
+          :paginate-elements-by-height="3000"
+          filename="report"
+          :pdf-quality="2"
+          :manual-pagination="false"
+          pdf-format="a4"
+          pdf-orientation="landscape"
+          pdf-content-width="800px"
+          :html-to-pdf-options="{
+            margin: 70,
+            enableLinks: true,
+            html2canvas: {
+              scale: 1,
+              useCORS: true,
+            },
+            jsPDF: {
+              unit: 'pt',
+              format: 'a4',
+              orientation: 'portrait',
+            },
+          }"
+        >
+          <section slot="pdf-content">
+            <CumulativeScoreReport :activities="applet.activities" />
+          </section>
+        </vue-html2pdf>
       </div>
 
       <ResponseSelectionDialog
@@ -736,6 +808,18 @@
 .markdown /deep/ .v-note-edit {
   display: none;
 }
+.markdown /deep/ .v-note-show {
+  width: 100% !important;
+  flex: 0 0 100% !important;
+  overflow-y: auto;
+  margin: 10px 0px;
+}
+.markdown /deep/ .markdown-body {
+  box-shadow: none !important;
+}
+.markdown /deep/ .v-note-edit {
+  display: none;
+}
 .additional-note /deep/ .v-note-show,
 .markdown /deep/ .v-note-show {
   width: 100% !important;
@@ -749,9 +833,9 @@
   margin: 10px 0px;
 }
 
-.additional-note .subscale-output .v-note-wrapper,
-.markdown .v-note-wrapper {
-  min-height: unset;
+.additional-note .subscale-output /deep/ .v-note-wrapper,
+.markdown /deep/ .v-note-wrapper {
+  min-height: unset !important;
 }
 
 .reviewing-item {
@@ -789,14 +873,19 @@ import SubScaleBarChart from "../Components/DataViewerComponents/SubScaleBarChar
 import ResponseSelectionDialog from "../Components/Utils/dialogs/ResponseSelectionDialog";
 import Responses from "../Components/DataViewerComponents/Responses";
 import Notes from "../Components/DataViewerComponents/Notes";
+import Assessment from "../Components/ReviewerAssessment/Assessment";
+import Reviewed from "../Components/DataViewerComponents/Reviewed";
 import SubScaleComponent from "../Components/DataViewerComponents/SubScaleComponent";
+import { AppletMixin } from '../Components/Utils/mixins/AppletMixin';
 import CumulativeScore from "../Components/DataViewerComponents/CumulativeScore";
+import CumulativeScoreReport from "../Components/DataViewerComponents/CumulativeScoreReport";
 
 import * as moment from "moment-timezone";
 
 export default {
   name: "ReviewerDashboard",
 
+  mixins: [AppletMixin],
   /**
    * Components that this component depends on.
    */
@@ -812,9 +901,12 @@ export default {
     VueMarkdown,
     ResponseSelectionDialog,
     Responses,
+    Assessment,
     Notes,
+    Reviewed,
     SubScaleComponent,
     CumulativeScore,
+    CumulativeScoreReport,
   },
 
   /**
@@ -845,8 +937,7 @@ export default {
       selectedReviewTab: 1,
       panel: [],
       tabs: ["responses", "tokens"],
-      // reviewingTabs: ["assessment", "notes", "reviewed"], // TODO: to be uncomment after proper implementation
-      reviewingTabs: ["notes"],
+      reviewingTabs: [],
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
       timeRange: "Default",
@@ -863,6 +954,10 @@ export default {
         activity: {},
         responseId: "",
         key: 0,
+        timeStarted: 0,
+        currentReview: {
+          data: []
+        }
       },
       secretIDs: [],
       responseDialog: false,
@@ -929,6 +1024,11 @@ export default {
         this.$store.state.currentAppletData.applet.encryption
       );
 
+      if (this.applet.reviewerActivity) {
+        this.reviewingTabs = ["assessment", "notes", "reviewed"];
+      } else {
+        this.reviewingTabs = ["notes"];
+      }
       const secretIDs = Object.values(this.applet.secretIDs);
       this.secretIDs = secretIDs.filter((value, index) => secretIDs.indexOf(value) == index);
       this.selectedSecretIds = this.secretIDs.map(id => id);
@@ -958,12 +1058,11 @@ export default {
       }
 
       if (latestActivity) {
-        this.$set(this, "reviewing", {
-          date: latestActivity.lastResponseDate.toString(),
+        await this.selectResponse({
           activity: latestActivity,
           responseId: latestResponseId,
-          key: 1,
-        });
+          date: latestActivity.lastResponseDate.toString()
+        }, false)
       }
 
       this.$nextTick(this.onResize);
@@ -983,6 +1082,14 @@ export default {
    * Component methods.
    */
   methods: {
+    onChangeReviewingTab() {
+      if (this.reviewingTabs[this.selectedReviewTab] == "assessment") {
+        if (!this.reviewing.timeStarted) {
+          this.$set(this.reviewing, 'timeStarted', Date.now())
+        }
+      }
+    },
+
     setDashboardTabs() {
       for (const itemId in this.applet.items) {
         if (this.applet.items[itemId].isTokenItem) {
@@ -999,6 +1106,49 @@ export default {
       }
     },
 
+    submitAssessment(responses) {
+      const data = this.applet.prepareResponseForUpload(
+        responses, this.applet.reviewerActivity, this.reviewing.timeStarted, this.reviewing.responseId
+      );
+
+      if (this.reviewing.currentReview.responseId) {
+        const form = new FormData();
+
+        form.set(
+          'responses',
+          JSON.stringify({
+            dataSources: {
+              [this.reviewing.currentReview.responseId]: data.dataSource
+            },
+            userPublicKey: data.userPublicKey,
+            tokenUpdates: {}
+          })
+        );
+
+        api
+          .replaceResponseData({
+            apiHost: this.apiHost,
+            token: this.token,
+            appletId: this.applet._id.split('/')[1],
+            user: null,
+            data: form,
+          })
+          .then(() => {
+            this.$set(this.reviewing.currentReview, 'data', responses)
+
+            this.$set(this.reviewing, 'key', this.reviewing.key + 1);
+            this.selectedReviewTab = this.reviewingTabs.indexOf("reviewed")
+          });
+      } else {
+        api.postReviewerResponse(
+          this.apiHost,
+          this.token,
+          data
+        ).then(() => this.selectResponse(this.reviewing)).then(() => {
+          this.selectedReviewTab = this.reviewingTabs.indexOf("reviewed")
+        })
+      }
+    },
     onChangeSecretId() {
       for (let activity of this.applet.activities) {
         if (activity.subScales.length && activity.hasResponseIdentifier) {
@@ -1030,17 +1180,68 @@ export default {
       this.responseDialog = true;
     },
 
-    selectResponse({ activity, responseId, date }) {
-      this.$set(this, "reviewing", {
-        date,
-        activity,
-        responseId,
-        key: this.reviewing.key + 1,
-      });
+    selectResponse({ activity, responseId, date }, switchTab=true) {
+      return api.downloadReviews(
+        this.apiHost,
+        this.token,
+        this.currentAppletMeta.id,
+        responseId
+      ).then(resp => {
+        const data = resp.data;
+        const reviewerActivity = this.applet.reviewerActivity;
+        const responses = {};
 
-      if (this.tabs[this.selectedTab] !== "review") {
-        this.selectedTab = this.tabs.indexOf("review");
-      }
+        let reviews = {};
+        if (reviewerActivity) {
+          if (this.applet.encryption) {
+            Applet.replaceItemValues(Applet.decryptResponses(data, this.applet.encryption));
+          }
+
+          for (const responseId in data.users) {
+            const profile = data.users[responseId]
+
+            reviews[responseId] = {
+              profile,
+              current: profile.reviewerId == data.reviewer,
+              data: [],
+              responseId
+            }
+          }
+
+          for (const item of reviewerActivity.items) {
+            const itemResponses = data.responses[item.schemas[0]];
+
+            if (!itemResponses) {
+              for (const responseId in reviews) {
+                reviews[responseId].data.push({ value: null });
+              }
+
+              continue;
+            }
+
+            for (const response of itemResponses) {
+              reviews[response.responseId].data.push(response.value);
+            }
+          }
+        }
+
+        reviews = Object.values(reviews);
+        const currentReview = reviews.find(review => review.current);
+
+        this.$set(this, "reviewing", {
+          date,
+          activity,
+          responseId,
+          key: this.reviewing.key + 1,
+          timeStarted: 0,
+          currentReview: currentReview || { data: [] },
+          reviews
+        });
+
+        if (switchTab && this.tabs[this.selectedTab] !== "review") {
+          this.selectedTab = this.tabs.indexOf("review");
+        }
+      })
     },
 
     async showSubScale({ activity, responseId }) {
@@ -1298,6 +1499,10 @@ export default {
 
     onUpdateFocusExtent(focusExtent) {
       this.$set(this, "focusExtent", focusExtent);
+    },
+
+    onDownloadReport() {
+      this.$refs.html2Pdf.generatePdf()
     },
   },
 };
