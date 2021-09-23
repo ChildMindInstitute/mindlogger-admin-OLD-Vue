@@ -4,31 +4,31 @@
     @change="update"
   >
     <div class="option-list">
-      <v-radio
-        class="option"
+      <Option
         v-for="option in options"
         :key="option.id"
-        :label="option.name.en"
-        :value="isTokenItem ? option.name.en : option.value"
+        :option="option"
+        :isTokenItem="isTokenItem"
         :disabled="disabled"
-      ></v-radio>
+        type="radio"
+      />
     </div>
   </v-radio-group>
 </template>
 
 <style scoped>
-.option-list {
-  display: flex;
-  flex-wrap: wrap;
-}
 
-.option {
-  width: 50%;
-}
 </style>
 
 <script>
+import VueMarkdown from 'vue-markdown';
+import Option from './Option';
+
 export default {
+  components: {
+    VueMarkdown,
+    Option,
+  },
   props: {
     value: {
       type: Object,

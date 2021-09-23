@@ -232,15 +232,25 @@ export const AppletMixin = {
 
                     } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType === 'audioImageRecord')) {
                       if (value.filename) {
-                        this.getMediaResponseObject(value.uri, response, item);
-                        responseData += `filename: ${value.filename}`;
+                        const name = this.getMediaResponseObject(value.uri, response, item);
+                        responseData += `filename: ${name}`;
                       } else if (Array.isArray(value)) {
+                        const responseIndex = _.findIndex(previousResponse, o => (o.activity_id === response.activity['@id']) && (o.item === item.id));
+
+                        if (responseIndex > -1) {
+                          responseData = previousResponse[responseIndex].response;
+                          previousResponse.splice(responseIndex, 1);
+                        } else {
+                          responseData = `filename: ${src}-${item.id}.csv`
+                        }
+
+                        const nameRegex = responseData.match(/filename: ([^.]*)/i)
+                        responseData = `filename: ${nameRegex[1]}`
+
                         drawingCSVs.push({
-                          name: `${src}.csv`,
+                          name: `${nameRegex[1]}.csv`,
                           data: this.getLinesAsCSV(value)
                         });
-
-                        responseData += `filename: ${src}.csv`;
 
                         index = Object.keys(responseDataObj).length;
                       }
@@ -261,7 +271,7 @@ export const AppletMixin = {
                       responseData += `${key}: ${value}`;
                     }
 
-                    if (index < Object.keys(responseDataObj).length - 1)
+                    if ((index < Object.keys(responseDataObj).length - 1) && responseData)
                       responseData += ' | ';
 
                     index++;
@@ -332,7 +342,8 @@ export const AppletMixin = {
               if (csvObj['response'] && csvObj['response'].includes('.quicktime'))
                 csvObj['response'] = csvObj['response'].replace('.quicktime', '.MOV');
 
-              if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined) continue;
+              if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined || csvObj['response'] === '') continue;
+              result.push(csvObj);
 
               try {
                 if (csvObj.response && csvObj.response.includes('.csv')) {
@@ -447,14 +458,16 @@ export const AppletMixin = {
 
     async generateDrawingZip(drawingCSVs) {
       try {
-        const zip = new JSZip();
+        if (drawingCSVs.length > 0) {
+          const zip = new JSZip();
 
-        for (const csvData of drawingCSVs) {
-          zip.file(csvData.name, csvData.data);
+          for (const csvData of drawingCSVs) {
+            zip.file(csvData.name, csvData.data);
+          }
+
+          const generatedZip = await zip.generateAsync({ type: 'blob' });
+          saveAs(generatedZip, `drawing-responses-${(new Date()).toDateString()}.zip`);
         }
-
-        const generatedZip = await zip.generateAsync({ type: 'blob' });
-        saveAs(generatedZip, `drawing-responses-${(new Date()).toDateString()}.zip`);
       } catch (err) {
         console.log(err);
       }

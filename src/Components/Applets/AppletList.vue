@@ -23,7 +23,7 @@
               style="margin: auto;"
               v-on="on"
             >
-              Configure an Applet
+              Build/Edit an Applet
             </v-btn>
           </template>
 
@@ -160,7 +160,7 @@
 
     <ConfirmationDialog
         v-model="folderAppletDelete"
-        :dialogText="$t('deleteAppletFromFolderConfirmation')"
+        :dialogText="$t('deleteAppletConfirmation')"
         :title="$t('deleteApplet')"
         @onOK="deleteFolderApplet"
     />
@@ -464,11 +464,13 @@ export default {
     },
     async removeAppletFromFolder(applet) {
       this.draggedItem = applet;
+      this.appletPendingDelete = applet;
       this.folderAppletDelete = true;
     },
 
     async deleteFolderApplet() {
-      await this.droppedOnRoot(true);
+      await this.droppedOnRoot(false);
+      await this.deleteApplet();
       this.folderAppletDelete = false;
     },
 
@@ -489,6 +491,10 @@ export default {
 
       await this.moveAppletToRootDirectory(this.draggedItem);
 
+      this.draggedItem.depth = 0;
+      this.draggedItem.parentId = undefined;
+      this.draggedItem.isVisible = true;
+
       var previousIndex = this.flattenedDirectoryItems.indexOf(
           this.draggedItem
       );
@@ -496,14 +502,8 @@ export default {
       if (previousIndex > -1)
         this.flattenedDirectoryItems.splice(previousIndex, 1);
 
-
-      this.draggedItem.depth = 0;
-      this.draggedItem.parentId = undefined;
-      this.draggedItem.isVisible = true;
-
       if (isDropping)
         this.flattenedDirectoryItems.push(this.draggedItem);
-
       this.updateVisibleItems();
       this.isRootActive = false;
     },
@@ -749,7 +749,23 @@ export default {
     },
 
     onSetAppletDuplicateName(appletName) {
-      api
+      this.requestedAction = (appletPassword) => {
+        const encryptionInfo = encryption.getAppletEncryptionInfo({
+          appletPassword: appletPassword,
+          accountId: this.$store.state.currentAccount.accountId,
+        });
+
+        const form = new FormData();
+        form.set(
+          "encryption",
+          JSON.stringify({
+            appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
+            appletPrime: Array.from(encryptionInfo.getPrime()),
+            base: Array.from(encryptionInfo.getGenerator()),
+          })
+        );
+
+        api
           .duplicateApplet({
             apiHost: this.$store.state.backend,
             token: this.$store.state.auth.authToken.token,
@@ -757,11 +773,15 @@ export default {
             options: {
               name: appletName,
             },
+            form
           })
           .then((resp) => {
-            this.appletDuplicateDialog = false;
             this.$emit('onDuplicateRequestReceived', resp.data.message);
           });
+      }
+
+      this.appletDuplicateDialog = false;
+      this.appletPasswordDialog = true;
     },
     onUpdateAppletPassword() {
       this.appletPasswordDialog = true;
