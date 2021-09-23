@@ -17,7 +17,7 @@
           <vue-markdown>{{ item.compute.description.replace(MARKDOWN_REGEX, "$1$2") }}</vue-markdown>
         </p>
         <div class="score-area mb-4">
-          <p class="score-title text-nowrap" :style="{ left: `${(item.scoreValue / item.maxScoreValue) * 100}%` }">
+          <p class="score-title text-nowrap" :style="{ left: `max(90px, ${(item.scoreValue / item.maxScoreValue) * 100}%)` }">
             <b>Your/Your Child's Score</b>
           </p>
           <div
