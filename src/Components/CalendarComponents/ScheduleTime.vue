@@ -2,7 +2,18 @@
   <div class="ds-time-row">
     <div class="ds-time-cell d-flex align-baseline  ">
       {{ $t("startTime") }}
+
+      <vue-timepicker
+        v-if="$browserDetect.isSafari"
+        :disabled="isReadOnly"
+        v-model="time"
+        close-on-complete
+        class="ml-2 mr-1"
+      >
+      </vue-timepicker>
+
       <v-text-field
+        v-else
         single-line
         hide-details
         solo
@@ -14,7 +25,18 @@
     </div>
     <div class="ds-time-cell d-flex align-baseline">
       {{ $t("endTime") }}
+
+      <vue-timepicker
+        v-if="$browserDetect.isSafari"
+        :disabled="isReadOnly"
+        v-model="endTime"
+        close-on-complete
+        class="ml-2"
+      >
+      </vue-timepicker>
+
       <v-text-field
+        v-else
         single-line
         hide-details
         solo
@@ -29,8 +51,12 @@
 
 <script>
 import { Time, Functions as fn } from "dayspan";
+import VueTimepicker from "vue2-timepicker";
+import "vue2-timepicker/dist/VueTimepicker.css";
+
 export default {
   name: "dsScheduleTime",
+  components: { VueTimepicker },
   props: {
     value: {
       required: true,

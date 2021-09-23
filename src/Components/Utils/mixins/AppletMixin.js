@@ -119,6 +119,9 @@ export const AppletMixin = {
           }
 
           let subScaleNames = [], previousResponse = [];
+
+          const drawingCSVs = [];
+
           for (let response of data.responses) {
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
             const outputTexts = {};
@@ -164,8 +167,9 @@ export const AppletMixin = {
                 continue;
               }
 
+              const src = itemData.src;
               if (itemData && itemData.ptr !== undefined && itemData.src !== undefined) {
-                if (_.isArray(data.dataSources[itemData.src].data) && itemData.ptr && typeof itemData.ptr === "object" && itemData.ptr.latitude)
+                if (_.isArray(data.dataSources[itemData.src].data) && itemData.ptr && typeof itemData.ptr === "object")
                   response.data[itemUrl] = itemData.ptr;
                 else
                   response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr];
@@ -207,9 +211,30 @@ export const AppletMixin = {
                   for (const [key, value] of Object.entries(responseDataObj)) {
                     if (item.inputType === 'timeRange' && value.from && value.to) {
                       responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
-                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType === 'audioImageRecord') && value.filename) {
-                      const name = this.getMediaResponseObject(value.uri, response, item);
-                      responseData += `filename: ${name}`;
+                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType === 'audioImageRecord')) {
+                      if (value.filename) {
+                        const name = this.getMediaResponseObject(value.uri, response, item);
+                        responseData += `filename: ${name}`;
+                      } else if (Array.isArray(value)) {
+                        const responseIndex = _.findIndex(previousResponse, o => (o.activity_id === response.activity['@id']) && (o.item === item.id));
+
+                        if (responseIndex > -1) {
+                          responseData = previousResponse[responseIndex].response;
+                          previousResponse.splice(responseIndex, 1);
+                        } else {
+                          responseData = `filename: ${src}-${item.id}.csv`
+                        }
+
+                        const nameRegex = responseData.match(/filename: ([^.]*)/i)
+                        responseData = `filename: ${nameRegex[1]}`
+
+                        drawingCSVs.push({
+                          name: `${nameRegex[1]}.csv`,
+                          data: this.getLinesAsCSV(value)
+                        });
+
+                        index = Object.keys(responseDataObj).length;
+                      }
                     } else if (item.inputType === 'date' && (value.day || value.month || value.year)) {
                       responseData += `date: ${value.day}/${value.month}/${value.year}`;
                     } else if (item.inputType === 'drawing' && value.svgString) {
@@ -227,7 +252,7 @@ export const AppletMixin = {
                       responseData += `${key}: ${value}`;
                     }
 
-                    if (index < Object.keys(responseDataObj).length - 1)
+                    if ((index < Object.keys(responseDataObj).length - 1) && responseData)
                       responseData += ' | ';
 
                     index++;
@@ -274,6 +299,7 @@ export const AppletMixin = {
                 options: options.join(', '),
                 version: response.version,
                 rawScore: scores.reduce((accumulated, current) => current + accumulated, 0),
+                reviewing_id: response.reviewing || '',
                 ... (!isSubScaleExported ? response.subScales : {}),
                 ... (!isSubScaleExported ? outputTexts : {})
               }
@@ -297,7 +323,7 @@ export const AppletMixin = {
               if (Array.isArray(csvObj['response']) && csvObj['response'].includes('.quicktime'))
                 csvObj['response'] = csvObj['response'].replace('.quicktime', '.MOV');
 
-              if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined) continue;
+              if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined || csvObj['response'] === '') continue;
               result.push(csvObj);
 
               isSubScaleExported = true;
@@ -327,6 +353,7 @@ export const AppletMixin = {
               'options',
               'version',
               'rawScore',
+              'reviewing_id',
             ].concat(subScaleNames).map((value) => ({ key: value, as: value })),
             data: result,
           });
@@ -337,6 +364,7 @@ export const AppletMixin = {
             type: 'text/csv;charset=utf-8'
           })
 
+          await this.generateDrawingZip(drawingCSVs);
           await this.generateMediaResponsesZip(this.mediaResponseObjects);
         })
     },
@@ -377,6 +405,50 @@ export const AppletMixin = {
 
       return name;
     },
+
+    getLinesAsCSV(lines) {
+      const result = [];
+      for (let i = 0; i < lines.length; i++) {
+        for (const point of lines[i].points) {
+          result.push({
+            line_number: i.toString(),
+            x: point.x.toString(),
+            y: point.y.toString(),
+            time: point.time && point.time.toString()
+          });
+        }
+      }
+
+      let otc = new ObjectToCSV({
+        keys: [
+          'line_number',
+          'x',
+          'y',
+          'time'
+        ].map((value) => ({ key: value, as: value })),
+        data: result,
+      });
+
+      return otc.getCSV();
+    },
+
+    async generateDrawingZip(drawingCSVs) {
+      try {
+        if (drawingCSVs.length > 0) {
+          const zip = new JSZip();
+
+          for (const csvData of drawingCSVs) {
+            zip.file(csvData.name, csvData.data);
+          }
+
+          const generatedZip = await zip.generateAsync({ type: 'blob' });
+          saveAs(generatedZip, `drawing-responses-${(new Date()).toDateString()}.zip`);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
     async generateMediaResponsesZip(mediaObjects) {
       if (mediaObjects.length < 1) return;
       try {

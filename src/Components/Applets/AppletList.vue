@@ -23,7 +23,7 @@
               style="margin: auto;"
               v-on="on"
             >
-              Configure an Applet
+              Build/Edit an Applet
             </v-btn>
           </template>
 
@@ -749,7 +749,23 @@ export default {
     },
 
     onSetAppletDuplicateName(appletName) {
-      api
+      this.requestedAction = (appletPassword) => {
+        const encryptionInfo = encryption.getAppletEncryptionInfo({
+          appletPassword: appletPassword,
+          accountId: this.$store.state.currentAccount.accountId,
+        });
+
+        const form = new FormData();
+        form.set(
+          "encryption",
+          JSON.stringify({
+            appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
+            appletPrime: Array.from(encryptionInfo.getPrime()),
+            base: Array.from(encryptionInfo.getGenerator()),
+          })
+        );
+
+        api
           .duplicateApplet({
             apiHost: this.$store.state.backend,
             token: this.$store.state.auth.authToken.token,
@@ -757,11 +773,15 @@ export default {
             options: {
               name: appletName,
             },
+            form
           })
           .then((resp) => {
-            this.appletDuplicateDialog = false;
             this.$emit('onDuplicateRequestReceived', resp.data.message);
           });
+      }
+
+      this.appletDuplicateDialog = false;
+      this.appletPasswordDialog = true;
     },
     onUpdateAppletPassword() {
       this.appletPasswordDialog = true;

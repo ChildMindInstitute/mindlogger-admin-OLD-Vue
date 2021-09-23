@@ -1,9 +1,9 @@
 <template>
-  <div v-if="cumulativeReportsCount" class="cumulative-results">
+  <div v-if="reportCount" class="cumulative-results">
     <h2>{{ $t("summary") }}</h2>
-    <template v-for="cumulativeResult in cumulativeResults">
+    <template v-for="cumulativeResult in results">
       <div
-        v-if="!applySecretIdSelector || secretIds.includes(cumulativeResult.response.secretId)"
+        v-if="(!applySecretIdSelector || secretIds.includes(cumulativeResult.response.secretId))"
         :key="cumulativeResult.response.responseId"
       >
         <div class="cumulative-date">
@@ -48,6 +48,7 @@
 <script>
 import { Parser } from "expr-eval";
 import moment from "moment";
+import _ from "lodash";
 import {
   getScoreFromResponse,
   getMaxScore,
@@ -69,6 +70,10 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    focusExtent: {
+      type: Array,
+      required: true
     }
   },
   data() {
@@ -79,26 +84,25 @@ export default {
 
     this.activity.compute = (this.activity.data["reprolib:terms/compute"] || []).map(
       (itemCompute) => ({
-        jsExpression: itemCompute["reprolib:terms/jsExpression"][0]["@value"],
-        variableName: itemCompute["reprolib:terms/variableName"][0]["@value"],
+        jsExpression: _.get(itemCompute, ["reprolib:terms/jsExpression", 0, "@value"]),
+        variableName: _.get(itemCompute, ["reprolib:terms/variableName", 0, "@value"]),
       })
     );
     this.activity.messages = (this.activity.data["reprolib:terms/messages"] || []).map(
       (itemMessage) => ({
-        jsExpression: itemMessage["reprolib:terms/jsExpression"][0]["@value"],
-        message: itemMessage["reprolib:terms/message"][0]["@value"],
-        outputType: itemMessage["reprolib:terms/outputType"][0]["@value"],
+        jsExpression: _.get(itemMessage, ["reprolib:terms/jsExpression", 0, "@value"]),
+        message: _.get(itemMessage, ["reprolib:terms/message", 0, "@value"]),
+        outputType: _.get(itemMessage, ["reprolib:terms/outputType", 0, "@value"]),
       })
     );
 
-    let cumulativeReportsCount = 0;
     const cumulativeResults = this.activity.responses.map(
       (activityResponse) => {
         const scores = (this.activity.items || []).map((item) =>
           getScoreFromResponse(item, activityResponse)
         );
         const maxScores = (this.activity.items || []).map((item) =>
-          getMaxScore(item, activityResponse)
+          getMaxScore(item)
         );
 
         const cumulativeScores = this.activity.compute.reduce((accumulator, itemCompute) => ({
@@ -130,14 +134,14 @@ export default {
               message,
               score: variableScores[category] + (outputType == "percentage" ? "%" : ""),
             });
-            cumulativeReportsCount ++;
           }
         });
 
         return {
           response: {
             ...activityResponse,
-            date: moment(activityResponse.date).format("MM/DD hh:mm A"),
+            date: moment.utc(activityResponse.date).format("MM/DD hh:mm A"),
+            datetime: activityResponse.date
           },
           reportMessages,
         };
@@ -146,8 +150,23 @@ export default {
 
     return {
       cumulativeResults,
-      cumulativeReportsCount,
     };
   },
+
+  computed: {
+    results () {
+      return this.cumulativeResults.filter(
+        result => result.response.datetime >= this.focusExtent[0] && result.response.datetime <= this.focusExtent[1]
+      )
+    },
+    reportCount () {
+      let count = 0;
+      for (let i = 0; i < this.results.length; i++) {
+        count += this.results[i].reportMessages.length
+      }
+
+      return count
+    }
+  }
 };
 </script>
