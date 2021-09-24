@@ -120,6 +120,25 @@ export const AppletMixin = {
           let subScaleNames = [], previousResponse = [];
 
           const drawingCSVs = [];
+          const keys = [
+            'id',
+            'activity_scheduled_time',
+            'activity_start_time',
+            'activity_end_time',
+            'hit_next_time',
+            'flag',
+            'secret_user_id',
+            'userId',
+            'activity_id',
+            'activity_name',
+            'item',
+            'response',
+            'prompt',
+            'options',
+            'version',
+            'rawScore',
+            'reviewing_id',
+          ];
 
           for (let response of data.responses) {
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
@@ -210,6 +229,7 @@ export const AppletMixin = {
                   for (const [key, value] of Object.entries(responseDataObj)) {
                     if (item.inputType === 'timeRange' && value.from && value.to) {
                       responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
+
                     } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType === 'audioImageRecord')) {
                       if (value.filename) {
                         const name = this.getMediaResponseObject(value.uri, response, item);
@@ -329,6 +349,28 @@ export const AppletMixin = {
               if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined || csvObj['response'] === '') continue;
               result.push(csvObj);
 
+              try {
+                if (csvObj.response && csvObj.response.includes('.csv')) {
+                  const { lines } = data.dataSources[response._id].data[0].value;
+                  let strArr = [];
+                  for (let index = 0; index < lines.length; index++) {
+                    const line = lines[index];
+                    if (line.startTime)
+                      strArr.push(`line${index}: { start time: ${moment(line.startTime).format("L HH:mm:ss")}, end time: ${moment(line.endTime).format("L HH:mm:ss")} }`);
+                  }
+
+                  if (strArr.length > 0) {
+                    if (!keys.includes("lines")) keys.push("lines");
+                    csvObj['lines'] = strArr.join('\n');
+
+                  } else if (keys.includes("lines"))
+                    csvObj['lines'] = strArr.join('\n');
+                }
+              } catch (error) {
+                console.log(error);
+              }
+
+              result.push(csvObj);
               isSubScaleExported = true;
             }
           }
@@ -340,25 +382,7 @@ export const AppletMixin = {
           }
 
           let otc = new ObjectToCSV({
-            keys: [
-              'id',
-              'activity_scheduled_time',
-              'activity_start_time',
-              'activity_end_time',
-              'hit_next_time',
-              'flag',
-              'secret_user_id',
-              'userId',
-              'activity_id',
-              'activity_name',
-              'item',
-              'response',
-              'prompt',
-              'options',
-              'version',
-              'rawScore',
-              'reviewing_id',
-            ].concat(subScaleNames).map((value) => ({ key: value, as: value })),
+            keys: keys.concat(subScaleNames).map((value) => ({ key: value, as: value })),
             data: result,
           });
 
@@ -418,7 +442,7 @@ export const AppletMixin = {
             line_number: i.toString(),
             x: point.x.toString(),
             y: point.y.toString(),
-            time: point.time && point.time.toString()
+            time: point.time
           });
         }
       }
