@@ -86,7 +86,6 @@ export const AppletMixin = {
           const appletData = this.$store.state.allApplets[appletId];
 
           Applet.decryptResponses(data, appletData.applet.encryption);
-
           const result = [];
 
           const currentItems = {};
@@ -126,6 +125,7 @@ export const AppletMixin = {
             'activity_scheduled_time',
             'activity_start_time',
             'activity_end_time',
+            'hit_next_time',
             'flag',
             'secret_user_id',
             'userId',
@@ -307,6 +307,7 @@ export const AppletMixin = {
                 activity_scheduled_time: response.responseScheduled || 'not scheduled',
                 activity_start_time: typeof response.responseStarted === "number" ? moment(response.responseStarted).format("LLL") : response.responseStarted || null,
                 activity_end_time: typeof response.responseCompleted === "number" ? moment(response.responseCompleted).format("LLL") : response.responseCompleted || null,
+                hit_next_time: '',
                 flag,
                 secret_user_id: MRN || null,
                 userId: _id,
@@ -322,6 +323,9 @@ export const AppletMixin = {
                 ... (!isSubScaleExported ? response.subScales : {}),
                 ... (!isSubScaleExported ? outputTexts : {})
               }
+
+              if (data.nextsAt && data.nextsAt[response._id] && data.nextsAt[response._id][itemUrl])
+                csvObj['hit_next_time'] = moment(data.nextsAt[response._id][itemUrl]).format("L HH:mm:ss");
 
               if (!csvObj.activity_start_time && csvObj.activity_id && csvObj.item && csvObj.response) {
                 previousResponse.push(csvObj);
