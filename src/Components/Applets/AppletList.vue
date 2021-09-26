@@ -23,7 +23,7 @@
               style="margin: auto;"
               v-on="on"
             >
-              Configure an Applet
+              {{ $t('buildEditApplet') }}
             </v-btn>
           </template>
 
@@ -32,21 +32,21 @@
               @click="$emit('onBuildApplet')"
             >
               <v-list-item-title>
-                {{ 'Build an applet' }}
+                {{ $t('buildApplet') }}
               </v-list-item-title>
             </v-list-item>
             <v-list-item
               @click="$emit('onEditApplet')"
             >
               <v-list-item-title>
-                {{ 'Edit an applet' }}
+                {{ $t('editApplet') }}
               </v-list-item-title>
             </v-list-item>
             <v-list-item
               @click="$emit('onAddAppletFromUrl')"
             >
               <v-list-item-title>
-                {{ 'Add applet from GitHub URL' }}
+                {{ $t('addAppletFromGithub') }}
               </v-list-item-title>
             </v-list-item>
             <v-list-item
