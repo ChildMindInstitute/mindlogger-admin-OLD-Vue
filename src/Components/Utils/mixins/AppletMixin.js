@@ -86,7 +86,6 @@ export const AppletMixin = {
           const appletData = this.$store.state.allApplets[appletId];
 
           Applet.decryptResponses(data, appletData.applet.encryption);
-
           const result = [];
 
           const currentItems = {};
@@ -121,6 +120,25 @@ export const AppletMixin = {
           let subScaleNames = [], previousResponse = [];
 
           const drawingCSVs = [];
+          const keys = [
+            'id',
+            'activity_scheduled_time',
+            'activity_start_time',
+            'activity_end_time',
+            'hit_next_time',
+            'flag',
+            'secret_user_id',
+            'userId',
+            'activity_id',
+            'activity_name',
+            'item',
+            'response',
+            'prompt',
+            'options',
+            'version',
+            'rawScore',
+            'reviewing_id',
+          ];
 
           for (let response of data.responses) {
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
@@ -211,17 +229,28 @@ export const AppletMixin = {
                   for (const [key, value] of Object.entries(responseDataObj)) {
                     if (item.inputType === 'timeRange' && value.from && value.to) {
                       responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
+
                     } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType === 'audioImageRecord')) {
                       if (value.filename) {
-                        this.getMediaResponseObject(value.uri, response, item);
-                        responseData += `filename: ${value.filename}`;
+                        const name = this.getMediaResponseObject(value.uri, response, item);
+                        responseData += `filename: ${name}`;
                       } else if (Array.isArray(value)) {
+                        const responseIndex = _.findIndex(previousResponse, o => (o.activity_id === response.activity['@id']) && (o.item === item.id));
+
+                        if (responseIndex > -1) {
+                          responseData = previousResponse[responseIndex].response;
+                          previousResponse.splice(responseIndex, 1);
+                        } else {
+                          responseData = `filename: ${src}-${item.id}.csv`
+                        }
+
+                        const nameRegex = responseData.match(/filename: ([^.]*)/i)
+                        responseData = `filename: ${nameRegex[1]}`
+
                         drawingCSVs.push({
-                          name: `${src}.csv`,
+                          name: `${nameRegex[1]}.csv`,
                           data: this.getLinesAsCSV(value)
                         });
-
-                        responseData += `filename: ${src}.csv`;
 
                         index = Object.keys(responseDataObj).length;
                       }
@@ -242,7 +271,7 @@ export const AppletMixin = {
                       responseData += `${key}: ${value}`;
                     }
 
-                    if (index < Object.keys(responseDataObj).length - 1)
+                    if ((index < Object.keys(responseDataObj).length - 1) && responseData)
                       responseData += ' | ';
 
                     index++;
@@ -278,6 +307,7 @@ export const AppletMixin = {
                 activity_scheduled_time: response.responseScheduled || 'not scheduled',
                 activity_start_time: typeof response.responseStarted === "number" ? moment(response.responseStarted).format("LLL") : response.responseStarted || null,
                 activity_end_time: typeof response.responseCompleted === "number" ? moment(response.responseCompleted).format("LLL") : response.responseCompleted || null,
+                hit_next_time: '',
                 flag,
                 secret_user_id: MRN || null,
                 userId: _id,
@@ -289,10 +319,13 @@ export const AppletMixin = {
                 options: options.join(', '),
                 version: response.version,
                 rawScore: scores.reduce((accumulated, current) => current + accumulated, 0),
-                reviewing_id: response.reviewing,
+                reviewing_id: response.reviewing || '',
                 ... (!isSubScaleExported ? response.subScales : {}),
                 ... (!isSubScaleExported ? outputTexts : {})
               }
+
+              if (data.nextsAt && data.nextsAt[response._id] && data.nextsAt[response._id][itemUrl])
+                csvObj['hit_next_time'] = moment(data.nextsAt[response._id][itemUrl]).format("L HH:mm:ss");
 
               if (!csvObj.activity_start_time && csvObj.activity_id && csvObj.item && csvObj.response) {
                 previousResponse.push(csvObj);
@@ -310,12 +343,34 @@ export const AppletMixin = {
                 }
               }
 
-              if (Array.isArray(csvObj['response']) && csvObj['response'].includes('.quicktime'))
+              if (csvObj['response'] && csvObj['response'].includes('.quicktime'))
                 csvObj['response'] = csvObj['response'].replace('.quicktime', '.MOV');
 
-              if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined) continue;
+              if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined || csvObj['response'] === '') continue;
               result.push(csvObj);
 
+              try {
+                if (csvObj.response && csvObj.response.includes('.csv')) {
+                  const { lines } = data.dataSources[response._id].data[0].value;
+                  let strArr = [];
+                  for (let index = 0; index < lines.length; index++) {
+                    const line = lines[index];
+                    if (line.startTime)
+                      strArr.push(`line${index}: { start time: ${moment(line.startTime).format("L HH:mm:ss")}, end time: ${moment(line.endTime).format("L HH:mm:ss")} }`);
+                  }
+
+                  if (strArr.length > 0) {
+                    if (!keys.includes("lines")) keys.push("lines");
+                    csvObj['lines'] = strArr.join('\n');
+
+                  } else if (keys.includes("lines"))
+                    csvObj['lines'] = strArr.join('\n');
+                }
+              } catch (error) {
+                console.log(error);
+              }
+
+              result.push(csvObj);
               isSubScaleExported = true;
             }
           }
@@ -327,24 +382,7 @@ export const AppletMixin = {
           }
 
           let otc = new ObjectToCSV({
-            keys: [
-              'id',
-              'activity_scheduled_time',
-              'activity_start_time',
-              'activity_end_time',
-              'flag',
-              'secret_user_id',
-              'userId',
-              'activity_id',
-              'activity_name',
-              'item',
-              'response',
-              'prompt',
-              'options',
-              'version',
-              'rawScore',
-              'reviewing_id',
-            ].concat(subScaleNames).map((value) => ({ key: value, as: value })),
+            keys: keys.concat(subScaleNames).map((value) => ({ key: value, as: value })),
             data: result,
           });
 
@@ -404,7 +442,7 @@ export const AppletMixin = {
             line_number: i.toString(),
             x: point.x.toString(),
             y: point.y.toString(),
-            time: point.time.toString()
+            time: point.time
           });
         }
       }
@@ -424,14 +462,16 @@ export const AppletMixin = {
 
     async generateDrawingZip(drawingCSVs) {
       try {
-        const zip = new JSZip();
+        if (drawingCSVs.length > 0) {
+          const zip = new JSZip();
 
-        for (const csvData of drawingCSVs) {
-          zip.file(csvData.name, csvData.data);
+          for (const csvData of drawingCSVs) {
+            zip.file(csvData.name, csvData.data);
+          }
+
+          const generatedZip = await zip.generateAsync({ type: 'blob' });
+          saveAs(generatedZip, `drawing-responses-${(new Date()).toDateString()}.zip`);
         }
-
-        const generatedZip = await zip.generateAsync({ type: 'blob' });
-        saveAs(generatedZip, `drawing-responses-${(new Date()).toDateString()}.zip`);
       } catch (err) {
         console.log(err);
       }

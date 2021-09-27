@@ -23,8 +23,18 @@
                 flat
                 class="mx-2"
               />
+              <vue-timepicker
+                v-if="$browserDetect.isSafari"
+                class="ds-reminder-time"
+                :disabled="!notification.allow"
+                v-model="notification.start"
+                @change="otherChangeHandler($event, index, 'start')"
+                close-on-complete
+              >
+              </vue-timepicker>
 
               <v-text-field
+                v-else
                 class="ds-reminder-time"
                 v-model="notification.start"
                 :disabled="!notification.allow"
@@ -43,7 +53,18 @@
                 class="mx-2"
               />
 
+              <vue-timepicker
+                v-if="$browserDetect.isSafari"
+                class="ds-reminder-time"
+                :disabled="!notification.random"
+                v-model="notification.end"
+                @change="otherChangeHandler($event, index, 'end')"
+                close-on-complete
+              >
+              </vue-timepicker>
+
               <v-text-field
+                v-else
                 class="ds-reminder-time"
                 v-model="notification.end"
                 :disabled="!notification.random"
@@ -80,13 +101,29 @@
         <div class="ds-reminder-flex">
           <label>
             {{ $t("activityCompletion") }}
-            <input type="number" class="ds-reminder-day" v-model="reminder.days" min="0" />
+            <input
+              type="number"
+              class="ds-reminder-day"
+              v-model="reminder.days"
+              min="0"
+            />
             {{ $t("consecutiveDays") }}
           </label>
         </div>
 
         <div class="ds-reminder-flex">
+          <vue-timepicker
+            v-if="$browserDetect.isSafari"
+            class="ds-reminder-time"
+            v-model="reminder.time"
+            :drop-direction='"up"'
+            @change="timeChangeHandler($event, 'time')"
+            close-on-complete
+          >
+          </vue-timepicker>
+
           <v-text-field
+            v-else
             type="time"
             class="ds-reminder-time"
             v-model="reminder.time"
@@ -116,19 +153,23 @@
 
 <script>
 import _ from "lodash";
+import VueTimepicker from "vue2-timepicker";
+import "vue2-timepicker/dist/VueTimepicker.css";
 
 export default {
   name: "Notification",
+  components: { VueTimepicker },
   props: {
     details: {
       type: Object,
-      default: function() {
+      default: function () {
         return {};
       },
     },
   },
   data() {
     return {
+      yourFormat: "hh:mm a",
       allowRandom: false,
       notificationTimes: [],
       reminder: this.details.reminder || {
@@ -155,21 +196,21 @@ export default {
       deep: true,
       handler() {
         this.$emit("updatedReminder", this.reminder);
-      }
+      },
     },
-    allowRandom: function(val) {
+    allowRandom: function (val) {
       if (!this.notificationTimes.length) return;
 
       if (val) {
-        this.notificationTimes.forEach(notification => {
+        this.notificationTimes.forEach((notification) => {
           notification.random = true;
         });
       } else {
-        this.notificationTimes.forEach(notification => {
+        this.notificationTimes.forEach((notification) => {
           notification.random = false;
         });
       }
-    }
+    },
   },
 
   created() {
@@ -198,6 +239,15 @@ export default {
       n.splice(i, 1);
       this.notificationTimes = n;
       this.$emit("updatedNotification", this.notificationTimes);
+    },
+    otherChangeHandler(eventData, index, type) {
+      const start = `${eventData.data.HH}:${eventData.data.mm}`;
+      this.notificationTimes[index][type] = start;
+      this.$emit("updatedNotification", this.notificationTimes);
+    },
+    timeChangeHandler(eventData, type) {
+      this.reminder[type] = `${eventData.data.HH}:${eventData.data.mm}`;
+      this.$emit("updatedReminder", this.reminder);
     },
   },
 };
@@ -246,7 +296,8 @@ export default {
 }
 
 .ds-time-cell:hover {
-  box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+  box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%),
+    0 1px 5px 0 rgb(0 0 0 / 12%);
 }
 
 .ds-remove-btn {

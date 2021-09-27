@@ -381,5 +381,6 @@ export default {
   responseSubmitConfirmation: 'Would you like to submit response?',
   secretId: 'Secret Id',
   summary: 'Summary',
-  useSecretIdSelector: 'Secret Id Selector'
+  useSecretIdSelector: 'Secret Id Selector',
+  passwordWarning: 'Please ensure this password is stored securely outside of MindLogger. This password can never be changed or retrieved if forgotten due to security reasons. You will lose all data previously collected if this password is lost.'
 };

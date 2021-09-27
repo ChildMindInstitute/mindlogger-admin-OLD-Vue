@@ -181,6 +181,14 @@
                 :disabled="!applySecretIdSelector"
               />
             </div>
+
+            <v-btn
+              v-if="applet.hasCumulativeActivity"
+              class="ml-2"
+              @click="onDownloadReport"
+            >
+              Download Report
+            </v-btn>
           </div>
           <div v-else class="review-header mb-2">
             <v-menu>
@@ -337,6 +345,7 @@
                               :activity="activity"
                               :secret-ids="selectedSecretIds"
                               :apply-secret-id-selector="applySecretIdSelector"
+                              :focus-extent="focusExtent"
                             />
                           </template>
 
@@ -363,7 +372,6 @@
                           <h2 class="mt-4">
                             {{ $t("responseOptions") }}
                           </h2>
-
                           <template
                             v-if="tab != 'tokens' && activity.subScales.length"
                           >
@@ -375,6 +383,7 @@
                               :selected-versions="selectedVersions"
                               :has-version-bars="hasVersionBars"
                               :timezone="applet.timezoneStr"
+                              :timeRange="timeRange"
                               :activity="activity"
                               :parent-width="panelWidth"
                               :secret-ids="selectedSecretIds"
@@ -437,8 +446,15 @@
                               <header>
                                 <h3 v-if="item.inputType !== 'markdownMessage'">
                                   <div class="item-question">
-                                    <p><img :src="item.getQuestionImage()"></p>
-                                    <vue-markdown>{{ item.getQuizWithoutImage() }}</vue-markdown>
+                                    <p v-if="Boolean(item.getQuestionImage())"><img :src="item.getQuestionImage()"></p>
+                                    <div class="markdown">
+                                      <mavon-editor
+                                        :value="item.getQuizWithoutImage()"
+                                        :language="'en'"
+                                        :toolbarsFlag="false"
+                                      >
+                                      </mavon-editor>
+                                    </div>
                                   </div>
                                 </h3>
 
@@ -606,6 +622,39 @@
             </v-tabs-items>
           </div>
         </div>
+
+        <vue-html2pdf
+          v-if="applet.hasCumulativeActivity"
+          ref="html2Pdf"
+          :show-layout="false"
+          :float-layout="true"
+          :enable-download="true"
+          :preview-modal="false"
+          :paginate-elements-by-height="3000"
+          filename="report"
+          :pdf-quality="2"
+          :manual-pagination="false"
+          pdf-format="a4"
+          pdf-orientation="landscape"
+          pdf-content-width="800px"
+          :html-to-pdf-options="{
+            margin: 70,
+            enableLinks: true,
+            html2canvas: {
+              scale: 1,
+              useCORS: true,
+            },
+            jsPDF: {
+              unit: 'pt',
+              format: 'a4',
+              orientation: 'portrait',
+            },
+          }"
+        >
+          <section slot="pdf-content">
+            <CumulativeScoreReport :activities="applet.activities" />
+          </section>
+        </vue-html2pdf>
       </div>
 
       <ResponseSelectionDialog
@@ -759,6 +808,18 @@
 .markdown /deep/ .v-note-edit {
   display: none;
 }
+.markdown /deep/ .v-note-show {
+  width: 100% !important;
+  flex: 0 0 100% !important;
+  overflow-y: auto;
+  margin: 10px 0px;
+}
+.markdown /deep/ .markdown-body {
+  box-shadow: none !important;
+}
+.markdown /deep/ .v-note-edit {
+  display: none;
+}
 .additional-note /deep/ .v-note-show,
 .markdown /deep/ .v-note-show {
   width: 100% !important;
@@ -772,9 +833,9 @@
   margin: 10px 0px;
 }
 
-.additional-note .subscale-output .v-note-wrapper,
-.markdown .v-note-wrapper {
-  min-height: unset;
+.additional-note .subscale-output /deep/ .v-note-wrapper,
+.markdown /deep/ .v-note-wrapper {
+  min-height: unset !important;
 }
 
 .reviewing-item {
@@ -817,6 +878,7 @@ import Reviewed from "../Components/DataViewerComponents/Reviewed";
 import SubScaleComponent from "../Components/DataViewerComponents/SubScaleComponent";
 import { AppletMixin } from '../Components/Utils/mixins/AppletMixin';
 import CumulativeScore from "../Components/DataViewerComponents/CumulativeScore";
+import CumulativeScoreReport from "../Components/DataViewerComponents/CumulativeScoreReport";
 
 import * as moment from "moment-timezone";
 
@@ -844,6 +906,7 @@ export default {
     Reviewed,
     SubScaleComponent,
     CumulativeScore,
+    CumulativeScoreReport,
   },
 
   /**
@@ -1436,6 +1499,10 @@ export default {
 
     onUpdateFocusExtent(focusExtent) {
       this.$set(this, "focusExtent", focusExtent);
+    },
+
+    onDownloadReport() {
+      this.$refs.html2Pdf.generatePdf()
     },
   },
 };

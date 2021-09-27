@@ -17,6 +17,7 @@ export default {
   lookupTable: 'reprolib:terms/lookupTable',
   variableName: 'reprolib:terms/variableName',
   allowEdit: 'reprolib:terms/allowEdit',
+  allow: 'reprolib:terms/allow',
   enableNegativeTokens: 'reprolib:terms/enableNegativeTokens',
   addProperties: 'reprolib:terms/addProperties',
   isAbout: 'reprolib:terms/isAbout',
@@ -24,4 +25,8 @@ export default {
   variableName: 'reprolib:terms/variableName',
   continuousSlider: 'reprolib:terms/continousSlider',
   showTickMarks: 'reprolib:terms/showTickMarks',
+  doNotKnow: 'reprolib:terms/dont_know_answer',
+  refusedToAnswer: 'reprolib:terms/refused_to_answer',
+  compute: 'reprolib:terms/compute',
+  messages: 'reprolib:terms/messages'
 };
