@@ -369,5 +369,5 @@ export default {
   appletEditProgress: 'Votre applet est en cours de modification.',
   secretId: 'Identifiant secret',
   passwordWarning: `Veuillez vous assurer que ce mot de passe soit stocké en toute sécurité en dehors de MindLogger. Pour des raisons de sécurité, ce mot de passe ne pourra jamais être modifié ou récupéré en cas d'oubli. Si vous perdez ce mot de passe, vous perdrez toutes les données collectées précédemment.`,
-  transferOwnershipConfirmation: 'Are you sure you want to transfer ownership of your applet to another user? This will only transfer the applet and no user data will be transferred.'
+  transferOwnershipConfirmation: `Êtes-vous sûr de vouloir transférer la propriété de votre applet à un autre utilisateur ? Cette opération ne transférera que l'applet et aucune donnée utilisateur ne sera transférée.`
 };
