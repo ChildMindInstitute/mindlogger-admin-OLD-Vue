@@ -772,7 +772,8 @@ export default {
     },
 
     isNotEncrypted(item) {
-      return !item.encryption && (!item.applet || !item.applet.encryption);
+      return (!item.encryption || !Object.keys(item.encryption).length) &&
+             (!item.applet || !item.applet.encryption || !Object.keys(item.applet.encryption).length);
     },
 
     onViewUsers(item) {
