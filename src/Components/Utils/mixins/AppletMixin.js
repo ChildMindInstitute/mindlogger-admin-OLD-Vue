@@ -187,10 +187,16 @@ export const AppletMixin = {
 
               const src = itemData.src;
               if (itemData && itemData.ptr !== undefined && itemData.src !== undefined) {
-                if (_.isArray(data.dataSources[itemData.src].data) && itemData.ptr && typeof itemData.ptr === "object")
-                  response.data[itemUrl] = itemData.ptr;
-                else
+                if (_.isArray(data.dataSources[itemData.src].data) && itemData.ptr && typeof itemData.ptr === "object") {
+                  if (itemData.ptr.index !== undefined) {
+                    response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr.index];
+                  } else {
+                    response.data[itemUrl] = { value: itemData.ptr };
+                  }
+                }
+                else {
                   response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr];
+                }
               }
 
               let activity = currentItems[itemUrl] ?
@@ -224,59 +230,60 @@ export const AppletMixin = {
                   });
 
                 } else if (responseDataObj instanceof Object) {
+                  const keys = Object.keys(responseDataObj).sort();
+                  for (const key of keys) {
+                    const value = responseDataObj[key];
 
-                  let index = 0;
-                  for (const [key, value] of Object.entries(responseDataObj)) {
                     if (item.inputType === 'timeRange' && value.from && value.to) {
                       responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
 
                     } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType === 'audioImageRecord')) {
                       if (value.filename) {
                         const name = this.getMediaResponseObject(value.uri, response, item);
-                        responseData += `filename: ${name}`;
-                      } else if (Array.isArray(value)) {
+
+                        if (name) {
+                          responseData += `filename: ${name}`;
+                        } else {
+                          const responseIndex = _.findIndex(previousResponse, o => (o.activity_id === response.activity['@id']) && (o.item === item.id));
+
+                          if (responseIndex > -1) {
+                            responseData += previousResponse[responseIndex].response;
+                            previousResponse.splice(responseIndex, 1);
+                          }
+                        }
+                      } else if (value && Array.isArray(value.lines)) {
                         const responseIndex = _.findIndex(previousResponse, o => (o.activity_id === response.activity['@id']) && (o.item === item.id));
+                        let nameStr = ''
 
                         if (responseIndex > -1) {
-                          responseData = previousResponse[responseIndex].response;
+                          nameStr = previousResponse[responseIndex].response;
                           previousResponse.splice(responseIndex, 1);
                         } else {
-                          responseData = `filename: ${src}-${item.id}.csv`
+                          nameStr = `filename: ${src}-${item.id}.csv`
                         }
 
-                        const nameRegex = responseData.match(/filename: ([^.]*)/i)
-                        responseData = `filename: ${nameRegex[1]}`
+                        const nameRegex = nameStr.match(/filename: ([^.]*)/i)
+                        responseData += `filename: ${nameRegex[1]}`
 
                         drawingCSVs.push({
                           name: `${nameRegex[1]}.csv`,
-                          data: this.getLinesAsCSV(value)
+                          data: this.getLinesAsCSV(value.lines)
                         });
-
-                        index = Object.keys(responseDataObj).length;
+                      } else if (key == 'text') {
+                        responseData += `${key}: ${value}`;
                       }
                     } else if (item.inputType === 'date' && (value.day || value.month || value.year)) {
                       responseData += `date: ${value.day}/${value.month}/${value.year}`;
-                    } else if (item.inputType === 'drawing' && value.svgString) {
-                      responseData += `SVG`;
                     } else if (item.inputType === 'geolocation' && typeof value === 'object') {
                       responseData += `geo: lat (${value.latitude}) / long (${value.longitude})`;
-                    } else if (item.inputType === 'audioImageRecord') {
-                      if (key === 'uri') {
-                        const name = this.getMediaResponseObject(value, response, item);
-
-                        responseData = `filename: ${name}`;
-                        index = Object.keys(responseDataObj).length;
-                      }
                     } else {
                       responseData += `${key}: ${value}`;
                     }
 
-                    if ((index < Object.keys(responseDataObj).length - 1) && responseData)
-                      responseData += ' | ';
-
-                    index++;
+                    responseData += ' | ';
                   }
 
+                  responseData = responseData.replace(/[ |]*$/g, '').replace(/^[ |]*/g, '');
                 } else {
                   responseData = responseDataObj;
                 }
@@ -330,24 +337,12 @@ export const AppletMixin = {
               if (!csvObj.activity_start_time && csvObj.activity_id && csvObj.item && csvObj.response) {
                 previousResponse.push(csvObj);
                 continue;
-              } else if (
-                previousResponse.length > 0 &&
-                _.find(previousResponse, o => (o.activity_id === csvObj.activity_id) && (o.item === csvObj.item)) &&
-                csvObj.activity_start_time &&
-                !csvObj.response
-              ) {
-                const index = _.findIndex(previousResponse, o => (o.activity_id === csvObj.activity_id) && (o.item === csvObj.item));
-                if (index > -1) {
-                  csvObj['response'] = previousResponse[index].response;
-                  previousResponse.splice(index, 1);
-                }
               }
 
               if (csvObj['response'] && csvObj['response'].includes('.quicktime'))
                 csvObj['response'] = csvObj['response'].replace('.quicktime', '.MOV');
 
               if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined || csvObj['response'] === '') continue;
-              result.push(csvObj);
 
               try {
                 if (csvObj.response && csvObj.response.includes('.csv')) {
