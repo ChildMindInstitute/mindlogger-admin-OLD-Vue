@@ -355,7 +355,7 @@ export default {
   newFolder: 'Nouveau dossier',
   appletUrl: 'Applet URL',
   addAppletFromGithub: 'Ajouter une Applet à partir de l\'URL GitHub',
-  buildEditApplet: 'CONFIGURER UNE APPLET',
+  buildEditApplet: 'Construire/Modifier une applet',
   buildApplet: 'Construire une Applet',
   editApplet: 'Modifier une Applet',
   browseAppletLibrary: "Parcourir la bibliothèque d'applets",
