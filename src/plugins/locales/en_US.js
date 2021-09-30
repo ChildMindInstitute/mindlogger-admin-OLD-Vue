@@ -357,7 +357,7 @@ export default {
   alertMessage: 'A question was answered by {userIdentifier} that an alert was created for.',
   newFolder: 'New Folder',
   appletUrl: 'Applet URL',
-  buildEditApplet: 'Configure an Applet',
+  buildEditApplet: 'Build/Edit an Applet',
   buildApplet: 'Build an Applet',
   editApplet: 'Edit an Applet',
   addAppletFromGithub: 'Add applet from GitHub URL',
