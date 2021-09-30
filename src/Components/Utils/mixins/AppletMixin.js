@@ -222,7 +222,15 @@ export const AppletMixin = {
                     if (value instanceof Object && !Array.isArray(value)) {
                       responseData += Object.entries(value).map(entry => `${entry[0]}: ${entry[1]}`).join(', ');
                     } else {
-                      responseData += `${index}: ${value}`;
+                      if (item.inputType == 'stackedRadio' || item.inputType == 'stackedSlider') {
+                        const label = item.responseOptions[index].name.en;
+                        const response = Array.isArray(value) ? value : [value];
+                        const str = response.map(option => option !== null ? option.toString().replace(/:\d*$/, '') : '').join(', ');
+
+                        responseData += `${label}: ${str}`;
+                      } else {
+                        responseData += `${index}: ${value}`;
+                      }
                     }
 
                     if (index !== responseDataObj.length - 1)
