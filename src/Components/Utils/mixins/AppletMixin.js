@@ -340,7 +340,7 @@ export const AppletMixin = {
               }
 
               if (data.nextsAt && data.nextsAt[response._id] && data.nextsAt[response._id][itemUrl])
-                csvObj['hit_next_time'] = moment(data.nextsAt[response._id][itemUrl]).format("L HH:mm:ss");
+                csvObj['hit_next_time'] = typeof data.nextsAt[response._id][itemUrl] === "number" ? moment(data.nextsAt[response._id][itemUrl]).format("LLL") : data.nextsAt[response._id][itemUrl] || null;
 
               if (!csvObj.activity_start_time && csvObj.activity_id && csvObj.item && csvObj.response) {
                 previousResponse.push(csvObj);
