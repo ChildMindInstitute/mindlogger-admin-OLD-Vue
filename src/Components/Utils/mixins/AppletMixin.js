@@ -238,7 +238,8 @@ export const AppletMixin = {
                   });
 
                 } else if (responseDataObj instanceof Object) {
-                  const keys = Object.keys(responseDataObj).sort();
+                  const keys = Object.keys(responseDataObj).sort().reverse();
+
                   for (const key of keys) {
                     const value = responseDataObj[key];
 
