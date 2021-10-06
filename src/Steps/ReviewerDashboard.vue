@@ -458,7 +458,7 @@
                                   </div>
                                 </h3>
 
-                                <h3 v-else>- <vue-markdown>{{ item.label.en }}</vue-markdown></h3>
+                                <h3 v-else>- <markdown :source="item.label.en"></markdown></h3>
                               </header>
                               <div v-if="item.inputType == 'markdownMessage'">
                                 <div class="markdown">
@@ -857,7 +857,7 @@
 
 <script>
 import _ from "lodash";
-import VueMarkdown from "vue-markdown";
+import Markdown from "../Components/Utils/Markdown";
 import api from "../Components/Utils/api/api.vue";
 import Applet from "../models/Applet";
 import Activity from "../models/Activity";
@@ -898,7 +898,7 @@ export default {
     FreeTextTable,
     SubScaleLineChart,
     SubScaleBarChart,
-    VueMarkdown,
+    Markdown,
     ResponseSelectionDialog,
     Responses,
     Assessment,

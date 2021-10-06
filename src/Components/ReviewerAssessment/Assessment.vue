@@ -14,7 +14,7 @@
               <div>
                 <img :src="item.getQuestionImage()" />
               </div>
-              <vue-markdown>{{ item.getQuizWithoutImage() }}</vue-markdown>
+              <markdown :source="item.getQuizWithoutImage()"></markdown>
             </div>
           </v-card-title>
 
@@ -113,7 +113,7 @@
 import Checkbox from "./Checkbox";
 import Radio from "./Radio";
 import Slider from "./Slider";
-import VueMarkdown from "vue-markdown";
+import Markdown from "../Utils/Markdown";
 import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
 import { Parser } from "expr-eval";
 
@@ -134,7 +134,7 @@ export default {
     Radio,
     Slider,
     ConfirmationDialog,
-    VueMarkdown,
+    Markdown,
   },
 
   data() {

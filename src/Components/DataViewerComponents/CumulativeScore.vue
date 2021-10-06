@@ -18,7 +18,7 @@
           >
             <div>{{ item.category.replace(/_/g, " ") }}</div>
             <div>{{ item.score }}</div>
-            <vue-markdown>{{ item.message }}</vue-markdown>
+            <markdown :source="item.message"></markdown>
           </div>
         </div>
       </div>
@@ -54,12 +54,12 @@ import {
   getMaxScore,
   evaluateScore,
 } from "../Utils/scoring";
-import VueMarkdown from "vue-markdown";
+import Markdown from "../Utils/Markdown";
 
 export default {
   name: "CumulativeScore",
   components: {
-    VueMarkdown,
+    Markdown,
   },
   props: {
     activity: {
