@@ -119,7 +119,6 @@ export const AppletMixin = {
 
           let subScaleNames = [], previousResponse = [];
 
-          const drawingCSVs = [];
           const keys = [
             'id',
             'activity_scheduled_time',
@@ -290,7 +289,6 @@ export const AppletMixin = {
                         })
 
                         responseData += `filename: ${response._id}_${item.id}.csv`;
-                        index = Object.keys(responseDataObj).length;
                       }
                     } else if (item.inputType === 'date' && (value.day || value.month || value.year)) {
                       responseData += `date: ${value.day}/${value.month}/${value.year}`;
