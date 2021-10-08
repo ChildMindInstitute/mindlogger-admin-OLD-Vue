@@ -20,7 +20,7 @@
           mdi-help-circle-outline
         </v-icon>
       </template>
-      <vue-markdown>{{ option.description || 'ab' }}</vue-markdown>
+      <markdown :source="option.description"></markdown>
     </v-tooltip>
 
     <div
@@ -73,7 +73,11 @@
 </style>
 
 <script>
+import Markdown from "../Utils/Markdown";
 export default {
+  components: {
+    Markdown
+  },
   props: {
     option: {
       type: Object,

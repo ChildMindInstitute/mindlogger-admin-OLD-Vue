@@ -12,7 +12,6 @@ import i18n from "./plugins/language";
 import AppletSchemaBuilder from 'applet-schema-builder';
 import mavonEditor from 'mavon-editor';
 import 'mavon-editor/dist/css/index.css'
-import VueMarkdown from "vue-markdown";
 import browserDetect from "vue-browser-detect-plugin";
 import VueHtml2pdf from 'vue-html2pdf'
 
@@ -62,7 +61,6 @@ Vue.use(VuetifyDialog, {
   },
 });
 
-Vue.use(VueMarkdown);
 Vue.use(browserDetect);
 Vue.use(VueHtml2pdf)
 

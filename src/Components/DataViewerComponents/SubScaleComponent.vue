@@ -110,7 +110,6 @@
 </style>
 
 <script>
-import VueMarkdown from "vue-markdown";
 import RadioSlider from "./RadioSlider.vue";
 
 export default {
@@ -118,7 +117,6 @@ export default {
 
   components: {
     RadioSlider,
-    VueMarkdown,
   },
 
   props: {

@@ -7,14 +7,14 @@
         </b>
       </p>
       <p class="text-body-2 mb-4">
-        <vue-markdown>{{ activity.scoreOverview.replace(MARKDOWN_REGEX, "$1$2") }}</vue-markdown>
+        <markdown :source="activity.scoreOverview.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
       </p>
       <div v-for="item in reportMessages" :key="item.category" class="my-4">
         <p class="blue--text mb-1">
           <b>{{ (item.category || "").replace(/_/g, " ") }}</b>
         </p>
         <p class="text-body-2 mb-4">
-          <vue-markdown>{{ item.compute.description.replace(MARKDOWN_REGEX, "$1$2") }}</vue-markdown>
+          <markdown :source="item.compute.description.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
         </p>
         <div class="score-area mb-4">
           <p class="score-title text-nowrap" :style="{ left: `max(90px, ${(item.scoreValue / item.maxScoreValue) * 100}%)` }">
@@ -53,7 +53,7 @@
           Your/Your child’s score on the {{ item.category.replace(/_/g, " ") }} subscale was
           <span class="red--text">{{ item.scoreValue }}</span>
           .
-          <vue-markdown>{{ item.message.replace(MARKDOWN_REGEX, "$1$2") }}</vue-markdown>
+          <markdown :source="item.message.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
         </div>
       </div>
     </div>
@@ -152,7 +152,7 @@ img {
 </style>
 
 <script>
-import VueMarkdown from "vue-markdown";
+import Markdown from "../Utils/Markdown";
 import { Parser } from "expr-eval";
 import _ from "lodash";
 import { getScoreFromResponse, getMaxScore, evaluateScore } from "../Utils/scoring";
@@ -160,7 +160,7 @@ import { getScoreFromResponse, getMaxScore, evaluateScore } from "../Utils/scori
 export default {
   name: "CumulativeScoreReport",
   components: {
-    VueMarkdown,
+    Markdown,
   },
   props: {
     activities: {
