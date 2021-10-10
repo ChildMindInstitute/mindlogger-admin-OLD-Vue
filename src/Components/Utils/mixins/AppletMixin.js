@@ -291,7 +291,7 @@ export const AppletMixin = {
                         responseData += `filename: ${response._id}_${item.id}.csv`;
                       }
                     } else if (item.inputType === 'date' && (value.day || value.month || value.year)) {
-                      responseData += `date: ${value.day}/${value.month}/${value.year}`;
+                      responseData += `date: ${value.day}/${value.month + 1}/${value.year}`;
                     } else if (item.inputType === 'geolocation' && typeof value === 'object') {
                       responseData += `geo: lat (${value.latitude}) / long (${value.longitude})`;
                     } else {
