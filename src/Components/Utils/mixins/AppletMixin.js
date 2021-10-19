@@ -163,7 +163,7 @@ export const AppletMixin = {
               let itemData = response.data[itemUrl];
               let item = (data.itemReferences[response.version] && data.itemReferences[response.version][itemUrl]) || currentItems[itemUrl];
 
-              if (!item) {
+              if (!item || itemData === null) {
                 continue;
               }
 
