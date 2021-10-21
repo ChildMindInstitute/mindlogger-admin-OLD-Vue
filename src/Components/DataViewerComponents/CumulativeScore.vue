@@ -62,6 +62,10 @@ export default {
     Markdown,
   },
   props: {
+    secretIds: {
+      type: Array,
+      required: true
+    },
     activity: {
       type: Object,
       required: true,
