@@ -1,7 +1,7 @@
 <template>
   <div class="option-list">
     <Option
-      v-for="(option, index) in options.slice(0, options.length/2)"
+      v-for="(option, index) in options"
       v-model="response[index]"
       :key="option.id"
       :option="option"
