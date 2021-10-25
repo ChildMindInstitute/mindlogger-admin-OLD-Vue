@@ -354,7 +354,7 @@ export const AppletMixin = {
 
               if (!csvObj.activity_start_time && csvObj.activity_id && csvObj.item && csvObj.response) {
                 previousResponse.push(csvObj);
-                continue;
+                continue; 
               }
 
               if (csvObj['response'] && csvObj['response'].includes('.quicktime'))
@@ -516,7 +516,7 @@ export const AppletMixin = {
             line_number: i.toString(),
             x: point.x.toString(),
             y: point.y.toString(),
-            time: point.time
+            time: typeof point.time === "number" ? moment(point.time).format("YYYY-MM-DD HH:mm:ss") : point.time || '',
           });
         }
       }
