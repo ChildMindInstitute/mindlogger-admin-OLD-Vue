@@ -357,6 +357,10 @@ export default {
   alertMessage: 'A question was answered by {userIdentifier} that an alert was created for.',
   newFolder: 'New Folder',
   appletUrl: 'Applet URL',
+  buildEditApplet: 'Build/Edit an Applet',
+  buildApplet: 'Build an Applet',
+  editApplet: 'Edit an Applet',
+  addAppletFromGithub: 'Add applet from GitHub URL',
   browseAppletLibrary: 'Browse Applet Library',
   selectAppletToEdit: 'Please select applet to edit',
   shareAppletLibraryTitle: 'Share "{appletName}" in the Applet Library',
@@ -378,5 +382,6 @@ export default {
   secretId: 'Secret Id',
   summary: 'Summary',
   useSecretIdSelector: 'Secret Id Selector',
-  passwordWarning: 'Please ensure this password is stored securely outside of MindLogger. This password can never be changed or retrieved if forgotten due to security reasons. You will lose all data previously collected if this password is lost.'
+  passwordWarning: 'Please ensure this password is stored securely outside of MindLogger. This password can never be changed or retrieved if forgotten due to security reasons. You will lose all data previously collected if this password is lost.',
+  transferOwnershipConfirmation: 'Are you sure you want to transfer ownership of your applet to another user? This will only transfer the applet and no user data will be transferred.'
 };

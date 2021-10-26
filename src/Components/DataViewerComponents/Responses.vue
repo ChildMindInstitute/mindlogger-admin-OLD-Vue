@@ -62,7 +62,7 @@
           >
             {{
               item.response && item.response.value &&
-                `${item.response.value.year} - ${item.response.value.month} - ${item.response.value.day}`
+                `${item.response.value.year} - ${item.response.value.month + 1} - ${item.response.value.day}`
             }}
           </div>
 

@@ -9,6 +9,7 @@
         <span class="headline">{{ $t('transferAppletOwnership') }}</span>
       </v-card-title>
       <v-card-text>
+        {{ $t('transferOwnershipConfirmation') }}
         <v-row>
           <v-col cols="12">
             <v-text-field

@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
+## [0.10.0] - 2021-10-26
+Release to Production - Milestone 8
+
+New Features :
+- Timer for Items :  Editors can now set timers that only allow the user to complete an item in X seconds before the user is navigated forward 
+- Show/ Hide Activity, Items or Response Options : Editors can now show and hide items without having to delete and recreate. 	
+
+Improvements:
+- User’s actions : We are collecting the movement of the user through an activity and recording button taps
+- Configure Back and Undo Button : On some items in the applet builder, the editor can remove the ability for the user to have the back and undo buttons 
+- Draw Navigation Controls : The draw controls can be configured to move to the top of the screen 
+
+Bug Fixes:
+- Taps on the drawing canvas : The drawing canvas now shows taps from the user
+
+## [0.9.2] - 2021-10-20
+- Fix filtering secretIDs
+- Fix checkbox widget in assessment tab
+
+## [0.9.1] - 2021-09-29
+- Fix building applet label
+
 ## [0.9.0] - 2021-09-23
 Release to Production
 - Cumulative Score in Data Visualization

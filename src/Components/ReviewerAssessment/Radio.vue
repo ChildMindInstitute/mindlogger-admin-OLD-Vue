@@ -21,12 +21,10 @@
 </style>
 
 <script>
-import VueMarkdown from 'vue-markdown';
 import Option from './Option';
 
 export default {
   components: {
-    VueMarkdown,
     Option,
   },
   props: {
