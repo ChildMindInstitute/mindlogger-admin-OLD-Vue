@@ -354,6 +354,10 @@ export default {
   alertMessage: '{userIdentifier} a répondu à une question pour laquelle une alerte a été créée',
   newFolder: 'Nouveau dossier',
   appletUrl: 'Applet URL',
+  addAppletFromGithub: 'Ajouter une Applet à partir de l\'URL GitHub',
+  buildEditApplet: 'Construire/Modifier une applet',
+  buildApplet: 'Construire une Applet',
+  editApplet: 'Modifier une Applet',
   browseAppletLibrary: "Parcourir la bibliothèque d'applets",
   selectAppletToEdit: 'Please select applet to edit',
   review: 'Revoir',
@@ -364,5 +368,6 @@ export default {
   appletStatusUpdate: `Mise à jour de l'état de l'applet`,
   appletEditProgress: 'Votre applet est en cours de modification.',
   secretId: 'Identifiant secret',
-  passwordWarning: `Veuillez vous assurer que ce mot de passe soit stocké en toute sécurité en dehors de MindLogger. Pour des raisons de sécurité, ce mot de passe ne pourra jamais être modifié ou récupéré en cas d'oubli. Si vous perdez ce mot de passe, vous perdrez toutes les données collectées précédemment.`
+  passwordWarning: `Veuillez vous assurer que ce mot de passe soit stocké en toute sécurité en dehors de MindLogger. Pour des raisons de sécurité, ce mot de passe ne pourra jamais être modifié ou récupéré en cas d'oubli. Si vous perdez ce mot de passe, vous perdrez toutes les données collectées précédemment.`,
+  transferOwnershipConfirmation: `Êtes-vous sûr de vouloir transférer la propriété de votre applet à un autre utilisateur ? Cette opération ne transférera que l'applet et aucune donnée utilisateur ne sera transférée.`
 };

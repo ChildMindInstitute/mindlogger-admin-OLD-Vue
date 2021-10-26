@@ -54,7 +54,7 @@ export default class Item {
     this.question = i18n.arrayToObject(data['schema:question']);
     this.version = data['schema:version'] && i18n.arrayToObject(data['schema:version']);
     this.schemaVersion = data['schema:schemaVersion'] && i18n.arrayToObject(data['schema:schemaVersion']);
-    this.responseOptions = this.parseResponseOptions(data[ReproLib.responseOptions]);
+    this.responseOptions = this.parseResponseOptions(data[ReproLib.responseOptions], this.inputType);
     this.responses = [];
     this.maxValue = _.get(data, [ReproLib.responseOptions, 0, 'schema:maxValue', 0, '@value'], 0);
     this.maxValueImg = _.get(data, [ReproLib.responseOptions, 0, 'schema:maxValueImg', 0, '@value'], '');
@@ -96,30 +96,41 @@ export default class Item {
    * @param {Object} responseOptions the json-ld object with the choice data.
    * @return {Array} available response choices.
    */
-  parseResponseOptions(responseOptions) {
+  parseResponseOptions(responseOptions, inputType) {
     if (
-      !responseOptions || !Array.isArray(responseOptions) ||
-      typeof(responseOptions[0]) != 'object' || !responseOptions[0]['schema:itemListElement']
+      !responseOptions || !Array.isArray(responseOptions) || typeof(responseOptions[0]) != 'object'
     ) {
       return null;
     }
 
-    const itemListElement = responseOptions[0]['schema:itemListElement'];
-    if (!itemListElement) return null;
+    if (inputType == 'radio' || inputType == 'slider') {
+      const itemListElement = responseOptions[0]['schema:itemListElement'];
+      if (!itemListElement) return null;
 
-    return itemListElement.map((choice, index) => ({
-      name: i18n.arrayToObject(choice['schema:name']),
-      value: Number(choice['schema:value'][0]['@value']),
-      score: Number(Array.isArray(choice['schema:score']) && choice['schema:score'][0] && choice['schema:score'][0]['@value']),
-      color: choice['schema:value'][0]['@value'] > 0
-        ? this.coldColors.shift()
-        : this.warmColors.shift(),
-      image: choice['schema:image'],
-      description: _.get(choice, ['schema:description', 0, "@value"], '')
-    })).map(choice => ({
-      ...choice,
-      id: `${Object.values(choice.name)[0]} (${choice.value || 0})`
-    }));
+      return itemListElement.map((choice, index) => ({
+        name: i18n.arrayToObject(choice['schema:name']),
+        value: Number(choice['schema:value'][0]['@value']),
+        score: Number(Array.isArray(choice['schema:score']) && choice['schema:score'][0] && choice['schema:score'][0]['@value']),
+        color: choice['schema:value'][0]['@value'] > 0
+          ? this.coldColors.shift()
+          : this.warmColors.shift(),
+        image: choice['schema:image'],
+        description: _.get(choice, ['schema:description', 0, "@value"], '')
+      })).map(choice => ({
+        ...choice,
+        id: `${Object.values(choice.name)[0]} (${choice.value || 0})`
+      }));
+    } else if (inputType == 'stackedRadio') {
+      return _.get(responseOptions, [0, 'reprolib:terms/itemList'], []).map(item => ({
+        name: i18n.arrayToObject(item['schema:name'])
+      }))
+    } else if (inputType == 'stackedSlider') {
+      return _.get(responseOptions, [0, 'reprolib:terms/sliderOptions'], []).map(option => ({
+        name: i18n.arrayToObject(option['schema:sliderLabel'])
+      }))
+    }
+
+    return null;
   }
 
   appendResponseOption(option) {

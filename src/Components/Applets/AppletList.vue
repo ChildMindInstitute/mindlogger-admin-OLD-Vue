@@ -23,7 +23,7 @@
               style="margin: auto;"
               v-on="on"
             >
-              Build/Edit an Applet
+              {{ $t('buildEditApplet') }}
             </v-btn>
           </template>
 
@@ -32,21 +32,21 @@
               @click="$emit('onBuildApplet')"
             >
               <v-list-item-title>
-                {{ 'Build an applet' }}
+                {{ $t('buildApplet') }}
               </v-list-item-title>
             </v-list-item>
             <v-list-item
               @click="$emit('onEditApplet')"
             >
               <v-list-item-title>
-                {{ 'Edit an applet' }}
+                {{ $t('editApplet') }}
               </v-list-item-title>
             </v-list-item>
             <v-list-item
               @click="$emit('onAddAppletFromUrl')"
             >
               <v-list-item-title>
-                {{ 'Add applet from GitHub URL' }}
+                {{ $t('addAppletFromGithub') }}
               </v-list-item-title>
             </v-list-item>
             <v-list-item
@@ -787,8 +787,12 @@ export default {
       this.appletPasswordDialog = true;
       this.requestedAction = this.setAppletPassword.bind(this);
     },
-    onTransferOwnership() {
-      this.ownershipDialog = true;
+    onTransferOwnership(item) {
+      if (item.roles.includes('owner') && this.isNotEncrypted(item)) {
+        this.onUpdateAppletPassword();
+      } else {
+        this.ownershipDialog = true;
+      }
     },
 
     isNotEncrypted(item) {
@@ -806,14 +810,22 @@ export default {
       }
     },
     onDeleteApplet(applet) {
-      this.appletDeleteDialog = true;
-      this.appletPendingDelete = applet;
+      if (applet.roles.includes('owner') && this.isNotEncrypted(applet)) {
+        this.onUpdateAppletPassword();
+      } else {
+        this.appletDeleteDialog = true;
+        this.appletPendingDelete = applet;
+      }
     },
     onEditApplet(applet) {
-      if (applet.hasUrl) {
-        this.appletEditDialog = true;
+      if (applet.roles.includes('owner') && this.isNotEncrypted(applet)) {
+        this.onUpdateAppletPassword();
       } else {
-        this.editApplet();
+        if (applet.hasUrl) {
+          this.appletEditDialog = true;
+        } else {
+          this.editApplet();
+        }
       }
     },
     onViewGeneralCalendar(item) {
@@ -827,27 +839,35 @@ export default {
       }
     },
     onDuplicateApplet(applet) {
-      api
-          .validateAppletName({
-            apiHost: this.$store.state.backend,
-            token: this.$store.state.auth.authToken.token,
-            name: `${applet.name} (1)`
-          })
-          .then(resp => {
-            this.appletDuplicateDialog = true;
-            this.$refs.appletNameDialog.appletName = resp.data;
-          })
+      if (applet.roles.includes('owner') && this.isNotEncrypted(applet)) {
+        this.onUpdateAppletPassword();
+      } else {
+        api
+            .validateAppletName({
+              apiHost: this.$store.state.backend,
+              token: this.$store.state.auth.authToken.token,
+              name: `${applet.name} (1)`
+            })
+            .then(resp => {
+              this.appletDuplicateDialog = true;
+              this.$refs.appletNameDialog.appletName = resp.data;
+            })
+      }
     },
     onRefreshApplet(applet) {
-      api
-          .refreshApplet({
-            apiHost: this.$store.state.backend,
-            token: this.$store.state.auth.authToken.token,
-            appletId: applet.id,
-          })
-          .then((resp) => {
-            this.$emit("onRefreshAppletRequestReceived", resp.data.message);
-          });
+      if (applet.roles.includes('owner') && this.isNotEncrypted(applet)) {
+        this.onUpdateAppletPassword();
+      } else {
+        api
+            .refreshApplet({
+              apiHost: this.$store.state.backend,
+              token: this.$store.state.auth.authToken.token,
+              appletId: applet.id,
+            })
+            .then((resp) => {
+              this.$emit("onRefreshAppletRequestReceived", resp.data.message);
+            });
+      }
     },
 
     deleteFolder(folder) {
@@ -896,8 +916,12 @@ export default {
     },
 
     onShareWithLibrary(applet) {
-      this.shareApplet = applet;
-      this.shareWithDialog = true;
+      if (applet.roles.includes('owner') && this.isNotEncrypted(applet)) {
+        this.onUpdateAppletPassword();
+      } else {
+        this.shareApplet = applet;
+        this.shareWithDialog = true;
+      }
     }
   },
 };
