@@ -652,7 +652,10 @@
           }"
         >
           <section slot="pdf-content">
-            <CumulativeScoreReport :activities="applet.activities" />
+            <CumulativeScoreReport 
+              :activities="applet.activities" 
+              :appletImage="applet.data.applet['schema:image']"
+            />
           </section>
         </vue-html2pdf>
       </div>
@@ -1064,6 +1067,8 @@ export default {
           date: latestActivity.lastResponseDate.toString()
         }, false)
       }
+
+      console.log('applet --------------', this.applet);
 
       this.$nextTick(this.onResize);
       window.addEventListener("resize", this.onResize);
