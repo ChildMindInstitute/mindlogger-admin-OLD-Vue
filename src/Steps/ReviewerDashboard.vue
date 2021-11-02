@@ -652,7 +652,10 @@
           }"
         >
           <section slot="pdf-content">
-            <CumulativeScoreReport :activities="applet.activities" />
+            <CumulativeScoreReport 
+              :activities="applet.activities" 
+              :appletImage="applet.data.applet['schema:image']"
+            />
           </section>
         </vue-html2pdf>
       </div>
