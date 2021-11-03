@@ -1,5 +1,12 @@
 <template>
   <div class="cumulative-score-report">
+    <div v-if="appletImage" class="applet-logo">
+      <img 
+        :src="appletImage"
+        height="100" 
+        alt='' 
+      />
+    </div>
     <div v-for="{ activity, reportMessages } in activityResponses" :key="activity.id" class="mb-5">
       <p class="mb-4">
         <b>
@@ -18,7 +25,7 @@
         </p>
         <div class="score-area mb-4">
           <p class="score-title text-nowrap" :style="{ left: `max(90px, ${(item.scoreValue / item.maxScoreValue) * 100}%)` }">
-            <b>Your/Your Child's Score</b>
+            <b>Your Child's Score</b>
           </p>
           <div
             class="score-bar score-below"
@@ -40,17 +47,9 @@
             <b>{{ item.maxScoreValue }}</b>
           </p>
         </div>
-        <p class="text-uppercase mb-1">
-          <b>
-            <i>
-              If score
-              <span class="ml-2">{{ item.jsExpression }}</span>
-            </i>
-          </b>
-        </p>
 
         <div class="mb-4">
-          Your/Your child’s score on the {{ item.category.replace(/_/g, " ") }} subscale was
+          Your child’s score on the {{ item.category.replace(/_/g, " ") }} subscale was
           <span class="red--text">{{ item.scoreValue }}</span>
           .
           <markdown :source="item.message.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
@@ -70,6 +69,10 @@
 .cumulative-score-report {
   width: 600px;
   font-family: Arial, Helvetica, sans-serif;
+}
+.applet-logo {
+  display: flex;
+  justify-content: flex-end;
 }
 .text-uppercase {
   text-transform: uppercase;
@@ -145,11 +148,6 @@
   bottom: 0;
 }
 </style>
-<style>
-img {
-  max-width: 100%;
-}
-</style>
 
 <script>
 import Markdown from "../Utils/Markdown";
@@ -163,6 +161,10 @@ export default {
     Markdown,
   },
   props: {
+    appletImage: {
+      type: String,
+      required: true,
+    },
     activities: {
       type: Array,
       required: true,
