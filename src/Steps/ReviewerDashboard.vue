@@ -24,240 +24,274 @@
         </div>
 
         <div class="content">
-          <div v-if="this.tabs[selectedTab] != 'review'" class="content-header">
-            <div class="time-range">
-              <div class="start-time-range">
-                <v-menu>
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      depressed
-                      class="ds-button-tall mr-2 ml-2 mb-2 fromDate"
-                      v-on="on"
-                    >
-                      {{ fromDate }}
-                    </v-btn>
-                  </template>
 
-                  <v-date-picker
-                    :locale="$i18n.locale.slice(0, 2)"
-                    no-title
-                    :allowedDates="isAllowedStartDate"
-                    @change="setStartDate"
-                    class="date-picker"
-                  />
-                </v-menu>
-                <v-dialog
-                  ref="dialog1"
-                  v-model="startTimeDialog"
-                  :return-value.sync="startTime"
-                  persistent
-                  width="290px"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="startTime"
-                      label="Start time"
-                      prepend-icon="mdi-clock-time-four-outline"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
-                  </template>
-                  <v-time-picker
-                    v-if="startTimeDialog"
-                    v-model="startTime"
-                    full-width
-                  >
-                    <v-spacer></v-spacer>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="startTimeDialog = false"
-                    >
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="$refs.dialog1.save(startTime); setStartTime()"
-                    >
-                      OK
-                    </v-btn>
-                  </v-time-picker>
-                </v-dialog>
-              </div>
-              <div class="mx-4">{{ $t("to") }}</div>
-              <div class="end-time-range">
-                <v-menu>
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      depressed
-                      class="ds-button-tall mr-2 ml-2 mb-2 toDate"
-                      v-on="on"
-                    >
-                      {{ toDate }}
-                    </v-btn>
-                  </template>
-
-                  <v-date-picker
-                    :locale="$i18n.locale.slice(0, 2)"
-                    no-title
-                    :allowedDates="isAllowedEndDate"
-                    @change="setEndDate"
-                    class="date-picker"
-                  />
-                </v-menu>
-                <v-dialog
-                  ref="dialog2"
-                  v-model="endTimeDialog"
-                  :return-value.sync="endTime"
-                  persistent
-                  width="290px"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="endTime"
-                      label="End time"
-                      prepend-icon="mdi-clock-time-four-outline"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
-                  </template>
-                  <v-time-picker
-                    v-if="endTimeDialog"
-                    v-model="endTime"
-                    full-width
-                  >
-                    <v-spacer></v-spacer>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="endTimeDialog = false"
-                    >
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="$refs.dialog2.save(endTime); setEndTime()"
-                    >
-                      OK
-                    </v-btn>
-                  </v-time-picker>
-                </v-dialog>
-              </div>
-            </div>
-            <div id="versions" class="version ml-6 mt-2">
-              <v-select
-                v-model="selectedVersions"
-                attach="#versions"
-                class="version-list"
-                :menu-props="{ maxHeight: 232 }"
-                :items="appletVersions"
-                :label="$t('versions')"
-                multiple
-              />
-            </div>
-
+          <!-- header -->
+          <template
+          >
             <div
-              v-if="secretIDs.length"
-              class="secret-id"
+              v-if="this.tabs[selectedTab] == 'responses'"
+              class="content-header"
             >
-              <v-checkbox
-                v-model="applySecretIdSelector"
-                :label="$t('useSecretIdSelector')"
-                hide-details
-              />
+              <div class="time-range">
+                <div class="start-time-range">
+                  <v-menu>
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        depressed
+                        class="ds-button-tall mr-2 ml-2 mb-2 fromDate"
+                        v-on="on"
+                      >
+                        {{ fromDate }}
+                      </v-btn>
+                    </template>
 
-              <v-select
-                v-model="selectedSecretIds"
-                @input="onChangeSecretId"
-                :items="secretIDs"
-                class="secret-id-list"
-                :menu-props="{ maxHeight: 232 }"
-                :label="$t('secretId')"
-                multiple
-                :disabled="!applySecretIdSelector"
-              />
+                    <v-date-picker
+                      :locale="$i18n.locale.slice(0, 2)"
+                      no-title
+                      :allowedDates="isAllowedStartDate"
+                      @change="setStartDate"
+                      class="date-picker"
+                    />
+                  </v-menu>
+                  <v-dialog
+                    ref="dialog1"
+                    v-model="startTimeDialog"
+                    :return-value.sync="startTime"
+                    persistent
+                    width="290px"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        v-model="startTime"
+                        label="Start time"
+                        prepend-icon="mdi-clock-time-four-outline"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-time-picker
+                      v-if="startTimeDialog"
+                      v-model="startTime"
+                      full-width
+                    >
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="startTimeDialog = false"
+                      >
+                        Cancel
+                      </v-btn>
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="$refs.dialog1.save(startTime); setStartTime()"
+                      >
+                        OK
+                      </v-btn>
+                    </v-time-picker>
+                  </v-dialog>
+                </div>
+                <div class="mx-4">{{ $t("to") }}</div>
+                <div class="end-time-range">
+                  <v-menu>
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        depressed
+                        class="ds-button-tall mr-2 ml-2 mb-2 toDate"
+                        v-on="on"
+                      >
+                        {{ toDate }}
+                      </v-btn>
+                    </template>
+
+                    <v-date-picker
+                      :locale="$i18n.locale.slice(0, 2)"
+                      no-title
+                      :allowedDates="isAllowedEndDate"
+                      @change="setEndDate"
+                      class="date-picker"
+                    />
+                  </v-menu>
+                  <v-dialog
+                    ref="dialog2"
+                    v-model="endTimeDialog"
+                    :return-value.sync="endTime"
+                    persistent
+                    width="290px"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        v-model="endTime"
+                        label="End time"
+                        prepend-icon="mdi-clock-time-four-outline"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-time-picker
+                      v-if="endTimeDialog"
+                      v-model="endTime"
+                      full-width
+                    >
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="endTimeDialog = false"
+                      >
+                        Cancel
+                      </v-btn>
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="$refs.dialog2.save(endTime); setEndTime()"
+                      >
+                        OK
+                      </v-btn>
+                    </v-time-picker>
+                  </v-dialog>
+                </div>
+              </div>
+              <div id="versions" class="version ml-6 mt-2">
+                <v-select
+                  v-model="selectedVersions"
+                  attach="#versions"
+                  class="version-list"
+                  :menu-props="{ maxHeight: 232 }"
+                  :items="appletVersions"
+                  :label="$t('versions')"
+                  multiple
+                />
+              </div>
+
+              <div
+                v-if="secretIDs.length"
+                class="secret-id"
+              >
+                <v-checkbox
+                  v-model="applySecretIdSelector"
+                  :label="$t('useSecretIdSelector')"
+                  hide-details
+                />
+
+                <v-select
+                  v-model="selectedSecretIds"
+                  @input="onChangeSecretId"
+                  :items="secretIDs"
+                  class="secret-id-list"
+                  :menu-props="{ maxHeight: 232 }"
+                  :label="$t('secretId')"
+                  multiple
+                  :disabled="!applySecretIdSelector"
+                />
+              </div>
+
+              <v-btn
+                v-if="applet.hasCumulativeActivity"
+                class="ml-2"
+                @click="onDownloadReport"
+              >
+                Download Report
+              </v-btn>
             </div>
-
-            <v-btn
-              v-if="applet.hasCumulativeActivity"
-              class="ml-2"
-              @click="onDownloadReport"
+            <div
+              v-else-if="this.tabs[selectedTab] == 'review'"
+              class="review-header mb-2"
             >
-              Download Report
-            </v-btn>
-          </div>
-          <div v-else class="review-header mb-2">
-            <v-menu>
-              <template v-slot:activator="{ on }">
-                Select Date to review:
-                <v-btn
-                  depressed
-                  class="ds-button-tall mr-2 ml-2 mb-2"
-                  v-on="on"
-                >
-                  {{ reviewingDate }}
-                </v-btn>
-              </template>
+              <v-menu>
+                <template v-slot:activator="{ on }">
+                  Select Date to review:
+                  <v-btn
+                    depressed
+                    class="ds-button-tall mr-2 ml-2 mb-2"
+                    v-on="on"
+                  >
+                    {{ reviewingDate }}
+                  </v-btn>
+                </template>
 
-              <v-date-picker
-                :locale="$i18n.locale.slice(0, 2)"
-                no-title
-                :allowedDates="responseExists"
-                @change="setReviewDate"
-                class="date-picker"
+                <v-date-picker
+                  :locale="$i18n.locale.slice(0, 2)"
+                  no-title
+                  :allowedDates="responseExists"
+                  @change="setReviewDate"
+                  class="date-picker"
+                />
+              </v-menu>
+
+              <v-btn
+                depressed
+                class="ds-button-tall mr-2 ml-2 mb-2"
+                @click="responseDialog = true"
+              >
+                {{ reviewingTime }}
+              </v-btn>
+            </div>
+            <div
+              v-else-if="this.tabs[selectedTab] == 'frequency'"
+              class="frequency-header mb-2 px-4"
+            >
+              <v-select
+                v-model="frequency.chartType"
+                class="chart-type"
+                :menu-props="{ maxHeight: 232 }"
+                :items="['frequency', 'token']"
+                label="Chart Type"
               />
-            </v-menu>
 
-            <v-btn
-              depressed
-              class="ds-button-tall mr-2 ml-2 mb-2"
-              @click="responseDialog = true"
-            >
-              {{ reviewingTime }}
-            </v-btn>
-          </div>
+              <v-radio-group
+                v-if="frequency.chartType == 'frequency'"
+                class="view-type"
+                v-model="frequency.viewType"
+              >
+                <div class="view-type-list mx-6">
+                  <v-radio class="mx-4" value="matrix">
+                    <template v-slot:label>
+                      <img height="24" alt='' v-bind:src="require(`@/assets/matrix-view.png`)"/>
+                      Matrix View
+                    </template>
+                  </v-radio>
 
+                  <v-radio class="mx-4" value="area">
+                    <template v-slot:label>
+                      <img height="24" alt='' v-bind:src="require(`@/assets/area-view.png`)"/>
+                      Area View
+                    </template>
+                  </v-radio>
+
+                  <v-radio class="mx-4" value="bar">
+                    <template v-slot:label>
+                      <img height="24" alt='' v-bind:src="require(`@/assets/bar-view.png`)"/>
+                      Bar View
+                    </template>
+                  </v-radio>
+                </div>
+              </v-radio-group>
+            </div>
+          </template>
+
+          <!-- content -->
           <div ref="panels">
-            <v-tabs-items v-model="selectedTab">
-              <v-tab-item v-for="tab in tabs" :key="tab">
-                <v-card class="mb-0">
+            <v-tabs-items
+              v-model="selectedTab"
+            >
+              <v-tab-item
+                v-for="tab in tabs"
+                :key="tab"
+              >
+                <v-card
+                  class="mb-0"
+                >
                   <v-expansion-panels
+                    v-if="tab == 'responses'"
                     v-model="applet.selectedActivites"
                     multiple
                     focusable
                   >
-                    <v-expansion-panel v-if="tab == 'tokens'">
-                      <v-expansion-panel-header>
-                        <div>
-                          {{ applet.label.en }}
-                        </div>
-                      </v-expansion-panel-header>
-                      <v-expansion-panel-content v-if="applet.hasTokenItem">
-                        <token-chart
-                          :plot-id="`Token-${applet.id}`"
-                          :applet="applet"
-                          :cumulative="applet.tokens"
-                          :timezone="applet.timezoneStr"
-                          :versions="applet.versions"
-                          :focus-extent="focusExtent"
-                          :selected-versions="selectedVersions"
-                          :has-version-bars="hasVersionBars"
-                          :parent-width="panelWidth"
-                          @onUpdateFocusExtent="onUpdateFocusExtent"
-                        />
-                      </v-expansion-panel-content>
-                      <v-expansion-panel-content v-else>
-                        <h4>
-                          {{ $t("noTokenDataAvailable") }}
-                        </h4>
-                      </v-expansion-panel-content>
-                    </v-expansion-panel>
                     <template
-                      v-else-if="tab != 'review'"
                       v-for="(activity, index) in applet.activities"
                     >
                       <v-expansion-panel
@@ -336,18 +370,15 @@
                         <v-expansion-panel-content
                           v-if="
                             activity.responses &&
-                            activity.responses.length &&
-                            (tab !== 'tokens' || activity.hasTokenItem)
+                            activity.responses.length
                           "
                         >
-                          <template v-if="tab !== 'tokens'">
-                            <CumulativeScore
-                              :activity="activity"
-                              :secret-ids="selectedSecretIds"
-                              :apply-secret-id-selector="applySecretIdSelector"
-                              :focus-extent="focusExtent"
-                            />
-                          </template>
+                          <CumulativeScore
+                            :activity="activity"
+                            :secret-ids="selectedSecretIds"
+                            :apply-secret-id-selector="applySecretIdSelector"
+                            :focus-extent="focusExtent"
+                          />
 
                           <div
                             v-if="
@@ -373,7 +404,7 @@
                             {{ $t("responseOptions") }}
                           </h2>
                           <template
-                            v-if="tab != 'tokens' && activity.subScales.length"
+                            v-if="activity.subScales.length"
                           >
                             <SubScaleLineChart
                               v-if="activity.getFrequency(selectedSecretIds) > 1"
@@ -406,7 +437,6 @@
                           </template>
 
                           <v-expansion-panels
-                            v-if="tab != 'tokens'"
                             v-model="activity.selectedSubScales"
                             class="mt-4"
                             focusable
@@ -432,12 +462,13 @@
                             </template>
                           </v-expansion-panels>
 
-                          <template v-for="item in activity.items">
+                          <template
+                            v-for="item in activity.items"
+                          >
                             <div
                               v-if="
                                 item.allowEdit &&
-                                (tab == 'tokens' || !item.partOfSubScale) &&
-                                (tab != 'tokens' || item.isTokenItem) &&
+                                !item.partOfSubScale &&
                                 (item.inputType !== 'text' || !item.correctAnswer && !item.isResponseIdentifier)
                               "
                               :key="item['id']"
@@ -472,9 +503,7 @@
                               </div>
 
                               <TimePicker
-                                v-if="
-                                  tab == 'responses' && item.inputType === 'time'
-                                "
+                                v-if="item.inputType === 'time'"
                                 :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
                                 :item="item"
                                 :versions="applet.versions"
@@ -492,7 +521,6 @@
                               />
                               <RadioSlider
                                 v-else-if="
-                                  tab == 'responses' &&
                                   item.responseOptions &&
                                   applet.selectedActivites.includes(index)
                                 "
@@ -510,27 +538,9 @@
                                 :apply-secret-id-selector="applySecretIdSelector"
                               />
 
-                              <Frequency
-                                v-else-if="
-                                  tab == 'frequency' && item.inputType === 'radio'
-                                "
-                                :plot-id="`frequency-${activity.slug}-${item.slug}`"
-                                :item="item"
-                                :versions="applet.versions"
-                                :focus-extent="focusExtent"
-                                :selected-versions="selectedVersions"
-                                :timezone="applet.timezoneStr"
-                                :has-version-bars="hasVersionBars"
-                                :parent-width="panelWidth"
-                                :time-range="timeRange"
-                                :color="item.dataColor"
-                                :secret-ids="selectedSecretIds"
-                                :apply-secret-id-selector="applySecretIdSelector"
-                              />
-
                               <FreeTextTable
                                 v-if="
-                                  tab == 'responses' && item.inputType === 'text'
+                                  item.inputType === 'text'
                                 "
                                 :plot-id="`FreeText-${activity.data['_id']}-${item.data['_id']}`"
                                 :item="item"
@@ -544,78 +554,100 @@
                           </template>
                         </v-expansion-panel-content>
                         <v-expansion-panel-content v-else>
-                          <h4 v-if="tab != 'tokens'" class="ma-4">
+                          <h4 class="ma-4">
                             {{ $t("noDataAvailable") }}
-                          </h4>
-                          <h4 v-else>
-                            {{ $t("noTokenDataAvailable") }}
                           </h4>
                         </v-expansion-panel-content>
                       </v-expansion-panel>
                     </template>
-                    <v-expansion-panels v-else class="reviewing-section">
-                      <v-card class="reviewing-item">
-                        <Responses
-                          :key="`response-${reviewing.key}`"
-                          :activity="reviewing.activity"
-                          :response-id="reviewing.responseId"
-                          :secret-ids="selectedSecretIds"
-                          :apply-secret-id-selector="applySecretIdSelector"
-                        />
-                      </v-card>
+                  </v-expansion-panels>
 
-                      <v-card class="reviewing-item">
-                        <v-tabs
-                          v-model="selectedReviewTab"
-                          @change="onChangeReviewingTab"
-                          hide-slider
-                          light
-                          left
+                  <v-expansion-panels
+                    v-else-if="tab == 'review'"
+                    class="reviewing-section"
+                  >
+                    <v-card class="reviewing-item">
+                      <Responses
+                        :key="`response-${reviewing.key}`"
+                        :activity="reviewing.activity"
+                        :response-id="reviewing.responseId"
+                        :secret-ids="selectedSecretIds"
+                        :apply-secret-id-selector="reviewing.applySecretIdSelector"
+                      />
+                    </v-card>
+
+                    <v-card class="reviewing-item">
+                      <v-tabs
+                        v-model="selectedReviewTab"
+                        @change="onChangeReviewingTab"
+                        hide-slider
+                        light
+                        left
+                      >
+                        <template v-for="reviewingTab in reviewingTabs">
+                          <v-tab :key="reviewingTab">
+                            {{ $t(reviewingTab) }}
+                          </v-tab>
+                        </template>
+                      </v-tabs>
+
+                      <v-tabs-items v-model="selectedReviewTab">
+                        <v-tab-item
+                          v-for="reviewingTab in reviewingTabs"
+                          :key="reviewingTab"
+                          class="mx-2"
                         >
-                          <template v-for="reviewingTab in reviewingTabs">
-                            <v-tab :key="reviewingTab">
-                              {{ $t(reviewingTab) }}
-                            </v-tab>
-                          </template>
-                        </v-tabs>
-
-                        <v-tabs-items v-model="selectedReviewTab">
-                          <v-tab-item
-                            v-for="reviewingTab in reviewingTabs"
-                            :key="reviewingTab"
-                            class="mx-2"
+                          <div
+                            v-if="reviewingTab == 'notes'"
                           >
-                            <div
-                              v-if="reviewingTab == 'notes'"
-                            >
-                              <Notes
-                                :key="`note-${reviewing.key}`"
-                                :response-id="reviewing.responseId"
-                              />
-                            </div>
-                            <div
-                              v-else-if="reviewingTab == 'assessment'"
-                            >
-                              <Assessment
-                                :key="`assessment-${reviewing.key}`"
-                                :activity="applet.reviewerActivity"
-                                :response-history="reviewing.currentReview.data"
-                                @submit="submitAssessment"
-                              />
-                            </div>
-                            <div
-                              v-else-if="reviewingTab == 'reviewed'"
-                            >
-                              <Reviewed
-                                :key="`reviewed-${reviewing.key}`"
-                                :activity="applet.reviewerActivity"
-                                :reviews="reviewing.reviews"
-                              />
-                            </div>
-                          </v-tab-item>
-                        </v-tabs-items>
-                      </v-card>
-                    </v-expansion-panels>
+                            <Notes
+                              :key="`note-${reviewing.key}`"
+                              :response-id="reviewing.responseId"
+                            />
+                          </div>
+                          <div
+                            v-else-if="reviewingTab == 'assessment'"
+                          >
+                            <Assessment
+                              :key="`assessment-${reviewing.key}`"
+                              :activity="applet.reviewerActivity"
+                              :response-history="reviewing.currentReview.data"
+                              @submit="submitAssessment"
+                            />
+                          </div>
+                          <div
+                            v-else-if="reviewingTab == 'reviewed'"
+                          >
+                            <Reviewed
+                              :key="`reviewed-${reviewing.key}`"
+                              :activity="applet.reviewerActivity"
+                              :reviews="reviewing.reviews"
+                            />
+                          </div>
+                        </v-tab-item>
+                      </v-tabs-items>
+                    </v-card>
+                  </v-expansion-panels>
+
+                  <v-expansion-panels
+                    v-else-if="tab == 'frequency'"
+                  >
+                    <Frequency
+                      v-if="frequency.chartType == 'frequency'"
+                      :plot-id="`frequency-${applet.id}`"
+                      :applet="applet"
+                      :view-type="frequency.viewType"
+                      :parent-width="panelWidth"
+                      :has-version-bars="true"
+                    />
+
+                    <TokenChart
+                      v-if="frequency.chartType == 'token'"
+                      :plot-id="`token-${applet.id}`"
+                      :applet="applet"
+                      :parent-width="panelWidth"
+                      :has-version-bars="true"
+                    />
                   </v-expansion-panels>
                 </v-card>
               </v-tab-item>
@@ -852,7 +884,28 @@
   max-height: calc(80vh - 200px);
   padding: 0px 20px;
 }
+
+.frequency-header {
+  display: flex;
+  align-items: center;
+}
+
+.frequency-header .chart-type {
+  width: 150px;
+  flex-grow: 0;
+}
+
+.frequency-header .view-type {
+  flex-grow: 1;
+  display: flex;
+  justify-content: space-around;
+}
+
+.view-type-list {
+  display: flex;
+}
 </style>
+
 <style>
 .item-question img {
   width: 250px;
@@ -867,9 +920,9 @@ import Applet from "../models/Applet";
 import Activity from "../models/Activity";
 import Item from "../models/Item";
 import TokenChart from "../Components/DataViewerComponents/TokenChart.vue";
+import Frequency from "../Components/DataViewerComponents/Frequency.vue";
 import ActivityHeader from "../Components/DataViewerComponents/ActivityHeader.vue";
 import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue";
-import Frequency from "../Components/DataViewerComponents/Frequency.vue";
 import TimePicker from "../Components/DataViewerComponents/TimePicker.vue";
 import FreeTextTable from "../Components/DataViewerComponents/FreeTextTable.vue";
 import SubScaleLineChart from "../Components/DataViewerComponents/SubScaleLineChart";
@@ -940,7 +993,7 @@ export default {
       selectedTab: 0,
       selectedReviewTab: 1,
       panel: [],
-      tabs: ["responses", "tokens"],
+      tabs: ['responses'],
       reviewingTabs: [],
       focusExtent: [ONE_WEEK_AGO, TODAY],
       selectedVersions: [],
@@ -962,6 +1015,10 @@ export default {
         currentReview: {
           data: []
         }
+      },
+      frequency: {
+        chartType: 'frequency',
+        viewType: 'matrix'
       },
       secretIDs: [],
       responseDialog: false,
@@ -1097,7 +1154,7 @@ export default {
     setDashboardTabs() {
       for (const itemId in this.applet.items) {
         if (this.applet.items[itemId].isTokenItem) {
-          this.tabs.push("frequency");
+          this.tabs.push('frequency');
           break;
         }
       }
