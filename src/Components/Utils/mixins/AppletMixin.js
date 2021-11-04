@@ -186,18 +186,20 @@ export const AppletMixin = {
               }
 
               const src = itemData.src;
-              if (itemData && itemData.ptr !== undefined && itemData.src !== undefined) {
-                if (_.isArray(data.dataSources[itemData.src].data) && itemData.ptr && typeof itemData.ptr === "object") {
-                  if (itemData.ptr.index !== undefined) {
-                    response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr.index];
-                  } else {
-                    response.data[itemUrl] = { value: itemData.ptr };
+              try {
+                if (itemData && itemData.ptr !== undefined && itemData.src !== undefined) {
+                  if (_.isArray(data.dataSources[itemData.src].data) && itemData.ptr && typeof itemData.ptr === "object") {
+                    if (itemData.ptr.index !== undefined && !data.dataSources[itemData.src].data[itemData.ptr.index].value.lines) {
+                      response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr.index];
+                    } else {
+                      response.data[itemUrl] = { value: itemData.ptr };
+                    }
+                  }
+                  else {
+                    response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr];
                   }
                 }
-                else {
-                  response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr];
-                }
-              }
+              } catch (error) { }
 
               let activity = currentItems[itemUrl] ?
                 currentActivities[response.activity['@id']] :
@@ -211,7 +213,7 @@ export const AppletMixin = {
                 flag = 'incomplete';
               }
 
-              const responseDataObj = response.data[itemUrl];
+              const responseDataObj = { ...response.data[itemUrl] };
               let responseData = '';
 
               if (!responseDataObj) {
@@ -354,7 +356,7 @@ export const AppletMixin = {
 
               if (!csvObj.activity_start_time && csvObj.activity_id && csvObj.item && csvObj.response) {
                 previousResponse.push(csvObj);
-                continue; 
+                continue;
               }
 
               if (Array.isArray(csvObj['response']) && csvObj['response'].includes('.quicktime'))
