@@ -2,10 +2,10 @@ import * as moment from 'moment';
 
 export const addTime = (current, unit) => {
   if (unit == '5mins') {
-    return moment(current).add(5, 'minutes').toDate();
+    return moment.utc(current).add(5, 'minutes').toDate();
   }
 
-  return moment(current).add(1, `${unit}s`).toDate();
+  return moment.utc(current).add(1, `${unit}s`).toDate();
 }
 
 const addFrequency = (current, f) => (current || 0) + f

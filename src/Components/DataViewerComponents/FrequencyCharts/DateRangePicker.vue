@@ -216,7 +216,7 @@ export default {
 
   methods: {
     changeDate (date, diff, add=false) {
-      const obj = moment(date);
+      const obj = moment.utc(date);
       const operate = add ? obj.add.bind(obj) : obj.subtract.bind(obj);
 
       switch (diff) {
@@ -239,9 +239,12 @@ export default {
 
     upRange () {
       if (this.range != 'All') {
+        const startDate = this.changeDate(this.startDate, this.range, true)
+        const endDate = this.changeDate(this.endDate, this.range, true)
+
         this.$emit('viewDetails', {
-          startDate: this.changeDate(this.startDate, this.range, true),
-          endDate: this.changeDate(this.endDate, this.range, true),
+          startDate,
+          endDate,
           unit: this.unit,
           range: this.range
         })
@@ -250,9 +253,12 @@ export default {
 
     downRange () {
       if (this.range != 'All') {
+        const startDate = this.changeDate(this.startDate, this.range, false)
+        const endDate = this.changeDate(this.endDate, this.range, false)
+
         this.$emit('viewDetails', {
-          startDate: this.changeDate(this.startDate, this.range, false),
-          endDate: this.changeDate(this.endDate, this.range, false),
+          startDate,
+          endDate,
           unit: this.unit,
           range: this.range
         })
@@ -262,12 +268,12 @@ export default {
     onChangeRange (range) {
       const now = new Date();
       now.setDate(now.getDate() + 1)
-      const endDate = new Date(moment(now).format('YYYY-MM-DD'));
+      let endDate = new Date(moment(now).format('YYYY-MM-DD'));
       let startDate, unit = 'hour';
 
       if (range == '1 month' || range == '6 months' || range == '1 year') {
-        endDate.setDate(-1)
         endDate.setMonth(endDate.getMonth() + 1)
+        endDate = new Date(moment.utc(endDate).format('YYYY-MM') + '-01');
       }
 
       if (range == 'All') {
