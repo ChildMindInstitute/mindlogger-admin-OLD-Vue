@@ -469,7 +469,6 @@ const getUsersData = ({ apiHost, token, appletId, options, pageIndex }) => {
             Object.assign(resp.data[key], next.data[key]);
           }
         }
-
         return resp;
       });
     }
@@ -487,7 +486,7 @@ const duplicateApplet = ({ apiHost, token, appletId, options, form }) =>
       ...options,
       lang: store.state.currentLanguage,
     },
-    data: form
+    data: form,
   });
 
 const replaceResponseData = ({ apiHost, token, appletId, user, data }) =>
