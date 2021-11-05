@@ -55,6 +55,7 @@
     "markdown-it-sup": "^1.0.0",
     "markdown-it-task-lists": "^2.1.1",
     "mavon-editor": "^2.9.1",
+    "mimoza": "^1.0.0",
     "moment-timezone": "^0.5.33",
     "object-to-csv": "^1.0.5",
     "protocol-builder": "^0.1.20",

@@ -2,12 +2,20 @@
   <div class="cumulative-score-report">
     <div v-if="appletImage" class="applet-logo">
       <img 
-        :src="appletImage"
-        height="100" 
+        :src="appletImage + '?not-from-cache-please'"
+        crossorigin="anonymous"
+        width="100" 
         alt='' 
       />
     </div>
     <div v-for="{ activity, reportMessages } in activityResponses" :key="activity.id" class="mb-5">
+      <div v-if="splashScreenType(activity) === 'video'" class="full-height">
+        <video class="full-width" :src="activity.splash.en" controls autoplay>
+        </video>
+      </div>
+      <div v-if="splashScreenType(activity) === 'image'" class="full-height">
+        <img class="full-width" :src="activity.splash.en" alt="Splash Activity">
+      </div>
       <p class="mb-4">
         <b>
           <u>{{ activity.id }} Report</u>
@@ -71,8 +79,10 @@
   font-family: Arial, Helvetica, sans-serif;
 }
 .applet-logo {
-  display: flex;
-  justify-content: flex-end;
+  float: right;
+  /* position: absolute;
+  top: 0;
+  right: 5px; */
 }
 .text-uppercase {
   text-transform: uppercase;
@@ -147,12 +157,19 @@
   right: 0;
   bottom: 0;
 }
+.full-height {
+  height: 100%;
+}
+.full-width {
+  width: 100%;
+}
 </style>
 
 <script>
 import Markdown from "../Utils/Markdown";
 import { Parser } from "expr-eval";
 import _ from "lodash";
+import Mimoza from "mimoza";
 import { getScoreFromResponse, getMaxScore, evaluateScore } from "../Utils/scoring";
 
 export default {
@@ -176,6 +193,7 @@ export default {
       comparison: true,
     });
     const activityResponses = [];
+    console.log('appletImage--------------->', this.appletImage)
     for (const activity of this.activities) {
       if (activity.responses.length === 0) {
         continue;
@@ -278,6 +296,8 @@ export default {
       });
     }
 
+    console.log('activityResponses --------------->', activityResponses)
+
     return {
       MARKDOWN_REGEX: /(!\[.*\]\s*\(.*?) =\d*x\d*(\))/g,
       termsText:
@@ -286,6 +306,25 @@ export default {
         "CHILD MIND INSTITUTE, INC. AND CHILD MIND MEDICAL PRACTICE, PLLC (TOGETHER, “CMI”) DOES NOT DIRECTLY OR INDIRECTLY PRACTICE MEDICINE OR DISPENSE MEDICAL ADVICE AS PART OF THIS QUESTIONNAIRE. CMI ASSUMES NO LIABILITY FOR ANY DIAGNOSIS, TREATMENT, DECISION MADE, OR ACTION TAKEN IN RELIANCE UPON INFORMATION PROVIDED BY THIS QUESTIONNAIRE, AND ASSUMES NO RESPONSIBILITY FOR YOUR USE OF THIS QUESTIONNAIRE.",
       activityResponses,
     };
+  },
+  methods: {
+    splashScreenType (activity) {
+      const isSplashScreen = activity.splash && activity.splash.en;
+      let type = "";
+
+      if (isSplashScreen) {
+        const uri = activity.splash.en;
+        const mimeType = Mimoza.getMimeType(uri) || "";
+
+        console.log('mimeType----------------', mimeType)
+        if (mimeType.startsWith("video/")) {
+          type = "video";
+        } else {
+          type = "image";
+        }
+      }
+      return type;
+    },
   },
 };
 </script>
