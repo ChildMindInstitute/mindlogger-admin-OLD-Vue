@@ -985,6 +985,10 @@ export default {
         label: { en: "Applet" },
         activities: [],
         versions: [],
+        token: {
+          cumulative: 0,
+          changes: []
+        }
       },
       allExpanded: false,
       responses: [],

@@ -44,7 +44,7 @@ export default class Applet {
     this.activities = [];
     this.responses = {};
     this.subScales = {};
-    this.token = {};
+    this.token = { cumulative: 0, changes: [] };
     this.hasTokenItem = false;
     this.availableDates = {};
     this.minimumDate = new Date();
@@ -188,7 +188,34 @@ export default class Applet {
     if (this.encryption) {
       Applet.replaceItemValues(Applet.decryptResponses(data, this.encryption));
 
-      this.token = data.token;
+      this.token.cumulative = data.token.cumulative;
+
+      for (const token of data.token.tokens) {
+        for (const change of token.data) {
+          this.token.changes.push({
+            isTracker: false,
+            spend: change.spend || false,
+            time: change.time,
+            value: change.value
+          })
+        }
+      }
+
+      for (const tracker of data.token.trackers) {
+        this.token.changes.push({
+          isTracker: true,
+          spend: false,
+          time: tracker.time,
+          value: tracker.value
+        })
+      }
+
+      this.token.changes.sort((a, b) => {
+        if (a.time > b.time) return -1;
+        if (a.time < b.time) return 1;
+        return 0;
+      })
+
 
       for (let activityId in data.subScales) {
         for (let subScaleName in data.subScales[activityId]) {
@@ -590,7 +617,37 @@ export default class Applet {
     }
 
     if (data.token) {
+      data.token.tokens.forEach(change => {
+        try {
+          const plain = typeof change.data !== 'object' ? JSON.parse(
+            encryptionUtils.decryptData({
+              text: change.data,
+              key: data.AESKeys[change.key],
+            })
+          ) : change.data;
 
+          change.data = plain;
+        } catch (e) {
+          change.data = []
+        }
+      })
+
+      data.token.trackers.forEach(tracker => {
+        try {
+          const plain = typeof tracker.data !== 'object' ? JSON.parse(
+            encryptionUtils.decryptData({
+              text: tracker.data,
+              key: data.AESKeys[tracker.key],
+            })
+          ) : tracker.data;
+
+          tracker.data = plain;
+        } catch (e) {
+          tracker.data = null
+        }
+      })
+
+      data.token.trackers = data.token.trackers.filter(tracker => tracker.data)
     }
 
     return data;
