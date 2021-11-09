@@ -15,6 +15,13 @@
         <span class="token-number">{{ yesterdayTokens.toLocaleString() }}</span>
         <span>yesterday</span>
       </div>
+
+      <div class="today-tokens">
+        <div class="title">Today you'll earn at least:</div>
+        <div class="token-number">
+          <img :src="require('@/assets/token.png')" width="32" /> from {{ applet.activities.length }} activities
+        </div>
+      </div>
     </div>
 
     <svg
@@ -166,6 +173,7 @@
 .token-header {
   width: 90%;
   margin: auto;
+  position: relative;
 
   .header-text {
     font-size: 22px;
@@ -199,6 +207,26 @@
     .token-number {
       font-size: 20px;
       font-weight: bold;
+    }
+  }
+
+  .today-tokens {
+    position: absolute;
+    background-color: rgb(83, 83, 83);
+    border-radius: 10px;
+    right: 5px;
+    top: 5px;
+
+    padding: 10px;
+
+    .title {
+      color: white;
+    }
+
+    .token-number {
+      color: rgb(218, 164, 44);
+      display: flex;
+      align-items: center;
     }
   }
 }
@@ -376,7 +404,7 @@ export default {
           },
           { time: moment.utc(`${date} 09:00`, 'YYYY-MM-DD HH:mm'), text: 'Morning' },
           { time: moment.utc(`${date} 12:00`, 'YYYY-MM-DD HH:mm'), text: 'Noon' },
-          { time: moment.utc(`${date} 17:30`, 'YYYY-MM-DD HH:mm'), text: 'Evening' },
+          { time: moment.utc(`${date} 18:00`, 'YYYY-MM-DD HH:mm'), text: 'Evening' },
           {
             time: moment.utc(this.endDate),
             text: moment.utc(this.endDate).format('ddd M/DD'),
@@ -432,6 +460,19 @@ export default {
 
       for (const change of this.applet.token.changes) {
         if (change.time < yesterday && change.time > yesterday - 86400 * 1000) {
+          tokens += change.value;
+        }
+      }
+
+      return tokens;
+    },
+
+    todayTokens () {
+      const today = moment.utc(this.endDate).subtract(1, 'days').toDate();
+      let tokens = 0;
+
+      for (const change of this.applet.token.changes) {
+        if (change.time > today) {
           tokens += change.value;
         }
       }
