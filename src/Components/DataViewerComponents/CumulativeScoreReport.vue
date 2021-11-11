@@ -1,26 +1,22 @@
 <template>
   <div class="cumulative-score-report">
-    <div v-if="appletImage" class="applet-logo">
+    <section v-if="appletImage" class="pdf-item applet-logo">
       <img 
         :src="appletImage + '?not-from-cache-please'"
         crossorigin="anonymous"
         width="100" 
         alt='' 
       />
-    </div>
-    <div v-for="{ activity, reportMessages } in activityResponses" :key="activity.id" class="mb-5">
-      <div v-if="splashScreenType(activity) === 'video'" class="full-height">
-        <video class="full-width" :src="activity.splash.en" controls autoplay>
-        </video>
+    </section>
+    <section class="pdf-item mb-5" v-for="({ activity, reportMessages }, index) in activityResponses" :key="activity.id">
+      <div v-if="splashScreenType(activity) === 'image'" class="html2pdf__page-break mb-4">
+        <img 
+          class="full-width" 
+          crossorigin="anonymous" 
+          :src="activity.splash.en + '?not-from-cache-please'" 
+          alt="Splash Activity"
+        />
       </div>
-      <div v-if="splashScreenType(activity) === 'image'" class="full-height">
-        <img class="full-width" :src="activity.splash.en" alt="Splash Activity">
-      </div>
-      <p class="mb-4">
-        <b>
-          <u>{{ activity.id }} Report</u>
-        </b>
-      </p>
       <p class="text-body-2 mb-4">
         <markdown :source="activity.scoreOverview.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
       </p>
@@ -63,13 +59,17 @@
           <markdown :source="item.message.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
         </div>
       </div>
-    </div>
-    <p class="text-footer text-body-2 mb-5">
-      {{ termsText }}
-    </p>
-    <p class="text-footer">
-      {{ footerText }}
-    </p>
+      <div v-if="index !== activityResponses.length - 1 && splashScreenType(activityResponses[index + 1].activity) === 'image'" class="html2pdf__page-break"/>
+    </section>
+    <section class="divider mb-5" />
+    <section class="pdf-item">
+      <p class="text-footer text-body-2 mb-5">
+        {{ termsText }}
+      </p>
+      <p class="text-footer text-body-2">
+        {{ footerText }}
+      </p>
+    </section>
   </div>
 </template>
 
@@ -80,9 +80,7 @@
 }
 .applet-logo {
   float: right;
-  /* position: absolute;
-  top: 0;
-  right: 5px; */
+  margin-left: 15px;
 }
 .text-uppercase {
   text-transform: uppercase;
@@ -129,6 +127,9 @@
 }
 .score-bar {
   height: 40px;
+}
+.divider {
+  border: 1px solid black;
 }
 .score-positive {
   background-color: #a1cd63;
@@ -193,7 +194,7 @@ export default {
       comparison: true,
     });
     const activityResponses = [];
-    console.log('appletImage--------------->', this.appletImage)
+
     for (const activity of this.activities) {
       if (activity.responses.length === 0) {
         continue;
@@ -296,8 +297,6 @@ export default {
       });
     }
 
-    console.log('activityResponses --------------->', activityResponses)
-
     return {
       MARKDOWN_REGEX: /(!\[.*\]\s*\(.*?) =\d*x\d*(\))/g,
       termsText:
@@ -316,7 +315,6 @@ export default {
         const uri = activity.splash.en;
         const mimeType = Mimoza.getMimeType(uri) || "";
 
-        console.log('mimeType----------------', mimeType)
         if (mimeType.startsWith("video/")) {
           type = "video";
         } else {
