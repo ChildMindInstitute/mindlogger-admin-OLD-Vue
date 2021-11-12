@@ -1,34 +1,35 @@
 <template>
   <div class="cumulative-score-report">
-    <section v-if="appletImage" class="pdf-item applet-logo">
-      <img 
-        :src="appletImage + '?not-from-cache-please'"
-        crossorigin="anonymous"
-        width="100" 
-        alt='' 
-      />
-    </section>
     <section class="pdf-item mb-5" v-for="({ activity, reportMessages }, index) in activityResponses" :key="activity.id">
-      <div v-if="splashScreenType(activity) === 'image'" class="html2pdf__page-break mb-4">
+      <div v-if="splashScreenType(activity) === 'image' && index" class="html2pdf__page-break"/>
+      <div class="html2pdf__page-break" v-if="splashScreenType(activity) === 'image'">
         <img 
-          class="full-width" 
+          class="full-width splash-screen" 
           crossorigin="anonymous" 
           :src="activity.splash.en + '?not-from-cache-please'" 
           alt="Splash Activity"
+        />
+      </div>
+      <div v-if="appletImage && !index" class="applet-logo">
+        <img 
+          :src="appletImage + '?not-from-cache-please'"
+          crossorigin="anonymous"
+          width="100" 
+          alt='' 
         />
       </div>
       <p class="text-body-2 mb-4">
         <markdown :source="activity.scoreOverview.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
       </p>
       <div v-for="item in reportMessages" :key="item.category" class="my-4">
-        <p class="blue--text mb-1">
+        <p class="blue--text text-body-2 mb-1">
           <b>{{ (item.category || "").replace(/_/g, " ") }}</b>
         </p>
         <p class="text-body-2 mb-4">
           <markdown :source="item.compute.description.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
         </p>
         <div class="score-area mb-4">
-          <p class="score-title text-nowrap" :style="{ left: `max(90px, ${(item.scoreValue / item.maxScoreValue) * 100}%)` }">
+          <p class="score-title text-body-2 text-nowrap" :style="{ left: `max(90px, ${(item.scoreValue / item.maxScoreValue) * 100}%)` }">
             <b>Your Child's Score</b>
           </p>
           <div
@@ -47,19 +48,18 @@
             }"
           />
           <div class="score-spliter" :style="{ left: `${(item.scoreValue / item.maxScoreValue) * 100}%` }" />
-          <p class="score-max-value">
+          <p class="score-max-value text-body-2">
             <b>{{ item.maxScoreValue }}</b>
           </p>
         </div>
 
-        <div class="mb-4">
+        <div class="mb-4 text-body-2">
           Your child’s score on the {{ item.category.replace(/_/g, " ") }} subscale was
           <span class="red--text">{{ item.scoreValue }}</span>
           .
           <markdown :source="item.message.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
         </div>
       </div>
-      <div v-if="index !== activityResponses.length - 1 && splashScreenType(activityResponses[index + 1].activity) === 'image'" class="html2pdf__page-break"/>
     </section>
     <section class="divider mb-5" />
     <section class="pdf-item">
@@ -157,6 +157,9 @@
   margin: 0;
   right: 0;
   bottom: 0;
+}
+.splash-screen {
+  position: absolute;
 }
 .full-height {
   height: 100%;
