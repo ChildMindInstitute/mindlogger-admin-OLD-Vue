@@ -297,10 +297,14 @@ export const AppletMixin = {
                     } else if (item.inputType === 'geolocation' && typeof value === 'object') {
                       responseData += `geo: lat (${value.latitude}) / long (${value.longitude})`;
                     } else {
-                      responseData += `${key}: ${value}`;
+                      if (item.inputType === 'text')
+                        responseData += value;
+                      else
+                        responseData += `${key}: ${value}`;
                     }
 
-                    responseData += ' | ';
+                    if (item.inputType !== 'text')
+                      responseData += ' | ';
                   }
 
                   responseData = responseData.replace(/[ |]*$/g, '').replace(/^[ |]*/g, '');
