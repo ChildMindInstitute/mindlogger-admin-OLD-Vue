@@ -570,6 +570,14 @@ export default {
       let cumulative = this.cumulative;
 
       for (let i = 0; i < changes.length; i++) {
+        if (changes[i].value) {
+          points.push({
+            x: this.getX(changes[i].time),
+            y: this.height - this.yUnit * cumulative + (this.exportFormat ? this.axisHeight : 0),
+            spend: changes[i].spend
+          })
+        }
+
         cumulative -= changes[i].value;
 
         points.push({
