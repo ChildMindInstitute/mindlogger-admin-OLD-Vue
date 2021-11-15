@@ -7,7 +7,7 @@
     <v-img
       class="logo"
       @click="onDashboard"
-      src="/images/logo.png"
+      src="https://cmi-logos.s3.amazonaws.com/ChildMindInstitute_Logo_Horizontal_KO.png"
       max-width="130"
       contain
     />
