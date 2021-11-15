@@ -13,27 +13,80 @@
       :view-width="viewWidth"
       :range="range"
       :selected-feature="selectedFeature"
+      format="view"
       @selectFeature="selectFeature"
       @viewDetails="viewDetails"
     />
+
+    <vue-html2pdf
+      ref="html2Pdf"
+      :show-layout="false"
+      :float-layout="true"
+      :enable-download="true"
+      :preview-modal="false"
+      :paginate-elements-by-height="3000"
+      filename="report"
+      :pdf-quality="2"
+      :manual-pagination="false"
+      pdf-format="a4"
+      pdf-orientation="landscape"
+      pdf-content-width="800px"
+      :html-to-pdf-options="{
+        margin: 70,
+        enableLinks: true,
+        html2canvas: {
+          scale: 1,
+          useCORS: true,
+        },
+        jsPDF: {
+          unit: 'pt',
+          format: 'a4',
+          orientation: 'portrait',
+        },
+      }"
+    >
+      <section slot="pdf-content">
+        <Markdown
+          class="my-4"
+          :source="markdown"
+        />
+
+        <div
+          :is="viewType == 'matrix' ? 'matrix-chart' : 'bar-area-chart'"
+          :view-type="viewType"
+          :plot-id="`pdf-${plotId}`"
+          :data="data"
+          :features="features"
+          :unit="unit"
+          :start-date="startDate"
+          :end-date="endDate"
+          :minimum-date="applet.minimumDate"
+          :view-width="550"
+          :range="range"
+          :selected-feature="selectedFeature"
+          format="export"
+        />
+      </section>
+    </vue-html2pdf>
   </div>
 </template>
 
 <script>
 import * as d3 from 'd3';
 import * as moment from 'moment';
-import { DrawingMixin } from '../Utils/mixins/DrawingMixin';
-import { aggregate } from './FrequencyCharts/tokens';
+import Markdown from '../../Utils/Markdown';
+import { DrawingMixin } from '../../Utils/mixins/DrawingMixin';
+import { aggregate } from './tokens';
 
-import BarAreaChart from './FrequencyCharts/BarAreaChart.vue';
-import MatrixChart from './FrequencyCharts/MatrixChart';
-import { features } from 'applet-schema-builder';
+import BarAreaChart from './BarAreaChart.vue';
+import MatrixChart from './MatrixChart';
 
 export default {
   name: 'Frequnecy',
   components: {
     BarAreaChart,
     MatrixChart,
+    Markdown
   },
   props: {
     plotId: {
@@ -74,7 +127,8 @@ export default {
       startDate,
       endDate,
       data: aggregate(features, responses, 'hour', startDate, endDate),
-      selectedFeature: null
+      selectedFeature: null,
+      markdown: ''
     }
   },
   computed: {
@@ -93,6 +147,12 @@ export default {
       this.unit = unit;
       this.range = range;
       this.data = aggregate(this.features, this.responses, unit, startDate, endDate);
+    },
+
+    exportToPdf (markdown) {
+      this.markdown = markdown;
+
+      this.$refs.html2Pdf.generatePdf()
     }
   }
 }

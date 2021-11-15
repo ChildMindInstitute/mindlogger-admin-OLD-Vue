@@ -1,133 +1,155 @@
 <template>
   <div
-    class="my-4 wrapper"
-    :class="`_${unit}-view`"
-    @click="backToOriginalView"
+    class="my-4"
   >
-    <DateRangePicker
-      :start-date="startDate"
-      :end-date="endDate"
-      :minimum-date="minimumDate"
-      :unit="unit"
-      :range="range"
-      :center="baseLine"
-      @viewDetails="$emit('viewDetails', $event)"
-    />
-
     <div
-      :class="`${viewType}-chart`"
+      class="wrapper"
+      :class="`_${unit}-view`"
+      @click="backToOriginalView"
     >
-      <v-card
-        class="tooltip"
-        :style="`display: ${tooltip.visible ? 'block' : 'none'}; left: ${tooltip.left}px; top: ${tooltip.top}px;`"
+      <DateRangePicker
+        :start-date="startDate"
+        :end-date="endDate"
+        :minimum-date="minimumDate"
+        :unit="unit"
+        :range="range"
+        :center="baseLine"
+        @viewDetails="$emit('viewDetails', $event)"
+      />
+
+      <div
+        :class="`${viewType}-chart`"
       >
-        <div class="tooltip-item">
-          <div class="label frequency">Frequency:</div>
-          <div>{{ tooltip.frequency }}</div>
-        </div>
+        <v-card
+          class="tooltip"
+          :style="`display: ${tooltip.visible ? 'block' : 'none'}; left: ${tooltip.left}px; top: ${tooltip.top}px;`"
+        >
+          <div class="tooltip-item">
+            <div class="label frequency">Frequency:</div>
+            <div>{{ tooltip.frequency }}</div>
+          </div>
 
-        <div class="tooltip-item">
-          <div class="label distress">Distress:</div>
-          <div>{{ tooltip.distress }}</div>
-        </div>
+          <div class="tooltip-item">
+            <div class="label distress">Distress:</div>
+            <div>{{ tooltip.distress }}</div>
+          </div>
 
-        <div class="tooltip-item">
-          <div class="label impairment">Impairment:</div>
-          <div>{{ tooltip.impairment }}</div>
-        </div>
-      </v-card>
+          <div class="tooltip-item">
+            <div class="label impairment">Impairment:</div>
+            <div>{{ tooltip.impairment }}</div>
+          </div>
+        </v-card>
 
-      <svg
-        :id="`area-bar-${plotId}`"
-        :width="width"
-        :height="height + padding.top + padding.bottom"
-      >
-        <g
-          class="content"
+        <svg
+          :id="`area-bar-${plotId}`"
+          :width="width"
+          :height="height + padding.top + padding.bottom"
         >
           <g
-            :class="`${unit == 'hour' ? 'selectable' : ''} x-axis`"
+            class="content"
           >
-            <text
-              v-for="(freq, index) in data.frequency"
-              :key="index"
-              :x="xUnit * (index+0.5)"
-              :y="baseLine"
-              :class="freq.start.getDay() < 2 ? 'bold-text' : ''"
-              text-anchor="middle"
-              @click.stop="viewDetails(freq)"
+            <g
+              :class="`${unit == 'hour' ? 'selectable' : ''} x-axis`"
             >
-              {{ xTick(freq.start) }}
-            </text>
-          </g>
-
-          <g
-            v-if="unit == 'day'"
-            class="lines"
-          >
-            <template
-              v-for="(freq, index) in data.frequency"
-            >
-              <rect
-                v-if="freq.start.getDay() == 1"
+              <text
+                v-for="(freq, index) in data.frequency"
                 :key="index"
-                :x="xUnit*index - 1"
+                :x="xUnit * (index+0.5)"
+                :y="baseLine"
+                :class="unit == 'day' && freq.start.getDay() < 2 ? 'bold-text' : ''"
+                text-anchor="middle"
+                @click.stop="viewDetails(freq)"
+              >
+                {{ xTick(freq.start) }}
+              </text>
+            </g>
+
+            <g
+              v-if="unit == 'day'"
+              class="lines"
+            >
+              <template
+                v-for="(freq, index) in data.frequency"
+              >
+                <rect
+                  v-if="freq.start.getDay() == 1"
+                  :key="index"
+                  :x="xUnit*index - 1"
+                  :y="0"
+                  :width="2"
+                  :height="height"
+                  fill="rgb(207, 207, 207)"
+                />
+              </template>
+
+              <rect
+                v-if="data.frequency[data.frequency.length-1].end.getDay() == 1"
+                :x="xUnit*data.frequency.length-1"
                 :y="0"
                 :width="2"
                 :height="height"
                 fill="rgb(207, 207, 207)"
               />
-            </template>
+            </g>
 
-            <rect
-              v-if="data.frequency[data.frequency.length-1].end.getDay() == 1"
-              :x="xUnit*data.frequency.length-1"
-              :y="0"
-              :width="2"
-              :height="height"
-              fill="rgb(207, 207, 207)"
-            />
+            <g class="responses">
+              <g class="negative-values" />
+              <g class="positive-values" />
+            </g>
           </g>
 
-          <g class="responses">
-            <g class="negative-values" />
-            <g class="positive-values" />
-          </g>
-        </g>
-        <foreignObject
-          class="labels"
-          :x="width - labelWidth"
-          :y="padding.top"
-          :width="labelWidth"
-          :height="height"
-        >
-          <div
-            class="chart-labels"
-            :style="`max-height: ${height-20}px;`"
+          <foreignObject
+            class="labels"
+            :x="width - labelWidth"
+            :y="padding.top"
+            :width="labelWidth"
+            :height="height"
           >
-            <template
-              v-for="feature of features"
+            <div
+              class="chart-labels"
+              :style="`max-height: ${height-20}px;`"
             >
-              <div
-                v-if="!selectedFeature || selectedFeature.id == feature.id"
-                :key="feature.id"
-                class="feature"
-                @click.stop="$emit('selectFeature', feature)"
+              <template
+                v-for="feature of features"
               >
                 <div
-                  class="feature-title"
+                  v-if="!selectedFeature || selectedFeature.id == feature.id"
+                  :key="feature.id"
+                  class="feature"
+                  @click.stop="$emit('selectFeature', feature)"
                 >
-                  {{ feature.name.en }}
+                  <div
+                    class="feature-title"
+                  >
+                    {{ feature.name.en }}
+                  </div>
+                  <div
+                    class="feature-color"
+                    :style="{ background: feature.color }"
+                  />
                 </div>
-                <div
-                  class="feature-color"
-                  :style="{ background: feature.color }"
-                />
-              </div>
-            </template>
+              </template>
+            </div>
+          </foreignObject>
+        </svg>
+      </div>
+    </div>
+
+    <div
+      v-if="format == 'export'"
+    >
+      <div class="export-features" :style="`width: ${viewWidth + 80}px;`">
+        <template v-for="feature of features">
+          <div
+            v-if="!selectedFeature || selectedFeature.id == feature.id"
+            :key="feature.id"
+            class="feature"
+          >
+            <div class="feature-title">{{ feature.name.en }}</div>
+            <div class="feature-color" :style="{ background: feature.color }" />
           </div>
-        </foreignObject>
-      </svg>
+        </template>
+      </div>
     </div>
   </div>
 </template>
@@ -152,27 +174,36 @@
   transform: translate(0, -50%);
 }
 
+.export-features {
+  display: flex;
+  flex-wrap: wrap;
+
+  .feature {
+    width: 31%;
+  }
+}
+
 .feature {
   padding: 10px 20px;
   font-size: 14px;
   display: flex;
   cursor: pointer;
+
+  .feature-title {
+    width: 70%;
+    text-align: center;
+  }
+
+  .feature-color {
+    width: 30%;
+    border-radius: 5px;
+    border: 2px solid grey;
+  }
 }
 
 .feature:hover {
   border: 2px solid grey;
   border-radius: 5px;
-}
-
-.feature-title {
-  width: 70%;
-  text-align: center;
-}
-
-.feature-color {
-  width: 30%;
-  border-radius: 5px;
-  border: 2px solid grey;
 }
 
 svg {

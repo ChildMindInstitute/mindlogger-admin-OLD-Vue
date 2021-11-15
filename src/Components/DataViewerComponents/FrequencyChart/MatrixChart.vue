@@ -53,7 +53,7 @@
               :key="index"
               :x="xUnit * (index+0.5)"
               :y="baseLine"
-              :class="freq.start.getDay() < 2 ? 'bold-text' : ''"
+              :class="unit == 'day' && freq.start.getDay() < 2 ? 'bold-text' : ''"
               text-anchor="middle"
               @click.stop="viewDetails(freq)"
             >

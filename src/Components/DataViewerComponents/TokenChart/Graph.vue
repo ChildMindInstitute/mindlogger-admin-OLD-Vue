@@ -10,13 +10,22 @@
         <span>total</span>
       </div>
 
-      <div class="yesterday-tokens">
+      <div
+        v-if="currentInterval"
+        class="yesterday-tokens"
+      >
         <img :src="require('@/assets/token.png')" width="32" />
-        <span class="token-number">{{ yesterdayTokens.toLocaleString() }}</span>
-        <span>yesterday</span>
+        <span class="token-number">{{ pastTokens.toLocaleString() }}</span>
+        <span v-if="currentInterval.unit == 'days'">yesterday</span>
+        <span v-if="currentInterval.unit == 'weeks'">past week</span>
+        <span v-if="currentInterval.unit == 'months'">past month</span>
+        <span v-if="currentInterval.unit == 'year'">last year</span>
       </div>
 
-      <div class="today-tokens">
+      <div
+        v-if="!exportFormat"
+        class="today-tokens"
+      >
         <div class="title">Today you'll earn at least:</div>
         <div class="token-number">
           <img :src="require('@/assets/token.png')" width="32" /> from {{ applet.activities.length }} activities
@@ -25,9 +34,10 @@
     </div>
 
     <svg
-     viewBox="0 0 400 43"
-     width="100%"
-     :height="parentWidth * 43 / 400"
+      v-if="!exportFormat"
+      viewBox="0 0 400 43"
+      width="100%"
+      :height="parentWidth * 43 / 400"
     >
       <mask id="pathMask">
         <rect x="10" y="0" width="380" height="43" fill="white"></rect>
@@ -54,122 +64,128 @@
       />
     </svg>
 
-    <div class="range-options">
-      <div
-        v-for="(option, index) in rangeOptions"
-        :key="index"
-        class="option"
-        :class="option == range ? 'selected': ''"
-        @click="range = option"
-      >
-        {{ option }}
-      </div>
-    </div>
-
     <div
-      class="token-chart"
+      class="token-content"
+      :class="exportFormat ? 'pdf-export' : ''"
+      :style="`width: ${parentWidth}px;`"
     >
-      <v-card
-        class="tooltip"
-        :style="`display: ${tooltip.visible ? 'block' : 'none'}; left: ${tooltip.left}px; top: ${tooltip.top}px;`"
-      >
-        <span class="label">Cumulative:</span>
-        <span class="value">{{ tooltip.cumulative }}</span>
-      </v-card>
-
-      <svg
-        :id="`token-chart-${plotId}`"
-        :width="parentWidth"
-        :height="height + axisHeight"
-      >
-        <polygon
-          :fill="fillColor"
-          :points="cumulativePolygon"
-        />
-
-        <path
-          :d="cumulativePath"
-          :stroke="pathColor"
-          :stroke-width="strokeWidth"
-          fill="transparent"
-        />
-
-        <circle
-          :cx="cumulativePoints[0].x"
-          :cy="cumulativePoints[0].y-strokeWidth/2"
-          r="7"
-          fill="rgb(254, 221, 96)"
-        />
-
-        <line
-          :x1="padding.left"
-          :y1="height"
-          :x2="width + padding.left"
-          :y2="height"
-          stroke="rgb(162, 162, 162)"
-          stroke-dasharray="1 2"
-        />
-
-        <g class="tick-lines">
-          <line
-            v-for="(tick, index) in ticks"
-            :key="index"
-            :x1="tick.x"
-            :x2="tick.x"
-            :y1="height"
-            :y2="height + tickHeight"
-            stroke="rgb(162, 162, 162)"
-            stroke-width="1"
-          />
-        </g>
-
-        <g
-          v-if="range == 'Today'"
-          class="responses"
+      <div class="range-options">
+        <div
+          v-for="(option, index) in rangeOptions"
+          :key="index"
+          class="option"
+          :class="option == range ? 'selected': ''"
+          @click="$emit('set-range', option)"
         >
-          <template
-            v-for="(point, index) in cumulativePoints"
+          {{ option }}
+        </div>
+      </div>
+
+      <div
+        class="token-chart"
+      >
+        <v-card
+          class="tooltip"
+          :style="`display: ${tooltip.visible ? 'block' : 'none'}; left: ${tooltip.left}px; top: ${tooltip.top}px;`"
+        >
+          <span class="label">Cumulative:</span>
+          <span class="value">{{ tooltip.cumulative }}</span>
+        </v-card>
+
+        <svg
+          :id="`token-chart-${plotId}`"
+          :width="parentWidth"
+          :height="height + axisHeight"
+        >
+          <polygon
+            :fill="fillColor"
+            :points="cumulativePolygon"
+          />
+
+          <path
+            :d="cumulativePath"
+            :stroke="pathColor"
+            :stroke-width="strokeWidth"
+            fill="transparent"
+          />
+
+          <circle
+            :cx="cumulativePoints[0].x"
+            :cy="cumulativePoints[0].y-strokeWidth/2"
+            r="7"
+            fill="rgb(254, 221, 96)"
+          />
+
+          <line
+            :x1="padding.left"
+            :y1="exportFormat ? axisHeight + height : height"
+            :y2="exportFormat ? axisHeight + height : height"
+            :x2="width + padding.left"
+            stroke="rgb(162, 162, 162)"
+            stroke-dasharray="1 2"
+          />
+
+          <g class="tick-lines">
+            <line
+              v-for="(tick, index) in ticks"
+              :key="index"
+              :x1="tick.x"
+              :x2="tick.x"
+              :y1="exportFormat ? axisHeight - tickHeight : height"
+              :y2="exportFormat ? axisHeight : height + tickHeight"
+              stroke="rgb(162, 162, 162)"
+              stroke-width="1"
+            />
+          </g>
+
+          <g
+            v-if="range == 'Today'"
+            class="responses"
           >
             <template
-              v-if="!point.spend"
+              v-for="(point, index) in cumulativePoints"
             >
-              <circle
-                :key="`circle-${index}`"
-                :cx="point.x"
-                :cy="height"
-                r="7"
-                :fill="pathColor"
-              />
+              <template
+                v-if="!point.spend"
+              >
+                <circle
+                  :key="`circle-${index}`"
+                  :cx="point.x"
+                  :cy="height"
+                  r="7"
+                  :fill="pathColor"
+                />
 
-              <polygon
-                :key="`star-${index}`"
-                :points="getStarCoordinates(point.x, height, 5)"
-                fill="white"
-              />
+                <polygon
+                  :key="`star-${index}`"
+                  :points="getStarCoordinates(point.x, height + axisHeight - 5, 5)"
+                  fill="white"
+                />
+              </template>
             </template>
-          </template>
-        </g>
+          </g>
 
-        <g class="tick-labels">
-          <text
-            v-for="(tick, index) in ticks"
-            :key="index"
-            :x="tick.x"
-            :y="height + (axisHeight + tickHeight) / 2"
-            text-anchor="middle"
-            font-size="15"
-            @mouseover="hoverTick(tick)"
-            @mouseout="tooltip.visible = false"
-          >
-            {{ tick.text }}
-          </text>
-        </g>
-      </svg>
+          <g class="tick-labels">
+            <text
+              v-for="(tick, index) in ticks"
+              :key="index"
+              :x="tick.x"
+              :y="exportFormat ? (axisHeight-tickHeight)/2 : height + (axisHeight + tickHeight) / 2"
+              text-anchor="middle"
+              font-size="15"
+              @mouseover="hoverTick(tick)"
+              @mouseout="tooltip.visible = false"
+            >
+              {{ tick.text }}
+            </text>
+          </g>
+        </svg>
+      </div>
     </div>
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .token-header {
   width: 90%;
   margin: auto;
@@ -263,15 +279,28 @@
   padding: 15px;
   transform: translateY(-100%) translateX(-50%);
 }
+
+.token-content {
+  display: flex;
+  flex-direction: column;
+
+  &.pdf-export {
+    flex-direction: column-reverse;
+    margin-top: 40px;
+
+    .range-options {
+      margin-bottom: 25px;
+    }
+  }
+}
 </style>
 
 
 <script>
 import * as d3 from 'd3';
 import * as moment from 'moment';
-import Applet from '../../models/Applet';
-import Item from '../../models/Item';
-import { PassThrough } from 'stream';
+import Applet from '../../../models/Applet';
+import Item from '../../../models/Item';
 
 /**
  * TokenChart component.
@@ -297,6 +326,15 @@ export default {
     parentWidth: {
       type: Number,
       required: true,
+    },
+    range: {
+      type: String,
+      required: true
+    },
+    exportFormat: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
 
@@ -308,7 +346,6 @@ export default {
 
     return {
       endDate,
-      range: '1w',
       rangeOptions: [
         'Today',
         '1w',
@@ -344,10 +381,14 @@ export default {
         { amount: 1, unit: 'days', range: 'Today' },
         { amount: 1, unit: 'weeks', range: '1w' },
         { amount: 2, unit: 'weeks', range: '2w' },
-        { amount: 1, unit: 'months' },
-        { amount: 3, unit: 'months' },
-        { amount: 1, unit: 'year' }
+        { amount: 1, unit: 'months', range: '1m' },
+        { amount: 3, unit: 'months', range: '3m' },
+        { amount: 1, unit: 'year', range: '1y' }
       ]
+    },
+
+    currentInterval () {
+      return this.availableIntervals.find(iv => iv.range == this.range)
     },
 
     startDate () {
@@ -454,12 +495,21 @@ export default {
       }))
     },
 
-    yesterdayTokens () {
-      const yesterday = moment.utc(this.endDate).subtract(1, 'days').toDate();
+    pastTokens () {
+      if (!this.currentInterval) {
+        return 0;
+      }
+
+      const unit = this.currentInterval ? this.currentInterval.unit : 'days';
+      const range = [
+        moment.utc(this.endDate).subtract(1, unit).toDate(),
+        moment.utc(this.endDate).subtract(2, unit).toDate()
+      ]
+
       let tokens = 0;
 
       for (const change of this.applet.token.changes) {
-        if (change.time < yesterday && change.time > yesterday - 86400 * 1000) {
+        if (change.time < range[0].getTime() && change.time > range[1].getTime()) {
           tokens += change.value;
         }
       }
@@ -524,7 +574,7 @@ export default {
 
         points.push({
           x: this.getX(changes[i].time),
-          y: this.height - this.yUnit * cumulative,
+          y: this.height - this.yUnit * cumulative + (this.exportFormat ? this.axisHeight : 0),
           spend: changes[i].spend
         })
       }
@@ -543,8 +593,15 @@ export default {
 
       const endTime = Math.min(this.endDate.getTime(), new Date().getTime());
 
-      points.push({ x: this.getX(this.startDate.getTime()), y: this.height })
-      points.push({ x: this.getX(endTime), y: this.height })
+      points.push({
+        x: this.getX(this.startDate.getTime()),
+        y: this.height + (this.exportFormat ? this.axisHeight : 0)
+      })
+
+      points.push({
+        x: this.getX(endTime),
+        y: this.height + (this.exportFormat ? this.axisHeight : 0)
+      })
 
       return points.map(({ x, y }) => `${x}, ${y}`).join(' ')
     },

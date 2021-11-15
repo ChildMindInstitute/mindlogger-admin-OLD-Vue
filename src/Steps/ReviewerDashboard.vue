@@ -270,6 +270,12 @@
                   </v-radio>
                 </div>
               </v-radio-group>
+
+              <v-spacer />
+
+              <v-btn @click="chartExportDialog=true">
+                Export to PDF
+              </v-btn>
             </div>
           </template>
 
@@ -634,6 +640,7 @@
                   >
                     <Frequency
                       v-if="frequency.chartType == 'frequency'"
+                      ref="frequencyChart"
                       :plot-id="`frequency-${applet.id}`"
                       :applet="applet"
                       :view-type="frequency.viewType"
@@ -643,6 +650,7 @@
 
                     <TokenChart
                       v-if="frequency.chartType == 'token'"
+                      ref="tokenChart"
                       :plot-id="`token-${applet.id}`"
                       :applet="applet"
                       :parent-width="panelWidth"
@@ -700,6 +708,11 @@
         :current-response="reviewing.responseId"
         :secret-ids="selectedSecretIds"
         @selectResponse="selectResponse"
+      />
+
+      <ChartExportDialog
+        v-model="chartExportDialog"
+        @export-chart="exportChart"
       />
     </v-card>
   </div>
@@ -896,7 +909,6 @@
 }
 
 .frequency-header .view-type {
-  flex-grow: 1;
   display: flex;
   justify-content: space-around;
 }
@@ -919,8 +931,8 @@ import api from "../Components/Utils/api/api.vue";
 import Applet from "../models/Applet";
 import Activity from "../models/Activity";
 import Item from "../models/Item";
-import TokenChart from "../Components/DataViewerComponents/TokenChart.vue";
-import Frequency from "../Components/DataViewerComponents/Frequency.vue";
+import TokenChart from "../Components/DataViewerComponents/TokenChart/Chart.vue";
+import Frequency from "../Components/DataViewerComponents/FrequencyChart/Chart.vue";
 import ActivityHeader from "../Components/DataViewerComponents/ActivityHeader.vue";
 import RadioSlider from "../Components/DataViewerComponents/RadioSlider.vue";
 import TimePicker from "../Components/DataViewerComponents/TimePicker.vue";
@@ -936,6 +948,7 @@ import SubScaleComponent from "../Components/DataViewerComponents/SubScaleCompon
 import { AppletMixin } from '../Components/Utils/mixins/AppletMixin';
 import CumulativeScore from "../Components/DataViewerComponents/CumulativeScore";
 import CumulativeScoreReport from "../Components/DataViewerComponents/CumulativeScoreReport";
+import ChartExportDialog from '../Components/Utils/dialogs/ChartExportDialog';
 
 import * as moment from "moment-timezone";
 
@@ -964,6 +977,7 @@ export default {
     SubScaleComponent,
     CumulativeScore,
     CumulativeScoreReport,
+    ChartExportDialog,
   },
 
   /**
@@ -1026,7 +1040,8 @@ export default {
       },
       secretIDs: [],
       responseDialog: false,
-      cachedContents: {}
+      cachedContents: {},
+      chartExportDialog: false
     };
   },
 
@@ -1569,6 +1584,16 @@ export default {
     onDownloadReport() {
       this.$refs.html2Pdf.generatePdf()
     },
+
+    exportChart (message) {
+      if (this.frequency.chartType == 'frequency') {
+        this.$refs.frequencyChart[0].exportToPdf(message);
+      } else {
+        this.$refs.tokenChart[0].exportToPdf(message);
+      }
+
+      this.chartExportDialog = false;
+    }
   },
 };
 </script>

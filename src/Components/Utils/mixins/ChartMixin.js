@@ -46,6 +46,10 @@ export const ChartMixin = {
     viewType: {
       type: String,
       required: true
+    },
+    format: {
+      type: String,
+      required: true
     }
   },
 
@@ -64,6 +68,10 @@ export const ChartMixin = {
     },
 
     labelWidth () {
+      if ((this.viewType == 'area' || this.viewType == 'bar') && this.format == 'export') {
+        return 0;
+      }
+
       return this.width / 4;
     },
 
