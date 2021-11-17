@@ -637,7 +637,7 @@ export default {
     },
 
     async editApplet() {
-      if (this.currentApplet.largeApplet && this.currentApplet.hasUrl) {
+      if (this.currentApplet.largeApplet && !this.currentApplet.version) {
         if (!this.isLatestApplet(this.currentApplet)) {
           await this.loadApplet(this.currentApplet.id);
         }
