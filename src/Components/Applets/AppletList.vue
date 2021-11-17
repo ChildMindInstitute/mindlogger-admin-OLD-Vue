@@ -712,7 +712,7 @@ export default {
     },
 
     async editApplet() {
-      this.currentApplet = this.formattedApplets.find(applet => applet.id === this.hoveredAppletId);
+      this.currentApplet = this.applets.find(applet => applet.id === this.hoveredAppletId);
 
       if (this.currentApplet.largeApplet && !this.currentApplet.version) {
         if (!this.isLatestApplet(this.currentApplet)) {
