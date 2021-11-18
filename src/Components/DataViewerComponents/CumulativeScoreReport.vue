@@ -2,9 +2,13 @@
   <div class="cumulative-score-report">
     <section class="pdf-item mb-5" v-for="({ activity, reportMessages }, index) in activityResponses" :key="activity.id">
       <div v-if="splashScreenType(activity) === 'image' && index" class="html2pdf__page-break"/>
-      <div class="html2pdf__page-break" v-if="splashScreenType(activity) === 'image'">
+      <div 
+        v-if="splashScreenType(activity) === 'image'"
+        class="html2pdf__page-break splash-screen"
+        :style="'margin-bottom:' + 2 * (index + 1) + 'px'"
+      >
         <img 
-          class="full-width splash-screen" 
+          class="splash-image" 
           crossorigin="anonymous" 
           :src="activity.splash.en + '?not-from-cache-please'" 
           alt="Splash Activity"
@@ -159,7 +163,16 @@
   bottom: 0;
 }
 .splash-screen {
+  display: flex;
+  justify-content: center;
+  padding-top: 250px;
+}
+.splash-image {
   position: absolute;
+  height: 400px;
+  max-width: 500px;
+  /* margin-top: 200px; */
+  /* top: 200px; */
 }
 .full-height {
   height: 100%;
@@ -299,6 +312,8 @@ export default {
         reportMessages,
       });
     }
+
+    console.log('activityResponses------', activityResponses);
 
     return {
       MARKDOWN_REGEX: /(!\[.*\]\s*\(.*?) =\d*x\d*(\))/g,
