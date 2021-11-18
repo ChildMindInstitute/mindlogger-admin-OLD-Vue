@@ -61,12 +61,12 @@
         </div>
       </div>
     </section>
-    <section class="divider mb-5" />
+    <section class="divider" />
     <section class="pdf-item">
-      <p class="text-footer text-body-2 mb-5">
+      <p class="text-footer text-body-1 mb-5">
         {{ termsText }}
       </p>
-      <p class="text-footer text-body-2">
+      <p class="text-footer text-body-1">
         {{ footerText }}
       </p>
     </section>
@@ -87,6 +87,9 @@
 }
 .text-body-2 {
   font-size: 0.9rem;
+}
+.text-body-1 {
+  font-size: 0.8rem;
 }
 .blue--text {
   color: #2196f3;
@@ -130,6 +133,8 @@
 }
 .divider {
   border: 1px solid black;
+  margin-bottom: 3.5em;
+  margin-top: 3.5em;
 }
 .score-positive {
   background-color: #a1cd63;
