@@ -318,8 +318,6 @@ export default {
       });
     }
 
-    console.log('activityResponses------', activityResponses);
-
     return {
       MARKDOWN_REGEX: /(!\[.*\]\s*\(.*?) =\d*x\d*(\))/g,
       termsText:
