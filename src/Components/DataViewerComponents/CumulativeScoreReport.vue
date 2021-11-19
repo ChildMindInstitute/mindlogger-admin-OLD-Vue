@@ -70,7 +70,7 @@
       <p class="text-footer text-body-1 mb-5">
         {{ termsText }}
       </p>
-      <p class="text-footer text-body-1">
+      <p class="text-footer text-body-3">
         {{ footerText }}
       </p>
     </section>
@@ -94,6 +94,9 @@
 }
 .text-body-1 {
   font-size: 0.8rem;
+}
+.text-body-3 {
+  font-size: 0.7rem;
 }
 .blue--text {
   color: #2196f3;
