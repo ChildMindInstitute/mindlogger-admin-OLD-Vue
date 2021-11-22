@@ -1,11 +1,15 @@
 <template>
   <div class="cumulative-score-report">
-    <section class="pdf-item mb-5" v-for="({ activity, reportMessages }, index) in activityResponses" :key="activity.id">
-      <div v-if="splashScreenType(activity) === 'image' && index" class="html2pdf__page-break"/>
+    <section class="pdf-item" v-for="({ activity, reportMessages }, index) in activityResponses" :key="activity.id">
+      <div 
+        v-if="splashScreenType(activity) === 'image' && index" 
+        class="html2pdf__page-break splash-screen"
+        :style="'margin-bottom:' + 4 * (index + 1) + 'px'"
+      />
       <div 
         v-if="splashScreenType(activity) === 'image'"
         class="html2pdf__page-break splash-screen"
-        :style="'margin-bottom:' + 2 * (index + 1) + 'px'"
+        :style="'margin-bottom:' + 4 * (index + 1) + 'px'"
       >
         <img 
           class="splash-image" 
@@ -79,7 +83,7 @@
 
 <style scoped>
 .cumulative-score-report {
-  width: 600px;
+  width: 656px;
   font-family: Arial, Helvetica, sans-serif;
 }
 .applet-logo {
@@ -173,14 +177,10 @@
 .splash-screen {
   display: flex;
   justify-content: center;
-  padding-top: 250px;
 }
 .splash-image {
-  position: absolute;
-  height: 400px;
-  max-width: 500px;
-  /* margin-top: 200px; */
-  /* top: 200px; */
+  width: 100%;
+  object-fit: contain;
 }
 .full-height {
   height: 100%;
