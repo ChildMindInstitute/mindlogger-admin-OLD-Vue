@@ -637,7 +637,7 @@
           pdf-orientation="landscape"
           pdf-content-width="800px"
           :html-to-pdf-options="{
-            margin: 70,
+            margin: 50,
             enableLinks: true,
             html2canvas: {
               scale: 1,
