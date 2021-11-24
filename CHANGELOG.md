@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
+## [0.10.8] - 2021-11-20
+- Fix full splash images
+
+## [0.10.7] - 2021-11-18
+- Fix font-size on footer
+
+## [0.10.6] - 2021-11-18
+- Fix broken layout with multiple splash screens
+
+## [0.10.5] - 2021-11-17
+- Fix divider line issues
+
+## [0.10.4] - 2021-11-12
+- Swap applet logo for splash screen
+
+## [0.10.3] - 2021-11-10
+- Added applet image and splash screen for each activity
+
+## [0.10.2] - 2021-11-2
+- Fix splash screen on PDF export
+
+## [0.10.1] - 2021-11-1
+- Fix PDF export issues
+
 ## [0.10.0] - 2021-10-26
 Release to Production - Milestone 8
 

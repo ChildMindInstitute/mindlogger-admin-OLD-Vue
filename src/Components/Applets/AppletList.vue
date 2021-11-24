@@ -284,6 +284,7 @@ export default {
       visibleItems: [],
       draggedItem: undefined,
       appletPasswordDialog: false,
+      selectedApplet: null,
       requestedAction: null,
       headers: [
         {
@@ -576,9 +577,6 @@ export default {
 
       this.draggedItem.isVisible = destination.isExpanded;
 
-
-
-
       if (this.draggedItem.isFolder) {
         const destination = this.draggedItem;
         this.draggedItem.items.forEach((item) => {
@@ -653,6 +651,13 @@ export default {
           )
           .then((resp) => {
             this.$store.commit("updateAppletData", resp.data);
+            if (this.selectedApplet) {
+              this.flattenedDirectoryItems = this.flattenedDirectoryItems
+                .map(item => item.id == this.selectedApplet.id ? {...item, encryption: true} : item);
+
+              this.updateVisibleItems();
+            }
+
             this.$emit("onAppletPasswordChanged");
           });
     },
@@ -783,13 +788,14 @@ export default {
       this.appletDuplicateDialog = false;
       this.appletPasswordDialog = true;
     },
-    onUpdateAppletPassword() {
+    onUpdateAppletPassword(item) {
       this.appletPasswordDialog = true;
+      this.selectedApplet = item;
       this.requestedAction = this.setAppletPassword.bind(this);
     },
     onTransferOwnership(item) {
       if (item.roles.includes('owner') && this.isNotEncrypted(item)) {
-        this.onUpdateAppletPassword();
+        this.onUpdateAppletPassword(item);
       } else {
         this.ownershipDialog = true;
       }
@@ -802,7 +808,7 @@ export default {
 
     onViewUsers(item) {
       if (item.roles.includes('owner') && this.isNotEncrypted(item)) {
-        this.onUpdateAppletPassword();
+        this.onUpdateAppletPassword(item);
       } else {
         this.currentApplet = item;
         this.$router.push(`applet/${item.id}/users`).catch(err => {
@@ -811,7 +817,7 @@ export default {
     },
     onDeleteApplet(applet) {
       if (applet.roles.includes('owner') && this.isNotEncrypted(applet)) {
-        this.onUpdateAppletPassword();
+        this.onUpdateAppletPassword(applet);
       } else {
         this.appletDeleteDialog = true;
         this.appletPendingDelete = applet;
@@ -819,7 +825,7 @@ export default {
     },
     onEditApplet(applet) {
       if (applet.roles.includes('owner') && this.isNotEncrypted(applet)) {
-        this.onUpdateAppletPassword();
+        this.onUpdateAppletPassword(applet);
       } else {
         if (applet.hasUrl) {
           this.appletEditDialog = true;
@@ -830,7 +836,7 @@ export default {
     },
     onViewGeneralCalendar(item) {
        if ( item.roles.includes('owner') && this.isNotEncrypted(item)) {
-        this.onUpdateAppletPassword();
+        this.onUpdateAppletPassword(item);
       } else {
         this.currentApplet = item;
         this.$store.commit('setCurrentUsers', {});
@@ -840,7 +846,7 @@ export default {
     },
     onDuplicateApplet(applet) {
       if (applet.roles.includes('owner') && this.isNotEncrypted(applet)) {
-        this.onUpdateAppletPassword();
+        this.onUpdateAppletPassword(applet);
       } else {
         api
             .validateAppletName({
@@ -856,7 +862,7 @@ export default {
     },
     onRefreshApplet(applet) {
       if (applet.roles.includes('owner') && this.isNotEncrypted(applet)) {
-        this.onUpdateAppletPassword();
+        this.onUpdateAppletPassword(applet);
       } else {
         api
             .refreshApplet({
@@ -917,7 +923,7 @@ export default {
 
     onShareWithLibrary(applet) {
       if (applet.roles.includes('owner') && this.isNotEncrypted(applet)) {
-        this.onUpdateAppletPassword();
+        this.onUpdateAppletPassword(applet);
       } else {
         this.shareApplet = applet;
         this.shareWithDialog = true;

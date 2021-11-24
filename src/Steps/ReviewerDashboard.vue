@@ -630,15 +630,14 @@
           :float-layout="true"
           :enable-download="true"
           :preview-modal="false"
-          :paginate-elements-by-height="3000"
           filename="report"
           :pdf-quality="2"
-          :manual-pagination="false"
+          :manual-pagination="true"
           pdf-format="a4"
           pdf-orientation="landscape"
           pdf-content-width="800px"
           :html-to-pdf-options="{
-            margin: 70,
+            margin: 50,
             enableLinks: true,
             html2canvas: {
               scale: 1,
@@ -652,7 +651,10 @@
           }"
         >
           <section slot="pdf-content">
-            <CumulativeScoreReport :activities="applet.activities" />
+            <CumulativeScoreReport 
+              :activities="applet.activities" 
+              :appletImage="applet.data.applet['schema:image']"
+            />
           </section>
         </vue-html2pdf>
       </div>
