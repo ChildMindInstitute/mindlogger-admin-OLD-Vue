@@ -49,6 +49,7 @@ export default class Item {
     this.type = data['@type'];
     this.label = i18n.arrayToObject(data[SKOS.prefLabel]);
     this.inputType = data[ReproLib.inputType][0]['@value'];
+    this.inputs = this.transformInputs(_.get(data, ['reprolib:terms/inputs'], []))
     this.url = data['schema:url'];
     this.description = i18n.arrayToObject(data['schema:description']);
     this.question = i18n.arrayToObject(data['schema:question']);
@@ -87,6 +88,18 @@ export default class Item {
 
     const allowList = _.get(data, [ReproLib.allow, 0, "@list"], [])
     this.isSkippable = allowList.some(allow => allow && ( allow['@id'] == ReproLib.refusedToAnswer || allow['@id'] == ReproLib.doNotKnow ))
+  }
+
+  transformInputs(inputs) {
+    return inputs.reduce((acc, current) => {
+      const name = _.get(current, ['schema:name', 0, '@value'])
+      const value = _.get(current, ['schema:value', 0, '@value'])
+
+      return {
+        ...acc,
+        [name]: value
+      }
+    }, {})
   }
 
   /**

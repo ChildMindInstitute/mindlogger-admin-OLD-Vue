@@ -118,6 +118,7 @@ export const AppletMixin = {
           }
 
           let subScaleNames = [], previousResponse = [];
+          const flankerCSVs = [];
 
           const keys = [
             'id',
@@ -224,24 +225,32 @@ export const AppletMixin = {
                 responseData = null;
               } else {
                 if (responseDataObj instanceof Array) {
-                  responseDataObj.forEach((value, index) => {
-                    if (value instanceof Object && !Array.isArray(value)) {
-                      responseData += Object.entries(value).map(entry => `${entry[0]}: ${entry[1]}`).join(', ');
-                    } else {
-                      if (item.inputType == 'stackedRadio' || item.inputType == 'stackedSlider') {
-                        const label = item.responseOptions[index].name.en;
-                        const response = Array.isArray(value) ? value : [value];
-                        const str = response.map(option => option !== null ? option.toString().replace(/:\d*$/, '') : '').join(', ');
-
-                        responseData += `${label}: ${str}`;
+                  if (item.inputType == 'visual-stimulus-response') {
+                    flankerCSVs.push({
+                      name: `${response._id}_${item.id}.csv`,
+                      data: this.getFlankerAsCSV(responseDataObj, item)
+                    });
+                    responseData = `filename: ${response._id}_${item.id}.csv`;
+                  } else {
+                    responseDataObj.forEach((value, index) => {
+                      if (value instanceof Object && !Array.isArray(value)) {
+                        responseData += Object.entries(value).map(entry => `${entry[0]}: ${entry[1]}`).join(', ');
                       } else {
-                        responseData += `${index}: ${value}`;
-                      }
-                    }
+                        if (item.inputType == 'stackedRadio' || item.inputType == 'stackedSlider') {
+                          const label = item.responseOptions[index].name.en;
+                          const response = Array.isArray(value) ? value : [value];
+                          const str = response.map(option => option !== null ? option.toString().replace(/:\d*$/, '') : '').join(', ');
 
-                    if (index !== responseDataObj.length - 1)
-                      responseData += '\r\n\r\n';
-                  });
+                          responseData += `${label}: ${str}`;
+                        } else {
+                          responseData += `${index}: ${value}`;
+                        }
+                      }
+
+                      if (index !== responseDataObj.length - 1)
+                        responseData += '\r\n\r\n';
+                    });
+                  }
 
                 } else if (responseDataObj instanceof Object) {
                   const keys = Object.keys(responseDataObj).sort().reverse();
@@ -417,8 +426,206 @@ export const AppletMixin = {
 
           await this.generateDrawingZip(drawingCSVs);
           await this.generateStabilityZip(stabilityCSVs);
+          await this.generateFlankerZip(flankerCSVs);
           await this.generateMediaResponsesZip(this.mediaResponseObjects);
         })
+    },
+
+    async generateFlankerZip(flankerCSVs) {
+      try {
+        const zip = new JSZip();
+
+        for (const csvData of flankerCSVs) {
+          zip.file(csvData.name, csvData.data);
+        }
+
+        const generatedZip = await zip.generateAsync({ type: 'blob' });
+        saveAs(generatedZip, `flanker-responses-${(new Date()).toDateString()}.zip`);
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    getFlankerAsCSV(responses, item) {
+      const result = [];
+      const types = {
+        '>>>>>': { stimulusType: 1, ext: 'right-con', expected: '>', },
+        '<<><<': { stimulusType: 2, ext: 'right-inc', expected: '>' },
+        '-->--': { stimulusType: 3, ext: 'right-net', expected: '>' },
+        '<<<<<': { stimulusType: 4, ext: 'left-con', expected: '<' },
+        '>><>>': { stimulusType: 5, ext: 'left-inc', expected: '<' },
+        '--<--': { stimulusType: 6, ext: 'left-net', expected: '<' }
+      }
+
+      const getResponseObj = (response, tag, config) => {
+        const trialNumber = response.trial_index;
+        const duration = config.trialDuration + (config.showFeedback ? 500 : 0) + (config.showFixation ? 500 : 0);
+
+        let stimulusType = '', eventTypeExt = tag, eventType = ( tag == 'response' ? 'Response' : 'Display' );
+
+        if (tag != 'trial') {
+          stimulusType = tag == 'feedback' ? 0 : -1;
+        } else {
+          stimulusType = types[response.question].stimulusType;
+          eventTypeExt = types[response.question].ext;
+        }
+
+        let expectedDisplayOnset = '.', expectedDisplayOffset = '.', actualDisplayOnset = '.', actualDisplayOffset = '.', displayDuration = '';
+        let expectedDisplayOnsetClock = '', expectedDisplayOffsetClock = '', actualDisplayOnsetClock = '', actualDisplayOffsetClock = '';
+
+        let responseValue = '', responseExpected = '', responseAccuracy = '', responseTime = '';
+        let responseClock = '';
+        let trialClock = '';
+
+        const timeOffset = response.start_timestamp - response.start_time;
+
+        if (tag != 'response') {
+          expectedDisplayOnset = (trialNumber - 1) * duration;
+
+          if (tag == 'feedback' || tag == 'trial') {
+            if (tag == 'feedback') {
+              expectedDisplayOnset += config.trialDuration;
+            }
+
+            if (config.showFixation) {
+              expectedDisplayOnset += 500;
+            }
+          }
+
+          expectedDisplayOffset = expectedDisplayOnset + ( tag == 'trial' ? config.trialDuration : 500 );
+
+          actualDisplayOnset = response.start_time;
+          actualDisplayOffset = response.start_time + response.duration;
+          displayDuration = response.duration;
+
+          /*** clockstamp */
+          expectedDisplayOnsetClock = expectedDisplayOnset + timeOffset;
+          expectedDisplayOffsetClock = expectedDisplayOffset + timeOffset;
+          actualDisplayOnsetClock = actualDisplayOnset + timeOffset;
+          actualDisplayOffsetClock = actualDisplayOffset + timeOffset;
+        } else {
+          responseValue = response.button_pressed === null ? '.' : response.button_pressed === '0' ? 'L' : 'R';
+          responseExpected = types[response.question].expected == '>' ? 'L' : 'R';
+          responseAccuracy = response.correct ? '1' : '0';
+          responseTime = response.start_time + response.duration;
+          responseClock = responseTime + timeOffset;
+        }
+
+        if (tag == 'trial') {
+          trialClock = response.start_timestamp
+        }
+
+        return {
+          trialNumber, eventType, stimulusType, eventTypeExt,
+          expectedDisplayOnset, actualDisplayOnset, expectedDisplayOffset, actualDisplayOffset,
+          displayDuration, responseValue, responseExpected, responseAccuracy, responseTime,
+          expectedDisplayOnsetClock, actualDisplayOnsetClock,
+          expectedDisplayOffsetClock, actualDisplayOffsetClock,
+          responseClock, trialClock
+        }
+      }
+
+      for (let i = 0; i < responses.length; i++) {
+        result.push({
+          ...getResponseObj(responses[i], responses[i].tag, item.inputs),
+          experimentClock: responses[0].start_timestamp
+        })
+
+        if (responses[i].tag == 'trial') {
+          result.push({
+            ...getResponseObj(responses[i], 'response', item.inputs),
+            experimentClock: responses[0].start_timestamp
+          })
+        }
+      }
+
+      let otc = new ObjectToCSV({
+        keys: [
+          {
+            key: 'trialNumber',
+            as: 'trial_number',
+          },
+          {
+            key: 'eventType',
+            as: 'Event Type',
+          },
+          {
+            key: 'stimulusType',
+            as: 'Stimulus Type'
+          },
+          {
+            key: 'eventTypeExt',
+            as: 'EventTypeExt',
+          },
+          {
+            key: 'expectedDisplayOnset',
+            as: 'Expected Display Onset'
+          },
+          {
+            key: 'actualDisplayOnset',
+            as: 'Actual Display Onset'
+          },
+          {
+            key: 'expectedDisplayOffset',
+            as: 'Expected Display Offset'
+          },
+          {
+            key: 'actualDisplayOffset',
+            as: 'Actual Display Offset'
+          },
+          {
+            key: 'displayDuration',
+            as: 'Display Duration'
+          },
+          {
+            key: 'responseValue',
+            as: 'Response Value'
+          },
+          {
+            key: 'responseExpected',
+            as: 'Response Expected'
+          },
+          {
+            key: 'responseAccuracy',
+            as: 'Response Accuracy'
+          },
+          {
+            key: 'responseTime',
+            as: 'Response Time'
+          },
+          {
+            key: 'expectedDisplayOnsetClock',
+            as: 'Expected Display Onset(Clockstamp)'
+          },
+          {
+            key: 'actualDisplayOnsetClock',
+            as: 'Actual Display Onset(Clockstamp)'
+          },
+          {
+            key: 'expectedDisplayOffsetClock',
+            as: 'Expceted Display Offset(Clockstamp)'
+          },
+          {
+            key: 'actualDisplayOffsetClock',
+            as: 'Actual Display Offset(Clockstamp)'
+          },
+          {
+            key: 'responseClock',
+            as: 'Response (Clockstamp)'
+          },
+          {
+            key: 'trialClock',
+            as: 'Trial Clockstamp'
+          },
+          {
+            key: 'experimentClock',
+            as: 'Experiment Clockstamp'
+          }
+        ],
+        data: result,
+      });
+
+      return otc.getCSV();
     },
 
     downloadFile({ name, content, type }) {
