@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
+## [0.11.0] - 2021-11-25
+Release to Production - Milestone 9
+
+Improvements:
+- Splash screen is included in PDF Report: If an editor uploads a splash screen to an activity with a cumulative score item, then the splash screen is shown as the first page on the PDF export 
+- Applet Logo is shown on PDF Report: If an editor has uploaded an applet image, then that image is shown on the PDF report for a cumulative score 
+- Cumulative Score Screen Updated: The design of the cumulative score screen was made more simplistic 
+
+Bug Fixes:
+- Duplicating an Applet: A new password is required when duplicating an applet 
+
 ## [0.10.8] - 2021-11-20
 - Fix full splash images
 
