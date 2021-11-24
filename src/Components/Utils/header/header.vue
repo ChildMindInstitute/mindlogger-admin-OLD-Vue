@@ -318,6 +318,12 @@
       @close="ownershipDialog = false"
     />
 
+    <AppletPassword
+      v-model="appletPasswordForm.visible"
+      :hasConfirmPassword="true"
+      @set-password="appletPasswordForm.requestedAction($event)"
+    />
+
     <v-dialog
       v-model="isExporting"
       hide-overlay
@@ -454,6 +460,10 @@ export default {
       appletPasswordDialog: {
         visible: false,
         applet: {},
+        requestedAction: null
+      },
+      appletPasswordForm: {
+        visible: false,
         requestedAction: null
       },
       windowWidth: window.innerWidth,
@@ -795,7 +805,27 @@ export default {
           })
     },
     onSetAppletDuplicateName(appletName) {
-      api
+      this.appletDuplicateDialog = false;
+
+      this.appletPasswordForm.requestedAction = (appletPassword) => {
+        const encryptionInfo = encryption.getAppletEncryptionInfo({
+          appletPassword,
+          accountId: this.$store.state.currentAccount.accountId,
+        });
+
+        const form = new FormData();
+        form.set(
+          "encryption",
+          JSON.stringify({
+            appletPublicKey: Array.from(encryptionInfo.getPublicKey()),
+            appletPrime: Array.from(encryptionInfo.getPrime()),
+            base: Array.from(encryptionInfo.getGenerator()),
+          })
+        );
+
+        this.appletPasswordForm.visible = false;
+
+        api
           .duplicateApplet({
             apiHost: this.$store.state.backend,
             token: this.$store.state.auth.authToken.token,
@@ -803,14 +833,15 @@ export default {
             options: {
               name: appletName,
             },
+            form
           })
           .then((resp) => {
-            this.appletDuplicateDialog = false;
-
             this.dialogText = resp.data.message;
             this.dialogTitle = this.$t('appletDuplication');
             this.dialog = true;
           });
+      }
+      this.appletPasswordForm.visible = true;
     },
 
     onDeleteApplet() {

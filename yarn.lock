@@ -2939,10 +2939,10 @@
     "normalize-path" "^3.0.0"
     "picomatch" "^2.0.4"
 
-"applet-schema-builder@^0.10.0":
-  "integrity" "sha512-pBrSR3tDVbhR0/kD2WlMCvIEUtALBsFUDT4Nzh3J1WzDi0qxWhU8D3VliLf8vcAUXRahnehZdmJ/o02LJwvKaw=="
-  "resolved" "https://registry.npmjs.org/applet-schema-builder/-/applet-schema-builder-0.10.0.tgz"
-  "version" "0.10.0"
+"applet-schema-builder@^0.11.0":
+  "integrity" "sha512-NGh5ujqyqT2bMyLstO+v0eU/IS1uxU8d0imUMv19NIGxRCFCeg2f47LstiDVsbvlkvmS9EEl8grAUAvOKC5ipg=="
+  "resolved" "https://registry.npmjs.org/applet-schema-builder/-/applet-schema-builder-0.11.0.tgz"
+  "version" "0.11.0"
   dependencies:
     "@sentry/browser" "^5.26.0"
     "@sentry/integrations" "^5.26.0"
@@ -9440,7 +9440,7 @@
   "resolved" "https://registry.npmjs.org/mimic-fn/-/mimic-fn-2.1.0.tgz"
   "version" "2.1.0"
 
-"mimoza@~1.0.0":
+"mimoza@^1.0.0", "mimoza@~1.0.0":
   "integrity" "sha1-10qk/giTLwBeQwvce/z6lfyrTmI="
   "resolved" "https://registry.npmjs.org/mimoza/-/mimoza-1.0.0.tgz"
   "version" "1.0.0"

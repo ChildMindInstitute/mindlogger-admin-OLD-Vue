@@ -1,24 +1,44 @@
 <template>
   <div class="cumulative-score-report">
-    <div v-for="{ activity, reportMessages } in activityResponses" :key="activity.id" class="mb-5">
-      <p class="mb-4">
-        <b>
-          <u>{{ activity.id }} Report</u>
-        </b>
-      </p>
+    <section class="pdf-item" v-for="({ activity, reportMessages }, index) in activityResponses" :key="activity.id">
+      <div 
+        v-if="splashScreenType(activity) === 'image' && index" 
+        class="html2pdf__page-break splash-screen"
+        :style="'margin-bottom:' + 4 * (index + 1) + 'px'"
+      />
+      <div 
+        v-if="splashScreenType(activity) === 'image'"
+        class="html2pdf__page-break splash-screen"
+        :style="'margin-bottom:' + 4 * (index + 1) + 'px'"
+      >
+        <img 
+          class="splash-image" 
+          crossorigin="anonymous" 
+          :src="activity.splash.en + '?not-from-cache-please'" 
+          alt="Splash Activity"
+        />
+      </div>
+      <div v-if="appletImage && !index" class="applet-logo">
+        <img 
+          :src="appletImage + '?not-from-cache-please'"
+          crossorigin="anonymous"
+          width="100" 
+          alt='' 
+        />
+      </div>
       <p class="text-body-2 mb-4">
         <markdown :source="activity.scoreOverview.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
       </p>
       <div v-for="item in reportMessages" :key="item.category" class="my-4">
-        <p class="blue--text mb-1">
+        <p class="blue--text text-body-2 mb-1">
           <b>{{ (item.category || "").replace(/_/g, " ") }}</b>
         </p>
         <p class="text-body-2 mb-4">
           <markdown :source="item.compute.description.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
         </p>
         <div class="score-area mb-4">
-          <p class="score-title text-nowrap" :style="{ left: `max(90px, ${(item.scoreValue / item.maxScoreValue) * 100}%)` }">
-            <b>Your/Your Child's Score</b>
+          <p class="score-title text-body-2 text-nowrap" :style="{ left: `max(90px, ${(item.scoreValue / item.maxScoreValue) * 100}%)` }">
+            <b>Your Child's Score</b>
           </p>
           <div
             class="score-bar score-below"
@@ -36,46 +56,51 @@
             }"
           />
           <div class="score-spliter" :style="{ left: `${(item.scoreValue / item.maxScoreValue) * 100}%` }" />
-          <p class="score-max-value">
+          <p class="score-max-value text-body-2">
             <b>{{ item.maxScoreValue }}</b>
           </p>
         </div>
-        <p class="text-uppercase mb-1">
-          <b>
-            <i>
-              If score
-              <span class="ml-2">{{ item.jsExpression }}</span>
-            </i>
-          </b>
-        </p>
 
-        <div class="mb-4">
-          Your/Your child’s score on the {{ item.category.replace(/_/g, " ") }} subscale was
+        <div class="mb-4 text-body-2">
+          Your child’s score on the {{ item.category.replace(/_/g, " ") }} subscale was
           <span class="red--text">{{ item.scoreValue }}</span>
           .
           <markdown :source="item.message.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
         </div>
       </div>
-    </div>
-    <p class="text-footer text-body-2 mb-5">
-      {{ termsText }}
-    </p>
-    <p class="text-footer">
-      {{ footerText }}
-    </p>
+    </section>
+    <section class="divider" />
+    <section class="pdf-item">
+      <p class="text-footer text-body-1 mb-5">
+        {{ termsText }}
+      </p>
+      <p class="text-footer text-body-3">
+        {{ footerText }}
+      </p>
+    </section>
   </div>
 </template>
 
 <style scoped>
 .cumulative-score-report {
-  width: 600px;
+  width: 656px;
   font-family: Arial, Helvetica, sans-serif;
+}
+.applet-logo {
+  float: right;
+  margin-left: 15px;
 }
 .text-uppercase {
   text-transform: uppercase;
 }
 .text-body-2 {
   font-size: 0.9rem;
+}
+.text-body-1 {
+  font-size: 0.8rem;
+}
+.text-body-3 {
+  font-size: 0.7rem;
 }
 .blue--text {
   color: #2196f3;
@@ -117,6 +142,11 @@
 .score-bar {
   height: 40px;
 }
+.divider {
+  border: 1px solid black;
+  margin-bottom: 3.5em;
+  margin-top: 3.5em;
+}
 .score-positive {
   background-color: #a1cd63;
 }
@@ -144,10 +174,19 @@
   right: 0;
   bottom: 0;
 }
-</style>
-<style>
-img {
-  max-width: 100%;
+.splash-screen {
+  display: flex;
+  justify-content: center;
+}
+.splash-image {
+  width: 100%;
+  object-fit: contain;
+}
+.full-height {
+  height: 100%;
+}
+.full-width {
+  width: 100%;
 }
 </style>
 
@@ -155,6 +194,7 @@ img {
 import Markdown from "../Utils/Markdown";
 import { Parser } from "expr-eval";
 import _ from "lodash";
+import Mimoza from "mimoza";
 import { getScoreFromResponse, getMaxScore, evaluateScore } from "../Utils/scoring";
 
 export default {
@@ -163,6 +203,10 @@ export default {
     Markdown,
   },
   props: {
+    appletImage: {
+      type: String,
+      required: true,
+    },
     activities: {
       type: Array,
       required: true,
@@ -174,6 +218,7 @@ export default {
       comparison: true,
     });
     const activityResponses = [];
+
     for (const activity of this.activities) {
       if (activity.responses.length === 0) {
         continue;
@@ -284,6 +329,24 @@ export default {
         "CHILD MIND INSTITUTE, INC. AND CHILD MIND MEDICAL PRACTICE, PLLC (TOGETHER, “CMI”) DOES NOT DIRECTLY OR INDIRECTLY PRACTICE MEDICINE OR DISPENSE MEDICAL ADVICE AS PART OF THIS QUESTIONNAIRE. CMI ASSUMES NO LIABILITY FOR ANY DIAGNOSIS, TREATMENT, DECISION MADE, OR ACTION TAKEN IN RELIANCE UPON INFORMATION PROVIDED BY THIS QUESTIONNAIRE, AND ASSUMES NO RESPONSIBILITY FOR YOUR USE OF THIS QUESTIONNAIRE.",
       activityResponses,
     };
+  },
+  methods: {
+    splashScreenType (activity) {
+      const isSplashScreen = activity.splash && activity.splash.en;
+      let type = "";
+
+      if (isSplashScreen) {
+        const uri = activity.splash.en;
+        const mimeType = Mimoza.getMimeType(uri) || "";
+
+        if (mimeType.startsWith("video/")) {
+          type = "video";
+        } else {
+          type = "image";
+        }
+      }
+      return type;
+    },
   },
 };
 </script>
