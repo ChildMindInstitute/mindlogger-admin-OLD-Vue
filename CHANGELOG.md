@@ -5,29 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
-## [0.9.10] - 2021-11-20
+## [0.10.8] - 2021-11-20
 - Fix full splash images
 
-## [0.9.9] - 2021-11-18
+## [0.10.7] - 2021-11-18
 - Fix font-size on footer
 
-## [0.9.8] - 2021-11-18
+## [0.10.6] - 2021-11-18
 - Fix broken layout with multiple splash screens
 
-## [0.9.7] - 2021-11-17
+## [0.10.5] - 2021-11-17
 - Fix divider line issues
 
-## [0.9.6] - 2021-11-12
+## [0.10.4] - 2021-11-12
 - Swap applet logo for splash screen
 
-## [0.9.5] - 2021-11-10
+## [0.10.3] - 2021-11-10
 - Added applet image and splash screen for each activity
 
-## [0.9.4] - 2021-11-2
+## [0.10.2] - 2021-11-2
 - Fix splash screen on PDF export
 
-## [0.9.3] - 2021-11-1
+## [0.10.1] - 2021-11-1
 - Fix PDF export issues
+
+## [0.10.0] - 2021-10-26
+Release to Production - Milestone 8
+
+New Features :
+- Timer for Items :  Editors can now set timers that only allow the user to complete an item in X seconds before the user is navigated forward 
+- Show/ Hide Activity, Items or Response Options : Editors can now show and hide items without having to delete and recreate. 	
+
+Improvements:
+- User’s actions : We are collecting the movement of the user through an activity and recording button taps
+- Configure Back and Undo Button : On some items in the applet builder, the editor can remove the ability for the user to have the back and undo buttons 
+- Draw Navigation Controls : The draw controls can be configured to move to the top of the screen 
+
+Bug Fixes:
+- Taps on the drawing canvas : The drawing canvas now shows taps from the user
 
 ## [0.9.2] - 2021-10-20
 - Fix filtering secretIDs
