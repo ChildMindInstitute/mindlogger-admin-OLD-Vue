@@ -4,12 +4,12 @@
       <div 
         v-if="splashScreenType(activity) === 'image' && index" 
         class="html2pdf__page-break splash-screen"
-        :style="'margin-bottom:' + 4 * (index + 1) + 'px'"
+        :style="'margin-bottom:' + 2 * (index + 1) + 'px'"
       />
       <div 
         v-if="splashScreenType(activity) === 'image'"
         class="html2pdf__page-break splash-screen"
-        :style="'margin-bottom:' + 4 * (index + 1) + 'px'"
+        :style="'margin-bottom:' + 2 * (index + 1) + 'px'"
       >
         <img 
           class="splash-image" 
@@ -179,6 +179,7 @@
   justify-content: center;
 }
 .splash-image {
+  margin-top: 20px;
   width: 100%;
   object-fit: contain;
 }
