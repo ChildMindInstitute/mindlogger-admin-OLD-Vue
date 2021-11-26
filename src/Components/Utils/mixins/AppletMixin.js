@@ -213,7 +213,11 @@ export const AppletMixin = {
                 flag = 'incomplete';
               }
 
-              const responseDataObj = { ...response.data[itemUrl] };
+              let responseDataObj = response.data[itemUrl];
+              if (typeof responseDataObj == 'object' && !Array.isArray(responseDataObj)) {
+                responseDataObj = { ...responseDataObj }
+              }
+
               let responseData = '';
 
               if (!responseDataObj) {
