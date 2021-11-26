@@ -91,6 +91,7 @@ export default {
       newApplet: {},
       themeId: null,
       isEditing: false,
+      uploadingApplet: false,
       versions: [],
       componentKey: 1,
       itemTemplates: null,
@@ -313,6 +314,13 @@ export default {
       const appletId = this.currentAppletMeta.id;
       const token = this.$store.state.auth.authToken.token;
       const apiHost = this.$store.state.backend;
+
+      if (this.uploadingApplet) {
+        this.onUploadError('Your applet is being edited');
+        return ;
+      }
+
+      this.uploadingApplet = true;
       api
         .updateApplet({
           ...(protocolData && {data: protocolData}),
@@ -337,7 +345,10 @@ export default {
         })
         .catch((e) => {
           this.onUploadError();
-        });
+        })
+        .finally(() => {
+          this.uploadingApplet = false;
+        })
     },
     onPrepareApplet(data) {
       const protocol = new FormData();
