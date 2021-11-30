@@ -714,14 +714,17 @@ export default {
     async editApplet() {
       this.currentApplet = this.applets.find(applet => applet.id === this.hoveredAppletId);
 
-      if (this.currentApplet.largeApplet && !this.currentApplet.version) {
+      const token = this.$store.state.auth.authToken.token;
+      const apiHost = this.$store.state.backend;
+
+      const versions = await api.getAppletVersions({ apiHost, token, appletId: this.currentApplet.id })
+
+      if (this.currentApplet.largeApplet && !versions.data.length) {
         if (!this.isLatestApplet(this.currentApplet)) {
           await this.loadApplet(this.currentApplet.id);
         }
 
         const appletId = this.currentApplet.id;
-        const token = this.$store.state.auth.authToken.token;
-        const apiHost = this.$store.state.backend;
 
         const data = await Builder.getBuilderFormat(this.currentAppletData, true)
         const protocol = new FormData();

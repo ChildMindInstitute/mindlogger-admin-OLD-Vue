@@ -363,13 +363,13 @@ export const AppletMixin = {
                 continue;
               }
 
-              if (csvObj['response'] && csvObj['response'].includes('.quicktime'))
+              if (csvObj['response'] && typeof csvObj['response'] == 'string' && csvObj['response'].includes('.quicktime'))
                 csvObj['response'] = csvObj['response'].replace('.quicktime', '.MOV');
 
               if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined || csvObj['response'] === '') continue;
 
               try {
-                if (csvObj.response && csvObj.response.includes('.csv')) {
+                if (typeof csvObj.response == 'string' && csvObj.response.includes('.csv')) {
                   const { lines } = data.dataSources[response._id].data[0].value;
                   let strArr = [];
                   for (let index = 0; index < lines.length; index++) {
