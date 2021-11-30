@@ -177,7 +177,19 @@
           icon
           v-on="on"
         >
-					<img height="24" alt='' v-bind:src="require(`@/assets/response-alert.png`)"/>
+					<img
+            v-if="newAlertCount"
+            height="24"
+            alt=''
+            v-bind:src="require(`@/assets/response-alert-yellow.png`)"
+          />
+
+          <img
+            v-else
+            height="24"
+            alt=''
+            v-bind:src="require(`@/assets/response-alert-white.png`)"
+          />
 
           <span
             v-if="newAlertCount"
