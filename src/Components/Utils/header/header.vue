@@ -163,6 +163,8 @@
 
     <v-spacer />
 
+    <small v-if="version">v{{ version }}</small>
+
     <v-menu
       v-if="isLoggedIn && hasReviewerRole"
       :offset-y="true"
@@ -433,6 +435,7 @@ import { AppletMixin } from '../mixins/AppletMixin';
 import { RolesMixin } from '../mixins/RolesMixin';
 import { AccountMixin } from '../mixins/AccountMixin';
 import encryption from '../encryption/encryption.vue';
+import { getVersion } from "../mixins/LibraryMixin";
 
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
@@ -456,6 +459,7 @@ export default {
   mixins: [AppletMixin, RolesMixin, AccountMixin],
   data() {
     return {
+      version: process.env.NODE_ENV !== 'production' ? getVersion() : undefined,
       appletEditDialog: false,
       appletPasswordDialog: {
         visible: false,
