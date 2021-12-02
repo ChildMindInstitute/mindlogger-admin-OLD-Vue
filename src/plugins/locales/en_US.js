@@ -214,6 +214,7 @@ export default {
   waitSeveralMinutes: 'Please wait several minutes',
   weeks: 'weeks',
   months: 'months',
+  indefinitely: 'indefinitely',
   noActiveApplets: 'You have no active applets',
   createUploadApplet: 'Create or upload a new applet',
   duplicate: 'Duplicate',
