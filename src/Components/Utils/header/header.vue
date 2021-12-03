@@ -459,7 +459,7 @@ export default {
   mixins: [AppletMixin, RolesMixin, AccountMixin],
   data() {
     return {
-      version: process.env.NODE_ENV !== 'production' ? getVersion() : undefined,
+      version: process.env.VUE_APP_NODE_ENV !== 'production' ? getVersion() : undefined,
       appletEditDialog: false,
       appletPasswordDialog: {
         visible: false,
