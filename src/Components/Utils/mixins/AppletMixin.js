@@ -432,17 +432,19 @@ export const AppletMixin = {
     },
 
     async generateFlankerZip(flankerCSVs) {
-      try {
-        const zip = new JSZip();
+      if (flankerCSVs.length > 0) {
+        try {
+          const zip = new JSZip();
 
-        for (const csvData of flankerCSVs) {
-          zip.file(csvData.name, csvData.data);
+          for (const csvData of flankerCSVs) {
+            zip.file(csvData.name, csvData.data);
+          }
+
+          const generatedZip = await zip.generateAsync({ type: 'blob' });
+          saveAs(generatedZip, `flanker-responses-${(new Date()).toDateString()}.zip`);
+        } catch (err) {
+          console.log(err);
         }
-
-        const generatedZip = await zip.generateAsync({ type: 'blob' });
-        saveAs(generatedZip, `flanker-responses-${(new Date()).toDateString()}.zip`);
-      } catch (err) {
-        console.log(err);
       }
     },
 
