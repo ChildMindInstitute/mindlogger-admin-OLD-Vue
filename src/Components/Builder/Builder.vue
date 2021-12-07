@@ -9,6 +9,7 @@
       :initialData="(isEditing || null) && currentAppletData"
       :getProtocols="getProtocols"
       :versions="versions"
+      :nodeEnv="nodeEnv"
       :templates="itemTemplates"
       :cacheData="currentAppletBuilderData"
       :basketApplets="basketApplets"
@@ -145,6 +146,7 @@ export default {
         },
       ],
       cacheData: null,
+      nodeEnv: process.env.VUE_APP_NODE_ENV,
     };
   },
   computed: {
