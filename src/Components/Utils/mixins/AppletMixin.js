@@ -190,7 +190,7 @@ export const AppletMixin = {
               try {
                 if (itemData && itemData.ptr !== undefined && itemData.src !== undefined) {
                   if (_.isArray(data.dataSources[itemData.src].data) && itemData.ptr && typeof itemData.ptr === "object") {
-                    if (itemData.ptr.index !== undefined && !data.dataSources[itemData.src].data[itemData.ptr.index].value.lines) {
+                    if (itemData.ptr.index !== undefined) {
                       response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr.index];
                     } else {
                       response.data[itemUrl] = { value: itemData.ptr };
