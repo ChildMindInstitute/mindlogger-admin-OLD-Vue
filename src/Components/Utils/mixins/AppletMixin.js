@@ -498,7 +498,7 @@ export const AppletMixin = {
 
           actualDisplayOnset = response.start_time;
           actualDisplayOffset = response.start_time + response.duration;
-          displayDuration = response.duration;
+          displayDuration = expectedDisplayOffset - expectedDisplayOnset;
 
           /*** clockstamp */
           expectedDisplayOnsetClock = expectedDisplayOnset + timeOffset;
@@ -507,7 +507,7 @@ export const AppletMixin = {
           actualDisplayOffsetClock = actualDisplayOffset + timeOffset;
         } else {
           responseValue = response.button_pressed === null ? '.' : response.button_pressed === '0' ? 'L' : 'R';
-          responseExpected = types[response.question].expected == '>' ? 'L' : 'R';
+          responseExpected = types[response.question].expected == '>' ? 'R' : 'L';
           responseAccuracy = response.correct ? '1' : '0';
           responseTime = response.start_time + response.duration;
           responseClock = responseTime + timeOffset;
