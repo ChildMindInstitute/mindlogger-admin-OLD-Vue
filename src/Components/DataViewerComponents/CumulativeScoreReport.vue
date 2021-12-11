@@ -33,7 +33,7 @@
         </p>
         <div class="score-area mb-4">
           <p class="score-title text-body-2 text-nowrap" :style="{ left: `max(90px, ${(item.scoreValue / item.maxScoreValue) * 100}%)` }">
-            <b>Your Child's Score</b>
+            <b>{{ $t('childScore') }}</b>
           </p>
           <div
             class="score-bar score-below"
@@ -57,7 +57,7 @@
         </div>
 
         <div class="mb-4 text-body-2">
-          Your child’s score on the {{ item.category.replace(/_/g, " ") }} subscale was
+          {{ $t('childScoreOnSubScale', { name: item.category.replace(/_/g, " ") }) }}
           <span class="red--text">{{ item.scoreValue }}</span>
           .
           <markdown :source="item.message.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
@@ -67,10 +67,10 @@
     <section class="divider" />
     <section class="pdf-item">
       <p class="text-footer text-body-1 mb-5">
-        {{ termsText }}
+        {{ $t('termsText') }}
       </p>
       <p class="text-footer text-body-3">
-        {{ footerText }}
+        {{ $t('pdfFooterText') }}
       </p>
     </section>
   </div>
@@ -293,7 +293,7 @@ export default {
 
         for (let i = 0; i < activity.items.length; i++) {
           const { variableName, responses } = activity.items[i];
-          try {            
+          try {
             if (!variableName && !responses) continue;
 
             let score = getScoreFromResponse(
