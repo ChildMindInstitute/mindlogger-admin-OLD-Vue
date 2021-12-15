@@ -341,10 +341,19 @@ export default {
           const variableName = exprArr[0];
           const exprValue = parseFloat(exprArr[1].split(" ")[1]);
           const category = variableName.trim().replace(/\s/g, "__");
-          const expr = parser.parse(category + jsExpression.substr(variableName.length));
+
+          let expr, key;
+          try {
+            expr = parser.parse(category + jsExpression.substr(variableName.length));
+          } catch (error) {
+            if (category.match(/[&\/\\#,+()$~%.'":*?<>{}]/g)) {
+              key = category.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+              expr = parser.parse(key + jsExpression.substr(variableName.length));
+            }
+          }
 
           const variableScores = {
-            [category]:
+            [key ? key : category]:
               outputType == "percentage"
                 ? Math.round(
                     cumulativeMaxScores[category] ? (cumulativeScores[category] * 100) / cumulativeMaxScores[category] : 0
@@ -362,7 +371,7 @@ export default {
             reportMessages.push({
               category,
               message,
-              score: variableScores[category] + (outputType == "percentage" ? "%" : ""),
+              score: variableScores[key ? key : category] + (outputType == "percentage" ? "%" : ""),
               compute,
               jsExpression: jsExpression.substr(variableName.length),
               scoreValue: cumulativeScores[category],
