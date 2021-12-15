@@ -451,12 +451,12 @@ export const AppletMixin = {
     getFlankerAsCSV(responses, item) {
       const result = [];
       const types = {
-        '>>>>>': { stimulusType: 1, ext: 'right-con', expected: '>', },
-        '<<><<': { stimulusType: 2, ext: 'right-inc', expected: '>' },
-        '-->--': { stimulusType: 3, ext: 'right-net', expected: '>' },
-        '<<<<<': { stimulusType: 4, ext: 'left-con', expected: '<' },
+        '>>>>>': { stimulusType: 4, ext: 'right-con', expected: '>', },
+        '<<><<': { stimulusType: 6, ext: 'right-inc', expected: '>' },
+        '-->--': { stimulusType: 2, ext: 'right-net', expected: '>' },
+        '<<<<<': { stimulusType: 3, ext: 'left-con', expected: '<' },
         '>><>>': { stimulusType: 5, ext: 'left-inc', expected: '<' },
-        '--<--': { stimulusType: 6, ext: 'left-net', expected: '<' }
+        '--<--': { stimulusType: 1, ext: 'left-net', expected: '<' }
       }
 
       const getResponseObj = (response, tag, config) => {
@@ -509,8 +509,8 @@ export const AppletMixin = {
           responseValue = response.button_pressed === null ? '.' : response.button_pressed === '0' ? 'L' : 'R';
           responseExpected = types[response.question].expected == '>' ? 'R' : 'L';
           responseAccuracy = response.correct ? '1' : '0';
-          responseTime = response.start_time + response.duration;
-          responseClock = responseTime + timeOffset;
+          responseTime = response.duration;
+          responseClock = response.start_timestamp + response.duration;
         }
 
         if (tag == 'trial') {
