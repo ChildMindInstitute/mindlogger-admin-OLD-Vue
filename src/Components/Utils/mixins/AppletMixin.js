@@ -139,7 +139,7 @@ export const AppletMixin = {
             'rawScore',
             'reviewing_id',
           ];
-          const drawingCSVs = [], stabilityCSVs = [];
+          const drawingCSVs = [], stabilityCSVs = [], trailsCSVs = [];
 
           for (let response of data.responses) {
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
@@ -261,7 +261,7 @@ export const AppletMixin = {
                     if (item.inputType === 'timeRange' && value.from && value.to) {
                       responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
 
-                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType === 'audioImageRecord')) {
+                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType == 'trail' || item.inputType === 'audioImageRecord')) {
                       if (value.filename) {
                         const name = this.getMediaResponseObject(value.uri, response, item);
 
@@ -289,10 +289,17 @@ export const AppletMixin = {
                         const nameRegex = nameStr.match(/filename: ([^.]*)/i)
                         responseData += `filename: ${nameRegex[1]}`
 
-                        drawingCSVs.push({
-                          name: `${nameRegex[1]}.csv`,
-                          data: this.getLinesAsCSV(value.lines)
-                        });
+                        if (item.inputType == 'drawing') {
+                          drawingCSVs.push({
+                            name: `${nameRegex[1]}.csv`,
+                            data: this.getDrawingLinesAsCSV(value.lines)
+                          });
+                        } else {
+                          trailsCSVs.push({
+                            name: `${nameRegex[1]}.csv`,
+                            data: this.getTrailsLinesAsCSV(value.lines)
+                          })
+                        }
                       } else if (key == 'text') {
                         responseData += `${key}: ${value}`;
                       }
@@ -424,7 +431,8 @@ export const AppletMixin = {
             type: 'text/csv;charset=utf-8'
           })
 
-          await this.generateDrawingZip(drawingCSVs);
+          await this.generateLinesZip(drawingCSVs, 'drawing-responses');
+          await this.generateLinesZip(trailsCSVs, 'trails-responses');
           await this.generateStabilityZip(stabilityCSVs);
           await this.generateFlankerZip(flankerCSVs);
           await this.generateMediaResponsesZip(this.mediaResponseObjects);
@@ -727,7 +735,58 @@ export const AppletMixin = {
       return otc.getCSV();
     },
 
-    getLinesAsCSV(lines) {
+    getTrailsLinesAsCSV (lines) {
+      const result = [];
+      let startTime = 0, totalTime = 0, errorCount = 0;
+
+      for (let i = 0; i < lines.length; i++) {
+        for (const point of lines[i].points) {
+          if (!startTime) {
+            startTime = point.time;
+          }
+
+          result.push({
+            line_number: i.toString(),
+            x: point.x.toString(),
+            y: point.y.toString(),
+            time: (point.time - startTime).toString(),
+            valid: point.valid ? 'True' : 'False',
+            total_time: '',
+            total_number_of_errors: ''
+          })
+
+          if (totalTime < point.time - startTime) {
+            totalTime = point.time - startTime;
+          }
+        }
+
+        if (lines[i].points.length && !lines[i].points[0].valid) {
+          errorCount++;
+        }
+      }
+
+      if (result.length) {
+        result[0].total_time = totalTime;
+        result[0].total_number_of_errors = errorCount;
+      }
+
+      let otc = new ObjectToCSV({
+        keys: [
+          { key: 'line_number', as: 'Line Number' },
+          { key: 'x', as: 'x' },
+          { key: 'y', as: 'y' },
+          { key: 'time', as: 'time' },
+          { key: 'valid', as: 'valid' },
+          { key: 'total_time', as: 'Total Time' },
+          { key: 'total_number_of_errors', as: 'Total Number of Errors' }
+        ],
+        data: result,
+      });
+
+      return otc.getCSV();
+    },
+
+    getDrawingLinesAsCSV(lines) {
       const result = [];
       for (let i = 0; i < lines.length; i++) {
         for (const point of lines[i].points) {
@@ -753,17 +812,17 @@ export const AppletMixin = {
       return otc.getCSV();
     },
 
-    async generateDrawingZip(drawingCSVs) {
+    async generateLinesZip(csvs, name) {
       try {
-        if (drawingCSVs.length > 0) {
+        if (csvs.length > 0) {
           const zip = new JSZip();
 
-          for (const csvData of drawingCSVs) {
+          for (const csvData of csvs) {
             zip.file(csvData.name, csvData.data);
           }
 
           const generatedZip = await zip.generateAsync({ type: 'blob' });
-          saveAs(generatedZip, `drawing-responses-${(new Date()).toDateString()}.zip`);
+          saveAs(generatedZip, `${name}-${(new Date()).toDateString()}.zip`);
         }
       } catch (err) {
         console.log(err);
