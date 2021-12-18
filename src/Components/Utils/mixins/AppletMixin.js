@@ -178,6 +178,9 @@ export const AppletMixin = {
               }
             }
 
+            const activityResponses = [];
+            let activity = null;
+
             for (let itemUrl in response.data) {
               let itemData = response.data[itemUrl];
               let item = (data.itemReferences[response.version] && data.itemReferences[response.version][itemUrl]) || currentItems[itemUrl];
@@ -202,7 +205,7 @@ export const AppletMixin = {
                 }
               } catch (error) { }
 
-              let activity = currentItems[itemUrl] ?
+              activity = currentItems[itemUrl] ?
                 currentActivities[response.activity['@id']] :
                 data.activities[item.data.activityId];
 
@@ -409,9 +412,21 @@ export const AppletMixin = {
                 console.log(error);
               }
 
-              result.push(csvObj);
+              activityResponses[itemUrl] = csvObj;
+
               isSubScaleExported = true;
             }
+
+            Object.keys(activityResponses).sort((a, b) => {
+              const indexA = activity.order.indexOf(a);
+              const indexB = activity.order.indexOf(b);
+
+              if (indexA == -1) return 1;
+              if (indexB == -1) return -1;
+              return indexA < indexB ? -1 : indexA > indexB ? 1 : 0;
+            }).forEach(itemUrl => {
+              result.push(activityResponses[itemUrl]);
+            })
           }
 
           for (let row of result) {
