@@ -192,6 +192,9 @@ export const AppletMixin = {
                   if (_.isArray(data.dataSources[itemData.src].data) && itemData.ptr && typeof itemData.ptr === "object") {
                     if (itemData.ptr.index !== undefined) {
                       response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr.index];
+
+                      if (data.dataSources[itemData.src].data[itemData.ptr.index].value.lines)
+                        response.data[itemUrl] = { ...data.dataSources[itemData.src].data[itemData.ptr.index], value: itemData.ptr };
                     } else {
                       response.data[itemUrl] = { value: itemData.ptr };
                     }
@@ -471,7 +474,7 @@ export const AppletMixin = {
         const trialNumber = response.trial_index;
         const duration = config.trialDuration + (config.showFeedback ? 500 : 0) + (config.showFixation ? 500 : 0);
 
-        let stimulusType = '', eventTypeExt = tag, eventType = ( tag == 'response' ? 'Response' : 'Display' );
+        let stimulusType = '', eventTypeExt = tag, eventType = (tag == 'response' ? 'Response' : 'Display');
 
         if (tag != 'trial') {
           stimulusType = tag == 'feedback' ? 0 : -1;
@@ -502,7 +505,7 @@ export const AppletMixin = {
             }
           }
 
-          expectedDisplayOffset = expectedDisplayOnset + ( tag == 'trial' ? config.trialDuration : 500 );
+          expectedDisplayOffset = expectedDisplayOnset + (tag == 'trial' ? config.trialDuration : 500);
 
           actualDisplayOnset = response.start_time;
           actualDisplayOffset = response.start_time + response.duration;
@@ -735,7 +738,7 @@ export const AppletMixin = {
       return otc.getCSV();
     },
 
-    getTrailsLinesAsCSV (lines) {
+    getTrailsLinesAsCSV(lines) {
       const result = [];
       let startTime = 0, totalTime = 0, errorCount = 0;
 
