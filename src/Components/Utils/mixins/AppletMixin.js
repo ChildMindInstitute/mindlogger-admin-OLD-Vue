@@ -755,7 +755,11 @@ export const AppletMixin = {
       let startTime = 0, totalTime = 0, errorCount = 0;
 
       for (let i = 0; i < lines.length; i++) {
+        let hasError = false;
         for (const point of lines[i].points) {
+          if (!point.valid) {
+            hasError = true;
+          }
           if (!startTime) {
             startTime = point.time;
           }
@@ -775,7 +779,7 @@ export const AppletMixin = {
           }
         }
 
-        if (lines[i].points.length && !lines[i].points[0].valid) {
+        if (hasError) {
           errorCount++;
         }
       }
