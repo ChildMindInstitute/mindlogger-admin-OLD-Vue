@@ -794,7 +794,7 @@ export const AppletMixin = {
             line_number: i.toString(),
             x: point.x.toString(),
             y: point.y.toString(),
-            time: typeof point.time === "number" ? moment(point.time).format("YYYY-MM-DD HH:mm:ss") : point.time || '',
+            time: typeof point.time === "number" ? moment.utc(point.time).format("YYYY-MM-DD HH:mm:ss") : point.time || '',
           });
         }
       }
