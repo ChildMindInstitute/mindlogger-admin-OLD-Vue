@@ -769,9 +769,11 @@ export const AppletMixin = {
             x: point.x.toString(),
             y: point.y.toString(),
             time: (point.time - startTime).toString(),
-            valid: point.valid ? 'True' : 'False',
+            error: point.valid ? 'E0' : point.actual != 'none' ?  'E1' : 'E2',
             total_time: '',
-            total_number_of_errors: ''
+            total_number_of_errors: '',
+            correct_path: `${point.start} ~ ${point.end}`,
+            actual_path: `${point.start} ~ ${point.actual == 'none' ? '?' : (point.actual || point.end)}`
           })
 
           if (totalTime < point.time - startTime) {
@@ -792,10 +794,12 @@ export const AppletMixin = {
       let otc = new ObjectToCSV({
         keys: [
           { key: 'line_number', as: 'Line Number' },
-          { key: 'x', as: 'x' },
-          { key: 'y', as: 'y' },
-          { key: 'time', as: 'time' },
-          { key: 'valid', as: 'valid' },
+          { key: 'x', as: 'X' },
+          { key: 'y', as: 'Y' },
+          { key: 'time', as: 'Time' },
+          { key: 'error', as: 'Error' },
+          { key: 'correct_path', as: 'Correct Path' },
+          { key: 'actual_path', as: 'Actual Path' },
           { key: 'total_time', as: 'Total Time' },
           { key: 'total_number_of_errors', as: 'Total Number of Errors' }
         ],
