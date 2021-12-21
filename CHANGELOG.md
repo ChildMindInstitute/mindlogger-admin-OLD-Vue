@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
+## [0.12.0] - 2021-12-22
+Release to Production - Milestone 10
+
+New Features:
+- Cognitive tasks: Admins now have stability tracker, a/b trails and flanker to use as activities within an applet. 
+
+Improvements:
+- CMI Branding: Child Mind Insitute branding was updated through the different MindLogger platforms 
+- Daisy Chain on Webapp: This feature  works on webapp now. Originally the feature was mobile-only 
+
+Bug Fixes:
+- Duplicating items: When items are copied in the applet builder, intermittently, those items would have text randomly change 
+- Edit Button: Intermittently the edit button was not clickable
+- Special Characters in item titles: Using special characters in item titles caused some bugs with special applets 
+
+## [0.11.2] - 2021-12-01
+Add a new modal for incorrect editing access
+
+## [0.11.1] - 2021-11-26
+Fix padding on PDF report
+
 ## [0.11.0] - 2021-11-25
 Release to Production - Milestone 9
 

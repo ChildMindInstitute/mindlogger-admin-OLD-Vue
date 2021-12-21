@@ -118,6 +118,7 @@ export const AppletMixin = {
           }
 
           let subScaleNames = [], previousResponse = [];
+          const flankerCSVs = [];
 
           const keys = [
             'id',
@@ -138,7 +139,7 @@ export const AppletMixin = {
             'rawScore',
             'reviewing_id',
           ];
-          const drawingCSVs = [], stabilityCSVs = [];
+          const drawingCSVs = [], stabilityCSVs = [], trailsCSVs = [];
 
           for (let response of data.responses) {
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
@@ -177,6 +178,9 @@ export const AppletMixin = {
               }
             }
 
+            const activityResponses = [];
+            let activity = null;
+
             for (let itemUrl in response.data) {
               let itemData = response.data[itemUrl];
               let item = (data.itemReferences[response.version] && data.itemReferences[response.version][itemUrl]) || currentItems[itemUrl];
@@ -189,7 +193,7 @@ export const AppletMixin = {
               try {
                 if (itemData && itemData.ptr !== undefined && itemData.src !== undefined) {
                   if (_.isArray(data.dataSources[itemData.src].data) && itemData.ptr && typeof itemData.ptr === "object") {
-                    if (itemData.ptr.index !== undefined && !data.dataSources[itemData.src].data[itemData.ptr.index].value.lines) {
+                    if (itemData.ptr.index !== undefined) {
                       response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr.index];
                     } else {
                       response.data[itemUrl] = { value: itemData.ptr };
@@ -201,7 +205,7 @@ export const AppletMixin = {
                 }
               } catch (error) { }
 
-              let activity = currentItems[itemUrl] ?
+              activity = currentItems[itemUrl] ?
                 currentActivities[response.activity['@id']] :
                 data.activities[item.data.activityId];
 
@@ -213,31 +217,43 @@ export const AppletMixin = {
                 flag = 'incomplete';
               }
 
-              const responseDataObj = { ...response.data[itemUrl] };
+              let responseDataObj = response.data[itemUrl];
+              if (typeof responseDataObj == 'object' && !Array.isArray(responseDataObj)) {
+                responseDataObj = { ...responseDataObj }
+              }
+
               let responseData = '';
 
               if (!responseDataObj) {
                 responseData = null;
               } else {
                 if (responseDataObj instanceof Array) {
-                  responseDataObj.forEach((value, index) => {
-                    if (value instanceof Object && !Array.isArray(value)) {
-                      responseData += Object.entries(value).map(entry => `${entry[0]}: ${entry[1]}`).join(', ');
-                    } else {
-                      if (item.inputType == 'stackedRadio' || item.inputType == 'stackedSlider') {
-                        const label = item.responseOptions[index].name.en;
-                        const response = Array.isArray(value) ? value : [value];
-                        const str = response.map(option => option !== null ? option.toString().replace(/:\d*$/, '') : '').join(', ');
-
-                        responseData += `${label}: ${str}`;
+                  if (item.inputType == 'visual-stimulus-response') {
+                    flankerCSVs.push({
+                      name: `${response._id}_${item.id}.csv`,
+                      data: this.getFlankerAsCSV(responseDataObj, item)
+                    });
+                    responseData = `filename: ${response._id}_${item.id}.csv`;
+                  } else {
+                    responseDataObj.forEach((value, index) => {
+                      if (value instanceof Object && !Array.isArray(value)) {
+                        responseData += Object.entries(value).map(entry => `${entry[0]}: ${entry[1]}`).join(', ');
                       } else {
-                        responseData += `${index}: ${value}`;
-                      }
-                    }
+                        if (item.inputType == 'stackedRadio' || item.inputType == 'stackedSlider') {
+                          const label = item.responseOptions[index].name.en;
+                          const response = Array.isArray(value) ? value : [value];
+                          const str = response.map(option => option !== null ? option.toString().replace(/:\d*$/, '') : '').join(', ');
 
-                    if (index !== responseDataObj.length - 1)
-                      responseData += '\r\n\r\n';
-                  });
+                          responseData += `${label}: ${str}`;
+                        } else {
+                          responseData += `${index}: ${value}`;
+                        }
+                      }
+
+                      if (index !== responseDataObj.length - 1)
+                        responseData += '\r\n\r\n';
+                    });
+                  }
 
                 } else if (responseDataObj instanceof Object) {
                   const keys = Object.keys(responseDataObj).sort().reverse();
@@ -248,7 +264,7 @@ export const AppletMixin = {
                     if (item.inputType === 'timeRange' && value.from && value.to) {
                       responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
 
-                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType === 'audioImageRecord')) {
+                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType == 'trail' || item.inputType === 'audioImageRecord')) {
                       if (value.filename) {
                         const name = this.getMediaResponseObject(value.uri, response, item);
 
@@ -276,10 +292,17 @@ export const AppletMixin = {
                         const nameRegex = nameStr.match(/filename: ([^.]*)/i)
                         responseData += `filename: ${nameRegex[1]}`
 
-                        drawingCSVs.push({
-                          name: `${nameRegex[1]}.csv`,
-                          data: this.getLinesAsCSV(value.lines)
-                        });
+                        if (item.inputType == 'drawing') {
+                          drawingCSVs.push({
+                            name: `${nameRegex[1]}.csv`,
+                            data: this.getDrawingLinesAsCSV(value.lines)
+                          });
+                        } else {
+                          trailsCSVs.push({
+                            name: `${nameRegex[1]}.csv`,
+                            data: this.getTrailsLinesAsCSV(value.lines)
+                          })
+                        }
                       } else if (key == 'text') {
                         responseData += `${key}: ${value}`;
                       }
@@ -297,10 +320,14 @@ export const AppletMixin = {
                     } else if (item.inputType === 'geolocation' && typeof value === 'object') {
                       responseData += `geo: lat (${value.latitude}) / long (${value.longitude})`;
                     } else {
-                      responseData += `${key}: ${value}`;
+                      if (item.inputType === 'text')
+                        responseData += value;
+                      else
+                        responseData += `${key}: ${value}`;
                     }
 
-                    responseData += ' | ';
+                    if (item.inputType !== 'text')
+                      responseData += ' | ';
                   }
 
                   responseData = responseData.replace(/[ |]*$/g, '').replace(/^[ |]*/g, '');
@@ -359,13 +386,13 @@ export const AppletMixin = {
                 continue;
               }
 
-              if (Array.isArray(csvObj['response']) && csvObj['response'].includes('.quicktime'))
+              if (csvObj['response'] && typeof csvObj['response'] == 'string' && csvObj['response'].includes('.quicktime'))
                 csvObj['response'] = csvObj['response'].replace('.quicktime', '.MOV');
 
               if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined || csvObj['response'] === '') continue;
 
               try {
-                if (csvObj.response && csvObj.response.includes('.csv')) {
+                if (typeof csvObj.response == 'string' && csvObj.response.includes('.csv')) {
                   const { lines } = data.dataSources[response._id].data[0].value;
                   let strArr = [];
                   for (let index = 0; index < lines.length; index++) {
@@ -385,9 +412,21 @@ export const AppletMixin = {
                 console.log(error);
               }
 
-              result.push(csvObj);
+              activityResponses[itemUrl] = csvObj;
+
               isSubScaleExported = true;
             }
+
+            Object.keys(activityResponses).sort((a, b) => {
+              const indexA = activity.order.indexOf(a);
+              const indexB = activity.order.indexOf(b);
+
+              if (indexA == -1) return 1;
+              if (indexB == -1) return -1;
+              return indexA < indexB ? -1 : indexA > indexB ? 1 : 0;
+            }).forEach(itemUrl => {
+              result.push(activityResponses[itemUrl]);
+            })
           }
 
           for (let row of result) {
@@ -407,10 +446,211 @@ export const AppletMixin = {
             type: 'text/csv;charset=utf-8'
           })
 
-          await this.generateDrawingZip(drawingCSVs);
+          await this.generateLinesZip(drawingCSVs, 'drawing-responses');
+          await this.generateLinesZip(trailsCSVs, 'trails-responses');
           await this.generateStabilityZip(stabilityCSVs);
+          await this.generateFlankerZip(flankerCSVs);
           await this.generateMediaResponsesZip(this.mediaResponseObjects);
         })
+    },
+
+    async generateFlankerZip(flankerCSVs) {
+      if (flankerCSVs.length > 0) {
+        try {
+          const zip = new JSZip();
+
+          for (const csvData of flankerCSVs) {
+            zip.file(csvData.name, csvData.data);
+          }
+
+          const generatedZip = await zip.generateAsync({ type: 'blob' });
+          saveAs(generatedZip, `flanker-responses-${(new Date()).toDateString()}.zip`);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    },
+
+    getFlankerAsCSV(responses, item) {
+      const result = [];
+      const types = {
+        '>>>>>': { stimulusType: 4, ext: 'right-con', expected: '>', },
+        '<<><<': { stimulusType: 6, ext: 'right-inc', expected: '>' },
+        '-->--': { stimulusType: 2, ext: 'right-net', expected: '>' },
+        '<<<<<': { stimulusType: 3, ext: 'left-con', expected: '<' },
+        '>><>>': { stimulusType: 5, ext: 'left-inc', expected: '<' },
+        '--<--': { stimulusType: 1, ext: 'left-net', expected: '<' }
+      }
+
+      const getResponseObj = (response, tag, config) => {
+        const trialNumber = response.trial_index;
+        const duration = config.trialDuration + (config.showFeedback ? 500 : 0) + (config.showFixation ? 500 : 0);
+
+        let stimulusType = '', eventTypeExt = tag, eventType = ( tag == 'response' ? 'Response' : 'Display' );
+
+        if (tag != 'trial') {
+          stimulusType = tag == 'feedback' ? 0 : -1;
+        } else {
+          stimulusType = types[response.question].stimulusType;
+          eventTypeExt = types[response.question].ext;
+        }
+
+        let expectedDisplayOnset = '.', expectedDisplayOffset = '.', actualDisplayOnset = '.', actualDisplayOffset = '.', displayDuration = '';
+        let expectedDisplayOnsetClock = '', expectedDisplayOffsetClock = '', actualDisplayOnsetClock = '', actualDisplayOffsetClock = '';
+
+        let responseValue = '', responseExpected = '', responseAccuracy = '', responseTime = '';
+        let responseClock = '';
+        let trialClock = '';
+
+        const timeOffset = response.start_timestamp - response.start_time;
+
+        if (tag != 'response') {
+          expectedDisplayOnset = (trialNumber - 1) * duration;
+
+          if (tag == 'feedback' || tag == 'trial') {
+            if (tag == 'feedback') {
+              expectedDisplayOnset += config.trialDuration;
+            }
+
+            if (config.showFixation) {
+              expectedDisplayOnset += 500;
+            }
+          }
+
+          expectedDisplayOffset = expectedDisplayOnset + ( tag == 'trial' ? config.trialDuration : 500 );
+
+          actualDisplayOnset = response.start_time;
+          actualDisplayOffset = response.start_time + response.duration;
+          displayDuration = expectedDisplayOffset - expectedDisplayOnset;
+
+          /*** clockstamp */
+          expectedDisplayOnsetClock = expectedDisplayOnset + timeOffset;
+          expectedDisplayOffsetClock = expectedDisplayOffset + timeOffset;
+          actualDisplayOnsetClock = actualDisplayOnset + timeOffset;
+          actualDisplayOffsetClock = actualDisplayOffset + timeOffset;
+        } else {
+          responseValue = response.button_pressed === null ? '.' : response.button_pressed === '0' ? 'L' : 'R';
+          responseExpected = types[response.question].expected == '>' ? 'R' : 'L';
+          responseAccuracy = response.correct ? '1' : '0';
+          responseTime = response.duration;
+          responseClock = response.start_timestamp + response.duration;
+        }
+
+        if (tag == 'trial') {
+          trialClock = response.start_timestamp
+        }
+
+        return {
+          trialNumber, eventType, stimulusType, eventTypeExt,
+          expectedDisplayOnset, actualDisplayOnset, expectedDisplayOffset, actualDisplayOffset,
+          displayDuration, responseValue, responseExpected, responseAccuracy, responseTime,
+          expectedDisplayOnsetClock, actualDisplayOnsetClock,
+          expectedDisplayOffsetClock, actualDisplayOffsetClock,
+          responseClock, trialClock
+        }
+      }
+
+      for (let i = 0; i < responses.length; i++) {
+        result.push({
+          ...getResponseObj(responses[i], responses[i].tag, item.inputs),
+          experimentClock: responses[0].start_timestamp
+        })
+
+        if (responses[i].tag == 'trial') {
+          result.push({
+            ...getResponseObj(responses[i], 'response', item.inputs),
+            experimentClock: responses[0].start_timestamp
+          })
+        }
+      }
+
+      let otc = new ObjectToCSV({
+        keys: [
+          {
+            key: 'trialNumber',
+            as: 'trial_number',
+          },
+          {
+            key: 'eventType',
+            as: 'Event Type',
+          },
+          {
+            key: 'stimulusType',
+            as: 'Stimulus Type'
+          },
+          {
+            key: 'eventTypeExt',
+            as: 'EventTypeExt',
+          },
+          {
+            key: 'expectedDisplayOnset',
+            as: 'Expected Display Onset'
+          },
+          {
+            key: 'actualDisplayOnset',
+            as: 'Actual Display Onset'
+          },
+          {
+            key: 'expectedDisplayOffset',
+            as: 'Expected Display Offset'
+          },
+          {
+            key: 'actualDisplayOffset',
+            as: 'Actual Display Offset'
+          },
+          {
+            key: 'displayDuration',
+            as: 'Display Duration'
+          },
+          {
+            key: 'responseValue',
+            as: 'Response Value'
+          },
+          {
+            key: 'responseExpected',
+            as: 'Response Expected'
+          },
+          {
+            key: 'responseAccuracy',
+            as: 'Response Accuracy'
+          },
+          {
+            key: 'responseTime',
+            as: 'Response Time'
+          },
+          {
+            key: 'expectedDisplayOnsetClock',
+            as: 'Expected Display Onset(Clockstamp)'
+          },
+          {
+            key: 'actualDisplayOnsetClock',
+            as: 'Actual Display Onset(Clockstamp)'
+          },
+          {
+            key: 'expectedDisplayOffsetClock',
+            as: 'Expceted Display Offset(Clockstamp)'
+          },
+          {
+            key: 'actualDisplayOffsetClock',
+            as: 'Actual Display Offset(Clockstamp)'
+          },
+          {
+            key: 'responseClock',
+            as: 'Response (Clockstamp)'
+          },
+          {
+            key: 'trialClock',
+            as: 'Trial Clockstamp'
+          },
+          {
+            key: 'experimentClock',
+            as: 'Experiment Clockstamp'
+          }
+        ],
+        data: result,
+      });
+
+      return otc.getCSV();
     },
 
     downloadFile({ name, content, type }) {
@@ -510,7 +750,66 @@ export const AppletMixin = {
       return otc.getCSV();
     },
 
-    getLinesAsCSV(lines) {
+    getTrailsLinesAsCSV (lines) {
+      const result = [];
+      let startTime = 0, totalTime = 0, errorCount = 0;
+
+      for (let i = 0; i < lines.length; i++) {
+        let hasError = false;
+        for (const point of lines[i].points) {
+          if (!point.valid) {
+            hasError = true;
+          }
+          if (!startTime) {
+            startTime = point.time;
+          }
+
+          result.push({
+            line_number: i.toString(),
+            x: point.x.toString(),
+            y: point.y.toString(),
+            time: (point.time - startTime).toString(),
+            error: point.valid ? 'E0' : point.actual != 'none' ?  'E1' : 'E2',
+            total_time: '',
+            total_number_of_errors: '',
+            correct_path: `${point.start} ~ ${point.end}`,
+            actual_path: `${point.start} ~ ${point.actual == 'none' ? '?' : (point.actual || point.end)}`
+          })
+
+          if (totalTime < point.time - startTime) {
+            totalTime = point.time - startTime;
+          }
+        }
+
+        if (hasError) {
+          errorCount++;
+        }
+      }
+
+      if (result.length) {
+        result[0].total_time = totalTime;
+        result[0].total_number_of_errors = errorCount;
+      }
+
+      let otc = new ObjectToCSV({
+        keys: [
+          { key: 'line_number', as: 'Line Number' },
+          { key: 'x', as: 'X' },
+          { key: 'y', as: 'Y' },
+          { key: 'time', as: 'Time' },
+          { key: 'error', as: 'Error' },
+          { key: 'correct_path', as: 'Correct Path' },
+          { key: 'actual_path', as: 'Actual Path' },
+          { key: 'total_time', as: 'Total Time' },
+          { key: 'total_number_of_errors', as: 'Total Number of Errors' }
+        ],
+        data: result,
+      });
+
+      return otc.getCSV();
+    },
+
+    getDrawingLinesAsCSV(lines) {
       const result = [];
       for (let i = 0; i < lines.length; i++) {
         for (const point of lines[i].points) {
@@ -518,7 +817,7 @@ export const AppletMixin = {
             line_number: i.toString(),
             x: point.x.toString(),
             y: point.y.toString(),
-            time: typeof point.time === "number" ? moment(point.time).format("YYYY-MM-DD HH:mm:ss") : point.time || '',
+            time: typeof point.time === "number" ? moment.utc(point.time).format("YYYY-MM-DD HH:mm:ss") : point.time || '',
           });
         }
       }
@@ -536,17 +835,17 @@ export const AppletMixin = {
       return otc.getCSV();
     },
 
-    async generateDrawingZip(drawingCSVs) {
+    async generateLinesZip(csvs, name) {
       try {
-        if (drawingCSVs.length > 0) {
+        if (csvs.length > 0) {
           const zip = new JSZip();
 
-          for (const csvData of drawingCSVs) {
+          for (const csvData of csvs) {
             zip.file(csvData.name, csvData.data);
           }
 
           const generatedZip = await zip.generateAsync({ type: 'blob' });
-          saveAs(generatedZip, `drawing-responses-${(new Date()).toDateString()}.zip`);
+          saveAs(generatedZip, `${name}-${(new Date()).toDateString()}.zip`);
         }
       } catch (err) {
         console.log(err);

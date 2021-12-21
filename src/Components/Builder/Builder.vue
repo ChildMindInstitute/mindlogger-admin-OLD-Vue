@@ -1,6 +1,6 @@
 <template>
   <div>
-    <About v-if="loading" />
+    <About v-if="loading && !infinityDialog" />
     <AppletSchemaBuilder
       v-if="!initializing"
       v-show="!loading"
@@ -9,6 +9,7 @@
       :initialData="(isEditing || null) && currentAppletData"
       :getProtocols="getProtocols"
       :versions="versions"
+      :nodeEnv="nodeEnv"
       :templates="itemTemplates"
       :cacheData="currentAppletBuilderData"
       :basketApplets="basketApplets"
@@ -22,7 +23,6 @@
       @setLoading="setLoading"
       @switchToLibrary="onSwitchToLibrary"
     />
-
     <Information
       v-model="dialog"
       :dialogText="dialogText"
@@ -33,6 +33,31 @@
       v-model="appletPasswordDialog"
       @set-password="onClickSubmitPassword"
     />
+
+    <v-dialog
+      v-model="infinityDialog"
+      persistent
+      max-width="600px"
+    >
+      <v-card>
+        <v-card-title>
+          <span>No Access </span>
+        </v-card-title>
+        <v-card-text>
+          <span class="px-2">This account doesn't have enough rights/access to edit the applet.</span>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="onConfirmInfinity()"
+          >
+            Ok
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -91,6 +116,8 @@ export default {
       newApplet: {},
       themeId: null,
       isEditing: false,
+      uploadingApplet: false,
+      infinityDialog: false,
       versions: [],
       componentKey: 1,
       itemTemplates: null,
@@ -119,6 +146,7 @@ export default {
         },
       ],
       cacheData: null,
+      nodeEnv: process.env.VUE_APP_NODE_ENV,
     };
   },
   computed: {
@@ -144,12 +172,17 @@ export default {
     }
 
     if (this.$route.query.appletId) {
-      this.$store.commit(
-        "setCurrentApplet",
-        this.accountApplets.find(
-          (applet) => applet.id === this.$route.query.appletId
-        )
-      );
+      if (Array.isArray(this.accountApplets)) {
+        this.$store.commit(
+          "setCurrentApplet",
+          this.accountApplets.find(
+            (applet) => applet.id === this.$route.query.appletId
+          )
+        );
+      } else {
+        this.infinityDialog = true;
+        return;
+      }
     }
 
     if (this.$route.params.isEditing || this.$route.query.appletId) {
@@ -236,6 +269,10 @@ export default {
         this.templateId = updatedTemplates.data[0]["_id"];
       }
     },
+    onConfirmInfinity() {
+      this.infinityDialog = false;
+      this.$router.push("/dashboard").catch(err => {});
+    },
     addNewApplet(appletPassword) {
       const form = new FormData();
       form.set("protocol", JSON.stringify(this.newApplet || {}));
@@ -313,6 +350,13 @@ export default {
       const appletId = this.currentAppletMeta.id;
       const token = this.$store.state.auth.authToken.token;
       const apiHost = this.$store.state.backend;
+
+      if (this.uploadingApplet) {
+        this.onUploadError('Your applet is being edited');
+        return ;
+      }
+
+      this.uploadingApplet = true;
       api
         .updateApplet({
           ...(protocolData && {data: protocolData}),
@@ -337,7 +381,10 @@ export default {
         })
         .catch((e) => {
           this.onUploadError();
-        });
+        })
+        .finally(() => {
+          this.uploadingApplet = false;
+        })
     },
     onPrepareApplet(data) {
       const protocol = new FormData();

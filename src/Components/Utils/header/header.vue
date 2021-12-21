@@ -7,7 +7,7 @@
     <v-img
       class="logo"
       @click="onDashboard"
-      src="/images/logo.png"
+      src="https://cmi-logos.s3.amazonaws.com/ChildMindInstitute_Logo_Horizontal_KO.png"
       max-width="130"
       contain
     />
@@ -162,6 +162,8 @@
     </v-tooltip>
 
     <v-spacer />
+
+    <small v-if="version">v{{ version }}</small>
 
     <v-menu
       v-if="isLoggedIn && hasReviewerRole"
@@ -433,6 +435,7 @@ import { AppletMixin } from '../mixins/AppletMixin';
 import { RolesMixin } from '../mixins/RolesMixin';
 import { AccountMixin } from '../mixins/AccountMixin';
 import encryption from '../encryption/encryption.vue';
+import { getVersion } from "../mixins/LibraryMixin";
 
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
@@ -456,6 +459,7 @@ export default {
   mixins: [AppletMixin, RolesMixin, AccountMixin],
   data() {
     return {
+      version: process.env.VUE_APP_NODE_ENV !== 'production' ? getVersion() : undefined,
       appletEditDialog: false,
       appletPasswordDialog: {
         visible: false,
@@ -637,7 +641,7 @@ export default {
     },
 
     async editApplet() {
-      if (this.currentApplet.largeApplet && this.currentApplet.hasUrl) {
+      if (this.currentApplet.largeApplet && !this.currentApplet.version) {
         if (!this.isLatestApplet(this.currentApplet)) {
           await this.loadApplet(this.currentApplet.id);
         }

@@ -560,7 +560,7 @@
                           :activity="reviewing.activity"
                           :response-id="reviewing.responseId"
                           :secret-ids="selectedSecretIds"
-                          :apply-secret-id-selector="reviewing.applySecretIdSelector"
+                          :apply-secret-id-selector="applySecretIdSelector"
                         />
                       </v-card>
 
@@ -651,8 +651,10 @@
           }"
         >
           <section slot="pdf-content">
-            <CumulativeScoreReport 
-              :activities="applet.activities" 
+            <CumulativeScoreReport
+              :secret-ids="selectedSecretIds"
+              :apply-secret-id-selector="applySecretIdSelector"
+              :activities="applet.activities"
               :appletImage="applet.data.applet['schema:image']"
             />
           </section>
