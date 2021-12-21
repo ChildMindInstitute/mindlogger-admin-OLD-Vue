@@ -1,4 +1,5 @@
 import api from "../api/api.vue";
+import { version } from "../../../../package.json";
 
 export const LibraryMixin = {
   computed: {
@@ -19,4 +20,8 @@ export const LibraryMixin = {
       this.$store.commit('setBasketApplets', basketApplets);
     },
   }
+}
+
+export const getVersion = () => {
+  return version;
 }

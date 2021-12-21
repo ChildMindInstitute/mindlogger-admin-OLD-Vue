@@ -5,19 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
-## [0.11.1] - 2021-11-29
-- Fix editing applet issue
+## [0.12.0] - 2021-12-22
+Release to Production - Milestone 10
+
+New Features:
+- Cognitive tasks: Admins now have stability tracker, a/b trails and flanker to use as activities within an applet.
+
+Improvements:
+- CMI Branding: Child Mind Insitute branding was updated through the different MindLogger platforms
+- Daisy Chain on Webapp: This feature  works on webapp now. Originally the feature was mobile-only
+
+Bug Fixes:
+- Duplicating items: When items are copied in the applet builder, intermittently, those items would have text randomly change
+- Edit Button: Intermittently the edit button was not clickable
+- Special Characters in item titles: Using special characters in item titles caused some bugs with special applets
+
+## [0.11.2] - 2021-12-01
+Add a new modal for incorrect editing access
+
+## [0.11.1] - 2021-11-26
+Fix padding on PDF report
 
 ## [0.11.0] - 2021-11-25
 Release to Production - Milestone 9
 
 Improvements:
-- Splash screen is included in PDF Report: If an editor uploads a splash screen to an activity with a cumulative score item, then the splash screen is shown as the first page on the PDF export 
-- Applet Logo is shown on PDF Report: If an editor has uploaded an applet image, then that image is shown on the PDF report for a cumulative score 
-- Cumulative Score Screen Updated: The design of the cumulative score screen was made more simplistic 
+- Splash screen is included in PDF Report: If an editor uploads a splash screen to an activity with a cumulative score item, then the splash screen is shown as the first page on the PDF export
+- Applet Logo is shown on PDF Report: If an editor has uploaded an applet image, then that image is shown on the PDF report for a cumulative score
+- Cumulative Score Screen Updated: The design of the cumulative score screen was made more simplistic
 
 Bug Fixes:
-- Duplicating an Applet: A new password is required when duplicating an applet 
+- Duplicating an Applet: A new password is required when duplicating an applet
 
 ## [0.10.8] - 2021-11-20
 - Fix full splash images
@@ -47,13 +65,13 @@ Bug Fixes:
 Release to Production - Milestone 8
 
 New Features :
-- Timer for Items :  Editors can now set timers that only allow the user to complete an item in X seconds before the user is navigated forward 
-- Show/ Hide Activity, Items or Response Options : Editors can now show and hide items without having to delete and recreate. 	
+- Timer for Items :  Editors can now set timers that only allow the user to complete an item in X seconds before the user is navigated forward
+- Show/ Hide Activity, Items or Response Options : Editors can now show and hide items without having to delete and recreate.
 
 Improvements:
 - User’s actions : We are collecting the movement of the user through an activity and recording button taps
-- Configure Back and Undo Button : On some items in the applet builder, the editor can remove the ability for the user to have the back and undo buttons 
-- Draw Navigation Controls : The draw controls can be configured to move to the top of the screen 
+- Configure Back and Undo Button : On some items in the applet builder, the editor can remove the ability for the user to have the back and undo buttons
+- Draw Navigation Controls : The draw controls can be configured to move to the top of the screen
 
 Bug Fixes:
 - Taps on the drawing canvas : The drawing canvas now shows taps from the user
@@ -95,7 +113,7 @@ Release to Production
 - Prod Release
 
 ## [0.6.23] - 2021-06-26
-- Fix response chart on admin dashboard 
+- Fix response chart on admin dashboard
 
 ## [0.6.22] - 2021-06-23
 - Fix invite confirmation
@@ -405,7 +423,7 @@ Release to Production
 
 ## [0.3.27] = 2020-10-11
 ### Changed
-- Fix encryption code in Applet#replaceItemValues method 
+- Fix encryption code in Applet#replaceItemValues method
 
 ## [0.3.26] = 2020-10-07
 ### Changed

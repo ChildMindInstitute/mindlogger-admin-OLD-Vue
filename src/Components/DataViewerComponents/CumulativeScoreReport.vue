@@ -1,29 +1,29 @@
 <template>
   <div class="cumulative-score-report">
     <section class="pdf-item" v-for="({ activity, reportMessages }, index) in activityResponses" :key="activity.id">
-      <div 
-        v-if="splashScreenType(activity) === 'image' && index" 
+      <div
+        v-if="splashScreenType(activity) === 'image' && index"
         class="html2pdf__page-break splash-screen"
-        :style="'margin-bottom:' + 4 * (index + 1) + 'px'"
+        :style="'margin-bottom:' + 2 * (index + 1) + 'px'"
       />
-      <div 
+      <div
         v-if="splashScreenType(activity) === 'image'"
         class="html2pdf__page-break splash-screen"
-        :style="'margin-bottom:' + 4 * (index + 1) + 'px'"
+        :style="'margin-bottom:' + 2 * (index + 1) + 'px'"
       >
-        <img 
-          class="splash-image" 
-          crossorigin="anonymous" 
-          :src="activity.splash.en + '?not-from-cache-please'" 
+        <img
+          class="splash-image"
+          crossorigin="anonymous"
+          :src="activity.splash.en + '?not-from-cache-please'"
           alt="Splash Activity"
         />
       </div>
       <div v-if="appletImage && !index" class="applet-logo">
-        <img 
+        <img
           :src="appletImage + '?not-from-cache-please'"
           crossorigin="anonymous"
-          width="100" 
-          alt='' 
+          width="100"
+          alt=''
         />
       </div>
       <p class="text-body-2 mb-4">
@@ -179,6 +179,7 @@
   justify-content: center;
 }
 .splash-image {
+  margin-top: 20px;
   width: 100%;
   object-fit: contain;
 }
@@ -203,6 +204,10 @@ export default {
     Markdown,
   },
   props: {
+    secretIds: {
+      type: Array,
+      required: true
+    },
     appletImage: {
       type: String,
       required: true,
@@ -211,135 +216,181 @@ export default {
       type: Array,
       required: true,
     },
+    applySecretIdSelector: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
   },
   data() {
-    const parser = new Parser({
-      logical: true,
-      comparison: true,
-    });
-    const activityResponses = [];
-
-    for (const activity of this.activities) {
-      if (activity.responses.length === 0) {
-        continue;
-      }
-
-      activity.scoreOverview = _.get(activity, ["data", "reprolib:terms/scoreOverview", 0, "@value"], "");
-      activity.compute = _.get(activity, ["data", "reprolib:terms/compute"], []).map((itemCompute) => ({
-        jsExpression: _.get(itemCompute, ["reprolib:terms/jsExpression", 0, "@value"]),
-        variableName: _.get(itemCompute, ["reprolib:terms/variableName", 0, "@value"]),
-        description: _.get(itemCompute, ["schema:description", 0, "@value"]),
-        direction: _.get(itemCompute, ["reprolib:terms/direction", 0, "@value"], true),
-      }));
-      activity.messages = _.get(activity, ["data", "reprolib:terms/messages"], []).map((itemMessage) => ({
-        jsExpression: _.get(itemMessage, ["reprolib:terms/jsExpression", 0, "@value"]),
-        message: _.get(itemMessage, ["reprolib:terms/message", 0, "@value"]),
-        outputType: _.get(itemMessage, ["reprolib:terms/outputType", 0, "@value"]),
-      }));
-
-      let scores = [],
-        maxScores = [];
-      const lastResponseIndex = activity.responses.length - 1;
-      for (let i = 0; i < activity.items.length; i++) {
-        const { variableName, responses } = activity.items[i];
-        let score = getScoreFromResponse(
-          activity.items[i],
-          responses[lastResponseIndex][variableName]
-            ? responses[lastResponseIndex][variableName]
-            : responses[lastResponseIndex]
-        );
-        scores.push(score);
-        maxScores.push(getMaxScore(activity.items[i]));
-      }
-
-      const cumulativeScores = activity.compute.reduce(
-        (accumulator, itemCompute) => ({
-          ...accumulator,
-          [itemCompute.variableName.trim().replace(/\s/g, "__")]: evaluateScore(
-            itemCompute.jsExpression,
-            activity.items,
-            scores
-          ),
-        }),
-        {}
-      );
-
-      const cumulativeMaxScores = activity.compute.reduce(
-        (accumulator, itemCompute) => ({
-          ...accumulator,
-          [itemCompute.variableName.trim().replace(/\s/g, "__")]: evaluateScore(
-            itemCompute.jsExpression,
-            activity.items,
-            maxScores
-          ),
-        }),
-        {}
-      );
-
-      const reportMessages = [];
-      let cumActivities = [];
-      activity.messages.forEach((msg) => {
-        const { jsExpression, message, outputType, nextActivity } = msg;
-
-        const exprArr = jsExpression.split(/[><]/g);
-        const variableName = exprArr[0];
-        const exprValue = parseFloat(exprArr[1].split(" ")[1]);
-        let category = variableName.trim().replace(/\s/g, '__');
-
-        let expr, key;
-        try {
-          expr = parser.parse(category + jsExpression.substr(variableName.length));
-        } catch (error) {
-          if (category.match(/[&\/\\#,+()$~%.'":*?<>{}]/g)) {
-            key = category.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
-            expr = parser.parse(key + jsExpression.substr(variableName.length));
-          }
-        }
-
-        const variableScores = {
-          [key ? key : category]:
-            outputType == "percentage"
-              ? Math.round(
-                  cumulativeMaxScores[category] ? (cumulativeScores[category] * 100) / cumulativeMaxScores[category] : 0
-                )
-              : cumulativeScores[category],
-        };
-
-        if (expr.evaluate(variableScores)) {
-          if (nextActivity) cumActivities.push(nextActivity);
-
-          const compute = activity.compute.find(
-            (itemCompute) => itemCompute.variableName.trim() == variableName.trim()
-          );
-
-          reportMessages.push({
-            category,
-            message,
-            score: variableScores[key ? key : category] + (outputType == 'percentage' ? '%' : ''),
-            compute,
-            jsExpression: jsExpression.substr(variableName.length),
-            scoreValue: cumulativeScores[category],
-            maxScoreValue: cumulativeMaxScores[category],
-            exprValue: outputType == "percentage" ? (exprValue * cumulativeMaxScores[category]) / 100 : exprValue,
-          });
-        }
-      });
-      activityResponses.push({
-        activity,
-        reportMessages,
-      });
-    }
-
     return {
       MARKDOWN_REGEX: /(!\[.*\]\s*\(.*?) =\d*x\d*(\))/g,
       termsText:
         "I understand that the information provided by this questionnaire is not intended to replace the advice, diagnosis, or treatment offered by a medical or mental health professional, and that my anonymous responses may be used and shared for general research on children’s mental health.",
       footerText:
         "CHILD MIND INSTITUTE, INC. AND CHILD MIND MEDICAL PRACTICE, PLLC (TOGETHER, “CMI”) DOES NOT DIRECTLY OR INDIRECTLY PRACTICE MEDICINE OR DISPENSE MEDICAL ADVICE AS PART OF THIS QUESTIONNAIRE. CMI ASSUMES NO LIABILITY FOR ANY DIAGNOSIS, TREATMENT, DECISION MADE, OR ACTION TAKEN IN RELIANCE UPON INFORMATION PROVIDED BY THIS QUESTIONNAIRE, AND ASSUMES NO RESPONSIBILITY FOR YOUR USE OF THIS QUESTIONNAIRE.",
-      activityResponses,
+      activityResponses: [],
     };
   },
+
+  watch: {
+    applySecretIdSelector: {
+      handler () {
+        this.activityResponses = this.getActivityResponses();
+      },
+      immediate: true
+    },
+    secretIds: {
+      deep: true,
+      handler () {
+        this.activityResponses = this.getActivityResponses();
+      }
+    }
+  },
+
+  mounted () {
+    this.activityResponses = this.getActivityResponses();
+  },
   methods: {
+    getActivityResponses () {
+      const parser = new Parser({
+        logical: true,
+        comparison: true,
+      });
+      const activityResponses = [];
+
+      for (const activity of this.activities) {
+        if (activity.responses.length === 0) {
+          continue;
+        }
+
+        activity.scoreOverview = _.get(activity, ["data", "reprolib:terms/scoreOverview", 0, "@value"], "");
+        activity.compute = _.get(activity, ["data", "reprolib:terms/compute"], []).map((itemCompute) => ({
+          jsExpression: _.get(itemCompute, ["reprolib:terms/jsExpression", 0, "@value"]),
+          variableName: _.get(itemCompute, ["reprolib:terms/variableName", 0, "@value"]),
+          description: _.get(itemCompute, ["schema:description", 0, "@value"]),
+          direction: _.get(itemCompute, ["reprolib:terms/direction", 0, "@value"], true),
+        }));
+        activity.messages = _.get(activity, ["data", "reprolib:terms/messages"], []).map((itemMessage) => ({
+          jsExpression: _.get(itemMessage, ["reprolib:terms/jsExpression", 0, "@value"]),
+          message: _.get(itemMessage, ["reprolib:terms/message", 0, "@value"]),
+          outputType: _.get(itemMessage, ["reprolib:terms/outputType", 0, "@value"]),
+        }));
+
+        let scores = [],
+          maxScores = [];
+
+        let lastResponseIndex = activity.responses.length - 1;
+
+        if (this.applySecretIdSelector) {
+          while (lastResponseIndex >= 0) {
+            if (this.secretIds.includes(activity.responses[lastResponseIndex].secretId)) {
+              break;
+            }
+
+            lastResponseIndex --;
+          }
+
+          if (lastResponseIndex < 0) {
+            continue;
+          }
+        }
+
+        for (let i = 0; i < activity.items.length; i++) {
+          const { variableName, responses } = activity.items[i];
+          if (!variableName || !responses) continue;
+
+          let score = getScoreFromResponse(
+            activity.items[i],
+            responses[lastResponseIndex][variableName]
+              ? responses[lastResponseIndex][variableName]
+              : responses[lastResponseIndex]
+          );
+          scores.push(score);
+          maxScores.push(getMaxScore(activity.items[i]));
+        }
+
+        const cumulativeScores = activity.compute.reduce(
+          (accumulator, itemCompute) => ({
+            ...accumulator,
+            [itemCompute.variableName.trim().replace(/\s/g, "__")]: evaluateScore(
+              itemCompute.jsExpression,
+              activity.items,
+              scores
+            ),
+          }),
+          {}
+        );
+
+        const cumulativeMaxScores = activity.compute.reduce(
+          (accumulator, itemCompute) => ({
+            ...accumulator,
+            [itemCompute.variableName.trim().replace(/\s/g, "__")]: evaluateScore(
+              itemCompute.jsExpression,
+              activity.items,
+              maxScores
+            ),
+          }),
+          {}
+        );
+
+        const reportMessages = [];
+        let cumActivities = [];
+        activity.messages.forEach((msg) => {
+          const { jsExpression, message, outputType, nextActivity } = msg;
+
+          const exprArr = jsExpression.split(/[><]/g);
+          const variableName = exprArr[0];
+          const exprValue = parseFloat(exprArr[1].split(" ")[1]);
+          const category = variableName.trim().replace(/\s/g, "__");
+
+          let expr, key;
+          try {
+            expr = parser.parse(category + jsExpression.substr(variableName.length));
+          } catch (error) {
+            if (category.match(/[&\/\\#,+()$~%.'":*?<>{}]/g)) {
+              key = category.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+              expr = parser.parse(key + jsExpression.substr(variableName.length));
+            }
+          }
+
+          const variableScores = {
+            [key ? key : category]:
+              outputType == "percentage"
+                ? Math.round(
+                    cumulativeMaxScores[category] ? (cumulativeScores[category] * 100) / cumulativeMaxScores[category] : 0
+                  )
+                : cumulativeScores[category],
+          };
+
+          if (expr.evaluate(variableScores)) {
+            if (nextActivity) cumActivities.push(nextActivity);
+
+            const compute = activity.compute.find(
+              (itemCompute) => itemCompute.variableName.trim() == variableName.trim()
+            );
+
+            reportMessages.push({
+              category,
+              message,
+              score: variableScores[key ? key : category] + (outputType == "percentage" ? "%" : ""),
+              compute,
+              jsExpression: jsExpression.substr(variableName.length),
+              scoreValue: cumulativeScores[category],
+              maxScoreValue: cumulativeMaxScores[category],
+              exprValue: outputType == "percentage" ? (exprValue * cumulativeMaxScores[category]) / 100 : exprValue,
+            });
+          }
+        });
+        activityResponses.push({
+          activity,
+          reportMessages,
+        });
+      }
+
+      return activityResponses;
+    },
+
     splashScreenType (activity) {
       const isSplashScreen = activity.splash && activity.splash.en;
       let type = "";
