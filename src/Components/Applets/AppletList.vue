@@ -490,6 +490,10 @@ export default {
 
       await this.moveAppletToRootDirectory(this.draggedItem);
 
+      this.draggedItem.depth = 0;
+      this.draggedItem.parentId = undefined;
+      this.draggedItem.isVisible = true;
+
       var previousIndex = this.flattenedDirectoryItems.indexOf(
           this.draggedItem
       );
@@ -497,14 +501,8 @@ export default {
       if (previousIndex > -1)
         this.flattenedDirectoryItems.splice(previousIndex, 1);
 
-
-      this.draggedItem.depth = 0;
-      this.draggedItem.parentId = undefined;
-      this.draggedItem.isVisible = true;
-
       if (isDropping)
         this.flattenedDirectoryItems.push(this.draggedItem);
-
       this.updateVisibleItems();
       this.isRootActive = false;
     },
@@ -805,8 +803,7 @@ export default {
     },
 
     isNotEncrypted(item) {
-      return (!item.encryption || !Object.keys(item.encryption).length) &&
-             (!item.applet || !item.applet.encryption || !Object.keys(item.applet.encryption).length);
+      return !item.encryption && (!item.applet || !item.applet.encryption);
     },
 
     onViewUsers(item) {
