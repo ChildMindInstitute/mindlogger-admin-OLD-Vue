@@ -2,11 +2,6 @@
   <div class="cumulative-score-report">
     <section class="pdf-item" v-for="({ activity, reportMessages }, index) in activityResponses" :key="activity.id">
       <div
-        v-if="splashScreenType(activity) === 'image' && index"
-        class="html2pdf__page-break splash-screen"
-        :style="'margin-bottom:' + 2 * (index + 1) + 'px'"
-      />
-      <div
         v-if="splashScreenType(activity) === 'image'"
         class="html2pdf__page-break splash-screen"
         :style="'margin-bottom:' + 2 * (index + 1) + 'px'"
@@ -288,7 +283,7 @@ export default {
               break;
             }
 
-            lastResponseIndex --;
+            lastResponseIndex--;
           }
 
           if (lastResponseIndex < 0) {
@@ -298,16 +293,20 @@ export default {
 
         for (let i = 0; i < activity.items.length; i++) {
           const { variableName, responses } = activity.items[i];
-          if (!variableName || !responses) continue;
+          try {            
+            if (!variableName && !responses) continue;
 
-          let score = getScoreFromResponse(
-            activity.items[i],
-            responses[lastResponseIndex][variableName]
-              ? responses[lastResponseIndex][variableName]
-              : responses[lastResponseIndex]
-          );
-          scores.push(score);
-          maxScores.push(getMaxScore(activity.items[i]));
+            let score = getScoreFromResponse(
+              activity.items[i],
+              responses[lastResponseIndex][variableName]
+                ? responses[lastResponseIndex][variableName]
+                : responses[lastResponseIndex]
+            );
+            scores.push(score);
+            maxScores.push(getMaxScore(activity.items[i]));
+          } catch (error) {
+            console.log("ERR: ", error);
+          }
         }
 
         const cumulativeScores = activity.compute.reduce(
