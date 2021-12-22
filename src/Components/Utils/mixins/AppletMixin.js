@@ -178,6 +178,9 @@ export const AppletMixin = {
               }
             }
 
+            const activityResponses = [];
+            let activity = null;
+
             for (let itemUrl in response.data) {
               let itemData = response.data[itemUrl];
               let item = (data.itemReferences[response.version] && data.itemReferences[response.version][itemUrl]) || currentItems[itemUrl];
@@ -202,7 +205,7 @@ export const AppletMixin = {
                 }
               } catch (error) { }
 
-              let activity = currentItems[itemUrl] ?
+              activity = currentItems[itemUrl] ?
                 currentActivities[response.activity['@id']] :
                 data.activities[item.data.activityId];
 
@@ -409,9 +412,21 @@ export const AppletMixin = {
                 console.log(error);
               }
 
-              result.push(csvObj);
+              activityResponses[itemUrl] = csvObj;
+
               isSubScaleExported = true;
             }
+
+            Object.keys(activityResponses).sort((a, b) => {
+              const indexA = activity.order.indexOf(a);
+              const indexB = activity.order.indexOf(b);
+
+              if (indexA == -1) return 1;
+              if (indexB == -1) return -1;
+              return indexA < indexB ? -1 : indexA > indexB ? 1 : 0;
+            }).forEach(itemUrl => {
+              result.push(activityResponses[itemUrl]);
+            })
           }
 
           for (let row of result) {
@@ -740,7 +755,11 @@ export const AppletMixin = {
       let startTime = 0, totalTime = 0, errorCount = 0;
 
       for (let i = 0; i < lines.length; i++) {
+        let hasError = false;
         for (const point of lines[i].points) {
+          if (!point.valid) {
+            hasError = true;
+          }
           if (!startTime) {
             startTime = point.time;
           }
@@ -750,9 +769,11 @@ export const AppletMixin = {
             x: point.x.toString(),
             y: point.y.toString(),
             time: (point.time - startTime).toString(),
-            valid: point.valid ? 'True' : 'False',
+            error: point.valid ? 'E0' : point.actual != 'none' ?  'E1' : 'E2',
             total_time: '',
-            total_number_of_errors: ''
+            total_number_of_errors: '',
+            correct_path: `${point.start} ~ ${point.end}`,
+            actual_path: `${point.start} ~ ${point.actual == 'none' ? '?' : (point.actual || point.end)}`
           })
 
           if (totalTime < point.time - startTime) {
@@ -760,7 +781,7 @@ export const AppletMixin = {
           }
         }
 
-        if (lines[i].points.length && !lines[i].points[0].valid) {
+        if (hasError) {
           errorCount++;
         }
       }
@@ -773,10 +794,12 @@ export const AppletMixin = {
       let otc = new ObjectToCSV({
         keys: [
           { key: 'line_number', as: 'Line Number' },
-          { key: 'x', as: 'x' },
-          { key: 'y', as: 'y' },
-          { key: 'time', as: 'time' },
-          { key: 'valid', as: 'valid' },
+          { key: 'x', as: 'X' },
+          { key: 'y', as: 'Y' },
+          { key: 'time', as: 'Time' },
+          { key: 'error', as: 'Error' },
+          { key: 'correct_path', as: 'Correct Path' },
+          { key: 'actual_path', as: 'Actual Path' },
           { key: 'total_time', as: 'Total Time' },
           { key: 'total_number_of_errors', as: 'Total Number of Errors' }
         ],
@@ -794,7 +817,7 @@ export const AppletMixin = {
             line_number: i.toString(),
             x: point.x.toString(),
             y: point.y.toString(),
-            time: typeof point.time === "number" ? moment(point.time).format("YYYY-MM-DD HH:mm:ss") : point.time || '',
+            time: typeof point.time === "number" ? moment.utc(point.time).format("YYYY-MM-DD HH:mm:ss") : point.time || '',
           });
         }
       }

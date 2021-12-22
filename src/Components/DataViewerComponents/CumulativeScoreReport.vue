@@ -298,6 +298,8 @@ export default {
 
         for (let i = 0; i < activity.items.length; i++) {
           const { variableName, responses } = activity.items[i];
+          if (!variableName || !responses) continue;
+
           let score = getScoreFromResponse(
             activity.items[i],
             responses[lastResponseIndex][variableName]
