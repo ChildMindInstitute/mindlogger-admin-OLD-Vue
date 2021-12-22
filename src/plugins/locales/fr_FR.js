@@ -255,7 +255,7 @@ export default {
   no: 'non',
   Yes: 'Oui',
   No: 'Non',
-  invalidAppletPasswordFormat: 'Min. 8 caractères avec au moins une majuscule, un chiffre et un caractère spécial.',
+  invalidAppletPasswordFormat: 'Min. 8 caractères avec au moins une majuscule, un chiffre, une lettre minuscule et un caractère spécial.',
   pageOf: 'Page {current} sur {total}',
   shownResultsRange: '{from} à {to} sur {total}',
   showVersionChanges: 'Afficher les changements de version',

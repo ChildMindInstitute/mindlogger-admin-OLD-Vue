@@ -256,7 +256,7 @@ export default {
   no: 'no',
   Yes: 'Yes',
   No: 'No',
-  invalidAppletPasswordFormat: 'Min. 8 characters with at least one capital letter, a number and a special character.',
+  invalidAppletPasswordFormat: 'Min. 8 characters with at least one capital letter, a number, a lowercase letter and a special character.',
   pageOf: 'Page {current} of {total}',
   shownResultsRange: '{from} to {to} of {total}',
   showVersionChanges: 'Show Version Changes',
