@@ -361,24 +361,27 @@ export default {
                   )
                 : cumulativeScores[category],
           };
-
-          if (expr.evaluate(variableScores)) {
-            if (nextActivity) cumActivities.push(nextActivity);
-
-            const compute = activity.compute.find(
-              (itemCompute) => itemCompute.variableName.trim() == variableName.trim()
-            );
-
-            reportMessages.push({
-              category,
-              message,
-              score: variableScores[key ? key : category] + (outputType == "percentage" ? "%" : ""),
-              compute,
-              jsExpression: jsExpression.substr(variableName.length),
-              scoreValue: cumulativeScores[category],
-              maxScoreValue: cumulativeMaxScores[category],
-              exprValue: outputType == "percentage" ? (exprValue * cumulativeMaxScores[category]) / 100 : exprValue,
-            });
+          try {
+            if (expr.evaluate(variableScores)) {
+              if (nextActivity) cumActivities.push(nextActivity);
+  
+              const compute = activity.compute.find(
+                (itemCompute) => itemCompute.variableName.trim() == variableName.trim()
+              );
+  
+              reportMessages.push({
+                category,
+                message,
+                score: variableScores[key ? key : category] + (outputType == "percentage" ? "%" : ""),
+                compute,
+                jsExpression: jsExpression.substr(variableName.length),
+                scoreValue: cumulativeScores[category],
+                maxScoreValue: cumulativeMaxScores[category],
+                exprValue: outputType == "percentage" ? (exprValue * cumulativeMaxScores[category]) / 100 : exprValue,
+              });
+            }            
+          } catch (error) {
+            console.log("ERR: ", error)
           }
         });
         activityResponses.push({
