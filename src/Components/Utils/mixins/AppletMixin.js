@@ -476,10 +476,10 @@ export const AppletMixin = {
       const types = {
         '>>>>>': { stimulusType: 4, ext: 'right-con', expected: '>', },
         '<<><<': { stimulusType: 6, ext: 'right-inc', expected: '>' },
-        '-->--': { stimulusType: 2, ext: 'right-net', expected: '>' },
+        '-->--': { stimulusType: 2, ext: 'right-neut', expected: '>' },
         '<<<<<': { stimulusType: 3, ext: 'left-con', expected: '<' },
         '>><>>': { stimulusType: 5, ext: 'left-inc', expected: '<' },
-        '--<--': { stimulusType: 1, ext: 'left-net', expected: '<' }
+        '--<--': { stimulusType: 1, ext: 'left-neut', expected: '<' }
       }
 
       const getResponseObj = (response, tag, config) => {
@@ -532,7 +532,7 @@ export const AppletMixin = {
           responseValue = response.button_pressed === null ? '.' : response.button_pressed === '0' ? 'L' : 'R';
           responseExpected = types[response.question].expected == '>' ? 'R' : 'L';
           responseAccuracy = response.correct ? '1' : '0';
-          responseTime = response.duration;
+          responseTime = response.duration || '';
           responseClock = response.start_timestamp + response.duration;
         }
 
