@@ -11,7 +11,7 @@
           <v-col
             cols="12"
             sm="6"
-            md="6"
+            md="4"
           >
             <v-text-field
               v-model="params.profile.firstName"
@@ -24,7 +24,7 @@
           <v-col
             cols="12"
             sm="6"
-            md="6"
+            md="4"
           >
             <v-text-field
               v-model="params.profile.lastName"
@@ -34,6 +34,20 @@
             />
           </v-col>
 
+          <v-col
+            v-if="params.role === 'user'"
+            cols="12"
+            sm="6"
+            md="4"
+          >
+            <v-text-field
+              v-model="params.profile.nickName"
+              :label="$t('nickName')"
+            />
+          </v-col>
+        </v-row>
+
+        <v-row>
           <v-col
             cols="12"
             sm="6"
@@ -189,6 +203,7 @@ export default {
         profile: {
           firstName: "",
           lastName: "",
+          nickName: "",
           email: "",
           mrn: ""
         },
@@ -246,6 +261,7 @@ export default {
       const invitationOptions = {
         firstName: this.params.profile.firstName,
         lastName: this.params.profile.lastName,
+        nickName: this.params.profile.nickName,
         email: this.params.profile.email,
         role: this.params.role,
         lang: this.currentLanguage

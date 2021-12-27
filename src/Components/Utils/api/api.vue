@@ -551,6 +551,16 @@ const updateRetainingSettings = ({ apiHost, token, appletId, options }) =>
     params: options,
   });
 
+const updateProfile = ({ apiHost, token, appletId, options  }) =>
+  axios({
+    method: "PUT",
+    url: `${apiHost}/applet/${appletId}/updateProfile`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: options
+  })
+
 const getAccountUserList = ({
   apiHost,
   token,
@@ -976,5 +986,6 @@ export default {
   postReviewerResponse,
   appletPublicLink,
   getThemes,
+  updateProfile,
 };
 </script>
