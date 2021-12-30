@@ -482,14 +482,17 @@ export const AppletMixin = {
         '--<--': { stimulusType: 1, ext: 'left-neut', expected: '<' }
       }
 
-      const getResponseObj = (response, tag, config) => {
+      const getResponseObj = (response, tag, config, displayOffset) => {
         const trialNumber = response.trial_index;
-        const duration = config.trialDuration + (config.showFeedback ? 500 : 0) + (config.showFixation ? 500 : 0);
 
         let stimulusType = '', eventTypeExt = tag, eventType = ( tag == 'response' ? 'Response' : 'Display' );
 
         if (tag != 'trial') {
           stimulusType = tag == 'feedback' ? 0 : -1;
+
+          if (tag == 'response') {
+            stimulusType = types[response.question].stimulusType;
+          }
         } else {
           stimulusType = types[response.question].stimulusType;
           eventTypeExt = types[response.question].ext;
@@ -505,23 +508,13 @@ export const AppletMixin = {
         const timeOffset = response.start_timestamp - response.start_time;
 
         if (tag != 'response') {
-          expectedDisplayOnset = (trialNumber - 1) * duration;
-
-          if (tag == 'feedback' || tag == 'trial') {
-            if (tag == 'feedback') {
-              expectedDisplayOnset += config.trialDuration;
-            }
-
-            if (config.showFixation) {
-              expectedDisplayOnset += 500;
-            }
-          }
+          expectedDisplayOnset = displayOffset;
 
           expectedDisplayOffset = expectedDisplayOnset + ( tag == 'trial' ? config.trialDuration : 500 );
 
           actualDisplayOnset = response.start_time;
           actualDisplayOffset = response.start_time + response.duration;
-          displayDuration = expectedDisplayOffset - expectedDisplayOnset;
+          displayDuration = response.duration;
 
           /*** clockstamp */
           expectedDisplayOnsetClock = expectedDisplayOnset + timeOffset;
@@ -550,17 +543,26 @@ export const AppletMixin = {
         }
       }
 
+      let displayOffset = 0;
+
       for (let i = 0; i < responses.length; i++) {
-        result.push({
-          ...getResponseObj(responses[i], responses[i].tag, item.inputs),
+        const response = {
+          ...getResponseObj(responses[i], responses[i].tag, item.inputs, displayOffset),
           experimentClock: responses[0].start_timestamp
-        })
+        }
+        result.push(response);
 
         if (responses[i].tag == 'trial') {
           result.push({
-            ...getResponseObj(responses[i], 'response', item.inputs),
+            ...getResponseObj(responses[i], 'response', item.inputs, displayOffset),
             experimentClock: responses[0].start_timestamp
           })
+        }
+
+        if (responses[i].tag == 'trial') {
+          displayOffset = response.actualDisplayOffset;
+        } else {
+          displayOffset += 500;
         }
       }
 
@@ -572,79 +574,79 @@ export const AppletMixin = {
           },
           {
             key: 'eventType',
-            as: 'Event Type',
+            as: 'event_type',
           },
           {
             key: 'stimulusType',
-            as: 'Stimulus Type'
+            as: 'stimulus_type'
           },
           {
             key: 'eventTypeExt',
-            as: 'EventTypeExt',
+            as: 'event_type_ext',
           },
           {
             key: 'expectedDisplayOnset',
-            as: 'Expected Display Onset'
+            as: 'expected_display_onset'
           },
           {
             key: 'actualDisplayOnset',
-            as: 'Actual Display Onset'
+            as: 'actual_display_onset'
           },
           {
             key: 'expectedDisplayOffset',
-            as: 'Expected Display Offset'
+            as: 'expected_display_offset'
           },
           {
             key: 'actualDisplayOffset',
-            as: 'Actual Display Offset'
+            as: 'actual_display_offset'
           },
           {
             key: 'displayDuration',
-            as: 'Display Duration'
+            as: 'display_duration'
           },
           {
             key: 'responseValue',
-            as: 'Response Value'
+            as: 'response_value'
           },
           {
             key: 'responseExpected',
-            as: 'Response Expected'
+            as: 'response_expected'
           },
           {
             key: 'responseAccuracy',
-            as: 'Response Accuracy'
+            as: 'response_accuracy'
           },
           {
             key: 'responseTime',
-            as: 'Response Time'
+            as: 'response_time'
           },
           {
             key: 'expectedDisplayOnsetClock',
-            as: 'Expected Display Onset(Clockstamp)'
+            as: 'expected_display_onset_clockstamp'
           },
           {
             key: 'actualDisplayOnsetClock',
-            as: 'Actual Display Onset(Clockstamp)'
+            as: 'actual_display_onset_clockstamp'
           },
           {
             key: 'expectedDisplayOffsetClock',
-            as: 'Expceted Display Offset(Clockstamp)'
+            as: 'expected_display_offset_clockstamp'
           },
           {
             key: 'actualDisplayOffsetClock',
-            as: 'Actual Display Offset(Clockstamp)'
+            as: 'actual_display_offset_clockstamp'
           },
           {
             key: 'responseClock',
-            as: 'Response (Clockstamp)'
+            as: 'response_clockstamp'
           },
           {
             key: 'trialClock',
-            as: 'Trial Clockstamp'
+            as: 'trial_clockstamp'
           },
           {
             key: 'experimentClock',
-            as: 'Experiment Clockstamp'
+            as: 'experiement_clockstamp'
           }
         ],
         data: result,
@@ -721,7 +723,7 @@ export const AppletMixin = {
           },
           {
             key: 'lambdaSlope',
-            as: 'Lambda Slope'
+            as: 'lambda_slope'
           },
           {
             key: 'score',
@@ -729,11 +731,11 @@ export const AppletMixin = {
           },
           {
             key: 'stimPos',
-            as: 'Stim Position',
+            as: 'stim_position',
           },
           {
             key: 'targetPos',
-            as: 'Target Position',
+            as: 'target_position',
           },
           {
             key: 'timestamp',
@@ -741,7 +743,7 @@ export const AppletMixin = {
           },
           {
             key: 'userPos',
-            as: 'User Position'
+            as: 'user_position'
           }
         ],
         data: result,
@@ -793,15 +795,15 @@ export const AppletMixin = {
 
       let otc = new ObjectToCSV({
         keys: [
-          { key: 'line_number', as: 'Line Number' },
-          { key: 'x', as: 'X' },
-          { key: 'y', as: 'Y' },
-          { key: 'time', as: 'Time' },
-          { key: 'error', as: 'Error' },
-          { key: 'correct_path', as: 'Correct Path' },
-          { key: 'actual_path', as: 'Actual Path' },
-          { key: 'total_time', as: 'Total Time' },
-          { key: 'total_number_of_errors', as: 'Total Number of Errors' }
+          { key: 'line_number', as: 'line_number' },
+          { key: 'x', as: 'x' },
+          { key: 'y', as: 'y' },
+          { key: 'time', as: 'time' },
+          { key: 'error', as: 'error' },
+          { key: 'correct_path', as: 'correct_path' },
+          { key: 'actual_path', as: 'actual_path' },
+          { key: 'total_time', as: 'total_time' },
+          { key: 'total_number_of_errors', as: 'total_number_of_errors' }
         ],
         data: result,
       });
