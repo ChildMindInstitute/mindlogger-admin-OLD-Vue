@@ -510,7 +510,10 @@ export const AppletMixin = {
         if (tag != 'response') {
           expectedDisplayOnset = displayOffset;
 
-          expectedDisplayOffset = expectedDisplayOnset + ( tag == 'trial' ? config.trialDuration : 500 );
+          if (tag != 'trial') {
+            expectedDisplayOffset = expectedDisplayOnset + 500;
+            expectedDisplayOffsetClock = expectedDisplayOffset + timeOffset;
+          }
 
           actualDisplayOnset = response.start_time;
           actualDisplayOffset = response.start_time + response.duration;
@@ -518,7 +521,6 @@ export const AppletMixin = {
 
           /*** clockstamp */
           expectedDisplayOnsetClock = expectedDisplayOnset + timeOffset;
-          expectedDisplayOffsetClock = expectedDisplayOffset + timeOffset;
           actualDisplayOnsetClock = actualDisplayOnset + timeOffset;
           actualDisplayOffsetClock = actualDisplayOffset + timeOffset;
         } else {
