@@ -256,7 +256,7 @@ export default {
   no: 'no',
   Yes: 'Yes',
   No: 'No',
-  invalidAppletPasswordFormat: 'Min. 8 characters with at least one capital letter, a number and a special character.',
+  invalidAppletPasswordFormat: 'Min. 8 characters with at least one capital letter, a number, a lowercase letter and a special character.',
   pageOf: 'Page {current} of {total}',
   shownResultsRange: '{from} to {to} of {total}',
   showVersionChanges: 'Show Version Changes',
@@ -383,5 +383,9 @@ export default {
   summary: 'Summary',
   useSecretIdSelector: 'Secret Id Selector',
   passwordWarning: 'Please ensure this password is stored securely outside of MindLogger. This password can never be changed or retrieved if forgotten due to security reasons. You will lose all data previously collected if this password is lost.',
-  transferOwnershipConfirmation: 'Are you sure you want to transfer ownership of your applet to another user? This will only transfer the applet and no user data will be transferred.'
+  transferOwnershipConfirmation: 'Are you sure you want to transfer ownership of your applet to another user? This will only transfer the applet and no user data will be transferred.',
+  termsText: 'I understand that the information provided by this questionnaire is not intended to replace the advice, diagnosis, or treatment offered by a medical or mental health professional, and that my anonymous responses may be used and shared for general research on children’s mental health.',
+  pdfFooterText: 'CHILD MIND INSTITUTE, INC. AND CHILD MIND MEDICAL PRACTICE, PLLC (TOGETHER, “CMI”) DOES NOT DIRECTLY OR INDIRECTLY PRACTICE MEDICINE OR DISPENSE MEDICAL ADVICE AS PART OF THIS QUESTIONNAIRE. CMI ASSUMES NO LIABILITY FOR ANY DIAGNOSIS, TREATMENT, DECISION MADE, OR ACTION TAKEN IN RELIANCE UPON INFORMATION PROVIDED BY THIS QUESTIONNAIRE, AND ASSUMES NO RESPONSIBILITY FOR YOUR USE OF THIS QUESTIONNAIRE.',
+  childScore: 'Your Child\'s Score',
+  childScoreOnSubScale: 'Your child’s score on the {name} subscale was'
 };

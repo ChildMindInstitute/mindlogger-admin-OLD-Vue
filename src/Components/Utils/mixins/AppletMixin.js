@@ -139,7 +139,7 @@ export const AppletMixin = {
             'rawScore',
             'reviewing_id',
           ];
-          const drawingCSVs = [], stabilityCSVs = [];
+          const drawingCSVs = [], stabilityCSVs = [], trailsCSVs = [];
 
           for (let response of data.responses) {
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
@@ -178,6 +178,9 @@ export const AppletMixin = {
               }
             }
 
+            const activityResponses = [];
+            let activity = null;
+
             for (let itemUrl in response.data) {
               let itemData = response.data[itemUrl];
               let item = (data.itemReferences[response.version] && data.itemReferences[response.version][itemUrl]) || currentItems[itemUrl];
@@ -190,7 +193,7 @@ export const AppletMixin = {
               try {
                 if (itemData && itemData.ptr !== undefined && itemData.src !== undefined) {
                   if (_.isArray(data.dataSources[itemData.src].data) && itemData.ptr && typeof itemData.ptr === "object") {
-                    if (itemData.ptr.index !== undefined && !data.dataSources[itemData.src].data[itemData.ptr.index].value.lines) {
+                    if (itemData.ptr.index !== undefined) {
                       response.data[itemUrl] = data.dataSources[itemData.src].data[itemData.ptr.index];
                     } else {
                       response.data[itemUrl] = { value: itemData.ptr };
@@ -202,7 +205,7 @@ export const AppletMixin = {
                 }
               } catch (error) { }
 
-              let activity = currentItems[itemUrl] ?
+              activity = currentItems[itemUrl] ?
                 currentActivities[response.activity['@id']] :
                 data.activities[item.data.activityId];
 
@@ -261,7 +264,7 @@ export const AppletMixin = {
                     if (item.inputType === 'timeRange' && value.from && value.to) {
                       responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
 
-                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType === 'audioImageRecord')) {
+                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType == 'trail' || item.inputType === 'audioImageRecord')) {
                       if (value.filename) {
                         const name = this.getMediaResponseObject(value.uri, response, item);
 
@@ -289,10 +292,17 @@ export const AppletMixin = {
                         const nameRegex = nameStr.match(/filename: ([^.]*)/i)
                         responseData += `filename: ${nameRegex[1]}`
 
-                        drawingCSVs.push({
-                          name: `${nameRegex[1]}.csv`,
-                          data: this.getLinesAsCSV(value.lines)
-                        });
+                        if (item.inputType == 'drawing') {
+                          drawingCSVs.push({
+                            name: `${nameRegex[1]}.csv`,
+                            data: this.getDrawingLinesAsCSV(value.lines)
+                          });
+                        } else {
+                          trailsCSVs.push({
+                            name: `${nameRegex[1]}.csv`,
+                            data: this.getTrailsLinesAsCSV(value.lines)
+                          })
+                        }
                       } else if (key == 'text') {
                         responseData += `${key}: ${value}`;
                       }
@@ -402,9 +412,21 @@ export const AppletMixin = {
                 console.log(error);
               }
 
-              result.push(csvObj);
+              activityResponses[itemUrl] = csvObj;
+
               isSubScaleExported = true;
             }
+
+            Object.keys(activityResponses).sort((a, b) => {
+              const indexA = activity.order.indexOf(a);
+              const indexB = activity.order.indexOf(b);
+
+              if (indexA == -1) return 1;
+              if (indexB == -1) return -1;
+              return indexA < indexB ? -1 : indexA > indexB ? 1 : 0;
+            }).forEach(itemUrl => {
+              result.push(activityResponses[itemUrl]);
+            })
           }
 
           for (let row of result) {
@@ -424,7 +446,8 @@ export const AppletMixin = {
             type: 'text/csv;charset=utf-8'
           })
 
-          await this.generateDrawingZip(drawingCSVs);
+          await this.generateLinesZip(drawingCSVs, 'drawing-responses');
+          await this.generateLinesZip(trailsCSVs, 'trails-responses');
           await this.generateStabilityZip(stabilityCSVs);
           await this.generateFlankerZip(flankerCSVs);
           await this.generateMediaResponsesZip(this.mediaResponseObjects);
@@ -451,22 +474,25 @@ export const AppletMixin = {
     getFlankerAsCSV(responses, item) {
       const result = [];
       const types = {
-        '>>>>>': { stimulusType: 1, ext: 'right-con', expected: '>', },
-        '<<><<': { stimulusType: 2, ext: 'right-inc', expected: '>' },
-        '-->--': { stimulusType: 3, ext: 'right-net', expected: '>' },
-        '<<<<<': { stimulusType: 4, ext: 'left-con', expected: '<' },
+        '>>>>>': { stimulusType: 4, ext: 'right-con', expected: '>', },
+        '<<><<': { stimulusType: 6, ext: 'right-inc', expected: '>' },
+        '-->--': { stimulusType: 2, ext: 'right-neut', expected: '>' },
+        '<<<<<': { stimulusType: 3, ext: 'left-con', expected: '<' },
         '>><>>': { stimulusType: 5, ext: 'left-inc', expected: '<' },
-        '--<--': { stimulusType: 6, ext: 'left-net', expected: '<' }
+        '--<--': { stimulusType: 1, ext: 'left-neut', expected: '<' }
       }
 
-      const getResponseObj = (response, tag, config) => {
+      const getResponseObj = (response, tag, config, displayOffset) => {
         const trialNumber = response.trial_index;
-        const duration = config.trialDuration + (config.showFeedback ? 500 : 0) + (config.showFixation ? 500 : 0);
 
         let stimulusType = '', eventTypeExt = tag, eventType = ( tag == 'response' ? 'Response' : 'Display' );
 
         if (tag != 'trial') {
           stimulusType = tag == 'feedback' ? 0 : -1;
+
+          if (tag == 'response') {
+            stimulusType = types[response.question].stimulusType;
+          }
         } else {
           stimulusType = types[response.question].stimulusType;
           eventTypeExt = types[response.question].ext;
@@ -482,19 +508,12 @@ export const AppletMixin = {
         const timeOffset = response.start_timestamp - response.start_time;
 
         if (tag != 'response') {
-          expectedDisplayOnset = (trialNumber - 1) * duration;
+          expectedDisplayOnset = displayOffset;
 
-          if (tag == 'feedback' || tag == 'trial') {
-            if (tag == 'feedback') {
-              expectedDisplayOnset += config.trialDuration;
-            }
-
-            if (config.showFixation) {
-              expectedDisplayOnset += 500;
-            }
+          if (tag != 'trial') {
+            expectedDisplayOffset = expectedDisplayOnset + 500;
+            expectedDisplayOffsetClock = expectedDisplayOffset + timeOffset;
           }
-
-          expectedDisplayOffset = expectedDisplayOnset + ( tag == 'trial' ? config.trialDuration : 500 );
 
           actualDisplayOnset = response.start_time;
           actualDisplayOffset = response.start_time + response.duration;
@@ -502,15 +521,14 @@ export const AppletMixin = {
 
           /*** clockstamp */
           expectedDisplayOnsetClock = expectedDisplayOnset + timeOffset;
-          expectedDisplayOffsetClock = expectedDisplayOffset + timeOffset;
           actualDisplayOnsetClock = actualDisplayOnset + timeOffset;
           actualDisplayOffsetClock = actualDisplayOffset + timeOffset;
         } else {
           responseValue = response.button_pressed === null ? '.' : response.button_pressed === '0' ? 'L' : 'R';
-          responseExpected = types[response.question].expected == '>' ? 'L' : 'R';
+          responseExpected = types[response.question].expected == '>' ? 'R' : 'L';
           responseAccuracy = response.correct ? '1' : '0';
-          responseTime = response.start_time + response.duration;
-          responseClock = responseTime + timeOffset;
+          responseTime = response.duration || '';
+          responseClock = response.start_timestamp + response.duration;
         }
 
         if (tag == 'trial') {
@@ -527,17 +545,26 @@ export const AppletMixin = {
         }
       }
 
+      let displayOffset = 0;
+
       for (let i = 0; i < responses.length; i++) {
-        result.push({
-          ...getResponseObj(responses[i], responses[i].tag, item.inputs),
+        const response = {
+          ...getResponseObj(responses[i], responses[i].tag, item.inputs, displayOffset),
           experimentClock: responses[0].start_timestamp
-        })
+        }
+        result.push(response);
 
         if (responses[i].tag == 'trial') {
           result.push({
-            ...getResponseObj(responses[i], 'response', item.inputs),
+            ...getResponseObj(responses[i], 'response', item.inputs, displayOffset),
             experimentClock: responses[0].start_timestamp
           })
+        }
+
+        if (responses[i].tag == 'trial') {
+          displayOffset = response.actualDisplayOffset;
+        } else {
+          displayOffset += 500;
         }
       }
 
@@ -549,79 +576,79 @@ export const AppletMixin = {
           },
           {
             key: 'eventType',
-            as: 'Event Type',
+            as: 'event_type',
           },
           {
             key: 'stimulusType',
-            as: 'Stimulus Type'
+            as: 'stimulus_type'
           },
           {
             key: 'eventTypeExt',
-            as: 'EventTypeExt',
+            as: 'event_type_ext',
           },
           {
             key: 'expectedDisplayOnset',
-            as: 'Expected Display Onset'
+            as: 'expected_display_onset'
           },
           {
             key: 'actualDisplayOnset',
-            as: 'Actual Display Onset'
+            as: 'actual_display_onset'
           },
           {
             key: 'expectedDisplayOffset',
-            as: 'Expected Display Offset'
+            as: 'expected_display_offset'
           },
           {
             key: 'actualDisplayOffset',
-            as: 'Actual Display Offset'
+            as: 'actual_display_offset'
           },
           {
             key: 'displayDuration',
-            as: 'Display Duration'
+            as: 'display_duration'
           },
           {
             key: 'responseValue',
-            as: 'Response Value'
+            as: 'response_value'
           },
           {
             key: 'responseExpected',
-            as: 'Response Expected'
+            as: 'response_expected'
           },
           {
             key: 'responseAccuracy',
-            as: 'Response Accuracy'
+            as: 'response_accuracy'
           },
           {
             key: 'responseTime',
-            as: 'Response Time'
+            as: 'response_time'
           },
           {
             key: 'expectedDisplayOnsetClock',
-            as: 'Expected Display Onset(Clockstamp)'
+            as: 'expected_display_onset_clockstamp'
           },
           {
             key: 'actualDisplayOnsetClock',
-            as: 'Actual Display Onset(Clockstamp)'
+            as: 'actual_display_onset_clockstamp'
           },
           {
             key: 'expectedDisplayOffsetClock',
-            as: 'Expceted Display Offset(Clockstamp)'
+            as: 'expected_display_offset_clockstamp'
           },
           {
             key: 'actualDisplayOffsetClock',
-            as: 'Actual Display Offset(Clockstamp)'
+            as: 'actual_display_offset_clockstamp'
           },
           {
             key: 'responseClock',
-            as: 'Response (Clockstamp)'
+            as: 'response_clockstamp'
           },
           {
             key: 'trialClock',
-            as: 'Trial Clockstamp'
+            as: 'trial_clockstamp'
           },
           {
             key: 'experimentClock',
-            as: 'Experiment Clockstamp'
+            as: 'experiement_clockstamp'
           }
         ],
         data: result,
@@ -698,7 +725,7 @@ export const AppletMixin = {
           },
           {
             key: 'lambdaSlope',
-            as: 'Lambda Slope'
+            as: 'lambda_slope'
           },
           {
             key: 'score',
@@ -706,11 +733,11 @@ export const AppletMixin = {
           },
           {
             key: 'stimPos',
-            as: 'Stim Position',
+            as: 'stim_position',
           },
           {
             key: 'targetPos',
-            as: 'Target Position',
+            as: 'target_position',
           },
           {
             key: 'timestamp',
@@ -718,7 +745,7 @@ export const AppletMixin = {
           },
           {
             key: 'userPos',
-            as: 'User Position'
+            as: 'user_position'
           }
         ],
         data: result,
@@ -727,7 +754,66 @@ export const AppletMixin = {
       return otc.getCSV();
     },
 
-    getLinesAsCSV(lines) {
+    getTrailsLinesAsCSV (lines) {
+      const result = [];
+      let startTime = 0, totalTime = 0, errorCount = 0;
+
+      for (let i = 0; i < lines.length; i++) {
+        let hasError = false;
+        for (const point of lines[i].points) {
+          if (!point.valid) {
+            hasError = true;
+          }
+          if (!startTime) {
+            startTime = point.time;
+          }
+
+          result.push({
+            line_number: i.toString(),
+            x: point.x.toString(),
+            y: point.y.toString(),
+            time: (point.time - startTime).toString(),
+            error: point.valid ? 'E0' : point.actual != 'none' ?  'E1' : 'E2',
+            total_time: '',
+            total_number_of_errors: '',
+            correct_path: `${point.start} ~ ${point.end}`,
+            actual_path: `${point.start} ~ ${point.actual == 'none' ? '?' : (point.actual || point.end)}`
+          })
+
+          if (totalTime < point.time - startTime) {
+            totalTime = point.time - startTime;
+          }
+        }
+
+        if (hasError) {
+          errorCount++;
+        }
+      }
+
+      if (result.length) {
+        result[0].total_time = totalTime;
+        result[0].total_number_of_errors = errorCount;
+      }
+
+      let otc = new ObjectToCSV({
+        keys: [
+          { key: 'line_number', as: 'line_number' },
+          { key: 'x', as: 'x' },
+          { key: 'y', as: 'y' },
+          { key: 'time', as: 'time' },
+          { key: 'error', as: 'error' },
+          { key: 'correct_path', as: 'correct_path' },
+          { key: 'actual_path', as: 'actual_path' },
+          { key: 'total_time', as: 'total_time' },
+          { key: 'total_number_of_errors', as: 'total_number_of_errors' }
+        ],
+        data: result,
+      });
+
+      return otc.getCSV();
+    },
+
+    getDrawingLinesAsCSV(lines) {
       const result = [];
       for (let i = 0; i < lines.length; i++) {
         for (const point of lines[i].points) {
@@ -735,7 +821,7 @@ export const AppletMixin = {
             line_number: i.toString(),
             x: point.x.toString(),
             y: point.y.toString(),
-            time: typeof point.time === "number" ? moment(point.time).format("YYYY-MM-DD HH:mm:ss") : point.time || '',
+            time: typeof point.time === "number" ? moment.utc(point.time).format("YYYY-MM-DD HH:mm:ss") : point.time || '',
           });
         }
       }
@@ -753,17 +839,17 @@ export const AppletMixin = {
       return otc.getCSV();
     },
 
-    async generateDrawingZip(drawingCSVs) {
+    async generateLinesZip(csvs, name) {
       try {
-        if (drawingCSVs.length > 0) {
+        if (csvs.length > 0) {
           const zip = new JSZip();
 
-          for (const csvData of drawingCSVs) {
+          for (const csvData of csvs) {
             zip.file(csvData.name, csvData.data);
           }
 
           const generatedZip = await zip.generateAsync({ type: 'blob' });
-          saveAs(generatedZip, `drawing-responses-${(new Date()).toDateString()}.zip`);
+          saveAs(generatedZip, `${name}-${(new Date()).toDateString()}.zip`);
         }
       } catch (err) {
         console.log(err);

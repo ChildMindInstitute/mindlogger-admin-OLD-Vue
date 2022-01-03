@@ -255,7 +255,7 @@ export default {
   no: 'non',
   Yes: 'Oui',
   No: 'Non',
-  invalidAppletPasswordFormat: 'Min. 8 caractères avec au moins une majuscule, un chiffre et un caractère spécial.',
+  invalidAppletPasswordFormat: 'Min. 8 caractères avec au moins une majuscule, un chiffre, une lettre minuscule et un caractère spécial.',
   pageOf: 'Page {current} sur {total}',
   shownResultsRange: '{from} à {to} sur {total}',
   showVersionChanges: 'Afficher les changements de version',
@@ -369,5 +369,9 @@ export default {
   appletEditProgress: 'Votre applet est en cours de modification.',
   secretId: 'Identifiant secret',
   passwordWarning: `Veuillez vous assurer que ce mot de passe soit stocké en toute sécurité en dehors de MindLogger. Pour des raisons de sécurité, ce mot de passe ne pourra jamais être modifié ou récupéré en cas d'oubli. Si vous perdez ce mot de passe, vous perdrez toutes les données collectées précédemment.`,
-  transferOwnershipConfirmation: `Êtes-vous sûr de vouloir transférer la propriété de votre applet à un autre utilisateur ? Cette opération ne transférera que l'applet et aucune donnée utilisateur ne sera transférée.`
+  transferOwnershipConfirmation: `Êtes-vous sûr de vouloir transférer la propriété de votre applet à un autre utilisateur ? Cette opération ne transférera que l'applet et aucune donnée utilisateur ne sera transférée.`,
+  termsText: `Je comprends que les informations fournies par ce questionnaire ne sont pas destinées à remplacer les conseils, le diagnostic ou le traitement offerts par un professionnel de la santé médicale ou mentale, et que mes réponses anonymes peuvent être utilisées et partagées pour des recherches sur la santé mentale des enfants.`,
+  pdfFooterText: `CHILD MIND INSTITUTE, INC. ET CHILD MIND MEDICAL PRACTICE, PLLC (ENSEMBLE, "CMI") NE PRATIQUENT PAS DIRECTEMENT OU INDIRECTEMENT LA MÉDECINE ET NE DISPENSENT PAS DE CONSEILS MÉDICAUX DANS LE CADRE DE CE QUESTIONNAIRE. CMI DÉCLINE TOUTE RESPONSABILITÉ EN CE QUI CONCERNE LE DIAGNOSTIC, LE TRAITEMENT, LES DÉCISIONS OU LES ACTIONS PRISES SUR LA BASE DES INFORMATIONS FOURNIES PAR LE PRÉSENT QUESTIONNAIRE ET DÉCLINE TOUTE RESPONSABILITÉ QUANT À L'UTILISATION DE CE QUESTIONNAIRE.`,
+  childScore: `Le score de votre enfant`,
+  childScoreOnSubScale: 'Le score de votre enfant pour la sous-échelle {name} est de'
 };
