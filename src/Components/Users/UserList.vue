@@ -109,6 +109,22 @@
               </v-tooltip>
 
               <v-tooltip
+                v-if="item.editable.length && currentRole == 'user' && multiSelectionEnabled"
+                top
+              >
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    v-on="on"
+                    @click="onEditUser(item)"
+                  >
+                    <v-icon>mdi-pencil</v-icon>
+                  </v-btn>
+                </template>
+
+                <span>Edit User</span>
+              </v-tooltip>
+
+              <v-tooltip
                 v-if="item.editable.length && currentRole !== 'user'"
                 top
               >
@@ -202,10 +218,17 @@
     />
 
     <EditRoleDialog
-      :key="editRoleDialog.key"
+      :key="`role-${editRoleDialog.key}`"
       v-model="editRoleDialog.visible"
       :employer="editRoleDialog.employer"
       @updated="onEditRoleSuccessfull"
+    />
+
+    <EditUserDialog
+      :key="`user-${editUserDialog.key}`"
+      v-model="editUserDialog.visible"
+      :user="editUserDialog.user"
+      @updated="onEditUserSuccessfull"
     />
 
     <v-dialog
@@ -297,6 +320,7 @@ import SchedulingDialog from "../Utils/dialogs/SchedulingDialog";
 import ExportDataDialog from "../Utils/dialogs/ExportDataDialog";
 import AppletPassword from "../Utils/dialogs/AppletPassword";
 import EditRoleDialog from "../Utils/dialogs/EditRoleDialog";
+import EditUserDialog from "../Utils/dialogs/EditUserDialog";
 import { RolesMixin } from '../Utils/mixins/RolesMixin';
 import encryption from "../Utils/encryption/encryption";
 
@@ -309,6 +333,7 @@ export default {
     ExportDataDialog,
     AppletPassword,
     EditRoleDialog,
+    EditUserDialog,
   },
   extends: UserManagement,
   mixins: [RolesMixin],
@@ -391,6 +416,12 @@ export default {
         align: 'left',
         sortable: false,
         value: 'currentScheduleStatus',
+      },
+      {
+        text: this.$i18n.t('nickName'),
+        align: 'left',
+        sortable: true,
+        value: 'nickName',
       },
       {
         text: '',
@@ -641,7 +672,7 @@ export default {
 
       for (let i = 0; i < this.users.length; i++) {
         let MRNs = [], user = this.users[i];
-        let selected = false, pinned = false;
+        let selected = false, pinned = false, nickName = '';
 
         for (let appletId in user) {
           let profile = user[appletId];
@@ -650,6 +681,7 @@ export default {
           MRNs.push(profile.MRN);
 
           pinned = profile.pinned;
+          nickName = profile.nickName;
 
           /** enable only in applet-selected page */
           if (this.currentAppletMeta) {
@@ -663,6 +695,7 @@ export default {
           MRN: MRNs.filter(function(item, pos){
             return MRNs.indexOf(item) == pos;
           }).join(', '),
+          nickName,
           pinned,
           ...this.getUserStatus(user),
           selected,
@@ -717,6 +750,11 @@ export default {
     onEditRoleSuccessfull() {
       this.$set(this.editRoleDialog, 'visible', false);
       this.$emit('onEditRoleSuccessfull');
+    },
+
+    onEditUserSuccessfull() {
+      this.$set(this.editUserDialog, 'visible', false);
+      this.$emit('onEditUserSuccessfull');
     }
   },
 };
