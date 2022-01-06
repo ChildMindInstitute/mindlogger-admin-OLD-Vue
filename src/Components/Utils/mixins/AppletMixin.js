@@ -231,7 +231,7 @@ export const AppletMixin = {
                   if (item.inputType == 'visual-stimulus-response') {
                     flankerCSVs.push({
                       name: `${response._id}_${item.id}.csv`,
-                      data: this.getFlankerAsCSV(responseDataObj, item)
+                      data: this.getFlankerAsCSV(responseDataObj, item, new Date(response.responseStarted).getTime())
                     });
                     responseData = `filename: ${response._id}_${item.id}.csv`;
                   } else {
@@ -471,184 +471,157 @@ export const AppletMixin = {
       }
     },
 
-    getFlankerAsCSV(responses, item) {
+    getFlankerAsCSV(responses, item, experimentClock) {
       const result = [];
       const types = {
-        '>>>>>': { stimulusType: 4, ext: 'right-con', expected: '>', },
-        '<<><<': { stimulusType: 6, ext: 'right-inc', expected: '>' },
-        '-->--': { stimulusType: 2, ext: 'right-neut', expected: '>' },
-        '<<<<<': { stimulusType: 3, ext: 'left-con', expected: '<' },
-        '>><>>': { stimulusType: 5, ext: 'left-inc', expected: '<' },
-        '--<--': { stimulusType: 1, ext: 'left-neut', expected: '<' }
+        '>>>>>': { trialType: 4, ext: 'right-con', expected: '>', },
+        '<<><<': { trialType: 6, ext: 'right-inc', expected: '>' },
+        '-->--': { trialType: 2, ext: 'right-neut', expected: '>' },
+        '<<<<<': { trialType: 3, ext: 'left-con', expected: '<' },
+        '>><>>': { trialType: 5, ext: 'left-inc', expected: '<' },
+        '--<--': { trialType: 1, ext: 'left-neut', expected: '<' }
       }
 
-      const getResponseObj = (response, tag, config, displayOffset) => {
-        const trialNumber = response.trial_index;
+      const getResponseObj = (response, tag, config, trialStartTimestamp) => {
+        const trialNumber = response.trial_index, blockNumber = config.blockIndex;
 
-        let stimulusType = '', eventTypeExt = tag, eventType = ( tag == 'response' ? 'Response' : 'Display' );
+        let trialType = '', eventType = '';
+
+        switch (tag) {
+          case 'response':
+            eventType = 'Response';
+            break;
+          case 'trial':
+            eventType = 'Stimulus';
+            break;
+          case 'fixation':
+            eventType = 'Fixation';
+            break;
+          case 'feedback':
+            eventType = 'Feedback';
+            break;
+        }
 
         if (tag != 'trial') {
-          stimulusType = tag == 'feedback' ? 0 : -1;
+          trialType = tag == 'feedback' ? 0 : -1;
 
           if (tag == 'response') {
-            stimulusType = types[response.question].stimulusType;
+            trialType = types[response.question].trialType;
           }
         } else {
-          stimulusType = types[response.question].stimulusType;
-          eventTypeExt = types[response.question].ext;
+          trialType = types[response.question].trialType;
         }
 
-        let expectedDisplayOnset = '.', expectedDisplayOffset = '.', actualDisplayOnset = '.', actualDisplayOffset = '.', displayDuration = '';
-        let expectedDisplayOnsetClock = '', expectedDisplayOffsetClock = '', actualDisplayOnsetClock = '', actualDisplayOffsetClock = '';
+        let responseValue = '.', responseAccuracy = '.', responseTouchTimestamp = '.', responseTime = '.';
 
-        let responseValue = '', responseExpected = '', responseAccuracy = '', responseTime = '';
-        let responseClock = '';
-        let trialClock = '';
+        let videoDisplayRequestTimestamp = response.offset ? response.start_time + response.offset : response.start_timestamp, eventStartTimestamp = response.start_timestamp;
+        let eventOffset = eventStartTimestamp - trialStartTimestamp;
 
-        const timeOffset = response.start_timestamp - response.start_time;
-
-        if (tag != 'response') {
-          expectedDisplayOnset = displayOffset;
-
-          if (tag != 'trial') {
-            expectedDisplayOffset = expectedDisplayOnset + 500;
-            expectedDisplayOffsetClock = expectedDisplayOffset + timeOffset;
-          }
-
-          actualDisplayOnset = response.start_time;
-          actualDisplayOffset = response.start_time + response.duration;
-          displayDuration = response.duration;
-
-          /*** clockstamp */
-          expectedDisplayOnsetClock = expectedDisplayOnset + timeOffset;
-          actualDisplayOnsetClock = actualDisplayOnset + timeOffset;
-          actualDisplayOffsetClock = actualDisplayOffset + timeOffset;
-        } else {
+        if (tag == 'response') {
+          eventOffset = eventStartTimestamp = '.';
           responseValue = response.button_pressed === null ? '.' : response.button_pressed === '0' ? 'L' : 'R';
-          responseExpected = types[response.question].expected == '>' ? 'R' : 'L';
           responseAccuracy = response.correct ? '1' : '0';
-          responseTime = response.duration || '';
-          responseClock = response.start_timestamp + response.duration;
-        }
 
-        if (tag == 'trial') {
-          trialClock = response.start_timestamp
+          responseTouchTimestamp = videoDisplayRequestTimestamp + response.duration;
+          responseTime = response.duration;
+          videoDisplayRequestTimestamp = '.';
         }
 
         return {
-          trialNumber, eventType, stimulusType, eventTypeExt,
-          expectedDisplayOnset, actualDisplayOnset, expectedDisplayOffset, actualDisplayOffset,
-          displayDuration, responseValue, responseExpected, responseAccuracy, responseTime,
-          expectedDisplayOnsetClock, actualDisplayOnsetClock,
-          expectedDisplayOffsetClock, actualDisplayOffsetClock,
-          responseClock, trialClock
+          blockNumber, trialNumber, trialType, eventType,
+          responseValue, responseAccuracy, videoDisplayRequestTimestamp,
+          responseTouchTimestamp, responseTime, eventStartTimestamp, eventOffset
         }
       }
 
-      let displayOffset = 0;
+      let trialStartTimestamp = 0;
 
       for (let i = 0; i < responses.length; i++) {
+        const blockClock = responses[0].start_timestamp;
+
+        if (responses[i].tag == 'fixation') {
+          trialStartTimestamp = responses[i].start_timestamp;
+        }
+
         const response = {
-          ...getResponseObj(responses[i], responses[i].tag, item.inputs, displayOffset),
-          experimentClock: responses[0].start_timestamp
+          ...getResponseObj(responses[i], responses[i].tag, item.inputs, trialStartTimestamp),
+          blockClock, experimentClock,
+          trialStartTimestamp,
+          trialOffset: trialStartTimestamp - blockClock,
         }
         result.push(response);
 
         if (responses[i].tag == 'trial') {
           result.push({
-            ...getResponseObj(responses[i], 'response', item.inputs, displayOffset),
-            experimentClock: responses[0].start_timestamp
+            ...getResponseObj(responses[i], 'response', item.inputs, trialStartTimestamp),
+            blockClock: '.', experimentClock: '.',
+            trialStartTimestamp: '.',
+            trialOffset: trialStartTimestamp - blockClock,
           })
-        }
-
-        if (responses[i].tag == 'trial') {
-          displayOffset = response.actualDisplayOffset;
-        } else {
-          displayOffset += 500;
         }
       }
 
       let otc = new ObjectToCSV({
         keys: [
           {
+            key: 'blockNumber',
+            as: 'block_number',
+          },
+          {
             key: 'trialNumber',
             as: 'trial_number',
+          },
+          {
+            key: 'trialType',
+            as: 'trial_type'
           },
           {
             key: 'eventType',
             as: 'event_type',
           },
           {
-            key: 'stimulusType',
-            as: 'stimulus_type'
+            key: 'experimentClock',
+            as: 'experiment_start_timestamp'
           },
           {
-            key: 'eventTypeExt',
-            as: 'event_type_ext',
+            key: 'blockClock',
+            as: 'block_start_timestamp'
           },
           {
-            key: 'expectedDisplayOnset',
-            as: 'expected_display_onset'
+            key: 'trialStartTimestamp',
+            as: 'trial_start_timestamp'
           },
           {
-            key: 'actualDisplayOnset',
-            as: 'actual_display_onset'
+            key: 'eventStartTimestamp',
+            as: 'event_start_timestamp'
           },
           {
-            key: 'expectedDisplayOffset',
-            as: 'expected_display_offset'
+            key: 'videoDisplayRequestTimestamp',
+            as: 'video_display_request_timestamp'
           },
           {
-            key: 'actualDisplayOffset',
-            as: 'actual_display_offset'
+            key: 'responseTouchTimestamp',
+            as: 'response_touch_timestamp'
           },
           {
-            key: 'displayDuration',
-            as: 'display_duration'
+            key: 'trialOffset',
+            as: 'trial_offset'
           },
           {
-            key: 'responseValue',
-            as: 'response_value'
-          },
-          {
-            key: 'responseExpected',
-            as: 'response_expected'
-          },
-          {
-            key: 'responseAccuracy',
-            as: 'response_accuracy'
+            key: 'eventOffset',
+            as: 'event_offset'
           },
           {
             key: 'responseTime',
             as: 'response_time'
           },
           {
-            key: 'expectedDisplayOnsetClock',
-            as: 'expected_display_onset_clockstamp'
+            key: 'responseValue',
+            as: 'response'
           },
           {
-            key: 'actualDisplayOnsetClock',
-            as: 'actual_display_onset_clockstamp'
-          },
-          {
-            key: 'expectedDisplayOffsetClock',
-            as: 'expected_display_offset_clockstamp'
-          },
-          {
-            key: 'actualDisplayOffsetClock',
-            as: 'actual_display_offset_clockstamp'
-          },
-          {
-            key: 'responseClock',
-            as: 'response_clockstamp'
-          },
-          {
-            key: 'trialClock',
-            as: 'trial_clockstamp'
-          },
-          {
-            key: 'experimentClock',
-            as: 'experiement_clockstamp'
+            key: 'responseAccuracy',
+            as: 'response_accuracy'
           }
         ],
         data: result,
