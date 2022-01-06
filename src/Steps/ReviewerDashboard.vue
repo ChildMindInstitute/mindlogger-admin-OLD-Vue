@@ -1172,7 +1172,9 @@ export default {
 
     setDashboardTabs() {
       for (const itemId in this.applet.items) {
-        if (this.applet.items[itemId].isTokenItem) {
+        const item = this.applet.items[itemId];
+
+        if (item.isTokenItem || item.inputType == 'futureBehaviorTracker' || item.inputType == 'pastBehaviorTracker') {
           this.tabs.push('frequency');
           break;
         }
