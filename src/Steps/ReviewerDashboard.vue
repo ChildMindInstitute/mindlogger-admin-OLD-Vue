@@ -192,7 +192,7 @@
               <v-btn
                 v-if="applet.hasCumulativeActivity"
                 class="ml-2"
-                @click="onDownloadReport"
+                @click="onDownloadReport('cumulative')"
               >
                 Download Report
               </v-btn>
@@ -640,21 +640,23 @@
                   >
                     <Frequency
                       v-if="frequency.chartType == 'frequency'"
-                      ref="frequencyChart"
                       :plot-id="`frequency-${applet.id}`"
                       :applet="applet"
                       :view-type="frequency.viewType"
-                      :parent-width="panelWidth"
                       :has-version-bars="true"
+                      :options="frequency.frequencyChart"
+                      :parent-width="panelWidth"
+                      @setOptions="$set(frequency, 'frequencyChart', $event)"
                     />
 
                     <TokenChart
                       v-if="frequency.chartType == 'token'"
-                      ref="tokenChart"
                       :plot-id="`token-${applet.id}`"
                       :applet="applet"
                       :parent-width="panelWidth"
                       :has-version-bars="true"
+                      :range="frequency.tokenChart.range"
+                      @setRange="frequency.tokenChart.range = $event"
                     />
                   </v-expansion-panels>
                 </v-card>
@@ -664,7 +666,6 @@
         </div>
 
         <vue-html2pdf
-          v-if="applet.hasCumulativeActivity"
           ref="html2Pdf"
           :show-layout="false"
           :float-layout="true"
@@ -691,12 +692,58 @@
           }"
         >
           <section slot="pdf-content">
-            <CumulativeScoreReport
-              :secret-ids="selectedSecretIds"
-              :apply-secret-id-selector="applySecretIdSelector"
-              :activities="applet.activities"
-              :appletImage="applet.data.applet['schema:image']"
-            />
+            <template
+              v-show="pdfReport.type == 'cumulative'"
+            >
+              <CumulativeScoreReport
+                v-if="applet.hasCumulativeActivity"
+                :secret-ids="selectedSecretIds"
+                :apply-secret-id-selector="applySecretIdSelector"
+                :activities="applet.activities"
+                :appletImage="applet.data.applet['schema:image']"
+              />
+            </template>
+
+            <template
+              v-show="pdfReport.type == 'frequency'"
+            >
+              <div
+                class="report-title"
+              >
+                <div>{{ applet.label.en }}</div>
+                <div>Exported on: {{ pdfReport.date }}</div>
+              </div>
+
+              <div
+                v-if="pdfReport.message"
+                class="report-notes"
+              >
+                <Markdown
+                  :source="pdfReport.message"
+                />
+              </div>
+
+              <Frequency
+                :plot-id="`pdf-frequency-${applet.id}`"
+                :applet="applet"
+                :view-type="frequency.viewType"
+                :parent-width="600"
+                :has-version-bars="true"
+                :options="frequency.frequencyChart"
+                format="export"
+              />
+
+              <div class="page-break" />
+
+              <TokenChart
+                :plot-id="`pdf-token-${applet.id}`"
+                :applet="applet"
+                :parent-width="600"
+                :has-version-bars="hasVersionBars"
+                :range="frequency.tokenChart.range"
+                format="export"
+              />
+            </template>
           </section>
         </vue-html2pdf>
       </div>
@@ -712,7 +759,7 @@
 
       <ChartExportDialog
         v-model="chartExportDialog"
-        @export-chart="exportChart"
+        @export-chart="onDownloadReport('frequency', $event)"
       />
     </v-card>
   </div>
@@ -916,6 +963,31 @@
 .view-type-list {
   display: flex;
 }
+
+.report-title {
+  font-size: 15px;
+  padding-left: 20px;
+}
+
+.report-notes {
+  margin-top: 40px;
+  margin-left: 15px;
+
+  font-size: 20px;
+
+  padding: 10px;
+  width: 600px;
+
+  border: 2px solid black;
+  border-radius: 2px;
+  border-bottom: none;
+
+  min-height: 75px;
+}
+
+.page-break {
+  page-break-after: always;
+}
 </style>
 
 <style>
@@ -1036,12 +1108,29 @@ export default {
       },
       frequency: {
         chartType: 'frequency',
-        viewType: 'matrix'
+        viewType: 'matrix',
+
+        tokenChart: {
+          range: '1w'
+        },
+        frequencyChart: {
+          unit: 'hour',
+          range: '1 day',
+          startDate: new Date(),
+          endDate: new Date(),
+          selectedFeature: null
+        }
       },
       secretIDs: [],
       responseDialog: false,
       cachedContents: {},
-      chartExportDialog: false
+      chartExportDialog: false,
+
+      pdfReport: {
+        type: 'cumulative',
+        message: '',
+        date: ''
+      }
     };
   },
 
@@ -1583,18 +1672,18 @@ export default {
       this.$set(this, "focusExtent", focusExtent);
     },
 
-    onDownloadReport() {
-      this.$refs.html2Pdf.generatePdf()
-    },
-
-    exportChart (message) {
-      if (this.frequency.chartType == 'frequency') {
-        this.$refs.frequencyChart[0].exportToPdf(message);
-      } else {
-        this.$refs.tokenChart[0].exportToPdf(message);
-      }
+    onDownloadReport(type='cumulative', message='') {
+      this.$set(this, 'pdfReport', {
+        type,
+        message,
+        date: moment().format('LL')
+      });
 
       this.chartExportDialog = false;
+
+      this.$nextTick(() => {
+        this.$refs.html2Pdf.generatePdf()
+      });
     }
   },
 };

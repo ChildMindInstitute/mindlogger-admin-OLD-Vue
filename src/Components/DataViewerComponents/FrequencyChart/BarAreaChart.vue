@@ -121,7 +121,7 @@
                   <div
                     class="feature-title"
                   >
-                    {{ feature.name.en }}
+                    {{ compressedName(feature.name.en) }}
                   </div>
                   <div
                     class="feature-color"
@@ -145,7 +145,7 @@
             :key="feature.id"
             class="feature"
           >
-            <div class="feature-title">{{ feature.name.en }}</div>
+            <div class="feature-title">{{ compressedName(feature.name.en) }}</div>
             <div class="feature-color" :style="{ background: feature.color }" />
           </div>
         </template>

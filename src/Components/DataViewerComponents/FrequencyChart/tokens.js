@@ -48,11 +48,11 @@ export const aggregate = (features, responses, unit, startTime, endTime) => {
   }
 
   for (const response of responses) {
-    if (response.date < startTime || response.date > endTime) {
+    if (response.date < startTime || response.date >= endTime) {
       continue;
     }
 
-    let index = frequency.findIndex(f => response.date > f.start && response.date < f.end);
+    let index = frequency.findIndex(f => response.date >= f.start && response.date < f.end);
 
     for (const feature of features) {
       if (response[feature.id] || feature.behaviorOption && response.frequency && response.frequency[feature.id]) { 

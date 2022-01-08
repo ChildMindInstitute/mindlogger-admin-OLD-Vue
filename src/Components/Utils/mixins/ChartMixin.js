@@ -10,16 +10,23 @@ export const ChartMixin = {
       type: Array,
       required: true
     },
-    selectedFeature: {
-      type: Object,
-      required: false,
-      default: null
-    },
     data: {
       type: Object,
       required: true
     },
-    unit: {
+    minimumDate: {
+      type: Date,
+      required: true
+    },
+    viewWidth: {
+      type: Number,
+      required: true
+    },
+    viewType: {
+      type: String,
+      required: true
+    },
+    format: {
       type: String,
       required: true
     },
@@ -31,26 +38,19 @@ export const ChartMixin = {
       type: Date,
       required: true
     },
-    minimumDate: {
-      type: Date,
-      required: true
-    },
-    viewWidth: {
-      type: Number,
+    unit: {
+      type: String,
       required: true
     },
     range: {
       type: String,
       required: true
     },
-    viewType: {
-      type: String,
-      required: true
+    selectedFeature: {
+      type: Object,
+      required: false,
+      default: null
     },
-    format: {
-      type: String,
-      required: true
-    }
   },
 
   data() {
@@ -166,6 +166,10 @@ export const ChartMixin = {
     },
 
     compressedName (name) {
+      if (this.format == 'export') {
+        return name.length >= 12 ? name.slice(0, 9) + '...' : name
+      }
+
       return name.length > 30
         ? name.slice(0, 26) + ' …'
         : name
