@@ -561,6 +561,16 @@ export const AppletMixin = {
         }
       }
 
+      for (let i = 0; i < result.length; i++) {
+        if (result[i].trialType == -1) {
+          result[i].trialType = result[i+1].trialType;
+        }
+
+        if (result[i].trialType == 0) {
+          result[i].trialType = result[i-1].trialType;
+        }
+      }
+
       let otc = new ObjectToCSV({
         keys: [
           {
