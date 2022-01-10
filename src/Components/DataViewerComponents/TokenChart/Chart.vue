@@ -28,7 +28,10 @@
       >
         <div class="title">Today you'll earn at least:</div>
         <div class="token-number">
-          <img :src="require('@/assets/token.png')" width="32" /> from {{ applet.activities.length }} activities
+          <img :src="require('@/assets/token.png')" width="32" />
+          {{ todayTokens }}
+          from
+          {{ applet.activities.length }} {{ applet.activities.length > 1 ? 'activities' : 'activity' }}
         </div>
       </div>
     </div>
@@ -447,7 +450,7 @@ export default {
             time: moment.utc(this.startDate),
             text: moment.utc(this.startDate).format('ddd M/DD'),
           },
-          { time: moment.utc(`${date} 09:00`, 'YYYY-MM-DD HH:mm'), text: 'Morning' },
+          { time: moment.utc(`${date} 06:00`, 'YYYY-MM-DD HH:mm'), text: 'Morning' },
           { time: moment.utc(`${date} 12:00`, 'YYYY-MM-DD HH:mm'), text: 'Noon' },
           { time: moment.utc(`${date} 18:00`, 'YYYY-MM-DD HH:mm'), text: 'Evening' },
           {
@@ -487,7 +490,13 @@ export default {
         ticks = ticks.map((tick, index) => {
           let text = tick.time.format(!index || index == ticks.length-1 ? 'MMM DD' : 'MMM');
           if (unit == 'days' || unit == 'weeks') {
-            text = tick.time.format(!index || index == ticks.length-1 ? 'MMM D' : 'D');
+            if (
+              index == 0 || index == ticks.length-1 || range == '3m'
+            ) {
+              text = tick.time.format('MMM D');
+            } else {
+              text = tick.time.format('D');
+            }
           }
           return { ...tick, text }
         })

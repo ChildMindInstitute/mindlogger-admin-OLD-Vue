@@ -324,8 +324,8 @@ export default {
       const scale = this.yScale;
 
       const hf = Math.min(
-        (this.height - this.axisHeight) / 2 / (scale[1] || 1),
-        -(this.height - this.axisHeight) / 2 / (scale[0] || 1)
+        Math.abs((this.height - this.axisHeight) / 2 / (scale[1] || 1)),
+        Math.abs((this.height - this.axisHeight) / 2 / (scale[0] || 1))
       );
 
       return Math.min(hf, 40);
