@@ -300,7 +300,7 @@ export const AppletMixin = {
                         } else {
                           trailsCSVs.push({
                             name: `${nameRegex[1]}.csv`,
-                            data: this.getTrailsLinesAsCSV(value.lines)
+                            data: this.getTrailsLinesAsCSV(value.lines, value.startTime)
                           })
                         }
                       } else if (key == 'text') {
@@ -727,18 +727,15 @@ export const AppletMixin = {
       return otc.getCSV();
     },
 
-    getTrailsLinesAsCSV (lines) {
+    getTrailsLinesAsCSV (lines, startTime) {
       const result = [];
-      let startTime = 0, totalTime = 0, errorCount = 0;
+      let totalTime = 0, errorCount = 0;
 
       for (let i = 0; i < lines.length; i++) {
         let hasError = false;
         for (const point of lines[i].points) {
           if (!point.valid) {
             hasError = true;
-          }
-          if (!startTime) {
-            startTime = point.time;
           }
 
           result.push({
