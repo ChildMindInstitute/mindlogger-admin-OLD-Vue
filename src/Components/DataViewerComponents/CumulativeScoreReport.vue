@@ -56,7 +56,7 @@
           </p>
         </div>
 
-        <div class="mb-4 text-body-2">
+        <div class="text-body-2">
           {{ $t('childScoreOnSubScale', { name: item.category.replace(/_/g, " ") }) }}
           <span class="red--text">{{ item.scoreValue }}</span>
           .
@@ -64,7 +64,7 @@
         </div>
       </div>
     </section>
-    <section class="divider" />
+    <section class="mt-4 divider" />
     <section class="pdf-item">
       <p class="text-footer text-body-1 mb-5">
         {{ $t('termsText') }}
@@ -114,6 +114,9 @@
 }
 .mb-4 {
   margin-bottom: 1em;
+}
+.mt-4 {
+  margin-top: 1em;
 }
 .my-4 {
   margin-top: 1em;
