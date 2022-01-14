@@ -57,10 +57,10 @@
                 :x="xUnit * (index+0.5)"
                 :y="baseLine"
                 :class="unit == 'day' && freq.start.getDay() < 2 ? 'bold-text' : ''"
-                text-anchor="middle"
                 @click.stop="viewDetails(freq)"
               >
-                {{ xTick(freq.start) }}
+                <tspan text-anchor="middle">{{ getWeekDay(freq.start) }}</tspan>
+                <tspan text-anchor="middle" :x="xUnit * (index+0.5)" dy="1.2em">{{ xTick(freq.start) }}</tspan>
               </text>
             </g>
 

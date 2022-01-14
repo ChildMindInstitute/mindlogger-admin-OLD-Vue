@@ -165,6 +165,14 @@ export const ChartMixin = {
       return time.format('MM/DD')
     },
 
+    getWeekDay(date) {
+      if (this.unit === 'day') {
+        return moment.utc(date).format('ddd')
+      }
+
+      return '';
+    },
+
     compressedName (name) {
       if (this.format == 'export') {
         return name.length >= 12 ? name.slice(0, 9) + '...' : name
