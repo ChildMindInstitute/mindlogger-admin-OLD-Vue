@@ -751,7 +751,7 @@ export const AppletMixin = {
           result.push({
             line_number: i.toString(),
             x: point.x.toString(),
-            y: point.y.toString(),
+            y: (335 - point.y).toString(),
             time: (point.time - startTime).toString(),
             error: point.valid ? 'E0' : point.actual != 'none' ?  'E1' : 'E2',
             total_time: '',
