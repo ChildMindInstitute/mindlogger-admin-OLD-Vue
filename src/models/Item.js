@@ -231,7 +231,7 @@ export default class Item {
             }
 
             if(value.impairment !== null) {
-              data.impairment[choice.id].total += Number(value.distress)
+              data.impairment[choice.id].total += Number(value.impairment)
               data.impairment[choice.id].count++;
             }
           }
