@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.12.2] - 2021-12-14
 Fixed weekly tick labels
+Displayed UTC time notice
 
 ## [0.12.1] - 2021-12-10
 Fixed styling issues on safari and ios

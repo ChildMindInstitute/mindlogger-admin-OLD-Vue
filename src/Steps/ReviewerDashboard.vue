@@ -154,6 +154,7 @@
                     </v-time-picker>
                   </v-dialog>
                 </div>
+                <div class="utc-time-alert ml-4"> Time is shown in UTC </div>
               </div>
               <div id="versions" class="version ml-6 mt-2">
                 <v-select
@@ -241,6 +242,9 @@
                 :items="['frequency', 'token']"
                 label="Chart Type"
               />
+              <div v-if="frequency.chartType === 'token'" class="utc-time-alert ml-4"> 
+                Time is shown in UTC 
+              </div>
 
               <v-radio-group
                 v-if="frequency.chartType == 'frequency'"
@@ -268,6 +272,7 @@
                       Bar View
                     </template>
                   </v-radio>
+                  <div class="utc-time-alert ml-4"> Time is shown in UTC </div>
                 </div>
               </v-radio-group>
 
@@ -830,6 +835,14 @@
   font-weight: 600;
   color: #777;
   text-transform: uppercase;
+}
+
+.utc-time-alert {
+  font-size: 16px;
+  font-weight: 500;
+  text-transform: initial;
+  color: #3E3E3E;
+  letter-spacing: .05em;
 }
 
 .secret-id {
