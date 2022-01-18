@@ -715,8 +715,8 @@ export default {
           visible: true,
           requestedAction: ((key) => {
             this.isExporting = true;
-            return this.exportUserData(this.currentApplet, key)
-          }).then(() => this.isExporting = false)
+            return this.exportUserData(this.currentApplet, key).then(() => this.isExporting = false)
+          })
         });
       }
     },
