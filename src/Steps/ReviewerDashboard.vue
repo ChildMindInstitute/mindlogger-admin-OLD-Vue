@@ -697,7 +697,7 @@
           }"
         >
           <section slot="pdf-content">
-            <template
+            <div
               v-show="pdfReport.type == 'cumulative'"
             >
               <CumulativeScoreReport
@@ -707,9 +707,9 @@
                 :activities="applet.activities"
                 :appletImage="applet.data.applet['schema:image']"
               />
-            </template>
+            </div>
 
-            <template
+            <div
               v-show="pdfReport.type == 'frequency'"
             >
               <div
@@ -748,7 +748,7 @@
                 :range="frequency.tokenChart.range"
                 format="export"
               />
-            </template>
+            </div>
           </section>
         </vue-html2pdf>
       </div>
