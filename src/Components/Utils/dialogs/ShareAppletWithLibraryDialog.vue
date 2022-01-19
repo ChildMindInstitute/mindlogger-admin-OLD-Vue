@@ -89,7 +89,7 @@
         </template>
         <template v-else>
           <v-form v-model="valid">
-            <v-container fluid class="d-flex py-0">
+            <v-container fluid class="d-flex py-0 align-center">
               <v-container fluid class="mr-5 pa-0">
                 <v-row v-if="false" align="center">
                   <v-col md="3" class="text-right"> Category: </v-col>
@@ -154,7 +154,7 @@
                   </v-col>
                 </v-row>
               </v-container>
-              <div class="ml-auto pb-5 d-flex text-right">
+              <div class="ml-auto d-flex text-right">
                 <template v-if="!isEditing">
                   <v-btn
                     color="secondary"

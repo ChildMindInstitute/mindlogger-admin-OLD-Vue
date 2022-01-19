@@ -38,6 +38,11 @@ export default {
         employer: {},
         key: 0
       },
+      editUserDialog: {
+        visible: false,
+        user: {},
+        key: 0,
+      },
       appletPasswordDialog: {
         visible: false,
         profile: {},
@@ -232,6 +237,16 @@ export default {
         employer: this.users[item.id],
         key: this.editRoleDialog.key+1
       });
+    },
+
+    onEditUser(item) {
+      const user = Object.values(this.users[item.id])[0];
+
+      this.$set(this, 'editUserDialog', {
+        visible: true,
+        user,
+        key: this.editUserDialog.key+1
+      })
     },
 
     getUserStatus(user) {

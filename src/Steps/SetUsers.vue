@@ -53,6 +53,7 @@
               :reloading="tabData[tab].loading"
               @onReuploadResponse="responseReUploadEvent"
               @userDataReloaded="tabData[tab].loading = false"
+              @onEditUserSuccessfull="onEditUserSuccessfull"
             />
           </v-card>
           <v-card
@@ -376,6 +377,14 @@ export default {
         this.informationDialog = true;
         this.informationText = this.$t('organizerRoleUpdate');
         this.informationTitle = this.$t('organizerRoleUpdateSuccess');
+      })
+    },
+
+    onEditUserSuccessfull() {
+      this.onSwitchTab('users').then(resp => {
+        this.informationDialog = true;
+        this.informationText = this.$t('userDataUpdateSuccess');
+        this.informationTitle = this.$t('userDataUpdate');
       })
     },
 

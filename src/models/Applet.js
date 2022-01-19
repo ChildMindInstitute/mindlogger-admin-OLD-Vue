@@ -14,6 +14,8 @@ import SKOS from '../schema/SKOS';
 import encryptionUtils from '../Components/Utils/encryption/encryption.vue'
 import api from '../Components/Utils/api/api';
 
+import { warmColors, coldColors } from '../core/colors';
+
 export const RESPONSE_COLORS = [
   '#1C7AB3',
   '#FF7F1F',
@@ -42,9 +44,11 @@ export default class Applet {
     this.activities = [];
     this.responses = {};
     this.subScales = {};
-    this.tokens = {};
+    this.token = { cumulative: 0, changes: [] };
     this.hasTokenItem = false;
     this.availableDates = {};
+    this.minimumDate = new Date();
+
     this.reviewerActivity = null;
     this.hasCumulativeActivity = false;
     this.secretIDs = {};
@@ -184,8 +188,34 @@ export default class Applet {
     if (this.encryption) {
       Applet.replaceItemValues(Applet.decryptResponses(data, this.encryption));
 
-      data.tokens.cumulativeToken = data.tokens.cumulativeToken.reduce((total, current) => total + current, 0);
-      this.tokens = data.tokens;
+      this.token.cumulative = data.token.cumulative;
+
+      for (const token of data.token.tokens) {
+        for (const change of token.data) {
+          this.token.changes.push({
+            isTracker: false,
+            spend: change.spend || false,
+            time: change.time,
+            value: change.value
+          })
+        }
+      }
+
+      for (const tracker of data.token.trackers) {
+        this.token.changes.push({
+          isTracker: true,
+          spend: false,
+          time: tracker.time,
+          value: tracker.value
+        })
+      }
+
+      this.token.changes.sort((a, b) => {
+        if (a.time > b.time) return -1;
+        if (a.time < b.time) return 1;
+        return 0;
+      })
+
 
       for (let activityId in data.subScales) {
         for (let subScaleName in data.subScales[activityId]) {
@@ -385,6 +415,10 @@ export default class Applet {
       for (const response of activity.responses) {
         this.availableDates[moment(response.date).format('L')] = response.responseId;
 
+        if (this.minimumDate.getTime() > new Date(response.date).getTime()) {
+          this.minimumDate = response.date;
+        }
+
         for (const response of activity.responses) {
           if (!activity.lastResponseDate || activity.lastResponseDate < response.date) {
               activity.lastResponseDate = response.date;
@@ -470,87 +504,71 @@ export default class Applet {
     return 'None';
   }
 
-  getItemsFormatted() {
-    let merged = [], features = [], last = null;
-    let dateToVersions = {};
-    let hashItems = [];
+  getTokenResponses() {
+    const features = []
+    const responses = []
 
     Object.keys(this.items).forEach(itemId => {
       const item = this.items[itemId];
-      let isAvailable = false;
 
-      if (item.schemas.length < 2) {
-        isAvailable = true;
-      } else if (!hashItems.includes(itemId)) {
-        isAvailable = true;
-        hashItems.push(...item.schemas);
+      if ((!item.isTokenItem || item.inputType != 'radio') && item.inputType != 'futureBehaviorTracker' && item.inputType != 'pastBehaviorTracker') {
+        return ;
       }
 
-      if (item.isTokenItem && item.inputType !== 'stackedRadio' && isAvailable) {
-        // console.log('item.responses=======', item.responses)
-        item.responses.forEach(resp => {
-          let dateStr = moment.utc(resp.date).format('YYYY-MM-DD');
-
-          /** consider that responses are already sorted by date/version */
-          if (last && dateStr == last.date && resp.version == last.version) {
-            for (let choice of item.responseOptions) {
-              if (resp[choice.id]) {
-                last[choice.id] = last[choice.id] ? last[choice.id] + resp[choice.id] : resp[choice.id];
-              }
-            }
-          } else if (resp.version) {
-            dateToVersions[dateStr] = dateToVersions[dateStr] || [];
-            dateToVersions[dateStr].push(resp.version);
-            merged.push({
-              ...resp,
-              date: dateStr,
-              barIndex: dateToVersions[dateStr].length - 1,
-              itemId,
-            });
-
-            last = merged[merged.length - 1];
-          }
-        });
-        item.responseOptions.forEach(choice => {
-          features.push({
-            ...choice,
-            slug: slugify(item.id + choice.id),
-          })
-        });
+      for (const option of item.responseOptions) {
+        features.push({
+          ...option,
+          id: `${item.id}-${option.id}`,
+          slug: slugify(`${item.id}-${option.id}`)
+        })
       }
-    });
 
-    return {
-      data: merged.map(response => {
-        let positive = 0, negative = 0, cummulative = 0;
-        const item = this.items[response.itemId];
+      for (const response of item.responses) {
+        const formatted = { ...response };
 
-        if (item.responseOptions) {
-          for (let choice of item.responseOptions) {
-            let value = Number(response[choice.id]);
-
-            if (value) {
-              positive = value > 0 ? positive + value : positive;
-              negative = value < 0 ? negative + value : negative;
-              if (item.enableNegativeTokens || value > 0) {
-                cummulative += value;
-              }
+        const replaceOptions = (data, item) => {
+          for (const option of item.responseOptions) {
+            if (option.id in data) {
+              data[`${item.id}-${option.id}`] = data[option.id]
+              delete data[option.id]
             }
           }
+
+          return data
+        };
+
+        if (item.inputType == 'futureBehaviorTracker' || item.inputType == 'pastBehaviorTracker') {
+          formatted.frequency = replaceOptions({ ...formatted.frequency }, item)
+          formatted.distress = replaceOptions({ ...formatted.distress }, item)
+          formatted.impairment = replaceOptions({ ...formatted.impairment }, item)
+        } else {
+          formatted = replaceOptions(formatted, item)
         }
 
-        return {
-          ...response,
-          bars: dateToVersions[response.date].length,
-          positive,
-          negative,
-          cummulative,
-          date: moment(response.date).toDate()
-        }
-      }),
-      versionsByDate: dateToVersions,
-      features,
+        responses.push(formatted)
+      }
+    })
+
+    features.sort((a, b) => {
+      if (a.value > b.value) return -1;
+      if (a.value < b.value) return 1;
+      return 0;
+    })
+
+    let positive = 0, negative = 0;
+    for (const feature of features) {
+      if (feature.value < 0) {
+        feature.color = coldColors[negative % coldColors.length];
+
+        negative++;
+      } else {
+        feature.color = warmColors[positive % warmColors.length];
+
+        positive++;
+      }
     }
+
+    return { features, responses }
   }
 
   static compareVersions(version1, version2) {
@@ -598,34 +616,38 @@ export default class Applet {
       }
     }
 
-    if (data.tokens) {
-      for (let i = 0; i < data.tokens.cumulativeToken.length; i++) {
-        const cumulative = data.tokens.cumulativeToken[i];
+    if (data.token) {
+      data.token.tokens.forEach(change => {
+        try {
+          const plain = typeof change.data !== 'object' ? JSON.parse(
+            encryptionUtils.decryptData({
+              text: change.data,
+              key: data.AESKeys[change.key],
+            })
+          ) : change.data;
 
-        if (typeof cumulative.data == 'string') {
-          const decrypted = JSON.parse(encryptionUtils.decryptData({
-            text: cumulative.data,
-            key: data.AESKeys[cumulative.key]
-          }));
-
-          data.tokens.cumulativeToken[i] = decrypted.value;
-        } else {
-          data.tokens.cumulativeToken[i] = cumulative.data.value;
+          change.data = plain;
+        } catch (e) {
+          change.data = []
         }
-      }
+      })
 
-      for (let i = 0; i < data.tokens.tokenUpdates.length; i++) {
-        const tokenUpdate = data.tokens.tokenUpdates[i];
+      data.token.trackers.forEach(tracker => {
+        try {
+          const plain = typeof tracker.data !== 'object' ? JSON.parse(
+            encryptionUtils.decryptData({
+              text: tracker.data,
+              key: data.AESKeys[tracker.key],
+            })
+          ) : tracker.data;
 
-        const decrypted = JSON.parse(encryptionUtils.decryptData({
-          text: tokenUpdate.data,
-          key: data.AESKeys[tokenUpdate.key]
-        }));
+          tracker.data = plain;
+        } catch (e) {
+          tracker.data = null
+        }
+      })
 
-        delete tokenUpdate['data'];
-
-        tokenUpdate.value = decrypted.value;
-      }
+      data.token.trackers = data.token.trackers.filter(tracker => tracker.data)
     }
 
     return data;
@@ -665,16 +687,8 @@ export default class Applet {
       });
     }
 
-    if (data.tokens) {
-      for (let i = 0; i < data.tokens.tokenUpdates.length; i++) {
-        const tokenUpdate = data.tokens.tokenUpdates[i];
+    if (data.token) {
 
-        tokenUpdate.key = 0;
-        tokenUpdate.data = encryptionUtils.encryptData({
-          text: JSON.stringify({ value: tokenUpdate.value }),
-          key: data.AESKeys[tokenUpdate.key]
-        });
-      }
     }
 
     return data;
