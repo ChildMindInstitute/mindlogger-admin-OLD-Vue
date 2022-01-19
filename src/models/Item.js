@@ -6,6 +6,7 @@ import i18n from '../core/i18n';
 import ReproLib from '../schema/ReproLib';
 import SKOS from '../schema/SKOS';
 import slugify from '../core/slugify';
+import { warmColors, coldColors } from '../core/colors';
 import { ReportBase } from 'istanbul-lib-report';
 
 export default class Item {
@@ -15,32 +16,8 @@ export default class Item {
    * @param {Object} data the data for this item.
    */
   constructor(data) {
-    this.warmColors = [
-      '#FDBB93',
-      '#E65751',
-      '#ED7465',
-      '#B83A49',
-      '#6A0A3D',
-      '#edd5b9',
-      '#f2d1c2',
-      '#f39a87',
-      '#c86311',
-      '#582400',
-      '#9a5c08',
-    ];
-    this.coldColors = [
-      '#419DC5',
-      '#70C3D0',
-      '#BEE0CC',
-      '#223B89',
-      '#316BA7',
-      '#1976D2',
-      '#6a7177',
-      '#afb3b6',
-      '#ed91b6',
-      '#e03e91',
-      '#af035b'
-    ];
+    this.warmColors = [...warmColors];
+    this.coldColors = [...coldColors];
 
     this.data = data;
     this.id = data['@id'];
@@ -141,6 +118,22 @@ export default class Item {
       return _.get(responseOptions, [0, 'reprolib:terms/sliderOptions'], []).map(option => ({
         name: i18n.arrayToObject(option['schema:sliderLabel'])
       }))
+    } else if (inputType == 'pastBehaviorTracker' || inputType == 'futureBehaviorTracker') {
+      const positiveOptions = _.get(responseOptions, [0, 'reprolib:terms/positiveBehaviors'], []).map(option => ({
+        name: i18n.arrayToObject(option['schema:name']),
+        value: Number(_.get(option, ['schema:value', 0, '@value'], '0'))
+      }))
+
+      const negativeOptions = _.get(responseOptions, [0, 'reprolib:terms/negativeBehaviors'], []).map(option => ({
+        name: i18n.arrayToObject(option['schema:name']),
+        value: -Number(_.get(option, ['schema:value', 0, '@value'], '0'))
+      }))
+
+      return positiveOptions.concat(negativeOptions).map(choice => ({
+        ...choice,
+        id: `${Object.values(choice.name)[0]} (${choice.value || 0})`,
+        behaviorOption: true
+      }));
     }
 
     return null;
@@ -211,6 +204,40 @@ export default class Item {
           responseId: response.responseId,
           secretId: (secretIDs[response.responseId] || null)
         };
+      }
+
+      if (inputType == 'pastBehaviorTracker' || inputType == 'futureBehaviorTracker') {
+        const data = {
+          date: new Date(response.date),
+          version: response.version,
+          responseId: response.responseId,
+          frequency: {},
+          distress: {},
+          impairment: {}
+        }
+
+        for (const option in response.value[0]) {
+          const choice = this.getChoice(option, response.version)
+          const values = response.value[0][option];
+
+          data.frequency[choice.id] = values.length
+          data.distress[choice.id] = { total: 0, count: 0 }
+          data.impairment[choice.id] = { total: 0, count: 0 }
+
+          for (const value of values) {
+            if (value.distress !== null) {
+              data.distress[choice.id].total += Number(value.distress)
+              data.distress[choice.id].count++;
+            }
+
+            if(value.impairment !== null) {
+              data.impairment[choice.id].total += Number(value.impairment)
+              data.impairment[choice.id].count++;
+            }
+          }
+        }
+
+        return data
       }
 
       return response.value.reduce(

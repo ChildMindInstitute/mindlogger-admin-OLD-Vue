@@ -2,11 +2,6 @@
   <div class="cumulative-score-report">
     <section class="pdf-item" v-for="({ activity, reportMessages }, index) in activityResponses" :key="activity.id">
       <div
-        v-if="splashScreenType(activity) === 'image' && index"
-        class="html2pdf__page-break splash-screen"
-        :style="'margin-bottom:' + 2 * (index + 1) + 'px'"
-      />
-      <div
         v-if="splashScreenType(activity) === 'image'"
         class="html2pdf__page-break splash-screen"
         :style="'margin-bottom:' + 2 * (index + 1) + 'px'"
@@ -38,7 +33,7 @@
         </p>
         <div class="score-area mb-4">
           <p class="score-title text-body-2 text-nowrap" :style="{ left: `max(90px, ${(item.scoreValue / item.maxScoreValue) * 100}%)` }">
-            <b>Your Child's Score</b>
+            <b>{{ $t('childScore') }}</b>
           </p>
           <div
             class="score-bar score-below"
@@ -61,21 +56,21 @@
           </p>
         </div>
 
-        <div class="mb-4 text-body-2">
-          Your child’s score on the {{ item.category.replace(/_/g, " ") }} subscale was
+        <div class="text-body-2">
+          {{ $t('childScoreOnSubScale', { name: item.category.replace(/_/g, " ") }) }}
           <span class="red--text">{{ item.scoreValue }}</span>
           .
           <markdown :source="item.message.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
         </div>
       </div>
     </section>
-    <section class="divider" />
+    <section class="mt-4 divider" />
     <section class="pdf-item">
       <p class="text-footer text-body-1 mb-5">
-        {{ termsText }}
+        {{ $t('termsText') }}
       </p>
       <p class="text-footer text-body-3">
-        {{ footerText }}
+        {{ $t('pdfFooterText') }}
       </p>
     </section>
   </div>
@@ -119,6 +114,9 @@
 }
 .mb-4 {
   margin-bottom: 1em;
+}
+.mt-4 {
+  margin-top: 1em;
 }
 .my-4 {
   margin-top: 1em;
@@ -288,7 +286,7 @@ export default {
               break;
             }
 
-            lastResponseIndex --;
+            lastResponseIndex--;
           }
 
           if (lastResponseIndex < 0) {
@@ -298,16 +296,20 @@ export default {
 
         for (let i = 0; i < activity.items.length; i++) {
           const { variableName, responses } = activity.items[i];
-          if (!variableName || !responses) continue;
+          try {
+            if (!variableName && !responses) continue;
 
-          let score = getScoreFromResponse(
-            activity.items[i],
-            responses[lastResponseIndex][variableName]
-              ? responses[lastResponseIndex][variableName]
-              : responses[lastResponseIndex]
-          );
-          scores.push(score);
-          maxScores.push(getMaxScore(activity.items[i]));
+            let score = getScoreFromResponse(
+              activity.items[i],
+              responses[lastResponseIndex][variableName]
+                ? responses[lastResponseIndex][variableName]
+                : responses[lastResponseIndex]
+            );
+            scores.push(score);
+            maxScores.push(getMaxScore(activity.items[i]));
+          } catch (error) {
+            console.log("ERR: ", error);
+          }
         }
 
         const cumulativeScores = activity.compute.reduce(
@@ -362,24 +364,27 @@ export default {
                   )
                 : cumulativeScores[category],
           };
-
-          if (expr.evaluate(variableScores)) {
-            if (nextActivity) cumActivities.push(nextActivity);
-
-            const compute = activity.compute.find(
-              (itemCompute) => itemCompute.variableName.trim() == variableName.trim()
-            );
-
-            reportMessages.push({
-              category,
-              message,
-              score: variableScores[key ? key : category] + (outputType == "percentage" ? "%" : ""),
-              compute,
-              jsExpression: jsExpression.substr(variableName.length),
-              scoreValue: cumulativeScores[category],
-              maxScoreValue: cumulativeMaxScores[category],
-              exprValue: outputType == "percentage" ? (exprValue * cumulativeMaxScores[category]) / 100 : exprValue,
-            });
+          try {
+            if (expr.evaluate(variableScores)) {
+              if (nextActivity) cumActivities.push(nextActivity);
+  
+              const compute = activity.compute.find(
+                (itemCompute) => itemCompute.variableName.trim() == variableName.trim()
+              );
+  
+              reportMessages.push({
+                category,
+                message,
+                score: variableScores[key ? key : category] + (outputType == "percentage" ? "%" : ""),
+                compute,
+                jsExpression: jsExpression.substr(variableName.length),
+                scoreValue: cumulativeScores[category],
+                maxScoreValue: cumulativeMaxScores[category],
+                exprValue: outputType == "percentage" ? (exprValue * cumulativeMaxScores[category]) / 100 : exprValue,
+              });
+            }            
+          } catch (error) {
+            console.log("ERR: ", error);
           }
         });
         activityResponses.push({
