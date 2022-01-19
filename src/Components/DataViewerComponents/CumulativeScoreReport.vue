@@ -384,8 +384,7 @@ export default {
               });
             }            
           } catch (error) {
-            console.log("ERR: ", error);
-          }
+            console.log("ERR: ", error);          }
         });
         activityResponses.push({
           activity,
