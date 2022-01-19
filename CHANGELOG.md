@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
+## [0.13.0] - 2022-01-18
+Improvements:
+- Flanker 
+  * The name was changed to Flanker_360
+  * User’s instructions were updated 
+  * The data export was updated with better column headers and stimulus types 
+- Stability Tracker 
+  * The name of the Stability tracker activites were updated
+  * Lambda scope was updated to 20
+  * 15 second off target crash was removed 
+- A/B Trails 
+  * The names of the A/B Trails activities were updated: 
+  * Instructions were updated with “You will take a pen” and instead of instructions playing like a video, the user clicks the next button between each sentence. 
+  * The green around starting points is removed when the user starts 
+  * When the user makes a mistake, the error is shown in less time 
+  * Updates to the data export to align stimulus locations and user input were completed 
+- Coordinate Updates: Coordinates that are collected for the draw and cognitive activities were updated 
+- Export Column Names: The names were updated to use snake_case
+
 ## [0.12.3] - 2022-01-15
 - Fix data export in A/B Trails
 
