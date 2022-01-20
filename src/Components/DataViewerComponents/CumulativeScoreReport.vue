@@ -382,7 +382,7 @@ export default {
                 maxScoreValue: cumulativeMaxScores[category],
                 exprValue: outputType == "percentage" ? (exprValue * cumulativeMaxScores[category]) / 100 : exprValue,
               });
-            }            
+            }
           } catch (error) {
             console.log("ERR: ", error);
           }
