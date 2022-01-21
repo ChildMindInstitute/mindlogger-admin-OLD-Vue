@@ -205,8 +205,8 @@ export default class Applet {
         this.token.changes.push({
           isTracker: true,
           spend: false,
-          time: tracker.time,
-          value: tracker.value
+          time: tracker.data.time,
+          value: tracker.data.value
         })
       }
 
