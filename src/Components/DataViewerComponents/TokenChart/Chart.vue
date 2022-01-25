@@ -15,11 +15,8 @@
         class="yesterday-tokens"
       >
         <img :src="require('@/assets/token.png')" width="32" />
-        <span class="token-number">{{ pastTokens.toLocaleString() }}</span>
-        <span v-if="currentInterval.unit == 'days'">yesterday</span>
-        <span v-if="currentInterval.unit == 'weeks'">past week</span>
-        <span v-if="currentInterval.unit == 'months'">past month</span>
-        <span v-if="currentInterval.unit == 'year'">last year</span>
+        <span class="token-number">{{ pastTokenValue.toLocaleString() }}</span>
+        <span>{{pastTokenLabel}}</span>
       </div>
     </div>
 
@@ -475,21 +472,56 @@ export default {
       }))
     },
 
-    pastTokens () {
-      if (!this.currentInterval) {
-        return 0;
+    pastTokenLabel() {
+      const { range } = this.currentInterval;
+
+      switch (range) {
+        case 'Today':
+          return 'yesterday';
+        case '1w':
+          return 'past week';
+        case '2w':
+          return 'past 2 weeks';
+        case '1m':
+          return 'past month';
+        case '3m':
+          return 'past 3 months';
+        case '1y':
+          return 'past year';
       }
 
-      const unit = this.currentInterval ? this.currentInterval.unit : 'days';
-      const range = [
-        moment.utc(this.endDate).subtract(1, unit).toDate(),
-        moment.utc(this.endDate).subtract(2, unit).toDate()
-      ]
+      return '';
+    },
+
+    pastTokenValue () {
+      const { range } = this.currentInterval;
+      const current = new Date(this.endDate);
+      const startDate = new Date(this.startDate.getTime());
+      let days = 0;
+
+      current.setDate(current.getDate() - 1);
+      startDate.setDate(startDate.getDate() - 1);
+
+      switch (range) {
+        case 'Today':
+          break;
+        case '1w': case '2w':
+          days = moment.utc(current).day();
+          break;
+        case '1m': case '3m':
+          days = moment.utc(current).date();
+          break;
+        case '1y':
+          days = moment.utc(current).dayOfYear();
+      }
+
+      current.setDate(current.getDate() - days + 1);
+      startDate.setDate(startDate.getDate() - days + 1);
 
       let tokens = 0;
 
       for (const change of this.applet.token.changes) {
-        if (change.time < range[0].getTime() && change.time > range[1].getTime()) {
+        if (change.time > startDate.getTime() && change.time < current.getTime()) {
           tokens += change.value;
         }
       }
