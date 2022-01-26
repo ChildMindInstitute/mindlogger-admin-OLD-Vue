@@ -63,6 +63,15 @@
             {{ error }}
           </div>
 
+          <div class="d-flex align-center">
+            <v-checkbox
+              v-model="terms"
+              :disabled="disabled"
+            />
+
+            <label class="mx-2 mb-1">I agree to the <a href="https://mindlogger.org/terms" target="_blacnk">Terms of Service</a></label>
+          </div>
+
           <v-btn
             outlined
             color="primary"
@@ -73,6 +82,7 @@
           <v-btn
             color="primary"
             @click="createAccount"
+            :disabled="!terms"
           >
             {{ $t("createAccount") }}
           </v-btn>
@@ -111,6 +121,7 @@ export default {
       password: "",
       passwordRules: [(v) => !!v || this.$i18n.t("passwordRequired")],
       error: "",
+      terms: false
     }
   },
 
