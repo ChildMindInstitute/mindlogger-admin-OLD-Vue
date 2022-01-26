@@ -82,7 +82,7 @@ export const aggregate = (features, responses, unit, startTime, endTime) => {
 
   const getAverage = (d) => {
     if (!d || !d.count) return 0;
-    return d.total / d.count;
+    return (d.total / d.count).toFixed(3);
   }
 
   for (let i = 0; i < distress.length; i++) {
