@@ -111,6 +111,7 @@ export default {
   activities: 'Activités',
   exportSchema: 'Exporter le schema',
   downloadSchema: 'Télécharger le schema',
+  downloadReport: 'Télécharger le rapport',
   resetBuilder: 'Réinitialiser le constructeur',
   activityName: "Nom de l'activité",
   activityDescription: "Description de l'activité",
