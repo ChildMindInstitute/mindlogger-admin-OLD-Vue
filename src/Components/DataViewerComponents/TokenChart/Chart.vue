@@ -80,7 +80,7 @@
         <svg
           :id="`token-chart-${plotId}`"
           :width="parentWidth"
-          :height="height + axisHeight"
+          :height="height + axisHeight + 10"
         >
           <polygon
             :fill="fillColor"
@@ -136,14 +136,14 @@
                 <circle
                   :key="`circle-${index}`"
                   :cx="point.x"
-                  :cy="height"
+                  :cy="exportFormat ? axisHeight + height : height"
                   r="7"
                   :fill="pathColor"
                 />
 
                 <polygon
                   :key="`star-${index}`"
-                  :points="getStarCoordinates(point.x, height + axisHeight - 5, 5)"
+                  :points="getStarCoordinates(point.x, exportFormat ? axisHeight + height : height, 5)"
                   fill="white"
                 />
               </template>
@@ -421,15 +421,23 @@ export default {
           },
         ]
       } else {
+        let amount = 1;
+
         switch (range) {
-          case '1w': case '2w': case '1m':  // day view
-            unit = 'days';
+          case '1w':
+            unit = 'days'; amount = 1;
             break;
-          case '3m':  // week view
-            unit = 'weeks';
+          case '2w':
+            unit = 'days'; amount = this.exportFormat ? 2 : 1;
             break;
-          case '1y': // month view
-            unit = 'months';
+          case '1m':
+            unit = 'days'; amount = this.exportFormat ? 4 : 2;
+            break;
+          case '3m':
+            unit = 'weeks'; amount = this.exportFormat ? 2 : 1;
+            break;
+          case '1y':
+            unit = 'months'; amount = 2;
             break;
         }
 
@@ -446,7 +454,7 @@ export default {
             })
           }
 
-          tick = tick.add(1, unit)
+          tick = tick.add(amount, unit)
         }
 
         ticks = ticks.map((tick, index) => {
