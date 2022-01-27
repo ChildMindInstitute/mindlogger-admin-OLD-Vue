@@ -230,6 +230,10 @@
               >
                 {{ reviewingTime }}
               </v-btn>
+
+              <div class="utc-time-alert ml-4">
+                Time is shown in UTC
+              </div>
             </div>
             <div
               v-else-if="this.tabs[selectedTab] == 'frequency'"
@@ -242,9 +246,6 @@
                 :items="['frequency', 'token']"
                 label="Chart Type"
               />
-              <div v-if="frequency.chartType === 'token'" class="utc-time-alert ml-4">
-                Time is shown in UTC
-              </div>
 
               <v-radio-group
                 v-if="frequency.chartType == 'frequency'"
@@ -272,9 +273,12 @@
                       Bar View
                     </template>
                   </v-radio>
-                  <div class="utc-time-alert ml-4"> Time is shown in UTC </div>
                 </div>
               </v-radio-group>
+
+              <div class="utc-time-alert" :class="frequency.chartType == 'frequency' ? '' : 'ml-4'">
+                Time is shown in UTC
+              </div>
 
               <v-spacer />
 
