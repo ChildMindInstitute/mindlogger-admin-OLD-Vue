@@ -195,7 +195,7 @@
                 class="ml-2"
                 @click="onDownloadReport('cumulative')"
               >
-                Download Report
+                {{ $t('downloadReport') }}
               </v-btn>
             </div>
             <div
@@ -242,8 +242,8 @@
                 :items="['frequency', 'token']"
                 label="Chart Type"
               />
-              <div v-if="frequency.chartType === 'token'" class="utc-time-alert ml-4"> 
-                Time is shown in UTC 
+              <div v-if="frequency.chartType === 'token'" class="utc-time-alert ml-4">
+                Time is shown in UTC
               </div>
 
               <v-radio-group
