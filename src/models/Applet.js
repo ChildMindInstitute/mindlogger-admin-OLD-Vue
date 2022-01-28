@@ -537,13 +537,7 @@ export default class Applet {
           return data
         };
 
-        if (item.inputType == 'futureBehaviorTracker' || item.inputType == 'pastBehaviorTracker') {
-          formatted.frequency = replaceOptions({ ...formatted.frequency }, item)
-          formatted.distress = replaceOptions({ ...formatted.distress }, item)
-          formatted.impairment = replaceOptions({ ...formatted.impairment }, item)
-        } else {
-          formatted = replaceOptions(formatted, item)
-        }
+        formatted = replaceOptions(formatted, item)
 
         responses.push(formatted)
       }
