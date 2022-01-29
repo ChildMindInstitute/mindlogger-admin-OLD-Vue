@@ -428,13 +428,13 @@ export default {
             unit = 'days'; amount = 1;
             break;
           case '2w':
-            unit = 'days'; amount = this.exportFormat ? 2 : 1;
+            unit = 'days'; amount = 1;
             break;
           case '1m':
-            unit = 'days'; amount = this.exportFormat ? 4 : 2;
+            unit = 'days'; amount = 2;
             break;
           case '3m':
-            unit = 'weeks'; amount = this.exportFormat ? 2 : 1;
+            unit = 'weeks'; amount = 1;
             break;
           case '1y':
             unit = 'months'; amount = 2;

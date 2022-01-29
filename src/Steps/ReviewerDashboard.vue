@@ -685,9 +685,9 @@
           :manual-pagination="true"
           pdf-format="a4"
           pdf-orientation="landscape"
-          pdf-content-width="800px"
+          :pdf-content-width="pdfReport.type == 'cumulative' ? '800px' : '1200px'"
           :html-to-pdf-options="{
-            margin: 50,
+            margin: [50, pdfReport.type == 'cumulative' ? 50 : 0],
             enableLinks: true,
             html2canvas: {
               scale: 1,
@@ -696,7 +696,7 @@
             jsPDF: {
               unit: 'pt',
               format: 'a4',
-              orientation: 'portrait',
+              orientation: pdfReport.type == 'cumulative' ? 'portrait' : 'landscape',
             },
           }"
         >
@@ -736,7 +736,7 @@
                 :plot-id="`pdf-frequency-${applet.id}`"
                 :applet="applet"
                 :view-type="frequency.viewType"
-                :parent-width="600"
+                :parent-width="1100"
                 :has-version-bars="true"
                 :options="frequency.frequencyChart"
                 format="export"
@@ -747,7 +747,7 @@
               <TokenChart
                 :plot-id="`pdf-token-${applet.id}`"
                 :applet="applet"
-                :parent-width="600"
+                :parent-width="1100"
                 :has-version-bars="hasVersionBars"
                 :range="frequency.tokenChart.range"
                 format="export"
