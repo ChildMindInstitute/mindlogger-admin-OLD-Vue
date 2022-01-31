@@ -269,12 +269,12 @@ export default {
           svg
             .select(`.responses .${feature.slug}`)
             .append('circle')
-            .attr('fill', total ? feature.color : '#EFEFEF')
-            .attr('fill-opacity', total ? freq / this.maxFrequency : 1)
+            .attr('fill', total ? feature.color : 'white')
+            .attr('fill-opacity', total ? !freq ? 0 : (freq / this.maxFrequency * 0.95 + 0.05) : 1)
             .attr('cx', x)
             .attr('cy', y)
             .attr('r', this.radius)
-            .attr('stroke', 'rgb(44, 82, 141)')
+            .attr('stroke', total ? 'rgb(44, 82, 141)' : '#DEDEDE')
             .attr('stroke-width', 1)
             .on('mouseover', () => {
               this.tooltip = {
