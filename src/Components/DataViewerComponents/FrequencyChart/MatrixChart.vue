@@ -270,7 +270,7 @@ export default {
             .select(`.responses .${feature.slug}`)
             .append('circle')
             .attr('fill', total ? feature.color : 'white')
-            .attr('fill-opacity', total ? !freq ? 0 : (freq / this.maxFrequency * 0.95 + 0.05) : 1)
+            .attr('fill-opacity', total ? !freq ? 0 : (freq / this.maxFrequency * 0.8 + 0.2) : 1)
             .attr('cx', x)
             .attr('cy', y)
             .attr('r', this.radius)
