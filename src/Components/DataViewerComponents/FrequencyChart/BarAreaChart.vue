@@ -279,7 +279,7 @@ export default {
 
   data() {
     return {
-      height: 500,
+      height: this.format == 'export' ? 350 : 500,
       axisHeight: 40,
 
       tooltip: {

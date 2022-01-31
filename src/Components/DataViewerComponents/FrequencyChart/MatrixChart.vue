@@ -52,7 +52,7 @@
               v-for="(freq, index) in data.frequency"
               :key="index"
               :x="xUnit * (index+0.5)"
-              :y="baseLine"
+              :y="baseLine - 5"
               :class="unit == 'day' && freq.start.getDay() < 2 ? 'bold-text' : ''"
               @click.stop="viewDetails(freq)"
             >

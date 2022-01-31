@@ -22,33 +22,31 @@
 
     <svg
       v-if="!exportFormat"
-      viewBox="0 0 400 43"
+      viewBox="0 0 230 50"
       width="100%"
       :height="parentWidth * 43 / 400"
     >
-      <mask id="pathMask">
-        <rect x="10" y="0" width="380" height="43" fill="white"></rect>
-      </mask>
-
-      <filter id="dropShadow">
-        <feGaussianBlur in="SourceGraphic" stdDeviation="1" />
-        <feOffset dx="0" dy="1" />
-        <feMerge>
-            <feMergeNode />
-            <feMergeNode in="SourceGraphic" />
-        </feMerge>
-      </filter>
-      <path
-        fill="rgb(200, 200, 200)"
-        :d="splitPath"
-        mask="url(#pathMask)"
-        filter="url(#dropShadow)"
-      />
-      <path
-        :fill="pathColor"
-        :d="splitPath"
-        mask="url(#pathMask)"
-      />
+      <defs>
+        <filter id="dropShadow">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="1" />
+          <feOffset dx="0" dy="1" />
+          <feMerge>
+              <feMergeNode />
+              <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      <g transform="translate(-100 -150)">
+        <path
+          fill="rgb(200, 200, 200)"
+          :d="splitPath"
+          filter="url(#dropShadow)"
+        />
+        <path
+          :fill="pathColor"
+          :d="splitPath"
+        />
+      </g>
     </svg>
 
     <div
@@ -82,7 +80,7 @@
         <svg
           :id="`token-chart-${plotId}`"
           :width="parentWidth"
-          :height="height + axisHeight"
+          :height="height + axisHeight + 10"
         >
           <polygon
             :fill="fillColor"
@@ -138,14 +136,14 @@
                 <circle
                   :key="`circle-${index}`"
                   :cx="point.x"
-                  :cy="height"
+                  :cy="exportFormat ? axisHeight + height : height"
                   r="7"
                   :fill="pathColor"
                 />
 
                 <polygon
                   :key="`star-${index}`"
-                  :points="getStarCoordinates(point.x, height + axisHeight - 5, 5)"
+                  :points="getStarCoordinates(point.x, exportFormat ? axisHeight + height : height, 5)"
                   fill="white"
                 />
               </template>
@@ -423,15 +421,23 @@ export default {
           },
         ]
       } else {
+        let amount = 1;
+
         switch (range) {
-          case '1w': case '2w': case '1m':  // day view
-            unit = 'days';
+          case '1w':
+            unit = 'days'; amount = 1;
             break;
-          case '3m':  // week view
-            unit = 'weeks';
+          case '2w':
+            unit = 'days'; amount = 1;
             break;
-          case '1y': // month view
-            unit = 'months';
+          case '1m':
+            unit = 'days'; amount = 2;
+            break;
+          case '3m':
+            unit = 'weeks'; amount = 1;
+            break;
+          case '1y':
+            unit = 'months'; amount = 2;
             break;
         }
 
@@ -448,7 +454,7 @@ export default {
             })
           }
 
-          tick = tick.add(1, unit)
+          tick = tick.add(amount, unit)
         }
 
         ticks = ticks.map((tick, index) => {
@@ -614,14 +620,7 @@ export default {
     },
 
     splitPath () {
-      return `M 1.00,42.00 C 1.08,39.61 0.95,37.38 2.60,35.42 4.34,33.34 8.44,32.14 11.00,31.35 11.00,31.35 32.00,26.21 32.00,26.21 65.58,19.06 99.78,17.60 134.00,18.00
-        134.00,18.00 149.00,19.00 149.00,19.00 149.00,19.00 164.00,19.91 164.00,19.91 164.00,19.91 211.00,24.17 211.00,24.17
-        211.00,24.17 227.00,26.00 227.00,26.00 227.00,26.00 236.00,26.00 236.00,26.00 236.00,26.00 248.00,27.00 248.00,27.00 248.00,27.00 284.00,27.00 284.00,27.00
-        284.00,27.00 296.00,26.09 296.00,26.09 317.21,24.64 337.33,21.62 358.00,16.47 358.00,16.47 369.00,13.96 369.00,13.96 379.55,10.83 386.23,7.21 395.97,3.00
-        396.36,4.72 396.92,5.87 395.97,7.61 394.77,9.67 391.13,10.96 389.00,11.77 389.00,11.77 372.00,17.66 372.00,17.66 359.77,21.57 329.44,27.85 317.00,28.00
-        317.00,28.00 285.00,30.00 285.00,30.00 285.00,30.00 246.00,30.00 246.00,30.00 246.00,30.00 225.00,29.00 225.00,29.00 225.00,29.00 212.00,28.00 212.00,28.00
-        212.00,28.00 159.00,25.00 159.00,25.00 159.00,25.00 142.00,24.00 142.00,24.00 142.00,24.00 112.00,24.00 112.00,24.00 112.00,24.00 93.00,25.00 93.00,25.00 81.25,25.14 47.41,29.04 36.00,31.89
-        36.00,31.89 16.00,37.70 16.00,37.70 16.00,37.70 7.00,41.21 7.00,41.21 4.80,41.84 3.24,41.89 1.00,42.00 Z`
+      return `M425.511,153s-55.746,35.923-214.418,21.194S-2.489,191.822-2.489,191.822v-6.975s61.207-31.01,213.582-13.805,214.418-21.707,214.418-21.707Z`;
     }
   },
 
