@@ -442,7 +442,8 @@ export default {
     if (this.currentRole !== 'user') {
       headers = headers.filter(header =>
         header.value != 'MRN' &&
-        header.value !== 'pinned'
+        header.value !== 'pinned' &&
+        header.value !== 'nickName'
       );
     } else {
       headers = headers.filter(header =>
