@@ -295,7 +295,7 @@ export const AppletMixin = {
                         if (item.inputType == 'drawing') {
                           drawingCSVs.push({
                             name: `${nameRegex[1]}.csv`,
-                            data: this.getDrawingLinesAsCSV(value.lines)
+                            data: this.getDrawingLinesAsCSV(value.lines, value.width)
                           });
                         } else {
                           trailsCSVs.push({
@@ -793,14 +793,14 @@ export const AppletMixin = {
       return otc.getCSV();
     },
 
-    getDrawingLinesAsCSV(lines) {
+    getDrawingLinesAsCSV(lines, width=376) {
       const result = [];
       for (let i = 0; i < lines.length; i++) {
         for (const point of lines[i].points) {
           result.push({
             line_number: i.toString(),
-            x: point.x.toString(),
-            y: (100 - point.y).toString(),
+            x: (point.x / width * 100).toString(),
+            y: (100 - point.y / width * 100).toString(),
             time: typeof point.time === "number" ? moment.utc(point.time).format("YYYY-MM-DD HH:mm:ss") : point.time || '',
           });
         }
