@@ -336,6 +336,29 @@ export default {
     }
   },
 
+  watch: {
+    range () {
+      const endDate = new Date(moment(new Date()).format('YYYY/MM/DD'));
+
+      switch (this.range) {
+        case 'Today': case 'All':
+          endDate.setDate(endDate.getDate() + 1);
+          break;
+        case '1w': case '2w':
+          endDate.setDate(endDate.getDate() + 1);
+          break;
+        case '1m': case '3m':
+          endDate.setDate(1);
+          break;
+        case '1y':
+          endDate.setDate(1); endDate.setMonth(0);
+          break;
+      }
+
+      this.endDate = endDate;
+    }
+  },
+
   computed: {
     exportFormat () {
       return this.format == 'export';
@@ -514,11 +537,9 @@ export default {
         case '1w': case '2w':
           days = moment.utc(current).day();
           break;
-        case '1m': case '3m':
-          days = moment.utc(current).date();
+        case '1m': case '3m': case '1y':
+          days = 0;
           break;
-        case '1y':
-          days = moment.utc(current).dayOfYear();
       }
 
       current.setDate(current.getDate() - days + 1);
@@ -573,6 +594,12 @@ export default {
 
       const points = []
       let cumulative = this.cumulative;
+
+      for (const change of this.applet.token.changes) {
+        if (change.time > endTime) {
+          cumulative = Math.max(0, cumulative-change.value)
+        }
+      }
 
       for (let i = 0; i < changes.length; i++) {
         if (changes[i].value) {
