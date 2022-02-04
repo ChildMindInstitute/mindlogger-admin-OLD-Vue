@@ -295,12 +295,12 @@ export const AppletMixin = {
                         if (item.inputType == 'drawing') {
                           drawingCSVs.push({
                             name: `${nameRegex[1]}.csv`,
-                            data: this.getDrawingLinesAsCSV(value.lines)
+                            data: this.getDrawingLinesAsCSV(value.lines, value.width || 100)
                           });
                         } else {
                           trailsCSVs.push({
                             name: `${nameRegex[1]}.csv`,
-                            data: this.getTrailsLinesAsCSV(value.lines, value.startTime)
+                            data: this.getTrailsLinesAsCSV(value.lines, value.startTime, value.width || 100)
                           })
                         }
                       } else if (key == 'text') {
@@ -737,7 +737,7 @@ export const AppletMixin = {
       return otc.getCSV();
     },
 
-    getTrailsLinesAsCSV (lines, startTime) {
+    getTrailsLinesAsCSV (lines, startTime, width) {
       const result = [];
       let totalTime = 0, errorCount = 0;
 
@@ -750,8 +750,8 @@ export const AppletMixin = {
 
           result.push({
             line_number: i.toString(),
-            x: point.x.toString(),
-            y: (100 - point.y).toString(),
+            x: (point.x / width * 100).toString(),
+            y: (100 - point.y / width * 100).toString(),
             time: (point.time - startTime).toString(),
             error: point.valid ? 'E0' : point.actual != 'none' ?  'E1' : 'E2',
             total_time: '',
@@ -793,14 +793,14 @@ export const AppletMixin = {
       return otc.getCSV();
     },
 
-    getDrawingLinesAsCSV(lines) {
+    getDrawingLinesAsCSV(lines, width) {
       const result = [];
       for (let i = 0; i < lines.length; i++) {
         for (const point of lines[i].points) {
           result.push({
             line_number: i.toString(),
-            x: point.x.toString(),
-            y: (100 - point.y).toString(),
+            x: (point.x / width * 100).toString(),
+            y: (100 - point.y / width * 100).toString(),
             time: typeof point.time === "number" ? moment.utc(point.time).format("YYYY-MM-DD HH:mm:ss") : point.time || '',
           });
         }
