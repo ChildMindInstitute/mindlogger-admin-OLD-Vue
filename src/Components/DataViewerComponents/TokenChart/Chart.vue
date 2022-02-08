@@ -507,31 +507,10 @@ export default {
 
     pastTokenValue () {
       const { range } = this.currentInterval;
-      const current = new Date(this.endDate);
-      const startDate = new Date(this.startDate.getTime());
-      let days = 0;
-
-      current.setDate(current.getDate() - 1);
-      startDate.setDate(startDate.getDate() - 1);
-
-      switch (range) {
-        case 'Today':
-          break;
-        case '1w': case '2w':
-          days = moment.utc(current).day();
-          break;
-        case '1m': case '3m': case '1y':
-          days = 0;
-          break;
-      }
-
-      current.setDate(current.getDate() - days + 1);
-      startDate.setDate(startDate.getDate() - days + 1);
 
       let tokens = 0;
-
       for (const change of this.applet.token.changes) {
-        if (change.time > startDate.getTime() && change.time < current.getTime()) {
+        if (change.time > this.startDate.getTime() && change.time < this.endDate.getTime()) {
           tokens += change.value;
         }
       }
