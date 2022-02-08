@@ -338,24 +338,7 @@ export default {
 
   watch: {
     range () {
-      const endDate = new Date(moment(new Date()).format('YYYY/MM/DD'));
-
-      switch (this.range) {
-        case 'Today': case 'All':
-          endDate.setDate(endDate.getDate() + 1);
-          break;
-        case '1w': case '2w':
-          endDate.setDate(endDate.getDate() + 1);
-          break;
-        case '1m': case '3m':
-          endDate.setDate(1);
-          break;
-        case '1y':
-          endDate.setDate(1); endDate.setMonth(0);
-          break;
-      }
-
-      this.endDate = endDate;
+      this.endDate = this.getEndDate();
     }
   },
 
@@ -460,7 +443,7 @@ export default {
             unit = 'weeks'; amount = 1;
             break;
           case '1y':
-            unit = 'months'; amount = 2;
+            unit = 'months'; amount = 1;
             break;
         }
 
@@ -651,6 +634,10 @@ export default {
     }
   },
 
+  mounted () {
+    this.endDate = this.getEndDate();
+  },
+
   methods: {
     hoverTick (tick) {
       const index = this.ticks.indexOf(tick)
@@ -690,6 +677,27 @@ export default {
       const endTime = this.endDate.getTime();
 
       return this.width * (time - startTime) / (endTime - startTime) + this.padding.left;
+    },
+
+    getEndDate () {
+      const endDate = new Date(moment(new Date()).format('YYYY/MM/DD'));
+
+      switch (this.range) {
+        case 'Today': case 'All':
+          endDate.setDate(endDate.getDate() + 1);
+          break;
+        case '1w': case '2w':
+          endDate.setDate(endDate.getDate() + 1);
+          break;
+        case '1m': case '3m':
+          endDate.setDate(1);
+          break;
+        case '1y':
+          endDate.setDate(1); endDate.setMonth(0);
+          break;
+      }
+
+      return new Date(moment(endDate).format('YYYY-MM-DD'));
     }
   },
 };
