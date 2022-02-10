@@ -508,14 +508,16 @@ export default {
     pastTokenValue () {
       const { range } = this.currentInterval;
       const endDate = new Date(this.endDate.getTime());
+      const startDate = new Date(this.startDate.getTime());
 
       if (range == 'Today') {
         endDate.setDate(endDate.getDate() - 1);
+        startDate.setDate(startDate.getDate() - 1);
       }
 
       let tokens = 0;
       for (const change of this.applet.token.changes) {
-        if (change.time > this.startDate.getTime() && change.time < endDate.getTime()) {
+        if (change.time > startDate.getTime() && change.time < endDate.getTime()) {
           tokens += change.value;
         }
       }
