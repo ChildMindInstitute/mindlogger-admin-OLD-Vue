@@ -199,7 +199,7 @@ export default {
           return [
             startTime.format('MMM YYYY'),
             '-',
-            endTime.format('MMM YYYY')
+            endTime.subtract(1, 'days').format('MMM YYYY')
           ]
 
         case '1 year':
@@ -271,9 +271,10 @@ export default {
       let endDate = new Date(moment(now).format('YYYY-MM-DD'));
       let startDate, unit = 'hour';
 
-      if (range == '1 month' || range == '6 months' || range == '1 year') {
-        endDate.setMonth(endDate.getMonth() + 1)
+      if (range == '1 month' || range == '6 months') {
         endDate = new Date(moment.utc(endDate).format('YYYY-MM') + '-01');
+      } else if (range == '1 year') {
+        endDate = new Date(moment.utc(endDate).format('YYYY') + '-01-01');
       }
 
       if (range == 'All') {

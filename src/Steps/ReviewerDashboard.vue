@@ -195,7 +195,7 @@
                 class="ml-2"
                 @click="onDownloadReport('cumulative')"
               >
-                Download Report
+                {{ $t('downloadReport') }}
               </v-btn>
             </div>
             <div
@@ -230,6 +230,10 @@
               >
                 {{ reviewingTime }}
               </v-btn>
+
+              <div class="utc-time-alert ml-4">
+                Time is shown in UTC
+              </div>
             </div>
             <div
               v-else-if="this.tabs[selectedTab] == 'frequency'"
@@ -242,9 +246,6 @@
                 :items="['frequency', 'token']"
                 label="Chart Type"
               />
-              <div v-if="frequency.chartType === 'token'" class="utc-time-alert ml-4"> 
-                Time is shown in UTC 
-              </div>
 
               <v-radio-group
                 v-if="frequency.chartType == 'frequency'"
@@ -272,9 +273,12 @@
                       Bar View
                     </template>
                   </v-radio>
-                  <div class="utc-time-alert ml-4"> Time is shown in UTC </div>
                 </div>
               </v-radio-group>
+
+              <div class="utc-time-alert" :class="frequency.chartType == 'frequency' ? '' : 'ml-4'">
+                Time is shown in UTC
+              </div>
 
               <v-spacer />
 
@@ -681,9 +685,9 @@
           :manual-pagination="true"
           pdf-format="a4"
           pdf-orientation="landscape"
-          pdf-content-width="800px"
+          :pdf-content-width="pdfReport.type == 'cumulative' ? '800px' : '1200px'"
           :html-to-pdf-options="{
-            margin: 50,
+            margin: [50, pdfReport.type == 'cumulative' ? 50 : 0],
             enableLinks: true,
             html2canvas: {
               scale: 1,
@@ -692,12 +696,12 @@
             jsPDF: {
               unit: 'pt',
               format: 'a4',
-              orientation: 'portrait',
+              orientation: pdfReport.type == 'cumulative' ? 'portrait' : 'landscape',
             },
           }"
         >
           <section slot="pdf-content">
-            <template
+            <div
               v-show="pdfReport.type == 'cumulative'"
             >
               <CumulativeScoreReport
@@ -707,9 +711,9 @@
                 :activities="applet.activities"
                 :appletImage="applet.data.applet['schema:image']"
               />
-            </template>
+            </div>
 
-            <template
+            <div
               v-show="pdfReport.type == 'frequency'"
             >
               <div
@@ -732,7 +736,7 @@
                 :plot-id="`pdf-frequency-${applet.id}`"
                 :applet="applet"
                 :view-type="frequency.viewType"
-                :parent-width="600"
+                :parent-width="1100"
                 :has-version-bars="true"
                 :options="frequency.frequencyChart"
                 format="export"
@@ -743,12 +747,12 @@
               <TokenChart
                 :plot-id="`pdf-token-${applet.id}`"
                 :applet="applet"
-                :parent-width="600"
+                :parent-width="1100"
                 :has-version-bars="hasVersionBars"
                 :range="frequency.tokenChart.range"
                 format="export"
               />
-            </template>
+            </div>
           </section>
         </vue-html2pdf>
       </div>
@@ -989,7 +993,7 @@
   font-size: 20px;
 
   padding: 10px;
-  width: 600px;
+  width: 1100px;
 
   border: 2px solid black;
   border-radius: 2px;

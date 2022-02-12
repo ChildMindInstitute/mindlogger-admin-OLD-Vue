@@ -116,6 +116,7 @@ export default {
   protocolDescription: 'Protocol Description',
   exportSchema: 'Export Schema',
   downloadSchema: 'Download Schema',
+  downloadReport: 'Download Report',
   resetBuilder: 'Reset builder',
   activityName: 'Activity name',
   activityDescription: 'Activity description ',

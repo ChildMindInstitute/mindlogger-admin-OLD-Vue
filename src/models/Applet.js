@@ -205,8 +205,8 @@ export default class Applet {
         this.token.changes.push({
           isTracker: true,
           spend: false,
-          time: tracker.time,
-          value: tracker.value
+          time: tracker.data.time,
+          value: tracker.data.value
         })
       }
 
@@ -537,13 +537,7 @@ export default class Applet {
           return data
         };
 
-        if (item.inputType == 'futureBehaviorTracker' || item.inputType == 'pastBehaviorTracker') {
-          formatted.frequency = replaceOptions({ ...formatted.frequency }, item)
-          formatted.distress = replaceOptions({ ...formatted.distress }, item)
-          formatted.impairment = replaceOptions({ ...formatted.impairment }, item)
-        } else {
-          formatted = replaceOptions(formatted, item)
-        }
+        formatted = replaceOptions(formatted, item)
 
         responses.push(formatted)
       }
