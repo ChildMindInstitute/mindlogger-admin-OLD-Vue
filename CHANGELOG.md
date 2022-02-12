@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
+## [0.14.0] - 2022-02-12
+New Features:
+- TokenLogger: A new version of TokenLogger was released with a brand new look! Behaviors are now tracked in a prospective or retrospective way with the ability to add additional information about the time of the behavior and impairment or distress during the behavior. The data visualizations have also been updated and are more interactive than before.
+- [Nickname]: Editors have the ability to set a user’s nickname and create markdown content using [Nickname] which will autofill the user’s nickname in the mobile app or web app
+- [Time_Activity_Last_Completed]: Editors can set [time_activity_last_completed] 
+- TokenLogger Report: Admins are able to export a report and add custom text to the document before creating a PDF
+ 
+Improvements:
+- Item Color Palettes: Additional sets of colors were added as options
+- Updates to the Invitation email and its landing page: The copy and layout was updated on the email the user receives and the website where the user accepts the invitation 
+- Draw Coordinates on tablets: There was a delay in collecting coordinates on tablets that was resolved in this release. 
+
+Bug Fixes:
+- Draw Coordinates: The Draw canvas was updated to flip the Y-axis. The canvas is always on a 100pt scale regardless of the size of the device screen and negative values are no longer shown in the export.
+
 ## [0.13.2] - 2022-02-02
 - Fixed nickName column for managers
 
