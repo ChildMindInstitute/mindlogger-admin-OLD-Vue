@@ -211,33 +211,14 @@ export default class Item {
           date: new Date(response.date),
           version: response.version,
           responseId: response.responseId,
-          frequency: {},
-          distress: {},
-          impairment: {}
         }
 
         for (const option in response.value[0]) {
           const choice = this.getChoice(option, response.version)
-          const values = response.value[0][option];
-
-          data.frequency[choice.id] = values.length
-          data.distress[choice.id] = { total: 0, count: 0 }
-          data.impairment[choice.id] = { total: 0, count: 0 }
-
-          for (const value of values) {
-            if (value.distress !== null) {
-              data.distress[choice.id].total += Number(value.distress)
-              data.distress[choice.id].count++;
-            }
-
-            if(value.impairment !== null) {
-              data.impairment[choice.id].total += Number(value.impairment)
-              data.impairment[choice.id].count++;
-            }
-          }
+          data[choice.id] = response.value[0][option];
         }
 
-        return data
+        return data;
       }
 
       return response.value.reduce(

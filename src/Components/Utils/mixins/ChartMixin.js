@@ -174,12 +174,8 @@ export const ChartMixin = {
     },
 
     compressedName (name) {
-      if (this.format == 'export') {
-        return name.length >= 12 ? name.slice(0, 9) + '...' : name
-      }
-
-      return name.length > 30
-        ? name.slice(0, 26) + ' …'
+      return name.length > 35
+        ? name.slice(0, 32) + '…'
         : name
     },
 
