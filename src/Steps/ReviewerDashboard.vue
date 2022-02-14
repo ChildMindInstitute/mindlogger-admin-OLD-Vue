@@ -959,6 +959,7 @@
 
 .reviewing-section {
   max-height: calc(80vh - 200px);
+  height: 450px;
   padding: 0px 20px;
 }
 
