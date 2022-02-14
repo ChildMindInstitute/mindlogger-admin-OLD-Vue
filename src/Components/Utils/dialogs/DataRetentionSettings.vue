@@ -12,6 +12,7 @@
           <div class="input-controls">
             <span> {{ $t('userDataStoredFor') }} </span>
             <v-text-field
+              v-if="settings.retention != 'indefinitely'"
               v-model="settings.period"
               class="input-amount"
               type="number"
@@ -25,7 +26,7 @@
               item-value="value"
             />
           </div>
-          
+
           <div
             v-if="error"
             class="error mb-4"
@@ -46,12 +47,12 @@
         <v-btn
           color="primary"
           text
-          :disabled="settings.period <= 0"
+          :disabled="settings.period <= 0 && settings.retention != 'indefinitely'"
           @click="onClickSubmitSettings()"
         >
           {{ $t('save') }}
         </v-btn>
-      </v-card-actions>      
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
@@ -88,6 +89,9 @@ export default {
       }, {
         name: this.$i18n.t('years'),
         value: 'year'
+      }, {
+        name: this.$i18n.t('indefinitely'),
+        value: 'indefinitely'
       }],
     }
   },
@@ -117,11 +121,11 @@ export default {
     span {
       flex: 2;
     }
-    
+
     .input-amount {
       flex: 1;
     }
-    
+
     .input-period {
       flex: 1;
       margin-left: 20px;
