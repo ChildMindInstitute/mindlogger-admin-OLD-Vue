@@ -10,6 +10,7 @@ import en from 'javascript-time-ago/locale/en';
 import fr from 'javascript-time-ago/locale/fr';
 import Activity from "../../../models/Activity";
 import moment from "moment";
+import { replaceItemVariableWithName } from "../helper";
 TimeAgo.addLocale(en);
 TimeAgo.addLocale(fr);
 
@@ -369,8 +370,8 @@ export const AppletMixin = {
                 activity_name: activity.label.en,
                 item: item.id,
                 response: responseData,
-                prompt: question && question[question.length - 1] || '',
-                options: options.join(', '),
+                prompt: replaceItemVariableWithName(question && question[question.length - 1] || '', currentItems, response.data),
+                options: replaceItemVariableWithName(options.join(', '), currentItems, response.data),
                 version: response.version,
                 rawScore: scores.reduce((accumulated, current) => current + accumulated, 0),
                 reviewing_id: response.reviewing || '',

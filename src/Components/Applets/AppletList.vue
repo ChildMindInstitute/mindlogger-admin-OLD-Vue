@@ -544,13 +544,12 @@ export default {
       const wasInFolder = this.draggedItem.parentId != undefined;
       const isMovingToFolder = this.draggedItem.parentId != destination.id
       this.loaderMessage = `'${this.draggedItem.name}' moved to '${destination.name}'. Saving changes. `;
-      if (wasNotInFolder && isMovingToFolder)
-      {
-          await this.addAppletToFolder(this.draggedItem, destination)
+      if (wasNotInFolder && isMovingToFolder) {
+        await this.addAppletToFolder(this.draggedItem, destination)
       }
 
       if (isMovingToFolder && wasInFolder) {
-           await this.changeFolder(previousFolder, destination, this.draggedItem)
+        await this.changeFolder(previousFolder, destination, this.draggedItem)
       }
 
       this.draggedItem.parentId = destination.id;
@@ -564,9 +563,6 @@ export default {
         this.flattenedDirectoryItems.splice(previousIndex, 1);
 
       var indexOfParent = this.flattenedDirectoryItems.indexOf(destination);
-
-
-
       if (indexOfParent > -1) {
         this.flattenedDirectoryItems.splice(
             indexOfParent + 1,
