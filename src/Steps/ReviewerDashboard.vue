@@ -32,130 +32,134 @@
               v-if="this.tabs[selectedTab] == 'responses'"
               class="content-header"
             >
-              <div class="time-range">
-                <div class="start-time-range">
-                  <v-menu>
-                    <template v-slot:activator="{ on }">
-                      <v-btn
-                        depressed
-                        class="ds-button-tall mr-2 ml-2 mb-2 fromDate"
-                        v-on="on"
-                      >
-                        {{ fromDate }}
-                      </v-btn>
-                    </template>
+              <div>
+                <div class="time-range">
+                  <div class="start-time-range">
+                    <v-menu>
+                      <template v-slot:activator="{ on }">
+                        <v-btn
+                          depressed
+                          class="ds-button-tall mr-2 ml-2 mb-2 fromDate"
+                          v-on="on"
+                        >
+                          {{ fromDate }}
+                        </v-btn>
+                      </template>
 
-                    <v-date-picker
-                      :locale="$i18n.locale.slice(0, 2)"
-                      no-title
-                      :allowedDates="isAllowedStartDate"
-                      @change="setStartDate"
-                      class="date-picker"
-                    />
-                  </v-menu>
-                  <v-dialog
-                    ref="dialog1"
-                    v-model="startTimeDialog"
-                    :return-value.sync="startTime"
-                    persistent
-                    width="290px"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
+                      <v-date-picker
+                        :locale="$i18n.locale.slice(0, 2)"
+                        no-title
+                        :allowedDates="isAllowedStartDate"
+                        @change="setStartDate"
+                        class="date-picker"
+                      />
+                    </v-menu>
+                    <v-dialog
+                      ref="dialog1"
+                      v-model="startTimeDialog"
+                      :return-value.sync="startTime"
+                      persistent
+                      width="290px"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="startTime"
+                          label="Start time"
+                          prepend-icon="mdi-clock-time-four-outline"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                        ></v-text-field>
+                      </template>
+                      <v-time-picker
+                        v-if="startTimeDialog"
                         v-model="startTime"
-                        label="Start time"
-                        prepend-icon="mdi-clock-time-four-outline"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                      ></v-text-field>
-                    </template>
-                    <v-time-picker
-                      v-if="startTimeDialog"
-                      v-model="startTime"
-                      full-width
-                    >
-                      <v-spacer></v-spacer>
-                      <v-btn
-                        text
-                        color="primary"
-                        @click="startTimeDialog = false"
+                        full-width
                       >
-                        Cancel
-                      </v-btn>
-                      <v-btn
-                        text
-                        color="primary"
-                        @click="$refs.dialog1.save(startTime); setStartTime()"
-                      >
-                        OK
-                      </v-btn>
-                    </v-time-picker>
-                  </v-dialog>
-                </div>
-                <div class="mx-4">{{ $t("to") }}</div>
-                <div class="end-time-range">
-                  <v-menu>
-                    <template v-slot:activator="{ on }">
-                      <v-btn
-                        depressed
-                        class="ds-button-tall mr-2 ml-2 mb-2 toDate"
-                        v-on="on"
-                      >
-                        {{ toDate }}
-                      </v-btn>
-                    </template>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="startTimeDialog = false"
+                        >
+                          Cancel
+                        </v-btn>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="$refs.dialog1.save(startTime); setStartTime()"
+                        >
+                          OK
+                        </v-btn>
+                      </v-time-picker>
+                    </v-dialog>
+                  </div>
+                  <div class="mx-4">{{ $t("to") }}</div>
+                  <div class="end-time-range">
+                    <v-menu>
+                      <template v-slot:activator="{ on }">
+                        <v-btn
+                          depressed
+                          class="ds-button-tall mr-2 ml-2 mb-2 toDate"
+                          v-on="on"
+                        >
+                          {{ toDate }}
+                        </v-btn>
+                      </template>
 
-                    <v-date-picker
-                      :locale="$i18n.locale.slice(0, 2)"
-                      no-title
-                      :allowedDates="isAllowedEndDate"
-                      @change="setEndDate"
-                      class="date-picker"
-                    />
-                  </v-menu>
-                  <v-dialog
-                    ref="dialog2"
-                    v-model="endTimeDialog"
-                    :return-value.sync="endTime"
-                    persistent
-                    width="290px"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        v-model="endTime"
-                        label="End time"
-                        prepend-icon="mdi-clock-time-four-outline"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                      ></v-text-field>
-                    </template>
-                    <v-time-picker
-                      v-if="endTimeDialog"
-                      v-model="endTime"
-                      full-width
+                      <v-date-picker
+                        :locale="$i18n.locale.slice(0, 2)"
+                        no-title
+                        :allowedDates="isAllowedEndDate"
+                        @change="setEndDate"
+                        class="date-picker"
+                      />
+                    </v-menu>
+                    <v-dialog
+                      ref="dialog2"
+                      v-model="endTimeDialog"
+                      :return-value.sync="endTime"
+                      persistent
+                      width="290px"
                     >
-                      <v-spacer></v-spacer>
-                      <v-btn
-                        text
-                        color="primary"
-                        @click="endTimeDialog = false"
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="endTime"
+                          label="End time"
+                          prepend-icon="mdi-clock-time-four-outline"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                        ></v-text-field>
+                      </template>
+                      <v-time-picker
+                        v-if="endTimeDialog"
+                        v-model="endTime"
+                        full-width
                       >
-                        Cancel
-                      </v-btn>
-                      <v-btn
-                        text
-                        color="primary"
-                        @click="$refs.dialog2.save(endTime); setEndTime()"
-                      >
-                        OK
-                      </v-btn>
-                    </v-time-picker>
-                  </v-dialog>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="endTimeDialog = false"
+                        >
+                          Cancel
+                        </v-btn>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="$refs.dialog2.save(endTime); setEndTime()"
+                        >
+                          OK
+                        </v-btn>
+                      </v-time-picker>
+                    </v-dialog>
+                  </div>
                 </div>
-                <div class="utc-time-alert ml-4"> Time is shown in UTC </div>
+
+                <div class="utc-time-alert mb-2 text-center"> Time is shown in UTC </div>
               </div>
+
               <div id="versions" class="version ml-6 mt-2">
                 <v-select
                   v-model="selectedVersions"
