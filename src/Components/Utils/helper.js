@@ -37,34 +37,34 @@ export const replaceItemVariableWithName = (markdown, items, answers) => {
             const item = _.find(items[index] && items[index].responseOptions, { value: ans });
             if (item) names.push(item.name.en);
           })
-          markdown = markdown.replace(reg, names.join(', '));
+          markdown = markdown.replace(reg, names.join(', ') + ' ');
 
         } else if (typeof answers[index] === "object") {
           switch (items[index].inputType) {
             case 'radio':
               const item = index > -1 && _.find(items[index].responseOptions, { value: answers[index].value });
               if (item) {
-                markdown = markdown.replace(reg, item.name.en);
+                markdown = markdown.replace(reg, item.name.en + ' ');
               }
               break;
             case 'slider':
-              markdown = markdown.replace(reg, answers[index].value);
+              markdown = markdown.replace(reg, answers[index].value + ' ');
               break;
             case 'timeRange':
-              markdown = markdown.replace(reg, getTimeString(answers[index].value && answers[index].value.from) + ' - ' + getTimeString(answers[index].value && answers[index].value.to));
+              markdown = markdown.replace(reg, getTimeString(answers[index].value && answers[index].value.from) + ' - ' + getTimeString(answers[index].value && answers[index].value.to) + ' ');
               break;
             case 'date':
-              markdown = markdown.replace(reg, getDateString(answers[index].value));
+              markdown = markdown.replace(reg, getDateString(answers[index].value) + ' ');
               break;
             case 'ageSelector':
-              markdown = markdown.replace(reg, answers[index].value);
+              markdown = markdown.replace(reg, answers[index].value + ' ');
               break;
           }
         } else if (answers[index]) {
-          markdown = markdown.replace(reg, answers[index]);
+          markdown = markdown.replace(reg, answers[index] + ' ');
         }
 
-        markdown = markdown.replace(reg, '');
+        markdown = markdown.replace(reg, ' ');
       });
     }
   } catch (error) {
