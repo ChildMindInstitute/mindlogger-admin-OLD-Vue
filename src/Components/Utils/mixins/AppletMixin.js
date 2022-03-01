@@ -87,7 +87,7 @@ export const AppletMixin = {
           const appletData = this.$store.state.allApplets[appletId];
 
           Applet.decryptResponses(data, appletData.applet.encryption);
-          const result = [];
+          const result = [], events = [];
 
           const currentItems = {};
           const currentActivities = {};
@@ -143,6 +143,25 @@ export const AppletMixin = {
             'reviewing_id',
           ];
           const drawingCSVs = [], stabilityCSVs = [], trailsCSVs = [];
+
+          const parseItemOptions = (item) => {
+            const options = [], scores = [];
+
+            if (item.responseOptions && (item.inputType === 'radio' || item.inputType === 'slider')) {
+              item.responseOptions.forEach(resOption => {
+                let option = `${Object.values(resOption.name)[0]}: ${resOption.value}`;
+
+                if (item.scoring) {
+                  option += ` ${'(score: ' + resOption.score + ')'}`;
+                  scores.push(resOption.score);
+                }
+
+                options.push(option);
+              });
+            }
+
+            return { options, scores };
+          }
 
           for (let response of data.responses) {
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
@@ -343,21 +362,7 @@ export const AppletMixin = {
                 .replace(/\r?\n|\r/g, '')
                 .split('250)');
 
-              const options = [];
-              const scores = [];
-
-              if (item.responseOptions && (item.inputType === 'radio' || item.inputType === 'slider')) {
-                item.responseOptions.forEach(resOption => {
-                  let option = `${Object.values(resOption.name)[0]}: ${resOption.value}`;
-
-                  if (item.scoring) {
-                    option += ` ${'(score: ' + resOption.score + ')'}`;
-                    scores.push(resOption.score);
-                  }
-
-                  options.push(option);
-                });
-              }
+              const { options, scores } = parseItemOptions(item);
 
               const csvObj = {
                 id: response._id,
@@ -421,6 +426,37 @@ export const AppletMixin = {
               isSubScaleExported = true;
             }
 
+            if (response.events !== null && activity) {
+              const responseEvents = data.eventSources[response.events].data || [];
+
+              for (const event of responseEvents) {
+                let item = (data.itemReferences[response.version] && data.itemReferences[response.version][event.screen]) || currentItems[event.screen];
+                const question = item.question.en && item.question['en']
+                  .replace(/\r?\n|\r/g, '')
+                  .split('250)');
+                const { options } = parseItemOptions(item);
+
+                events.push({
+                  id: response._id,
+                  activity_scheduled_time: response.responseScheduled || 'not scheduled',
+                  activity_start_time: typeof response.responseStarted === "number" ? moment(response.responseStarted).format("LLL") : response.responseStarted || null,
+                  activity_end_time: typeof response.responseCompleted === "number" ? moment(response.responseCompleted).format("LLL") : response.responseCompleted || null,
+                  press_next_time: event.type == 'NEXT' ? new Date(event.time).toISOString() : '',
+                  press_back_time: event.type == 'PREV' ? new Date(event.time).toISOString() : '',
+                  press_undo_time: event.type == 'UNDO' ? new Date(event.time).toISOString() : '',
+                  response_option_time: event.type == 'SET_ANSWER' ? new Date(event.time).toISOString() : '',
+                  secret_user_id: MRN,
+                  user_id: _id,
+                  activity_id: response.activity['@id'],
+                  activity_name: activity.label.en,
+                  item: item.id,
+                  prompt: replaceItemVariableWithName(question && question[question.length - 1] || '', currentItems, response.data),
+                  options: replaceItemVariableWithName(options.join(', '), currentItems, response.data),
+                  version: response.version,
+                })
+              }
+            }
+
             Object.keys(activityResponses).sort((a, b) => {
               const indexA = activity.order.indexOf(a);
               const indexB = activity.order.indexOf(b);
@@ -439,14 +475,26 @@ export const AppletMixin = {
             }
           }
 
-          let otc = new ObjectToCSV({
-            keys: keys.concat(subScaleNames).map((value) => ({ key: value, as: value })),
-            data: result,
+          this.downloadFile({
+            name: 'report.csv',
+            content: new ObjectToCSV({
+              keys: keys.concat(subScaleNames).map((value) => ({ key: value, as: value })),
+              data: result,
+            }).getCSV(),
+            type: 'text/csv;charset=utf-8'
           });
 
           this.downloadFile({
-            name: 'report.csv',
-            content: otc.getCSV(),
+            name: 'activity_user_journey.csv',
+            content: new ObjectToCSV({
+              keys: [
+                'id', 'activity_scheduled_time', 'activity_start_time', 'activity_end_time',
+                'press_next_time', 'press_back_time', 'press_undo_time', 'response_option_time',
+                'secret_user_id', 'user_id', 'activity_id', 'activity_name', 'item',
+                'prompt', 'options', 'version'
+              ].map(value => ({ key: value, as: value })),
+              data: events
+            }).getCSV(),
             type: 'text/csv;charset=utf-8'
           })
 
