@@ -871,10 +871,14 @@ export const AppletMixin = {
             Key: mediaObject.key
           };
 
-          const data = await client.getObject(params).promise();
-          let filename = mediaObject.name;
-          if (filename && filename.includes('.quicktime')) filename = filename.replace('.quicktime', '.MOV');
-          zip.file(filename, data.Body);
+          try {
+            const data = await client.getObject(params).promise();
+            let filename = mediaObject.name;
+            if (filename && filename.includes('.quicktime')) filename = filename.replace('.quicktime', '.MOV');
+            zip.file(filename, data.Body);
+          } catch(e) {
+            console.error(e);
+          }
         }
 
         const generatedZip = await zip.generateAsync({ type: 'blob' });
