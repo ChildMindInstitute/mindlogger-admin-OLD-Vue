@@ -9,7 +9,7 @@
       <div
         v-if="splashScreenType(activity) === 'image'"
         class="html2pdf__page-break splash-screen"
-        style="margin-bottom: 2px"
+        :style="'margin-top:' + 2 * (index + 1) + 'px'"
       >
         <img
           class="splash-image"
@@ -88,6 +88,7 @@
 }
 .applet-logo {
   float: right;
+  margin-top: 2px;
   margin-left: 15px;
 }
 .text-uppercase {
@@ -183,8 +184,7 @@
 }
 .splash-image {
   object-fit: cover;
-  max-width: 100vw;
-  max-height: 100vh;
+  max-height: calc(297mm - 80px);
 }
 .full-height {
   height: 100%;
