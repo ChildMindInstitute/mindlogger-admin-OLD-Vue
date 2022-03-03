@@ -2,9 +2,14 @@
   <div class="cumulative-score-report">
     <section class="pdf-item" v-for="({ activity, reportMessages }, index) in activityResponses" :key="activity.id">
       <div
+        v-if="index && splashScreenType(activity) == 'image'"
+        class="html2pdf__page-break"
+      />
+
+      <div
         v-if="splashScreenType(activity) === 'image'"
         class="html2pdf__page-break splash-screen"
-        :style="'margin-bottom:' + 2 * (index + 1) + 'px'"
+        style="margin-bottom: 2px"
       >
         <img
           class="splash-image"
@@ -24,7 +29,7 @@
       <p class="text-body-2 mb-4">
         <markdown :source="activity.scoreOverview.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
       </p>
-      <div v-for="item in reportMessages" :key="item.category" class="my-4">
+      <div v-for="item in reportMessages" :key="item.category" class="mt-4">
         <p class="blue--text text-body-2 mb-1">
           <b>{{ (item.category || "").replace(/_/g, " ") }}</b>
         </p>
@@ -177,9 +182,9 @@
   justify-content: center;
 }
 .splash-image {
-  margin-top: 20px;
-  width: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  max-width: 100vw;
+  max-height: 100vh;
 }
 .full-height {
   height: 100%;
@@ -367,11 +372,11 @@ export default {
           try {
             if (expr.evaluate(variableScores)) {
               if (nextActivity) cumActivities.push(nextActivity);
-  
+
               const compute = activity.compute.find(
                 (itemCompute) => itemCompute.variableName.trim() == variableName.trim()
               );
-  
+
               reportMessages.push({
                 category,
                 message,

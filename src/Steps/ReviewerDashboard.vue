@@ -691,7 +691,7 @@
           pdf-orientation="landscape"
           :pdf-content-width="pdfReport.type == 'cumulative' ? '800px' : '1200px'"
           :html-to-pdf-options="{
-            margin: [50, pdfReport.type == 'cumulative' ? 50 : 0],
+            margin: [40, pdfReport.type == 'cumulative' ? 50 : 0],
             enableLinks: true,
             html2canvas: {
               scale: 1,
