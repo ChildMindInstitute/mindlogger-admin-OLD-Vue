@@ -349,11 +349,12 @@
         dark
       >
         <v-card-text>
-          Please wait. This could take up to 1 minute to download.
+          Please wait for the download to complete. It could take up to 5 minutes depending how much data has been collected.
+          Do not navigate away from this page.
           <v-progress-linear
             indeterminate
             color="white"
-            class="ma-2"
+            class="ma-2 mt-4"
           ></v-progress-linear>
         </v-card-text>
       </v-card>
