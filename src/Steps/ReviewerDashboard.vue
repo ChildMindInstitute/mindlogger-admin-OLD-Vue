@@ -1293,7 +1293,7 @@ export default {
 
       if (
         this.applet.activities &&
-        this.applet.activities.some((activity) => activity.getFrequency(this.selectedSecretIds) > 0)
+        this.applet.activities.some((activity) => activity.getFrequency(this.applySecretIdSelector ? this.selectedSecretIds : null) > 0)
       ) {
         this.tabs.push("review");
       }
