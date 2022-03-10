@@ -802,7 +802,7 @@ export const AppletMixin = {
             line_number: i.toString(),
             x: (point.x / width * 100).toString(),
             y: (100 - point.y / width * 100).toString(),
-            time: typeof point.time === "number" ? moment.utc(point.time).format("YYYY-MM-DD HH:mm:ss") : point.time || '',
+            timestamp: point.time.toString(),
           });
         }
       }
@@ -812,7 +812,7 @@ export const AppletMixin = {
           'line_number',
           'x',
           'y',
-          'time'
+          'timestamp'
         ].map((value) => ({ key: value, as: value })),
         data: result,
       });
