@@ -177,7 +177,19 @@
           icon
           v-on="on"
         >
-					<img height="24" alt='' v-bind:src="require(`@/assets/response-alert.png`)"/>
+					<img
+            v-if="newAlertCount"
+            height="24"
+            alt=''
+            v-bind:src="require(`@/assets/response-alert-yellow.png`)"
+          />
+
+          <img
+            v-else
+            height="24"
+            alt=''
+            v-bind:src="require(`@/assets/response-alert-white.png`)"
+          />
 
           <span
             v-if="newAlertCount"
@@ -337,11 +349,12 @@
         dark
       >
         <v-card-text>
-          Please wait. This could take up to 1 minute to download.
+          Please wait for the download to complete. It could take up to 5 minutes depending how much data has been collected.
+          Do not navigate away from this page.
           <v-progress-linear
             indeterminate
             color="white"
-            class="ma-2"
+            class="ma-2 mt-4"
           ></v-progress-linear>
         </v-card-text>
       </v-card>
@@ -715,7 +728,7 @@ export default {
           visible: true,
           requestedAction: ((key) => {
             this.isExporting = true;
-            return this.exportUserData(this.currentApplet, key).then(() => this.isExporting = false)
+            return this.exportUserData(this.currentApplet, key).finally(() => this.isExporting = false)
           })
         });
       }
