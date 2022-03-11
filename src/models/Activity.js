@@ -237,7 +237,7 @@ export default class Activity {
   }
 
   getFrequency(secretIds) {
-    if (this.hasResponseIdentifier) {
+    if (this.hasResponseIdentifier && secretIds) {
       return this.responses.filter(response => secretIds.includes(response.secretId)).length;
     }
 

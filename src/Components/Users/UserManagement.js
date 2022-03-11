@@ -197,7 +197,7 @@ export default {
 
       this.isExporting = true,
       this.exportUserData(applet)
-        .then(response => {
+        .finally(response => {
           this.isExporting = false;
         });
     },

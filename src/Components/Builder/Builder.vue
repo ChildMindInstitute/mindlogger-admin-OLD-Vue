@@ -172,11 +172,11 @@ export default {
     }
 
     if (this.$route.query.appletId) {
-      if (Array.isArray(this.accountApplets)) {
+      if (this.accountApplets && Array.isArray(this.accountApplets)) {
         this.$store.commit(
           "setCurrentApplet",
           this.accountApplets.find(
-            (applet) => applet.id === this.$route.query.appletId
+            (applet) => applet && applet.id === this.$route.query.appletId
           )
         );
       } else {
@@ -185,7 +185,7 @@ export default {
       }
     }
 
-    if (this.$route.params.isEditing || this.$route.query.appletId) {
+    if (this.$route && (this.$route.params.isEditing || this.$route.query.appletId)) {
       const appletId = this.currentAppletMeta.id;
       this.isEditing = true;
 
@@ -201,9 +201,10 @@ export default {
       this.versions = versions.data;
     }
     const templateResp = await api.getItemTemplates({ apiHost, token });
-    this.formatItemTemplates(templateResp.data);
+    if (templateResp)
+      this.formatItemTemplates(templateResp.data);
 
-    if (this.versions.length) {
+    if (this.versions && this.versions.length) {
       this.loading = false;
     }
 

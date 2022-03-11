@@ -10,6 +10,7 @@ import en from 'javascript-time-ago/locale/en';
 import fr from 'javascript-time-ago/locale/fr';
 import Activity from "../../../models/Activity";
 import moment from "moment";
+import { replaceItemVariableWithName } from "../helper";
 TimeAgo.addLocale(en);
 TimeAgo.addLocale(fr);
 
@@ -369,8 +370,8 @@ export const AppletMixin = {
                 activity_name: activity.label.en,
                 item: item.id,
                 response: responseData,
-                prompt: question && question[question.length - 1] || '',
-                options: options.join(', '),
+                prompt: replaceItemVariableWithName(question && question[question.length - 1] || '', currentItems, response.data),
+                options: replaceItemVariableWithName(options.join(', '), currentItems, response.data),
                 version: response.version,
                 rawScore: scores.reduce((accumulated, current) => current + accumulated, 0),
                 reviewing_id: response.reviewing || '',
@@ -801,7 +802,7 @@ export const AppletMixin = {
             line_number: i.toString(),
             x: (point.x / width * 100).toString(),
             y: (100 - point.y / width * 100).toString(),
-            time: typeof point.time === "number" ? moment.utc(point.time).format("YYYY-MM-DD HH:mm:ss") : point.time || '',
+            timestamp: point.time.toString(),
           });
         }
       }
@@ -811,7 +812,7 @@ export const AppletMixin = {
           'line_number',
           'x',
           'y',
-          'time'
+          'timestamp'
         ].map((value) => ({ key: value, as: value })),
         data: result,
       });
@@ -870,10 +871,14 @@ export const AppletMixin = {
             Key: mediaObject.key
           };
 
-          const data = await client.getObject(params).promise();
-          let filename = mediaObject.name;
-          if (filename && filename.includes('.quicktime')) filename = filename.replace('.quicktime', '.MOV');
-          zip.file(filename, data.Body);
+          try {
+            const data = await client.getObject(params).promise();
+            let filename = mediaObject.name;
+            if (filename && filename.includes('.quicktime')) filename = filename.replace('.quicktime', '.MOV');
+            zip.file(filename, data.Body);
+          } catch(e) {
+            console.error(e);
+          }
         }
 
         const generatedZip = await zip.generateAsync({ type: 'blob' });
