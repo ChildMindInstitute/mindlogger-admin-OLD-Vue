@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
+## [0.15.0] - 2022-03-10
+New Features:
+- All Reports at the end of linked activity set: Now editors have the option to show one report with all reports from each linked activity 
+- Variable Item: Editors have the ability to set [[VariableName]] within the text editor, response options, or tooltips that will reflect a user's previous response 
+- Reordering Activities and Items: Editors can click and drag the order of items and activities within the applet builder 
+
+Improvements:
+- Remembering the LSL connection: When live streaming using LSL, the user can not navigate throughout MindLogger while staying connected 
+
 ## [0.14.0] - 2022-02-12
 New Features:
 - TokenLogger: A new version of TokenLogger was released with a brand new look! Behaviors are now tracked in a prospective or retrospective way with the ability to add additional information about the time of the behavior and impairment or distress during the behavior. The data visualizations have also been updated and are more interactive than before.
