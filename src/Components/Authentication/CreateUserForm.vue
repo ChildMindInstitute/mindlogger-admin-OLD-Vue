@@ -109,8 +109,14 @@ export default {
       lastName: "",
       lastNameRules: [(v) => !!v || this.$i18n.t("lastNameRequired")],
       password: "",
-      passwordRules: [(v) => !!v || this.$i18n.t("passwordRequired")],
-      error: "",
+      passwordRules: [ 
+        v => !!v || 'Password is required', 
+        v => (v && v.length >= 8) || 'Password must have 8+ characters',
+        v => /(?=.*[A-Z])/.test(v) || 'Must have one uppercase character',
+        v => /(?=.*[a-z])/.test(v) || 'Must have one lowercase character', 
+        v => /(?=.*\d)/.test(v) || 'Must have one number', 
+        v => /([!@#$%^&*?])/.test(v) || 'Must have one special character' 
+      ]
     }
   },
 
