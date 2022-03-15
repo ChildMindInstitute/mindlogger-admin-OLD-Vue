@@ -2351,9 +2351,7 @@
   dependencies:
     "@vue/cli-shared-utils" "^3.12.1"
     "babel-eslint" "^10.0.1"
-    "eslint" "^4.19.1"
     "eslint-loader" "^2.1.2"
-    "eslint-plugin-vue" "^4.7.1"
     "globby" "^9.2.0"
     "webpack" "^4.0.0"
     "yorkie" "^2.0.0"
@@ -2939,10 +2937,10 @@
     "normalize-path" "^3.0.0"
     "picomatch" "^2.0.4"
 
-"applet-schema-builder@^0.11.0":
-  "integrity" "sha512-NGh5ujqyqT2bMyLstO+v0eU/IS1uxU8d0imUMv19NIGxRCFCeg2f47LstiDVsbvlkvmS9EEl8grAUAvOKC5ipg=="
-  "resolved" "https://registry.npmjs.org/applet-schema-builder/-/applet-schema-builder-0.11.0.tgz"
-  "version" "0.11.0"
+"applet-schema-builder@^0.15.0":
+  "integrity" "sha512-yPzuaIxbdR3QFXfNgjougTZW/qWQysgfQmGSYJABnYUBOn4BpZMu1LW+WhwFAaeFU8i9giIpzst40w8+PtT4Zw=="
+  "resolved" "https://registry.npmjs.org/applet-schema-builder/-/applet-schema-builder-0.15.0.tgz"
+  "version" "0.15.0"
   dependencies:
     "@sentry/browser" "^5.26.0"
     "@sentry/integrations" "^5.26.0"
@@ -3191,12 +3189,12 @@
   dependencies:
     "follow-redirects" "1.5.10"
 
-"axios@^0.21.1":
-  "integrity" "sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA=="
-  "resolved" "https://registry.npmjs.org/axios/-/axios-0.21.1.tgz"
-  "version" "0.21.1"
+"axios@^0.21.1", "axios@^0.21.4":
+  "integrity" "sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg=="
+  "resolved" "https://registry.npmjs.org/axios/-/axios-0.21.4.tgz"
+  "version" "0.21.4"
   dependencies:
-    "follow-redirects" "^1.10.0"
+    "follow-redirects" "^1.14.0"
 
 "babel-code-frame@^6.22.0", "babel-code-frame@^6.26.0":
   "integrity" "sha1-Y/1D99weO7fONZR9uP42mj9Yx0s="
@@ -3207,12 +3205,7 @@
     "esutils" "^2.0.2"
     "js-tokens" "^3.0.2"
 
-"babel-core@^7.0.0-0":
-  "integrity" "sha512-poPX9mZH/5CSanm50Q+1toVci6pv5KSRv/5TWCwtzQS5XEwn40BcCrgIeMFWP9CKKIniKXNxoIOnOq4VVlGXhg=="
-  "resolved" "https://registry.npmjs.org/babel-core/-/babel-core-7.0.0-bridge.0.tgz"
-  "version" "7.0.0-bridge.0"
-
-"babel-core@^7.0.0-bridge.0":
+"babel-core@^7.0.0-0", "babel-core@^7.0.0-bridge.0":
   "integrity" "sha512-poPX9mZH/5CSanm50Q+1toVci6pv5KSRv/5TWCwtzQS5XEwn40BcCrgIeMFWP9CKKIniKXNxoIOnOq4VVlGXhg=="
   "resolved" "https://registry.npmjs.org/babel-core/-/babel-core-7.0.0-bridge.0.tgz"
   "version" "7.0.0-bridge.0"
@@ -3972,7 +3965,6 @@
     "anymatch" "^2.0.0"
     "async-each" "^1.0.1"
     "braces" "^2.3.2"
-    "fsevents" "^1.2.7"
     "glob-parent" "^3.1.0"
     "inherits" "^2.0.3"
     "is-binary-path" "^1.0.0"
@@ -3992,7 +3984,6 @@
     "anymatch" "^2.0.0"
     "async-each" "^1.0.1"
     "braces" "^2.3.2"
-    "fsevents" "^1.2.7"
     "glob-parent" "^3.1.0"
     "inherits" "^2.0.3"
     "is-binary-path" "^1.0.0"
@@ -4011,7 +4002,6 @@
   dependencies:
     "anymatch" "~3.1.1"
     "braces" "~3.0.2"
-    "fsevents" "~2.1.2"
     "glob-parent" "~5.1.0"
     "is-binary-path" "~2.1.0"
     "is-glob" "~4.0.1"
@@ -5762,7 +5752,6 @@
     "estraverse" "^4.2.0"
     "esutils" "^2.0.2"
     "optionator" "^0.8.1"
-    "source-map" "~0.6.1"
   optionalDependencies:
     "source-map" "~0.6.1"
 
@@ -6494,7 +6483,7 @@
   dependencies:
     "debug" "=3.1.0"
 
-"follow-redirects@^1.10.0":
+"follow-redirects@^1.14.0":
   "integrity" "sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg=="
   "resolved" "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.14.1.tgz"
   "version" "1.14.1"
@@ -7979,7 +7968,6 @@
     "@jest/types" "^24.9.0"
     "anymatch" "^2.0.0"
     "fb-watchman" "^2.0.0"
-    "fsevents" "^1.2.7"
     "graceful-fs" "^4.1.15"
     "invariant" "^2.2.4"
     "jest-serializer" "^24.9.0"
@@ -8489,9 +8477,6 @@
   dependencies:
     "atob" "^2.1.2"
     "btoa" "^1.2.1"
-    "canvg" "^3.0.6"
-    "core-js" "^3.6.0"
-    "dompurify" "^2.2.0"
     "fflate" "^0.4.8"
     "html2canvas" "^1.0.0-rc.5"
   optionalDependencies:
@@ -8520,10 +8505,10 @@
     "json-schema" "0.2.3"
     "verror" "1.10.0"
 
-"jszip@^3.2.2", "jszip@^3.6.0":
-  "integrity" "sha512-jgnQoG9LKnWO3mnVNBnfhkh0QknICd1FGSrXcgrl67zioyJ4wgx25o9ZqwNtrROSflGBCGYnJfjrIyRIby1OoQ=="
-  "resolved" "https://registry.npmjs.org/jszip/-/jszip-3.6.0.tgz"
-  "version" "3.6.0"
+"jszip@^3.2.2", "jszip@^3.7.1":
+  "integrity" "sha512-ghL0tz1XG9ZEmRMcEN2vt7xabrDdqHHeykgARpmZ0BiIctWxM47Vt63ZO2dnp4QYt/xJVLLy5Zv1l/xRdh2byg=="
+  "resolved" "https://registry.npmjs.org/jszip/-/jszip-3.7.1.tgz"
+  "version" "3.7.1"
   dependencies:
     "lie" "~3.3.0"
     "pako" "~1.0.2"
@@ -8641,12 +8626,7 @@
     "copy-anything" "^2.0.1"
     "errno" "^0.1.1"
     "graceful-fs" "^4.1.2"
-    "image-size" "~0.5.0"
-    "make-dir" "^2.1.0"
-    "mime" "^1.4.1"
-    "needle" "^2.5.2"
     "parse-node-version" "^1.0.1"
-    "source-map" "~0.6.0"
     "tslib" "^1.10.0"
   optionalDependencies:
     "image-size" "~0.5.0"
@@ -9083,10 +9063,10 @@
     "clone" "^2.1.0"
     "uslug" "^1.0.4"
 
-"markdown-it@^12.0.3", "markdown-it@^12.2.0":
-  "integrity" "sha512-Wjws+uCrVQRqOoJvze4HCqkKl1AsSh95iFAeQDwnyfxM09divCBSXlDR1uTvyUP3Grzpn4Ru8GeCxYPM8vkCQg=="
-  "resolved" "https://registry.npmjs.org/markdown-it/-/markdown-it-12.2.0.tgz"
-  "version" "12.2.0"
+"markdown-it@^12.0.3", "markdown-it@^12.3.2":
+  "integrity" "sha512-TchMembfxfNVpHkbtriWltGWc+m3xszaRD0CZup7GFFhzIgQqxIfn3eGj1yZpfuflzPvfkt611B2Q/Bsk1YnGg=="
+  "resolved" "https://registry.npmjs.org/markdown-it/-/markdown-it-12.3.2.tgz"
+  "version" "12.3.2"
   dependencies:
     "argparse" "^2.0.1"
     "entities" "~2.1.0"
@@ -10916,8 +10896,6 @@
   "integrity" "sha512-c29LVsqOaLbBHuIbsTxaKENh1N2EQBOHaWv7gkHN4dgRbxSREqDnDbtFJYdpPauS4YCplMSNCABQ6Eeor69bAA=="
   "resolved" "https://registry.npmjs.org/prismjs/-/prismjs-1.23.0.tgz"
   "version" "1.23.0"
-  dependencies:
-    "clipboard" "^2.0.0"
   optionalDependencies:
     "clipboard" "^2.0.0"
 
