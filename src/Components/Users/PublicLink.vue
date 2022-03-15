@@ -14,6 +14,7 @@
             v-bind="attrs"
             v-on="on"
             @click="publicLinkDialog = true"
+            :disabled="!isAvailable"
           >
             {{ $t("generate") }}
           </v-btn>
@@ -128,6 +129,7 @@
 import { RolesMixin } from '../Utils/mixins/RolesMixin';
 
 import api from "../Utils/api/api.vue";
+import _ from 'lodash';
 
 export default {
   name: "InviteLink",
@@ -142,12 +144,27 @@ export default {
     currentAppletMeta() {
       return this.$store.state.currentAppletMeta;
     },
+    currentAppletData() {
+      return this.$store.state.currentAppletData;
+    },
     apiHost() {
       return this.$store.state.backend;
     },
     token() {
       return this.$store.state.auth.authToken.token;
     },
+    isAvailable () {
+      const inputTypes = ["radio", "checkox", "slider", "text", "ageSelector"]
+      const items = Object.values(this.currentAppletData.items);
+      for (const item of items) {
+        const inputType = _.get(item, ['reprolib:terms/inputType', 0, '@value']);
+        if (!inputTypes.includes(inputType)) {
+          return false;
+        }
+      }
+
+      return true;
+    }
   },
   methods: {
     copyText () {
