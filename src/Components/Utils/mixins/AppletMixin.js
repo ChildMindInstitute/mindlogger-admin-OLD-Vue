@@ -301,7 +301,7 @@ export const AppletMixin = {
                         } else {
                           trailsCSVs.push({
                             name: `${nameRegex[1]}.csv`,
-                            data: this.getTrailsLinesAsCSV(value.lines, value.startTime, value.width || 100)
+                            data: this.getTrailsLinesAsCSV(value.lines, value.width || 100)
                           })
                         }
                       } else if (key == 'text') {
@@ -360,8 +360,8 @@ export const AppletMixin = {
               const csvObj = {
                 id: response._id,
                 activity_scheduled_time: response.responseScheduled || 'not scheduled',
-                activity_start_time: typeof response.responseStarted === "number" ? moment(response.responseStarted).format("LLL") : response.responseStarted || null,
-                activity_end_time: typeof response.responseCompleted === "number" ? moment(response.responseCompleted).format("LLL") : response.responseCompleted || null,
+                activity_start_time: response.responseStarted && response.responseStarted.toString() || null,
+                activity_end_time: response.responseCompleted && response.responseCompleted.toString()  || null,
                 hit_next_time: '',
                 flag,
                 secret_user_id: MRN || null,
@@ -380,7 +380,7 @@ export const AppletMixin = {
               }
 
               if (data.nextsAt && data.nextsAt[response._id] && data.nextsAt[response._id][itemUrl])
-                csvObj['hit_next_time'] = typeof data.nextsAt[response._id][itemUrl] === "number" ? moment(data.nextsAt[response._id][itemUrl]).format("LLL") : data.nextsAt[response._id][itemUrl] || null;
+                csvObj['hit_next_time'] = data.nextsAt[response._id][itemUrl] && data.nextsAt[response._id][itemUrl].toString() || null;
 
               if (!csvObj.activity_start_time && csvObj.activity_id && csvObj.item && csvObj.response) {
                 previousResponse.push(csvObj);
@@ -680,6 +680,7 @@ export const AppletMixin = {
 
     getStabilityCSV(responses) {
       const result = [];
+      let startTime = 0;
 
       const getPointStr = (pos) => {
         if (pos.length == 2) {
@@ -696,9 +697,13 @@ export const AppletMixin = {
           score: response.score,
           stimPos: getPointStr(response.stimPos),
           targetPos: getPointStr(response.targetPos),
-          timestamp: response.timestamp,
+          timestamp: (response.timestamp - startTime).toString(),
           userPos: getPointStr(response.userPos),
         });
+
+        if (!startTime) {
+          startTime = response.timestamp;
+        }
       }
 
       let otc = new ObjectToCSV({
@@ -738,9 +743,9 @@ export const AppletMixin = {
       return otc.getCSV();
     },
 
-    getTrailsLinesAsCSV (lines, startTime, width) {
+    getTrailsLinesAsCSV (lines, width) {
       const result = [];
-      let totalTime = 0, errorCount = 0;
+      let totalTime = 0, errorCount = 0, startTime = 0;
 
       for (let i = 0; i < lines.length; i++) {
         let hasError = false;
@@ -760,6 +765,10 @@ export const AppletMixin = {
             correct_path: `${point.start} ~ ${point.end}`,
             actual_path: `${point.start} ~ ${point.actual == 'none' ? '?' : (point.actual || point.end)}`
           })
+
+          if (!startTime) {
+            startTime = point.time;
+          }
 
           if (totalTime < point.time - startTime) {
             totalTime = point.time - startTime;
@@ -796,14 +805,20 @@ export const AppletMixin = {
 
     getDrawingLinesAsCSV(lines, width) {
       const result = [];
+      let startTime = 0;
+
       for (let i = 0; i < lines.length; i++) {
         for (const point of lines[i].points) {
           result.push({
             line_number: i.toString(),
             x: (point.x / width * 100).toString(),
             y: (100 - point.y / width * 100).toString(),
-            timestamp: point.time.toString(),
+            timestamp: (point.time - startTime).toString(),
           });
+
+          if (!startTime) {
+            startTime = point.time;
+          }
         }
       }
 
