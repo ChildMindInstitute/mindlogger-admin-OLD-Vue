@@ -154,7 +154,7 @@ export default {
       return this.$store.state.auth.authToken.token;
     },
     isAvailable () {
-      const inputTypes = ["radio", "checkox", "slider", "text", "ageSelector"]
+      const inputTypes = ["radio", "checkbox", "slider", "text", "ageSelector"]
       const items = Object.values(this.currentAppletData.items);
       for (const item of items) {
         const inputType = _.get(item, ['reprolib:terms/inputType', 0, '@value']);
