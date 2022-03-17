@@ -67,9 +67,10 @@
             <v-checkbox
               v-model="terms"
               :disabled="disabled"
+              id="terms_id"
             />
 
-            <label class="mx-2 mb-1">I agree to the <a href="https://mindlogger.org/terms" target="_blacnk">Terms of Service</a></label>
+            <label for="terms_id" class="mx-2 mb-1">I agree to the <a href="https://mindlogger.org/terms" target="_blacnk">Terms of Service</a></label>
           </div>
 
           <v-btn
