@@ -55,6 +55,7 @@ import {
   evaluateScore,
 } from "../Utils/scoring";
 import Markdown from "../Utils/Markdown";
+import { replaceItemVariableWithName } from "../Utils/helper";
 
 export default {
   name: "CumulativeScore",
@@ -108,6 +109,9 @@ export default {
         const maxScores = (this.activity.items || []).map((item) =>
           getMaxScore(item)
         );
+        const rawResponses = (this.activity.items || []).map(
+          item => item.rawResponses.find(resp => resp.responseId == activityResponse.responseId)
+        );
 
         const cumulativeScores = this.activity.compute.reduce((accumulator, itemCompute) => ({
           ...accumulator,
@@ -135,7 +139,7 @@ export default {
           if (expr.evaluate(variableScores)) {
             reportMessages.push({
               category,
-              message,
+              message: replaceItemVariableWithName(message, this.activity.items, rawResponses),
               score: variableScores[category] + (outputType == "percentage" ? "%" : ""),
             });
           }
