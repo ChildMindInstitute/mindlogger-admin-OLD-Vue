@@ -1,6 +1,6 @@
 <template>
   <div class="cumulative-score-report">
-    <section class="pdf-item" v-for="({ activity, reportMessages }, index) in activityResponses" :key="activity.id">
+    <section class="pdf-item" v-for="({ activity, reportMessages, scoreOverview }, index) in activityResponses" :key="activity.id">
       <div
         v-if="index && splashScreenType(activity) == 'image'"
         class="html2pdf__page-break"
@@ -35,7 +35,7 @@
       </div>
 
       <p class="text-body-2 mb-4">
-        <markdown :source="activity.scoreOverview.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
+        <markdown :source="scoreOverview.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
       </p>
       <div v-for="item in reportMessages" :key="item.category" class="mt-4">
         <p class="blue--text text-body-2 mb-1">
@@ -218,6 +218,7 @@ import { Parser } from "expr-eval";
 import _ from "lodash";
 import Mimoza from "mimoza";
 import { getScoreFromResponse, getMaxScore, evaluateScore } from "../Utils/scoring";
+import { replaceItemVariableWithName } from "../Utils/helper";
 
 export default {
   name: "CumulativeScoreReport",
@@ -311,11 +312,15 @@ export default {
 
             lastResponseIndex--;
           }
-
-          if (lastResponseIndex < 0) {
-            continue;
-          }
         }
+
+        if (lastResponseIndex < 0) {
+          continue;
+        }
+
+        const rawResponses = activity.items.map(
+          item => item.rawResponses.find(resp => resp.responseId == activity.responses[lastResponseIndex].responseId)
+        );
 
         for (let i = 0; i < activity.items.length; i++) {
           const { variableName, responses } = activity.items[i];
@@ -397,9 +402,12 @@ export default {
 
               reportMessages.push({
                 category,
-                message,
+                message: replaceItemVariableWithName(message, activity.items, rawResponses),
                 score: variableScores[key ? key : category] + (outputType == "percentage" ? "%" : ""),
-                compute,
+                compute: {
+                  ...compute,
+                  description: replaceItemVariableWithName(compute.description, activity.items, rawResponses)
+                },
                 jsExpression: jsExpression.substr(variableName.length),
                 scoreValue: cumulativeScores[category],
                 maxScoreValue: cumulativeMaxScores[category],
@@ -413,6 +421,7 @@ export default {
         activityResponses.push({
           activity,
           reportMessages,
+          scoreOverview: replaceItemVariableWithName(activity.scoreOverview, activity.items, rawResponses)
         });
       }
 

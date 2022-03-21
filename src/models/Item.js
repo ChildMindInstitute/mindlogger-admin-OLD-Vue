@@ -34,6 +34,7 @@ export default class Item {
     this.schemaVersion = data['schema:schemaVersion'] && i18n.arrayToObject(data['schema:schemaVersion']);
     this.responseOptions = this.parseResponseOptions(data[ReproLib.responseOptions], this.inputType);
     this.responses = [];
+    this.rawResponses = [];
     this.maxValue = _.get(data, [ReproLib.responseOptions, 0, 'schema:maxValue', 0, '@value'], 0);
     this.maxValueImg = _.get(data, [ReproLib.responseOptions, 0, 'schema:maxValueImg', 0, '@value'], '');
 
@@ -244,6 +245,8 @@ export default class Item {
         },
       );
     }));
+
+    this.rawResponses = this.rawResponses.concat(responses);
   }
 
   getFormattedTokenData() {
