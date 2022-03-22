@@ -691,19 +691,20 @@ export const AppletMixin = {
       }
 
       for (const response of responses) {
+        if (!startTime) {
+          startTime = response.timestamp;
+        }
+
         result.push({
           lambda: response.lambda,
           lambdaSlope: response.lambdaSlope,
           score: response.score,
           stimPos: getPointStr(response.stimPos),
           targetPos: getPointStr(response.targetPos),
-          timestamp: (response.timestamp - startTime).toString(),
+          epochTimestampSecondsStart: Number((response.timestamp - startTime) / 1000).toString(),
+          utcTimestamp: response.timestamp.toString(),
           userPos: getPointStr(response.userPos),
         });
-
-        if (!startTime) {
-          startTime = response.timestamp;
-        }
       }
 
       let otc = new ObjectToCSV({
@@ -729,8 +730,12 @@ export const AppletMixin = {
             as: 'target_position',
           },
           {
-            key: 'timestamp',
-            as: 'timestamp'
+            key: 'epochTimestampSecondsStart',
+            as: 'epoch_timestamp_seconds_start'
+          },
+          {
+            key: 'utcTimestamp',
+            as: 'UTC_Timestamp'
           },
           {
             key: 'userPos',
