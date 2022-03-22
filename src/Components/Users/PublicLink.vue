@@ -8,18 +8,24 @@
         bottom
       >
         <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            class="mx-4"
-            color="primary"
-            v-bind="attrs"
-            v-on="on"
-            @click="publicLinkDialog = true"
-            :disabled="!isAvailable"
-          >
-            {{ $t("generate") }}
-          </v-btn>
+          <div style="display: inline-block;" v-on="on">
+            <v-btn
+              class="mx-4"
+              color="primary"
+              v-bind="attrs"
+              @click="publicLinkDialog = true"
+              :disabled="!isAvailable"
+            >
+              {{ $t("generate") }}
+            </v-btn>
+          </div>
         </template>
-        <span>{{ $t("createInviteLinkText") }}</span>
+        <span v-if="isAvailable">{{ $t("createInviteLinkText") }}</span>
+        <span v-else>
+          This applet contains items that are not supported by the public link feature. Please update your applet to remove unsupported item types.
+          <br />
+          Types supported: Radio button, Checkbox, Slider, Text, Age Selector, Dropdown list, and Cumulative score item
+        </span>
       </v-tooltip>
     </h1>
 
@@ -154,7 +160,7 @@ export default {
       return this.$store.state.auth.authToken.token;
     },
     isAvailable () {
-      const inputTypes = ["radio", "checkbox", "slider", "text", "ageSelector"]
+      const inputTypes = ["radio", "checkbox", "slider", "text", "ageSelector", "dropdownList"]
       const items = Object.values(this.currentAppletData.items);
       for (const item of items) {
         const inputType = _.get(item, ['reprolib:terms/inputType', 0, '@value']);
