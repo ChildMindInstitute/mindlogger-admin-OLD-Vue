@@ -690,7 +690,9 @@ export const AppletMixin = {
         return `${pos[0]}`;
       }
 
-      for (const response of responses) {
+      for (let i = 0; i < responses.length; i++) {
+        const response = responses[i];
+
         if (!startTime) {
           startTime = response.timestamp;
         }
@@ -701,7 +703,8 @@ export const AppletMixin = {
           score: response.score,
           stimPos: getPointStr(response.stimPos),
           targetPos: getPointStr(response.targetPos),
-          epochTimestampSecondsStart: Number((response.timestamp - startTime) / 1000).toString(),
+          milliseconds: Number(response.timestamp - startTime).toString(),
+          epochTimestampMillisecondsStart: !i ? startTime.toString() : '',
           utcTimestamp: response.timestamp.toString(),
           userPos: getPointStr(response.userPos),
         });
@@ -711,7 +714,7 @@ export const AppletMixin = {
         keys: [
           {
             key: 'lambda',
-            as: 'lambda'
+            as: 'lambda_value'
           },
           {
             key: 'lambdaSlope',
@@ -723,24 +726,28 @@ export const AppletMixin = {
           },
           {
             key: 'stimPos',
-            as: 'stim_position',
+            as: 'stimulus_position',
           },
           {
             key: 'targetPos',
             as: 'target_position',
           },
           {
-            key: 'epochTimestampSecondsStart',
-            as: 'epoch_timestamp_seconds_start'
+            key: 'userPos',
+            as: 'user_position'
+          },
+          {
+            key: 'milliseconds',
+            as: 'milliseconds'
           },
           {
             key: 'utcTimestamp',
             as: 'UTC_Timestamp'
           },
           {
-            key: 'userPos',
-            as: 'user_position'
-          }
+            key: 'epochTimestampMillisecondsStart',
+            as: 'epoch_timestamp_miliseconds_start'
+          },
         ],
         data: result,
       });
@@ -750,7 +757,7 @@ export const AppletMixin = {
 
     getTrailsLinesAsCSV (lines, width) {
       const result = [];
-      let totalTime = 0, errorCount = 0, startTime = 0;
+      let totalTime = 0, errorCount = 0, startTime = 0, firstPoint = true;
 
       for (let i = 0; i < lines.length; i++) {
         let hasError = false;
@@ -759,11 +766,17 @@ export const AppletMixin = {
             hasError = true;
           }
 
+          if (!startTime) {
+            startTime = point.time;
+          }
+
           result.push({
             line_number: i.toString(),
             x: (point.x / width * 100).toString(),
             y: (100 - point.y / width * 100).toString(),
-            time: (point.time - startTime).toString(),
+            utcTimestamp: point.time.toString(),
+            milliseconds: Number(point.time - startTime).toString(),
+            epochTimestampMillisecondsStart: firstPoint ? startTime.toString() : '',
             error: point.valid ? 'E0' : point.actual != 'none' ?  'E1' : 'E2',
             total_time: '',
             total_number_of_errors: '',
@@ -771,9 +784,7 @@ export const AppletMixin = {
             actual_path: `${point.start} ~ ${point.actual == 'none' ? '?' : (point.actual || point.end)}`
           })
 
-          if (!startTime) {
-            startTime = point.time;
-          }
+          firstPoint = false;
 
           if (totalTime < point.time - startTime) {
             totalTime = point.time - startTime;
@@ -795,10 +806,12 @@ export const AppletMixin = {
           { key: 'line_number', as: 'line_number' },
           { key: 'x', as: 'x' },
           { key: 'y', as: 'y' },
-          { key: 'time', as: 'time' },
           { key: 'error', as: 'error' },
           { key: 'correct_path', as: 'correct_path' },
           { key: 'actual_path', as: 'actual_path' },
+          { key: 'utcTimestamp', as: 'UTC_Timestamp' },
+          { key: 'milliseconds', as: 'milliseconds' },
+          { key: 'epochTimestampMillisecondsStart', as: 'epoch_timestamp_miliseconds_start' },
           { key: 'total_time', as: 'total_time' },
           { key: 'total_number_of_errors', as: 'total_number_of_errors' }
         ],
@@ -810,20 +823,24 @@ export const AppletMixin = {
 
     getDrawingLinesAsCSV(lines, width) {
       const result = [];
-      let startTime = 0;
+      let startTime = 0, firstPoint = true;
 
       for (let i = 0; i < lines.length; i++) {
         for (const point of lines[i].points) {
+          if (!startTime) {
+            startTime = point.time;
+          }
+
           result.push({
             line_number: i.toString(),
             x: (point.x / width * 100).toString(),
             y: (100 - point.y / width * 100).toString(),
-            timestamp: (point.time - startTime).toString(),
+            UTC_Timestamp: point.time.toString(),
+            milliseconds: Number(point.time - startTime).toString(),
+            epoch_timestamp_miliseconds_start: firstPoint ? startTime.toString() : '',
           });
 
-          if (!startTime) {
-            startTime = point.time;
-          }
+          firstPoint = false;
         }
       }
 
@@ -832,7 +849,9 @@ export const AppletMixin = {
           'line_number',
           'x',
           'y',
-          'timestamp'
+          'UTC_Timestamp',
+          'milliseconds',
+          'epoch_timestamp_miliseconds_start',
         ].map((value) => ({ key: value, as: value })),
         data: result,
       });
