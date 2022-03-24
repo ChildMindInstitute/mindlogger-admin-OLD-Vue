@@ -31,7 +31,7 @@ export const replaceItemVariableWithName = (markdown, items, answers) => {
         });
 
         const reg = new RegExp(`\\[\\[${variableName}\\]\\]`, "gi");
-        if (answers[index] && Array.isArray(answers[index].value)) {
+        if (items[index].inputType != 'text' && answers[index] && Array.isArray(answers[index].value)) {
           let names = [];
           answers[index].value.forEach(ans => {
             const item = _.find(items[index] && items[index].responseOptions, { value: ans });
@@ -58,6 +58,19 @@ export const replaceItemVariableWithName = (markdown, items, answers) => {
               break;
             case 'ageSelector':
               markdown = markdown.replace(reg, answers[index].value + ' ');
+              break;
+            case 'text':
+              if (answers[index].value) {
+                markdown = markdown.replace(
+                  reg,
+                  Array.isArray(answers[index].value) ? answers[index].value[0] : answers[index].value
+                )
+              } else {
+                markdown = markdown.replace(
+                  reg,
+                  answers[index]
+                )
+              }
               break;
           }
         } else if (answers[index]) {
