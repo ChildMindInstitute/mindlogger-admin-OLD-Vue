@@ -379,7 +379,7 @@ export default {
           });
 
           if (data.applet.publicLink) {
-            const inputTypes = ["radio", "checkbox", "slider", "text", "ageSelector", "dropdownList"]
+            const inputTypes = ["radio", "checkbox", "slider", "text", "ageSelector", "dropdownList", "duration"]
             const items = Object.values(data.items);
             for (const item of items) {
               const inputType = _.get(item, ['reprolib:terms/inputType', 0, '@value']);

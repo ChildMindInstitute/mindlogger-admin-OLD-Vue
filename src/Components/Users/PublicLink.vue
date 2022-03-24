@@ -24,7 +24,7 @@
         <span v-else>
           This applet contains items that are not supported by the public link feature. Please update your applet to remove unsupported item types.
           <br />
-          Types supported: Radio button, Checkbox, Slider, Text, Age Selector, Dropdown list, and Cumulative score item
+          Radio button, Checkbox, Slider, Text, Age Selector, Dropdown list, duration pickter and Cumulative score item
         </span>
       </v-tooltip>
     </h1>
@@ -160,7 +160,7 @@ export default {
       return this.$store.state.auth.authToken.token;
     },
     isAvailable () {
-      const inputTypes = ["radio", "checkbox", "slider", "text", "ageSelector", "dropdownList"]
+      const inputTypes = ["radio", "checkbox", "slider", "text", "ageSelector", "dropdownList", "duration"]
       const items = Object.values(this.currentAppletData.items);
       for (const item of items) {
         const inputType = _.get(item, ['reprolib:terms/inputType', 0, '@value']);
