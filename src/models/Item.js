@@ -192,9 +192,10 @@ export default class Item {
 
       if (!Array.isArray(response.value)) {
         // Ensure that it is an array.
-        response.value = [response.value];
-      } else {
-        response.value = response.value;
+        response = {
+          ...response,
+          value: [response.value]
+        };
       }
 
       if (inputType === 'time' || inputType == 'text' || inputType == 'timeRange' || inputType == 'date') {
