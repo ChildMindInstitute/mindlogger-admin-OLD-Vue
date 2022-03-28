@@ -24,7 +24,7 @@
         <span v-else>
           This applet contains items that are not supported by the public link feature. Please update your applet to remove unsupported item types.
           <br />
-          Radio button, Checkbox, Slider, Text, Age Selector, Dropdown list, duration pickter and Cumulative score item
+          Radio button, Checkbox, Slider, Text, Age Selector, Dropdown list, Duration picker and Cumulative score item
         </span>
       </v-tooltip>
     </h1>
