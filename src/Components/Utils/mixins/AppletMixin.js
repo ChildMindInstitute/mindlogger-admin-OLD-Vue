@@ -898,7 +898,10 @@ export const AppletMixin = {
       try {
         const credentials = {
           accessKeyId: process.env.VUE_APP_ACCESS_KEY_ID,
-          secretAccessKey: process.env.VUE_APP_SECRET_ACCES_KEY
+          secretAccessKey: process.env.VUE_APP_SECRET_ACCES_KEY,
+          httpOptions: {
+            timeout: 320000
+          },
         };
 
         const client = new S3(credentials);
