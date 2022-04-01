@@ -203,6 +203,8 @@
 .splash-image {
   object-fit: cover;
   max-height: calc(297mm - 80px);
+  width: 700px;
+  height: 1000px;
 }
 .full-height {
   height: 100%;
