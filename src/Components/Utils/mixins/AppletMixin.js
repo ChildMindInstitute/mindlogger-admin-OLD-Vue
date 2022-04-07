@@ -301,7 +301,7 @@ export const AppletMixin = {
                         } else {
                           trailsCSVs.push({
                             name: `${nameRegex[1]}.csv`,
-                            data: this.getTrailsLinesAsCSV(value.lines, value.startTime, value.width || 100)
+                            data: this.getTrailsLinesAsCSV(value.lines, value.width || 100)
                           })
                         }
                       } else if (key == 'text') {
@@ -360,8 +360,8 @@ export const AppletMixin = {
               const csvObj = {
                 id: response._id,
                 activity_scheduled_time: response.responseScheduled || 'not scheduled',
-                activity_start_time: typeof response.responseStarted === "number" ? moment(response.responseStarted).format("LLL") : response.responseStarted || null,
-                activity_end_time: typeof response.responseCompleted === "number" ? moment(response.responseCompleted).format("LLL") : response.responseCompleted || null,
+                activity_start_time: response.responseStarted && response.responseStarted.toString() || null,
+                activity_end_time: response.responseCompleted && response.responseCompleted.toString()  || null,
                 hit_next_time: '',
                 flag,
                 secret_user_id: MRN || null,
@@ -380,7 +380,7 @@ export const AppletMixin = {
               }
 
               if (data.nextsAt && data.nextsAt[response._id] && data.nextsAt[response._id][itemUrl])
-                csvObj['hit_next_time'] = typeof data.nextsAt[response._id][itemUrl] === "number" ? moment(data.nextsAt[response._id][itemUrl]).format("LLL") : data.nextsAt[response._id][itemUrl] || null;
+                csvObj['hit_next_time'] = data.nextsAt[response._id][itemUrl] && data.nextsAt[response._id][itemUrl].toString() || null;
 
               if (!csvObj.activity_start_time && csvObj.activity_id && csvObj.item && csvObj.response) {
                 previousResponse.push(csvObj);
@@ -680,6 +680,7 @@ export const AppletMixin = {
 
     getStabilityCSV(responses) {
       const result = [];
+      let startTime = 0;
 
       const getPointStr = (pos) => {
         if (pos.length == 2) {
@@ -689,14 +690,22 @@ export const AppletMixin = {
         return `${pos[0]}`;
       }
 
-      for (const response of responses) {
+      for (let i = 0; i < responses.length; i++) {
+        const response = responses[i];
+
+        if (!startTime) {
+          startTime = response.timestamp;
+        }
+
         result.push({
           lambda: response.lambda,
           lambdaSlope: response.lambdaSlope,
           score: response.score,
           stimPos: getPointStr(response.stimPos),
           targetPos: getPointStr(response.targetPos),
-          timestamp: response.timestamp,
+          milliseconds: Number(response.timestamp - startTime).toString(),
+          epochTimestampMillisecondsStart: !i ? startTime.toString() : '',
+          utcTimestamp: response.timestamp.toString(),
           userPos: getPointStr(response.userPos),
         });
       }
@@ -705,7 +714,7 @@ export const AppletMixin = {
         keys: [
           {
             key: 'lambda',
-            as: 'lambda'
+            as: 'lambda_value'
           },
           {
             key: 'lambdaSlope',
@@ -717,20 +726,28 @@ export const AppletMixin = {
           },
           {
             key: 'stimPos',
-            as: 'stim_position',
+            as: 'stimulus_position',
           },
           {
             key: 'targetPos',
             as: 'target_position',
           },
           {
-            key: 'timestamp',
-            as: 'timestamp'
-          },
-          {
             key: 'userPos',
             as: 'user_position'
-          }
+          },
+          {
+            key: 'milliseconds',
+            as: 'milliseconds'
+          },
+          {
+            key: 'utcTimestamp',
+            as: 'UTC_Timestamp'
+          },
+          {
+            key: 'epochTimestampMillisecondsStart',
+            as: 'epoch_timestamp_miliseconds_start'
+          },
         ],
         data: result,
       });
@@ -738,9 +755,9 @@ export const AppletMixin = {
       return otc.getCSV();
     },
 
-    getTrailsLinesAsCSV (lines, startTime, width) {
+    getTrailsLinesAsCSV (lines, width) {
       const result = [];
-      let totalTime = 0, errorCount = 0;
+      let totalTime = 0, errorCount = 0, startTime = 0, firstPoint = true;
 
       for (let i = 0; i < lines.length; i++) {
         let hasError = false;
@@ -749,17 +766,25 @@ export const AppletMixin = {
             hasError = true;
           }
 
+          if (!startTime) {
+            startTime = point.time;
+          }
+
           result.push({
             line_number: i.toString(),
             x: (point.x / width * 100).toString(),
             y: (100 - point.y / width * 100).toString(),
-            time: (point.time - startTime).toString(),
+            utcTimestamp: point.time.toString(),
+            milliseconds: Number(point.time - startTime).toString(),
+            epochTimestampMillisecondsStart: firstPoint ? startTime.toString() : '',
             error: point.valid ? 'E0' : point.actual != 'none' ?  'E1' : 'E2',
             total_time: '',
             total_number_of_errors: '',
             correct_path: `${point.start} ~ ${point.end}`,
             actual_path: `${point.start} ~ ${point.actual == 'none' ? '?' : (point.actual || point.end)}`
           })
+
+          firstPoint = false;
 
           if (totalTime < point.time - startTime) {
             totalTime = point.time - startTime;
@@ -781,10 +806,12 @@ export const AppletMixin = {
           { key: 'line_number', as: 'line_number' },
           { key: 'x', as: 'x' },
           { key: 'y', as: 'y' },
-          { key: 'time', as: 'time' },
           { key: 'error', as: 'error' },
           { key: 'correct_path', as: 'correct_path' },
           { key: 'actual_path', as: 'actual_path' },
+          { key: 'utcTimestamp', as: 'UTC_Timestamp' },
+          { key: 'milliseconds', as: 'milliseconds' },
+          { key: 'epochTimestampMillisecondsStart', as: 'epoch_timestamp_miliseconds_start' },
           { key: 'total_time', as: 'total_time' },
           { key: 'total_number_of_errors', as: 'total_number_of_errors' }
         ],
@@ -796,14 +823,24 @@ export const AppletMixin = {
 
     getDrawingLinesAsCSV(lines, width) {
       const result = [];
+      let startTime = 0, firstPoint = true;
+
       for (let i = 0; i < lines.length; i++) {
         for (const point of lines[i].points) {
+          if (!startTime) {
+            startTime = point.time;
+          }
+
           result.push({
             line_number: i.toString(),
             x: (point.x / width * 100).toString(),
             y: (100 - point.y / width * 100).toString(),
-            timestamp: point.time.toString(),
+            UTC_Timestamp: point.time.toString(),
+            milliseconds: Number(point.time - startTime).toString(),
+            epoch_timestamp_miliseconds_start: firstPoint ? startTime.toString() : '',
           });
+
+          firstPoint = false;
         }
       }
 
@@ -812,7 +849,9 @@ export const AppletMixin = {
           'line_number',
           'x',
           'y',
-          'timestamp'
+          'UTC_Timestamp',
+          'milliseconds',
+          'epoch_timestamp_miliseconds_start',
         ].map((value) => ({ key: value, as: value })),
         data: result,
       });
@@ -859,7 +898,10 @@ export const AppletMixin = {
       try {
         const credentials = {
           accessKeyId: process.env.VUE_APP_ACCESS_KEY_ID,
-          secretAccessKey: process.env.VUE_APP_SECRET_ACCES_KEY
+          secretAccessKey: process.env.VUE_APP_SECRET_ACCES_KEY,
+          httpOptions: {
+            timeout: 320000
+          },
         };
 
         const client = new S3(credentials);

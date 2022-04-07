@@ -59,9 +59,12 @@ export const replaceItemVariableWithName = (markdown, items, answers) => {
             case 'ageSelector':
               markdown = markdown.replace(reg, answers[index].value + ' ');
               break;
+            case 'text':
+              markdown = markdown.replace(reg, answers[index].value.toString().replace(/(?=[$&])/g, '\\') + '');
+              break;
           }
         } else if (answers[index]) {
-          markdown = markdown.replace(reg, answers[index] + ' ');
+          markdown = markdown.replace(reg, answers[index].toString().replace(/(?=[$&])/g, '\\') + ' ');
         }
 
         markdown = markdown.replace(reg, ' ');
