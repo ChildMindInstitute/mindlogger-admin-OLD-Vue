@@ -570,6 +570,13 @@ export const AppletMixin = {
         if (result[i].trialType == 0) {
           result[i].trialType = result[i-1].trialType;
         }
+
+        const timeFields = ['experimentClock', 'blockClock', 'trialStartTimestamp', 'eventStartTimestamp', 'videoDisplayRequestTimestamp', 'responseTouchTimestamp', 'trialOffset', 'eventOffset', 'responseTime'];
+        for (let field of timeFields) {
+          if (result[i][field] != '.') {
+            result[i][field] = Number(result[i][field] / 1000).toFixed(3);
+          }
+        }
       }
 
       let otc = new ObjectToCSV({
@@ -705,7 +712,7 @@ export const AppletMixin = {
           targetPos: getPointStr(response.targetPos),
           milliseconds: Number(response.timestamp - startTime).toString(),
           epochTimeInSecondsStart: !i ? (startTime / 1000).toString() : '',
-          utcTimestamp: response.timestamp.toString(),
+          utcTimestamp: Number(response.timestamp / 1000).toString(),
           userPos: getPointStr(response.userPos),
         });
       }
@@ -774,7 +781,7 @@ export const AppletMixin = {
             line_number: i.toString(),
             x: (point.x / width * 100).toString(),
             y: (100 - point.y / width * 100).toString(),
-            utcTimestamp: point.time.toString(),
+            utcTimestamp: Number(point.time / 1000).toString(),
             milliseconds: Number(point.time - startTime).toString(),
             epochTimeInSecondsStart: firstPoint ? (startTime / 1000).toString() : '',
             error: point.valid ? 'E0' : point.actual != 'none' ?  'E1' : 'E2',
@@ -835,7 +842,7 @@ export const AppletMixin = {
             line_number: i.toString(),
             x: (point.x / width * 100).toString(),
             y: (100 - point.y / width * 100).toString(),
-            UTC_Timestamp: point.time.toString(),
+            UTC_Timestamp: Number(point.time / 1000).toString(),
             milliseconds: Number(point.time - startTime).toString(),
             epoch_time_in_seconds_start: firstPoint ? (startTime / 1000).toString() : '',
           });
