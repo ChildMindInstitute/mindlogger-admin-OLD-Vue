@@ -61,7 +61,7 @@
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .v-card__text {
   padding: 16px !important;
 }
