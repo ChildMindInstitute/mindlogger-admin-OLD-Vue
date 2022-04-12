@@ -226,13 +226,18 @@ export default class Applet {
               const src = subScale.value.src;
 
               subScale.value = data.subScaleSources[subScale.value.src].data[subScale.value.ptr];
-              subScale.value.responseId = src;
 
-              if (subScale.value.rawScore && !subScale.value.tScore) {
-                subScale.value.tScore = subScale.value.rawScore;
+              if (subScale.value) {
+                subScale.value.responseId = src;
+
+                if (subScale.value.rawScore && !subScale.value.tScore) {
+                  subScale.value.tScore = subScale.value.rawScore;
+                }
               }
             }
           }
+
+          data.subScales[activityId][subScaleName] = subScales.filter(subScale => subScale.value);
         }
       }
     }
