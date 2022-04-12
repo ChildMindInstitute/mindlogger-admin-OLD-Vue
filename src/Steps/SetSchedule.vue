@@ -89,7 +89,7 @@
 <style scoped>
 .tools {
   position: fixed;
-  bottom: 16px;
+  bottom: 70px;
   text-align: right;
   right: 32px;
 }

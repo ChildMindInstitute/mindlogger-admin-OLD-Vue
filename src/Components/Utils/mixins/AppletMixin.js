@@ -704,7 +704,7 @@ export const AppletMixin = {
           stimPos: getPointStr(response.stimPos),
           targetPos: getPointStr(response.targetPos),
           milliseconds: Number(response.timestamp - startTime).toString(),
-          epochTimestampMillisecondsStart: !i ? startTime.toString() : '',
+          epochTimeInSecondsStart: !i ? (startTime / 1000).toString() : '',
           utcTimestamp: response.timestamp.toString(),
           userPos: getPointStr(response.userPos),
         });
@@ -745,8 +745,8 @@ export const AppletMixin = {
             as: 'UTC_Timestamp'
           },
           {
-            key: 'epochTimestampMillisecondsStart',
-            as: 'epoch_timestamp_miliseconds_start'
+            key: 'epochTimeInSecondsStart',
+            as: 'epoch_time_in_seconds_start'
           },
         ],
         data: result,
@@ -776,7 +776,7 @@ export const AppletMixin = {
             y: (100 - point.y / width * 100).toString(),
             utcTimestamp: point.time.toString(),
             milliseconds: Number(point.time - startTime).toString(),
-            epochTimestampMillisecondsStart: firstPoint ? startTime.toString() : '',
+            epochTimeInSecondsStart: firstPoint ? (startTime / 1000).toString() : '',
             error: point.valid ? 'E0' : point.actual != 'none' ?  'E1' : 'E2',
             total_time: '',
             total_number_of_errors: '',
@@ -811,7 +811,7 @@ export const AppletMixin = {
           { key: 'actual_path', as: 'actual_path' },
           { key: 'utcTimestamp', as: 'UTC_Timestamp' },
           { key: 'milliseconds', as: 'milliseconds' },
-          { key: 'epochTimestampMillisecondsStart', as: 'epoch_timestamp_miliseconds_start' },
+          { key: 'epochTimeInSecondsStart', as: 'epoch_time_in_seconds_start' },
           { key: 'total_time', as: 'total_time' },
           { key: 'total_number_of_errors', as: 'total_number_of_errors' }
         ],
@@ -837,7 +837,7 @@ export const AppletMixin = {
             y: (100 - point.y / width * 100).toString(),
             UTC_Timestamp: point.time.toString(),
             milliseconds: Number(point.time - startTime).toString(),
-            epoch_timestamp_miliseconds_start: firstPoint ? startTime.toString() : '',
+            epoch_time_in_seconds_start: firstPoint ? (startTime / 1000).toString() : '',
           });
 
           firstPoint = false;
@@ -851,7 +851,7 @@ export const AppletMixin = {
           'y',
           'UTC_Timestamp',
           'milliseconds',
-          'epoch_timestamp_miliseconds_start',
+          'epoch_time_in_seconds_start',
         ].map((value) => ({ key: value, as: value })),
         data: result,
       });
@@ -898,7 +898,10 @@ export const AppletMixin = {
       try {
         const credentials = {
           accessKeyId: process.env.VUE_APP_ACCESS_KEY_ID,
-          secretAccessKey: process.env.VUE_APP_SECRET_ACCES_KEY
+          secretAccessKey: process.env.VUE_APP_SECRET_ACCES_KEY,
+          httpOptions: {
+            timeout: 320000
+          },
         };
 
         const client = new S3(credentials);
