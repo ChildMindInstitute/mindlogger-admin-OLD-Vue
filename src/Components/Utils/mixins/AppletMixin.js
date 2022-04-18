@@ -710,7 +710,7 @@ export const AppletMixin = {
           score: response.score,
           stimPos: getPointStr(response.stimPos),
           targetPos: getPointStr(response.targetPos),
-          milliseconds: Number(response.timestamp - startTime).toString(),
+          seconds: Number((response.timestamp - startTime) / 1000).toString(),
           epochTimeInSecondsStart: !i ? (startTime / 1000).toString() : '',
           utcTimestamp: Number(response.timestamp / 1000).toString(),
           userPos: getPointStr(response.userPos),
@@ -744,8 +744,8 @@ export const AppletMixin = {
             as: 'user_position'
           },
           {
-            key: 'milliseconds',
-            as: 'milliseconds'
+            key: 'seconds',
+            as: 'seconds'
           },
           {
             key: 'utcTimestamp',
@@ -782,7 +782,7 @@ export const AppletMixin = {
             x: (point.x / width * 100).toString(),
             y: (100 - point.y / width * 100).toString(),
             utcTimestamp: Number(point.time / 1000).toString(),
-            milliseconds: Number(point.time - startTime).toString(),
+            seconds: Number((point.time - startTime) / 1000).toString(),
             epochTimeInSecondsStart: firstPoint ? (startTime / 1000).toString() : '',
             error: point.valid ? 'E0' : point.actual != 'none' ?  'E1' : 'E2',
             total_time: '',
@@ -804,7 +804,7 @@ export const AppletMixin = {
       }
 
       if (result.length) {
-        result[0].total_time = totalTime;
+        result[0].total_time = Number(totalTime / 1000).toString();
         result[0].total_number_of_errors = errorCount;
       }
 
@@ -817,7 +817,7 @@ export const AppletMixin = {
           { key: 'correct_path', as: 'correct_path' },
           { key: 'actual_path', as: 'actual_path' },
           { key: 'utcTimestamp', as: 'UTC_Timestamp' },
-          { key: 'milliseconds', as: 'milliseconds' },
+          { key: 'seconds', as: 'seconds' },
           { key: 'epochTimeInSecondsStart', as: 'epoch_time_in_seconds_start' },
           { key: 'total_time', as: 'total_time' },
           { key: 'total_number_of_errors', as: 'total_number_of_errors' }
