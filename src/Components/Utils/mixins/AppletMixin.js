@@ -843,7 +843,7 @@ export const AppletMixin = {
             x: (point.x / width * 100).toString(),
             y: (100 - point.y / width * 100).toString(),
             UTC_Timestamp: Number(point.time / 1000).toString(),
-            milliseconds: Number(point.time - startTime).toString(),
+            seconds: Number((point.time - startTime) / 1000).toString(),
             epoch_time_in_seconds_start: firstPoint ? (startTime / 1000).toString() : '',
           });
 
@@ -857,7 +857,7 @@ export const AppletMixin = {
           'x',
           'y',
           'UTC_Timestamp',
-          'milliseconds',
+          'seconds',
           'epoch_time_in_seconds_start',
         ].map((value) => ({ key: value, as: value })),
         data: result,
