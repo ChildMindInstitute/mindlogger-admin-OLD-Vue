@@ -72,4 +72,8 @@ div.ag-root .ag-cell-focus {
   -ms-user-select: text;
   user-select: text;
 }
+
+.v-card__text {
+  padding: 16px !important;
+}
 </style>

@@ -62,9 +62,6 @@
 </template>
 
 <style lang="scss" scoped>
-.v-card__text {
-  padding: 16px !important;
-}
 .v-dialog {
   .v-card {
     .v-card__title {
