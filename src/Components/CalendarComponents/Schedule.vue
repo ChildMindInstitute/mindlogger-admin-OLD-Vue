@@ -225,7 +225,7 @@
 </template>
 
 <script>
-import { Day, Schedule } from "dayspan";
+import { Day, Schedule, Pattern } from "dayspan";
 import ScheduleType from "./ScheduleType";
 import ScheduleTimes from "./ScheduleTimes";
 import ScheduleSpan from "./ScheduleSpan";
@@ -298,7 +298,7 @@ export default {
   // eslint-disable-next-line
   data() {
     return {
-      activityRepeats: !!this.schedule.isSingleEvent(),
+      activityRepeats: !this.schedule.isSingleEvent(),
       oneTimeCompletion: this.completion,
       timedActivity: this.initialTimedActivity,
       eventAvailability: this.availability,
@@ -327,6 +327,14 @@ export default {
     timeout: function(newTimeout) {
       scheduledTimeout = newTimeout;
     },
+    activityRepeats: function (newRepeat) {
+      if (!newRepeat) {
+        var pattern = Pattern.withName('none')
+        if (pattern) {
+          pattern.apply(this.schedule, this.day)
+        }
+      }
+    }
   },
   methods: {
     custom() {
