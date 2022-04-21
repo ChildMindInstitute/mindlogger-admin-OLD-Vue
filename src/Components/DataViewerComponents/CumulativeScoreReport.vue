@@ -201,7 +201,7 @@
   justify-content: center;
 }
 .splash-image {
-  object-fit: cover;
+  object-fit: scale-down;
   max-height: calc(297mm - 80px);
   width: 700px;
   height: 1000px;
