@@ -121,12 +121,9 @@ export default {
       lastNameRules: [(v) => !!v || this.$i18n.t("lastNameRequired")],
       password: "",
       passwordRules: [ 
-        v => !!v || 'Password is required', 
-        v => (v && v.length >= 8) || 'Password must have 8+ characters',
-        v => /(?=.*[A-Z])/.test(v) || 'Must have one uppercase character',
-        v => /(?=.*[a-z])/.test(v) || 'Must have one lowercase character', 
-        v => /(?=.*\d)/.test(v) || 'Must have one number', 
-        v => /([!@#$%^&*?])/.test(v) || 'Must have one special character' 
+        v => !!v || this.$i18n.t("passwordRequired"), 
+        v => (v && v.length >= 6) || this.$i18n.t("passwordShort"),
+        v => (v && !v.includes(" ")) || this.$i18n.t("passwordBlank")
       ],
       error: "",
       terms: false

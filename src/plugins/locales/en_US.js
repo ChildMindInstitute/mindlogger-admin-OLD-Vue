@@ -18,6 +18,8 @@ export default {
   firstNameRequired: 'First Name is required',
   lastNameRequired: 'Last Name is required',
   passwordRequired: 'Password is required',
+  passwordShort: "Password must be at least 6 characters",
+  passwordBlank: "Password should not contain blank spaces",
   removeFromFolder: 'Remove applet from folder',
   shareWithLibrary: 'Share with the library',
   refresh: 'Refresh',
