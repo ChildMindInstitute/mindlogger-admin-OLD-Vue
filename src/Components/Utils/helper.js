@@ -42,7 +42,7 @@ export const replaceItemVariableWithName = (markdown, items, answers) => {
         } else if (typeof answers[index] === "object") {
           switch (items[index].inputType) {
             case 'radio':
-              const item = index > -1 && _.find(items[index].responseOptions, { value: answers[index].value });
+              const item = _.find(items[index].responseOptions, { value: answers[index].value });
               if (item) {
                 markdown = markdown.replace(reg, item.name.en + ' ');
               }
