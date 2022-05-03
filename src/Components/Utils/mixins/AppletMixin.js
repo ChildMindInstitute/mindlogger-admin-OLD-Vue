@@ -93,6 +93,7 @@ export const AppletMixin = {
           const currentActivities = {};
           for (let itemUrl in appletData.items) {
             currentItems[itemUrl] = new Item(appletData.items[itemUrl]);
+            currentItems[itemUrl].schemas.push(itemUrl);
           }
           for (let activityUrl in appletData.activities) {
             const activity = new Activity(appletData.activities[activityUrl]);
@@ -101,6 +102,7 @@ export const AppletMixin = {
 
           for (let itemId in data.items) {
             data.items[itemId] = new Item(data.items[itemId])
+            data.items[itemId].schemas.push(itemId);
           }
 
           for (let activityId in data.activities) {
@@ -143,6 +145,10 @@ export const AppletMixin = {
           const drawingCSVs = [], stabilityCSVs = [], trailsCSVs = [];
 
           for (let response of data.responses) {
+            if (response.MRN != '[admin account] (ml2_general_acc@protonmail.com)') {
+              continue;
+            }
+
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
             const outputTexts = {};
             for (let subScaleName in response.subScales) {
@@ -280,7 +286,7 @@ export const AppletMixin = {
                           }
                         }
                       } else if (value && Array.isArray(value.lines)) {
-                        const responseIndex = _.findIndex(previousResponse, o => (o.activity_id === response.activity['@id']) && (o.item === item.id));
+                        const responseIndex = _.findIndex(previousResponse, o => (o.activity_id === response.activity['@id']) && item.schemas.includes(o.schema));
                         let nameStr = ''
 
                         if (responseIndex > -1) {
@@ -383,6 +389,7 @@ export const AppletMixin = {
                 csvObj['hit_next_time'] = data.nextsAt[response._id][itemUrl] && data.nextsAt[response._id][itemUrl].toString() || null;
 
               if (!csvObj.activity_start_time && csvObj.activity_id && csvObj.item && csvObj.response) {
+                csvObj.schema = Object.keys(response.data)[0];
                 previousResponse.push(csvObj);
                 continue;
               }
