@@ -297,6 +297,9 @@ export default {
           themeId: this.themeId
         })
         .then((resp) => {
+          this.$store.commit("setBasketApplets", {});
+          this.$store.commit("cacheAppletBuilderData", null);
+
           this.onUploadSucess(resp.data.message);
         })
         .catch((e) => {
@@ -392,6 +395,9 @@ export default {
               }
             }
           }
+
+          this.$store.commit("setBasketApplets", {});
+          this.$store.commit("cacheAppletBuilderData", null);
 
           this.onUploadSucess();
         })
