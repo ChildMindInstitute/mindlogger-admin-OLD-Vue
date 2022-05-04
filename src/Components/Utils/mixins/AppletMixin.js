@@ -145,10 +145,6 @@ export const AppletMixin = {
           const drawingCSVs = [], stabilityCSVs = [], trailsCSVs = [];
 
           for (let response of data.responses) {
-            if (response.MRN != '[admin account] (ml2_general_acc@protonmail.com)') {
-              continue;
-            }
-
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
             const outputTexts = {};
             for (let subScaleName in response.subScales) {
