@@ -9,7 +9,7 @@
 </style>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import { AccountMixin } from '../Components/Utils/mixins/AccountMixin';
 import { LibraryMixin } from '../Components/Utils/mixins/LibraryMixin';
 import api from '../Components/Utils/api/api.vue';
@@ -20,6 +20,9 @@ export default {
   computed: {
     ...mapGetters([
       'isLoggedIn',
+    ]),
+    ...mapState([
+      "currentAppletBuilderData"
     ]),
     currentApplet: {
       get() {
@@ -61,6 +64,14 @@ export default {
     if (fromLibrary) {
       let isEditing = false;
       if (cache == "true") {
+        if (
+          this.currentAppletBuilderData &&
+          this.currentAppletBuilderData.protocol &&
+          this.currentAppletBuilderData.protocol.appletId == this.currentApplet.id
+        ) {
+          isEditing = true;
+        }
+
         if (sync == "true") {
           await this.loadBasketApplets();
         } else {
