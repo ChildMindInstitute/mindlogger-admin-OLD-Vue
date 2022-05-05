@@ -66,6 +66,7 @@ export default {
       if (cache == "true") {
         if (
           this.currentApplet &&
+          this.currentAppletBuilderData &&
           this.currentAppletBuilderData.protocol &&
           this.currentAppletBuilderData.protocol.appletId == this.currentApplet.id
         ) {
