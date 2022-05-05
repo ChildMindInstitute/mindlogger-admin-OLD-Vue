@@ -65,7 +65,7 @@ export default {
       let isEditing = false;
       if (cache == "true") {
         if (
-          this.currentAppletBuilderData &&
+          this.currentApplet &&
           this.currentAppletBuilderData.protocol &&
           this.currentAppletBuilderData.protocol.appletId == this.currentApplet.id
         ) {
