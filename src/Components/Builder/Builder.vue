@@ -298,7 +298,6 @@ export default {
         })
         .then((resp) => {
           this.$store.commit("setBasketApplets", {});
-          this.$store.commit("cacheAppletBuilderData", null);
 
           this.onUploadSucess(resp.data.message);
         })
