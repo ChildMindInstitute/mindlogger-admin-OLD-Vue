@@ -24,6 +24,8 @@ export default {
   notifications: "Notifications",
   activityAvailable: "Activité disponible",
   passwordRequired: 'Un mot de passe est obligatoire',
+  passwordShort: "Le mot de passe doit être au moins de 6 caractères",
+  passwordBlank: "Le mot de passe ne doit pas contenir d'espaces vides",
   refresh: 'Rafraîchir',
   delete: 'Effacer',
   select: 'Sélectionner',

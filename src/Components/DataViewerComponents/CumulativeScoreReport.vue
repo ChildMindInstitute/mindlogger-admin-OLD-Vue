@@ -26,6 +26,14 @@
           alt=''
         />
       </div>
+
+      <div
+        v-if="activityResponses.length > 1"
+        class="activity-title my-2"
+      >
+        {{ activity.label.en }}
+      </div>
+
       <p class="text-body-2 mb-4">
         <markdown :source="scoreOverview.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
       </p>
@@ -86,10 +94,16 @@
   width: 656px;
   font-family: Arial, Helvetica, sans-serif;
 }
+
 .applet-logo {
   float: right;
   margin-top: 2px;
   margin-left: 15px;
+}
+.activity-title {
+  font-size: 2rem;
+  text-align: center;
+  font-weight: bold;
 }
 .text-uppercase {
   text-transform: uppercase;
@@ -114,6 +128,10 @@
 }
 .mb-1 {
   margin-bottom: 0.25em;
+}
+.my-2 {
+  margin-bottom: 0.5em;
+  margin-top: 0.5em;
 }
 .ml-2 {
   margin-left: 0.5em;
@@ -183,8 +201,10 @@
   justify-content: center;
 }
 .splash-image {
-  object-fit: cover;
+  object-fit: contain;
   max-height: calc(297mm - 80px);
+  width: 100%;
+  height: 1000px;
 }
 .full-height {
   height: 100%;
