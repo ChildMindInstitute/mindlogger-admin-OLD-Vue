@@ -534,11 +534,35 @@ export const AppletMixin = {
         return {
           blockNumber, trialNumber, trialType, eventType,
           responseValue, responseAccuracy, videoDisplayRequestTimestamp,
-          responseTouchTimestamp, responseTime, eventStartTimestamp, eventOffset
+          responseTouchTimestamp, responseTime, eventStartTimestamp, eventOffset, failedPractice: ''
         }
       }
 
       let trialStartTimestamp = 0;
+
+      let lastIndex = 1e6, totalCount = 0, correctCount = 0, failedPractice = false;
+
+      if (item.inputs.minimumAccuracy) {
+        for (let i = responses.length-1; i >= 0; i--) {
+          if (responses[i].trial_index > lastIndex) {
+            break;
+          }
+
+          lastIndex = responses[i].trial_index;
+
+          if (responses[i].tag == 'trial') {
+            totalCount++;
+
+            if (responses[i].correct) {
+              correctCount++;
+            }
+          }
+        }
+
+        if (correctCount / totalCount * 100 < item.inputs.minimumAccuracy) {
+          failedPractice = true;
+        }
+      }
 
       for (let i = 0; i < responses.length; i++) {
         const blockClock = responses[0].start_timestamp;
@@ -582,69 +606,80 @@ export const AppletMixin = {
         }
       }
 
+      const keys = [
+        {
+          key: 'blockNumber',
+          as: 'block_number',
+        },
+        {
+          key: 'trialNumber',
+          as: 'trial_number',
+        },
+        {
+          key: 'trialType',
+          as: 'trial_type'
+        },
+        {
+          key: 'eventType',
+          as: 'event_type',
+        },
+        {
+          key: 'experimentClock',
+          as: 'experiment_start_timestamp'
+        },
+        {
+          key: 'blockClock',
+          as: 'block_start_timestamp'
+        },
+        {
+          key: 'trialStartTimestamp',
+          as: 'trial_start_timestamp'
+        },
+        {
+          key: 'eventStartTimestamp',
+          as: 'event_start_timestamp'
+        },
+        {
+          key: 'videoDisplayRequestTimestamp',
+          as: 'video_display_request_timestamp'
+        },
+        {
+          key: 'responseTouchTimestamp',
+          as: 'response_touch_timestamp'
+        },
+        {
+          key: 'trialOffset',
+          as: 'trial_offset'
+        },
+        {
+          key: 'eventOffset',
+          as: 'event_offset'
+        },
+        {
+          key: 'responseTime',
+          as: 'response_time'
+        },
+        {
+          key: 'responseValue',
+          as: 'response'
+        },
+        {
+          key: 'responseAccuracy',
+          as: 'response_accuracy'
+        }
+      ];
+
+      if (item.inputs.minimumAccuracy) {
+        keys.push({
+          key: 'failedPractice',
+          as: 'failed_practice',
+        });
+
+        result[0].failedPractice = failedPractice ? 1 : 0;
+      }
+
       let otc = new ObjectToCSV({
-        keys: [
-          {
-            key: 'blockNumber',
-            as: 'block_number',
-          },
-          {
-            key: 'trialNumber',
-            as: 'trial_number',
-          },
-          {
-            key: 'trialType',
-            as: 'trial_type'
-          },
-          {
-            key: 'eventType',
-            as: 'event_type',
-          },
-          {
-            key: 'experimentClock',
-            as: 'experiment_start_timestamp'
-          },
-          {
-            key: 'blockClock',
-            as: 'block_start_timestamp'
-          },
-          {
-            key: 'trialStartTimestamp',
-            as: 'trial_start_timestamp'
-          },
-          {
-            key: 'eventStartTimestamp',
-            as: 'event_start_timestamp'
-          },
-          {
-            key: 'videoDisplayRequestTimestamp',
-            as: 'video_display_request_timestamp'
-          },
-          {
-            key: 'responseTouchTimestamp',
-            as: 'response_touch_timestamp'
-          },
-          {
-            key: 'trialOffset',
-            as: 'trial_offset'
-          },
-          {
-            key: 'eventOffset',
-            as: 'event_offset'
-          },
-          {
-            key: 'responseTime',
-            as: 'response_time'
-          },
-          {
-            key: 'responseValue',
-            as: 'response'
-          },
-          {
-            key: 'responseAccuracy',
-            as: 'response_accuracy'
-          }
-        ],
+        keys,
         data: result,
       });
 
