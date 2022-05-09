@@ -131,7 +131,7 @@ export default {
 		},
 
 		canShareWithLibrary() {
-			return this.hasRoles(this.item, 'owner', 'manager') && this.$store.state.currentAccount.appletPublishEnabled;
+			return this.hasRoles(this.item, 'owner', 'manager');
 		}
 	},
 
