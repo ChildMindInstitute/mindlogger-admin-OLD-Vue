@@ -61,10 +61,7 @@
   </div>
 </template>
 
-<style lang="scss">
-.v-card__text {
-  padding: 16px !important;
-}
+<style lang="scss" scoped>
 .v-dialog {
   .v-card {
     .v-card__title {
@@ -300,6 +297,8 @@ export default {
           themeId: this.themeId
         })
         .then((resp) => {
+          this.$store.commit("setBasketApplets", {});
+
           this.onUploadSucess(resp.data.message);
         })
         .catch((e) => {
@@ -377,6 +376,27 @@ export default {
             this.versions = resp.data;
             this.componentKey = this.componentKey + 1;
           });
+
+          if (data.applet.publicLink) {
+            const inputTypes = ["radio", "checkbox", "slider", "text", "ageSelector", "dropdownList", "duration"]
+            const items = Object.values(data.items);
+            for (const item of items) {
+              const inputType = _.get(item, ['reprolib:terms/inputType', 0, '@value']);
+              if (!inputTypes.includes(inputType)) {
+                api.appletPublicLink({
+                  method: "DELETE",
+                  apiHost: apiHost,
+                  token: token,
+                  appletId
+                });
+
+                break;
+              }
+            }
+          }
+
+          this.$store.commit("setBasketApplets", {});
+          this.$store.commit("cacheAppletBuilderData", null);
 
           this.onUploadSucess();
         })

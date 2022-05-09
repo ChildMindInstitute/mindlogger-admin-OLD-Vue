@@ -89,7 +89,7 @@
 <style scoped>
 .tools {
   position: fixed;
-  bottom: 16px;
+  bottom: 70px;
   text-align: right;
   right: 32px;
 }
@@ -173,6 +173,19 @@ export default {
     },
   },
   mounted() {
+    let roles = this.currentAppletMeta.roles;
+    if (
+      !roles.includes('coordinator') &&
+      !roles.includes('manager') &&
+      !roles.includes('owner')
+    ) {
+      this.$router.push("/dashboard").catch(err => {});
+      this.$store.commit('setCurrentApplet', null);
+      this.$store.commit('setCurrentUsers', {});
+
+      return ;
+    }
+
     let process;
     if (!this.isLatestApplet(this.currentAppletMeta)) {
       process = this.loadApplet(this.currentAppletMeta.id).then(data => data.schedule);

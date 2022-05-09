@@ -237,7 +237,7 @@
               bottom
               right
               fab
-              style="bottom: 70px; right: 40px;"
+              style="bottom: 120px; right: 40px;"
               @click="addToday"
             >
               <v-icon>mdi-plus</v-icon>

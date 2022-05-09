@@ -6,6 +6,7 @@
         <router-view />
       </v-container>
     </v-content>
+    <Footer />
   </v-app>
 </template>
 
@@ -13,6 +14,7 @@
 import store from './State/state';
 import api from './Components/Utils/api/api.vue';
 import Header from './Components/Utils/header/header.vue';
+import Footer from './Components/Utils/footer/footer.vue';
 import _ from 'lodash';
 
 export default {
@@ -20,6 +22,7 @@ export default {
   store,
   components: {
     Header,
+    Footer,
   },
 
   /**
@@ -68,5 +71,9 @@ div.ag-root .ag-cell-focus {
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text;
+}
+
+.v-card__text {
+  padding: 16px !important;
 }
 </style>
