@@ -14,6 +14,7 @@
       :cacheData="currentAppletBuilderData"
       :basketApplets="basketApplets"
       :themes="themes"
+      :viewMode="!canEditApplet"
       @removeTemplate="onRemoveTemplate"
       @updateTemplates="onAddTemplate"
       @uploadProtocol="onUploadProtocol"
@@ -80,6 +81,7 @@ import axios from "axios";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import { AppletMixin } from "../Utils/mixins/AppletMixin";
 import { AccountMixin } from "../Utils/mixins/AccountMixin";
+import { RolesMixin } from '../Utils/mixins/RolesMixin';
 
 import encryption from "../Utils/encryption/encryption.vue";
 import AppletPassword from "../Utils/dialogs/AppletPassword";
@@ -100,7 +102,7 @@ export default {
     AppletPassword,
     Information,
   },
-  mixins: [AppletMixin, AccountMixin],
+  mixins: [AppletMixin, AccountMixin, RolesMixin],
   data() {
     return {
       loading: true,
@@ -155,6 +157,9 @@ export default {
         []
       );
     },
+    canEditApplet() {
+			return this.hasRoles(this.currentAppletMeta, 'editor', 'manager');
+		},
   },
   async beforeMount() {
     const { apiHost, token } = this;

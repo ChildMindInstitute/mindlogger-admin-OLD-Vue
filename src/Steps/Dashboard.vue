@@ -44,6 +44,7 @@
               @onAppletPasswordChanged="onAppletPasswordChanged"
               @onAppletIsEdited="onAppletIsEdited"
               @onOwnerShipInviteSuccessful="onOwnerShipInviteSuccessful"
+              @onSetWelcomeAppletSuccess="onSetWelcomeAppletSuccess"
               @onOwnerShipInviteError="onOwnerShipInviteError"
               @onDuplicateRequestReceived="onDuplicateRequestReceived"
               @onRefreshAppletRequestReceived="onRefreshAppletRequestReceived"
@@ -445,6 +446,11 @@ export default {
     onOwnerShipInviteSuccessful(email) {
       this.dialogText = this.$t('requestSuccess', { email });
       this.dialogTitle = this.$t('requestSent');
+      this.dialog = true;
+    },
+    onSetWelcomeAppletSuccess(status) {
+      this.dialogText = this.$t(status ? 'publishAppletSuccess' : 'concealAppletSuccess');
+      this.dialogTitle = this.$t(status ? 'publishApplet' : 'concealApplet');
       this.dialog = true;
     },
     onOwnerShipInviteError() {
