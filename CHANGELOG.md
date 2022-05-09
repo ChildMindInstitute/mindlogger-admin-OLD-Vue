@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
+## [0.16.0] - 2022-05-9
+New Features:
+- One Page Assessment: Editors now have the ability to create a web-based assessment that will show all items on one page versus one item at a time 
+- Terms of Service: Terms of Service have been added to MindLogger on sign up 
+
+Improvements:
+- CST: Acceleration of the stimulus has been fixed 
+- Share all Report Button: Now if the share all report button is present, the share report for the activity's report is hidden 
+- Slider Tick Marks and Labels: Now the editor can configure tick marks and labels independently when creating an assessment 
+- Epoch Time in data export: Epoch is now shown as time in seconds with millisecond precision 
+- Flanker Initial Delay: The initial loading delay on Flanker has been removed 
+
+Bug Fixes:
+- Editing Applets Bug: Editing 15 or more items when updating an applet is fixed so the editor should be able to make as many updates as required and save still function as expected 
+- Free Text Response: The editor can set a character limit and it saves correctly now 
+- Drag and Drop Feature: Editors should be able to drag and scroll when reordering activities or items 
+
 ## [0.15.3] - 2022-04-20
 - Update password validation
 

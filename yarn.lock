@@ -2939,10 +2939,10 @@
     "normalize-path" "^3.0.0"
     "picomatch" "^2.0.4"
 
-"applet-schema-builder@^0.11.0":
-  "integrity" "sha512-NGh5ujqyqT2bMyLstO+v0eU/IS1uxU8d0imUMv19NIGxRCFCeg2f47LstiDVsbvlkvmS9EEl8grAUAvOKC5ipg=="
-  "resolved" "https://registry.npmjs.org/applet-schema-builder/-/applet-schema-builder-0.11.0.tgz"
-  "version" "0.11.0"
+"applet-schema-builder@^0.16.0":
+  "integrity" "sha512-OdFBAZ7w2E0awGpyLnTEDW+rDpILPIq4f4DcLqq0tNSNat7r5m7bsHlwuYrQA7aJwAf1EX/AgYv7McogXrwYjQ=="
+  "resolved" "https://registry.npmjs.org/applet-schema-builder/-/applet-schema-builder-0.16.0.tgz"
+  "version" "0.16.0"
   dependencies:
     "@sentry/browser" "^5.26.0"
     "@sentry/integrations" "^5.26.0"
@@ -2964,6 +2964,7 @@
     "raw-loader" "^4.0.2"
     "style-loader" "^2.0.0"
     "vue" "^2.6.10"
+    "vue-advanced-cropper" "^1.10.0"
     "vue-audio-recorder" "^3.0.1"
     "vue-click-outside" "^1.1.0"
     "vue-router" "^3.4.3"
@@ -4065,6 +4066,11 @@
     "isobject" "^3.0.0"
     "static-extend" "^0.1.1"
 
+"classnames@^2.2.6":
+  "integrity" "sha512-OlQdbZ7gLfGarSqxesMesDa5uz7KFbID8Kpq/SxIoNGDqY8lSYs0D+hhtBXhcdB3rcbXArFr7vlHheLk1voeNA=="
+  "resolved" "https://registry.npmjs.org/classnames/-/classnames-2.3.1.tgz"
+  "version" "2.3.1"
+
 "clean-css@4.2.x":
   "integrity" "sha512-4ZxI6dy4lrY6FHzfiy1aEOXgu4LIsW2MhwG0VBKdcoGoH/XLFgaHSdLTGr4O8Be6A8r3MOphEiI8Gc1n0ecf3g=="
   "resolved" "https://registry.npmjs.org/clean-css/-/clean-css-4.2.1.tgz"
@@ -5117,6 +5123,11 @@
   "resolved" "https://registry.npmjs.org/debounce-promise/-/debounce-promise-3.1.2.tgz"
   "version" "3.1.2"
 
+"debounce@^1.2.0":
+  "integrity" "sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug=="
+  "resolved" "https://registry.npmjs.org/debounce/-/debounce-1.2.1.tgz"
+  "version" "1.2.1"
+
 "debug@^2.2.0":
   "integrity" "sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA=="
   "resolved" "https://registry.npmjs.org/debug/-/debug-2.6.9.tgz"
@@ -5526,6 +5537,11 @@
     "inherits" "^2.0.1"
     "readable-stream" "^2.0.0"
     "stream-shift" "^1.0.0"
+
+"easy-bem@^1.0.2":
+  "integrity" "sha512-GJRqdiy2h+EXy6a8E6R+ubmqUM08BK0FWNq41k24fup6045biQ8NXxoXimiwegMQvFFV3t1emADdGNL1TlS61A=="
+  "resolved" "https://registry.npmjs.org/easy-bem/-/easy-bem-1.1.1.tgz"
+  "version" "1.1.1"
 
 "easy-stack@^1.0.0":
   "integrity" "sha1-EskbMIWjfwuqM26UhurEv5Tj54g="
@@ -13401,6 +13417,15 @@
   "resolved" "https://registry.npmjs.org/vm-browserify/-/vm-browserify-1.1.2.tgz"
   "version" "1.1.2"
 
+"vue-advanced-cropper@^1.10.0":
+  "integrity" "sha512-obEcM5DvDE4VfX32p21X3Kk5gGo9nbEttm+SEgk4X380SSS5JNWkzjSfWLBYQnZ+9pI2BKsuISbymeH1P68dbg=="
+  "resolved" "https://registry.npmjs.org/vue-advanced-cropper/-/vue-advanced-cropper-1.10.1.tgz"
+  "version" "1.10.1"
+  dependencies:
+    "classnames" "^2.2.6"
+    "debounce" "^1.2.0"
+    "easy-bem" "^1.0.2"
+
 "vue-audio-recorder@^3.0.1":
   "integrity" "sha512-qTEs5k0ewqyTzMTnffAnSAJW4NicQg2pQTonZtwwNnKjub34xKVt4gFTz+NPrL61KNQBZKEMQbEmwDrBmiPcOg=="
   "resolved" "https://registry.npmjs.org/vue-audio-recorder/-/vue-audio-recorder-3.0.1.tgz"
@@ -13558,7 +13583,7 @@
   "resolved" "https://registry.npmjs.org/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.9.1.tgz"
   "version" "1.9.1"
 
-"vue@^2.6.10", "vue@2.6.10":
+"vue@^2.6.10", "vue@^2.6.6", "vue@2.6.10":
   "integrity" "sha512-ImThpeNU9HbdZL3utgMCq0oiMzAkt1mcgy3/E6zWC/G6AaQoeuFdsl9nDhTDU3X1R6FK7nsIUuRACVcjI+A2GQ=="
   "resolved" "https://registry.npmjs.org/vue/-/vue-2.6.10.tgz"
   "version" "2.6.10"
