@@ -363,7 +363,7 @@ export const AppletMixin = {
                 id: response._id,
                 activity_scheduled_time: response.responseScheduled || 'not scheduled',
                 activity_start_time: response.responseStarted && response.responseStarted.toString() || null,
-                activity_end_time: response.responseCompleted && response.responseCompleted.toString()  || null,
+                activity_end_time: response.responseCompleted && response.responseCompleted.toString() || null,
                 hit_next_time: '',
                 flag,
                 secret_user_id: MRN || null,
@@ -567,11 +567,11 @@ export const AppletMixin = {
 
       for (let i = 0; i < result.length; i++) {
         if (result[i].trialType == -1) {
-          result[i].trialType = result[i+1].trialType;
+          result[i].trialType = result[i + 1].trialType;
         }
 
         if (result[i].trialType == 0) {
-          result[i].trialType = result[i-1].trialType;
+          result[i].trialType = result[i - 1].trialType;
         }
 
         const timeFields = ['experimentClock', 'blockClock', 'trialStartTimestamp', 'eventStartTimestamp', 'videoDisplayRequestTimestamp', 'responseTouchTimestamp', 'trialOffset', 'eventOffset', 'responseTime'];
@@ -765,7 +765,7 @@ export const AppletMixin = {
       return otc.getCSV();
     },
 
-    getTrailsLinesAsCSV (lines, width) {
+    getTrailsLinesAsCSV(lines, width) {
       const result = [];
       let totalTime = 0, errorCount = 0, startTime = 0, firstPoint = true;
 
@@ -787,7 +787,7 @@ export const AppletMixin = {
             utcTimestamp: Number(point.time / 1000).toString(),
             seconds: Number((point.time - startTime) / 1000).toString(),
             epochTimeInSecondsStart: firstPoint ? (startTime / 1000).toString() : '',
-            error: point.valid ? 'E0' : point.actual != 'none' ?  'E1' : 'E2',
+            error: point.valid ? 'E0' : point.actual != 'none' ? 'E1' : 'E2',
             total_time: '',
             total_number_of_errors: '',
             correct_path: `${point.start} ~ ${point.end}`,
@@ -922,13 +922,21 @@ export const AppletMixin = {
             Bucket: mediaObject.bucket,
             Key: mediaObject.key
           };
-
+          let filename = mediaObject.name;
           try {
             const data = await client.getObject(params).promise();
-            let filename = mediaObject.name;
             if (filename && filename.includes('.quicktime')) filename = filename.replace('.quicktime', '.MOV');
             zip.file(filename, data.Body);
-          } catch(e) {
+          } catch (e) {
+            try {
+              // try for GCP bucket, reason to use this approach is that we don't know the bucket type
+              // either it is of amazon s3 or GCP
+              const blobFile = await gcpFileBlob(mediaObject.bucket, mediaObject.key);
+              if (filename && filename.includes('.quicktime')) filename = filename.replace('.quicktime', '.MOV');
+              zip.file(filename, blobFile);
+            } catch (error) {
+              console.error(error);
+            }
             console.error(e);
           }
         }
@@ -941,5 +949,14 @@ export const AppletMixin = {
       }
     }
 
+  }
+}
+
+const gcpFileBlob = async (bucket, key) => {
+  try {
+    const data = await fetch(`https://storage.googleapis.com/${bucket}/${key}`);
+    return await data.blob();
+  } catch (err) {
+    console.error(err.name, err.message);
   }
 }
