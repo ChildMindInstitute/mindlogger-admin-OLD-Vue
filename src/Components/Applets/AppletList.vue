@@ -120,7 +120,8 @@
                       @onRefreshApplet="onRefreshApplet"
                       @removeFromFolder="removeAppletFromFolder"
                       @onTransferOwnership="onTransferOwnership"
-                      @onShareWithLibrary="onShareWithLibrary" />
+                      @onShareWithLibrary="onShareWithLibrary"
+                      @onSwitchWelcomeApplet="onSwitchWelcomeApplet" />
               </template>
             </applet-item>
           </template>
@@ -163,6 +164,20 @@
         :dialogText="$t('deleteAppletConfirmation')"
         :title="$t('deleteApplet')"
         @onOK="deleteFolderApplet"
+    />
+
+    <ConfirmationDialog
+      v-model="welcomeAppletConfirmDialog"
+      :dialogText="$t('publishAppletConfirmation')"
+      :title="$t('publishApplet')"
+      @onOK="onSetWelcomeApplet(true)"
+    />
+
+    <ConfirmationDialog
+      v-model="concealAppletConfirmationDialog"
+      :dialogText="$t('concealAppletConfirmation')"
+      :title="$t('concealApplet')"
+      @onOK="onSetWelcomeApplet(false)"
     />
 
     <ConfirmationDialog
@@ -316,6 +331,8 @@ export default {
       appletDeleteDialog: false,
       folderAppletDelete: false,
       appletPendingDelete: undefined,
+      welcomeAppletConfirmDialog: false,
+      concealAppletConfirmationDialog: false,
       ownershipDialog: false,
       shareWithDialog: false,
       shareApplet: {},
@@ -656,6 +673,33 @@ export default {
 
             this.$emit("onAppletPasswordChanged");
           });
+    },
+
+    onSetWelcomeApplet(publish=true) {
+      const item = this.visibleItems.find(item => item.id == this.hoveredAppletId);
+
+      this.welcomeAppletConfirmDialog = false;
+      this.concealAppletConfirmationDialog = false;
+
+      api
+        .setWelcomeAppletStatus({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          appletId: this.hoveredAppletId,
+          status: publish
+        })
+        .then(() => {
+          this.$emit("onSetWelcomeAppletSuccess", publish);
+          item.welcomeApplet = publish;
+        })
+    },
+
+    onSwitchWelcomeApplet(item) {
+      if (item.welcomeApplet) {
+        this.concealAppletConfirmationDialog = true;
+      } else {
+        this.welcomeAppletConfirmDialog = true;
+      }
     },
 
     transferOwnership(ownershipEmail) {
