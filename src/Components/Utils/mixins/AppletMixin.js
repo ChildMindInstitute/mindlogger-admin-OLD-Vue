@@ -128,7 +128,6 @@ export const AppletMixin = {
             'activity_scheduled_time',
             'activity_start_time',
             'activity_end_time',
-            'hit_next_time',
             'flag',
             'secret_user_id',
             'userId',
@@ -369,7 +368,6 @@ export const AppletMixin = {
                 activity_scheduled_time: response.responseScheduled || 'not scheduled',
                 activity_start_time: response.responseStarted && response.responseStarted.toString() || null,
                 activity_end_time: response.responseCompleted && response.responseCompleted.toString()  || null,
-                hit_next_time: '',
                 flag,
                 secret_user_id: MRN || null,
                 userId: _id,
@@ -385,9 +383,6 @@ export const AppletMixin = {
                 ... (!isSubScaleExported ? response.subScales : {}),
                 ... (!isSubScaleExported ? outputTexts : {})
               }
-
-              if (data.nextsAt && data.nextsAt[response._id] && data.nextsAt[response._id][itemUrl])
-                csvObj['hit_next_time'] = data.nextsAt[response._id][itemUrl] && data.nextsAt[response._id][itemUrl].toString() || null;
 
               if (!csvObj.activity_start_time && csvObj.activity_id && csvObj.item && csvObj.response) {
                 csvObj.schema = Object.keys(response.data)[0];
@@ -439,12 +434,12 @@ export const AppletMixin = {
                 events.push({
                   id: response._id,
                   activity_scheduled_time: response.responseScheduled || 'not scheduled',
-                  activity_start_time: typeof response.responseStarted === "number" ? moment(response.responseStarted).format("LLL") : response.responseStarted || null,
-                  activity_end_time: typeof response.responseCompleted === "number" ? moment(response.responseCompleted).format("LLL") : response.responseCompleted || null,
-                  press_next_time: event.type == 'NEXT' ? new Date(event.time).toISOString() : '',
-                  press_back_time: event.type == 'PREV' ? new Date(event.time).toISOString() : '',
-                  press_undo_time: event.type == 'UNDO' ? new Date(event.time).toISOString() : '',
-                  response_option_time: event.type == 'SET_ANSWER' ? new Date(event.time).toISOString() : '',
+                  activity_start_time: response.responseStarted && response.responseStarted.toString() || null,
+                  activity_end_time: response.responseCompleted && response.responseCompleted.toString()  || null,
+                  press_next_time: event.type == 'NEXT' ? event.time.toString() : '',
+                  press_back_time: event.type == 'PREV' ? event.time.toString() : '',
+                  press_undo_time: event.type == 'UNDO' ? event.time.toString() : '',
+                  response_option_time: event.type == 'SET_ANSWER' ? event.time.toString() : '',
                   secret_user_id: MRN,
                   user_id: _id,
                   activity_id: response.activity['@id'],
