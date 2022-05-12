@@ -930,6 +930,19 @@ const getThemes = (apiHost, token) => {
   });
 };
 
+const setWelcomeAppletStatus = ({ apiHost, token, appletId, status }) => {
+  return axios({
+    method: 'put',
+    url: `${apiHost}/applet/${appletId}/welcomeApplet`,
+    headers: {
+      "Girder-Token": token
+    },
+    params: {
+      status
+    }
+  })
+}
+
 export default {
   signIn,
   signUp,
@@ -1001,5 +1014,6 @@ export default {
   getThemes,
   updateProfile,
   downloadGCPFile,
+  setWelcomeAppletStatus,
 };
 </script>

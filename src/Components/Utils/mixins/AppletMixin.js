@@ -540,12 +540,16 @@ export const AppletMixin = {
 
       let trialStartTimestamp = 0;
 
-      let lastIndex = 1e6, totalCount = 0, correctCount = 0, failedPractice = false;
+      let lastIndex = 1e6, totalCount = 0, correctCount = 0, failedPractice = 0;
 
       if (item.inputs.minimumAccuracy) {
         for (let i = responses.length - 1; i >= 0; i--) {
           if (responses[i].trial_index > lastIndex) {
-            break;
+            if (correctCount / totalCount * 100 < item.inputs.minimumAccuracy) {
+              failedPractice++;
+            }
+
+            correctCount = totalCount = 0;
           }
 
           lastIndex = responses[i].trial_index;
@@ -560,7 +564,7 @@ export const AppletMixin = {
         }
 
         if (correctCount / totalCount * 100 < item.inputs.minimumAccuracy) {
-          failedPractice = true;
+          failedPractice++;
         }
       }
 
@@ -672,10 +676,10 @@ export const AppletMixin = {
       if (item.inputs.minimumAccuracy) {
         keys.push({
           key: 'failedPractice',
-          as: 'failed_practice',
+          as: 'failed_practices',
         });
 
-        result[0].failedPractice = failedPractice ? 1 : 0;
+        result[0].failedPractice = failedPractice.toString();
       }
 
       let otc = new ObjectToCSV({

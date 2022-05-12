@@ -11,6 +11,10 @@
 			<action-button :tooltip="$t('editApplet')" icon="mdi-square-edit-outline" @click="onEditApplet(item)"
 					v-if="canEditApplet" :disabled="item.editing" />
 
+      <action-button :tooltip="$t('viewApplet')" icon="mdi-book-open-variant" @click="onEditApplet(item)"
+        v-if="!canEditApplet && item.welcomeApplet"
+      />
+
 			<action-button :tooltip="$t('duplicateApplet')" imageName="copy-clipart.png" @click="onDuplicateApplet(item)"
 					v-if="canDuplicate" />
 			<action-button :tooltip="$t('deleteApplet')" icon="mdi-delete" @click="onDeleteApplet(item)"
@@ -27,6 +31,14 @@
 
 			<action-button :tooltip="$t('shareWithLibrary')" icon="mdi-web" @click="onShareWithLibrary"
 					v-if="canShareWithLibrary" />
+
+			<action-button
+				v-if="canCreateWelcomeApplet"
+				:tooltip="item.welcomeApplet ? $t('concealApplet') : $t('publishApplet')"
+				:rotation="item.welcomeApplet ? '180deg' : '0deg'"
+				icon="mdi-publish"
+				@click="onSwitchWelcomeApplet"
+			/>
 		</span>
 		<span class="laptop-hidden">
             <v-menu offset-y>
@@ -76,6 +88,10 @@
                 <v-list-item v-if="canShareWithLibrary" @click="onShareWithLibrary">
                   <v-list-item-title>{{ $t('shareWithLibrary') }}</v-list-item-title>
                 </v-list-item>
+
+                <v-list-item v-if="canCreateWelcomeApplet" @click="onSwitchWelcomeApplet">
+                  <v-list-item-title>{{ item.welcomeApplet ? $t('concealApplet') : $t('publishApplet') }}</v-list-item-title>
+                </v-list-item>
               </v-list>
             </v-menu>
           </span>
@@ -98,6 +114,10 @@ export default {
 		}
 	},
 	computed : {
+		user() {
+      return this.$store.state.auth.user;
+		},
+
 		canViewUsers() {
 			return this.hasRoles(this.item, 'reviewer', 'manager', 'coordinator');
 		},
@@ -132,6 +152,10 @@ export default {
 
 		canShareWithLibrary() {
 			return this.hasRoles(this.item, 'owner', 'manager');
+		},
+
+		canCreateWelcomeApplet() {
+			return this.hasRoles(this.item, 'owner') && this.user.admin;
 		}
 	},
 
@@ -180,6 +204,9 @@ export default {
 			this.publishEvent("onShareWithLibrary");
 		},
 
+		onSwitchWelcomeApplet() {
+			this.publishEvent("onSwitchWelcomeApplet")
+		}
 	}
 }
 
