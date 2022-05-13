@@ -615,6 +615,17 @@ export default class Applet {
       }
     }
 
+    if (data.eventSources) {
+      for (const events of data.eventSources) {
+        if (events.data) {
+          events.data = JSON.parse(encryptionUtils.decryptData({
+            text: events.data,
+            key: data.AESKeys[events.key]
+          }))
+        }
+      }
+    }
+
     if (data.token) {
       data.token.tokens.forEach(change => {
         try {
