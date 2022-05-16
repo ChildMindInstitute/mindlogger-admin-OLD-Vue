@@ -825,6 +825,19 @@ const addNote = (apiHost, token, appletId, responseId, note) =>
     },
   });
 
+const downloadGCPFile = (apiHost, token, appletId, bucket, key) =>
+  axios({
+    method: "post",
+    url: `${apiHost}/response/${appletId}/downloadGCPData`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: {
+      bucket,
+      key,
+    },
+  });
+
 const updateNote = (apiHost, token, appletId, noteId, note) =>
   axios({
     method: "put",
@@ -987,5 +1000,6 @@ export default {
   appletPublicLink,
   getThemes,
   updateProfile,
+  downloadGCPFile,
 };
 </script>

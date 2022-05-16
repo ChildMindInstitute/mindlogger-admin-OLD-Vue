@@ -454,7 +454,7 @@ export const AppletMixin = {
           await this.generateLinesZip(trailsCSVs, 'trails-responses');
           await this.generateStabilityZip(stabilityCSVs);
           await this.generateFlankerZip(flankerCSVs);
-          await this.generateMediaResponsesZip(this.mediaResponseObjects);
+          await this.generateMediaResponsesZip(this.mediaResponseObjects, appletId);
         })
     },
 
@@ -671,10 +671,12 @@ export const AppletMixin = {
       return formatted;
     },
     getMediaResponseObject(value, response, item) {
-      const identifier = 's3://';
-      if (!value.includes(identifier)) return;
+      const identifiers = ['s3://', 'gs://'];
+      if (!value.includes(identifiers[0]) && !value.includes(identifiers[1])) return;
+      const isGCP = value.includes(identifiers[1]);
 
-      value = value.replace(identifier, '');
+      value = value.replace(identifiers[0], '');
+      value = value.replace(identifiers[1], '');
       const separator = value.indexOf('/');
 
       const bucket = value.slice(0, separator);
@@ -683,7 +685,7 @@ export const AppletMixin = {
       const extension = value.slice(value.lastIndexOf('.'), value.length);
       const name = `${response._id}-${response.userId}-${item.id}${extension}`;
 
-      this.mediaResponseObjects.push({ bucket, name, key });
+      this.mediaResponseObjects.push({ bucket, name, key, isGCP });
 
       return name;
     },
@@ -903,7 +905,7 @@ export const AppletMixin = {
       }
     },
 
-    async generateMediaResponsesZip(mediaObjects) {
+    async generateMediaResponsesZip(mediaObjects, appletId) {
       if (mediaObjects.length < 1) return;
       try {
         const credentials = {
@@ -913,7 +915,6 @@ export const AppletMixin = {
             timeout: 320000
           },
         };
-
         const client = new S3(credentials);
         const zip = new JSZip();
 
@@ -923,21 +924,23 @@ export const AppletMixin = {
             Key: mediaObject.key
           };
           let filename = mediaObject.name;
-          try {
-            const data = await client.getObject(params).promise();
-            if (filename && filename.includes('.quicktime')) filename = filename.replace('.quicktime', '.MOV');
-            zip.file(filename, data.Body);
-          } catch (e) {
+          if (mediaObject.isGCP) {
             try {
-              // try for GCP bucket, reason to use this approach is that we don't know the bucket type
-              // either it is of amazon s3 or GCP
-              const blobFile = await gcpFileBlob(mediaObject.bucket, mediaObject.key);
+              const blobFile = await this.gcpFileBlob(mediaObject.bucket, mediaObject.key, appletId);
               if (filename && filename.includes('.quicktime')) filename = filename.replace('.quicktime', '.MOV');
               zip.file(filename, blobFile);
             } catch (error) {
               console.error(error);
             }
-            console.error(e);
+
+          } else {
+            try {
+              const data = await client.getObject(params).promise();
+              if (filename && filename.includes('.quicktime')) filename = filename.replace('.quicktime', '.MOV');
+              zip.file(filename, data.Body);
+            } catch (e) {
+              console.error(e);
+            }
           }
         }
 
@@ -947,16 +950,15 @@ export const AppletMixin = {
       } catch (err) {
         console.log(err);
       }
-    }
+    },
 
-  }
-}
-
-const gcpFileBlob = async (bucket, key) => {
-  try {
-    const data = await fetch(`https://storage.googleapis.com/${bucket}/${key}`);
-    return await data.blob();
-  } catch (err) {
-    console.error(err.name, err.message);
-  }
+    async gcpFileBlob(bucket, key, appletId) {
+      try {
+        const data = await api.downloadGCPFile(this.apiHost, this.token, appletId, bucket, key)
+        return data.data;
+      } catch (err) {
+        console.error(err.name, err.message);
+      }
+    },
+  },
 }
