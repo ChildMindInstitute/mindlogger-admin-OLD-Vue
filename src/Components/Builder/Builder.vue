@@ -158,7 +158,7 @@ export default {
       );
     },
     canEditApplet() {
-			return !this.isEditing || this.hasRoles(this.currentAppletMeta, 'editor', 'manager');
+			return !this.isEditing || (!this.currentAppletMeta.welcomeApplet || this.hasRoles(this.currentAppletMeta, 'owner'));
 		},
   },
   async beforeMount() {
