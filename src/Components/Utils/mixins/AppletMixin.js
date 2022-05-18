@@ -928,7 +928,7 @@ export const AppletMixin = {
             try {
               const blobFile = await this.gcpFileBlob(mediaObject.bucket, mediaObject.key, appletId);
               if (filename && filename.includes('.quicktime')) filename = filename.replace('.quicktime', '.MOV');
-              zip.file(filename, blobFile);
+              zip.file(filename, blobFile, { base64: true });
             } catch (error) {
               console.error(error);
             }
@@ -955,6 +955,12 @@ export const AppletMixin = {
     async gcpFileBlob(bucket, key, appletId) {
       try {
         const data = await api.downloadGCPFile(this.apiHost, this.token, appletId, bucket, key)
+        try {
+          if (data.data.split("'").length > 1)
+            return data.data.split("'")[1];
+        } catch (error) {
+          console.error(err.name, err.message);
+        }
         return data.data;
       } catch (err) {
         console.error(err.name, err.message);
