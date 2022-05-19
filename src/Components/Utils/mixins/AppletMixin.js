@@ -439,7 +439,9 @@ export const AppletMixin = {
                   press_next_time: event.type == 'NEXT' ? event.time.toString() : '',
                   press_back_time: event.type == 'PREV' ? event.time.toString() : '',
                   press_undo_time: event.type == 'UNDO' ? event.time.toString() : '',
-                  response_option_time: event.type == 'SET_ANSWER' ? event.time.toString() : '',
+                  press_skip_time: event.type == 'SKIP' ? event.time.toString() : '',
+                  press_done_time: event.type == 'DONE' ? event.time.toString() : '',
+                  response_option_selection_time: event.type == 'SET_ANSWER' ? event.time.toString() : '',
                   secret_user_id: MRN,
                   user_id: _id,
                   activity_id: response.activity['@id'],
@@ -484,7 +486,7 @@ export const AppletMixin = {
             content: new ObjectToCSV({
               keys: [
                 'id', 'activity_scheduled_time', 'activity_start_time', 'activity_end_time',
-                'press_next_time', 'press_back_time', 'press_undo_time', 'response_option_time',
+                'press_next_time', 'press_back_time', 'press_undo_time', 'press_skip_time', 'press_done_time', 'response_option_selection_time',
                 'secret_user_id', 'user_id', 'activity_id', 'activity_name', 'item',
                 'prompt', 'options', 'version'
               ].map(value => ({ key: value, as: value })),
