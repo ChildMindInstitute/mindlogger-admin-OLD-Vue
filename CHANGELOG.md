@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
+## [0.16.1] - 2022-05-18
+- Fix variable name in cumulative score title
+
 ## [0.16.0] - 2022-05-9
 New Features:
 - One Page Assessment: Editors now have the ability to create a web-based assessment that will show all items on one page versus one item at a time 

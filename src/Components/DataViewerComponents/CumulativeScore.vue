@@ -128,19 +128,20 @@ export default {
 
           const variableName = jsExpression.split(/[><]/g)[0];
           const category = variableName.trim().replace(/\s/g, "__");
+          const scoreCategory = replaceItemVariableWithName(category, this.activity.items, rawResponses).replace(/\s/g, '__');
           const expr = parser.parse(
-            category + jsExpression.substr(variableName.length)
+            scoreCategory + jsExpression.substr(variableName.length)
           );
 
           const variableScores = {
-            [category]: outputType == "percentage" ? Math.round(cumulativeMaxScores[category] ? cumulativeScores[category] * 100 / cumulativeMaxScores[category] : 0) : cumulativeScores[category]
+            [scoreCategory]: outputType == "percentage" ? Math.round(cumulativeMaxScores[category] ? cumulativeScores[category] * 100 / cumulativeMaxScores[category] : 0) : cumulativeScores[category]
           }
 
           if (expr.evaluate(variableScores)) {
             reportMessages.push({
-              category,
+              category: scoreCategory,
               message: replaceItemVariableWithName(message, this.activity.items, rawResponses),
-              score: variableScores[category] + (outputType == "percentage" ? "%" : ""),
+              score: variableScores[scoreCategory] + (outputType == "percentage" ? "%" : ""),
             });
           }
         });
