@@ -671,12 +671,14 @@ export const AppletMixin = {
       return formatted;
     },
     getMediaResponseObject(value, response, item) {
-      const identifiers = ['s3://', 'gs://'];
+      const identifiers = ['s3://', 'gs://', 'https://'];
       if (!value.includes(identifiers[0]) && !value.includes(identifiers[1])) return;
       const isGCP = value.includes(identifiers[1]);
+      const isAzure = value.includes(identifiers[2]);
 
       value = value.replace(identifiers[0], '');
       value = value.replace(identifiers[1], '');
+      value = value.replace(identifiers[2], '');
       const separator = value.indexOf('/');
 
       const bucket = value.slice(0, separator);
@@ -685,7 +687,7 @@ export const AppletMixin = {
       const extension = value.slice(value.lastIndexOf('.'), value.length);
       const name = `${response._id}-${response.userId}-${item.id}${extension}`;
 
-      this.mediaResponseObjects.push({ bucket, name, key, isGCP });
+      this.mediaResponseObjects.push({ bucket, name, key, isGCP, isAzure });
 
       return name;
     },
@@ -924,9 +926,9 @@ export const AppletMixin = {
             Key: mediaObject.key
           };
           let filename = mediaObject.name;
-          if (mediaObject.isGCP) {
+          if (mediaObject.isGCP || mediaObject.isAzure) {
             try {
-              const blobFile = await this.gcpFileBlob(mediaObject.bucket, mediaObject.key, appletId);
+              const blobFile = await this.gcpFileBlob(mediaObject.bucket, mediaObject.key, appletId, mediaObject.isAzure);
               if (filename && filename.includes('.quicktime')) filename = filename.replace('.quicktime', '.MOV');
               zip.file(filename, blobFile, { base64: true });
             } catch (error) {
@@ -952,9 +954,9 @@ export const AppletMixin = {
       }
     },
 
-    async gcpFileBlob(bucket, key, appletId) {
+    async gcpFileBlob(bucket, key, appletId, isAzure) {
       try {
-        const data = await api.downloadGCPFile(this.apiHost, this.token, appletId, bucket, key)
+        const data = await api.downloadGCPFile(this.apiHost, this.token, appletId, bucket, key, isAzure)
         try {
           if (data.data.split("'").length > 1)
             return data.data.split("'")[1];

@@ -825,7 +825,7 @@ const addNote = (apiHost, token, appletId, responseId, note) =>
     },
   });
 
-const downloadGCPFile = (apiHost, token, appletId, bucket, key) =>
+const downloadGCPFile = (apiHost, token, appletId, bucket, key, isAzure) =>
   axios({
     method: "post",
     url: `${apiHost}/response/${appletId}/downloadGCPData`,
@@ -835,6 +835,7 @@ const downloadGCPFile = (apiHost, token, appletId, bucket, key) =>
     params: {
       bucket,
       key,
+      isAzure
     },
   });
 
