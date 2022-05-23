@@ -672,7 +672,7 @@ export const AppletMixin = {
     },
     getMediaResponseObject(value, response, item) {
       const identifiers = ['s3://', 'gs://', 'https://'];
-      if (!value.includes(identifiers[0]) && !value.includes(identifiers[1])) return;
+      if (!value.includes(identifiers[0]) && !value.includes(identifiers[1]) && !value.includes(identifiers[2])) return;
       const isGCP = value.includes(identifiers[1]);
       const isAzure = value.includes(identifiers[2]);
 
@@ -956,6 +956,7 @@ export const AppletMixin = {
 
     async gcpFileBlob(bucket, key, appletId, isAzure) {
       try {
+        if (isAzure) key = key.replace('mindlogger/', '')
         const data = await api.downloadGCPFile(this.apiHost, this.token, appletId, bucket, key, isAzure)
         try {
           if (data.data.split("'").length > 1)
