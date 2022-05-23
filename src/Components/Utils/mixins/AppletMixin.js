@@ -426,10 +426,10 @@ export const AppletMixin = {
 
               for (const event of responseEvents) {
                 let item = (data.itemReferences[response.version] && data.itemReferences[response.version][event.screen]) || currentItems[event.screen];
-                const question = item.question.en && item.question['en']
+                const question = item && item.question.en && item.question['en']
                   .replace(/\r?\n|\r/g, '')
                   .split('250)');
-                const { options } = parseItemOptions(item);
+                const { options } = item ? parseItemOptions(item) : { options: [] };
 
                 events.push({
                   id: response._id,
@@ -446,7 +446,7 @@ export const AppletMixin = {
                   user_id: _id,
                   activity_id: response.activity['@id'],
                   activity_name: activity.label.en,
-                  item: item.id,
+                  item: item ? item.id : event.screen,
                   prompt: replaceItemVariableWithName(question && question[question.length - 1] || '', currentItems, response.data),
                   options: replaceItemVariableWithName(options.join(', '), currentItems, response.data),
                   version: response.version,
