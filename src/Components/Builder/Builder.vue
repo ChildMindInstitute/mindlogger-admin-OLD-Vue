@@ -382,23 +382,22 @@ export default {
             this.componentKey = this.componentKey + 1;
           });
 
-          if (data.applet.publicLink) {
-            const inputTypes = ["radio", "checkbox", "slider", "text", "ageSelector", "dropdownList", "duration"]
-            const items = Object.values(data.items);
-            for (const item of items) {
-              const inputType = _.get(item, ['reprolib:terms/inputType', 0, '@value']);
-              if (!inputTypes.includes(inputType)) {
-                api.appletPublicLink({
-                  method: "DELETE",
-                  apiHost: apiHost,
-                  token: token,
-                  appletId
-                });
-
-                break;
-              }
-            }
-          }
+          // if (data.applet.publicLink) {
+          //   const inputTypes = ["radio", "checkbox", "slider", "text", "ageSelector", "dropdownList", "duration"]
+          //   const items = Object.values(data.items);
+          //   for (const item of items) {
+          //     const inputType = _.get(item, ['reprolib:terms/inputType', 0, '@value']);
+          //     if (!inputTypes.includes(inputType)) {
+          //       api.appletPublicLink({
+          //         method: "DELETE",
+          //         apiHost: apiHost,
+          //         token: token,
+          //         appletId
+          //       });
+          //       break;
+          //     }
+          //   }
+          // }
 
           this.$store.commit("setBasketApplets", {});
           this.$store.commit("cacheAppletBuilderData", null);
