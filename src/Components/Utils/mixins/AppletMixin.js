@@ -162,6 +162,25 @@ export const AppletMixin = {
             return { options, scores };
           }
 
+          const parseResponseValue = (key, value, inputType) => {
+            if (inputType === 'timeRange' && value.from && value.to) {
+              return `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
+            }
+
+            if (inputType === 'date' && (value.day || value.month || value.year)) {
+              return `date: ${value.day}/${value.month + 1}/${value.year}`;
+            }
+
+            if (inputType === 'geolocation' && typeof value === 'object') {
+              return `geo: lat (${value.latitude}) / long (${value.longitude})`;
+            }
+
+            if (inputType === 'text')
+              return value;
+
+            return `${key}: ${value}`;
+          }
+
           for (let response of data.responses) {
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
             const outputTexts = {};
@@ -282,10 +301,7 @@ export const AppletMixin = {
                   for (const key of keys) {
                     const value = responseDataObj[key];
 
-                    if (item.inputType === 'timeRange' && value.from && value.to) {
-                      responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
-
-                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType == 'trail' || item.inputType === 'audioImageRecord')) {
+                    if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType == 'trail' || item.inputType === 'audioImageRecord')) {
                       if (value.filename) {
                         const name = this.getMediaResponseObject(value.uri, response, item);
 
@@ -336,15 +352,8 @@ export const AppletMixin = {
 
                         responseData += `filename: ${response._id}_${item.id}.csv`;
                       }
-                    } else if (item.inputType === 'date' && (value.day || value.month || value.year)) {
-                      responseData += `date: ${value.day}/${value.month + 1}/${value.year}`;
-                    } else if (item.inputType === 'geolocation' && typeof value === 'object') {
-                      responseData += `geo: lat (${value.latitude}) / long (${value.longitude})`;
                     } else {
-                      if (item.inputType === 'text')
-                        responseData += value;
-                      else
-                        responseData += `${key}: ${value}`;
+                      responseData += parseResponseValue(key, value, item.inputType);
                     }
 
                     if (item.inputType !== 'text')
@@ -430,6 +439,21 @@ export const AppletMixin = {
                   .replace(/\r?\n|\r/g, '')
                   .split('250)');
                 const { options } = item ? parseItemOptions(item) : { options: [] };
+                let eventResponse = '';
+
+                if (event.response) {
+                  const keys = Object.keys(event.response).sort().reverse();
+                  for (const key of keys) {
+                    const value = event.response[key];
+
+                    eventResponse += parseResponseValue(key, value, item.inputType)
+
+                    if (item.inputType !== 'text')
+                    eventResponse += ' | ';
+                  }
+
+                  eventResponse = eventResponse.replace(/[ |]*$/g, '').replace(/^[ |]*/g, '');
+                }
 
                 events.push({
                   id: response._id,
@@ -448,6 +472,7 @@ export const AppletMixin = {
                   activity_name: activity.label.en,
                   item: item ? item.id : event.screen,
                   prompt: replaceItemVariableWithName(question && question[question.length - 1] || '', currentItems, response.data),
+                  response: eventResponse,
                   options: replaceItemVariableWithName(options.join(', '), currentItems, response.data),
                   version: response.version,
                 })
@@ -488,7 +513,7 @@ export const AppletMixin = {
                 'id', 'activity_scheduled_time', 'activity_start_time', 'activity_end_time',
                 'press_next_time', 'press_back_time', 'press_undo_time', 'press_skip_time', 'press_done_time', 'response_option_selection_time',
                 'secret_user_id', 'user_id', 'activity_id', 'activity_name', 'item',
-                'prompt', 'options', 'version'
+                'prompt', 'response', 'options', 'version'
               ].map(value => ({ key: value, as: value })),
               data: events
             }).getCSV(),
