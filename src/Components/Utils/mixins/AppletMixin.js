@@ -388,9 +388,11 @@ export const AppletMixin = {
                 flag,
                 secret_user_id: MRN || null,
                 userId: _id,
+                inputType: item.inputType,
                 activity_id: response.activity['@id'],
                 activity_name: activity.label.en,
                 item: item.id,
+                item_id: item._id,
                 response: responseData,
                 prompt: replaceItemVariableWithName(question && question[question.length - 1] || '', currentItems, response.data),
                 options: replaceItemVariableWithName(options.join(', '), currentItems, response.data),
@@ -487,6 +489,7 @@ export const AppletMixin = {
                   activity_id: response.activity['@id'],
                   activity_name: activity.label.en,
                   item: item ? item.id : event.screen,
+                  item_id: item ? item._id : '',
                   prompt: replaceItemVariableWithName(question && question[question.length - 1] || '', currentItems, response.data),
                   response: eventResponse,
                   options: replaceItemVariableWithName(options.join(', '), currentItems, response.data),
@@ -508,6 +511,21 @@ export const AppletMixin = {
           }
 
           for (let row of result) {
+            const itemsWithFileResponses = ['visual-stimulus-response', 'photo', 'video', 'audioRecord', 'drawing', 'trail', 'audioImageRecord', 'stabilityTracker'];
+
+            if (itemsWithFileResponses.includes(row.inputType) && row.response) {
+              let lastResponseEvent = null;
+              for (let i = 0; i < events.length; i++) {
+                if (events[i].id == row.id && events[i].item_id == row.item_id && events[i].response_option_selection_time) {
+                  lastResponseEvent = events[i];
+                }
+              }
+
+              if (lastResponseEvent) {
+                lastResponseEvent.response = row.response;
+              }
+            }
+
             for (let subScaleName of subScaleNames) {
               row[subScaleName] = row[subScaleName] || '';
             }
