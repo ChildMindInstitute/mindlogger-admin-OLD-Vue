@@ -49,7 +49,7 @@
           <tr
             v-if="item.visible"
             :class="{'selected': selectedEntry == item}"
-            @mousedown="selectedEntry = item"
+            @mousedown="selectEntry(item)"
           >
             <template
               v-if="item.type == 'applet'"
@@ -126,7 +126,7 @@
                   class="actions"
                 >
                   <v-tooltip
-                    v-if="item.exportable"
+                    v-if="item.exportable && item.responderId != 'None'"
                     top
                   >
                     <template v-slot:activator="{ on }">
@@ -141,7 +141,7 @@
                   </v-tooltip>
 
                   <v-tooltip
-                    v-if="item.exportable"
+                    v-if="item.exportable && item.responderId != 'None'"
                     top
                   >
                     <template v-slot:activator="{ on }">
@@ -223,6 +223,11 @@
       :title="$t('deleteEntry')"
       :dialog-text="$t('entryDeleted')"
     />
+
+    <EntryInfoDialog
+      v-model="entryInfoDialog.visible"
+      :entry="entryInfoDialog.entry"
+    />
   </div>
 </template>
 
@@ -246,6 +251,11 @@
   .entry-list /deep/ tr.selected {
     background-color: rgb(239, 245, 255) !important;
   }
+
+  .data-filter {
+    width: 25%;
+    padding-left: 5px;
+  }
 </style>
 
 <script>
@@ -256,6 +266,7 @@ import SelectEntryTypeDialog from "../Utils/dialogs/SelectEntryTypeDialog";
 import LinkedUserSelectionDialog from "../Utils/dialogs/LinkedUserSelectionDialog";
 import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
 import InformationDialog from "../Utils/dialogs/InformationDialog";
+import EntryInfoDialog from "../Utils/dialogs/EntryInfoDialog";
 import AppletPassword from "../Utils/dialogs/AppletPassword";
 import encryption from "../Utils/encryption/encryption";
 import api from "../Utils/api/api";
@@ -269,6 +280,7 @@ export default {
     AppletPassword,
     ConfirmationDialog,
     InformationDialog,
+    EntryInfoDialog,
   },
   mixins: [CaseMixin],
 
@@ -351,6 +363,11 @@ export default {
       confirmationDialog: {
         visible: false,
         entry: null
+      },
+
+      entryInfoDialog: {
+        visible: false,
+        entry: {}
       },
 
       entryDeletedDialog: false,
@@ -452,6 +469,17 @@ export default {
             this.items.push(this.getEntryItem(entry))
           }
         }
+      }
+    },
+
+    selectEntry (item) {
+      this.selectedEntry = item;
+
+      if (item.entryType == "One-time submission") {
+        this.$set(this, 'entryInfoDialog', {
+          visible: true,
+          entry: this.entries.find(entry => entry._id === item.id)
+        })
       }
     },
 
