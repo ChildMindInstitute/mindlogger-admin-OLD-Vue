@@ -11,14 +11,13 @@
         :value="cachedContents[outputText]"
         :language="'en'"
         :toolbarsFlag="false"
-      >
-      </mavon-editor>
+      />
     </div>
     <svg
       :id="plotId"
+      ref="responses"
       :width="width + 20"
       :height="height + padding.top + padding.bottom + 20"
-      ref="responses"
     >
       <foreignObject
         class="labels"
@@ -75,8 +74,7 @@
             v-for="subScale in activity.subScales"
             :key="subScale.slug"
             :class="subScale.slug"
-          >
-          </g>
+          />
         </g>
       </g>
     </svg>
@@ -182,6 +180,65 @@ export default {
       currentResponse: null
     }
   },
+  computed: {
+    currentResponseDate() {
+      if (this.activity.subScales.length) {
+        const responseId = this.activity.subScales[0].current.responseId;
+        const d = this.activity.subScales[0].values.find(d => d.value.responseId == responseId);
+
+        return d ? new Date(d.date) : null;
+      }
+
+      return null;
+    }
+  },
+
+  /**
+   * Handlers to be executed each time a property changes its value.
+   */
+  watch: {
+    focusExtent: {
+      deep: true,
+      handler() {
+        this.render();
+      }
+    },
+    selectedVersions: {
+      deep: true,
+      handler() {
+        this.render();
+      }
+    },
+    hasVersionBars: {
+      deep: false,
+      handler() {
+        this.render();
+      }
+    },
+    parentWidth: {
+      deep: false,
+      handler(newValue) {
+        this.width = newValue - this.margin.left - this.margin.right;
+        this.height = this.getChartHeight(this.width);
+        this.labelWidth = this.width / 4;
+        this.render();
+      }
+    },
+    currentResponseDate() {
+      this.render();
+    },
+    applySecretIdSelector() {
+      this.render();
+    },
+    secretIds: {
+      deep: true,
+      handler() {
+        if (this.applySecretIdSelector) {
+          this.render();
+        }
+      }
+    }
+  },
 
 
   created() {
@@ -234,69 +291,10 @@ export default {
   beforeDestroy() {
     window.removeEventListener('mousedown', this.onMouseDown);
   },
-
-  /**
-   * Handlers to be executed each time a property changes its value.
-   */
-  watch: {
-    focusExtent: {
-      deep: true,
-      handler() {
-        this.render();
-      }
-    },
-    selectedVersions: {
-      deep: true,
-      handler() {
-        this.render();
-      }
-    },
-    hasVersionBars: {
-      deep: false,
-      handler() {
-        this.render();
-      }
-    },
-    parentWidth: {
-      deep: false,
-      handler(newValue) {
-        this.width = newValue - this.margin.left - this.margin.right;
-        this.height = this.getChartHeight(this.width);
-        this.labelWidth = this.width / 4;
-        this.render();
-      }
-    },
-    currentResponseDate() {
-      this.render();
-    },
-    applySecretIdSelector() {
-      this.render();
-    },
-    secretIds: {
-      deep: true,
-      handler() {
-        if (this.applySecretIdSelector) {
-          this.render();
-        }
-      }
-    }
-  },
   mounted() {
     this.$nextTick(() => {
       this.render();
     });
-  },
-  computed: {
-    currentResponseDate() {
-      if (this.activity.subScales.length) {
-        const responseId = this.activity.subScales[0].current.responseId;
-        const d = this.activity.subScales[0].values.find(d => d.value.responseId == responseId);
-
-        return d ? new Date(d.date) : null;
-      }
-
-      return null;
-    }
   },
   methods: {
     render() {

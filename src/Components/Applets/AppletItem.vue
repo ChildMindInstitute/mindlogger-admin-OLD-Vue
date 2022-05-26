@@ -1,5 +1,7 @@
 <template>
   <tr
+    :class="{ 'drop-target': isDragOver }"
+    draggable
     @dragover.prevent
     @drop.stop="itemDropped"
     @dragstart.stop="dragStart"
@@ -7,21 +9,50 @@
     @dragleave.stop.prevent="isDragOver = false"
     @dragover.stop="isDragOver = true"
     @mouseover="appletHovered"
-    :class="{ 'drop-target': isDragOver }"
-    draggable
   >
     <template v-for="header in headers">
-      <td v-if="header.value !== 'actions'" :key="header.text" @click="appletClicked">
+      <td
+        v-if="header.value !== 'actions'"
+        :key="header.text"
+        @click="appletClicked"
+      >
         <div class="d-flex item">
           <template v-if="header.isPrimaryColumn">
-            <div v-if="item.parentId" :style="rowStyle">
-              <v-btn icon small depressed @click.stop="$emit('pinStatusChanged', item)" class="mr-3">
-                <v-icon color="primary" v-if="item.pinOrder > 0">mdi-pin</v-icon>
-                <v-icon color="#474747" v-else >mdi-pin-off</v-icon>
+            <div
+              v-if="item.parentId"
+              :style="rowStyle"
+            >
+              <v-btn
+                icon
+                small
+                depressed
+                class="mr-3"
+                @click.stop="$emit('pinStatusChanged', item)"
+              >
+                <v-icon
+                  v-if="item.pinOrder > 0"
+                  color="primary"
+                >
+                  mdi-pin
+                </v-icon>
+                <v-icon
+                  v-else
+                  color="#474747"
+                >
+                  mdi-pin-off
+                </v-icon>
               </v-btn>
             </div>
-            <div v-else :style="rowStyle">
-              <v-avatar color="blue" size="30" class="mr-2" style="color:white">
+            <div
+              v-else
+              :style="rowStyle"
+            >
+              <v-avatar
+                color="blue"
+                size="30"
+                class="mr-2"
+                style="color:white"
+              >
                 <img
                   v-if="item.image"
                   :src="item.image"
@@ -30,20 +61,23 @@
                 <span
                   v-else
                 >
-                  {{item.name[0]}}
+                  {{ item.name[0] }}
                 </span>
               </v-avatar>
             </div>
           </template>
           <span v-if="header.value === 'updated'">
-              {{ formatTimeAgo(item) }}
+            {{ formatTimeAgo(item) }}
           </span>
-          <span v-else  style="text-transform: capitalize">{{ item[header.value] }}</span>
+          <span
+            v-else
+            style="text-transform: capitalize"
+          >{{ item[header.value] }}</span>
         </div>
       </td>
     </template>
     <td style="text-align: center;  align-self: center">
-      <slot name="actions"></slot>
+      <slot name="actions" />
     </td>
   </tr>
 </template>

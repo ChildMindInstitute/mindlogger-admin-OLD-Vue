@@ -6,17 +6,17 @@
   >
     <v-img
       class="logo"
-      @click="onDashboard"
       src="https://cmi-logos.s3.amazonaws.com/ChildMindInstitute_Logo_Horizontal_KO.png"
       max-width="130"
       contain
+      @click="onDashboard"
     />
 
     <v-btn
       color="primary"
       class="toolbar-btn"
-      @click="onDashboard"
       :x-small="isTablet"
+      @click="onDashboard"
     >
       {{ $t('mindloggerDashboard') }}
     </v-btn>
@@ -49,10 +49,12 @@
       v-if="currentApplet"
       color="primary"
       class="toolbar-btn"
-      @click="viewUsers"
       :x-small="isTablet"
+      @click="viewUsers"
     >
-      <p class="ds-applet-name">{{ currentApplet.name }}</p>
+      <p class="ds-applet-name">
+        {{ currentApplet.name }}
+      </p>
     </v-btn>
 
     <v-tooltip
@@ -100,9 +102,9 @@
           :color="routeName == 'Builder' ? 'black' : 'primary'"
           :x-small="isTablet"
           class="toolbar-btn"
+          :disabled="currentApplet.editing"
           v-on="on"
           @click="onEditApplet"
-          :disabled="currentApplet.editing"
         >
           <v-icon>mdi-square-edit-outline</v-icon>
         </v-btn>
@@ -121,7 +123,9 @@
           v-on="on"
           @click="onExportData"
         >
-          <v-icon class="export-icon">mdi-export</v-icon>
+          <v-icon class="export-icon">
+            mdi-export
+          </v-icon>
         </v-btn>
       </template>
       <span>{{ $t('exportData') }}</span>
@@ -138,7 +142,11 @@
           v-on="on"
           @click="onDuplicateApplet"
         >
-          <img height="24" alt='' v-bind:src="require(`@/assets/copy-clipart-white.png`)"/>
+          <img
+            height="24"
+            alt=""
+            :src="require(`@/assets/copy-clipart-white.png`)"
+          >
         </v-btn>
       </template>
       <span>{{ $t('duplicateApplet') }}</span>
@@ -172,7 +180,11 @@
           v-on="on"
           @click="onTransferOwnership"
         >
-          <img height="24" alt='' v-bind:src="require(`@/assets/transfer-ownership-white.png`)"/>
+          <img
+            height="24"
+            alt=""
+            :src="require(`@/assets/transfer-ownership-white.png`)"
+          >
         </v-btn>
       </template>
       <span>{{ $t('transferOwnership') }}</span>
@@ -194,19 +206,19 @@
           icon
           v-on="on"
         >
-					<img
+          <img
             v-if="newAlertCount"
             height="24"
-            alt=''
-            v-bind:src="require(`@/assets/response-alert-yellow.png`)"
-          />
+            alt=""
+            :src="require(`@/assets/response-alert-yellow.png`)"
+          >
 
           <img
             v-else
             height="24"
-            alt=''
-            v-bind:src="require(`@/assets/response-alert-white.png`)"
-          />
+            alt=""
+            :src="require(`@/assets/response-alert-white.png`)"
+          >
 
           <span
             v-if="newAlertCount"
@@ -224,8 +236,8 @@
             <v-list-item
               v-for="(alert, index) in alertList"
               :key="index"
-              @click="onViewAlert(alert)"
               class="alert-item"
+              @click="onViewAlert(alert)"
             >
               <div
                 class="alert-message"
@@ -298,8 +310,8 @@
       v-if="isLoggedIn"
       class="toolbar-btn logout"
       color="primary"
-      @click="logout"
       :x-small="isTablet"
+      @click="logout"
     >
       {{ $t('logout') }}
     </v-btn>
@@ -372,12 +384,11 @@
             indeterminate
             color="white"
             class="ma-2 mt-4"
-          ></v-progress-linear>
+          />
         </v-card-text>
       </v-card>
     </v-dialog>
   </v-app-bar>
-
 </template>
 
 <style scoped>
@@ -517,11 +528,6 @@ export default {
       ownershipDialog: false,
     }
   },
-  mounted() {
-    window.onresize = () => {
-      this.windowWidth = window.innerWidth
-    }
-  },
   /**
    * Define here all computed properties.
    */
@@ -627,6 +633,11 @@ export default {
     accountApplets() {
       return this.$store.state.currentAccount && this.$store.state.currentAccount.applets || [];
     },
+  },
+  mounted() {
+    window.onresize = () => {
+      this.windowWidth = window.innerWidth
+    }
   },
   /**
    * Define here all methods that will be available in the scope of the template.

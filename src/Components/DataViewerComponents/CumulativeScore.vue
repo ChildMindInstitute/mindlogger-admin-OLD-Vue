@@ -1,5 +1,8 @@
 <template>
-  <div v-if="reportCount" class="cumulative-results">
+  <div
+    v-if="reportCount"
+    class="cumulative-results"
+  >
     <h2>{{ $t("summary") }}</h2>
     <template v-for="cumulativeResult in results">
       <div
@@ -18,7 +21,7 @@
           >
             <div>{{ item.category.replace(/_/g, " ") }}</div>
             <div>{{ item.score }}</div>
-            <markdown :source="item.message"></markdown>
+            <markdown :source="item.message" />
           </div>
         </div>
       </div>

@@ -51,129 +51,129 @@
             :class="{'selected': selectedEntry == item}"
             @mousedown="selectedEntry = item"
           >
-              <template
-                v-if="item.type == 'applet'"
+            <template
+              v-if="item.type == 'applet'"
+            >
+              <td
+                v-for="header in headers"
+                :key="header.value"
               >
-                <td
-                  v-for="header in headers"
-                  :key="header.value"
+                <div
+                  v-if="header.value == 'responderId'"
                 >
-                  <div
-                    v-if="header.value == 'responderId'"
+                  <v-icon @click="switchExpand(item)">
+                    {{ item.expanded ? 'mdi-folder-open-outline' : 'mdi-folder-outline' }}
+                  </v-icon>
+                  {{ item.name }}
+                </div>
+                <div
+                  v-else-if="header.value == 'actions'"
+                  class="actions"
+                >
+                  <v-tooltip
+                    v-if="item.creatable"
+                    top
                   >
-                    <v-icon @click="switchExpand(item)">
-                      {{ item.expanded ? 'mdi-folder-open-outline' : 'mdi-folder-outline' }}
-                    </v-icon>
-                    {{ item.name }}
-                  </div>
-                  <div
-                    v-else-if="header.value == 'actions'"
-                    class="actions"
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        v-on="on"
+                        @click.stop="selectApplet(item)"
+                      >
+                        <v-icon>
+                          mdi-playlist-plus
+                        </v-icon>
+                      </v-btn>
+                    </template>
+                    <span>{{ $t('createEntry') }}</span>
+                  </v-tooltip>
+
+                  <v-tooltip
+                    v-if="item.exportable"
+                    top
                   >
-                    <v-tooltip
-                      v-if="item.creatable"
-                      top
-                    >
-                      <template v-slot:activator="{ on }">
-                        <v-btn
-                          v-on="on"
-                          @click.stop="selectApplet(item)"
-                        >
-                          <v-icon>
-                            mdi-playlist-plus
-                          </v-icon>
-                        </v-btn>
-                      </template>
-                      <span>{{ $t('createEntry') }}</span>
-                    </v-tooltip>
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        v-on="on"
+                        @click.stop="onExportData(item)"
+                      >
+                        <v-icon class="export-icon">
+                          mdi-export
+                        </v-icon>
+                      </v-btn>
+                    </template>
+                    <span>{{ $t('exportData') }}</span>
+                  </v-tooltip>
+                </div>
+              </td>
+            </template>
 
-                    <v-tooltip
-                      v-if="item.exportable"
-                      top
-                    >
-                      <template v-slot:activator="{ on }">
-                        <v-btn
-                          v-on="on"
-                          @click.stop="onExportData(item)"
-                        >
-                          <v-icon class="export-icon">
-                            mdi-export
-                          </v-icon>
-                        </v-btn>
-                      </template>
-                      <span>{{ $t('exportData') }}</span>
-                    </v-tooltip>
-                  </div>
-                </td>
-              </template>
-
-              <template
-                v-else
+            <template
+              v-else
+            >
+              <td
+                v-for="header in headers"
+                :key="header.value"
               >
-                <td
-                  v-for="header in headers"
-                  :key="header.value"
+                <div
+                  v-if="header.value != 'actions'"
+                  :class="{ 'responder-id': header.value == 'responderId' }"
                 >
-                  <div
-                    v-if="header.value != 'actions'"
-                    :class="{ 'responder-id': header.value == 'responderId' }"
+                  {{ item[header.value] }}
+                </div>
+
+                <div
+                  v-else
+                  class="actions"
+                >
+                  <v-tooltip
+                    v-if="item.exportable"
+                    top
                   >
-                    {{ item[header.value] }}
-                  </div>
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        v-on="on"
+                        @click.stop="onViewUser(item)"
+                      >
+                        <v-icon> mdi-chart-bar </v-icon>
+                      </v-btn>
+                    </template>
+                    <span>{{ $t('viewData') }}</span>
+                  </v-tooltip>
 
-                  <div
-                    v-else
-                    class="actions"
+                  <v-tooltip
+                    v-if="item.exportable"
+                    top
                   >
-                    <v-tooltip
-                      v-if="item.exportable"
-                      top
-                    >
-                      <template v-slot:activator="{ on }">
-                        <v-btn
-                          v-on="on"
-                          @click.stop="onViewUser(item)"
-                        >
-                          <v-icon> mdi-chart-bar </v-icon>
-                        </v-btn>
-                      </template>
-                      <span>{{ $t('viewData') }}</span>
-                    </v-tooltip>
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        v-on="on"
+                        @click.stop="onExportData(item)"
+                      >
+                        <v-icon class="export-icon">
+                          mdi-export
+                        </v-icon>
+                      </v-btn>
+                    </template>
+                    <span>{{ $t('exportData') }}</span>
+                  </v-tooltip>
 
-                    <v-tooltip
-                      v-if="item.exportable"
-                      top
-                    >
-                      <template v-slot:activator="{ on }">
-                        <v-btn
-                          v-on="on"
-                          @click.stop="onExportData(item)"
-                        >
-                          <v-icon class="export-icon">
-                            mdi-export
-                          </v-icon>
-                        </v-btn>
-                      </template>
-                      <span>{{ $t('exportData') }}</span>
-                    </v-tooltip>
-
-                    <v-tooltip
-                      v-if="item.deletable"
-                      top
-                    >
-                      <template v-slot:activator="{ on }">
-                        <v-btn
-                          v-on="on"
-                          @click.stop="onDeleteEntry(item)"
-                        >
-                          <v-icon> mdi-delete </v-icon>
-                        </v-btn>
-                      </template>
-                      <span>{{ $t('editAccess') }}</span>
-                    </v-tooltip>
-                  </div>
-                </td>
-              </template>
+                  <v-tooltip
+                    v-if="item.deletable"
+                    top
+                  >
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        v-on="on"
+                        @click.stop="onDeleteEntry(item)"
+                      >
+                        <v-icon> mdi-delete </v-icon>
+                      </v-btn>
+                    </template>
+                    <span>{{ $t('editAccess') }}</span>
+                  </v-tooltip>
+                </div>
+              </td>
+            </template>
           </tr>
         </template>
         <template v-slot:no-data>

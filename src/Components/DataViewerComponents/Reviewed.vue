@@ -64,6 +64,12 @@ import Radio from "../ReviewerAssessment/Radio";
 import Slider from "../ReviewerAssessment/Slider";
 
 export default {
+
+  components: {
+    Checkbox,
+    Radio,
+    Slider,
+  },
   props: {
     activity: {
       type: Object,
@@ -73,12 +79,6 @@ export default {
       type: Array,
       required: true
     }
-  },
-
-  components: {
-    Checkbox,
-    Radio,
-    Slider,
   },
 
   data() {

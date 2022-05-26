@@ -29,13 +29,12 @@
     v-else
     :style="`height: ${height + padding.top + padding.bottom}px;`"
   >
-      <v-progress-circular
-        class="d-block ma-auto mt-2"
-        color="black"
-        indeterminate
-        :size="50"
-      >
-      </v-progress-circular>
+    <v-progress-circular
+      class="d-block ma-auto mt-2"
+      color="black"
+      indeterminate
+      :size="50"
+    />
   </div>
 </template>
 

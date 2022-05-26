@@ -36,11 +36,11 @@
                   <v-list-item-title>
                     {{ applet.displayName }}
                     (
-                      {{
-                        applet.entryCount == 0 && 'no entries' ||
+                    {{
+                      applet.entryCount == 0 && 'no entries' ||
                         applet.entryCount == 1 && '1 entry' ||
                         `${applet.entryCount} entries`
-                      }}
+                    }}
                     )
                   </v-list-item-title>
                   <v-list-item-subtitle>{{ applet.description }}</v-list-item-subtitle>

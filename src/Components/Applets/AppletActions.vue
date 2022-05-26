@@ -1,102 +1,168 @@
 <template>
-		<div>
-		<span class="laptop-only ">
+  <div>
+    <span class="laptop-only ">
 
-			<action-button :tooltip="$t('viewUsers')" icon="mdi-account-multiple" @click="onViewUsers(item)"
-					v-if="canViewUsers" />
-
-			<action-button :tooltip="$t('viewCalendar')" icon="mdi-calendar-month" @click="onViewGeneralCalendar(item)"
-					v-if="canViewGeneralCalendar" />
-
-			<action-button :tooltip="$t('editApplet')" icon="mdi-square-edit-outline" @click="onEditApplet(item)"
-					v-if="canEditApplet" :disabled="item.editing" />
-
-      <action-button :tooltip="$t('viewApplet')" icon="mdi-book-open-variant" @click="onEditApplet(item)"
-        v-if="!canEditApplet && item.welcomeApplet"
+      <action-button
+        v-if="canViewUsers"
+        :tooltip="$t('viewUsers')"
+        icon="mdi-account-multiple"
+        @click="onViewUsers(item)"
       />
 
-			<action-button :tooltip="$t('duplicateApplet')" imageName="copy-clipart.png" @click="onDuplicateApplet(item)"
-					v-if="canDuplicate" />
-			<action-button :tooltip="$t('deleteApplet')" icon="mdi-delete" @click="onDeleteApplet(item)"
-					v-if="canDeleteApplet" />
+      <action-button
+        v-if="canViewGeneralCalendar"
+        :tooltip="$t('viewCalendar')"
+        icon="mdi-calendar-month"
+        @click="onViewGeneralCalendar(item)"
+      />
 
-			<action-button :tooltip="$t('refreshApplet')" icon="mdi-refresh" @click="onRefreshApplet(item)"
-					v-if="canRefresh" />
+      <action-button
+        v-if="canEditApplet"
+        :tooltip="$t('editApplet')"
+        icon="mdi-square-edit-outline"
+        :disabled="item.editing"
+        @click="onEditApplet(item)"
+      />
 
-			<action-button :tooltip="$t('transferOwnership')" imageName="transfer-ownership.png" @click="onTransferOwnership(item)"
-					v-if="canTransferOwnership" />
+      <action-button
+        v-if="!canEditApplet && item.welcomeApplet"
+        :tooltip="$t('viewApplet')"
+        icon="mdi-book-open-variant"
+        @click="onEditApplet(item)"
+      />
 
-			<action-button :tooltip="$t('removeFromFolder')" imageName="folder-eject.png" @click="removeFromFolder"
-					v-if="canRemoveFromFolder" />
+      <action-button
+        v-if="canDuplicate"
+        :tooltip="$t('duplicateApplet')"
+        imageName="copy-clipart.png"
+        @click="onDuplicateApplet(item)"
+      />
+      <action-button
+        v-if="canDeleteApplet"
+        :tooltip="$t('deleteApplet')"
+        icon="mdi-delete"
+        @click="onDeleteApplet(item)"
+      />
 
-			<action-button :tooltip="$t('shareWithLibrary')" icon="mdi-web" @click="onShareWithLibrary"
-					v-if="canShareWithLibrary" />
+      <action-button
+        v-if="canRefresh"
+        :tooltip="$t('refreshApplet')"
+        icon="mdi-refresh"
+        @click="onRefreshApplet(item)"
+      />
 
-			<action-button
-				v-if="canCreateWelcomeApplet"
-				:tooltip="item.welcomeApplet ? $t('concealApplet') : $t('publishApplet')"
-				:rotation="item.welcomeApplet ? '180deg' : '0deg'"
-				icon="mdi-publish"
-				@click="onSwitchWelcomeApplet"
-			/>
-		</span>
-		<span class="laptop-hidden">
-            <v-menu offset-y>
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                    color="primary"
-                    dark
-                    v-bind="attrs"
-                    v-on="on"
-                >
-                  {{ $t('manage') }}
-                </v-btn>
-              </template>
-              <v-list>
-                <v-list-item v-if="canViewUsers" @click="onViewUsers(item)">
-                  <v-list-item-title>{{ $t('viewUsers') }}</v-list-item-title>
-                </v-list-item>
+      <action-button
+        v-if="canTransferOwnership"
+        :tooltip="$t('transferOwnership')"
+        imageName="transfer-ownership.png"
+        @click="onTransferOwnership(item)"
+      />
 
-                <v-list-item v-if="canViewGeneralCalendar" @click="onViewGeneralCalendar(item)" >
-                  <v-list-item-title>{{ $t('viewCalendar') }}</v-list-item-title>
-                </v-list-item>
+      <action-button
+        v-if="canRemoveFromFolder"
+        :tooltip="$t('removeFromFolder')"
+        imageName="folder-eject.png"
+        @click="removeFromFolder"
+      />
 
-                <v-list-item v-if="canEditApplet" @click="onEditApplet(item)" >
-                  <v-list-item-title>{{ $t('editApplet') }}</v-list-item-title>
-                </v-list-item>
+      <action-button
+        v-if="canShareWithLibrary"
+        :tooltip="$t('shareWithLibrary')"
+        icon="mdi-web"
+        @click="onShareWithLibrary"
+      />
 
-                <v-list-item v-if="canDeleteApplet" @click="onDeleteApplet(item)">
-                  <v-list-item-title>{{ $t('deleteApplet') }}</v-list-item-title>
-                </v-list-item>
+      <action-button
+        v-if="canCreateWelcomeApplet"
+        :tooltip="item.welcomeApplet ? $t('concealApplet') : $t('publishApplet')"
+        :rotation="item.welcomeApplet ? '180deg' : '0deg'"
+        icon="mdi-publish"
+        @click="onSwitchWelcomeApplet"
+      />
+    </span>
+    <span class="laptop-hidden">
+      <v-menu offset-y>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            color="primary"
+            dark
+            v-bind="attrs"
+            v-on="on"
+          >
+            {{ $t('manage') }}
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item
+            v-if="canViewUsers"
+            @click="onViewUsers(item)"
+          >
+            <v-list-item-title>{{ $t('viewUsers') }}</v-list-item-title>
+          </v-list-item>
 
-                <v-list-item v-if="canDuplicate" @click="onDuplicateApplet(item)" >
-                  <v-list-item-title>{{ $t('duplicateApplet') }}</v-list-item-title>
-                </v-list-item>
+          <v-list-item
+            v-if="canViewGeneralCalendar"
+            @click="onViewGeneralCalendar(item)"
+          >
+            <v-list-item-title>{{ $t('viewCalendar') }}</v-list-item-title>
+          </v-list-item>
 
-                <v-list-item v-if="canRefresh" @click="onRefreshApplet(item)" >
-                  <v-list-item-title>{{ $t('refreshApplet') }}</v-list-item-title>
-                </v-list-item>
+          <v-list-item
+            v-if="canEditApplet"
+            @click="onEditApplet(item)"
+          >
+            <v-list-item-title>{{ $t('editApplet') }}</v-list-item-title>
+          </v-list-item>
 
-                <v-list-item v-if="canTransferOwnership" @click="onTransferOwnership(item)">
-                  <v-list-item-title>{{ $t('transferOwnership') }}</v-list-item-title>
-                </v-list-item>
+          <v-list-item
+            v-if="canDeleteApplet"
+            @click="onDeleteApplet(item)"
+          >
+            <v-list-item-title>{{ $t('deleteApplet') }}</v-list-item-title>
+          </v-list-item>
 
-                <v-list-item  @click="removeFromFolder">
-                  <v-list-item-title>{{ $t('removeFromFolder') }}</v-list-item-title>
-                </v-list-item>
+          <v-list-item
+            v-if="canDuplicate"
+            @click="onDuplicateApplet(item)"
+          >
+            <v-list-item-title>{{ $t('duplicateApplet') }}</v-list-item-title>
+          </v-list-item>
 
-                <v-list-item v-if="canShareWithLibrary" @click="onShareWithLibrary">
-                  <v-list-item-title>{{ $t('shareWithLibrary') }}</v-list-item-title>
-                </v-list-item>
+          <v-list-item
+            v-if="canRefresh"
+            @click="onRefreshApplet(item)"
+          >
+            <v-list-item-title>{{ $t('refreshApplet') }}</v-list-item-title>
+          </v-list-item>
 
-                <v-list-item v-if="canCreateWelcomeApplet" @click="onSwitchWelcomeApplet">
-                  <v-list-item-title>{{ item.welcomeApplet ? $t('concealApplet') : $t('publishApplet') }}</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </span>
+          <v-list-item
+            v-if="canTransferOwnership"
+            @click="onTransferOwnership(item)"
+          >
+            <v-list-item-title>{{ $t('transferOwnership') }}</v-list-item-title>
+          </v-list-item>
 
-    </div>
+          <v-list-item @click="removeFromFolder">
+            <v-list-item-title>{{ $t('removeFromFolder') }}</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item
+            v-if="canShareWithLibrary"
+            @click="onShareWithLibrary"
+          >
+            <v-list-item-title>{{ $t('shareWithLibrary') }}</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item
+            v-if="canCreateWelcomeApplet"
+            @click="onSwitchWelcomeApplet"
+          >
+            <v-list-item-title>{{ item.welcomeApplet ? $t('concealApplet') : $t('publishApplet') }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+    </span>
+  </div>
 </template>
 
 <script>

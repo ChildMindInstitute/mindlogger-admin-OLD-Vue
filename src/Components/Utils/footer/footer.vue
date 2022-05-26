@@ -8,19 +8,24 @@
       <img
         class="logo mr-1"
         src="https://cmi-logos.s3.amazonaws.com/ChildMindInstitute_Logo_Horizontal_KO.png"
-      />
-      {{'© '}}
+      >
+      {{ '© ' }}
       <a
         href="https://childmind.org"
         class="mx-1"
-        target='_blank'
+        target="_blank"
       >
-        {{' '}}
-        Child Mind Institute{{' '}}
-      </a>{{' '}}
+        {{ ' ' }}
+        Child Mind Institute{{ ' ' }}
+      </a>{{ ' ' }}
       MATTER Lab 2022
 
-      <div class="ml-8"><a href="https://mindlogger.org/terms" target="_blank">Terms of Service</a></div>
+      <div class="ml-8">
+        <a
+          href="https://mindlogger.org/terms"
+          target="_blank"
+        >Terms of Service</a>
+      </div>
     </div>
   </v-footer>
 </template>

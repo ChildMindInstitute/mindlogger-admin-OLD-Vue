@@ -94,25 +94,6 @@ export default {
     }
   },
 
-  beforeMount() {
-    const now = new Date();
-    now.setDate(now.getDate()+1)
-
-    const endDate = new Date(moment(now).format('YYYY-MM-DD'));
-    const startDate = new Date(endDate.getTime())
-    startDate.setDate(startDate.getDate() - 1)
-
-    this.$emit('setOptions', {
-      selectedFeature: null,
-      startDate,
-      endDate,
-      unit: 'hour',
-      range: '1 day'
-    })
-
-    this.data = aggregate(this.features, this.responses, 'hour', startDate, endDate);
-  },
-
   computed: {
     viewWidth() {
       return this.parentWidth - 20;
@@ -133,6 +114,25 @@ export default {
     frequencyData () {
       return aggregate(this.features, this.responses, this.options.unit, this.options.startDate, this.options.endDate);
     }
+  },
+
+  beforeMount() {
+    const now = new Date();
+    now.setDate(now.getDate()+1)
+
+    const endDate = new Date(moment(now).format('YYYY-MM-DD'));
+    const startDate = new Date(endDate.getTime())
+    startDate.setDate(startDate.getDate() - 1)
+
+    this.$emit('setOptions', {
+      selectedFeature: null,
+      startDate,
+      endDate,
+      unit: 'hour',
+      range: '1 day'
+    })
+
+    this.data = aggregate(this.features, this.responses, 'hour', startDate, endDate);
   },
   methods: {
     selectFeature(feature) {

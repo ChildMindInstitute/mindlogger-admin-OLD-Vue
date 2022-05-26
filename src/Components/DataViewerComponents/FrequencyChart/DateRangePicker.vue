@@ -11,11 +11,14 @@
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             v-bind="attrs"
-            v-on="on"
             class="range-selector"
             icon
+            v-on="on"
           >
-            <v-icon class="triangle-right" color="grey">
+            <v-icon
+              class="triangle-right"
+              color="grey"
+            >
               mdi-triangle
             </v-icon>
           </v-btn>
@@ -45,7 +48,10 @@
             v-on="on"
           >
             <svg @click="upRange">
-              <polygon points="0, 10 45, 10 22, 0" fill="rgb(128, 128, 128)" />
+              <polygon
+                points="0, 10 45, 10 22, 0"
+                fill="rgb(128, 128, 128)"
+              />
             </svg>
             <div
               v-for="(str, index) in dateRangeStr"
@@ -54,7 +60,10 @@
               {{ str }}
             </div>
             <svg @click="downRange">
-              <polygon points="0, 0 45, 0 22, 10" fill="rgb(128, 128, 128)" />
+              <polygon
+                points="0, 0 45, 0 22, 10"
+                fill="rgb(128, 128, 128)"
+              />
             </svg>
           </div>
         </template>

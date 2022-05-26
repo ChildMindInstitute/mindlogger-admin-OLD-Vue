@@ -5,27 +5,34 @@
     <v-container>
       <v-row v-if="inviteLink !== undefined">
         <v-col
-            cols="12"
+          cols="12"
         >
-          <p class="ma-0">{{ $t("shareLinkText") }}</p>
+          <p class="ma-0">
+            {{ $t("shareLinkText") }}
+          </p>
         </v-col>
 
         <v-col
-            cols="11"
+          cols="11"
         >
-          <v-text-field class="pa-0 ma-0"
-              :value="inviteLink.url"
-              ref="textToCopy"
-              readonly="readonly"
+          <v-text-field
+            ref="textToCopy"
+            class="pa-0 ma-0"
+            :value="inviteLink.url"
+            readonly="readonly"
           />
         </v-col>
 
         <v-col
-            align="center"
-            align-self="center"
-            cols="1"
+          align="center"
+          align-self="center"
+          cols="1"
         >
-          <v-btn icon small @click="copyText">
+          <v-btn
+            icon
+            small
+            @click="copyText"
+          >
             <v-icon>mdi-content-copy</v-icon>
           </v-btn>
         </v-col>
@@ -33,39 +40,49 @@
 
       <v-row v-if="inviteLink !== undefined">
         <v-col
-            align-self="center"
-            cols="12"
-            md="4"
+          align-self="center"
+          cols="12"
+          md="4"
         >
-          <v-btn color="error" @click="deleteAppletInviteLink()">
+          <v-btn
+            color="error"
+            @click="deleteAppletInviteLink()"
+          >
             {{ $t("deleteInviteLink") }}
           </v-btn>
         </v-col>
 
         <v-col
-            cols="12"
-            md="8"
+          cols="12"
+          md="8"
         >
-          <p class="ma-0">{{ $t("deleteInviteLinkText") }}</p>
+          <p class="ma-0">
+            {{ $t("deleteInviteLinkText") }}
+          </p>
         </v-col>
       </v-row>
 
       <v-row v-if="inviteLink === undefined">
         <v-col
-            align-self="center"
-            cols="12"
-            md="4"
+          align-self="center"
+          cols="12"
+          md="4"
         >
-          <v-btn color="primary" @click="postAppletInviteLink()">
+          <v-btn
+            color="primary"
+            @click="postAppletInviteLink()"
+          >
             {{ $t("createInviteLink") }}
           </v-btn>
         </v-col>
 
         <v-col
-            cols="12"
-            md="8"
+          cols="12"
+          md="8"
         >
-          <p class="ma-0">{{ $t("createInviteLinkText") }}</p>
+          <p class="ma-0">
+            {{ $t("createInviteLinkText") }}
+          </p>
         </v-col>
       </v-row>
     </v-container>
@@ -95,6 +112,9 @@ export default {
     token() {
       return this.$store.state.auth.authToken.token;
     },
+  },
+  async mounted() {
+    await this.getAppletInviteLink();
   },
   methods: {
     copyText () {
@@ -138,9 +158,6 @@ export default {
 
       this.populateAppletInviteLink(invite);
     }
-  },
-  async mounted() {
-    await this.getAppletInviteLink();
   }
 }
 </script>

@@ -1,10 +1,15 @@
 <template>
   <div>
     <div class="token-header">
-      <div class="header-text my-4">You have earned:</div>
+      <div class="header-text my-4">
+        You have earned:
+      </div>
 
       <div class="total-tokens">
-        <img :src="require('@/assets/tokens.png')" width="100" />
+        <img
+          :src="require('@/assets/tokens.png')"
+          width="100"
+        >
 
         <span class="token-number">{{ cumulative.toLocaleString() }}</span>
         <span>total</span>
@@ -14,9 +19,12 @@
         v-if="currentInterval"
         class="yesterday-tokens"
       >
-        <img :src="require('@/assets/token.png')" width="32" />
+        <img
+          :src="require('@/assets/token.png')"
+          width="32"
+        >
         <span class="token-number">{{ pastTokenValue.toLocaleString() }}</span>
-        <span>{{pastTokenLabel}}</span>
+        <span>{{ pastTokenLabel }}</span>
       </div>
     </div>
 
@@ -28,11 +36,17 @@
     >
       <defs>
         <filter id="dropShadow">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="1" />
-          <feOffset dx="0" dy="1" />
+          <feGaussianBlur
+            in="SourceGraphic"
+            stdDeviation="1"
+          />
+          <feOffset
+            dx="0"
+            dy="1"
+          />
           <feMerge>
-              <feMergeNode />
-              <feMergeNode in="SourceGraphic" />
+            <feMergeNode />
+            <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
       </defs>
@@ -336,12 +350,6 @@ export default {
     }
   },
 
-  watch: {
-    range () {
-      this.endDate = this.getEndDate();
-    }
-  },
-
   computed: {
     exportFormat () {
       return this.format == 'export';
@@ -617,6 +625,12 @@ export default {
 
     splitPath () {
       return `M425.511,153s-55.746,35.923-214.418,21.194S-2.489,191.822-2.489,191.822v-6.975s61.207-31.01,213.582-13.805,214.418-21.707,214.418-21.707Z`;
+    }
+  },
+
+  watch: {
+    range () {
+      this.endDate = this.getEndDate();
     }
   },
 

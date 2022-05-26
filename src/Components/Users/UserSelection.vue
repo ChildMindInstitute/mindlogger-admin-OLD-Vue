@@ -1,7 +1,6 @@
 <template>
   <v-combobox
     :value="value"
-    @input="$emit('input', $event)"
     :items="items"
     :hint="hint"
     :label="$t('userList')"
@@ -9,21 +8,22 @@
     multiple
     small-chips
     required
+    @input="$emit('input', $event)"
     @focus="onOpenUserList"
   >
     <template v-slot:prepend-item>
-        <v-list-item
-          class="list-header"
-        >
+      <v-list-item
+        class="list-header"
+      >
         <v-list-item-action>
           <v-checkbox
             v-model="allSelected"
             :indeterminate="inDeterminate"
-          ></v-checkbox>
+          />
         </v-list-item-action>
 
         <v-list-item-title>User code</v-list-item-title>
-        </v-list-item>
+      </v-list-item>
     </template>
     <template v-slot:selection="{ attrs, item, parent, selected }">
       <v-chip
@@ -82,24 +82,6 @@ export default {
       items: []
     };
   },
-  mounted() {
-    this.onOpenUserList();
-  },
-  methods: {
-    onOpenUserList() {
-      return api.getAccountUserList({
-        apiHost: this.$store.state.backend,
-        token: this.$store.state.auth.authToken.token,
-        appletId: this.appletId,
-        role: 'user'
-      }).then((resp) => {
-        this.items = [];
-        for (let user of resp.data.items) {
-          this.items.push(Object.values(user)[0].MRN);
-        }
-      });
-    }
-  },
   computed: {
     inDeterminate() {
       if (this.value.length !== this.items.length && this.value.length) {
@@ -118,6 +100,24 @@ export default {
           this.$emit('input', []);
         }
       }
+    }
+  },
+  mounted() {
+    this.onOpenUserList();
+  },
+  methods: {
+    onOpenUserList() {
+      return api.getAccountUserList({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        appletId: this.appletId,
+        role: 'user'
+      }).then((resp) => {
+        this.items = [];
+        for (let user of resp.data.items) {
+          this.items.push(Object.values(user)[0].MRN);
+        }
+      });
     }
   }
 }

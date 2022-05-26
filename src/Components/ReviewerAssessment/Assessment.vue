@@ -12,9 +12,9 @@
           <v-card-title>
             <div class="question text-center">
               <div>
-                <img :src="item.getQuestionImage()" />
+                <img :src="item.getQuestionImage()">
               </div>
-              <markdown :source="item.getQuizWithoutImage()"></markdown>
+              <markdown :source="item.getQuizWithoutImage()" />
             </div>
           </v-card-title>
 
@@ -62,7 +62,7 @@
               color="primary"
               :disabled="
                 !activity.items[index].isSkippable &&
-                (responses[index].value === null || Array.isArray(responses[index].value) && !responses[index].value.length)
+                  (responses[index].value === null || Array.isArray(responses[index].value) && !responses[index].value.length)
               "
               rounded
               @click="onNext"

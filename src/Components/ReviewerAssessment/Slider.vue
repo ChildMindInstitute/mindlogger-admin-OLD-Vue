@@ -11,7 +11,7 @@
       step="0.1"
       :disabled="disabled"
       @click="update"
-    />
+    >
 
     <div
       v-if="!item.showTickMarks"

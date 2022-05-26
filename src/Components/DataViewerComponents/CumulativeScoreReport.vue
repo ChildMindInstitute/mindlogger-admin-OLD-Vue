@@ -1,6 +1,10 @@
 <template>
   <div class="cumulative-score-report">
-    <section class="pdf-item" v-for="({ activity, reportMessages, scoreOverview }, index) in activityResponses" :key="activity.id">
+    <section
+      v-for="({ activity, reportMessages, scoreOverview }, index) in activityResponses"
+      :key="activity.id"
+      class="pdf-item"
+    >
       <div
         v-if="index && splashScreenType(activity) == 'image'"
         class="html2pdf__page-break"
@@ -16,15 +20,18 @@
           crossorigin="anonymous"
           :src="activity.splash.en + '?not-from-cache-please'"
           alt="Splash Activity"
-        />
+        >
       </div>
-      <div v-if="appletImage && !index" class="applet-logo">
+      <div
+        v-if="appletImage && !index"
+        class="applet-logo"
+      >
         <img
           :src="appletImage + '?not-from-cache-please'"
           crossorigin="anonymous"
           width="100"
-          alt=''
-        />
+          alt=""
+        >
       </div>
 
       <div
@@ -35,17 +42,30 @@
       </div>
 
       <p class="text-body-2 mb-4">
-        <markdown :source="scoreOverview.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
+        <markdown
+          :source="scoreOverview.replace(MARKDOWN_REGEX, '$1$2')"
+          useCORS
+        />
       </p>
-      <div v-for="item in reportMessages" :key="item.category" class="mt-4">
+      <div
+        v-for="item in reportMessages"
+        :key="item.category"
+        class="mt-4"
+      >
         <p class="blue--text text-body-2 mb-1">
           <b>{{ (item.category || "").replace(/_/g, " ") }}</b>
         </p>
         <p class="text-body-2 mb-4">
-          <markdown :source="item.compute.description.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
+          <markdown
+            :source="item.compute.description.replace(MARKDOWN_REGEX, '$1$2')"
+            useCORS
+          />
         </p>
         <div class="score-area mb-4">
-          <p class="score-title text-body-2 text-nowrap" :style="{ left: `max(90px, ${(item.scoreValue / item.maxScoreValue) * 100}%)` }">
+          <p
+            class="score-title text-body-2 text-nowrap"
+            :style="{ left: `max(90px, ${(item.scoreValue / item.maxScoreValue) * 100}%)` }"
+          >
             <b>{{ $t('childScore') }}</b>
           </p>
           <div
@@ -63,7 +83,10 @@
               'score-negative': item.compute.direction,
             }"
           />
-          <div class="score-spliter" :style="{ left: `${(item.scoreValue / item.maxScoreValue) * 100}%` }" />
+          <div
+            class="score-spliter"
+            :style="{ left: `${(item.scoreValue / item.maxScoreValue) * 100}%` }"
+          />
           <p class="score-max-value text-body-2">
             <b>{{ item.maxScoreValue }}</b>
           </p>
@@ -73,7 +96,10 @@
           {{ $t('childScoreOnSubScale', { name: item.category.replace(/_/g, " ") }) }}
           <span class="red--text">{{ item.scoreValue }}</span>
           .
-          <markdown :source="item.message.replace(MARKDOWN_REGEX, '$1$2')" useCORS></markdown>
+          <markdown
+            :source="item.message.replace(MARKDOWN_REGEX, '$1$2')"
+            useCORS
+          />
         </div>
       </div>
     </section>

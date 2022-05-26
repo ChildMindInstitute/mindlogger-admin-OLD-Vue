@@ -198,7 +198,6 @@ export default {
   components: {
     CreateCaseDialog,
     LinkCaseUserDialog,
-    encryption,
     ConfirmationDialog,
     AppletPassword,
   },
