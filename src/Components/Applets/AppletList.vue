@@ -12,7 +12,7 @@
         />
       </div>
     </div>
-    <div class="ml-auto">
+    <div class="px-2">
         <v-menu
           v-if="appletUploadEnabled"
           offset-y
@@ -149,7 +149,7 @@
         <template v-slot:no-data>
           <h4> No data</h4>
         </template>
-    </v-data-table>
+      </v-data-table>
     </div>
 
     <ConfirmationDialog

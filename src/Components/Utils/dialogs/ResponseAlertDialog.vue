@@ -7,7 +7,7 @@
     <v-card class="pa-4">
       <v-card-text>
         <div class="alert-message">
-          {{$t('alertMessage', { userIdentifier })}}
+          {{ $t('alertMessage', { userIdentifier }) }}
         </div>
 
         <div class="mt-4 alert-message">
@@ -19,10 +19,9 @@
           class="view-btn"
           @click="$emit('view-data')"
         >
-          {{$t('takeToResponseData')}}
+          {{ $t('takeToResponseData') }}
         </v-btn>
       </v-card-actions>
-
     </v-card>
   </v-dialog>
 </template>

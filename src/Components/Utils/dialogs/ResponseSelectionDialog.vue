@@ -6,7 +6,7 @@
   >
     <v-card class="pa-2">
       <v-card-title>
-        Please Select a Response to Review
+        {{ $t('selectResponseToReview') }}
       </v-card-title>
 
       <v-expansion-panels
@@ -25,11 +25,13 @@
             <div class="mt-2">
               <v-btn
                 v-for="response in activity.responses"
-                class="ma-2"
                 :key="response.time"
+                class="ma-2"
                 :color="currentResponse == response.responseId ? 'primary' : 'normal'"
                 @click="selectResponse(activity, response)"
-              >{{ response.time }}</v-btn>
+              >
+                {{ response.time }}
+              </v-btn>
             </div>
           </v-expansion-panel-content>
         </v-expansion-panel>

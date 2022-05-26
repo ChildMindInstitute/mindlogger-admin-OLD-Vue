@@ -36,6 +36,8 @@ const getAESKey = ( appletPrivateKey, userPublicKey, appletPrime, base ) => {
     return crypto.createHash('sha256').update(secretKey).digest();
 }
 
+const getHashed = (key) => crypto.createHash('sha256').update(key).digest()
+
 /** decrypt */
 const decryptData = ({ text, key }) => {
     let textParts = text.split(':');
@@ -49,7 +51,7 @@ const decryptData = ({ text, key }) => {
 }
 
 /** encrypt */
-export const encryptData = ({ text, key }) => {
+const encryptData = ({ text, key }) => {
     let iv = crypto.randomBytes(config.IV_LENGTH);
     let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
     let encrypted = cipher.update(text);
@@ -59,11 +61,11 @@ export const encryptData = ({ text, key }) => {
     return iv.toString('hex') + ':' + encrypted.toString('hex');
 }
 
-
 export default {
     getAppletEncryptionInfo,
     getAESKey,
     decryptData,
-    encryptData
+    encryptData,
+    getHashed
 }
 </script>

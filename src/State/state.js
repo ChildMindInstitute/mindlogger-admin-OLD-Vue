@@ -19,6 +19,7 @@ const getDefaultState = () => {
     cachedEvents: [],
     currentAppletMeta: null,
     currentAppletData: null,
+    currentCase: null,
     currentAccountApplets: [],
     removedEvents: [],
     updatedEvents: [],
@@ -34,7 +35,7 @@ const getDefaultState = () => {
     currentRetentions: null,
     currentAppletBuilderData: null,
     basketApplets: {},
-    themes: null
+    themes: null,
   };
 };
 
@@ -110,6 +111,44 @@ const mutations = {
     } else {
       state.currentAppletMeta = null;
       state.currentAppletData = null;
+    }
+  },
+
+  setCurrentCase(state, caseObj) {
+    if (caseObj) {
+      state.currentCase = caseObj;
+    } else {
+      state.currentCase = null;
+    }
+  },
+
+  linkNewUser(state, linkedUser) {
+    if (state.currentCase) {
+      state.currentCase.users.push(linkedUser);
+    }
+  },
+
+  unlinkUser(state, index) {
+    if (state.currentCase) {
+      state.currentCase.users.splice(index);
+    }
+  },
+
+  addEntry(state, entry) {
+    if (state.currentCase) {
+      state.currentCase.entries.push(entry);
+    }
+  },
+
+  deleteEntry(state, index) {
+    if (state.currentCase) {
+      state.currentCase.entries.splice(index, 1);
+    }
+  },
+
+  updateLinkedUser(state, { index, obj }) {
+    if (state.currentCase) {
+      state.currentCase.users.splice(index, 1, obj);
     }
   },
 

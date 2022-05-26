@@ -6,8 +6,8 @@
       >
         <v-card
           v-if="(item.inputType == 'radio' || item.inputType == 'slider') && index <= currentScreen"
-          class="screen"
           :key="item.slug"
+          class="screen"
         >
           <v-card-title>
             <div class="question text-center">
@@ -48,10 +48,10 @@
           >
             <v-btn
               v-if="!isFirstScreen"
-              @click="onBack"
               color="primary"
               rounded
               outlined
+              @click="onBack"
             >
               Back
             </v-btn>
@@ -59,13 +59,13 @@
             <v-spacer />
 
             <v-btn
-              @click="onNext"
               color="primary"
               :disabled="
                 !activity.items[index].isSkippable &&
                 (responses[index].value === null || Array.isArray(responses[index].value) && !responses[index].value.length)
               "
               rounded
+              @click="onNext"
             >
               {{ isLastScreen ? 'Submit' : 'Next' }}
             </v-btn>
@@ -118,6 +118,13 @@ import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
 import { Parser } from "expr-eval";
 
 export default {
+
+  components: {
+    Checkbox,
+    Radio,
+    Slider,
+    ConfirmationDialog,
+  },
   props: {
     activity: {
       type: Object,
@@ -127,14 +134,6 @@ export default {
       type: Array,
       required: true
     }
-  },
-
-  components: {
-    Checkbox,
-    Radio,
-    Slider,
-    ConfirmationDialog,
-    Markdown,
   },
 
   data() {

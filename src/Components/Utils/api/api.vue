@@ -930,6 +930,144 @@ const setWelcomeAppletStatus = ({ apiHost, token, appletId, status }) => {
   })
 }
 
+const getCaseList = (apiHost, token) =>
+  axios({
+    method: 'get',
+    url: `${apiHost}/cases/list`,
+    headers: {
+      'Girder-Token': token
+    }
+  })
+
+const createCase = (apiHost, token, caseId, form, applets) =>
+  axios({
+    method: 'post',
+    url: `${apiHost}/cases`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      caseId,
+      applets: JSON.stringify(applets)
+    },
+    data: form
+  })
+
+const linkUser = (apiHost, token, caseId, profileId, applets, MRN) =>
+  axios({
+    method: 'post',
+    url: `${apiHost}/cases/${caseId}/users/add`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      profileId,
+      MRN,
+      applets: JSON.stringify(applets)
+    }
+  })
+
+const updateLinkedUser = (apiHost, token, caseId, userId, applets) =>
+  axios({
+    method: 'put',
+    url: `${apiHost}/cases/${caseId}/users/update`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      caseId,
+      userId,
+      applets: JSON.stringify(applets)
+    }
+  })
+
+const unlinkUser = (apiHost, token, caseId, userId) =>
+  axios({
+    method: 'delete',
+    url: `${apiHost}/cases/${caseId}/users/delete`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      userId
+    }
+  })
+
+const addAppletsToCase = (apiHost, token, caseId, applets, password) =>
+  axios({
+    method: 'put',
+    url: `${apiHost}/cases/${caseId}/applets/add`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      applets: JSON.stringify(applets)
+    },
+    data: password
+  })
+
+const deleteCase = (apiHost, token, caseId) =>
+  axios({
+    method: 'delete',
+    url: `${apiHost}/cases/${caseId}`,
+    headers: {
+      'Girder-Token': token
+    }
+  })
+
+const getEntries = (apiHost, token, caseId) =>
+  axios({
+    method: 'get',
+    url: `${apiHost}/cases/${caseId}/entries/list`,
+    headers: {
+      'Girder-Token': token
+    }
+  })
+
+const getLinkedUsers = (apiHost, token, caseId) =>
+  axios({
+    method: 'get',
+    url: `${apiHost}/cases/${caseId}/users/list`,
+    headers: {
+      'Girder-Token': token
+    }
+  })
+
+const addEntry = (apiHost, token, caseId, profileId, appletId, entryType) =>
+  axios({
+    method: 'post',
+    url: `${apiHost}/cases/${caseId}/entries/add`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      profileId,
+      appletId,
+      entryType
+    }
+  })
+
+const deleteEntry = (apiHost, token, caseId, entryId) =>
+  axios({
+    method: 'delete',
+    url: `${apiHost}/cases/${caseId}/entries/delete`,
+    headers: {
+      'Girder-Token': token
+    },
+    params: {
+      entryId
+    }
+  })
+
+const getCase = (apiHost, token, caseId) =>
+  axios({
+    method: 'get',
+    url: `${apiHost}/cases/${caseId}`,
+    headers: {
+      'Girder-Token': token
+    }
+  })
+
 export default {
   signIn,
   signUp,
@@ -1001,5 +1139,17 @@ export default {
   getThemes,
   updateProfile,
   setWelcomeAppletStatus,
+  getCaseList,
+  createCase,
+  addAppletsToCase,
+  linkUser,
+  deleteCase,
+  getEntries,
+  getLinkedUsers,
+  addEntry,
+  deleteEntry,
+  unlinkUser,
+  updateLinkedUser,
+  getCase,
 };
 </script>

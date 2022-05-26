@@ -22,6 +22,23 @@
     </v-btn>
 
     <v-icon
+      v-if="currentCase"
+      medium
+    >
+      mdi-chevron-right
+    </v-icon>
+
+    <v-btn
+      v-if="currentCase"
+      color="primary"
+      class="toolbar-btn"
+      :x-small="isTablet"
+      @click="viewCase"
+    >
+      Case {{ currentCase.caseId }}
+    </v-btn>
+
+    <v-icon
       v-if="currentApplet"
       medium
     >
@@ -39,7 +56,7 @@
     </v-btn>
 
     <v-tooltip
-      v-if="currentApplet && hasRoles(currentApplet, 'reviewer', 'manager', 'coordinator')"
+      v-if="!currentCase && currentApplet && hasRoles(currentApplet, 'reviewer', 'manager', 'coordinator')"
       bottom
     >
       <template v-slot:activator="{ on }">
@@ -57,7 +74,7 @@
     </v-tooltip>
 
     <v-tooltip
-      v-if="currentApplet && hasRoles(currentApplet, 'manager', 'coordinator')"
+      v-if="!currentCase && currentApplet && hasRoles(currentApplet, 'manager', 'coordinator')"
       bottom
     >
       <template v-slot:activator="{ on }">
@@ -75,7 +92,7 @@
     </v-tooltip>
 
     <v-tooltip
-      v-if="currentApplet && hasRoles(currentApplet, 'editor', 'manager')"
+      v-if="!currentCase && currentApplet && hasRoles(currentApplet, 'editor', 'manager')"
       bottom
     >
       <template v-slot:activator="{ on }">
@@ -94,7 +111,7 @@
     </v-tooltip>
 
     <v-tooltip
-      v-if="currentApplet && hasRoles(currentApplet, 'reviewer', 'manager')"
+      v-if="!currentCase && currentApplet && hasRoles(currentApplet, 'reviewer', 'manager')"
       bottom
     >
       <template v-slot:activator="{ on }">
@@ -111,7 +128,7 @@
     </v-tooltip>
 
     <v-tooltip
-      v-if="currentApplet && hasRoles(currentApplet, 'editor', 'manager')"
+      v-if="!currentCase && currentApplet && hasRoles(currentApplet, 'editor', 'manager')"
       bottom
     >
       <template v-slot:activator="{ on }">
@@ -128,7 +145,7 @@
     </v-tooltip>
 
     <v-tooltip
-      v-if="currentApplet && hasRoles(currentApplet, 'editor', 'manager')"
+      v-if="!currentCase && currentApplet && hasRoles(currentApplet, 'editor', 'manager')"
       bottom
     >
       <template v-slot:activator="{ on }">
@@ -145,7 +162,7 @@
     </v-tooltip>
 
     <v-tooltip
-      v-if="currentApplet && hasRoles(currentApplet, 'owner')"
+      v-if="!currentCase && currentApplet && hasRoles(currentApplet, 'owner')"
       bottom
     >
       <template v-slot:activator="{ on }">
@@ -554,6 +571,10 @@ export default {
       return this.$store.state.currentAppletMeta;
     },
 
+    currentCase() {
+      return this.$store.state.currentCase;
+    },
+
     routeName() {
       return this.$route.name;
     },
@@ -632,6 +653,7 @@ export default {
     onDashboard() {
       if (this.isLoggedIn) {
         this.$router.push('/dashboard').catch(err => {});
+        this.$store.commit('setCurrentCase', null);
         this.$store.commit('setCurrentApplet', null);
         this.$store.commit('setCurrentUsers', {});
       }
@@ -643,6 +665,12 @@ export default {
 
     viewCalendar() {
       this.$router.push(`/applet/${this.currentApplet.id}/schedule`).catch(err => {});
+    },
+
+    viewCase() {
+      this.$store.commit('setCurrentApplet', null);
+      this.$store.commit('setCurrentUsers', {});
+      this.$router.push(`/case/${this.currentCase._id}/dashboard`).catch(err => {});
     },
 
     onEditApplet() {
