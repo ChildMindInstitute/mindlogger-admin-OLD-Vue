@@ -162,7 +162,7 @@ export const AppletMixin = {
             return { options, scores };
           }
 
-          const parseResponseValue = (key, value, inputType) => {
+          const parseResponseValue = (key, value, inputType, item) => {
             if (inputType === 'timeRange' && value.from && value.to) {
               return `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
             }
@@ -177,6 +177,14 @@ export const AppletMixin = {
 
             if (inputType === 'text')
               return value;
+
+            if (inputType == 'stackedRadio' || inputType == 'stackedSlider') {
+              const label = item.responseOptions[key].name.en;
+              const response = Array.isArray(value) ? value : [value];
+              const str = response.map(option => option !== null ? option.toString().replace(/:\d*$/, '') : '').join(', ');
+
+              return `${label}: ${str}`;
+            }
 
             return `${key}: ${value}`;
           }
@@ -291,7 +299,7 @@ export const AppletMixin = {
                       }
 
                       if (index !== responseDataObj.length - 1)
-                        responseData += '\r\n\r\n';
+                        responseData += '\r\n';
                     });
                   }
 
@@ -353,7 +361,7 @@ export const AppletMixin = {
                         responseData += `filename: ${response._id}_${item.id}.csv`;
                       }
                     } else {
-                      responseData += parseResponseValue(key, value, item.inputType);
+                      responseData += parseResponseValue(key, value, item.inputType, item);
                     }
 
                     if (item.inputType !== 'text')
@@ -380,9 +388,11 @@ export const AppletMixin = {
                 flag,
                 secret_user_id: MRN || null,
                 userId: _id,
+                inputType: item.inputType,
                 activity_id: response.activity['@id'],
                 activity_name: activity.label.en,
                 item: item.id,
+                item_id: item._id,
                 response: responseData,
                 prompt: replaceItemVariableWithName(question && question[question.length - 1] || '', currentItems, response.data),
                 options: replaceItemVariableWithName(options.join(', '), currentItems, response.data),
@@ -442,14 +452,22 @@ export const AppletMixin = {
                 let eventResponse = '';
 
                 if (event.response) {
-                  const keys = Object.keys(event.response).sort().reverse();
+                  let keys = Object.keys(event.response).sort();
+
+                  if (item.inputType != 'stackedRadio' && item.inputType != 'stackedSlider') {
+                    keys = keys.reverse();
+                  }
                   for (const key of keys) {
                     const value = event.response[key];
 
-                    eventResponse += parseResponseValue(key, value, item.inputType)
+                    eventResponse += parseResponseValue(key, value, item.inputType, item);
 
-                    if (item.inputType !== 'text')
-                    eventResponse += ' | ';
+                    if (item.inputType == 'stackedRadio' || item.inputType == 'stackedSlider') {
+                      eventResponse += '\r\n';
+                    }
+                    else if (item.inputType !== 'text') {
+                      eventResponse += ' | ';
+                    }
                   }
 
                   eventResponse = eventResponse.replace(/[ |]*$/g, '').replace(/^[ |]*/g, '');
@@ -471,6 +489,7 @@ export const AppletMixin = {
                   activity_id: response.activity['@id'],
                   activity_name: activity.label.en,
                   item: item ? item.id : event.screen,
+                  item_id: item ? item._id : '',
                   prompt: replaceItemVariableWithName(question && question[question.length - 1] || '', currentItems, response.data),
                   response: eventResponse,
                   options: replaceItemVariableWithName(options.join(', '), currentItems, response.data),
@@ -492,6 +511,21 @@ export const AppletMixin = {
           }
 
           for (let row of result) {
+            const itemsWithFileResponses = ['visual-stimulus-response', 'photo', 'video', 'audioRecord', 'drawing', 'trail', 'audioImageRecord', 'stabilityTracker'];
+
+            if (itemsWithFileResponses.includes(row.inputType) && row.response) {
+              let lastResponseEvent = null;
+              for (let i = 0; i < events.length; i++) {
+                if (events[i].id == row.id && events[i].item_id == row.item_id && events[i].response_option_selection_time) {
+                  lastResponseEvent = events[i];
+                }
+              }
+
+              if (lastResponseEvent) {
+                lastResponseEvent.response = row.response;
+              }
+            }
+
             for (let subScaleName of subScaleNames) {
               row[subScaleName] = row[subScaleName] || '';
             }
