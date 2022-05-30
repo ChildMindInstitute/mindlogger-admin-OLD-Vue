@@ -454,7 +454,7 @@ export const AppletMixin = {
                 if (event.response) {
                   let keys = Object.keys(event.response).sort();
 
-                  if (item.inputType != 'stackedRadio' && item.inputType != 'stackedSlider') {
+                  if (item.inputType != 'stackedRadio' && item.inputType != 'stackedSlider' && item.inputType != 'text') {
                     keys = keys.reverse();
                   }
                   for (const key of keys) {
