@@ -25,24 +25,24 @@
               :label="choice.name.en"
               hide-details
               disabled
-            ></v-checkbox>
+            />
           </div>
 
           <div
             v-if="item.inputType == 'radio' && !item.isMultipleChoice"
           >
-              <v-radio-group
-                :value="item.value"
-                disabled
-                hide-details
-              >
-                <v-radio
-                  v-for="choice in item.responseOptions"
-                  :key="choice.id"
-                  :value="choice.id"
-                  :label="choice.name.en"
-                ></v-radio>
-              </v-radio-group>
+            <v-radio-group
+              :value="item.value"
+              disabled
+              hide-details
+            >
+              <v-radio
+                v-for="choice in item.responseOptions"
+                :key="choice.id"
+                :value="choice.id"
+                :label="choice.name.en"
+              />
+            </v-radio-group>
           </div>
 
           <div
@@ -54,7 +54,7 @@
               :max="item.responseOptions.length"
               :min="1"
               disabled
-            ></v-slider>
+            />
           </div>
 
           <div

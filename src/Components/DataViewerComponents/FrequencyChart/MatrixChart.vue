@@ -22,17 +22,23 @@
         :style="`display: ${tooltip.visible ? 'block' : 'none'}; left: ${tooltip.left}px; top: ${tooltip.top}px;`"
       >
         <div class="tooltip-item">
-          <div class="label frequency">Frequency:</div>
+          <div class="label frequency">
+            Frequency:
+          </div>
           <div>{{ tooltip.frequency }}</div>
         </div>
 
         <div class="tooltip-item">
-          <div class="label distress">Distress:</div>
+          <div class="label distress">
+            Distress:
+          </div>
           <div>{{ tooltip.distress }}</div>
         </div>
 
         <div class="tooltip-item">
-          <div class="label impairment">Impairment:</div>
+          <div class="label impairment">
+            Impairment:
+          </div>
           <div>{{ tooltip.impairment }}</div>
         </div>
       </v-card>
@@ -56,8 +62,12 @@
               :class="unit == 'day' && freq.start.getDay() < 2 ? 'bold-text' : ''"
               @click.stop="viewDetails(freq)"
             >
-                <tspan text-anchor="middle">{{ getWeekDay(freq.start) }}</tspan>
-                <tspan text-anchor="middle" :x="xUnit * (index+0.5)" dy="1.2em">{{ xTick(freq.start) }}</tspan>
+              <tspan text-anchor="middle">{{ getWeekDay(freq.start) }}</tspan>
+              <tspan
+                text-anchor="middle"
+                :x="xUnit * (index+0.5)"
+                dy="1.2em"
+              >{{ xTick(freq.start) }}</tspan>
             </text>
           </g>
           <g
@@ -189,10 +199,10 @@ import * as moment from 'moment';
 import DateRangePicker from './DateRangePicker';
 
 export default {
-  mixins: [ChartMixin],
   components: {
     DateRangePicker
   },
+  mixins: [ChartMixin],
   data() {
     const heightPerFeature = 32;
 
@@ -208,22 +218,6 @@ export default {
         top: 0,
       }
     }
-  },
-
-  watch: {
-    width () {
-      this.render();
-    },
-
-    dateRange () {
-      this.render();
-    },
-  },
-
-  mounted () {
-    this.$nextTick(() => {
-      this.render();
-    });
   },
 
   computed: {
@@ -243,6 +237,22 @@ export default {
 
       return r;
     }
+  },
+
+  watch: {
+    width () {
+      this.render();
+    },
+
+    dateRange () {
+      this.render();
+    },
+  },
+
+  mounted () {
+    this.$nextTick(() => {
+      this.render();
+    });
   },
 
   methods: {

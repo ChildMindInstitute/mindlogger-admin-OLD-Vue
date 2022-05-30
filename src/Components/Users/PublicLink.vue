@@ -8,13 +8,16 @@
         bottom
       >
         <template v-slot:activator="{ on, attrs }">
-          <div style="display: inline-block;" v-on="on">
+          <div
+            style="display: inline-block;"
+            v-on="on"
+          >
             <v-btn
               class="mx-4"
               color="primary"
               v-bind="attrs"
-              @click="publicLinkDialog = true"
               :disabled="!isAvailable"
+              @click="publicLinkDialog = true"
             >
               {{ $t("generate") }}
             </v-btn>
@@ -23,7 +26,7 @@
         <span v-if="isAvailable">{{ $t("createInviteLinkText") }}</span>
         <span v-else>
           This applet contains items that are not supported by the public link feature. Please update your applet to remove unsupported item types.
-          <br />
+          <br>
           Types supported: Radio button, Checkbox, Slider, Text, Age Selector, Dropdown list, Duration picker and Cumulative score item
         </span>
       </v-tooltip>
@@ -37,30 +40,39 @@
           <p
             v-if="publicLink.requireLogin"
             class="ma-0"
-          >{{ $t("shareLinkText") }}</p>
+          >
+            {{ $t("shareLinkText") }}
+          </p>
 
           <p
             v-else
             class="ma-0"
-          >Share the following link for users to take assessment without account.</p>
+          >
+            Share the following link for users to take assessment without account.
+          </p>
         </v-col>
 
         <v-col
           cols="11"
         >
-          <v-text-field class="pa-0 ma-0"
-            :value="publicLink.url"
+          <v-text-field
             ref="textToCopy"
+            class="pa-0 ma-0"
+            :value="publicLink.url"
             readonly="readonly"
           />
         </v-col>
 
         <v-col
-            align="center"
-            align-self="center"
-            cols="1"
+          align="center"
+          align-self="center"
+          cols="1"
         >
-          <v-btn icon small @click="copyText">
+          <v-btn
+            icon
+            small
+            @click="copyText"
+          >
             <v-icon>mdi-content-copy</v-icon>
           </v-btn>
         </v-col>
@@ -68,27 +80,32 @@
 
       <v-row v-if="publicLink">
         <v-col
-            align-self="center"
-            cols="12"
-            md="4"
+          align-self="center"
+          cols="12"
+          md="4"
         >
-          <v-btn color="error" @click="deleteAppletPublicLink()">
+          <v-btn
+            color="error"
+            @click="deleteAppletPublicLink()"
+          >
             {{ $t("deleteInviteLink") }}
           </v-btn>
         </v-col>
 
         <v-col
-            cols="12"
-            md="8"
+          cols="12"
+          md="8"
         >
-          <p class="ma-0">Delete this link no longer allow anyone to access url</p>
+          <p class="ma-0">
+            Delete this link no longer allow anyone to access url
+          </p>
         </v-col>
       </v-row>
     </v-container>
 
     <v-dialog
-      max-width="800"
       v-model="publicLinkDialog"
+      max-width="800"
     >
       <v-card>
         <v-card-title class="headline">
@@ -171,6 +188,9 @@ export default {
       return true;
     }
   },
+  async mounted() {
+    await this.getAppletPublicLink();
+  },
   methods: {
     copyText () {
       const textToCopy = this.$refs.textToCopy.$el.querySelector('input');
@@ -226,9 +246,6 @@ export default {
 
       this.populateAppletPublicLink(invite);
     }
-  },
-  async mounted() {
-    await this.getAppletPublicLink();
   }
 }
 </script>

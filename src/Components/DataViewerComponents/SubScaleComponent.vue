@@ -21,31 +21,36 @@
               :value="subScale.current.outputText"
               :language="'en'"
               :toolbarsFlag="false"
-            ></mavon-editor>
+            />
           </div>
         </div>
         <template
           v-for="item in subScale.items"
         >
-          <div :key="item['id']" class="chart-card">
+          <div
+            :key="item['id']"
+            class="chart-card"
+          >
             <header>
-            <h3 v-if="item.inputType !== 'markdownMessage'">
-              <div class="item-question">
-                <p><img :src="item.getQuestionImage()"></p>
-                <p>{{ item.getQuizWithoutImage() }}</p>
-              </div>
-            </h3>
+              <h3 v-if="item.inputType !== 'markdownMessage'">
+                <div class="item-question">
+                  <p><img :src="item.getQuestionImage()"></p>
+                  <p>{{ item.getQuizWithoutImage() }}</p>
+                </div>
+              </h3>
 
-            <h3 v-else>- {{ item.label.en }}</h3>
+              <h3 v-else>
+                - {{ item.label.en }}
+              </h3>
             </header>
 
             <RadioSlider
               v-if="
                 tab == 'responses' &&
-                item.responseOptions &&
-                applet.selectedActivites.includes(
-                  index
-                )
+                  item.responseOptions &&
+                  applet.selectedActivites.includes(
+                    index
+                  )
               "
               :plot-id="`RadioSlider-${activity.slug}-${subScale.slug}-${item.slug}`"
               :item="item"

@@ -1,42 +1,60 @@
 <template>
   <tr
     draggable
+    :class="{ 'drop-target': isDragOver }"
     @dragover.prevent
     @drop.stop="itemDropped"
     @dragstart.stop="dragStart"
     @dragenter.stop.prevent="isDragOver = true"
     @dragleave.stop.prevent="isDragOver = false"
     @dragover.stop="isDragOver = true"
-    :class="{ 'drop-target': isDragOver }"
     @click="folderSelected"
   >
     <template v-for="header in headers">
-      <td v-if="header.value !== 'actions'" :key="header.text" >
+      <td
+        v-if="header.value !== 'actions'"
+        :key="header.text"
+      >
         <div class="d-flex item">
-          <div v-if="header.isPrimaryColumn" :style="rowStyle" >
-            <v-btn icon small class="mr-1">
-              <v-icon v-if="!item.isExpanded" >mdi-folder-outline</v-icon>
-              <v-icon v-else>mdi-folder-open-outline</v-icon>
+          <div
+            v-if="header.isPrimaryColumn"
+            :style="rowStyle"
+          >
+            <v-btn
+              icon
+              small
+              class="mr-1"
+            >
+              <v-icon v-if="!item.isExpanded">
+                mdi-folder-outline
+              </v-icon>
+              <v-icon v-else>
+                mdi-folder-open-outline
+              </v-icon>
             </v-btn>
           </div>
           <v-text-field
-              outlined
-              @click.stop.self
-              @blur="finishRenaming"
-              @keydown.enter="onSaveFolder(item)" 
-              v-model="item.name"
-              v-if="item.isRenaming && header.isPrimaryColumn"
-              hide-details
+            v-if="item.isRenaming && header.isPrimaryColumn"
+            v-model="item.name"
+            outlined
+            hide-details 
+            @click.stop.self
+            @blur="finishRenaming"
+            @keydown.enter="onSaveFolder(item)"
           />
           <span v-else-if="header.value === 'updated'">
-              {{ formatTimeAgo(item) }}
+            {{ formatTimeAgo(item) }}
           </span>
-          <span v-else style="text-transform: capitalize" @dblclick="isRenaming = true">{{ item[header.value] }} <small style="color: steelblue">({{appletCount}} applets)</small></span>
+          <span
+            v-else
+            style="text-transform: capitalize"
+            @dblclick="isRenaming = true"
+          >{{ item[header.value] }} <small style="color: steelblue">({{ appletCount }} applets)</small></span>
         </div>
       </td>
     </template>
     <td style="text-align: center;  align-self: center">
-      <slot name="actions"></slot>
+      <slot name="actions" />
     </td>
   </tr>
 </template>

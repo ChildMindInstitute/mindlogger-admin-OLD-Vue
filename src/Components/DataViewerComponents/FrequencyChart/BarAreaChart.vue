@@ -25,17 +25,23 @@
           :style="`display: ${tooltip.visible ? 'block' : 'none'}; left: ${tooltip.left}px; top: ${tooltip.top}px;`"
         >
           <div class="tooltip-item">
-            <div class="label frequency">Frequency:</div>
+            <div class="label frequency">
+              Frequency:
+            </div>
             <div>{{ tooltip.frequency }}</div>
           </div>
 
           <div class="tooltip-item">
-            <div class="label distress">Distress:</div>
+            <div class="label distress">
+              Distress:
+            </div>
             <div>{{ tooltip.distress }}</div>
           </div>
 
           <div class="tooltip-item">
-            <div class="label impairment">Impairment:</div>
+            <div class="label impairment">
+              Impairment:
+            </div>
             <div>{{ tooltip.impairment }}</div>
           </div>
         </v-card>
@@ -60,7 +66,11 @@
                 @click.stop="viewDetails(freq)"
               >
                 <tspan text-anchor="middle">{{ getWeekDay(freq.start) }}</tspan>
-                <tspan text-anchor="middle" :x="xUnit * (index+0.5)" dy="1.2em">{{ xTick(freq.start) }}</tspan>
+                <tspan
+                  text-anchor="middle"
+                  :x="xUnit * (index+0.5)"
+                  dy="1.2em"
+                >{{ xTick(freq.start) }}</tspan>
               </text>
             </g>
 
@@ -138,15 +148,23 @@
     <div
       v-if="format == 'export'"
     >
-      <div class="export-features" :style="`width: ${viewWidth + 80}px;`">
+      <div
+        class="export-features"
+        :style="`width: ${viewWidth + 80}px;`"
+      >
         <template v-for="feature of features">
           <div
             v-if="!selectedFeature || selectedFeature.id == feature.id"
             :key="feature.id"
             class="feature"
           >
-            <div class="feature-title">{{ compressedName(feature.name.en) }}</div>
-            <div class="feature-color" :style="{ background: feature.color }" />
+            <div class="feature-title">
+              {{ compressedName(feature.name.en) }}
+            </div>
+            <div
+              class="feature-color"
+              :style="{ background: feature.color }"
+            />
           </div>
         </template>
       </div>
@@ -272,10 +290,10 @@ import DateRangePicker from './DateRangePicker';
 import * as d3 from 'd3';
 
 export default {
-  mixins: [ChartMixin],
   components: {
     DateRangePicker
   },
+  mixins: [ChartMixin],
 
   data() {
     return {
@@ -290,24 +308,6 @@ export default {
         left: 0,
         top: 0,
       },
-    }
-  },
-
-  watch: {
-    width () {
-      this.render();
-    },
-
-    dateRange () {
-      this.render();
-    },
-
-    selectedFeature () {
-      this.render();
-    },
-
-    viewType () {
-      this.render();
     }
   },
 
@@ -329,6 +329,24 @@ export default {
       );
 
       return Math.min(hf, 40);
+    }
+  },
+
+  watch: {
+    width () {
+      this.render();
+    },
+
+    dateRange () {
+      this.render();
+    },
+
+    selectedFeature () {
+      this.render();
+    },
+
+    viewType () {
+      this.render();
     }
   },
 

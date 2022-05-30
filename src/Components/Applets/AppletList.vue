@@ -3,145 +3,176 @@
     <div class="applet-header pt-5">
       <div class="data-filter">
         <v-text-field
-            v-model="searchText"
-            :label="$t('searchApplets')"
-            prepend-inner-icon="mdi-magnify"
-            class="search-input"
-            hide-details
-            outlined
+          v-model="searchText"
+          :label="$t('searchApplets')"
+          prepend-inner-icon="mdi-magnify"
+          class="search-input"
+          hide-details
+          outlined
         />
       </div>
     </div>
-    <div class="ml-auto">
-        <v-menu
-          v-if="appletUploadEnabled"
-          offset-y
-        >
-          <template v-slot:activator="{ on }">
-            <v-btn
-              color="primary"
-              style="margin: auto;"
-              v-on="on"
-            >
-              {{ $t('buildEditApplet') }}
-            </v-btn>
-          </template>
+    <div class="px-2">
+      <v-menu
+        v-if="appletUploadEnabled"
+        offset-y
+      >
+        <template v-slot:activator="{ on }">
+          <v-btn
+            color="primary"
+            style="margin: auto;"
+            v-on="on"
+          >
+            {{ $t('buildEditApplet') }}
+          </v-btn>
+        </template>
 
-          <v-list>
-            <v-list-item
-              @click="$emit('onBuildApplet')"
-            >
-              <v-list-item-title>
-                {{ $t('buildApplet') }}
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item
-              @click="$emit('onEditApplet')"
-            >
-              <v-list-item-title>
-                {{ $t('editApplet') }}
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item
-              @click="$emit('onAddAppletFromUrl')"
-            >
-              <v-list-item-title>
-                {{ $t('addAppletFromGithub') }}
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item
-              @click="$emit('onBrowseAppletLibrary')"
-            >
-              <v-list-item-title>
-                {{ $t('browseAppletLibrary') }}
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
+        <v-list>
+          <v-list-item
+            @click="$emit('onBuildApplet')"
+          >
+            <v-list-item-title>
+              {{ $t('buildApplet') }}
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            @click="$emit('onEditApplet')"
+          >
+            <v-list-item-title>
+              {{ $t('editApplet') }}
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            @click="$emit('onAddAppletFromUrl')"
+          >
+            <v-list-item-title>
+              {{ $t('addAppletFromGithub') }}
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            @click="$emit('onBrowseAppletLibrary')"
+          >
+            <v-list-item-title>
+              {{ $t('browseAppletLibrary') }}
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
 
-        <v-btn
-          color="primary"
-          class="mx-2 my-2"
-          @click="onNewFolderCreated()"
+      <v-btn
+        color="primary"
+        class="mx-2 my-2"
+        @click="onNewFolderCreated()"
+      >
+        <v-icon
+          dark
         >
-          <v-icon
-            dark
-          >mdi-plus</v-icon>
+          mdi-plus
+        </v-icon>
         {{ $t('newFolder') }}
-        </v-btn>
+      </v-btn>
     </div>
-    <div v-if="isSyncing" >
-      <p class="text-center" style="color:gray">{{loaderMessage}}</p>
-      <v-progress-linear indeterminate rounded height="3" />
+    <div v-if="isSyncing">
+      <p
+        class="text-center"
+        style="color:gray"
+      >
+        {{ loaderMessage }}
+      </p>
+      <v-progress-linear
+        indeterminate
+        rounded
+        height="3"
+      />
     </div>
 
     <v-expand-transition>
-      <div class="red lighten-2 mx-4" v-show="showSaveFolderInstructions">
-        <p class="text-center white--text" style="color:gray">Operation cannot be completed. Save folder first</p>
+      <div
+        v-show="showSaveFolderInstructions"
+        class="red lighten-2 mx-4"
+      >
+        <p
+          class="text-center white--text"
+          style="color:gray"
+        >
+          Operation cannot be completed. Save folder first
+        </p>
       </div>
     </v-expand-transition>
 
 
     <div class="d-flex">
       <v-data-table
-          style="width: 100%"
-          :headers="headers"
-          :items="searchFilter(visibleItems)"
-          :items-per-page="1000"
-          depressed
-          sort-by="calories"
-          class="elevation-4"
-          :loading="loading"
-          :footer-props="{
-            itemsPerPageText: $t('rowsPerPage'),
-            itemsPerPageAllText: $t('all'),
-            itemsPerPageOptions: [10, 50, 100, -1],
-          }"
+        style="width: 100%"
+        :headers="headers"
+        :items="searchFilter(visibleItems)"
+        :items-per-page="1000"
+        depressed
+        sort-by="calories"
+        class="elevation-4"
+        :loading="loading"
+        :footer-props="{
+          itemsPerPageText: $t('rowsPerPage'),
+          itemsPerPageAllText: $t('all'),
+          itemsPerPageOptions: [10, 50, 100, -1],
+        }"
       >
         <template v-slot:item="{ item }">
           <template v-if="!item.isFolder">
             <applet-item
-                :key="item.id + item.parentId"
-                :item="item"
-                :headers="headers"
-                v-on:item-drag-started="dragStarted"
-                v-on:item-dropped="itemDropped"
-                v-on:pinStatusChanged="toggleAppletPin"
-                v-on:applet-clicked="onViewUsers"
-                v-on:applet-hovered="handleAppletHovered"
+              :key="item.id + item.parentId"
+              :item="item"
+              :headers="headers"
+              @item-drag-started="dragStarted"
+              @item-dropped="itemDropped"
+              @pinStatusChanged="toggleAppletPin"
+              @applet-clicked="onViewUsers"
+              @applet-hovered="handleAppletHovered"
             >
-              <template v-slot:actions v-if="hoveredAppletId === item.id">
-                <applet-actions :key="item.id" :item="item"
-                      @onViewUsers="onViewUsers"
-                      @onViewGeneralCalendar="onViewGeneralCalendar"
-                      @onEditApplet="onEditApplet"
-                      @onDeleteApplet="onDeleteApplet"
-                      @onDuplicateApplet="onDuplicateApplet"
-                      @onRefreshApplet="onRefreshApplet"
-                      @removeFromFolder="removeAppletFromFolder"
-                      @onTransferOwnership="onTransferOwnership"
-                      @onShareWithLibrary="onShareWithLibrary"
-                      @onSwitchWelcomeApplet="onSwitchWelcomeApplet" />
+              <template
+                v-if="hoveredAppletId === item.id"
+                v-slot:actions
+              >
+                <applet-actions
+                  :key="item.id"
+                  :item="item"
+                  @onViewUsers="onViewUsers"
+                  @onViewGeneralCalendar="onViewGeneralCalendar"
+                  @onEditApplet="onEditApplet"
+                  @onDeleteApplet="onDeleteApplet"
+                  @onDuplicateApplet="onDuplicateApplet"
+                  @onRefreshApplet="onRefreshApplet"
+                  @removeFromFolder="removeAppletFromFolder"
+                  @onTransferOwnership="onTransferOwnership"
+                  @onShareWithLibrary="onShareWithLibrary"
+                  @onSwitchWelcomeApplet="onSwitchWelcomeApplet"
+                />
               </template>
             </applet-item>
           </template>
           <template v-else-if="item.isFolder">
             <folder-item
-                :key="item.id + item.parentId"
-                :item="item"
-                :headers="headers"
-                v-on:expand-node="toggleExpand"
-                v-on:item-drag-started="dragStarted"
-                v-on:item-dropped="itemDropped"
-                v-on:save-folder="onSaveFolder"
-                v-on:rename-completed="renameFolder"
-                v-on:unsaved-folder-operation="animateSaveInstructions"
-                v-on:folder-selected="handleFolderSelected"
+              :key="item.id + item.parentId"
+              :item="item"
+              :headers="headers"
+              @expand-node="toggleExpand"
+              @item-drag-started="dragStarted"
+              @item-dropped="itemDropped"
+              @save-folder="onSaveFolder"
+              @rename-completed="renameFolder"
+              @unsaved-folder-operation="animateSaveInstructions"
+              @folder-selected="handleFolderSelected"
             >
-              <template v-slot:actions v-if="selectedFolderId === item.id">
-                <folder-actions :key="item.id" :item="item"
-                      @onSave="onSaveFolder"
-                      @onDelete="deleteFolder" />
+              <template
+                v-if="selectedFolderId === item.id"
+                v-slot:actions
+              >
+                <folder-actions
+                  :key="item.id"
+                  :item="item"
+                  @onSave="onSaveFolder"
+                  @onDelete="deleteFolder"
+                />
               </template>
             </folder-item>
           </template>
@@ -149,21 +180,21 @@
         <template v-slot:no-data>
           <h4> No data</h4>
         </template>
-    </v-data-table>
+      </v-data-table>
     </div>
 
     <ConfirmationDialog
-        v-model="appletDeleteDialog"
-        :dialogText="$t('deleteAppletConfirmation')"
-        :title="$t('deleteApplet')"
-        @onOK="deleteApplet"
+      v-model="appletDeleteDialog"
+      :dialogText="$t('deleteAppletConfirmation')"
+      :title="$t('deleteApplet')"
+      @onOK="deleteApplet"
     />
 
     <ConfirmationDialog
-        v-model="folderAppletDelete"
-        :dialogText="$t('deleteAppletConfirmation')"
-        :title="$t('deleteApplet')"
-        @onOK="deleteFolderApplet"
+      v-model="folderAppletDelete"
+      :dialogText="$t('deleteAppletConfirmation')"
+      :title="$t('deleteApplet')"
+      @onOK="deleteFolderApplet"
     />
 
     <ConfirmationDialog
@@ -181,34 +212,34 @@
     />
 
     <ConfirmationDialog
-        v-model="appletEditDialog"
-        :dialogText="$t('appletEditAlert')"
-        :title="$t('appletEdit')"
-        @onOK="editApplet"
+      v-model="appletEditDialog"
+      :dialogText="$t('appletEditAlert')"
+      :title="$t('appletEdit')"
+      @onOK="editApplet"
     />
 
     <AppletName
-        ref="appletNameDialog"
-        v-model="appletDuplicateDialog"
-        @set-value="onSetAppletDuplicateName"
+      ref="appletNameDialog"
+      v-model="appletDuplicateDialog"
+      @set-value="onSetAppletDuplicateName"
     />
 
     <TransferOwnershipDialog
-        v-model="ownershipDialog"
-        @submit="transferOwnership"
-        @close="ownershipDialog = false"
+      v-model="ownershipDialog"
+      @submit="transferOwnership"
+      @close="ownershipDialog = false"
     />
 
     <ShareAppletWithLibraryDialog
-        v-model="shareWithDialog"
-        :appletData="shareApplet"
-        @close="shareWithDialog = false"
+      v-model="shareWithDialog"
+      :appletData="shareApplet"
+      @close="shareWithDialog = false"
     />
 
     <AppletPassword
-        v-model="appletPasswordDialog"
-        :hasConfirmPassword="true"
-        @set-password="onClickSubmitPassword"
+      v-model="appletPasswordDialog"
+      :hasConfirmPassword="true"
+      @set-password="onClickSubmitPassword"
     />
   </div>
 </template>
@@ -269,7 +300,6 @@ TimeAgo.addLocale(fr);
 
 export default {
   name: "AppletList",
-  mixins: [AppletDirectoryManager, AppletMixin],
   components: {
     AppletItem,
     FolderItem,
@@ -281,6 +311,7 @@ export default {
     TransferOwnershipDialog,
     ShareAppletWithLibraryDialog,
   },
+  mixins: [AppletDirectoryManager, AppletMixin],
   props: {
     loading: {
       type: Boolean,
@@ -343,9 +374,6 @@ export default {
       hoveredAppletId: null,
     }
   },
-  mounted() {
-    this.loadFormattedData();
-  },
 
   computed: {
     directoryItems() {
@@ -383,6 +411,9 @@ export default {
         this.$store.commit('setCurrentApplet', applet);
       }
     }
+  },
+  mounted() {
+    this.loadFormattedData();
   },
   methods: {
     animateSaveInstructions() {

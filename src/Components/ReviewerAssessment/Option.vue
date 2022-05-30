@@ -20,7 +20,7 @@
           mdi-help-circle-outline
         </v-icon>
       </template>
-      <markdown :source="option.description"></markdown>
+      <markdown :source="option.description" />
     </v-tooltip>
 
     <div
@@ -42,8 +42,8 @@
     />
     <v-checkbox
       v-else
-      class="mt-0"
       v-model="checked"
+      class="mt-0"
       :label="option.name.en"
       :disabled="disabled"
       hide-details

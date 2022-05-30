@@ -71,13 +71,13 @@ import api from "../Components/Utils/api/api.vue";
 
 export default {
   name: "Login",
-  mixins: [AccountMixin],
   components: {
     LoginForm,
     CreateUserForm,
     ForgotPasswordForm,
     SetBackendForm,
   },
+  mixins: [AccountMixin],
 
   data: () => ({
     color: "#0abb8a",

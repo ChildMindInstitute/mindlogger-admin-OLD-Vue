@@ -69,7 +69,7 @@
               :key="invitationFormKey"
               @createInvitation="createInvitation"
             />
-            <public-link></public-link>
+            <public-link />
             <div style="height: 58px;" />
           </v-card>
           <v-card

@@ -5,6 +5,7 @@ import Login from "../Steps/Login";
 import Dashboard from "../Steps/Dashboard";
 import Library from "../Steps/Library";
 import SetUsers from "../Steps/SetUsers";
+import CaseDashboard from "../Steps/CaseDashboard";
 import SetSchedule from "../Steps/SetSchedule";
 import ReviewerDashboard from "../Steps/ReviewerDashboard";
 import { getLanguageCode } from '../plugins/language';
@@ -50,6 +51,14 @@ let router = new Router({
       },
     },
     {
+      path: "/case/:caseId/dashboard",
+      name: "CaseDashboard",
+      component: CaseDashboard,
+      meta: {
+        requiresAuth: true,
+      }
+    },
+    {
       path: "/applet/:appletId/schedule",
       name: "SetSchedule",
       component: SetSchedule,
@@ -92,18 +101,18 @@ router.beforeEach((to, from, next) => {
       path: "/login",
       query: { nextUrl: to.fullPath, lang },
     });
-  } 
+  }
 
   // Prevent users from accessing the login page if they are already
   // authenticated.
   if ( (isGuestPage || !to.matched.length) && isLoggedIn) {
     return next({ path: "/dashboard", query: { lang }});
-  } 
+  }
 
   // Evaluates to true if the lang parameter is set to just 'en' instead of
   // 'en_US'.
   const isShortLangCode =  to.query.lang && to.query.lang.length < 5;
-  
+
   // When navigating to a page, make sure that the current language is persisted
   // in the URL.
   if (to && !to.query.lang || isShortLangCode) {
@@ -113,7 +122,7 @@ router.beforeEach((to, from, next) => {
       query: { ...to.query, lang },
       params: to.params,
     });
-  } 
+  }
   return next();
 });
 

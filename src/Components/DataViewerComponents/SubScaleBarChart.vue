@@ -11,15 +11,14 @@
         :value="cachedContents[outputText]"
         :language="'en'"
         :toolbarsFlag="false"
-      >
-      </mavon-editor>
+      />
     </div>
 
     <svg
       :id="plotId"
+      ref="responses"
       :width="width + 20"
       :height="height + padding.top + padding.bottom + 20"
-      ref="responses"
     >
       <g>
         <text
@@ -125,6 +124,33 @@ export default {
     }
   },
 
+  /**
+   * Handlers to be executed each time a property changes its value.
+   */
+  watch: {
+    focusExtent: {
+      deep: true,
+      handler() {
+        this.render();
+      }
+    },
+    selectedVersions: {
+      deep: true,
+      handler() {
+        this.render();
+      }
+    },
+    parentWidth: {
+      deep: false,
+      handler(newValue) {
+        this.width = newValue - this.margin.left - this.margin.right;
+        this.height = this.getChartHeight(this.width);
+        this.chartWidth = this.width / 3;
+        this.render();
+      }
+    }
+  },
+
   created() {
     this.onMouseDown = (evt) => {
       const src = evt.srcElement;
@@ -174,33 +200,6 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener('mousedown', this.onMouseDown);
-  },
-
-  /**
-   * Handlers to be executed each time a property changes its value.
-   */
-  watch: {
-    focusExtent: {
-      deep: true,
-      handler() {
-        this.render();
-      }
-    },
-    selectedVersions: {
-      deep: true,
-      handler() {
-        this.render();
-      }
-    },
-    parentWidth: {
-      deep: false,
-      handler(newValue) {
-        this.width = newValue - this.margin.left - this.margin.right;
-        this.height = this.getChartHeight(this.width);
-        this.chartWidth = this.width / 3;
-        this.render();
-      }
-    }
   },
   mounted() {
     this.$nextTick(() => {

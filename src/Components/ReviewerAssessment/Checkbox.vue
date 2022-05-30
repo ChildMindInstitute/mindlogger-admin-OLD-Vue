@@ -2,8 +2,8 @@
   <div class="option-list">
     <Option
       v-for="(option, index) in options"
-      v-model="response[index]"
       :key="option.id"
+      v-model="response[index]"
       :option="option"
       :isTokenItem="isTokenItem"
       :disabled="disabled"

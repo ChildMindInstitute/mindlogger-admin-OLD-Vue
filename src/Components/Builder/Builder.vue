@@ -48,7 +48,7 @@
           <span class="px-2">This account doesn't have enough rights/access to edit the applet.</span>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn
             color="blue darken-1"
             text

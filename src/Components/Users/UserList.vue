@@ -172,8 +172,12 @@
           </td>
         </tr>
         <tr v-if="props.items.length === 0 && !loading">
-          <td> </td>
-          <td> <h4 class="no-data"> No data </h4> </td>
+          <td />
+          <td>
+            <h4 class="no-data">
+              No data
+            </h4>
+          </td>
         </tr>
       </template>
 
@@ -248,7 +252,7 @@
             indeterminate
             color="white"
             class="ma-2 mt-4"
-          ></v-progress-linear>
+          />
         </v-card-text>
       </v-card>
     </v-dialog>

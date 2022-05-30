@@ -3,15 +3,15 @@
     <div class="comments">
       <v-card
         v-for="note in notes"
-        class="my-2"
         :key="note._id"
+        class="my-2"
       >
         <v-card-text>
           <div
             @mouseover="note.hover = true"
             @mouseleave="note.hover = false"
           >
-            {{ note.reviewerName }} added a comment - {{ note.hover ? note.datetime  : note.ago }}
+            {{ note.reviewerName }} added a comment - {{ note.hover ? note.datetime : note.ago }}
           </div>
           <div class="my-1">
             <v-textarea
@@ -20,8 +20,7 @@
               :disabled="!note.my_note"
               :readonly="!note.open"
               hide-details
-            >
-            </v-textarea>
+            />
           </div>
         </v-card-text>
 
@@ -82,7 +81,7 @@
         solo
         label="Add a comment"
         hide-details
-      ></v-textarea>
+      />
 
       <div class="actions">
         <v-btn
@@ -132,6 +131,10 @@ export default {
     }
   },
 
+  computed: {
+
+  },
+
   mounted() {
     if (this.responseId) {
       api.getNotes(this.apiHost, this.token, this.currentAppletMeta.id, this.responseId).then(resp => {
@@ -140,10 +143,6 @@ export default {
         }
       });
     }
-  },
-
-  computed: {
-
   },
 
   methods: {

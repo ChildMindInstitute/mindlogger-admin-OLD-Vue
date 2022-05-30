@@ -1,8 +1,15 @@
 <template>
-  <v-dialog max-width="800px" :value="value" persistent>
+  <v-dialog
+    max-width="800px"
+    :value="value"
+    persistent
+  >
     <v-card>
       <v-card-title>
-        <v-container fluid class="d-flex pa-0">
+        <v-container
+          fluid
+          class="d-flex pa-0"
+        >
           <div class="mr-5">
             <template v-if="!share">
               <div class="title">
@@ -36,11 +43,11 @@
                 </a>
                 <input
                   id="AppletURL"
+                  ref="appletUrl"
                   type="text"
                   class="applet-url"
-                  ref="appletUrl"
                   :value="appletUrl"
-                />
+                >
                 <v-snackbar
                   v-model="clipboardCopied"
                   :timeout="2000"
@@ -56,32 +63,44 @@
             </template>
           </div>
           <div class="ml-auto text-right">
-            <v-btn color="secondary" icon @click="$emit('close')">
+            <v-btn
+              color="secondary"
+              icon
+              @click="$emit('close')"
+            >
               <v-icon>mdi-close</v-icon>
             </v-btn>
             <v-switch
               v-model="share"
-              @change="onSwitchShare"
               color="success"
               inset
+              @change="onSwitchShare"
             />
           </div>
         </v-container>
       </v-card-title>
-      <v-card-text v-if="share" class="pt-0">
+      <v-card-text
+        v-if="share"
+        class="pt-0"
+      >
         <template v-if="isDuplicate">
-          <v-container fluid class="py-0">
+          <v-container
+            fluid
+            class="py-0"
+          >
             <v-text-field
-              label="New Name:"
               v-model="appletName"
+              label="New Name:"
               :hint="$t('newNameNote')"
               persistent-hint
               :error="isError"
               :error-messages="isError ? $t('tryAgain') : ''"
-            >
-            </v-text-field>
+            />
             <div class="text-right">
-              <v-btn color="primary" @click="onChangeAppletName">
+              <v-btn
+                color="primary"
+                @click="onChangeAppletName"
+              >
                 Update
               </v-btn>
             </div>
@@ -89,18 +108,32 @@
         </template>
         <template v-else>
           <v-form v-model="valid">
-            <v-container fluid class="d-flex py-0 align-center">
-              <v-container fluid class="mr-5 pa-0">
-                <v-row v-if="false" align="center">
-                  <v-col md="3" class="text-right"> Category: </v-col>
+            <v-container
+              fluid
+              class="d-flex py-0"
+            >
+              <v-container
+                fluid
+                class="mr-5 pa-0"
+              >
+                <v-row
+                  v-if="false"
+                  align="center"
+                >
+                  <v-col
+                    md="3"
+                    class="text-right"
+                  >
+                    Category:
+                  </v-col>
                   <v-col md="9">
                     <template v-if="isEditing">
                       <v-select
+                        v-model="categoryId"
                         label="Category:"
                         :items="categories"
                         item-text="name"
                         item-value="_id"
-                        v-model="categoryId"
                         :rules="categoryRules"
                         dense
                         solo
@@ -112,16 +145,24 @@
                     </template>
                   </v-col>
                 </v-row>
-                <v-row v-if="false" align="center">
-                  <v-col md="3" class="text-right"> Sub-Category: </v-col>
+                <v-row
+                  v-if="false"
+                  align="center"
+                >
+                  <v-col
+                    md="3"
+                    class="text-right"
+                  >
+                    Sub-Category:
+                  </v-col>
                   <v-col md="9">
                     <template v-if="isEditing">
                       <v-select
+                        v-model="subCategoryId"
                         label="Sub-Category:"
                         :items="subCategories"
                         item-text="name"
                         item-value="_id"
-                        v-model="subCategoryId"
                         :rules="subCategoryRules"
                         dense
                         solo
@@ -133,12 +174,17 @@
                   </v-col>
                 </v-row>
                 <v-row align="center">
-                  <v-col md="3" class="text-right"> Keywords: </v-col>
+                  <v-col
+                    md="3"
+                    class="text-right"
+                  >
+                    Keywords:
+                  </v-col>
                   <v-col md="9">
                     <template v-if="isEditing">
                       <v-combobox
-                        label="Enter Keywords"
                         v-model="keywords"
+                        label="Enter Keywords"
                         clearable
                         multiple
                         small-chips
@@ -170,8 +216,8 @@
                   <v-btn
                     class="align-self-end"
                     color="primary"
-                    @click="onUpdateAppletDetails"
                     :disabled="!valid"
+                    @click="onUpdateAppletDetails"
                   >
                     {{ !isPublished ? "Publish" : "Update" }}
                   </v-btn>

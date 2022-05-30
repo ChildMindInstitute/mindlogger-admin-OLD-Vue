@@ -33,14 +33,14 @@
 
     <svg
       :id="plotId"
+      ref="responses"
       :height="height"
       width="100%"
-      ref="responses"
     >
       <g
+        class="labels"
         @mouseenter="fullActivityName = true"
         @mouseleave="fullActivityName = false"
-        class="labels"
       >
         <text
           :y="padding.top + radius + 15/2"
@@ -62,7 +62,7 @@
             text-anchor="middle"
             font-weight="bold"
           >
-            ( {{$t('latestScore')}}: {{ latestScore }}, {{$t('frequency')}}: {{ frequency }} )
+            ( {{ $t('latestScore') }}: {{ latestScore }}, {{ $t('frequency') }}: {{ frequency }} )
           </text>
         </template>
       </g>
@@ -74,9 +74,9 @@
         <g class="x-axis" />
         <g class="versions" />
         <g
+          class="responses"
           @click="onClickSVG"
           @mousedown="onClickSVG"
-          class="responses"
         />
       </g>
     </svg>
@@ -185,44 +185,6 @@ export default {
       onMouseDown: null
     }
   },
-  created() {
-    this.onMouseDown = (evt) => {
-      const src = evt.srcElement;
-
-      if (this.$refs && this.$refs.responses) {
-        const responseId = src.getAttribute('responseId');
-
-        if (this.$refs.responses.contains(src) && responseId) {
-          if (!this.currentResponse || this.currentResponse.responseId != responseId) {
-            this.currentResponse = this.data.find(d => d.responseId == responseId);
-
-            this.showReviewingTooltip(
-              this.getX(this.currentResponse),
-              this.radius + this.padding.top,
-              this.labelWidth,
-              this.width,
-              this.height
-            )
-
-            this.drawResponses();
-          }
-
-          return ;
-        }
-      }
-
-      if (this.toolTipVisible) {
-        this.currentResponse = null;
-        this.drawResponses();
-        this.hideTooltip();
-      }
-    }
-
-    window.addEventListener('mousedown', this.onMouseDown);
-  },
-  beforeDestroy() {
-    window.removeEventListener('mousedown', this.onMouseDown);
-  },
   computed: {
     compressedLabel() {
       return this.label.length > 28
@@ -272,6 +234,44 @@ export default {
         }
       }
     }
+  },
+  created() {
+    this.onMouseDown = (evt) => {
+      const src = evt.srcElement;
+
+      if (this.$refs && this.$refs.responses) {
+        const responseId = src.getAttribute('responseId');
+
+        if (this.$refs.responses.contains(src) && responseId) {
+          if (!this.currentResponse || this.currentResponse.responseId != responseId) {
+            this.currentResponse = this.data.find(d => d.responseId == responseId);
+
+            this.showReviewingTooltip(
+              this.getX(this.currentResponse),
+              this.radius + this.padding.top,
+              this.labelWidth,
+              this.width,
+              this.height
+            )
+
+            this.drawResponses();
+          }
+
+          return ;
+        }
+      }
+
+      if (this.toolTipVisible) {
+        this.currentResponse = null;
+        this.drawResponses();
+        this.hideTooltip();
+      }
+    }
+
+    window.addEventListener('mousedown', this.onMouseDown);
+  },
+  beforeDestroy() {
+    window.removeEventListener('mousedown', this.onMouseDown);
   },
   mounted() {
     this.$nextTick(() => {

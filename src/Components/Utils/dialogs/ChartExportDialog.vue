@@ -14,7 +14,7 @@
           <v-checkbox
             v-model="hasNotes"
             label="add notes"
-          ></v-checkbox>
+          />
         </div>
 
         <MarkDownEditor

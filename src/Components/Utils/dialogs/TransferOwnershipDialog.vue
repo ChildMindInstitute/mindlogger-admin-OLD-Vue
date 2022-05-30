@@ -1,8 +1,8 @@
 <template>
   <v-dialog
-      max-width="600px"
-      :value="value"
-      persistent
+    max-width="600px"
+    :value="value"
+    persistent
   >
     <v-card>
       <v-card-title>
@@ -13,35 +13,34 @@
         <v-row>
           <v-col cols="12">
             <v-text-field
-                v-model="ownershipEmail"
-                class="ownershipField"
-                :label="$t('ownerEmail')"
-                required
+              v-model="ownershipEmail"
+              class="ownershipField"
+              :label="$t('ownerEmail')"
+              required
             />
           </v-col>
         </v-row>
       </v-card-text>
       <v-card-actions>
-        <v-spacer/>
+        <v-spacer />
         <v-btn
-            color="blue darken-1"
-            text
-            @click="$emit('close', ownershipEmail)"
+          color="blue darken-1"
+          text
+          @click="$emit('close', ownershipEmail)"
         >
           {{ $t('close') }}
         </v-btn>
         <v-btn
-            color="blue darken-1"
-            text
-            :disabled="!emailRules.test(ownershipEmail)"
-            @click="$emit('submit', ownershipEmail)"
+          color="blue darken-1"
+          text
+          :disabled="!emailRules.test(ownershipEmail)"
+          @click="$emit('submit', ownershipEmail)"
         >
           {{ $t('submit') }}
         </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
-
 </template>
 
 <script>

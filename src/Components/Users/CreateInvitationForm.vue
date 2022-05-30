@@ -98,10 +98,10 @@
             md="4"
           >
             <v-text-field
-              key="account-name-input"
               v-if="
                 username === currentAccountName && appletRoles.includes('owner')
               "
+              key="account-name-input"
               v-model="params.accountName"
               label="AccountName"
               :rules="accountNameRules"

@@ -112,6 +112,23 @@ export default {
     Calendar,
   },
   mixins: [AppletMixin],
+  props: {
+    addEntry: {
+      type: Function,
+      required: false,
+      default: () => ({})
+    },
+    entryType: {
+      type: String,
+      required: false,
+      default: ''
+    },
+    caseId: {
+      type: String,
+      required: false,
+      default: ''
+    }
+  },
   data: () => ({
     /**
      * colors for the activities, to show on the left hand bar
@@ -210,13 +227,15 @@ export default {
     saveSchedule() {
       this.$refs.calendar.$refs.app.$refs.calendar.clearPlaceholder();
 
-      const scheduleForm = new FormData();
       if (
         this.currentAppletData &&
         this.currentAppletData.applet &&
         this.currentAppletData.applet.schedule
       ) {
-        this.dialog = true;
+        if (!this.caseId) {
+          this.dialog = true;
+        }
+
         this.saveSuccess = false;
         this.saveError = false;
         this.loading = true;
@@ -224,23 +243,42 @@ export default {
         const schedule = this.addEventType(this.currentAppletData.applet.schedule);
         const removedEvents = this.$store.state.removedEvents;
 
-        scheduleForm.set("schedule", JSON.stringify(schedule || {}));
-        scheduleForm.set("deleted", JSON.stringify(removedEvents || {}));
-        api
-          .setSchedule({
-            apiHost: this.$store.state.backend,
-            id: this.currentAppletMeta.id,
-            token: this.$store.state.auth.authToken.token,
-            data: scheduleForm,
-          })
-          .then((response) => {
-            this.updateCachedSchedule(response.data);
-          })
-          .catch((e) => {
-            this.errorMessage = `Save Unsuccessful. ${e}`;
-            this.loading = false;
-            this.saveError = true;
-          });
+        let preprocess = this.caseId ? this.addEntry() : Promise.resolve();
+
+        preprocess.then(entry => {
+          if (this.caseId && this.entryType == 'one_time_report') {
+            schedule.events.forEach(event => {
+              event.data.users = [entry._id];
+              event.data.caseId = this.caseId;
+            })
+          }
+
+          const scheduleForm = new FormData();
+          scheduleForm.set("schedule", JSON.stringify(schedule || {}));
+          scheduleForm.set("deleted", JSON.stringify(removedEvents || {}));
+
+          api
+            .setSchedule({
+              apiHost: this.$store.state.backend,
+              id: this.currentAppletMeta.id,
+              token: this.$store.state.auth.authToken.token,
+              data: scheduleForm,
+            })
+            .then((response) => {
+              this.updateCachedSchedule(response.data);
+
+              if (this.caseId) {
+                this.$emit('scheduleSaved', entry);
+              }
+            })
+            .catch((e) => {
+              this.errorMessage = `Save Unsuccessful. ${e}`;
+              this.loading = false;
+              this.saveError = true;
+            });
+        }).catch(() => {
+          this.$emit('failed');
+        })
       }
     },
 

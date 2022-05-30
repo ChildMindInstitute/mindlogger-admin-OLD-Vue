@@ -55,6 +55,17 @@
             />
           </v-card>
           <v-card
+            v-else-if="tab == 'cases'"
+            flat
+          >
+            <CaseList
+              :loading="tabData[tab].loading"
+              :cases="tabData[tab].list"
+              @onStatusUpdated="onStatusUpdated"
+              @refreshCaseList="getCases"
+            />
+          </v-card>
+          <v-card
             v-else-if="tab == 'users'"
             flat
           >
@@ -198,6 +209,7 @@ import Information from "../Components/Utils/dialogs/InformationDialog.vue";
 import config from "../config";
 import AppletList from "../Components/Applets/AppletList";
 import UserList from "../Components/Users/UserList";
+import CaseList from "../Components/Cases/CaseList";
 import AppletUpload from "../Components/Utils/dialogs/AppletUpload.vue";
 import AppletPassword from "../Components/Utils/dialogs/AppletPassword.vue";
 import encryption from "../Components/Utils/encryption/encryption.vue";
@@ -209,7 +221,6 @@ window.Parse = Parse;
 window.Day = Day;
 export default {
   name: "Dashboard",
-  mixins: [AppletDirectoryManager],
   components: {
     Loading,
     Information,
@@ -219,7 +230,9 @@ export default {
     UserList,
     AppletUrl,
     EditAppletDialog,
+    CaseList,
   },
+  mixins: [AppletDirectoryManager],
   data: () => ({
     sampleProtocols: config.protocols,
     status: "loading",
@@ -271,7 +284,7 @@ export default {
     }
   },
   async mounted() {
-    for (let tab of ['applets', 'users', 'reviewers', 'editors', 'coordinators', 'managers']) {
+    for (let tab of ['applets', 'users', 'reviewers', 'editors', 'coordinators', 'managers', 'cases']) {
       this.$set(this.tabData, tab, {
         loading: false,
         list: [],
@@ -287,14 +300,23 @@ export default {
       if (this.accountApplets.length && !this.tabs.find(tab => tab === 'applets')) {
         this.tabs.push('applets');
       }
+
+      const processes = []
+
       for (let tab of ['users', 'reviewers', 'editors', 'coordinators', 'managers']) {
         const role = this.tabNameToRole[tab];
 
-        this.getUserList(role).then(resp => {
+        processes.push(this.getUserList(role).then(resp => {
           if (resp.data.total > 0 && !this.tabs.includes(tab)) {
             this.tabs.push(tab);
           }
-        });
+        }));
+      }
+
+      if (this.tabs.includes('applets')) {
+        Promise.all(processes).then(() => {
+          this.tabs.push('cases')
+        })
       }
     },
     onRemoveApplet() {
@@ -303,6 +325,8 @@ export default {
     onSwitchTab(tab) {
       if (tab == 'applets') {
         this.getAccountData();
+      } else if (tab == 'cases') {
+        this.getCases();
       } else {
         const role = this.tabNameToRole[tab];
         this.tabData[tab].loading = true;
@@ -364,6 +388,21 @@ export default {
         });
     },
 
+    getCases() {
+      const accountId = this.$store.state.currentAccount.accountId;
+      this.tabData['cases'].loading = true;
+
+      return api.getCaseList(
+        this.$store.state.backend,
+        this.$store.state.auth.authToken.token,
+      ).then(resp => {
+        this.$set(this.tabData, 'cases', {
+          list: resp.data,
+          loading: false
+        })
+      });
+    },
+
     async initThemes() {
       if (this.$store.state.themes) {
         return;
@@ -419,6 +458,12 @@ export default {
         .catch((e) => {
           this.onAppletUploadError();
         });
+    },
+
+    onStatusUpdated({ title, message }) {
+      this.dialogTitle = title;
+      this.dialogText = message;
+      this.dialog = true;
     },
 
     onAppletUploadSuccessful(message) {

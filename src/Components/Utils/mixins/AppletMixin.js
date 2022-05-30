@@ -60,10 +60,12 @@ export const AppletMixin = {
     /**
      * export user data for selected users
      */
-    exportUserData(appletMeta, key = null) {
+    exportUserData(appletMeta, key = null, caseId = null, entryId = null) {
       const appletId = appletMeta.id;
       const payload = {
         users: Object.keys(this.$store.state.currentUsers).join(','),
+        caseId,
+        entryId
       };
       const preprocess = this.isLatestApplet(appletMeta) ? Promise.resolve() : this.loadApplet(appletMeta.id);
 
@@ -532,7 +534,7 @@ export const AppletMixin = {
           }
 
           this.downloadFile({
-            name: 'report.csv',
+            name: `${appletMeta.displayName}-report.csv`,
             content: new ObjectToCSV({
               keys: keys.concat(subScaleNames).map((value) => ({ key: value, as: value })),
               data: result,
@@ -541,7 +543,7 @@ export const AppletMixin = {
           });
 
           this.downloadFile({
-            name: 'activity_user_journey.csv',
+            name: `${appletMeta.displayName}-activity_user_journey.csv`,
             content: new ObjectToCSV({
               keys: [
                 'id', 'activity_scheduled_time', 'activity_start_time', 'activity_end_time',
@@ -554,15 +556,15 @@ export const AppletMixin = {
             type: 'text/csv;charset=utf-8'
           })
 
-          await this.generateLinesZip(drawingCSVs, 'drawing-responses');
-          await this.generateLinesZip(trailsCSVs, 'trails-responses');
-          await this.generateStabilityZip(stabilityCSVs);
-          await this.generateFlankerZip(flankerCSVs);
-          await this.generateMediaResponsesZip(this.mediaResponseObjects);
+          await this.generateLinesZip(drawingCSVs, `${appletMeta.displayName}-drawing-responses`);
+          await this.generateLinesZip(trailsCSVs, `${appletMeta.displayName}-trails-responses`);
+          await this.generateStabilityZip(stabilityCSVs, `${appletMeta.displayName}-stability-tracker-responses`);
+          await this.generateFlankerZip(flankerCSVs, `${appletMeta.displayName}-flanker-responses`);
+          await this.generateMediaResponsesZip(this.mediaResponseObjects, `${appletMeta.displayName}-media-responses`);
         })
     },
 
-    async generateFlankerZip(flankerCSVs) {
+    async generateFlankerZip(flankerCSVs, name) {
       if (flankerCSVs.length > 0) {
         try {
           const zip = new JSZip();
@@ -572,7 +574,7 @@ export const AppletMixin = {
           }
 
           const generatedZip = await zip.generateAsync({ type: 'blob' });
-          saveAs(generatedZip, `flanker-responses-${(new Date()).toDateString()}.zip`);
+          saveAs(generatedZip, `${name}-${(new Date()).toDateString()}.zip`);
         } catch (err) {
           console.log(err);
         }
@@ -1029,7 +1031,7 @@ export const AppletMixin = {
       }
     },
 
-    async generateStabilityZip(stabilityCSVs) {
+    async generateStabilityZip(stabilityCSVs, name) {
       try {
         if (stabilityCSVs.length > 0) {
           const zip = new JSZip();
@@ -1039,14 +1041,14 @@ export const AppletMixin = {
           }
 
           const generatedZip = await zip.generateAsync({ type: 'blob' });
-          saveAs(generatedZip, `stability-tracker-responses-${(new Date()).toDateString()}.zip`);
+          saveAs(generatedZip, `${name}-${(new Date()).toDateString()}.zip`);
         }
       } catch (err) {
         console.log(err);
       }
     },
 
-    async generateMediaResponsesZip(mediaObjects) {
+    async generateMediaResponsesZip(mediaObjects, name) {
       if (mediaObjects.length < 1) return;
       try {
         const credentials = {
@@ -1077,7 +1079,7 @@ export const AppletMixin = {
         }
 
         const generatedZip = await zip.generateAsync({ type: 'blob' });
-        saveAs(generatedZip, `media-responses-${(new Date()).toDateString()}.zip`);
+        saveAs(generatedZip, `${name}-${(new Date()).toDateString()}.zip`);
         this.mediaResponseObjects.length = 0;
       } catch (err) {
         console.log(err);

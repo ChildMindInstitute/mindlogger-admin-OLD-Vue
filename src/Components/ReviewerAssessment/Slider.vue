@@ -3,15 +3,15 @@
     class="slider"
   >
     <input
+      v-model="response"
       type="range"
       :class="isNull ? 'no-value' : ''"
       :min="minValue"
       :max="maxValue"
-      v-model="response"
       step="0.1"
       :disabled="disabled"
       @click="update"
-    />
+    >
 
     <div
       v-if="!item.showTickMarks"
@@ -32,7 +32,7 @@
         <img
           :src="item.minValueImg"
           width="100%"
-        />
+        >
 
         <div
           class="min-label"
@@ -47,12 +47,12 @@
         <img
           :src="item.maxValueImg"
           width="100%"
-        />
+        >
 
         <div
           class="min-label"
         >
-          {{item.maxValue}}
+          {{ item.maxValue }}
         </div>
       </div>
     </div>
