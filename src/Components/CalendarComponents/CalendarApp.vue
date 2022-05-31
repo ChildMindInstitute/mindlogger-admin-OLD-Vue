@@ -101,6 +101,14 @@
                 >
                   <ActivitySidebar :activity="act" />
                 </div>
+                <v-btn
+                  color="primary"
+                  class="ma-2 white--text v-btn--import"
+                  @click="importSchedule"
+                  outlined
+                >
+                  Import Schedule
+                </v-btn>
               </div>
             </div>
           </v-flex>
@@ -176,9 +184,11 @@
             v-bind="{ $scopedSlots }"
             :calendar="calendar"
             :read-only="readOnly"
+            :import-only="importOnly"
             :activities="activities"
             v-on="$listeners"
             @saved="eventFinish"
+            @cancel="eventCancel"
             @actioned="eventFinish"
           />
         </slot>
@@ -347,7 +357,8 @@ export default {
     options: [],
     promptVisible: false,
     promptQuestion: "",
-    promptCallback: null
+    promptCallback: null,
+    importOnly: false,
   }),
 
   computed: {
@@ -580,6 +591,11 @@ export default {
       }
     },
 
+    importSchedule() {
+      this.importOnly = true;
+      this.addToday();
+    },
+
     addToday() {
       if (!this.canAddDay) {
         return;
@@ -736,6 +752,11 @@ export default {
     // eslint-disable-next-line
     eventFinish(ev) {
       this.triggerChange();
+      this.eventCancel();
+    },
+
+    eventCancel() {
+      this.importOnly = false;
     },
 
     eventsRefresh() {
@@ -796,6 +817,11 @@ export default {
 
 .v-btn--text {
   margin-bottom: 0 !important;
+}
+
+.v-btn--import {
+  margin-left: 0 !important;
+  width: 100%;
 }
 
 .top-controls {

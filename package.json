@@ -61,6 +61,7 @@
     "protocol-builder": "^0.1.20",
     "vue": "2.6.10",
     "vue-browser-detect-plugin": "^0.1.13",
+    "vue-csv-import": "^2.3.7",
     "vue-html2pdf": "^1.8.0",
     "vue-i18n": "^8.21.1",
     "vue-markdown": "^2.2.4",
