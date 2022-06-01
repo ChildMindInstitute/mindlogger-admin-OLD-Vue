@@ -23,6 +23,7 @@
           v-model="details.title"
           :items="activityNames"
           :placeholder="$t('selectActivity')"
+          :disabled="importOnly"
           dense
           outlined
         />
@@ -36,7 +37,7 @@
             class="ds-button-tall"
             depressed
             color="primary"
-            :disabled="!canSave"
+            :disabled="!canSave || importOnly"
             @click.stop="save"
           >
             <span v-html="labels.save" />
@@ -78,12 +79,16 @@
       <v-layout v-if="hasTabs">
         <v-flex xs12 >
           <v-tabs v-model="tab" class="text--primary">
-            <v-tab v-if="hasDetails" href="#details">
+            <v-tab v-if="hasDetails && !importOnly" href="#details">
               {{ $t('activityAccessOptions') }}
             </v-tab>
 
-            <v-tab href="#notifications">
+            <v-tab v-if="!importOnly" href="#notifications">
               {{ $t('notifications') }}
+            </v-tab>
+
+            <v-tab v-if="importOnly" href="#import">
+              {{ $t('importSchedule') }}
             </v-tab>
 
             <v-tab v-if="showForecast" href="#forecast">
@@ -169,6 +174,56 @@
               </v-card>
             </v-tab-item>
 
+            <!-- Import Schedule -->
+            <v-tab-item value="import">
+              <p class="my-3 mx-2"> Please upload a schedule table (.csv file format as below) </p>
+              <v-card text>
+                <v-data-table
+                  :headers="headers"
+                  :items="items"
+                  :items-per-page="5"
+                  class="elevation-1"
+                ></v-data-table>
+              </v-card>
+              <div class="d-flex justify-space-between mt-4">
+                <v-btn
+                  outlined
+                  color="primary"
+                  @click.stop="downloadTemplate"
+                >
+                  Download Template(.csv)
+                </v-btn>
+                <div>
+                  <form enctype="multipart/form-data">
+                      <input 
+                        class="import-file ds-display-none" 
+                        type="file" 
+                        @change="onFileChange"
+                      />
+                  </form>
+                  <v-btn
+                    color="blue-grey"
+                    class="white--text mx-2"
+                    @click="handleImportBtn"
+                  >
+                    Import
+                    <v-icon
+                      right
+                      dark
+                    >
+                      mdi-cloud-upload
+                    </v-icon>
+                  </v-btn>
+                  <v-btn
+                    color="info"
+                    @click="openScheduledDlg"
+                  >
+                    Submit
+                  </v-btn>
+                </div>
+              </div>
+            </v-tab-item>
+
             <!-- Forecast -->
             <v-tab-item v-if="showForecast" value="forecast" lazy>
               <v-card text>
@@ -234,12 +289,19 @@
         </v-flex>
       </v-layout>
     </v-card-text>
+    <ConfirmationDialog
+      v-model="scheduleDialog"
+      :dialogText="$t('submitScheduleConfirmation')"
+      :title="$t('importSchedule')"
+      @onOK="saveSchedule"
+    />
   </v-card>
 </template>
 
 <script>
 import {
   Day,
+  Time,
   Calendar,
   CalendarEvent,
   Schedule,
@@ -252,7 +314,10 @@ import ScheduleModifier from "./ScheduleModifier";
 import ScheduleForecast from "./ScheduleForecast";
 import ScheduleActions from "./ScheduleActions";
 import mySchedule from "./Schedule";
-import {addActivityColor, getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
+import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
+import ObjectToCSV from 'object-to-csv';
+import { addActivityColor, getEventColor } from "@/Components/CalendarComponents/activityColorPalette.js";
+import { VueCsvImport } from 'vue-csv-import';
 export default {
   name: "dsEvent",
 
@@ -262,6 +327,8 @@ export default {
     ScheduleForecast,
     ScheduleModifier,
     ScheduleActions,
+    ConfirmationDialog,
+    VueCsvImport
   },
 
   props: {
@@ -285,6 +352,11 @@ export default {
 
     calendar: {
       type: Calendar,
+    },
+
+    importOnly: {
+      type: Boolean,
+      default: false,
     },
 
     day: {
@@ -378,16 +450,76 @@ export default {
 
   data: (vm) => {
     return {
-    tab: "details",
-    schedule: new Schedule(),
-    details: vm.$dayspan.getDefaultEventDetails(),
-    oneTimeCompletion: false,
-    eventAvailability: null,
-    onlyScheduledDay: false,
-    scheduledExtendedTime: {},
-    scheduledTimeout: {},
-    timedActivity: {},
-    scheduledIdleTime: {},
+      tab: "details",
+      schedule: new Schedule(),
+      details: vm.$dayspan.getDefaultEventDetails(),
+      oneTimeCompletion: false,
+      eventAvailability: null,
+      onlyScheduledDay: false,
+      scheduledExtendedTime: {},
+      scheduledTimeout: {},
+      timedActivity: {},
+      scheduledIdleTime: {},
+      scheduleDialog: false,
+      scheduleImport: false,
+      csvData: [],
+      headers: [
+        {
+          text: 'Activity Name',
+          align: 'start',
+          sortable: true,
+          value: 'name',
+        },
+        { text: 'Date', value: 'date' },
+        { text: 'Activity Start Time', value: 'startTime' },
+        { text: 'Activity End Time', value: 'endTime' },
+        { text: 'Notification Time', value: 'notificationTime' },
+        { text: 'Repeats', value: 'repeats' },
+        { text: 'Frequency', value: 'frequency' },
+      ],
+      items: [
+        {
+          name: 'Flanker',
+          date: '01/13/2022',
+          startTime: '0800',
+          endTime: '1640',
+          notificationTime: '1400',
+          repeats: 'Yes',
+          frequency: 'Daily'
+        }, {
+          name: 'Screener',
+          date: '11/03/2022',
+          startTime: '0435',
+          endTime: '2240',
+          notificationTime: '1230',
+          repeats: 'Yes',
+          frequency: 'Weekly'
+        }, {
+          name: 'EMA',
+          date: '04/22/2022',
+          startTime: '1030',
+          endTime: '1130',
+          notificationTime: '1030',
+          repeats: 'Yes',
+          frequency: 'Week Day'
+        }, {
+          name: 'TokenLogger',
+          date: '12/07/2022',
+          startTime: '2230',
+          endTime: '2300',
+          notificationTime: '2245',
+          repeats: 'Yes',
+          frequency: 'Monthly'
+        }, {
+          name: 'Cognitive Battery',
+          date: '05/19/2022',
+          startTime: '1750',
+          endTime: '1846',
+          notificationTime: '1750',
+          repeats: 'No',
+          frequency: ''
+        },
+      ]
     }
   },
 
@@ -570,6 +702,7 @@ export default {
       handler: "updateDetails",
       immediate: true,
     },
+    
     title() {
       const res = _.filter(this.activities, (a) => a.name === this.title);
       if (res.length)
@@ -693,8 +826,177 @@ export default {
       this.eventAvailability = availability;
     },
 
+    handleImportBtn() {
+      this.$el.querySelector("input.import-file").click();
+    },
+
+    onFileChange(e) {
+      const files = e.target.files || e.dataTransfer.files;
+      if (!files.length) {
+        return;
+      }
+      this.createInput(files[0]);
+    },
+    createInput(file) {
+      const reader = new FileReader();
+      const vm = this;
+
+      reader.onload = (e) => {
+        const lines = reader.result.split('\n')
+        const headers = lines[0].split(',').map(header => {
+          const value = header.replace(/\"/g, '').replace(/\r/g, '');
+          const headerItem = this.headers.find(h => h.text === value);
+
+          if (headerItem) {
+            return headerItem.value;
+          }
+          return value;
+        })
+        vm.items = lines.slice(1).map(line => {
+          const fields = line.split(',').map(field => field.replace(/\"/g, ''));
+
+          return Object.fromEntries(headers.map((h, i) => [h, fields[i]]))
+        }).filter(line => {
+          if (line.name === '' || line.name === undefined) {
+            return false;
+          }
+          return true;
+        })
+
+      }
+      reader.readAsText(file);
+    },
+
+    openScheduledDlg() {
+      this.scheduleDialog = true;
+    },
+
+    saveSchedule() {
+      this.scheduleImport = true;
+      this.items.forEach(row => {
+        let { notificationTime, name, startTime, endTime, date } = row;
+        const res = _.filter(this.activities, (a) => a.name === name);
+        let timeout = {
+          access: false,
+          allow: true,
+          day: 0,
+        };
+
+        if (startTime.length < 4) startTime = '0' + startTime;
+        if (endTime.length < 4) endTime = '0' + endTime;
+        if (notificationTime.length < 4) notificationTime = '0' + notificationTime;
+
+        const eventTimes = [{
+          hour: startTime.slice(0, 2),
+          minute: startTime.slice(2),
+          second: 0,
+          millisecond: 0,
+        }, {
+          hour: endTime.slice(0, 2),
+          minute: endTime.slice(2),
+          second: 0,
+          millisecond: 0,
+        }]
+
+        timeout.minute = eventTimes[1].minute - eventTimes[0].minute;
+        timeout.hour = eventTimes[1].hour - eventTimes[0].hour;
+
+        if (timeout.minute < 0) {
+          timeout.minute += 60;
+          timeout.hour -= 1;
+        }
+
+        if (res.length) {
+          const activityColor = getEventColor(res[0].id);
+
+          this.details.URI = res[0].URI;
+          if(activityColor)
+          {
+            this.details.color = this.getHexColor(activityColor)
+          }
+        }
+
+        const data = {
+          availability: false,
+          busy: false,
+          calendar: "",
+          completion: false,
+          description: "",
+          extendedTime: {
+            allow: false,
+            minute: 1
+          },
+          forecolor: "#ffffff",
+          color: "#F44336",
+          icon: "",
+          idleTime: {
+            allow: false,
+            minute: 1
+          },
+          location: "",
+          notifications: [
+            {
+              allow: true,
+              end: null,
+              random: false,
+              start: [notificationTime.slice(0, 2), ":", notificationTime.slice(2)].join('')
+            }
+          ],
+          onlyScheduledDay: false,
+          reminder: {
+            days: 0,
+            time: "",
+            valid: false
+          },
+          timedActivity: {
+            allow: false,
+            hour: 0,
+            minute: 59,
+            second: 59
+          },
+          timeout,
+          title: row.name,
+          useNotifications: true
+        }
+
+        const dateValues = date.split('/');
+        const times = [];
+        times.push(new Time(eventTimes[0].hour, eventTimes[0].minute, eventTimes[0].second, eventTimes[0].millisecond));
+
+        this.calendar.addEvent({
+          data,
+          id: null,
+          schedule: new Schedule({
+            on: Day.build(dateValues[2], dateValues[0] - 1, dateValues[1]),
+            times
+          })
+        })
+      });
+      this.cancel();
+    },
+
+    downloadTemplate () {
+      this.downloadFile({
+        name: 'template.csv',
+        content: new ObjectToCSV({ 
+          data: this.items,
+          keys: this.headers.map(header => ({ key: header.value, as: header.text }))
+        }).getCSV(),
+        type: 'text/csv;charset=utf-8'
+      });
+    },
+
+    downloadFile({ name, content, type }) {
+      const file = new Blob([content], { type })
+      return new Promise(resolve => {
+        saveAs(file, name)
+        resolve(true)
+      })
+    },
+
     save() {
       var ev = this.getEvent("save");
+
       this.$emit("save", ev);
 
       if (!ev.handled) {
@@ -711,15 +1013,14 @@ export default {
           );
 
           this.$emit("update", ev);
-
           this.$emit("event-update", ev.calendarEvent.event);
         } else if (ev.create) {
           ev.created = this.$dayspan.createEvent(ev.details, ev.schedule);
+
           if (ev.calendar) {
             ev.calendar.addEvent(ev.created);
             ev.added = true;
           }
-
           this.$emit("create", ev);
         }
 
@@ -757,6 +1058,7 @@ export default {
 
     getEvent(type, extra = {}) {
       const evDetails = this.details;
+      // const targetSchedule = {... this.targetSchedule};
 
       if (this.oneTimeCompletion) {
         evDetails.completion = true;
@@ -805,6 +1107,7 @@ export default {
       if (!this.scheduledTimeout.hasOwnProperty("allow")) {
         this.scheduledTimeout = this.timeout;
       }
+
       if (!this.scheduledTimeout.allow) {
         if (this.schedule.lastTime) {
           evDetails.timeout = {
@@ -844,6 +1147,7 @@ export default {
       if (Object.keys(this.$store.state.currentUsers).length) {
         evDetails.users = Object.keys(this.$store.state.currentUsers);
       }
+
       return fn.extend(
         {
           type: type,
@@ -868,6 +1172,15 @@ export default {
 };
 </script>
 
+<style lang="scss">
+.csv-import-checkbox {
+  display: none;
+}
+.import-file {
+  display: none;
+}
+</style>
+
 <style scoped lang="scss">
 .ds-calendar-event-title {
   font-size: 18px;
@@ -879,6 +1192,10 @@ export default {
   width: 100%;
   color: white;
   padding: 4px;
+}
+
+.ds-display-none {
+  display: none;
 }
 
 .ds-button-tall {
@@ -910,7 +1227,7 @@ export default {
   }
 
   .ds-event-details {
-    max-height: 500px;
+    max-height: 600px;
     overflow-y: auto;
   }
 
