@@ -325,7 +325,7 @@ export default {
   },
   watch: {
     timeout: function(newTimeout) {
-      this.scheduledTimeout = newTimeout;
+      scheduledTimeout = newTimeout;
     },
     activityRepeats: function (newRepeat) {
       if (!newRepeat) {
