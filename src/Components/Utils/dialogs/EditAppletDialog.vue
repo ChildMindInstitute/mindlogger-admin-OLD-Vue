@@ -13,7 +13,7 @@
         {{ $t('selectAppletToEdit') }}
       </div>
 
-      <v-card-text>
+      <v-card-text class="applet-list">
         <v-btn
           v-for="applet in applets"
           :key="applet.id"
@@ -35,6 +35,11 @@
 </template>
 
 <style scoped>
+  .applet-list {
+    max-height: 450px;
+    overflow: auto;
+  }
+
   .edit-btn {
     width: 100%;
     text-transform: none;
@@ -82,7 +87,7 @@
         }
 
         return this.$store.state.currentAccount.applets.filter(
-          applet => 
+          applet =>
               applet.roles.includes('manager') || applet.roles.includes('editor')
         )
       }
