@@ -21,7 +21,6 @@ export default {
   removeFromFolder: "Supprimer l'applet du dossier",
   repeatOptions:'Options de répétition',
   activityAccessOptions: "Options d'accès aux activités",
-  importSchedule: "Calendrier d'importation",
   notifications: "Notifications",
   activityAvailable: "Activité disponible",
   passwordRequired: 'Un mot de passe est obligatoire',
@@ -229,8 +228,6 @@ export default {
   savingSchedule: 'Sauvegarde du calendrier',
   clearActivities: 'Effacer toutes les activités du calendrier',
   saveActivities: 'Sauvegarder toutes les activités du calendrier',
-  submitScheduleConfirmation: 'Êtes-vous sûr d\'être prêt à définir votre horaire? Vous devez encore enregistrer le programme sur la page suivante',
-  importSchedule: 'Calendrier d\'importation',
   thisTool:
     "Cet outil est utilisé pour concevoir et sauvegarder des ensembles d'activités ReproNim. Les ensembles d'activités sauvegardés peuvent être téléchargés dans MindLogger via le panneau d'administration.",
   moreInformation:
