@@ -452,25 +452,30 @@ export const AppletMixin = {
                 let eventResponse = '';
 
                 if (event.response) {
-                  let keys = Object.keys(event.response).sort();
+                  if (item.inputType == 'text') {
+                    eventResponse = event.response;
+                  } else {
+                    let keys = Object.keys(event.response).sort();
 
-                  if (item.inputType != 'stackedRadio' && item.inputType != 'stackedSlider' && item.inputType != 'text') {
-                    keys = keys.reverse();
-                  }
-                  for (const key of keys) {
-                    const value = event.response[key];
-
-                    eventResponse += parseResponseValue(key, value, item.inputType, item);
-
-                    if (item.inputType == 'stackedRadio' || item.inputType == 'stackedSlider') {
-                      eventResponse += '\r\n';
+                    if (item.inputType != 'stackedRadio' && item.inputType != 'stackedSlider') {
+                      keys = keys.reverse();
                     }
-                    else if (item.inputType !== 'text') {
-                      eventResponse += ' | ';
-                    }
-                  }
 
-                  eventResponse = eventResponse.replace(/[ |]*$/g, '').replace(/^[ |]*/g, '');
+                    for (const key of keys) {
+                      const value = event.response[key];
+
+                      eventResponse += parseResponseValue(key, value, item.inputType, item);
+
+                      if (item.inputType == 'stackedRadio' || item.inputType == 'stackedSlider') {
+                        eventResponse += '\r\n';
+                      }
+                      else if (item.inputType !== 'text') {
+                        eventResponse += ' | ';
+                      }
+                    }
+
+                    eventResponse = eventResponse.replace(/[ |]*$/g, '').replace(/^[ |]*/g, '');
+                  }
                 }
 
                 events.push({
