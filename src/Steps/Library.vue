@@ -48,7 +48,8 @@ export default {
               auth: {
                 authToken: {
                   token
-                }
+                },
+                user: resp.data
               }
             });
             fromLibrary = true;

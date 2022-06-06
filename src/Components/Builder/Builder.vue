@@ -14,6 +14,7 @@
       :cacheData="currentAppletBuilderData"
       :basketApplets="basketApplets"
       :themes="themes"
+      :viewMode="!canEditApplet"
       @removeTemplate="onRemoveTemplate"
       @updateTemplates="onAddTemplate"
       @uploadProtocol="onUploadProtocol"
@@ -80,6 +81,7 @@ import axios from "axios";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import { AppletMixin } from "../Utils/mixins/AppletMixin";
 import { AccountMixin } from "../Utils/mixins/AccountMixin";
+import { RolesMixin } from '../Utils/mixins/RolesMixin';
 
 import encryption from "../Utils/encryption/encryption.vue";
 import AppletPassword from "../Utils/dialogs/AppletPassword";
@@ -100,7 +102,7 @@ export default {
     AppletPassword,
     Information,
   },
-  mixins: [AppletMixin, AccountMixin],
+  mixins: [AppletMixin, AccountMixin, RolesMixin],
   data() {
     return {
       loading: true,
@@ -155,6 +157,9 @@ export default {
         []
       );
     },
+    canEditApplet() {
+			return !this.isEditing || (!this.currentAppletMeta.welcomeApplet || this.hasRoles(this.currentAppletMeta, 'owner'));
+		},
   },
   async beforeMount() {
     const { apiHost, token } = this;
@@ -377,23 +382,22 @@ export default {
             this.componentKey = this.componentKey + 1;
           });
 
-          if (data.applet.publicLink) {
-            const inputTypes = ["radio", "checkbox", "slider", "text", "ageSelector", "dropdownList", "duration"]
-            const items = Object.values(data.items);
-            for (const item of items) {
-              const inputType = _.get(item, ['reprolib:terms/inputType', 0, '@value']);
-              if (!inputTypes.includes(inputType)) {
-                api.appletPublicLink({
-                  method: "DELETE",
-                  apiHost: apiHost,
-                  token: token,
-                  appletId
-                });
-
-                break;
-              }
-            }
-          }
+          // if (data.applet.publicLink) {
+          //   const inputTypes = ["radio", "checkbox", "slider", "text", "ageSelector", "dropdownList", "duration"]
+          //   const items = Object.values(data.items);
+          //   for (const item of items) {
+          //     const inputType = _.get(item, ['reprolib:terms/inputType', 0, '@value']);
+          //     if (!inputTypes.includes(inputType)) {
+          //       api.appletPublicLink({
+          //         method: "DELETE",
+          //         apiHost: apiHost,
+          //         token: token,
+          //         appletId
+          //       });
+          //       break;
+          //     }
+          //   }
+          // }
 
           this.$store.commit("setBasketApplets", {});
           this.$store.commit("cacheAppletBuilderData", null);

@@ -9,7 +9,7 @@
     @mouseover="appletHovered"
     :class="{ 'drop-target': isDragOver }"
     draggable
-  > 
+  >
     <template v-for="header in headers">
       <td v-if="header.value !== 'actions'" :key="header.text" @click="appletClicked">
         <div class="d-flex item">
@@ -18,7 +18,7 @@
               <v-btn icon small depressed @click.stop="$emit('pinStatusChanged', item)" class="mr-3">
                 <v-icon color="primary" v-if="item.pinOrder > 0">mdi-pin</v-icon>
                 <v-icon color="#474747" v-else >mdi-pin-off</v-icon>
-              </v-btn>  
+              </v-btn>
             </div>
             <div v-else :style="rowStyle">
               <v-avatar color="blue" size="30" class="mr-2" style="color:white">
@@ -32,7 +32,7 @@
                 >
                   {{item.name[0]}}
                 </span>
-              </v-avatar> 
+              </v-avatar>
             </div>
           </template>
           <span v-if="header.value === 'updated'">
