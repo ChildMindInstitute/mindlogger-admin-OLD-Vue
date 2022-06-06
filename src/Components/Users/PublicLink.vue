@@ -160,15 +160,14 @@ export default {
       return this.$store.state.auth.authToken.token;
     },
     isAvailable () {
-      const inputTypes = ["radio", "checkbox", "slider", "text", "ageSelector", "dropdownList", "duration"]
-      const items = Object.values(this.currentAppletData.items);
-      for (const item of items) {
-        const inputType = _.get(item, ['reprolib:terms/inputType', 0, '@value']);
-        if (!inputTypes.includes(inputType)) {
-          return false;
-        }
-      }
-
+      // const inputTypes = ["radio", "checkbox", "slider", "text", "ageSelector", "dropdownList", "duration"]
+      // const items = Object.values(this.currentAppletData.items);
+      // for (const item of items) {
+      //   const inputType = _.get(item, ['reprolib:terms/inputType', 0, '@value']);
+      //   if (!inputTypes.includes(inputType)) {
+      //     return false;
+      //   }
+      // }
       return true;
     }
   },

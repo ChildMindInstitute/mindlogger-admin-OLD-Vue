@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
+## [0.17.0] - 2022-06-06
+New Features:
+- Welcome Applet: All accounts will now always have a Welcome applet shown on their device that contains almost all of the features MindLogger offers 
+- Cognitive Tasks: Flanker, CST, and A/B Trails activities can be added to applets via the applet builder or to the applet library. CST Gyroscope for Android devices is still being created and should not be used for research purposes 
+- Arbitrary Server: We now support GCP and Azure servers when connecting with our arbitrary server feature
+- User Journey Export: The first version of our user journey timestamps export is available when exporting response data 
+- CST Editor: Editors can configure a CST activity within their activity 
+
+Improvements:
+- Flanker:
+The threshold to pass is updated to 75% 
+- CST Updates:
+The slope calculation was updated to decrement the slope 
+Reset parameters at the end of the activity have been removed 
+- Reporting Update:
+"Your child's score" was removed from the report PDF and replaced with Score 
+
+Bug Fixes:
+- Transparent Images: Transparent images remain transparent when adding them to items in the applet builder
+- Remove a user from an applet and data disappears: This has been fixed so that removing a user is only removing access and not data. The data missing previously from those accounts should be present now. 
+
+## [0.16.1] - 2022-05-18
+- Fix variable name in cumulative score title
+
 ## [0.16.0] - 2022-05-9
 New Features:
 - One Page Assessment: Editors now have the ability to create a web-based assessment that will show all items on one page versus one item at a time 

@@ -230,7 +230,7 @@ export default class Applet {
               if (subScale.value) {
                 subScale.value.responseId = src;
 
-                if (subScale.value.rawScore && !subScale.value.tScore) {
+                if (subScale.value.tScore === null || subScale.value.tScore === undefined) {
                   subScale.value.tScore = subScale.value.rawScore;
                 }
               }
@@ -611,6 +611,17 @@ export default class Applet {
           }));
         } catch (e) {
           source.data = {};
+        }
+      }
+    }
+
+    if (data.eventSources) {
+      for (const events of data.eventSources) {
+        if (events.data) {
+          events.data = JSON.parse(encryptionUtils.decryptData({
+            text: events.data,
+            key: data.AESKeys[events.key]
+          }))
         }
       }
     }

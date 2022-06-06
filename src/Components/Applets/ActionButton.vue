@@ -3,8 +3,18 @@
 		<template v-slot:activator="{ on }">
 			<div v-on="on" >
 				 <v-btn @click="$emit('click')" :disabled="disabled">
-		    		<v-icon :color="color" v-if="icon">{{icon}}</v-icon>
-					  <img height="24" alt='' v-else v-bind:src="require(`@/assets/${imageName}`)"/>
+		    		<v-icon
+					    v-if="icon"
+						  :color="color"
+              :style="`transform: rotate(${rotation})`"
+						>{{icon}}</v-icon>
+					  <img
+              v-else
+              height="24"
+              alt=''
+              :style="`transform: rotate(${rotation})`"
+              v-bind:src="require(`@/assets/${imageName}`)"
+            />
 		  		</v-btn>
 			</div>
 		</template>
@@ -36,6 +46,10 @@
 			color: {
 				type: String,
 				default: 'secondary'
+			},
+			rotation: {
+				type: String,
+				default: '0deg'
 			}
 		}
 	}
