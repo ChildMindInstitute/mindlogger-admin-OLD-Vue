@@ -536,7 +536,7 @@ export const AppletMixin = {
             }
           }
 
-          this.downloadFile({
+          await this.downloadFile({
             name: 'report.csv',
             content: new ObjectToCSV({
               keys: keys.concat(subScaleNames).map((value) => ({ key: value, as: value })),
@@ -545,7 +545,7 @@ export const AppletMixin = {
             type: 'text/csv;charset=utf-8'
           });
 
-          this.downloadFile({
+          await this.downloadFile({
             name: 'activity_user_journey.csv',
             content: new ObjectToCSV({
               keys: [
@@ -802,8 +802,10 @@ export const AppletMixin = {
     downloadFile({ name, content, type }) {
       const file = new Blob([content], { type })
       return new Promise(resolve => {
-        saveAs(file, name)
-        resolve(true)
+        saveAs(file, name);
+        setTimeout(() => {
+          resolve(true)
+        })
       })
     },
 
