@@ -25,7 +25,20 @@
           :placeholder="$t('selectActivity')"
           dense
           outlined
-        />
+        >
+          <template v-slot:item="{ item }">
+            <div class="d-flex align-center">
+              <img 
+                v-if="activityFlowNames.includes(item)"
+                class="mr-2"
+                width="18"
+                height="20"
+                :src="require('@/assets/activity-flow.png')" 
+              />
+              {{ item }}
+            </div>
+          </template>
+        </v-select>
       </slot>
 
       <div class="ds-event-actions" style="display: flex">
@@ -252,7 +265,8 @@ import ScheduleModifier from "./ScheduleModifier";
 import ScheduleForecast from "./ScheduleForecast";
 import ScheduleActions from "./ScheduleActions";
 import mySchedule from "./Schedule";
-import {addActivityColor, getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
+import { AppletMixin } from '@/Components/Utils/mixins/AppletMixin';
+import { addActivityColor, getEventColor } from "@/Components/CalendarComponents/activityColorPalette.js";
 export default {
   name: "dsEvent",
 
@@ -450,11 +464,25 @@ export default {
         }
       );
     },
+    activityFlowNames() {
+      const appletData = this.$store.state.currentAppletData;
+      const order = _.get(appletData.applet, ['reprolib:terms/activityFlowOrder', 0, '@list']).map(item => item['@id']);
+      return order.map(item => {
+        const activityFlowObj = appletData.activityFlows[item];
+        const {
+          ['schema:name']: name,
+        } = activityFlowObj;
+
+        return name && name[0] && name[0]['@value'];
+      })
+    },
     currentApplet() {
       return this.$store.state.currentAppletMeta;
     },
     activityNames() {
-      return _.map(this.activities, (a) => a.name);
+      const activities = _.map(this.activities, (activity) => activity.name);
+
+      return [...activities, ...this.activityFlowNames];
     },
     slotData() {
       return {
@@ -587,6 +615,12 @@ export default {
   methods: {
     getHexColor(colorName) {
       return _.filter(this.$dayspan.colors, c => c.text === colorName)[0].value;
+    },
+    displaySelectItem (item) {
+      if (this.activityFlowNames.includes(item)) {
+
+      }
+      return '##';
     },
     async remove(eventId) {
       const res = await this.$dialog.warning({
