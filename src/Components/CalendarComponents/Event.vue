@@ -291,10 +291,41 @@
     </v-card-text>
     <ConfirmationDialog
       v-model="scheduleDialog"
-      :dialogText="$t('submitScheduleConfirmation')"
+      :dialogText="isOverlap ? $t('replaceScheduleConfirmation') : $t('submitScheduleConfirmation')"
       :title="$t('importSchedule')"
       @onOK="saveSchedule"
     />
+    <ConfirmationDialog
+      v-model="cancelDialog"
+      :dialogText="$t('cancelImportedCsv')"
+      :title="$t('closeImport')"
+      @onOK="cancelImport"
+    />
+    <v-dialog
+      v-model="validationDialog"
+      max-width="600"
+    >
+      <v-card>
+        <v-card-title class="text-h5">
+          {{ $t('csvValidationTitle') }}
+        </v-card-title>
+
+        <v-card-text>
+          {{ validationMsg }}
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="validationDialog = false"
+          >
+            Ok
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -461,8 +492,11 @@ export default {
       timedActivity: {},
       scheduledIdleTime: {},
       scheduleDialog: false,
+      cancelDialog: false,
       scheduleImport: false,
-      csvData: [],
+      validationDialog: false,
+      validationMsg: "",
+      isOverlap: false,
       headers: [
         {
           text: 'Activity Name',
@@ -519,7 +553,9 @@ export default {
           repeats: 'No',
           frequency: ''
         },
-      ]
+      ],
+      isImported: false,
+
     }
   },
 
@@ -852,7 +888,7 @@ export default {
           }
           return value;
         })
-        vm.items = lines.slice(1).map(line => {
+        const importedItems = lines.slice(1).map(line => {
           const fields = line.split(',').map(field => field.replace(/\"/g, ''));
 
           return Object.fromEntries(headers.map((h, i) => [h, fields[i]]))
@@ -863,16 +899,62 @@ export default {
           return true;
         })
 
+        if (!importedItems.length) {
+          this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
+        }
+
+        const activityNames = [];
+        for (const actId in this.$store.state.currentAppletData.activities) {
+          activityNames.push(this.$store.state.currentAppletData.activities[actId]['@id']);
+        }
+
+        for (let i = 0; i < importedItems.length; i += 1) {
+          const { startTime, endTime, name, repeats, frequency } = importedItems[i];
+
+          if (Number(startTime) > Number(endTime)) {
+            this.validationMsg = 'We are unable to upload this schedule. You have an end time that is before a start time. Please fix and reupload.';
+            break;
+          }
+
+          if (repeats.replace(/\s/g, '') === 'Yes' && frequency.replace(/\s/g, '') === '') {
+            this.validationMsg = 'You are missing a frequency to repeat *Activity name*. Please fix and reupload.';
+            break;
+          }
+
+          if (repeats.replace(/\s/g, '') !== 'Yes' && frequency.replace(/\s/g, '') !== '') {
+            this.validationMsg = 'You have a frequency set but have entered no repeating. Please fix and reupload.';
+            break;
+          }
+
+          if (!activityNames.includes(name)) {
+            this.validationMsg = '*Activity Name* is not valid. Please fix and reupload.';
+            break;
+          }
+        }
+
+        if (this.validationMsg) {
+          this.validationDialog = true;
+        } else {
+          vm.items = importedItems;
+          this.validationDialog = false;
+          this.isImported = true;
+        }
       }
       reader.readAsText(file);
     },
 
     openScheduledDlg() {
-      this.scheduleDialog = true;
-    },
+      const schedule = this.$store.state.currentAppletData.applet.schedule;
 
+      this.scheduleDialog = true;
+      if (schedule.events.length) {
+        this.isOverlap = true;
+      }
+    },
     saveSchedule() {
+      this.calendar.removeEvents();
       this.scheduleImport = true;
+      this.isOverlap = false;
       this.items.forEach(row => {
         let { notificationTime, name, startTime, endTime, date } = row;
         const res = _.filter(this.activities, (a) => a.name === name);
@@ -972,6 +1054,7 @@ export default {
           })
         })
       });
+      this.isImported = false;
       this.cancel();
     },
 
@@ -1043,7 +1126,16 @@ export default {
     },
 
     cancel() {
-      this.$emit("cancel", this.getEvent("cancel"));
+      if (this.isImported) {
+        this.cancelDialog = true;
+      } else {
+        this.$emit("cancel", this.getEvent("cancel"));
+      }
+    },
+
+    cancelImport() {
+      this.isImported = false;
+      this.cancel();
     },
 
     updateSchedule(schedule) {
