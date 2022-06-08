@@ -23,6 +23,7 @@
           v-model="details.title"
           :items="activityNames"
           :placeholder="$t('selectActivity')"
+          :disabled="importOnly"
           dense
           outlined
         />
@@ -36,7 +37,7 @@
             class="ds-button-tall"
             depressed
             color="primary"
-            :disabled="!canSave"
+            :disabled="!canSave || importOnly"
             @click.stop="save"
           >
             <span v-html="labels.save" />
@@ -78,12 +79,16 @@
       <v-layout v-if="hasTabs">
         <v-flex xs12 >
           <v-tabs v-model="tab" class="text--primary">
-            <v-tab v-if="hasDetails" href="#details">
+            <v-tab v-if="hasDetails && !importOnly" href="#details">
               {{ $t('activityAccessOptions') }}
             </v-tab>
 
-            <v-tab href="#notifications">
+            <v-tab v-if="!importOnly" href="#notifications">
               {{ $t('notifications') }}
+            </v-tab>
+
+            <v-tab v-if="importOnly" href="#import">
+              {{ $t('importSchedule') }}
             </v-tab>
 
             <v-tab v-if="showForecast" href="#forecast">
@@ -167,6 +172,56 @@
                   />
                 </v-card-text>
               </v-card>
+            </v-tab-item>
+
+            <!-- Import Schedule -->
+            <v-tab-item value="import">
+              <p class="my-3 mx-2"> Please upload a schedule table (.csv file format as below) </p>
+              <v-card text>
+                <v-data-table
+                  :headers="headers"
+                  :items="items"
+                  :items-per-page="5"
+                  class="elevation-1"
+                ></v-data-table>
+              </v-card>
+              <div class="d-flex justify-space-between mt-4">
+                <v-btn
+                  outlined
+                  color="primary"
+                  @click.stop="downloadTemplate"
+                >
+                  Download Template(.csv)
+                </v-btn>
+                <div>
+                  <form enctype="multipart/form-data">
+                      <input 
+                        class="import-file ds-display-none" 
+                        type="file" 
+                        @change="onFileChange"
+                      />
+                  </form>
+                  <v-btn
+                    color="blue-grey"
+                    class="white--text mx-2"
+                    @click="handleImportBtn"
+                  >
+                    Import
+                    <v-icon
+                      right
+                      dark
+                    >
+                      mdi-cloud-upload
+                    </v-icon>
+                  </v-btn>
+                  <v-btn
+                    color="info"
+                    @click="openScheduledDlg"
+                  >
+                    Submit
+                  </v-btn>
+                </div>
+              </div>
             </v-tab-item>
 
             <!-- Forecast -->
@@ -289,6 +344,9 @@ import ScheduleModifier from "./ScheduleModifier";
 import ScheduleForecast from "./ScheduleForecast";
 import ScheduleActions from "./ScheduleActions";
 import mySchedule from "./Schedule";
+import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
+import ObjectToCSV from 'object-to-csv';
+import { VueCsvImport } from 'vue-csv-import';
 import {addActivityColor, getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
 export default {
   name: "dsEvent",
@@ -299,12 +357,18 @@ export default {
     ScheduleForecast,
     ScheduleModifier,
     ScheduleActions,
+    ConfirmationDialog,
+    VueCsvImport
   },
 
   props: {
     activities: {
       type: Array,
       required: true,
+    },
+    importOnly: {
+      type: Boolean,
+      default: false,
     },
     targetSchedule: {
       required: true,
@@ -1194,6 +1258,15 @@ export default {
 };
 </script>
 
+<style lang="scss">
+.csv-import-checkbox {
+  display: none;
+}
+.import-file {
+  display: none;
+}
+</style>
+
 <style scoped lang="scss">
 .ds-calendar-event-title {
   font-size: 18px;
@@ -1205,6 +1278,10 @@ export default {
   width: 100%;
   color: white;
   padding: 4px;
+}
+
+.ds-display-none {
+  display: none;
 }
 
 .ds-button-tall {
@@ -1236,7 +1313,7 @@ export default {
   }
 
   .ds-event-details {
-    max-height: 500px;
+    max-height: 600px;
     overflow-y: auto;
   }
 

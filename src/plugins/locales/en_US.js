@@ -397,6 +397,7 @@ export default {
   responseSubmit: 'Response Submit',
   responseSubmitConfirmation: 'Would you like to submit response?',
   importSchedule: 'Import schedule',
+  submitScheduleConfirmation: 'Are you sure you are ready to set your schedule? You still need to save the schedule on the next page',
   closeImport: 'Close import',
   submitScheduleConfirmation: 'Are you sure you are ready to set your schedule? You still need to save the schedule on the next page',
   cancelImportedCsv: "Are you sure you want to leave without saving changes?",
