@@ -384,7 +384,8 @@ export const AppletMixin = {
                 id: response._id,
                 activity_scheduled_time: response.responseScheduled || 'not scheduled',
                 activity_start_time: response.responseStarted && response.responseStarted.toString() || null,
-                activity_end_time: response.responseCompleted && response.responseCompleted.toString()  || null,
+                activity_end_time: response.responseCompleted && response.responseCompleted.toString() || null,
+                hit_next_time: '',
                 flag,
                 secret_user_id: MRN || null,
                 userId: _id,
@@ -563,7 +564,7 @@ export const AppletMixin = {
           await this.generateLinesZip(trailsCSVs, 'trails-responses');
           await this.generateStabilityZip(stabilityCSVs);
           await this.generateFlankerZip(flankerCSVs);
-          await this.generateMediaResponsesZip(this.mediaResponseObjects);
+          await this.generateMediaResponsesZip(this.mediaResponseObjects, appletId);
         })
     },
 
@@ -704,11 +705,11 @@ export const AppletMixin = {
 
       for (let i = 0; i < result.length; i++) {
         if (result[i].trialType == -1) {
-          result[i].trialType = result[i+1].trialType;
+          result[i].trialType = result[i + 1].trialType;
         }
 
         if (result[i].trialType == 0) {
-          result[i].trialType = result[i-1].trialType;
+          result[i].trialType = result[i - 1].trialType;
         }
 
         const timeFields = ['experimentClock', 'blockClock', 'trialStartTimestamp', 'eventStartTimestamp', 'videoDisplayRequestTimestamp', 'responseTouchTimestamp', 'trialOffset', 'eventOffset', 'responseTime'];
@@ -819,10 +820,14 @@ export const AppletMixin = {
       return formatted;
     },
     getMediaResponseObject(value, response, item) {
-      const identifier = 's3://';
-      if (!value.includes(identifier)) return;
+      const identifiers = ['s3://', 'gs://', 'https://'];
+      if (!value.includes(identifiers[0]) && !value.includes(identifiers[1]) && !value.includes(identifiers[2])) return;
+      const isGCP = value.includes(identifiers[1]);
+      const isAzure = value.includes(identifiers[2]);
 
-      value = value.replace(identifier, '');
+      value = value.replace(identifiers[0], '');
+      value = value.replace(identifiers[1], '');
+      value = value.replace(identifiers[2], '');
       const separator = value.indexOf('/');
 
       const bucket = value.slice(0, separator);
@@ -831,7 +836,7 @@ export const AppletMixin = {
       const extension = value.slice(value.lastIndexOf('.'), value.length);
       const name = `${response._id}-${response.userId}-${item.id}${extension}`;
 
-      this.mediaResponseObjects.push({ bucket, name, key });
+      this.mediaResponseObjects.push({ bucket, name, key, isGCP, isAzure });
 
       return name;
     },
@@ -913,7 +918,7 @@ export const AppletMixin = {
       return otc.getCSV();
     },
 
-    getTrailsLinesAsCSV (lines, width) {
+    getTrailsLinesAsCSV(lines, width) {
       const result = [];
       let totalTime = 0, errorCount = 0, startTime = 0, firstPoint = true;
 
@@ -935,7 +940,7 @@ export const AppletMixin = {
             utcTimestamp: Number(point.time / 1000).toString(),
             seconds: Number((point.time - startTime) / 1000).toString(),
             epochTimeInSecondsStart: firstPoint ? (startTime / 1000).toString() : '',
-            error: point.valid ? 'E0' : point.actual != 'none' ?  'E1' : 'E2',
+            error: point.valid ? 'E0' : point.actual != 'none' ? 'E1' : 'E2',
             total_time: '',
             total_number_of_errors: '',
             correct_path: `${point.start} ~ ${point.end}`,
@@ -1051,7 +1056,7 @@ export const AppletMixin = {
       }
     },
 
-    async generateMediaResponsesZip(mediaObjects) {
+    async generateMediaResponsesZip(mediaObjects, appletId) {
       if (mediaObjects.length < 1) return;
       try {
         const credentials = {
@@ -1061,7 +1066,6 @@ export const AppletMixin = {
             timeout: 320000
           },
         };
-
         const client = new S3(credentials);
         const zip = new JSZip();
 
@@ -1070,14 +1074,24 @@ export const AppletMixin = {
             Bucket: mediaObject.bucket,
             Key: mediaObject.key
           };
+          let filename = mediaObject.name;
+          if (mediaObject.isGCP || mediaObject.isAzure) {
+            try {
+              const blobFile = await this.gcpFileBlob(mediaObject.bucket, mediaObject.key, appletId, mediaObject.isAzure);
+              if (filename && filename.includes('.quicktime')) filename = filename.replace('.quicktime', '.MOV');
+              zip.file(filename, blobFile, { base64: true });
+            } catch (error) {
+              console.error(error);
+            }
 
-          try {
-            const data = await client.getObject(params).promise();
-            let filename = mediaObject.name;
-            if (filename && filename.includes('.quicktime')) filename = filename.replace('.quicktime', '.MOV');
-            zip.file(filename, data.Body);
-          } catch(e) {
-            console.error(e);
+          } else {
+            try {
+              const data = await client.getObject(params).promise();
+              if (filename && filename.includes('.quicktime')) filename = filename.replace('.quicktime', '.MOV');
+              zip.file(filename, data.Body);
+            } catch (e) {
+              console.error(e);
+            }
           }
         }
 
@@ -1087,7 +1101,22 @@ export const AppletMixin = {
       } catch (err) {
         console.log(err);
       }
-    }
+    },
 
-  }
+    async gcpFileBlob(bucket, key, appletId, isAzure) {
+      try {
+        if (isAzure) key = key.replace('mindlogger/', '')
+        const data = await api.downloadGCPFile(this.apiHost, this.token, appletId, bucket, key, isAzure)
+        try {
+          if (data.data.split("'").length > 1)
+            return data.data.split("'")[1];
+        } catch (error) {
+          console.error(err.name, err.message);
+        }
+        return data.data;
+      } catch (err) {
+        console.error(err.name, err.message);
+      }
+    },
+  },
 }
