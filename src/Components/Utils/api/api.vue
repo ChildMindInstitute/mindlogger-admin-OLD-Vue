@@ -15,6 +15,18 @@ const signIn = ({ apiHost, user, password }) =>
     },
   });
 
+const signInWithToken = ({ apiHost, token }) =>
+  axios({
+    method: "get",
+    url: `${apiHost}/user/authentication`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: {
+      lang: store.state.currentLanguage.substr(0, 2),
+    }
+  })
+
 const signUp = ({ apiHost, body }) =>
   axios({
     method: "post",
@@ -931,9 +943,23 @@ const getThemes = (apiHost, token) => {
   });
 };
 
+const setWelcomeAppletStatus = ({ apiHost, token, appletId, status }) => {
+  return axios({
+    method: 'put',
+    url: `${apiHost}/applet/${appletId}/welcomeApplet`,
+    headers: {
+      "Girder-Token": token
+    },
+    params: {
+      status
+    }
+  })
+}
+
 export default {
   signIn,
   signUp,
+  signInWithToken,
   setSchedule,
   getSchedule,
   getAccounts,
@@ -1002,5 +1028,6 @@ export default {
   getThemes,
   updateProfile,
   downloadGCPFile,
+  setWelcomeAppletStatus,
 };
 </script>

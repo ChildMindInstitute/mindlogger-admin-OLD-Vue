@@ -87,7 +87,7 @@ export const AppletMixin = {
           const appletData = this.$store.state.allApplets[appletId];
 
           Applet.decryptResponses(data, appletData.applet.encryption);
-          const result = [];
+          const result = [], events = [];
 
           const currentItems = {};
           const currentActivities = {};
@@ -128,7 +128,6 @@ export const AppletMixin = {
             'activity_scheduled_time',
             'activity_start_time',
             'activity_end_time',
-            'hit_next_time',
             'flag',
             'secret_user_id',
             'userId',
@@ -143,6 +142,52 @@ export const AppletMixin = {
             'reviewing_id',
           ];
           const drawingCSVs = [], stabilityCSVs = [], trailsCSVs = [];
+
+          const parseItemOptions = (item) => {
+            const options = [], scores = [];
+
+            if (item.responseOptions && (item.inputType === 'radio' || item.inputType === 'slider')) {
+              item.responseOptions.forEach(resOption => {
+                let option = `${Object.values(resOption.name)[0]}: ${resOption.value}`;
+
+                if (item.scoring) {
+                  option += ` ${'(score: ' + resOption.score + ')'}`;
+                  scores.push(resOption.score);
+                }
+
+                options.push(option);
+              });
+            }
+
+            return { options, scores };
+          }
+
+          const parseResponseValue = (key, value, inputType, item) => {
+            if (inputType === 'timeRange' && value.from && value.to) {
+              return `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
+            }
+
+            if (inputType === 'date' && (value.day || value.month || value.year)) {
+              return `date: ${value.day}/${value.month + 1}/${value.year}`;
+            }
+
+            if (inputType === 'geolocation' && typeof value === 'object') {
+              return `geo: lat (${value.latitude}) / long (${value.longitude})`;
+            }
+
+            if (inputType === 'text')
+              return value;
+
+            if (inputType == 'stackedRadio' || inputType == 'stackedSlider') {
+              const label = item.responseOptions[key].name.en;
+              const response = Array.isArray(value) ? value : [value];
+              const str = response.map(option => option !== null ? option.toString().replace(/:\d*$/, '') : '').join(', ');
+
+              return `${label}: ${str}`;
+            }
+
+            return `${key}: ${value}`;
+          }
 
           for (let response of data.responses) {
             const _id = response.userId, MRN = response.MRN, isSubScaleExported = false;
@@ -254,7 +299,7 @@ export const AppletMixin = {
                       }
 
                       if (index !== responseDataObj.length - 1)
-                        responseData += '\r\n\r\n';
+                        responseData += '\r\n';
                     });
                   }
 
@@ -264,10 +309,7 @@ export const AppletMixin = {
                   for (const key of keys) {
                     const value = responseDataObj[key];
 
-                    if (item.inputType === 'timeRange' && value.from && value.to) {
-                      responseData += `time_range: from (hr ${value.from.hour}, min ${value.from.minute}) / to (hr ${value.to.hour}, min ${value.to.minute})`;
-
-                    } else if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType == 'trail' || item.inputType === 'audioImageRecord')) {
+                    if ((item.inputType === 'photo' || item.inputType === 'video' || item.inputType === 'audioRecord' || item.inputType === 'drawing' || item.inputType == 'trail' || item.inputType === 'audioImageRecord')) {
                       if (value.filename) {
                         const name = this.getMediaResponseObject(value.uri, response, item);
 
@@ -318,15 +360,8 @@ export const AppletMixin = {
 
                         responseData += `filename: ${response._id}_${item.id}.csv`;
                       }
-                    } else if (item.inputType === 'date' && (value.day || value.month || value.year)) {
-                      responseData += `date: ${value.day}/${value.month + 1}/${value.year}`;
-                    } else if (item.inputType === 'geolocation' && typeof value === 'object') {
-                      responseData += `geo: lat (${value.latitude}) / long (${value.longitude})`;
                     } else {
-                      if (item.inputType === 'text')
-                        responseData += value;
-                      else
-                        responseData += `${key}: ${value}`;
+                      responseData += parseResponseValue(key, value, item.inputType, item);
                     }
 
                     if (item.inputType !== 'text')
@@ -343,21 +378,7 @@ export const AppletMixin = {
                 .replace(/\r?\n|\r/g, '')
                 .split('250)');
 
-              const options = [];
-              const scores = [];
-
-              if (item.responseOptions && (item.inputType === 'radio' || item.inputType === 'slider')) {
-                item.responseOptions.forEach(resOption => {
-                  let option = `${Object.values(resOption.name)[0]}: ${resOption.value}`;
-
-                  if (item.scoring) {
-                    option += ` ${'(score: ' + resOption.score + ')'}`;
-                    scores.push(resOption.score);
-                  }
-
-                  options.push(option);
-                });
-              }
+              const { options, scores } = parseItemOptions(item);
 
               const csvObj = {
                 id: response._id,
@@ -368,9 +389,11 @@ export const AppletMixin = {
                 flag,
                 secret_user_id: MRN || null,
                 userId: _id,
+                inputType: item.inputType,
                 activity_id: response.activity['@id'],
                 activity_name: activity.label.en,
                 item: item.id,
+                item_id: item._id,
                 response: responseData,
                 prompt: replaceItemVariableWithName(question && question[question.length - 1] || '', currentItems, response.data),
                 options: replaceItemVariableWithName(options.join(', '), currentItems, response.data),
@@ -380,9 +403,6 @@ export const AppletMixin = {
                 ... (!isSubScaleExported ? response.subScales : {}),
                 ... (!isSubScaleExported ? outputTexts : {})
               }
-
-              if (data.nextsAt && data.nextsAt[response._id] && data.nextsAt[response._id][itemUrl])
-                csvObj['hit_next_time'] = data.nextsAt[response._id][itemUrl] && data.nextsAt[response._id][itemUrl].toString() || null;
 
               if (!csvObj.activity_start_time && csvObj.activity_id && csvObj.item && csvObj.response) {
                 csvObj.schema = Object.keys(response.data)[0];
@@ -421,6 +441,69 @@ export const AppletMixin = {
               isSubScaleExported = true;
             }
 
+            if (response.events !== null && activity) {
+              const responseEvents = data.eventSources[response.events].data || [];
+
+              for (const event of responseEvents) {
+                let item = (data.itemReferences[response.version] && data.itemReferences[response.version][event.screen]) || currentItems[event.screen];
+                const question = item && item.question.en && item.question['en']
+                  .replace(/\r?\n|\r/g, '')
+                  .split('250)');
+                const { options } = item ? parseItemOptions(item) : { options: [] };
+                let eventResponse = '';
+
+                if (event.response) {
+                  if (item.inputType == 'text') {
+                    eventResponse = event.response;
+                  } else {
+                    let keys = Object.keys(event.response).sort();
+
+                    if (item.inputType != 'stackedRadio' && item.inputType != 'stackedSlider') {
+                      keys = keys.reverse();
+                    }
+
+                    for (const key of keys) {
+                      const value = event.response[key];
+
+                      eventResponse += parseResponseValue(key, value, item.inputType, item);
+
+                      if (item.inputType == 'stackedRadio' || item.inputType == 'stackedSlider') {
+                        eventResponse += '\r\n';
+                      }
+                      else if (item.inputType !== 'text') {
+                        eventResponse += ' | ';
+                      }
+                    }
+
+                    eventResponse = eventResponse.replace(/[ |]*$/g, '').replace(/^[ |]*/g, '');
+                  }
+                }
+
+                events.push({
+                  id: response._id,
+                  activity_scheduled_time: response.responseScheduled || 'not scheduled',
+                  activity_start_time: response.responseStarted && response.responseStarted.toString() || null,
+                  activity_end_time: response.responseCompleted && response.responseCompleted.toString()  || null,
+                  press_next_time: event.type == 'NEXT' ? event.time.toString() : '',
+                  press_back_time: event.type == 'PREV' ? event.time.toString() : '',
+                  press_undo_time: event.type == 'UNDO' ? event.time.toString() : '',
+                  press_skip_time: event.type == 'SKIP' ? event.time.toString() : '',
+                  press_done_time: event.type == 'DONE' ? event.time.toString() : '',
+                  response_option_selection_time: event.type == 'SET_ANSWER' ? event.time.toString() : '',
+                  secret_user_id: MRN,
+                  user_id: _id,
+                  activity_id: response.activity['@id'],
+                  activity_name: activity.label.en,
+                  item: item ? item.id : event.screen,
+                  item_id: item ? item._id : '',
+                  prompt: replaceItemVariableWithName(question && question[question.length - 1] || '', currentItems, response.data),
+                  response: eventResponse,
+                  options: replaceItemVariableWithName(options.join(', '), currentItems, response.data),
+                  version: response.version,
+                })
+              }
+            }
+
             Object.keys(activityResponses).sort((a, b) => {
               const indexA = activity.order.indexOf(a);
               const indexB = activity.order.indexOf(b);
@@ -434,19 +517,46 @@ export const AppletMixin = {
           }
 
           for (let row of result) {
+            const itemsWithFileResponses = ['visual-stimulus-response', 'photo', 'video', 'audioRecord', 'drawing', 'trail', 'audioImageRecord', 'stabilityTracker'];
+
+            if (itemsWithFileResponses.includes(row.inputType) && row.response) {
+              let lastResponseEvent = null;
+              for (let i = 0; i < events.length; i++) {
+                if (events[i].id == row.id && events[i].item_id == row.item_id && events[i].response_option_selection_time) {
+                  lastResponseEvent = events[i];
+                }
+              }
+
+              if (lastResponseEvent) {
+                lastResponseEvent.response = row.response;
+              }
+            }
+
             for (let subScaleName of subScaleNames) {
               row[subScaleName] = row[subScaleName] || '';
             }
           }
 
-          let otc = new ObjectToCSV({
-            keys: keys.concat(subScaleNames).map((value) => ({ key: value, as: value })),
-            data: result,
+          this.downloadFile({
+            name: 'report.csv',
+            content: new ObjectToCSV({
+              keys: keys.concat(subScaleNames).map((value) => ({ key: value, as: value })),
+              data: result,
+            }).getCSV(),
+            type: 'text/csv;charset=utf-8'
           });
 
           this.downloadFile({
-            name: 'report.csv',
-            content: otc.getCSV(),
+            name: 'activity_user_journey.csv',
+            content: new ObjectToCSV({
+              keys: [
+                'id', 'activity_scheduled_time', 'activity_start_time', 'activity_end_time',
+                'press_next_time', 'press_back_time', 'press_undo_time', 'press_skip_time', 'press_done_time', 'response_option_selection_time',
+                'secret_user_id', 'user_id', 'activity_id', 'activity_name', 'item',
+                'prompt', 'response', 'options', 'version'
+              ].map(value => ({ key: value, as: value })),
+              data: events
+            }).getCSV(),
             type: 'text/csv;charset=utf-8'
           })
 
@@ -534,11 +644,39 @@ export const AppletMixin = {
         return {
           blockNumber, trialNumber, trialType, eventType,
           responseValue, responseAccuracy, videoDisplayRequestTimestamp,
-          responseTouchTimestamp, responseTime, eventStartTimestamp, eventOffset
+          responseTouchTimestamp, responseTime, eventStartTimestamp, eventOffset, failedPractice: ''
         }
       }
 
       let trialStartTimestamp = 0;
+
+      let lastIndex = 1e6, totalCount = 0, correctCount = 0, failedPractice = 0;
+
+      if (item.inputs.minimumAccuracy) {
+        for (let i = responses.length-1; i >= 0; i--) {
+          if (responses[i].trial_index > lastIndex) {
+            if (correctCount / totalCount * 100 < item.inputs.minimumAccuracy) {
+              failedPractice++;
+            }
+
+            correctCount = totalCount = 0;
+          }
+
+          lastIndex = responses[i].trial_index;
+
+          if (responses[i].tag == 'trial') {
+            totalCount++;
+
+            if (responses[i].correct) {
+              correctCount++;
+            }
+          }
+        }
+
+        if (correctCount / totalCount * 100 < item.inputs.minimumAccuracy) {
+          failedPractice++;
+        }
+      }
 
       for (let i = 0; i < responses.length; i++) {
         const blockClock = responses[0].start_timestamp;
@@ -582,69 +720,80 @@ export const AppletMixin = {
         }
       }
 
+      const keys = [
+        {
+          key: 'blockNumber',
+          as: 'block_number',
+        },
+        {
+          key: 'trialNumber',
+          as: 'trial_number',
+        },
+        {
+          key: 'trialType',
+          as: 'trial_type'
+        },
+        {
+          key: 'eventType',
+          as: 'event_type',
+        },
+        {
+          key: 'experimentClock',
+          as: 'experiment_start_timestamp'
+        },
+        {
+          key: 'blockClock',
+          as: 'block_start_timestamp'
+        },
+        {
+          key: 'trialStartTimestamp',
+          as: 'trial_start_timestamp'
+        },
+        {
+          key: 'eventStartTimestamp',
+          as: 'event_start_timestamp'
+        },
+        {
+          key: 'videoDisplayRequestTimestamp',
+          as: 'video_display_request_timestamp'
+        },
+        {
+          key: 'responseTouchTimestamp',
+          as: 'response_touch_timestamp'
+        },
+        {
+          key: 'trialOffset',
+          as: 'trial_offset'
+        },
+        {
+          key: 'eventOffset',
+          as: 'event_offset'
+        },
+        {
+          key: 'responseTime',
+          as: 'response_time'
+        },
+        {
+          key: 'responseValue',
+          as: 'response'
+        },
+        {
+          key: 'responseAccuracy',
+          as: 'response_accuracy'
+        }
+      ];
+
+      if (item.inputs.minimumAccuracy) {
+        keys.push({
+          key: 'failedPractice',
+          as: 'failed_practices',
+        });
+
+        result[0].failedPractice = failedPractice.toString();
+      }
+
       let otc = new ObjectToCSV({
-        keys: [
-          {
-            key: 'blockNumber',
-            as: 'block_number',
-          },
-          {
-            key: 'trialNumber',
-            as: 'trial_number',
-          },
-          {
-            key: 'trialType',
-            as: 'trial_type'
-          },
-          {
-            key: 'eventType',
-            as: 'event_type',
-          },
-          {
-            key: 'experimentClock',
-            as: 'experiment_start_timestamp'
-          },
-          {
-            key: 'blockClock',
-            as: 'block_start_timestamp'
-          },
-          {
-            key: 'trialStartTimestamp',
-            as: 'trial_start_timestamp'
-          },
-          {
-            key: 'eventStartTimestamp',
-            as: 'event_start_timestamp'
-          },
-          {
-            key: 'videoDisplayRequestTimestamp',
-            as: 'video_display_request_timestamp'
-          },
-          {
-            key: 'responseTouchTimestamp',
-            as: 'response_touch_timestamp'
-          },
-          {
-            key: 'trialOffset',
-            as: 'trial_offset'
-          },
-          {
-            key: 'eventOffset',
-            as: 'event_offset'
-          },
-          {
-            key: 'responseTime',
-            as: 'response_time'
-          },
-          {
-            key: 'responseValue',
-            as: 'response'
-          },
-          {
-            key: 'responseAccuracy',
-            as: 'response_accuracy'
-          }
-        ],
+        keys,
         data: result,
       });
 

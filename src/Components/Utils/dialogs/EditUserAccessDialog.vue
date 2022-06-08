@@ -182,6 +182,8 @@
           profileId,
           deleteResponse,
         }).then(() => {
+          this.$store.commit('unSelectUser', this.profileList.find(profile => profile['_id'] == profileId));
+
           this.profileList = this.profileList.filter(profile => profile['_id'] != profileId);
           this.panel = -1;
 
