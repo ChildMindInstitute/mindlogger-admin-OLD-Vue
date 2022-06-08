@@ -15,7 +15,6 @@
         :day="day"
         :activities="activities"
         :read-only="readOnly"
-        :import-only="importOnly"
         @saved="saved"
         @cancel="cancel"
         @actioned="actioned"
@@ -65,10 +64,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    importOnly: {
-      type: Boolean,
-      default: false,
-    }
   },
 
   // eslint-disable-next-line

@@ -39,17 +39,14 @@ export default {
     if (from == 'library') {
       if (token) {
         try {
-          const resp = await api.getUserDetails({
+          const resp = await api.signInWithToken({
             apiHost: this.apiHost,
             token,
           });
+
           if (resp.data) {
             this.setAuth({
-              auth: {
-                authToken: {
-                  token
-                }
-              }
+              auth: resp.data
             });
             fromLibrary = true;
           }

@@ -23,7 +23,6 @@
           v-model="details.title"
           :items="activityNames"
           :placeholder="$t('selectActivity')"
-          :disabled="importOnly"
           dense
           outlined
         />
@@ -37,7 +36,7 @@
             class="ds-button-tall"
             depressed
             color="primary"
-            :disabled="!canSave || importOnly"
+            :disabled="!canSave"
             @click.stop="save"
           >
             <span v-html="labels.save" />
@@ -79,16 +78,12 @@
       <v-layout v-if="hasTabs">
         <v-flex xs12 >
           <v-tabs v-model="tab" class="text--primary">
-            <v-tab v-if="hasDetails && !importOnly" href="#details">
+            <v-tab v-if="hasDetails" href="#details">
               {{ $t('activityAccessOptions') }}
             </v-tab>
 
-            <v-tab v-if="!importOnly" href="#notifications">
+            <v-tab href="#notifications">
               {{ $t('notifications') }}
-            </v-tab>
-
-            <v-tab v-if="importOnly" href="#import">
-              {{ $t('importSchedule') }}
             </v-tab>
 
             <v-tab v-if="showForecast" href="#forecast">
@@ -172,56 +167,6 @@
                   />
                 </v-card-text>
               </v-card>
-            </v-tab-item>
-
-            <!-- Import Schedule -->
-            <v-tab-item value="import">
-              <p class="my-3 mx-2"> Please upload a schedule table (.csv file format as below) </p>
-              <v-card text>
-                <v-data-table
-                  :headers="headers"
-                  :items="items"
-                  :items-per-page="5"
-                  class="elevation-1"
-                ></v-data-table>
-              </v-card>
-              <div class="d-flex justify-space-between mt-4">
-                <v-btn
-                  outlined
-                  color="primary"
-                  @click.stop="downloadTemplate"
-                >
-                  Download Template(.csv)
-                </v-btn>
-                <div>
-                  <form enctype="multipart/form-data">
-                      <input 
-                        class="import-file ds-display-none" 
-                        type="file" 
-                        @change="onFileChange"
-                      />
-                  </form>
-                  <v-btn
-                    color="blue-grey"
-                    class="white--text mx-2"
-                    @click="handleImportBtn"
-                  >
-                    Import
-                    <v-icon
-                      right
-                      dark
-                    >
-                      mdi-cloud-upload
-                    </v-icon>
-                  </v-btn>
-                  <v-btn
-                    color="info"
-                    @click="openScheduledDlg"
-                  >
-                    Submit
-                  </v-btn>
-                </div>
-              </div>
             </v-tab-item>
 
             <!-- Forecast -->
@@ -332,7 +277,6 @@
 <script>
 import {
   Day,
-  Time,
   Calendar,
   CalendarEvent,
   Schedule,
@@ -345,10 +289,7 @@ import ScheduleModifier from "./ScheduleModifier";
 import ScheduleForecast from "./ScheduleForecast";
 import ScheduleActions from "./ScheduleActions";
 import mySchedule from "./Schedule";
-import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
-import ObjectToCSV from 'object-to-csv';
-import { addActivityColor, getEventColor } from "@/Components/CalendarComponents/activityColorPalette.js";
-import { VueCsvImport } from 'vue-csv-import';
+import {addActivityColor, getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
 export default {
   name: "dsEvent",
 
@@ -358,8 +299,6 @@ export default {
     ScheduleForecast,
     ScheduleModifier,
     ScheduleActions,
-    ConfirmationDialog,
-    VueCsvImport
   },
 
   props: {
@@ -383,11 +322,6 @@ export default {
 
     calendar: {
       type: Calendar,
-    },
-
-    importOnly: {
-      type: Boolean,
-      default: false,
     },
 
     day: {
@@ -738,7 +672,6 @@ export default {
       handler: "updateDetails",
       immediate: true,
     },
-    
     title() {
       const res = _.filter(this.activities, (a) => a.name === this.title);
       if (res.length)
@@ -1079,7 +1012,6 @@ export default {
 
     save() {
       var ev = this.getEvent("save");
-
       this.$emit("save", ev);
 
       if (!ev.handled) {
@@ -1096,14 +1028,15 @@ export default {
           );
 
           this.$emit("update", ev);
+
           this.$emit("event-update", ev.calendarEvent.event);
         } else if (ev.create) {
           ev.created = this.$dayspan.createEvent(ev.details, ev.schedule);
-
           if (ev.calendar) {
             ev.calendar.addEvent(ev.created);
             ev.added = true;
           }
+
           this.$emit("create", ev);
         }
 
@@ -1150,7 +1083,6 @@ export default {
 
     getEvent(type, extra = {}) {
       const evDetails = this.details;
-      // const targetSchedule = {... this.targetSchedule};
 
       if (this.oneTimeCompletion) {
         evDetails.completion = true;
@@ -1199,7 +1131,6 @@ export default {
       if (!this.scheduledTimeout.hasOwnProperty("allow")) {
         this.scheduledTimeout = this.timeout;
       }
-
       if (!this.scheduledTimeout.allow) {
         if (this.schedule.lastTime) {
           evDetails.timeout = {
@@ -1239,7 +1170,6 @@ export default {
       if (Object.keys(this.$store.state.currentUsers).length) {
         evDetails.users = Object.keys(this.$store.state.currentUsers);
       }
-
       return fn.extend(
         {
           type: type,
@@ -1264,15 +1194,6 @@ export default {
 };
 </script>
 
-<style lang="scss">
-.csv-import-checkbox {
-  display: none;
-}
-.import-file {
-  display: none;
-}
-</style>
-
 <style scoped lang="scss">
 .ds-calendar-event-title {
   font-size: 18px;
@@ -1284,10 +1205,6 @@ export default {
   width: 100%;
   color: white;
   padding: 4px;
-}
-
-.ds-display-none {
-  display: none;
 }
 
 .ds-button-tall {
@@ -1319,7 +1236,7 @@ export default {
   }
 
   .ds-event-details {
-    max-height: 600px;
+    max-height: 500px;
     overflow-y: auto;
   }
 

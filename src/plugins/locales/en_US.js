@@ -109,7 +109,6 @@ export default {
   activitySetUrl: 'activity set url',
   add: 'Add',
   activityAccessOptions: "Activity Start Times",
-  importSchedule: "Import Schedule",
   notifications: "Notifications",
   activityAvailable: "Activity Available",
   activityStartTime: "All Day",

@@ -695,10 +695,14 @@ export default {
     },
 
     onSwitchWelcomeApplet(item) {
-      if (item.welcomeApplet) {
-        this.concealAppletConfirmationDialog = true;
+      if (item.roles.includes('owner') && this.isNotEncrypted(item)) {
+        this.onUpdateAppletPassword(item);
       } else {
-        this.welcomeAppletConfirmDialog = true;
+        if (item.welcomeApplet) {
+          this.concealAppletConfirmationDialog = true;
+        } else {
+          this.welcomeAppletConfirmDialog = true;
+        }
       }
     },
 

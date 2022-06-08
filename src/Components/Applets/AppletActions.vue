@@ -155,7 +155,7 @@ export default {
 		},
 
 		canCreateWelcomeApplet() {
-			return this.hasRoles(this.item, 'owner') && this.user.admin;
+			return this.hasRoles(this.item, 'owner') && this.user && this.user.admin;
 		}
 	},
 

@@ -1,6 +1,6 @@
 {
   "name": "mindlogger-admin",
-  "version": "0.16.3",
+  "version": "0.17.2",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --mode local",
@@ -22,7 +22,7 @@
     "@sentry/browser": "^5.19.0",
     "@sentry/integrations": "^5.19.0",
     "@uiw/react-md-editor": "^3.0.7",
-    "applet-schema-builder": "^0.16.0",
+    "applet-schema-builder": "^0.17.0",
     "aws-s3": "^2.0.5",
     "aws-sdk": "^2.889.0",
     "axios": "^0.21.1",
@@ -61,7 +61,6 @@
     "protocol-builder": "^0.1.20",
     "vue": "2.6.10",
     "vue-browser-detect-plugin": "^0.1.13",
-    "vue-csv-import": "^2.3.7",
     "vue-html2pdf": "^1.8.0",
     "vue-i18n": "^8.21.1",
     "vue-markdown": "^2.2.4",
