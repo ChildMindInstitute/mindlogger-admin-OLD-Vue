@@ -332,6 +332,7 @@
 <script>
 import {
   Day,
+  Time,
   Calendar,
   CalendarEvent,
   Schedule,
@@ -902,7 +903,9 @@ export default {
 
         const activityNames = [];
         for (const actId in this.$store.state.currentAppletData.activities) {
-          activityNames.push(this.$store.state.currentAppletData.activities[actId]['@id']);
+          const prefLabel = "http://www.w3.org/2004/02/skos/core#prefLabel";
+          const activityName = _.get(this.$store.state.currentAppletData.activities[actId], [prefLabel, 0, '@value']);
+          activityNames.push(activityName);
         }
 
         for (let i = 0; i < importedItems.length; i += 1) {
@@ -1041,7 +1044,7 @@ export default {
         const dateValues = date.split('/');
         const times = [];
         times.push(new Time(eventTimes[0].hour, eventTimes[0].minute, eventTimes[0].second, eventTimes[0].millisecond));
-
+        console.log('times', dateValues[2]);
         this.calendar.addEvent({
           data,
           id: null,
