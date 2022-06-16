@@ -586,14 +586,19 @@ export const AppletMixin = {
 
     getFlankerAsCSV(responses, item, experimentClock) {
       const result = [];
-      const types = {
-        '>>>>>': { trialType: 4, ext: 'right-con', expected: '>', },
-        '<<><<': { trialType: 6, ext: 'right-inc', expected: '>' },
-        '-->--': { trialType: 2, ext: 'right-neut', expected: '>' },
-        '<<<<<': { trialType: 3, ext: 'left-con', expected: '<' },
-        '>><>>': { trialType: 5, ext: 'left-inc', expected: '<' },
-        '--<--': { trialType: 1, ext: 'left-neut', expected: '<' }
+
+      const getImage = (image, alt) => {
+        if (image) {
+          return `<img src="${image}" alt="${alt}">`
+        }
+
+        return alt;
       }
+
+      const types = item.inputs.trials.reduce((prev, trial) => ({
+        ...prev,
+        [getImage(trial.image, trial.name)]: trial.name
+      }));
 
       const getResponseObj = (response, tag, config, trialStartTimestamp) => {
         const trialNumber = response.trial_index, blockNumber = config.blockIndex;
@@ -619,10 +624,10 @@ export const AppletMixin = {
           trialType = tag == 'feedback' ? 0 : -1;
 
           if (tag == 'response') {
-            trialType = types[response.question].trialType;
+            trialType = types[response.question] || response.question;
           }
         } else {
-          trialType = types[response.question].trialType;
+          trialType = types[response.question] || response.question;
         }
 
         let responseValue = '.', responseAccuracy = '.', responseTouchTimestamp = '.', responseTime = '.';
