@@ -31,9 +31,9 @@
         />
       </slot>
 
-      <div 
+      <div
         v-if="!importOnly"
-        class="ds-event-actions" 
+        class="ds-event-actions"
         style="display: flex"
       >
         <!-- Save -->
@@ -79,7 +79,7 @@
     </v-toolbar>
 
     <v-card-text class="ds-event-details">
-      
+
 
       <!-- Tabs -->
       <v-layout v-if="hasTabs">
@@ -201,10 +201,11 @@
                 </v-btn>
                 <div>
                   <form enctype="multipart/form-data">
-                      <input 
-                        class="import-file ds-display-none" 
-                        type="file" 
+                      <input
+                        class="import-file ds-display-none"
+                        type="file"
                         @change="onFileChange"
+                        :key="csvFileKey"
                       />
                   </form>
                   <v-btn
@@ -502,6 +503,7 @@ export default {
       validationDialog: false,
       validationMsg: "",
       isOverlap: false,
+      csvFileKey: 0,
       headers: [
         {
           text: 'Activity Name',
@@ -867,7 +869,10 @@ export default {
     },
 
     handleImportBtn() {
-      this.$el.querySelector("input.import-file").click();
+      this.csvFileKey++;
+      setTimeout(() => {
+        this.$el.querySelector("input.import-file").click();
+      })
     },
 
     onFileChange(e) {
@@ -1067,7 +1072,7 @@ export default {
     downloadTemplate () {
       this.downloadFile({
         name: 'template.csv',
-        content: new ObjectToCSV({ 
+        content: new ObjectToCSV({
           data: this.items,
           keys: this.headers.map(header => ({ key: header.value, as: header.text }))
         }).getCSV(),
