@@ -1,7 +1,8 @@
 <template>
   <v-card class="elevation-12 ds-event no-scroll" :class="classes">
     <v-toolbar color="primary" dark flat>
-      <div v-if="hasCancel" class="ds-event-cancel">
+      <div v-if="importOnly" style="flex: 1" />
+      <div v-if="hasCancel" :class="importOnly ? '' : 'ds-event-cancel'">
         <!-- Cancel -->
         <slot name="scheduleCancel" v-bind="{ cancel, labels }">
           <v-tooltip bottom color="secondary">
@@ -16,6 +17,7 @@
       </div>
 
       <slot
+        v-if="!importOnly"
         name="scheduleTitle"
         v-bind="{ schedule, schedule, calendarEvent, details }"
       >
@@ -29,7 +31,11 @@
         />
       </slot>
 
-      <div class="ds-event-actions" style="display: flex">
+      <div 
+        v-if="!importOnly"
+        class="ds-event-actions" 
+        style="display: flex"
+      >
         <!-- Save -->
         <slot name="scheduleSave" v-bind="{ hasSave, save, labels, readOnly }">
           <v-btn
