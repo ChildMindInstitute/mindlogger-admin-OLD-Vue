@@ -885,6 +885,7 @@ export default {
     createInput(file) {
       const reader = new FileReader();
       const vm = this;
+      this.validationMsg = '';
 
       reader.onload = (e) => {
         const lines = reader.result.split('\n')
@@ -920,10 +921,34 @@ export default {
         }
 
         for (let i = 0; i < importedItems.length; i += 1) {
-          const { startTime, endTime, name, repeats, frequency } = importedItems[i];
+          const { startTime, endTime, name, repeats, frequency, date, notificationTime } = importedItems[i];
+          if (isNaN(new Date(date))) {
+            this.validationMsg = 'You have invalid date in csv. Please fix and reupload.';
+            break;
+          }
+
+          if (startTime && isNaN(startTime) || endTime && isNaN(endTime)) {
+            this.validationMsg = 'You have invalid start time or end time in csv. Please fix and reupload.'
+            break;
+          }
+
+          if (notificationTime && isNaN(notificationTime)) {
+            this.validationMsg = 'You have invalid notification time in csv. Please fix and reupload.';
+            break;
+          }
 
           if (Number(startTime) > Number(endTime)) {
             this.validationMsg = 'We are unable to upload this schedule. You have an end time that is before a start time. Please fix and reupload.';
+            break;
+          }
+
+          if (!['daily', 'weekly', 'weekday', 'monthly', ''].includes(frequency.toLowerCase().replace(/\s/g, ''))) {
+            this.validationMsg = 'You have invalid frequency value in csv. Please fix and reupload.';
+            break;
+          }
+
+          if (!['yes', 'no'].includes(repeats.toLowerCase().replace(/\s/g, ''))) {
+            this.validationMsg = 'You have invalid repeat value in csv. Please fix and reupload.';
             break;
           }
 
