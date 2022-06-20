@@ -944,6 +944,11 @@ export default {
             break;
           }
 
+          if (frequency === undefined || repeats === undefined) {
+            this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
+            break;
+          }
+
           if (!['daily', 'weekly', 'weekday', 'monthly', ''].includes(frequency.toLowerCase().replace(/\s/g, ''))) {
             this.validationMsg = 'You have invalid frequency value in csv. Please fix and reupload.';
             break;
