@@ -224,6 +224,7 @@
                   <v-btn
                     color="info"
                     @click="openScheduledDlg"
+                    :disabled="!isImported"
                   >
                     Submit
                   </v-btn>
@@ -340,13 +341,14 @@
 import {
   Day,
   Time,
+  Weekday,
   Calendar,
   CalendarEvent,
   Schedule,
   Functions as fn,
 } from "dayspan";
 import _ from "lodash";
-
+import moment from "moment";
 import Notification from "./Notification";
 import ScheduleModifier from "./ScheduleModifier";
 import ScheduleForecast from "./ScheduleForecast";
@@ -992,7 +994,7 @@ export default {
       this.scheduleImport = true;
       this.isOverlap = false;
       this.items.forEach(row => {
-        let { notificationTime, name, startTime, endTime, date } = row;
+        let { notificationTime, name, startTime, endTime, date, repeats, frequency } = row;
         const res = _.filter(this.activities, (a) => a.name === name);
         let timeout = {
           access: false,
@@ -1077,17 +1079,46 @@ export default {
           useNotifications: true
         }
 
-        const dateValues = date.split('/');
         const times = [];
+        let eventSchedule = {};
+        const dateValues = date.split('/');
+        const eventFrequency = {};
         times.push(new Time(eventTimes[0].hour, eventTimes[0].minute, eventTimes[0].second, eventTimes[0].millisecond));
-        console.log('times', dateValues[2]);
+
+        if (repeats) {
+          switch (frequency) {
+            case "Daily":
+              eventFrequency.dayOfWeek = [Weekday.LIST];
+              break;
+            case "Weekly":
+              const dow = moment(date).day();
+              eventFrequency.dayOfWeek = [dow % 7];
+              break;
+            case "Week Day":
+              eventFrequency.dayOfWeek = [Weekday.WEEK];
+              break;
+            case "Monthly":
+              eventFrequency.dayOfMonth = dateValues[1];
+              break;
+          }
+        }
+
+        if (eventFrequency.dayOfWeek || eventFrequency.dayOfMonth) {
+          eventSchedule = {
+            ...eventFrequency,
+            times
+          }
+        } else {
+          eventSchedule = {
+            on: Day.build(dateValues[2], dateValues[0] - 1, dateValues[1]),
+            times
+          }
+        }
+
         this.calendar.addEvent({
           data,
           id: null,
-          schedule: new Schedule({
-            on: Day.build(dateValues[2], dateValues[0] - 1, dateValues[1]),
-            times
-          })
+          schedule: new Schedule(eventSchedule)
         })
       });
       this.isImported = false;
