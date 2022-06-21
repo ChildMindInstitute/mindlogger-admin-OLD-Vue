@@ -208,19 +208,28 @@
                         :key="csvFileKey"
                       />
                   </form>
-                  <v-btn
-                    color="blue-grey"
-                    class="white--text mx-2"
-                    @click="handleImportBtn"
-                  >
-                    Import
-                    <v-icon
-                      right
-                      dark
-                    >
-                      mdi-cloud-upload
-                    </v-icon>
-                  </v-btn>
+
+                  <v-tooltip top>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        v-bind="attrs"
+                        v-on="on"
+                        color="blue-grey"
+                        class="white--text mx-2"
+                        @click="handleImportBtn"
+                      >
+                        Import
+                        <v-icon
+                          right
+                          dark
+                        >
+                          mdi-cloud-upload
+                        </v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Please make sure to use correct csv editor to build/edit csv file</span>
+                  </v-tooltip>
+
                   <v-btn
                     color="info"
                     @click="openScheduledDlg"
