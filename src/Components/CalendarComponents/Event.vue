@@ -924,7 +924,9 @@ export default {
 
         for (let i = 0; i < importedItems.length; i += 1) {
           const { startTime, endTime, name, repeats, frequency, date, notificationTime } = importedItems[i];
-          if (isNaN(new Date(date))) {
+
+          const month = Number(date.split('/').shift());
+          if (isNaN(new Date(date)) || isNaN(month) || month < 0 || month > 12 ) {
             this.validationMsg = 'You have invalid date in csv. Please fix and reupload.';
             break;
           }
@@ -941,6 +943,11 @@ export default {
 
           if (Number(startTime) > Number(endTime)) {
             this.validationMsg = 'We are unable to upload this schedule. You have an end time that is before a start time. Please fix and reupload.';
+            break;
+          }
+
+          if (frequency === undefined || repeats === undefined) {
+            this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
             break;
           }
 
