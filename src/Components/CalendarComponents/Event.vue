@@ -203,6 +203,7 @@
                   <form enctype="multipart/form-data">
                       <input
                         class="import-file ds-display-none"
+                        accept=".csv"
                         type="file"
                         @change="onFileChange"
                         :key="csvFileKey"
@@ -1079,6 +1080,10 @@ export default {
           useNotifications: true
         }
 
+        if (Object.keys(this.$store.state.currentUsers).length) {
+          data.users = Object.keys(this.$store.state.currentUsers);
+        }
+
         const times = [];
         let eventSchedule = {};
         const dateValues = date.split('/');
@@ -1170,7 +1175,6 @@ export default {
             ev.calendar.addEvent(ev.created);
             ev.added = true;
           }
-
           this.$emit("create", ev);
         }
 
@@ -1179,7 +1183,6 @@ export default {
         }
 
         ev.handled = true;
-
         if (ev.created) {
           this.$emit("event-create", ev.created);
         }
