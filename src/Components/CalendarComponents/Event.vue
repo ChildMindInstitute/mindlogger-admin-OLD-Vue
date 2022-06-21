@@ -907,8 +907,14 @@ export default {
           }
           return value;
         })
+
         const importedItems = lines.slice(1).map(line => {
-          const fields = line.split(',').map(field => field.replace(/\"/g, ''));
+          let fields = [];
+          if (line.match(/^\s*"/)) {
+            fields = line.split(/"\s*,\s*"/).map(field => field.replace(/\"/g, ''));
+          } else {
+            fields = line.split(',').map(field => field.replace(/\"/g, ''))
+          }
 
           return Object.fromEntries(headers.map((h, i) => [h, fields[i]]))
         }).filter(line => {
