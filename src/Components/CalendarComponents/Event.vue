@@ -1055,7 +1055,7 @@ export default {
             minute: 1
           },
           forecolor: "#ffffff",
-          color: "#F44336",
+          color: this.details.color,
           icon: "",
           idleTime: {
             allow: false,
