@@ -914,9 +914,9 @@ export default {
         const importedItems = lines.slice(1).map(line => {
           let fields = [];
           if (line.match(/^\s*"/)) {
-            fields = line.split(/"\s*,\s*"/).map(field => field.replace(/\"/g, ''));
+            fields = line.split(/"\s*,\s*"/).map(field => field.replace(/[\"\r\n]/g, ''));
           } else {
-            fields = line.split(',').map(field => field.replace(/\"/g, ''))
+            fields = line.split(',').map(field => field.replace(/[\"\r\n]/g, ''))
           }
 
           return Object.fromEntries(headers.map((h, i) => [h, fields[i]]))
@@ -1016,6 +1016,7 @@ export default {
       this.calendar.removeEvents();
       this.scheduleImport = true;
       this.isOverlap = false;
+
       this.items.forEach(row => {
         let { notificationTime, name, startTime, endTime, date, repeats, frequency } = row;
         const res = _.filter(this.activities, (a) => a.name === name);
@@ -1070,7 +1071,7 @@ export default {
             minute: 1
           },
           forecolor: "#ffffff",
-          color: "#F44336",
+          color: this.details.color,
           icon: "",
           idleTime: {
             allow: false,
@@ -1110,19 +1111,19 @@ export default {
         let eventSchedule = {};
         const dateValues = date.split('/');
         const eventFrequency = {};
-        times.push(new Time(eventTimes[0].hour, eventTimes[0].minute, eventTimes[0].second, eventTimes[0].millisecond));
+        times.push(new Time(Number(eventTimes[0].hour), Number(eventTimes[0].minute), eventTimes[0].second, eventTimes[0].millisecond));
 
         if (repeats) {
           switch (frequency) {
             case "Daily":
-              eventFrequency.dayOfWeek = [Weekday.LIST];
+              eventFrequency.dayOfWeek = Weekday.LIST;
               break;
             case "Weekly":
               const dow = moment(date).day();
               eventFrequency.dayOfWeek = [dow % 7];
               break;
             case "Week Day":
-              eventFrequency.dayOfWeek = [Weekday.WEEK];
+              eventFrequency.dayOfWeek = Weekday.WEEK;
               break;
             case "Monthly":
               eventFrequency.dayOfMonth = dateValues[1];
