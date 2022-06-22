@@ -1027,7 +1027,7 @@ export default {
 
         if (startTime.length < 4) startTime = '0' + startTime;
         if (endTime.length < 4) endTime = '0' + endTime;
-        if (notificationTime.length < 4) notificationTime = '0' + notificationTime;
+        if (notificationTime && notificationTime.length < 4) notificationTime = '0' + notificationTime;
 
         const eventTimes = [{
           hour: startTime.slice(0, 2),
@@ -1079,7 +1079,7 @@ export default {
           location: "",
           notifications: [
             {
-              allow: true,
+              allow: notificationTime ? true : false,
               end: null,
               random: false,
               start: [notificationTime.slice(0, 2), ":", notificationTime.slice(2)].join('')
@@ -1099,7 +1099,7 @@ export default {
           },
           timeout,
           title: row.name,
-          useNotifications: true
+          useNotifications: notificationTime ? true : false
         }
 
         if (Object.keys(this.$store.state.currentUsers).length) {
