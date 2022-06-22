@@ -88,7 +88,7 @@
           </div>
         </div>
 
-        <v-layout row wrap style="height: calc(100% - 200px);">
+        <v-layout row wrap :class="currentType.id === 'Y' ? 'y-height' : 'g-height'">
           <!-- The activities in the applet -->
           <v-flex xs2>
             <div>
@@ -832,5 +832,14 @@ export default {
 
 .calendar-header {
   border:2px solid #ccc;
+}
+
+.g-height {
+  height: calc(100% - 200px);
+}
+
+.y-height {
+  height: auto;
+  margin-bottom: 130px;
 }
 </style>
