@@ -1079,7 +1079,7 @@ export default {
               allow: notificationTime ? true : false,
               end: null,
               random: false,
-              start: [notificationTime.slice(0, 2), ":", notificationTime.slice(2)].join('')
+              start: notificationTime ? [notificationTime.slice(0, 2), ":", notificationTime.slice(2)].join('') : ''
             }
           ],
           onlyScheduledDay: false,
