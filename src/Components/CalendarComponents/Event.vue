@@ -309,7 +309,7 @@
     </v-card-text>
     <ConfirmationDialog
       v-model="scheduleDialog"
-      :dialogText="isOverlap ? $t('replaceScheduleConfirmation') : $t('submitScheduleConfirmation')"
+      :dialogText="$t('submitScheduleConfirmation')"
       :title="$t('importSchedule')"
       @onOK="saveSchedule"
     />
@@ -514,7 +514,6 @@ export default {
       scheduleImport: false,
       validationDialog: false,
       validationMsg: "",
-      isOverlap: false,
       csvFileKey: 0,
       headers: [
         {
@@ -1005,12 +1004,7 @@ export default {
     },
 
     openScheduledDlg() {
-      const schedule = this.$store.state.currentAppletData.applet.schedule;
-
       this.scheduleDialog = true;
-      if (schedule.events.length) {
-        this.isOverlap = true;
-      }
     },
     saveSchedule() {
       this.calendar.removeEvents();
