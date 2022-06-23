@@ -1013,6 +1013,7 @@ export default {
       }
     },
     saveSchedule() {
+      let ev = this.getEvent("save");
       this.calendar.removeEvents();
       this.scheduleImport = true;
       this.isOverlap = false;
@@ -1060,6 +1061,7 @@ export default {
         }
 
         const data = {
+          URI: this.details.URI,
           availability: false,
           busy: false,
           calendar: "",
@@ -1070,7 +1072,7 @@ export default {
             minute: 1
           },
           forecolor: "#ffffff",
-          color: "#F44336",
+          color: this.details.color,
           icon: "",
           idleTime: {
             allow: false,
@@ -1142,12 +1144,16 @@ export default {
           }
         }
 
-        this.calendar.addEvent({
+        ev.created = {
           data,
           id: null,
           schedule: new Schedule(eventSchedule)
-        })
+        };
+
+        this.calendar.addEvent(ev.created)
       });
+      this.calendar.refreshEvents();
+      this.$emit("saved", ev);
       this.isImported = false;
       this.cancel();
     },
