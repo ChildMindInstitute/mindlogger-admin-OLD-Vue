@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.17.7] - 2022-06-22
 - Fix overlap issues in event modal
+- Fix activity end time
 
 ## [0.17.6] - 2022-06-21
 - Added acceptable files for CSV import

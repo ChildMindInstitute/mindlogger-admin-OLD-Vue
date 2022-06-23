@@ -27,7 +27,7 @@ export const replaceItemVariableWithName = (markdown, items, answers) => {
       variableNames.forEach(variableName => {
         let index;
         _.forEach(items, (val, key) => {
-          if (val && val.id === variableName) index = key;
+          if (val && val.id === variableName && answers[key]) index = key;
         });
 
         const reg = new RegExp(`\\[\\[${variableName}\\]\\]`, "gi");
