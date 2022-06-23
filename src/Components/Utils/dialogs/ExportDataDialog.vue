@@ -58,7 +58,7 @@
     overflow: scroll;
     overflow-y: auto; 
     overflow-x: hidden; 
-    max-height: 550px;
+    max-height: 480px;
   }
 </style>
 
