@@ -1355,6 +1355,9 @@ export default {
 .import-file {
   display: none;
 }
+.v-toolbar__content {
+  display: -webkit-box;
+}
 </style>
 
 <style scoped lang="scss">
