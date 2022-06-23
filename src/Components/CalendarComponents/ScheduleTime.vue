@@ -127,7 +127,6 @@ export default {
       set(time) {
         const startTime = Time.parse(time);
         const endTime = Time.parse(this.endTime);
-
         let minute = endTime.minute - startTime.minute;
         let hour = endTime.hour - startTime.hour;
 
@@ -135,7 +134,6 @@ export default {
           minute += 60;
           hour -= 1;
         }
-
         this.$emit("update", {minute, hour});
         this.setTime(time);
       },
@@ -145,6 +143,7 @@ export default {
         const currentTime = Time.parse(this.time);
         currentTime.minute += this.scheduledTimeout.minute;
         currentTime.hour += this.scheduledTimeout.hour + Math.floor(currentTime.minute / 60);
+        currentTime.minute = currentTime.minute % 60;
 
         if (currentTime.hour >= 24) {
           currentTime.hour = 23;
@@ -169,7 +168,6 @@ export default {
           minute += 60;
           hour -= 1;
         }
-
         this.$emit("update", {minute, hour});
       }
     },
