@@ -88,7 +88,7 @@
           </div>
         </div>
 
-        <v-layout row wrap style="height: calc(100% - 200px);">
+        <v-layout row wrap :class="currentType.id === 'Y' ? 'y-height' : 'g-height'">
           <!-- The activities in the applet -->
           <v-flex xs2>
             <div>
@@ -173,6 +173,13 @@
             </ds-gestures>
           </v-flex>
         </v-layout>
+
+        <ConfirmationDialog
+          v-model="scheduleDialog"
+          :dialogText="$t('replaceScheduleConfirmation')"
+          :title="$t('importSchedule')"
+          @onOK="openSchedule"
+        />
 
         <!-- dialogs and popups -->
         <slot
@@ -264,6 +271,7 @@
 <script>
 import { Sorts, Calendar, Op } from "dayspan";
 
+import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
 import EventDialog from "./EventDialog";
 import ActivitySidebar from "./ActivitySidebar";
 import DsGestures from "./Gestures";
@@ -276,7 +284,8 @@ export default {
     EventDialog,
     ActivitySidebar,
     DsCalendar,
-    DsGestures
+    DsGestures,
+    ConfirmationDialog
   },
 
   props: {
@@ -359,6 +368,7 @@ export default {
     promptQuestion: "",
     promptCallback: null,
     importOnly: false,
+    scheduleDialog: false,
   }),
 
   computed: {
@@ -592,6 +602,17 @@ export default {
     },
 
     importSchedule() {
+      const schedule = this.$store.state.currentAppletData.applet.schedule;
+
+      if (schedule.events.length) {
+        this.scheduleDialog = true;
+      } else {
+        this.importOnly = true;
+        this.addToday();
+      }
+    },
+
+    openSchedule() {
       this.importOnly = true;
       this.addToday();
     },
@@ -832,5 +853,14 @@ export default {
 
 .calendar-header {
   border:2px solid #ccc;
+}
+
+.g-height {
+  height: calc(100% - 200px);
+}
+
+.y-height {
+  height: auto;
+  margin-bottom: 130px;
 }
 </style>

@@ -309,7 +309,7 @@
     </v-card-text>
     <ConfirmationDialog
       v-model="scheduleDialog"
-      :dialogText="isOverlap ? $t('replaceScheduleConfirmation') : $t('submitScheduleConfirmation')"
+      :dialogText="$t('submitScheduleConfirmation')"
       :title="$t('importSchedule')"
       @onOK="saveSchedule"
     />
@@ -514,7 +514,6 @@ export default {
       scheduleImport: false,
       validationDialog: false,
       validationMsg: "",
-      isOverlap: false,
       csvFileKey: 0,
       headers: [
         {
@@ -914,9 +913,9 @@ export default {
         const importedItems = lines.slice(1).map(line => {
           let fields = [];
           if (line.match(/^\s*"/)) {
-            fields = line.split(/"\s*,\s*"/).map(field => field.replace(/\"/g, ''));
+            fields = line.split(/"\s*,\s*"/).map(field => field.replace(/[\"\r\n]/g, ''));
           } else {
-            fields = line.split(',').map(field => field.replace(/\"/g, ''))
+            fields = line.split(',').map(field => field.replace(/[\"\r\n]/g, ''))
           }
 
           return Object.fromEntries(headers.map((h, i) => [h, fields[i]]))
@@ -1005,18 +1004,14 @@ export default {
     },
 
     openScheduledDlg() {
-      const schedule = this.$store.state.currentAppletData.applet.schedule;
-
       this.scheduleDialog = true;
-      if (schedule.events.length) {
-        this.isOverlap = true;
-      }
     },
     saveSchedule() {
       let ev = this.getEvent("save");
       this.calendar.removeEvents();
       this.scheduleImport = true;
       this.isOverlap = false;
+
       this.items.forEach(row => {
         let { notificationTime, name, startTime, endTime, date, repeats, frequency } = row;
         const res = _.filter(this.activities, (a) => a.name === name);
@@ -1028,7 +1023,7 @@ export default {
 
         if (startTime.length < 4) startTime = '0' + startTime;
         if (endTime.length < 4) endTime = '0' + endTime;
-        if (notificationTime.length < 4) notificationTime = '0' + notificationTime;
+        if (notificationTime && notificationTime.length < 4) notificationTime = '0' + notificationTime;
 
         const eventTimes = [{
           hour: startTime.slice(0, 2),
@@ -1081,7 +1076,7 @@ export default {
           location: "",
           notifications: [
             {
-              allow: true,
+              allow: notificationTime ? true : false,
               end: null,
               random: false,
               start: [notificationTime.slice(0, 2), ":", notificationTime.slice(2)].join('')
@@ -1101,7 +1096,7 @@ export default {
           },
           timeout,
           title: row.name,
-          useNotifications: true
+          useNotifications: notificationTime ? true : false
         }
 
         if (Object.keys(this.$store.state.currentUsers).length) {
@@ -1112,19 +1107,19 @@ export default {
         let eventSchedule = {};
         const dateValues = date.split('/');
         const eventFrequency = {};
-        times.push(new Time(eventTimes[0].hour, eventTimes[0].minute, eventTimes[0].second, eventTimes[0].millisecond));
+        times.push(new Time(Number(eventTimes[0].hour), Number(eventTimes[0].minute), eventTimes[0].second, eventTimes[0].millisecond));
 
         if (repeats) {
           switch (frequency) {
             case "Daily":
-              eventFrequency.dayOfWeek = [Weekday.LIST];
+              eventFrequency.dayOfWeek = Weekday.LIST;
               break;
             case "Weekly":
               const dow = moment(date).day();
               eventFrequency.dayOfWeek = [dow % 7];
               break;
             case "Week Day":
-              eventFrequency.dayOfWeek = [Weekday.WEEK];
+              eventFrequency.dayOfWeek = Weekday.WEEK;
               break;
             case "Monthly":
               eventFrequency.dayOfMonth = dateValues[1];
@@ -1365,6 +1360,9 @@ export default {
 }
 .import-file {
   display: none;
+}
+.v-toolbar__content {
+  display: -webkit-box;
 }
 </style>
 
