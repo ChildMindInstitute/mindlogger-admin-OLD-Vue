@@ -13,6 +13,7 @@
             </template>
             <span v-html="labels.cancel" />
           </v-tooltip>
+          <span v-if="importOnly" class="ml-3">{{ $t('importSchedule') }}</span>
         </slot>
       </div>
 
@@ -83,7 +84,7 @@
 
       <!-- Tabs -->
       <v-layout v-if="hasTabs">
-        <v-flex xs12 >
+        <v-flex xs12 :class="importOnly ? 'hide-tabs' : ''">
           <v-tabs v-model="tab" class="text--primary">
             <v-tab v-if="hasDetails && !importOnly" href="#details">
               {{ $t('activityAccessOptions') }}
@@ -182,7 +183,7 @@
 
             <!-- Import Schedule -->
             <v-tab-item value="import">
-              <p class="my-3 mx-2"> Please upload a schedule table (.csv file format as below) </p>
+              <p class="mx-2"> Please upload a schedule table (.csv file format as below) </p>
               <v-card text>
                 <v-data-table
                   :headers="headers"
@@ -1353,6 +1354,12 @@ export default {
   },
 };
 </script>
+
+<style scoped lang="css">
+  .hide-tabs >>> .v-tabs-bar {
+    display: none !important;
+  }
+</style>
 
 <style lang="scss">
 .csv-import-checkbox {
