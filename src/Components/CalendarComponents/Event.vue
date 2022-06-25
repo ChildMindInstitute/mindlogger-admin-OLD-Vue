@@ -1029,6 +1029,9 @@ export default {
           day: 0,
         };
 
+        if (!startTime) startTime = '0000';
+        if (!endTime) endTime = '2359';
+
         if (startTime.length < 4) startTime = '0' + startTime;
         if (endTime.length < 4) endTime = '0' + endTime;
         if (notificationTime && notificationTime.length < 4) notificationTime = '0' + notificationTime;
