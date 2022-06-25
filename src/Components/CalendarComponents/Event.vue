@@ -695,6 +695,14 @@ export default {
         this.calenderEvent
       );
 
+      if (this.details.notifications && this.details.useNotifications) {
+        for (const notification of this.details.notifications) {
+          if (notification.allow && (!notification.start || !notification.start.match(/\d{2}:\d{2}/))) {
+            return false;
+          }
+        }
+      }
+
       const isTimeoutValid = this.isTimeoutValid;
 
       return isValidDayspanEvent && isTimeoutValid;
