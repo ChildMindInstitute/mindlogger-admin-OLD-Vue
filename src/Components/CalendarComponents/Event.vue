@@ -355,6 +355,7 @@ import {
   Calendar,
   CalendarEvent,
   Schedule,
+  Pattern,
   Functions as fn,
 } from "dayspan";
 import _ from "lodash";
@@ -1106,43 +1107,42 @@ export default {
         const times = [];
         let eventSchedule = {};
         const dateValues = date.split('/');
-        const eventFrequency = {};
         times.push(new Time(Number(eventTimes[0].hour), Number(eventTimes[0].minute), eventTimes[0].second, eventTimes[0].millisecond));
 
+        let pattern = null;
         if (repeats) {
           switch (frequency) {
             case "Daily":
-              eventFrequency.dayOfWeek = Weekday.LIST;
+              pattern = Pattern.withName('daily');
               break;
             case "Weekly":
-              const dow = moment(date).day();
-              eventFrequency.dayOfWeek = [dow % 7];
+              pattern = Pattern.withName('weekly')
               break;
             case "Week Day":
-              eventFrequency.dayOfWeek = Weekday.WEEK;
+              pattern = Pattern.withName('weekday')
               break;
             case "Monthly":
-              eventFrequency.dayOfMonth = dateValues[1];
+              pattern = Pattern.withName('monthly');
               break;
           }
         }
 
-        if (eventFrequency.dayOfWeek || eventFrequency.dayOfMonth) {
-          eventSchedule = {
-            ...eventFrequency,
+        if (pattern) {
+          eventSchedule = new Schedule({
             times
-          }
+          })
+          pattern.apply(eventSchedule, new Day(moment(date)))
         } else {
-          eventSchedule = {
+          eventSchedule = new Schedule({
             on: Day.build(dateValues[2], dateValues[0] - 1, dateValues[1]),
             times
-          }
+          })
         }
 
         ev.created = {
           data,
           id: null,
-          schedule: new Schedule(eventSchedule)
+          schedule: eventSchedule
         };
 
         this.calendar.addEvent(ev.created)
