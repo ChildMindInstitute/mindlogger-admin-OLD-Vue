@@ -13,6 +13,7 @@
             </template>
             <span v-html="labels.cancel" />
           </v-tooltip>
+          <span v-if="importOnly" class="ml-3">{{ $t('importSchedule') }}</span>
         </slot>
       </div>
 
@@ -83,7 +84,7 @@
 
       <!-- Tabs -->
       <v-layout v-if="hasTabs">
-        <v-flex xs12 >
+        <v-flex xs12 :class="importOnly ? 'hide-tabs' : ''">
           <v-tabs v-model="tab" class="text--primary">
             <v-tab v-if="hasDetails && !importOnly" href="#details">
               {{ $t('activityAccessOptions') }}
@@ -182,7 +183,7 @@
 
             <!-- Import Schedule -->
             <v-tab-item value="import">
-              <p class="my-3 mx-2"> Please upload a schedule table (.csv file format as below) </p>
+              <p class="mx-2"> Please upload a schedule table (.csv file format as below) </p>
               <v-card text>
                 <v-data-table
                   :headers="headers"
@@ -355,6 +356,7 @@ import {
   Calendar,
   CalendarEvent,
   Schedule,
+  Pattern,
   Functions as fn,
 } from "dayspan";
 import _ from "lodash";
@@ -675,17 +677,17 @@ export default {
       if (!this.details.timeout.allow) {
         return true;
       }
-      if (this.details.timeout.day > 0) {
-        return true;
+
+      if (
+        this.details.timeout.day < 0 ||
+        this.details.timeout.hour < 0 ||
+        this.details.timeout.minute <= 0
+      ) {
+        return false;
       }
-      if (this.details.timeout.hour > 0) {
-        return true;
-      }
-      if (this.details.timeout.minute > 0) {
-        return true;
-      }
+      
       // If 'Allow timeout' is checked & every value is 0, form is invalid
-      return false;
+      return true;
     },
 
     canSave() {
@@ -694,6 +696,14 @@ export default {
         this.schedule,
         this.calenderEvent
       );
+
+      if (this.details.notifications && this.details.useNotifications) {
+        for (const notification of this.details.notifications) {
+          if (notification.allow && (!notification.start || !notification.start.match(/\d{2}:\d{2}/))) {
+            return false;
+          }
+        }
+      }
 
       const isTimeoutValid = this.isTimeoutValid;
 
@@ -1021,6 +1031,9 @@ export default {
           day: 0,
         };
 
+        if (!startTime) startTime = '0000';
+        if (!endTime) endTime = '2359';
+
         if (startTime.length < 4) startTime = '0' + startTime;
         if (endTime.length < 4) endTime = '0' + endTime;
         if (notificationTime && notificationTime.length < 4) notificationTime = '0' + notificationTime;
@@ -1106,43 +1119,42 @@ export default {
         const times = [];
         let eventSchedule = {};
         const dateValues = date.split('/');
-        const eventFrequency = {};
         times.push(new Time(Number(eventTimes[0].hour), Number(eventTimes[0].minute), eventTimes[0].second, eventTimes[0].millisecond));
 
+        let pattern = null;
         if (repeats) {
           switch (frequency) {
             case "Daily":
-              eventFrequency.dayOfWeek = Weekday.LIST;
+              pattern = Pattern.withName('daily');
               break;
             case "Weekly":
-              const dow = moment(date).day();
-              eventFrequency.dayOfWeek = [dow % 7];
+              pattern = Pattern.withName('weekly')
               break;
             case "Week Day":
-              eventFrequency.dayOfWeek = Weekday.WEEK;
+              pattern = Pattern.withName('weekday')
               break;
             case "Monthly":
-              eventFrequency.dayOfMonth = dateValues[1];
+              pattern = Pattern.withName('monthly');
               break;
           }
         }
 
-        if (eventFrequency.dayOfWeek || eventFrequency.dayOfMonth) {
-          eventSchedule = {
-            ...eventFrequency,
+        if (pattern) {
+          eventSchedule = new Schedule({
             times
-          }
+          })
+          pattern.apply(eventSchedule, new Day(moment(date)))
         } else {
-          eventSchedule = {
+          eventSchedule = new Schedule({
             on: Day.build(dateValues[2], dateValues[0] - 1, dateValues[1]),
             times
-          }
+          })
         }
 
         ev.created = {
           data,
           id: null,
-          schedule: new Schedule(eventSchedule)
+          schedule: eventSchedule
         };
 
         this.calendar.addEvent(ev.created)
@@ -1353,6 +1365,12 @@ export default {
   },
 };
 </script>
+
+<style scoped lang="css">
+  .hide-tabs >>> .v-tabs-bar {
+    display: none !important;
+  }
+</style>
 
 <style lang="scss">
 .csv-import-checkbox {

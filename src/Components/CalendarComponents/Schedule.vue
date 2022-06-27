@@ -218,7 +218,7 @@
         </div>
       </div>
       <div v-if="isTimeoutValid === false" class="error white--text pa-2">
-        You cannot schedule an activity with the same start and stop time.
+        The end time should be bigger than the start time
       </div>
     </div>
   </div>
