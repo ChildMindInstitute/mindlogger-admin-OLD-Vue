@@ -60,8 +60,8 @@
 }
 
 .option-image {
-  height: 24px;
-  min-width: 24px;
+  /* height: 24px; */
+  width: 24px;
   margin-right: 5px;
 }
 
