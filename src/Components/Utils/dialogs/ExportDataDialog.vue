@@ -60,6 +60,27 @@
     overflow-x: hidden; 
     max-height: 480px;
   }
+
+  @media only screen and (max-height: 650px) {
+    .scroll {
+      max-height: 380px;
+    }
+  }
+  @media only screen and (max-height: 550px) {
+    .scroll {
+      max-height: 280px;
+    }
+  }
+  @media only screen and (max-height: 450px) {
+    .scroll {
+      max-height: 180px;
+    }
+  }
+  @media only screen and (max-height: 340px) {
+    .scroll {
+      max-height: 80px;
+    }
+  }
 </style>
 
 <script>
