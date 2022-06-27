@@ -86,6 +86,7 @@ export default {
   activityCompletion: 'If the user does not complete this activity after',
   accessBefore: 'Access before scheduled time',
   timedActivity: 'Timer',
+  hidden: 'Hidden',
   timeout: 'Timeout ',
   oneTimeCompletion: 'One-time completion ',
   extendedPastDue: 'Extended Past Due ',

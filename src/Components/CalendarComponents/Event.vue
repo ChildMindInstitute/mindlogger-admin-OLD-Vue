@@ -122,7 +122,20 @@
               <v-card text>
                 <v-card-text>
                   <div class="ds-event-body ds-event-area">
-                    <slot name="schedule" v-bind="slotData">
+                    <v-switch
+                      v-if="activityFlowNames.includes(details.title)"
+                      v-model="activityFlowVis[details.title]"
+                      class="ml-6 mb-1"
+                      :label="$t('hidden')"
+                      :readonly="isReadOnly"
+                      @change="changeActivityFlowVis"
+                      flat
+                    />
+                    <slot
+                      v-if="validSchedule(details.title)" 
+                      name="schedule" 
+                      v-bind="slotData"
+                    >
                       <!-- absolute scheduling options below -->
                       <my-schedule
                         @onTimeout="handleTimeout"
@@ -260,11 +273,13 @@ import {
 } from "dayspan";
 import _ from "lodash";
 
+
 import Notification from "./Notification";
 import ScheduleModifier from "./ScheduleModifier";
 import ScheduleForecast from "./ScheduleForecast";
 import ScheduleActions from "./ScheduleActions";
 import mySchedule from "./Schedule";
+import api from "@/Components/Utils/api/api.vue";
 import { AppletMixin } from '@/Components/Utils/mixins/AppletMixin';
 import { addActivityColor, getEventColor } from "@/Components/CalendarComponents/activityColorPalette.js";
 export default {
@@ -392,16 +407,17 @@ export default {
 
   data: (vm) => {
     return {
-    tab: "details",
-    schedule: new Schedule(),
-    details: vm.$dayspan.getDefaultEventDetails(),
-    oneTimeCompletion: false,
-    eventAvailability: null,
-    onlyScheduledDay: false,
-    scheduledExtendedTime: {},
-    scheduledTimeout: {},
-    timedActivity: {},
-    scheduledIdleTime: {},
+      tab: "details",
+      schedule: new Schedule(),
+      details: vm.$dayspan.getDefaultEventDetails(),
+      oneTimeCompletion: false,
+      eventAvailability: null,
+      onlyScheduledDay: false,
+      scheduledExtendedTime: {},
+      scheduledTimeout: {},
+      timedActivity: {},
+      scheduledIdleTime: {},
+      activityFlowVis: {},
     }
   },
 
@@ -469,11 +485,14 @@ export default {
       const order = _.get(appletData.applet, ['reprolib:terms/activityFlowOrder', 0, '@list']).map(item => item['@id']);
       return order.map(item => {
         const activityFlowObj = appletData.activityFlows[item];
-        const {
-          ['schema:name']: name,
-        } = activityFlowObj;
+        const name = activityFlowObj['schema:name'][0]['@value'];
+        const activityFlow = appletData.applet['reprolib:terms/activityFlowProperties'].find(p => {
+          const flowName = p['reprolib:terms/variableName'][0]['@value'].replace(/_/g, ' ');
+          return flowName === name;
+        });
 
-        return name && name[0] && name[0]['@value'];
+        this.activityFlowVis[name] = activityFlow['reprolib:terms/isVis'][0]['@value'];
+        return name;
       })
     },
     currentApplet() {
@@ -727,9 +746,22 @@ export default {
       this.eventAvailability = availability;
     },
 
-    save() {
+    validSchedule(name) {
+      return !this.activityFlowNames.includes(name) || this.activityFlowVis[name];
+    },
+
+    async save() {
       var ev = this.getEvent("save");
       this.$emit("save", ev);
+
+      if(this.activityFlowNames.includes(this.details.title)) {
+        await this.updateActivityFlowVis(this.details.title)
+
+        if (!this.activityFlowVis[this.details.title]) {
+          this.cancel();
+          return;
+        }
+      }
 
       if (!ev.handled) {
         if (ev.target && ev.schedule) {
@@ -782,6 +814,47 @@ export default {
     updateSchedule(schedule) {
       this.schedule = schedule.clone();
       this.tab = "details";
+    },
+
+    changeActivityFlowVis() {
+      this.$forceUpdate();
+    },
+
+    async updateActivityFlowVis(name) {
+      let activityFlowId;
+      const appletData = this.$store.state.currentAppletData;
+
+      for (let activityFlowKey in appletData.activityFlows) {
+        const { 
+          '@id': activityFlowName ,
+          _id: id,
+        } = appletData.activityFlows[activityFlowKey];
+
+        if (name === activityFlowName.replace(/_/g, ' ')) {
+          activityFlowId = id.split('/')[1];
+        }
+      }
+
+      try {
+        await api.updateActivityFlowVis({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          body: {
+            id: appletData.applet._id,
+            status: this.activityFlowVis[name],
+            activityFlowId,
+          },
+        });
+        
+        appletData.applet['reprolib:terms/activityFlowProperties'].forEach(p => {
+          if (p['reprolib:terms/variableName'][0]['@value'].replace(/_/g, ' ') === name) {
+            p['reprolib:terms/isVis'][0]['@value'] = this.activityFlowVis[name]
+          }
+        });
+        this.$store.commit("updateAppletData", appletData);
+      } catch (err) {
+        console.log(err);
+      }
     },
 
     updateDetails(details) {
