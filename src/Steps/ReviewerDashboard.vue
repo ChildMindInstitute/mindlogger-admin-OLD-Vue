@@ -1500,6 +1500,7 @@ export default {
       if (responseId) {
         if (
           !this.secretIDs.length ||
+          !this.applySecretIdSelector ||
           this.selectedSecretIds.includes(this.applet.secretIDs[responseId])
         ) {
           return true;
