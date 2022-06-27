@@ -272,6 +272,19 @@ const getAppletUsers = ({ apiHost, token, appletId }) =>
     },
   });
 
+const updateActivityFlowVis = ({ apiHost, token, body }) =>
+  axios({
+    method: "put",
+    url: `${apiHost}/${body.id}/activityFlow/visibility`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: {
+      status: body.status,
+      activityFlowId: body.activityFlowId
+    },
+  });
+
 const getUserList = ({ apiHost, token, appletId, reviewerId }) =>
   axios({
     method: "GET",
@@ -973,6 +986,7 @@ export default {
   getAppletInvitation,
   getItemTemplates,
   updateItemTemplates,
+  updateActivityFlowVis,
   getUsersData,
   getAppletsForUser,
   duplicateApplet,

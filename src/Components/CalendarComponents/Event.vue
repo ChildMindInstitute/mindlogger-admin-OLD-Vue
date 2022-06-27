@@ -29,7 +29,20 @@
           :disabled="importOnly"
           dense
           outlined
-        />
+        >
+          <template v-slot:item="{ item }">
+            <div class="d-flex align-center">
+              <img 
+                v-if="activityFlowNames.includes(item)"
+                class="mr-2"
+                width="18"
+                height="20"
+                :src="require('@/assets/activity-flow.png')" 
+              />
+              {{ item }}
+            </div>
+          </template>
+        </v-select>
       </slot>
 
       <div
@@ -121,7 +134,20 @@
               <v-card text>
                 <v-card-text>
                   <div class="ds-event-body ds-event-area">
-                    <slot name="schedule" v-bind="slotData">
+                    <v-switch
+                      v-if="activityFlowNames.includes(details.title)"
+                      v-model="activityFlowVis[details.title]"
+                      class="ml-6 mb-1"
+                      :label="$t('hidden')"
+                      :readonly="isReadOnly"
+                      @change="changeActivityFlowVis"
+                      flat
+                    />
+                    <slot
+                      v-if="validSchedule(details.title)" 
+                      name="schedule" 
+                      v-bind="slotData"
+                    >
                       <!-- absolute scheduling options below -->
                       <my-schedule
                         @onTimeout="handleTimeout"
@@ -366,6 +392,8 @@ import ScheduleModifier from "./ScheduleModifier";
 import ScheduleForecast from "./ScheduleForecast";
 import ScheduleActions from "./ScheduleActions";
 import mySchedule from "./Schedule";
+import api from "@/Components/Utils/api/api.vue";
+import { AppletMixin } from '@/Components/Utils/mixins/AppletMixin';
 import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
 import ObjectToCSV from 'object-to-csv';
 import { VueCsvImport } from 'vue-csv-import';
@@ -510,6 +538,7 @@ export default {
       scheduledExtendedTime: {},
       scheduledTimeout: {},
       timedActivity: {},
+      activityFlowVis: {},
       scheduledIdleTime: {},
       scheduleDialog: false,
       cancelDialog: false,
@@ -638,11 +667,28 @@ export default {
         }
       );
     },
+    activityFlowNames() {
+      const appletData = this.$store.state.currentAppletData;
+      const order = _.get(appletData.applet, ['reprolib:terms/activityFlowOrder', 0, '@list']).map(item => item['@id']);
+      return order.map(item => {
+        const activityFlowObj = appletData.activityFlows[item];
+        const name = activityFlowObj['schema:name'][0]['@value'];
+        const activityFlow = appletData.applet['reprolib:terms/activityFlowProperties'].find(p => {
+          const flowName = p['reprolib:terms/variableName'][0]['@value'].replace(/_/g, ' ');
+          return flowName === name;
+        });
+
+        this.activityFlowVis[name] = activityFlow['reprolib:terms/isVis'][0]['@value'];
+        return name;
+      })
+    },
     currentApplet() {
       return this.$store.state.currentAppletMeta;
     },
     activityNames() {
-      return _.map(this.activities, (a) => a.name);
+      const activities = _.map(this.activities, (activity) => activity.name);
+
+      return [...activities, ...this.activityFlowNames];
     },
     slotData() {
       return {
@@ -784,6 +830,12 @@ export default {
     getHexColor(colorName) {
       return _.filter(this.$dayspan.colors, c => c.text === colorName)[0].value;
     },
+    displaySelectItem (item) {
+      if (this.activityFlowNames.includes(item)) {
+
+      }
+      return '##';
+    },
     async remove(eventId) {
       const res = await this.$dialog.warning({
         title: "",
@@ -887,6 +939,10 @@ export default {
 
     handleAvailability(availability) {
       this.eventAvailability = availability;
+    },
+
+    validSchedule(name) {
+      return !this.activityFlowNames.includes(name) || this.activityFlowVis[name];
     },
 
     handleImportBtn() {
@@ -1188,6 +1244,15 @@ export default {
       var ev = this.getEvent("save");
       this.$emit("save", ev);
 
+      if(this.activityFlowNames.includes(this.details.title)) {
+        await this.updateActivityFlowVis(this.details.title)
+
+        if (!this.activityFlowVis[this.details.title]) {
+          this.cancel();
+          return;
+        }
+      }
+
       if (!ev.handled) {
         if (ev.target && ev.schedule) {
           ev.target.set(ev.schedule);
@@ -1246,6 +1311,47 @@ export default {
     updateSchedule(schedule) {
       this.schedule = schedule.clone();
       this.tab = "details";
+    },
+
+    changeActivityFlowVis() {
+      this.$forceUpdate();
+    },
+
+    async updateActivityFlowVis(name) {
+      let activityFlowId;
+      const appletData = this.$store.state.currentAppletData;
+
+      for (let activityFlowKey in appletData.activityFlows) {
+        const { 
+          '@id': activityFlowName ,
+          _id: id,
+        } = appletData.activityFlows[activityFlowKey];
+
+        if (name === activityFlowName.replace(/_/g, ' ')) {
+          activityFlowId = id.split('/')[1];
+        }
+      }
+
+      try {
+        await api.updateActivityFlowVis({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          body: {
+            id: appletData.applet._id,
+            status: this.activityFlowVis[name],
+            activityFlowId,
+          },
+        });
+        
+        appletData.applet['reprolib:terms/activityFlowProperties'].forEach(p => {
+          if (p['reprolib:terms/variableName'][0]['@value'].replace(/_/g, ' ') === name) {
+            p['reprolib:terms/isVis'][0]['@value'] = this.activityFlowVis[name]
+          }
+        });
+        this.$store.commit("updateAppletData", appletData);
+      } catch (err) {
+        console.log(err);
+      }
     },
 
     updateDetails(details) {
