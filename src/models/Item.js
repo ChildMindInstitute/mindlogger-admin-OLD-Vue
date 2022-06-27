@@ -216,7 +216,8 @@ export default class Item {
           value: response.value[0],
           version: response.version,
           responseId: response.responseId,
-          secretId: (secretIDs[response.responseId] || null)
+          secretId: (secretIDs[response.responseId] || null),
+          utcTimestamp: response.utcTimestamp,
         };
       }
 
@@ -225,6 +226,7 @@ export default class Item {
           date: new Date(response.date),
           version: response.version,
           responseId: response.responseId,
+          utcTimestamp: response.utcTimestamp,
         }
 
         for (const option in response.value[0]) {
@@ -251,6 +253,7 @@ export default class Item {
           };
         },
         {
+          utcTimestamp: response.utcTimestamp,
           date: new Date(response.date),
           version: response.version,
           responseId: response.responseId,

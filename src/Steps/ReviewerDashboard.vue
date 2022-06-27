@@ -1243,7 +1243,7 @@ export default {
           latestActivity = activity;
 
           const latestResponse = activity.responses.find(
-            (response) => response.date == activity.lastResponseDate
+            (response) => response.utcTimestamp == activity.lastResponseDate.getTime()
           );
           latestResponseId = latestResponse && latestResponse.responseId;
         }

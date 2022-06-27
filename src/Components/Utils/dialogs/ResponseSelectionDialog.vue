@@ -77,19 +77,21 @@ export default {
     activities() {
       const date = moment(new Date(this.date)).format('L');
 
-      return this.applet.activities.map(activity => {
+      const activities = this.applet.activities.map(activity => {
         return ({
           label: activity.label,
           responses: activity.responses.filter(
             response =>
-              date == moment.utc(new Date(response.date)).format('L') &&
+              date == moment.utc(new Date(response.utcTimestamp)).format('L') &&
               (!this.applySecretIdSelector || !this.secretIds.length || this.secretIds.includes(response.secretId))
           ).map(response => ({
-            time: moment.utc(new Date(response.date)).format('hh:mm:ss A'),
+            time: moment.utc(new Date(response.utcTimestamp)).format('hh:mm:ss A'),
             ...response
           })),
           slug: activity.slug
         })}).filter(activity => activity.responses.length);
+
+      return activities;
     }
   },
   methods: {
@@ -97,7 +99,7 @@ export default {
       this.$emit('selectResponse', {
         activity: this.applet.activities.find(activity => activity.slug == selection.slug),
         responseId: response.responseId,
-        date: response.date.toString()
+        date: new Date(response.utcTimestamp).toString()
       })
     }
   }
