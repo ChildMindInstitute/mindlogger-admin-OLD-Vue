@@ -150,13 +150,6 @@ export default {
           currentTime.minute = 59;
         }
 
-        if (currentTime.hour < this.value.hour) {
-          currentTime.hour = this.value.hour;
-          currentTime.minute = this.value.minute;
-        } else if (currentTime.hour === this.value.hour) {
-          currentTime.minute = currentTime.minute < this.value.minute ? this.value.minute : currentTime.minute;
-        }
-
         return currentTime.format("HH:mm");
       },
       set(time) {
