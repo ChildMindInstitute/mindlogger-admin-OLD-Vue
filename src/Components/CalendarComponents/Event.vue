@@ -697,6 +697,14 @@ export default {
         this.calenderEvent
       );
 
+      if (this.details.notifications && this.details.useNotifications) {
+        for (const notification of this.details.notifications) {
+          if (notification.allow && (!notification.start || !notification.start.match(/\d{2}:\d{2}/))) {
+            return false;
+          }
+        }
+      }
+
       const isTimeoutValid = this.isTimeoutValid;
 
       return isValidDayspanEvent && isTimeoutValid;
@@ -1022,6 +1030,9 @@ export default {
           allow: true,
           day: 0,
         };
+
+        if (!startTime) startTime = '0000';
+        if (!endTime) endTime = '2359';
 
         if (startTime.length < 4) startTime = '0' + startTime;
         if (endTime.length < 4) endTime = '0' + endTime;
