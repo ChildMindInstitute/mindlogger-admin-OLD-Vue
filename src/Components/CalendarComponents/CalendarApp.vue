@@ -88,7 +88,7 @@
           </div>
         </div>
 
-        <v-layout row wrap style="height: calc(100% - 200px);">
+        <v-layout row wrap :class="currentType.id === 'Y' ? 'y-height' : 'g-height'">
           <!-- The activities in the applet -->
           <v-flex xs2>
             <div>
@@ -101,6 +101,14 @@
                 >
                   <ActivitySidebar :activity="act" />
                 </div>
+                <v-btn
+                  color="primary"
+                  class="ma-2 white--text v-btn--import"
+                  @click="importSchedule"
+                  outlined
+                >
+                  Import Schedule
+                </v-btn>
               </div>
             </div>
           </v-flex>
@@ -166,6 +174,13 @@
           </v-flex>
         </v-layout>
 
+        <ConfirmationDialog
+          v-model="scheduleDialog"
+          :dialogText="$t('replaceScheduleConfirmation')"
+          :title="$t('importSchedule')"
+          @onOK="openSchedule"
+        />
+
         <!-- dialogs and popups -->
         <slot
           name="calendarAppEventDialog"
@@ -176,9 +191,11 @@
             v-bind="{ $scopedSlots }"
             :calendar="calendar"
             :read-only="readOnly"
+            :import-only="importOnly"
             :activities="activities"
             v-on="$listeners"
             @saved="eventFinish"
+            @cancel="eventCancel"
             @actioned="eventFinish"
           />
         </slot>
@@ -254,6 +271,7 @@
 <script>
 import { Sorts, Calendar, Op } from "dayspan";
 
+import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
 import EventDialog from "./EventDialog";
 import ActivitySidebar from "./ActivitySidebar";
 import DsGestures from "./Gestures";
@@ -266,7 +284,8 @@ export default {
     EventDialog,
     ActivitySidebar,
     DsCalendar,
-    DsGestures
+    DsGestures,
+    ConfirmationDialog
   },
 
   props: {
@@ -347,7 +366,9 @@ export default {
     options: [],
     promptVisible: false,
     promptQuestion: "",
-    promptCallback: null
+    promptCallback: null,
+    importOnly: false,
+    scheduleDialog: false,
   }),
 
   computed: {
@@ -580,6 +601,22 @@ export default {
       }
     },
 
+    importSchedule() {
+      const schedule = this.$store.state.currentAppletData.applet.schedule;
+
+      if (schedule.events.length) {
+        this.scheduleDialog = true;
+      } else {
+        this.importOnly = true;
+        this.addToday();
+      }
+    },
+
+    openSchedule() {
+      this.importOnly = true;
+      this.addToday();
+    },
+
     addToday() {
       if (!this.canAddDay) {
         return;
@@ -736,6 +773,11 @@ export default {
     // eslint-disable-next-line
     eventFinish(ev) {
       this.triggerChange();
+      this.eventCancel();
+    },
+
+    eventCancel() {
+      this.importOnly = false;
     },
 
     eventsRefresh() {
@@ -798,6 +840,11 @@ export default {
   margin-bottom: 0 !important;
 }
 
+.v-btn--import {
+  margin-left: 0 !important;
+  width: 100%;
+}
+
 .top-controls {
   display: flex;
   height: 50px;
@@ -806,5 +853,14 @@ export default {
 
 .calendar-header {
   border:2px solid #ccc;
+}
+
+.g-height {
+  height: calc(100% - 200px);
+}
+
+.y-height {
+  height: auto;
+  margin-bottom: 130px;
 }
 </style>

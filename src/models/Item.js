@@ -72,7 +72,19 @@ export default class Item {
     return inputs.reduce((acc, current) => {
       const name = _.get(current, ['schema:name', 0, '@value'])
       const value = _.get(current, ['schema:value', 0, '@value'])
+      const itemList = _.get(current, ['schema:itemListElement']);
 
+      if (itemList) {
+        return {
+          ...acc,
+          [name]: itemList.map(item => ({
+            id: _.get(item, ['@id']),
+            image: _.get(item, ['schema:image']),
+            name: _.get(item, ['schema:name', 0, '@value']),
+            value: _.get(item, ['schema:value', 0, '@value'])
+          }))
+        }
+      }
       return {
         ...acc,
         [name]: value

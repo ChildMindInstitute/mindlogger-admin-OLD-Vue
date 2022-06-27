@@ -452,25 +452,30 @@ export const AppletMixin = {
                 let eventResponse = '';
 
                 if (event.response) {
-                  let keys = Object.keys(event.response).sort();
+                  if (item.inputType == 'text') {
+                    eventResponse = event.response;
+                  } else {
+                    let keys = Object.keys(event.response).sort();
 
-                  if (item.inputType != 'stackedRadio' && item.inputType != 'stackedSlider' && item.inputType != 'text') {
-                    keys = keys.reverse();
-                  }
-                  for (const key of keys) {
-                    const value = event.response[key];
-
-                    eventResponse += parseResponseValue(key, value, item.inputType, item);
-
-                    if (item.inputType == 'stackedRadio' || item.inputType == 'stackedSlider') {
-                      eventResponse += '\r\n';
+                    if (item.inputType != 'stackedRadio' && item.inputType != 'stackedSlider') {
+                      keys = keys.reverse();
                     }
-                    else if (item.inputType !== 'text') {
-                      eventResponse += ' | ';
-                    }
-                  }
 
-                  eventResponse = eventResponse.replace(/[ |]*$/g, '').replace(/^[ |]*/g, '');
+                    for (const key of keys) {
+                      const value = event.response[key];
+
+                      eventResponse += parseResponseValue(key, value, item.inputType, item);
+
+                      if (item.inputType == 'stackedRadio' || item.inputType == 'stackedSlider') {
+                        eventResponse += '\r\n';
+                      }
+                      else if (item.inputType !== 'text') {
+                        eventResponse += ' | ';
+                      }
+                    }
+
+                    eventResponse = eventResponse.replace(/[ |]*$/g, '').replace(/^[ |]*/g, '');
+                  }
                 }
 
                 events.push({
@@ -531,7 +536,7 @@ export const AppletMixin = {
             }
           }
 
-          this.downloadFile({
+          await this.downloadFile({
             name: 'report.csv',
             content: new ObjectToCSV({
               keys: keys.concat(subScaleNames).map((value) => ({ key: value, as: value })),
@@ -540,7 +545,7 @@ export const AppletMixin = {
             type: 'text/csv;charset=utf-8'
           });
 
-          this.downloadFile({
+          await this.downloadFile({
             name: 'activity_user_journey.csv',
             content: new ObjectToCSV({
               keys: [
@@ -581,14 +586,19 @@ export const AppletMixin = {
 
     getFlankerAsCSV(responses, item, experimentClock) {
       const result = [];
-      const types = {
-        '>>>>>': { trialType: 4, ext: 'right-con', expected: '>', },
-        '<<><<': { trialType: 6, ext: 'right-inc', expected: '>' },
-        '-->--': { trialType: 2, ext: 'right-neut', expected: '>' },
-        '<<<<<': { trialType: 3, ext: 'left-con', expected: '<' },
-        '>><>>': { trialType: 5, ext: 'left-inc', expected: '<' },
-        '--<--': { trialType: 1, ext: 'left-neut', expected: '<' }
+
+      const getImage = (image, alt) => {
+        if (image) {
+          return `<img src="${image}" alt="${alt}">`
+        }
+
+        return alt;
       }
+
+      const types = item.inputs.trials.reduce((prev, trial) => ({
+        ...prev,
+        [getImage(trial.image, trial.name)]: trial.name
+      }));
 
       const getResponseObj = (response, tag, config, trialStartTimestamp) => {
         const trialNumber = response.trial_index, blockNumber = config.blockIndex;
@@ -614,10 +624,10 @@ export const AppletMixin = {
           trialType = tag == 'feedback' ? 0 : -1;
 
           if (tag == 'response') {
-            trialType = types[response.question].trialType;
+            trialType = types[response.question] || response.question;
           }
         } else {
-          trialType = types[response.question].trialType;
+          trialType = types[response.question] || response.question;
         }
 
         let responseValue = '.', responseAccuracy = '.', responseTouchTimestamp = '.', responseTime = '.';
@@ -797,8 +807,10 @@ export const AppletMixin = {
     downloadFile({ name, content, type }) {
       const file = new Blob([content], { type })
       return new Promise(resolve => {
-        saveAs(file, name)
-        resolve(true)
+        saveAs(file, name);
+        setTimeout(() => {
+          resolve(true)
+        })
       })
     },
 

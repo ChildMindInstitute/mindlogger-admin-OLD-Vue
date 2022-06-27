@@ -1,7 +1,8 @@
 <template>
   <v-card class="elevation-12 ds-event no-scroll" :class="classes">
     <v-toolbar color="primary" dark flat>
-      <div v-if="hasCancel" class="ds-event-cancel">
+      <div v-if="importOnly" style="flex: 1" />
+      <div v-if="hasCancel" :class="importOnly ? '' : 'ds-event-cancel'">
         <!-- Cancel -->
         <slot name="scheduleCancel" v-bind="{ cancel, labels }">
           <v-tooltip bottom color="secondary">
@@ -12,10 +13,12 @@
             </template>
             <span v-html="labels.cancel" />
           </v-tooltip>
+          <span v-if="importOnly" class="ml-3">{{ $t('importSchedule') }}</span>
         </slot>
       </div>
 
       <slot
+        v-if="!importOnly"
         name="scheduleTitle"
         v-bind="{ schedule, schedule, calendarEvent, details }"
       >
@@ -23,6 +26,7 @@
           v-model="details.title"
           :items="activityNames"
           :placeholder="$t('selectActivity')"
+          :disabled="importOnly"
           dense
           outlined
         >
@@ -41,7 +45,11 @@
         </v-select>
       </slot>
 
-      <div class="ds-event-actions" style="display: flex">
+      <div
+        v-if="!importOnly"
+        class="ds-event-actions"
+        style="display: flex"
+      >
         <!-- Save -->
         <slot name="scheduleSave" v-bind="{ hasSave, save, labels, readOnly }">
           <v-btn
@@ -49,7 +57,7 @@
             class="ds-button-tall"
             depressed
             color="primary"
-            :disabled="!canSave"
+            :disabled="!canSave || importOnly"
             @click.stop="save"
           >
             <span v-html="labels.save" />
@@ -85,18 +93,22 @@
     </v-toolbar>
 
     <v-card-text class="ds-event-details">
-      
+
 
       <!-- Tabs -->
       <v-layout v-if="hasTabs">
-        <v-flex xs12 >
+        <v-flex xs12 :class="importOnly ? 'hide-tabs' : ''">
           <v-tabs v-model="tab" class="text--primary">
-            <v-tab v-if="hasDetails" href="#details">
+            <v-tab v-if="hasDetails && !importOnly" href="#details">
               {{ $t('activityAccessOptions') }}
             </v-tab>
 
-            <v-tab href="#notifications">
+            <v-tab v-if="!importOnly" href="#notifications">
               {{ $t('notifications') }}
+            </v-tab>
+
+            <v-tab v-if="importOnly" href="#import">
+              {{ $t('importSchedule') }}
             </v-tab>
 
             <v-tab v-if="showForecast" href="#forecast">
@@ -195,6 +207,68 @@
               </v-card>
             </v-tab-item>
 
+            <!-- Import Schedule -->
+            <v-tab-item value="import">
+              <p class="mx-2"> Please upload a schedule table (.csv file format as below) </p>
+              <v-card text>
+                <v-data-table
+                  :headers="headers"
+                  :items="items"
+                  :items-per-page="5"
+                  class="elevation-1"
+                ></v-data-table>
+              </v-card>
+              <div class="d-flex justify-space-between mt-4">
+                <v-btn
+                  outlined
+                  color="primary"
+                  @click.stop="downloadTemplate"
+                >
+                  Download Template(.csv)
+                </v-btn>
+                <div>
+                  <form enctype="multipart/form-data">
+                      <input
+                        class="import-file ds-display-none"
+                        accept=".csv"
+                        type="file"
+                        @change="onFileChange"
+                        :key="csvFileKey"
+                      />
+                  </form>
+
+                  <v-tooltip top>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        v-bind="attrs"
+                        v-on="on"
+                        color="blue-grey"
+                        class="white--text mx-2"
+                        @click="handleImportBtn"
+                      >
+                        Import
+                        <v-icon
+                          right
+                          dark
+                        >
+                          mdi-cloud-upload
+                        </v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Please make sure to use correct csv editor to build/edit csv file</span>
+                  </v-tooltip>
+
+                  <v-btn
+                    color="info"
+                    @click="openScheduledDlg"
+                    :disabled="!isImported"
+                  >
+                    Submit
+                  </v-btn>
+                </div>
+              </div>
+            </v-tab-item>
+
             <!-- Forecast -->
             <v-tab-item v-if="showForecast" value="forecast" lazy>
               <v-card text>
@@ -260,20 +334,59 @@
         </v-flex>
       </v-layout>
     </v-card-text>
+    <ConfirmationDialog
+      v-model="scheduleDialog"
+      :dialogText="$t('submitScheduleConfirmation')"
+      :title="$t('importSchedule')"
+      @onOK="saveSchedule"
+    />
+    <ConfirmationDialog
+      v-model="cancelDialog"
+      :dialogText="$t('cancelImportedCsv')"
+      :title="$t('closeImport')"
+      @onOK="cancelImport"
+    />
+    <v-dialog
+      v-model="validationDialog"
+      max-width="600"
+    >
+      <v-card>
+        <v-card-title class="text-h5">
+          {{ $t('csvValidationTitle') }}
+        </v-card-title>
+
+        <v-card-text>
+          {{ validationMsg }}
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="validationDialog = false"
+          >
+            Ok
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
 <script>
 import {
   Day,
+  Time,
+  Weekday,
   Calendar,
   CalendarEvent,
   Schedule,
+  Pattern,
   Functions as fn,
 } from "dayspan";
 import _ from "lodash";
-
-
+import moment from "moment";
 import Notification from "./Notification";
 import ScheduleModifier from "./ScheduleModifier";
 import ScheduleForecast from "./ScheduleForecast";
@@ -281,7 +394,10 @@ import ScheduleActions from "./ScheduleActions";
 import mySchedule from "./Schedule";
 import api from "@/Components/Utils/api/api.vue";
 import { AppletMixin } from '@/Components/Utils/mixins/AppletMixin';
-import { addActivityColor, getEventColor } from "@/Components/CalendarComponents/activityColorPalette.js";
+import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
+import ObjectToCSV from 'object-to-csv';
+import { VueCsvImport } from 'vue-csv-import';
+import {addActivityColor, getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
 export default {
   name: "dsEvent",
 
@@ -291,12 +407,18 @@ export default {
     ScheduleForecast,
     ScheduleModifier,
     ScheduleActions,
+    ConfirmationDialog,
+    VueCsvImport
   },
 
   props: {
     activities: {
       type: Array,
       required: true,
+    },
+    importOnly: {
+      type: Boolean,
+      default: false,
     },
     targetSchedule: {
       required: true,
@@ -416,8 +538,73 @@ export default {
       scheduledExtendedTime: {},
       scheduledTimeout: {},
       timedActivity: {},
-      scheduledIdleTime: {},
       activityFlowVis: {},
+      scheduledIdleTime: {},
+      scheduleDialog: false,
+      cancelDialog: false,
+      scheduleImport: false,
+      validationDialog: false,
+      validationMsg: "",
+      csvFileKey: 0,
+      headers: [
+        {
+          text: 'Activity Name',
+          align: 'start',
+          sortable: true,
+          value: 'name',
+        },
+        { text: 'Date', value: 'date' },
+        { text: 'Activity Start Time', value: 'startTime' },
+        { text: 'Activity End Time', value: 'endTime' },
+        { text: 'Notification Time', value: 'notificationTime' },
+        { text: 'Repeats', value: 'repeats' },
+        { text: 'Frequency', value: 'frequency' },
+      ],
+      items: [
+        {
+          name: 'Flanker',
+          date: '01/13/2022',
+          startTime: '0800',
+          endTime: '1640',
+          notificationTime: '1400',
+          repeats: 'Yes',
+          frequency: 'Daily'
+        }, {
+          name: 'Screener',
+          date: '11/03/2022',
+          startTime: '0435',
+          endTime: '2240',
+          notificationTime: '1230',
+          repeats: 'Yes',
+          frequency: 'Weekly'
+        }, {
+          name: 'EMA',
+          date: '04/22/2022',
+          startTime: '1030',
+          endTime: '1130',
+          notificationTime: '1030',
+          repeats: 'Yes',
+          frequency: 'Week Day'
+        }, {
+          name: 'TokenLogger',
+          date: '12/07/2022',
+          startTime: '2230',
+          endTime: '2300',
+          notificationTime: '2245',
+          repeats: 'Yes',
+          frequency: 'Monthly'
+        }, {
+          name: 'Cognitive Battery',
+          date: '05/19/2022',
+          startTime: '1750',
+          endTime: '1846',
+          notificationTime: '1750',
+          repeats: 'No',
+          frequency: ''
+        },
+      ],
+      isImported: false,
+
     }
   },
 
@@ -536,17 +723,17 @@ export default {
       if (!this.details.timeout.allow) {
         return true;
       }
-      if (this.details.timeout.day > 0) {
-        return true;
+
+      if (
+        this.details.timeout.day < 0 ||
+        this.details.timeout.hour < 0 ||
+        this.details.timeout.minute <= 0
+      ) {
+        return false;
       }
-      if (this.details.timeout.hour > 0) {
-        return true;
-      }
-      if (this.details.timeout.minute > 0) {
-        return true;
-      }
+      
       // If 'Allow timeout' is checked & every value is 0, form is invalid
-      return false;
+      return true;
     },
 
     canSave() {
@@ -555,6 +742,14 @@ export default {
         this.schedule,
         this.calenderEvent
       );
+
+      if (this.details.notifications && this.details.useNotifications) {
+        for (const notification of this.details.notifications) {
+          if (notification.allow && (!notification.start || !notification.start.match(/\d{2}:\d{2}/))) {
+            return false;
+          }
+        }
+      }
 
       const isTimeoutValid = this.isTimeoutValid;
 
@@ -750,7 +945,302 @@ export default {
       return !this.activityFlowNames.includes(name) || this.activityFlowVis[name];
     },
 
-    async save() {
+    handleImportBtn() {
+      this.csvFileKey++;
+      setTimeout(() => {
+        this.$el.querySelector("input.import-file").click();
+      })
+    },
+
+    onFileChange(e) {
+      const files = e.target.files || e.dataTransfer.files;
+      if (!files.length) {
+        return;
+      }
+      this.createInput(files[0]);
+    },
+    createInput(file) {
+      const reader = new FileReader();
+      const vm = this;
+      this.validationMsg = '';
+
+      reader.onload = (e) => {
+        const lines = reader.result.split('\n')
+        const headers = lines[0].split(',').map(header => {
+          const value = header.replace(/\"/g, '').replace(/\r/g, '');
+          const headerItem = this.headers.find(h => h.text === value);
+
+          if (headerItem) {
+            return headerItem.value;
+          }
+          return value;
+        })
+
+        const importedItems = lines.slice(1).map(line => {
+          let fields = [];
+          if (line.match(/^\s*"/)) {
+            fields = line.split(/"\s*,\s*"/).map(field => field.replace(/[\"\r\n]/g, ''));
+          } else {
+            fields = line.split(',').map(field => field.replace(/[\"\r\n]/g, ''))
+          }
+
+          return Object.fromEntries(headers.map((h, i) => [h, fields[i]]))
+        }).filter(line => {
+          if (line.name === '' || line.name === undefined) {
+            return false;
+          }
+          return true;
+        })
+
+        if (!importedItems.length) {
+          this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
+        }
+
+        const activityNames = [];
+        for (const actId in this.$store.state.currentAppletData.activities) {
+          const prefLabel = "http://www.w3.org/2004/02/skos/core#prefLabel";
+          const activityName = _.get(this.$store.state.currentAppletData.activities[actId], [prefLabel, 0, '@value']);
+          activityNames.push(activityName);
+        }
+
+        for (let i = 0; i < importedItems.length; i += 1) {
+          const { startTime, endTime, name, repeats, frequency, date, notificationTime } = importedItems[i];
+
+          const month = Number(date.split('/').shift());
+          if (isNaN(new Date(date)) || isNaN(month) || month < 0 || month > 12 ) {
+            this.validationMsg = 'You have invalid date in csv. Please fix and reupload.';
+            break;
+          }
+
+          if (startTime && isNaN(startTime) || endTime && isNaN(endTime)) {
+            this.validationMsg = 'You have invalid start time or end time in csv. Please fix and reupload.'
+            break;
+          }
+
+          if (notificationTime && isNaN(notificationTime)) {
+            this.validationMsg = 'You have invalid notification time in csv. Please fix and reupload.';
+            break;
+          }
+
+          if (Number(startTime) > Number(endTime)) {
+            this.validationMsg = 'We are unable to upload this schedule. You have an end time that is before a start time. Please fix and reupload.';
+            break;
+          }
+
+          if (frequency === undefined || repeats === undefined) {
+            this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
+            break;
+          }
+
+          if (!['daily', 'weekly', 'weekday', 'monthly', ''].includes(frequency.toLowerCase().replace(/\s/g, ''))) {
+            this.validationMsg = 'You have invalid frequency value in csv. Please fix and reupload.';
+            break;
+          }
+
+          if (!['yes', 'no'].includes(repeats.toLowerCase().replace(/\s/g, ''))) {
+            this.validationMsg = 'You have invalid repeat value in csv. Please fix and reupload.';
+            break;
+          }
+
+          if (repeats.replace(/\s/g, '') === 'Yes' && frequency.replace(/\s/g, '') === '') {
+            this.validationMsg = 'You are missing a frequency to repeat *Activity name*. Please fix and reupload.';
+            break;
+          }
+
+          if (repeats.replace(/\s/g, '') !== 'Yes' && frequency.replace(/\s/g, '') !== '') {
+            this.validationMsg = 'You have a frequency set but have entered no repeating. Please fix and reupload.';
+            break;
+          }
+
+          if (!activityNames.includes(name)) {
+            this.validationMsg = '*Activity Name* is not valid. Please fix and reupload.';
+            break;
+          }
+        }
+
+        if (this.validationMsg) {
+          this.validationDialog = true;
+        } else {
+          vm.items = importedItems;
+          this.validationDialog = false;
+          this.isImported = true;
+        }
+      }
+      reader.readAsText(file);
+    },
+
+    openScheduledDlg() {
+      this.scheduleDialog = true;
+    },
+    saveSchedule() {
+      let ev = this.getEvent("save");
+      this.calendar.removeEvents();
+      this.scheduleImport = true;
+      this.isOverlap = false;
+
+      this.items.forEach(row => {
+        let { notificationTime, name, startTime, endTime, date, repeats, frequency } = row;
+        const res = _.filter(this.activities, (a) => a.name === name);
+        let timeout = {
+          access: false,
+          allow: true,
+          day: 0,
+        };
+
+        if (!startTime) startTime = '0000';
+        if (!endTime) endTime = '2359';
+
+        if (startTime.length < 4) startTime = '0' + startTime;
+        if (endTime.length < 4) endTime = '0' + endTime;
+        if (notificationTime && notificationTime.length < 4) notificationTime = '0' + notificationTime;
+
+        const eventTimes = [{
+          hour: startTime.slice(0, 2),
+          minute: startTime.slice(2),
+          second: 0,
+          millisecond: 0,
+        }, {
+          hour: endTime.slice(0, 2),
+          minute: endTime.slice(2),
+          second: 0,
+          millisecond: 0,
+        }]
+
+        timeout.minute = eventTimes[1].minute - eventTimes[0].minute;
+        timeout.hour = eventTimes[1].hour - eventTimes[0].hour;
+
+        if (timeout.minute < 0) {
+          timeout.minute += 60;
+          timeout.hour -= 1;
+        }
+
+        if (res.length) {
+          const activityColor = getEventColor(res[0].id);
+
+          this.details.URI = res[0].URI;
+          if(activityColor)
+          {
+            this.details.color = this.getHexColor(activityColor)
+          }
+        }
+
+        const data = {
+          URI: this.details.URI,
+          availability: false,
+          busy: false,
+          calendar: "",
+          completion: false,
+          description: "",
+          extendedTime: {
+            allow: false,
+            minute: 1
+          },
+          forecolor: "#ffffff",
+          color: this.details.color,
+          icon: "",
+          idleTime: {
+            allow: false,
+            minute: 1
+          },
+          location: "",
+          notifications: [
+            {
+              allow: notificationTime ? true : false,
+              end: null,
+              random: false,
+              start: notificationTime ? [notificationTime.slice(0, 2), ":", notificationTime.slice(2)].join('') : ''
+            }
+          ],
+          onlyScheduledDay: false,
+          reminder: {
+            days: 0,
+            time: "",
+            valid: false
+          },
+          timedActivity: {
+            allow: false,
+            hour: 0,
+            minute: 59,
+            second: 59
+          },
+          timeout,
+          title: row.name,
+          useNotifications: notificationTime ? true : false
+        }
+
+        if (Object.keys(this.$store.state.currentUsers).length) {
+          data.users = Object.keys(this.$store.state.currentUsers);
+        }
+
+        const times = [];
+        let eventSchedule = {};
+        const dateValues = date.split('/');
+        times.push(new Time(Number(eventTimes[0].hour), Number(eventTimes[0].minute), eventTimes[0].second, eventTimes[0].millisecond));
+
+        let pattern = null;
+        if (repeats) {
+          switch (frequency) {
+            case "Daily":
+              pattern = Pattern.withName('daily');
+              break;
+            case "Weekly":
+              pattern = Pattern.withName('weekly')
+              break;
+            case "Week Day":
+              pattern = Pattern.withName('weekday')
+              break;
+            case "Monthly":
+              pattern = Pattern.withName('monthly');
+              break;
+          }
+        }
+
+        if (pattern) {
+          eventSchedule = new Schedule({
+            times
+          })
+          pattern.apply(eventSchedule, new Day(moment(date)))
+        } else {
+          eventSchedule = new Schedule({
+            on: Day.build(dateValues[2], dateValues[0] - 1, dateValues[1]),
+            times
+          })
+        }
+
+        ev.created = {
+          data,
+          id: null,
+          schedule: eventSchedule
+        };
+
+        this.calendar.addEvent(ev.created)
+      });
+      this.calendar.refreshEvents();
+      this.$emit("saved", ev);
+      this.isImported = false;
+      this.cancel();
+    },
+
+    downloadTemplate () {
+      this.downloadFile({
+        name: 'template.csv',
+        content: new ObjectToCSV({
+          data: this.items,
+          keys: this.headers.map(header => ({ key: header.value, as: header.text }))
+        }).getCSV(),
+        type: 'text/csv;charset=utf-8'
+      });
+    },
+
+    downloadFile({ name, content, type }) {
+      const file = new Blob([content], { type })
+      return new Promise(resolve => {
+        saveAs(file, name)
+        resolve(true)
+      })
+    },
+
+    save() {
       var ev = this.getEvent("save");
       this.$emit("save", ev);
 
@@ -785,7 +1275,6 @@ export default {
             ev.calendar.addEvent(ev.created);
             ev.added = true;
           }
-
           this.$emit("create", ev);
         }
 
@@ -794,7 +1283,6 @@ export default {
         }
 
         ev.handled = true;
-
         if (ev.created) {
           this.$emit("event-create", ev.created);
         }
@@ -808,7 +1296,16 @@ export default {
     },
 
     cancel() {
-      this.$emit("cancel", this.getEvent("cancel"));
+      if (this.isImported) {
+        this.cancelDialog = true;
+      } else {
+        this.$emit("cancel", this.getEvent("cancel"));
+      }
+    },
+
+    cancelImport() {
+      this.isImported = false;
+      this.cancel();
     },
 
     updateSchedule(schedule) {
@@ -975,6 +1472,24 @@ export default {
 };
 </script>
 
+<style scoped lang="css">
+  .hide-tabs >>> .v-tabs-bar {
+    display: none !important;
+  }
+</style>
+
+<style lang="scss">
+.csv-import-checkbox {
+  display: none;
+}
+.import-file {
+  display: none;
+}
+.v-toolbar__content {
+  display: -webkit-box;
+}
+</style>
+
 <style scoped lang="scss">
 .ds-calendar-event-title {
   font-size: 18px;
@@ -986,6 +1501,10 @@ export default {
   width: 100%;
   color: white;
   padding: 4px;
+}
+
+.ds-display-none {
+  display: none;
 }
 
 .ds-button-tall {
@@ -1017,7 +1536,7 @@ export default {
   }
 
   .ds-event-details {
-    max-height: 500px;
+    max-height: 600px;
     overflow-y: auto;
   }
 
