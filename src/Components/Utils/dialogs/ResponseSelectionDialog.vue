@@ -62,7 +62,11 @@ export default {
     secretIds: {
       type: Array,
       required: true
-    }
+    },
+    applySecretIdSelector: {
+      type: Boolean,
+      required: true
+    },
   },
   data() {
     return {
@@ -79,7 +83,7 @@ export default {
           responses: activity.responses.filter(
             response =>
               date == moment.utc(new Date(response.date)).format('L') &&
-              (!this.secretIds.length || this.secretIds.includes(response.secretId))
+              (!this.applySecretIdSelector || !this.secretIds.length || this.secretIds.includes(response.secretId))
           ).map(response => ({
             time: moment.utc(new Date(response.date)).format('hh:mm:ss A'),
             ...response

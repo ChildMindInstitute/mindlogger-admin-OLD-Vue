@@ -767,6 +767,7 @@
         :date="reviewing.date"
         :current-response="reviewing.responseId"
         :secret-ids="selectedSecretIds"
+        :apply-secret-id-selector="applySecretIdSelector"
         @selectResponse="selectResponse"
       />
 
@@ -1368,6 +1369,7 @@ export default {
         activity: {},
         responseId: "",
         key: this.reviewing.key + 1,
+        currentReview: { data: [] },
       });
 
       this.responseDialog = true;
