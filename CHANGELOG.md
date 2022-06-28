@@ -5,7 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
-## [0.17.9] - 2022-06-16
+## [0.17.10] - 2022-06-27
+- Fixed minutes value in the end time
+
+## [0.17.9] - 2022-06-27
+- Fixed option image width
 - Build activity flow scheduling
 
 ## [0.17.8] - 2022-06-25

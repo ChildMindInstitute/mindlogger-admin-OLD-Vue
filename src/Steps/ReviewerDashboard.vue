@@ -767,6 +767,7 @@
         :date="reviewing.date"
         :current-response="reviewing.responseId"
         :secret-ids="selectedSecretIds"
+        :apply-secret-id-selector="applySecretIdSelector"
         @selectResponse="selectResponse"
       />
 
@@ -1242,7 +1243,7 @@ export default {
           latestActivity = activity;
 
           const latestResponse = activity.responses.find(
-            (response) => response.date == activity.lastResponseDate
+            (response) => response.utcTimestamp == activity.lastResponseDate.getTime()
           );
           latestResponseId = latestResponse && latestResponse.responseId;
         }
@@ -1368,6 +1369,7 @@ export default {
         activity: {},
         responseId: "",
         key: this.reviewing.key + 1,
+        currentReview: { data: [] },
       });
 
       this.responseDialog = true;
@@ -1498,6 +1500,7 @@ export default {
       if (responseId) {
         if (
           !this.secretIDs.length ||
+          !this.applySecretIdSelector ||
           this.selectedSecretIds.includes(this.applet.secretIDs[responseId])
         ) {
           return true;

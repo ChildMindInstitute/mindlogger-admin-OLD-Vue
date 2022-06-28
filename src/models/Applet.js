@@ -338,6 +338,7 @@ export default class Applet {
           this.timezoneStr = resp.date.substr(-6);
         }
 
+        resp.utcTimestamp = new Date(resp.date).getTime();
         resp.date = resp.date.slice(0, -6);
       });
 
@@ -402,7 +403,8 @@ export default class Applet {
           date: response.date,
           version: response.version,
           responseId: response.responseId,
-          secretId: response.secretId
+          secretId: response.secretId,
+          utcTimestamp: response.utcTimestamp,
         })));
       }
 
@@ -425,8 +427,8 @@ export default class Applet {
         }
 
         for (const response of activity.responses) {
-          if (!activity.lastResponseDate || activity.lastResponseDate < response.date) {
-              activity.lastResponseDate = response.date;
+          if (!activity.lastResponseDate || activity.lastResponseDate.getTime() < response.utcTimestamp) {
+              activity.lastResponseDate = new Date(response.utcTimestamp);
           }
         }
       }
@@ -441,6 +443,7 @@ export default class Applet {
         const responses = this.subScales[activityId][subScaleName];
 
         for (const response of responses) {
+          response.utcTimestamp = new Date(response.date).getTime();
           response.date = response.date.slice(0, -6);
           response.value.secretId = secretIDs[response.value.responseId];
         }
