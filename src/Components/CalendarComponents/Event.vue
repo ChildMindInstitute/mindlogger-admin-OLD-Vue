@@ -678,9 +678,17 @@ export default {
         return true;
       }
 
+      if (this.details.timeout.day < 0) {
+        return false;
+      }
+
+      if (this.details.timeout.day == 0 && this.details.timeout.hour < 0) {
+        return false;
+      }
+
       if (
-        this.details.timeout.day < 0 ||
-        this.details.timeout.hour < 0 ||
+        this.details.timeout.day == 0 ||
+        this.details.timeout.hour == 0 ||
         this.details.timeout.minute <= 0
       ) {
         return false;
