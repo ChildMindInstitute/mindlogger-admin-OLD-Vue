@@ -451,7 +451,7 @@ export const AppletMixin = {
                 const { options } = item ? parseItemOptions(item) : { options: [] };
                 let eventResponse = '';
 
-                if (event.response) {
+                if (event.response && item) {
                   if (item.inputType == 'text') {
                     eventResponse = event.response;
                   } else {

@@ -364,7 +364,7 @@ export default {
 
     onReviewResponse() {
       this.$emit('selectResponse', {
-        date: this.currentResponse.date.toString(),
+        date: new Date(this.currentResponse.utcTimestamp).toString(),
         responseId: this.currentResponse.responseId,
       });
     },
