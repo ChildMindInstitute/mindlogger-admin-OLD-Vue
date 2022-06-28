@@ -713,9 +713,18 @@ export default {
         this.calenderEvent
       );
 
+      if (this.details.useNotifications && (!this.details.notifications || this.details.notifications.length === 0)) {
+        return false;
+      }
       if (this.details.notifications && this.details.useNotifications) {
         for (const notification of this.details.notifications) {
+          if (this.details.useNotifications && (!notification.allow && !notification.random)) {
+            return false;
+          }
           if (notification.allow && (!notification.start || !notification.start.match(/\d{2}:\d{2}/))) {
+            return false;
+          }
+          if (notification.random && (!notification.end || !notification.end.match(/\d{2}:\d{2}/))) {
             return false;
           }
         }
