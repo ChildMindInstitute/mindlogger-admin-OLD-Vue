@@ -367,6 +367,7 @@ import ScheduleForecast from "./ScheduleForecast";
 import ScheduleActions from "./ScheduleActions";
 import mySchedule from "./Schedule";
 import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
+import api from "../Utils/api/api";
 import ObjectToCSV from 'object-to-csv';
 import { VueCsvImport } from 'vue-csv-import';
 import {addActivityColor, getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
@@ -530,6 +531,7 @@ export default {
         { text: 'Notification Time', value: 'notificationTime' },
         { text: 'Repeats', value: 'repeats' },
         { text: 'Frequency', value: 'frequency' },
+        { text: 'Secret User ID', value: 'secretId' }
       ],
       items: [
         {
@@ -539,7 +541,8 @@ export default {
           endTime: '1640',
           notificationTime: '1400',
           repeats: 'Yes',
-          frequency: 'Daily'
+          frequency: 'Daily',
+          secretId: ''
         }, {
           name: 'Screener',
           date: '11/03/2022',
@@ -547,7 +550,8 @@ export default {
           endTime: '2240',
           notificationTime: '1230',
           repeats: 'Yes',
-          frequency: 'Weekly'
+          frequency: 'Weekly',
+          secretId: 'MRN1, MRN2',
         }, {
           name: 'EMA',
           date: '04/22/2022',
@@ -555,7 +559,8 @@ export default {
           endTime: '1130',
           notificationTime: '1030',
           repeats: 'Yes',
-          frequency: 'Week Day'
+          frequency: 'Week Day',
+          secretId: 'MRN1',
         }, {
           name: 'TokenLogger',
           date: '12/07/2022',
@@ -563,7 +568,8 @@ export default {
           endTime: '2300',
           notificationTime: '2245',
           repeats: 'Yes',
-          frequency: 'Monthly'
+          frequency: 'Monthly',
+          secretId: '',
         }, {
           name: 'Cognitive Battery',
           date: '05/19/2022',
@@ -571,9 +577,11 @@ export default {
           endTime: '1846',
           notificationTime: '1750',
           repeats: 'No',
-          frequency: ''
+          frequency: '',
+          secretId: '',
         },
       ],
+      referencedUsersCSV: [],
       isImported: false,
 
     }
@@ -1010,13 +1018,44 @@ export default {
           }
         }
 
-        if (this.validationMsg) {
-          this.validationDialog = true;
-        } else {
-          vm.items = importedItems;
-          this.validationDialog = false;
-          this.isImported = true;
-        }
+        api.getAppletUsers({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          appletId: this.currentApplet.id,
+        }).then(resp => {
+          const allUsers = resp.data.active;
+          const mrnToUserId = {};
+
+          this.referencedUsersCSV = [];
+          for (let i = 0; i < allUsers.length; i++) {
+            mrnToUserId[allUsers[i].MRN || allUsers[i].email] = allUsers[i]._id;
+          }
+
+          for (let i = 0; i < importedItems.length; i++) {
+            const secretIds = importedItems[i].secretId.split(', ').map(secretId => secretId.trim()).filter(secretId => secretId);
+            const users = [];
+
+            for (const secretId of secretIds) {
+              if (!mrnToUserId[secretId]) {
+                this.validationMsg = 'You have invalid secret id in csv.';
+                break;
+              }
+
+              users.push(mrnToUserId[secretId]);
+            }
+
+            importedItems[i].users = users.sort();
+            this.referencedUsersCSV.push(importedItems[i].users.join(','));
+          }
+
+          if (this.validationMsg) {
+            this.validationDialog = true;
+          } else {
+            vm.items = importedItems;
+            this.validationDialog = false;
+            this.isImported = true;
+          }
+        });
       }
       reader.readAsText(file);
     },
@@ -1026,7 +1065,16 @@ export default {
     },
     saveSchedule() {
       let ev = this.getEvent("save");
-      this.calendar.removeEvents();
+
+      let state = this.calendar.toInput(true);
+
+      for (const event of state.events) {
+        if (this.referencedUsersCSV.includes((event.data.users || []).sort().join(','))) {
+          this.calendar.removeEvent(this.calendar.findEvent(event.id));
+          this.$store.commit('addRemovedEventId', event.id);
+        }
+      }
+
       this.scheduleImport = true;
       this.isOverlap = false;
 
@@ -1120,8 +1168,8 @@ export default {
           useNotifications: notificationTime ? true : false
         }
 
-        if (Object.keys(this.$store.state.currentUsers).length) {
-          data.users = Object.keys(this.$store.state.currentUsers);
+        if (row.users.length) {
+          data.users = row.users;
         }
 
         const times = [];
@@ -1171,6 +1219,10 @@ export default {
       this.$emit("saved", ev);
       this.isImported = false;
       this.cancel();
+
+      state = this.calendar.toInput(true);
+      this.$store.commit("setSchedule", state);
+      this.$store.commit("setCachedEvents", state.events);
     },
 
     downloadTemplate () {
