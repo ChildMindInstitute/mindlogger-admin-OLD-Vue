@@ -395,7 +395,6 @@ import mySchedule from "./Schedule";
 import api from "@/Components/Utils/api/api.vue";
 import { AppletMixin } from '@/Components/Utils/mixins/AppletMixin';
 import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
-import api from "../Utils/api/api";
 import ObjectToCSV from 'object-to-csv';
 import { VueCsvImport } from 'vue-csv-import';
 import {addActivityColor, getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
@@ -1300,7 +1299,7 @@ export default {
       })
     },
 
-    save() {
+    async save() {
       var ev = this.getEvent("save");
       this.$emit("save", ev);
 
