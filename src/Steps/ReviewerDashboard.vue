@@ -195,7 +195,7 @@
               </div>
 
               <v-btn
-                v-if="applet.hasCumulativeActivity"
+                v-if="applet.hasReports"
                 class="ml-2"
                 @click="onDownloadReport('cumulative')"
               >
@@ -689,9 +689,9 @@
           :manual-pagination="true"
           pdf-format="a4"
           pdf-orientation="landscape"
-          :pdf-content-width="pdfReport.type == 'cumulative' ? '800px' : '1200px'"
+          :pdf-content-width="'1200px'"
           :html-to-pdf-options="{
-            margin: [40, pdfReport.type == 'cumulative' ? 50 : 0],
+            margin: [40, 0],
             enableLinks: true,
             html2canvas: {
               scale: 1,
@@ -700,23 +700,11 @@
             jsPDF: {
               unit: 'pt',
               format: 'a4',
-              orientation: pdfReport.type == 'cumulative' ? 'portrait' : 'landscape',
+              orientation: 'landscape',
             },
           }"
         >
           <section slot="pdf-content">
-            <div
-              v-show="pdfReport.type == 'cumulative'"
-            >
-              <CumulativeScoreReport
-                v-if="applet.hasCumulativeActivity"
-                :secret-ids="selectedSecretIds"
-                :apply-secret-id-selector="applySecretIdSelector"
-                :activities="applet.activities"
-                :appletImage="applet.data.applet['schema:image']"
-              />
-            </div>
-
             <div
               v-show="pdfReport.type == 'frequency'"
             >
@@ -1042,8 +1030,8 @@ import Reviewed from "../Components/DataViewerComponents/Reviewed";
 import SubScaleComponent from "../Components/DataViewerComponents/SubScaleComponent";
 import { AppletMixin } from '../Components/Utils/mixins/AppletMixin';
 import CumulativeScore from "../Components/DataViewerComponents/CumulativeScore";
-import CumulativeScoreReport from "../Components/DataViewerComponents/CumulativeScoreReport";
 import ChartExportDialog from '../Components/Utils/dialogs/ChartExportDialog';
+import S3 from 'aws-sdk/clients/s3';
 
 import * as moment from "moment-timezone";
 
@@ -1071,7 +1059,6 @@ export default {
     Reviewed,
     SubScaleComponent,
     CumulativeScore,
-    CumulativeScoreReport,
     ChartExportDialog,
   },
 
@@ -1698,17 +1685,23 @@ export default {
     },
 
     onDownloadReport(type='cumulative', message='') {
-      this.$set(this, 'pdfReport', {
-        type,
-        message,
-        date: moment().format('LL')
-      });
+      if (type == 'cumulative') {
+        if (this.applet.reports.length) {
+          this.downloadReportPDFFromS3(this.applet.reports[0]);
+        }
+      } else {
+        this.$set(this, 'pdfReport', {
+          type,
+          message,
+          date: moment().format('LL')
+        });
 
-      this.chartExportDialog = false;
+        this.chartExportDialog = false;
 
-      this.$nextTick(() => {
-        this.$refs.html2Pdf.generatePdf()
-      });
+        this.$nextTick(() => {
+          this.$refs.html2Pdf.generatePdf()
+        });
+      }
     }
   },
 };

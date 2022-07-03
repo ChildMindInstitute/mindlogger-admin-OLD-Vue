@@ -50,10 +50,11 @@ export default class Applet {
     this.minimumDate = new Date();
 
     this.reviewerActivity = null;
-    this.hasCumulativeActivity = false;
+    this.hasReports = false;
     this.secretIDs = {};
 
     this.selectedActivites = [];
+    this.reports = [];
 
     // Load items.
     this.items = Object
@@ -94,8 +95,8 @@ export default class Applet {
         this.reviewerActivity = activity;
       }
 
-      if (activity.isCumulativeActivity) {
-        this.hasCumulativeActivity = true;
+      if (activity.hasReports) {
+        this.hasReports = true;
       }
 
       if (activity.hasTokenItem) {
@@ -188,6 +189,7 @@ export default class Applet {
     if (this.encryption) {
       Applet.replaceItemValues(Applet.decryptResponses(data, this.encryption));
 
+      this.reports = data.reports;
       this.token.cumulative = data.token.cumulative;
 
       for (const token of data.token.tokens) {
