@@ -531,7 +531,6 @@ export default {
         { text: 'Notification Time', value: 'notificationTime' },
         { text: 'Repeats', value: 'repeats' },
         { text: 'Frequency', value: 'frequency' },
-        { text: 'Secret User ID', value: 'secretId' }
       ],
       items: [
         {
@@ -542,7 +541,6 @@ export default {
           notificationTime: '1400',
           repeats: 'Yes',
           frequency: 'Daily',
-          secretId: ''
         }, {
           name: 'Screener',
           date: '11/03/2022',
@@ -551,7 +549,6 @@ export default {
           notificationTime: '1230',
           repeats: 'Yes',
           frequency: 'Weekly',
-          secretId: 'MRN1, MRN2',
         }, {
           name: 'EMA',
           date: '04/22/2022',
@@ -560,7 +557,6 @@ export default {
           notificationTime: '1030',
           repeats: 'Yes',
           frequency: 'Week Day',
-          secretId: 'MRN1',
         }, {
           name: 'TokenLogger',
           date: '12/07/2022',
@@ -569,7 +565,6 @@ export default {
           notificationTime: '2245',
           repeats: 'Yes',
           frequency: 'Monthly',
-          secretId: '',
         }, {
           name: 'Cognitive Battery',
           date: '05/19/2022',
@@ -578,7 +573,6 @@ export default {
           notificationTime: '1750',
           repeats: 'No',
           frequency: '',
-          secretId: '',
         },
       ],
       referencedUsersCSV: [],
@@ -1131,20 +1125,7 @@ export default {
           }
 
           for (let i = 0; i < importedItems.length; i++) {
-            const secretIds = (importedItems[i].secretId || '').split(', ').map(secretId => secretId.trim()).filter(secretId => secretId);
-            const users = [];
-
-            for (const secretId of secretIds) {
-              if (!mrnToUserId[secretId]) {
-                this.validationMsg = 'You have invalid secret id in csv.';
-                break;
-              }
-
-              users.push(mrnToUserId[secretId]);
-            }
-
-            importedItems[i].users = users.sort();
-            this.referencedUsersCSV.push(importedItems[i].users.join(','));
+            importedItems[i].users && this.referencedUsersCSV.push(importedItems[i].users.join(','));
           }
 
           if (this.validationMsg) {
@@ -1267,7 +1248,7 @@ export default {
           useNotifications: notificationTime ? true : false
         }
 
-        if (row.users.length) {
+        if (row.users && row.users.length) {
           data.users = row.users;
         }
 
