@@ -824,7 +824,7 @@ export default {
             day.setDate(schedule.dayOfMonth[0])
           }
 
-          return `${day.getMonth() + 1}/${day.getDate()}/${day.getFullYear()}`;
+          return `${padZero(day.getMonth() + 1)}/${padZero(day.getDate())}/${day.getFullYear()}`;
         }
 
         for (const event of state.events) {
@@ -839,10 +839,10 @@ export default {
             date = getDateForSchedule(event.schedule, pattern.name);
           }
 
-          const [startHour, startMinute] = event.schedule.times[0].split(':');
+          const [startHour, startMinute] = event.schedule.times ? event.schedule.times[0].split(':') : [0, 0];
           let endHour = startHour, endMinute = startMinute;
 
-          if (event.data.timeout && event.data.timeout.allow) {
+          if (event.data.timeout) {
             endHour = Number(startHour || 0) + Number(event.data.timeout.hour);
             endMinute = Number(startMinute || 0) + Number(event.data.timeout.minute);
 
