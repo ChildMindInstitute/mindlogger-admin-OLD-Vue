@@ -198,7 +198,7 @@
                   color="primary"
                   @click.stop="downloadTemplate"
                 >
-                  Download Template(.csv)
+                  {{ !eventCount ? 'Download Template' : 'Export Schedule' }}(.csv)
                 </v-btn>
                 <div>
                   <form enctype="multipart/form-data">
@@ -577,7 +577,7 @@ export default {
       ],
       referencedUsersCSV: [],
       isImported: false,
-
+      eventCount: 0,
     }
   },
 
@@ -695,7 +695,7 @@ export default {
       ) {
         return false;
       }
-      
+
       // If 'Allow timeout' is checked & every value is 0, form is invalid
       return true;
     },
@@ -707,9 +707,18 @@ export default {
         this.calenderEvent
       );
 
+      if (this.details.useNotifications && (!this.details.notifications || this.details.notifications.length === 0)) {
+        return false;
+      }
       if (this.details.notifications && this.details.useNotifications) {
         for (const notification of this.details.notifications) {
+          if (this.details.useNotifications && (!notification.allow && !notification.random)) {
+            return false;
+          }
           if (notification.allow && (!notification.start || !notification.start.match(/\d{2}:\d{2}/))) {
+            return false;
+          }
+          if (notification.random && (!notification.end || !notification.end.match(/\d{2}:\d{2}/))) {
             return false;
           }
         }
@@ -788,6 +797,75 @@ export default {
         }
       }
     },
+  },
+
+  created () {
+    let state = this.calendar.toInput(true);
+
+    if (state.events.length && this.importOnly) {
+      this.eventCount = state.events.length;
+      this.items = [];
+
+      this.getUserList().then(users => {
+        const userIdToMrn = {};
+        for (let i = 0; i < users.length; i++) {
+          userIdToMrn[users[i]._id] = users[i].MRN || users[i].email;
+        }
+
+        const padZero = (number, length=2) => {
+          return number.toString().padStart(length, '0');
+        };
+
+        const getDateForSchedule = (schedule, pattern) => {
+          let day = new Date();
+
+          if (pattern == 'weekly' || pattern == 'weekday') {
+            day.setDate(day.getDate() - day.getDay() + schedule.dayOfWeek[0]);
+          }
+
+          if (pattern == 'monthly') {
+            day.setDate(schedule.dayOfMonth[0])
+          }
+
+          return `${padZero(day.getMonth() + 1)}/${padZero(day.getDate())}/${day.getFullYear()}`;
+        }
+
+        for (const event of state.events) {
+          const pattern = Pattern.findMatch(event.schedule)
+          const types = { daily: 'Daily', weekly: 'Weekly', weekday: 'Week Day', monthly: 'Monthly' }
+          const eventUsers = event.data.users || [];
+          let date = '';
+
+          if (event.schedule.year && event.schedule.month && event.schedule.dayOfMonth) {
+            date = `${padZero(event.schedule.month[0] + 1)}/${padZero(event.schedule.dayOfMonth[0])}/${event.schedule.year[0]}`;
+          } else {
+            date = getDateForSchedule(event.schedule, pattern.name);
+          }
+
+          const [startHour, startMinute] = event.schedule.times ? event.schedule.times[0].split(':') : [0, 0];
+          let endHour = startHour, endMinute = startMinute;
+
+          if (event.data.timeout) {
+            endHour = Number(startHour || 0) + Number(event.data.timeout.hour);
+            endMinute = Number(startMinute || 0) + Number(event.data.timeout.minute);
+
+            endHour += Math.floor(endMinute / 60);
+            endMinute %= 60;
+          }
+
+          this.items.push({
+            name: event.data.title,
+            date,
+            startTime: `${padZero(startHour || 0)}${padZero(startMinute || 0)}`,
+            endTime: `${padZero(endHour || 0)}${padZero(endMinute || 0)}`,
+            notificationTime: event.data.useNotifications ? event.data.notifications[0].start.replace(':', '') : '',
+            repeats: types[pattern.name] ? 'Yes' : 'No',
+            frequency: types[pattern.name] || '',
+            secretId: eventUsers.map(userId => userIdToMrn[userId] || '').join(', '),
+          })
+        }
+      })
+    }
   },
 
   methods: {
@@ -913,6 +991,15 @@ export default {
       }
       this.createInput(files[0]);
     },
+
+    getUserList () {
+      return api.getAppletUsers({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        appletId: this.currentApplet.id,
+      }).then(resp => resp.data.active)
+    },
+
     createInput(file) {
       const reader = new FileReader();
       const vm = this;
@@ -957,6 +1044,18 @@ export default {
           activityNames.push(activityName);
         }
 
+        const validateTime = (time) => {
+          if (!time) return true;
+          if (isNaN(time) || time < 0) return false;
+          if (time.length > 4 || time.length < 3) return false;
+
+          const hour = Number(time.slice(0, -2)), minutes = Number(time.slice(-2));
+
+          if (hour >= 24) return false;
+          if (minutes >= 60) return false;
+
+          return true;
+        }
         for (let i = 0; i < importedItems.length; i += 1) {
           const { startTime, endTime, name, repeats, frequency, date, notificationTime } = importedItems[i];
 
@@ -966,8 +1065,13 @@ export default {
             break;
           }
 
-          if (startTime && isNaN(startTime) || endTime && isNaN(endTime)) {
+          if (!validateTime(startTime) || !validateTime(endTime)) {
             this.validationMsg = 'You have invalid start time or end time in csv. Please fix and reupload.'
+            break;
+          }
+
+          if (!validateTime(notificationTime)) {
+            this.validationMsg = 'You have invalid notification time. Please fix and reupload.'
             break;
           }
 
@@ -1012,12 +1116,7 @@ export default {
           }
         }
 
-        api.getAppletUsers({
-          apiHost: this.$store.state.backend,
-          token: this.$store.state.auth.authToken.token,
-          appletId: this.currentApplet.id,
-        }).then(resp => {
-          const allUsers = resp.data.active;
+        this.getUserList().then(allUsers => {
           const mrnToUserId = {};
 
           this.referencedUsersCSV = [];
