@@ -597,8 +597,9 @@ export const AppletMixin = {
 
       const types = item.inputs.trials.reduce((prev, trial) => ({
         ...prev,
-        [getImage(trial.image, trial.name)]: trial.name
-      }));
+        [getImage(trial.image, trial.name)]: trial.name,
+        [trial.image]: trial.name
+      }), {});
 
       const getResponseObj = (response, tag, config, trialStartTimestamp) => {
         const trialNumber = response.trial_index, blockNumber = config.blockIndex;
@@ -640,7 +641,7 @@ export const AppletMixin = {
           responseValue = response.button_pressed === null ? '.' : response.button_pressed === '0' ? 'L' : 'R';
           responseAccuracy = response.correct ? '1' : '0';
 
-          responseTouchTimestamp = videoDisplayRequestTimestamp + response.duration;
+          responseTouchTimestamp = response.response_touch_timestamp;
           responseTime = response.duration;
           videoDisplayRequestTimestamp = '.';
         }
