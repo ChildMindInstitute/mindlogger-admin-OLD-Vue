@@ -701,7 +701,7 @@ export default {
       ) {
         return false;
       }
-      
+
       // If 'Allow timeout' is checked & every value is 0, form is invalid
       return true;
     },
@@ -963,6 +963,18 @@ export default {
           activityNames.push(activityName);
         }
 
+        const validateTime = (time) => {
+          if (!time) return true;
+          if (isNaN(time) || time < 0) return false;
+          if (time.length > 4 || time.length < 3) return false;
+
+          const hour = Number(time.slice(0, -2)), minutes = Number(time.slice(-2));
+
+          if (hour >= 24) return false;
+          if (minutes >= 60) return false;
+
+          return true;
+        }
         for (let i = 0; i < importedItems.length; i += 1) {
           const { startTime, endTime, name, repeats, frequency, date, notificationTime } = importedItems[i];
 
@@ -972,8 +984,14 @@ export default {
             break;
           }
 
-          if (startTime && isNaN(startTime) || endTime && isNaN(endTime)) {
+          if (!validateTime(startTime) || !validateTime(endTime)) {
+            console.log('start, end', startTime, endTime)
             this.validationMsg = 'You have invalid start time or end time in csv. Please fix and reupload.'
+            break;
+          }
+
+          if (!validateTime(notificationTime)) {
+            this.validationMsg = 'You have invalid notification time. Please fix and reupload.'
             break;
           }
 
@@ -1032,7 +1050,7 @@ export default {
           }
 
           for (let i = 0; i < importedItems.length; i++) {
-            const secretIds = importedItems[i].secretId.split(', ').map(secretId => secretId.trim()).filter(secretId => secretId);
+            const secretIds = (importedItems[i].secretId || '').split(', ').map(secretId => secretId.trim()).filter(secretId => secretId);
             const users = [];
 
             for (const secretId of secretIds) {
