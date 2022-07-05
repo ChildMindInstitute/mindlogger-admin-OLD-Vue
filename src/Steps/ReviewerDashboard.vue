@@ -563,6 +563,7 @@
                                 "
                                 :plot-id="`FreeText-${activity.data['_id']}-${item.data['_id']}`"
                                 :item="item"
+                                :focus-extent="focusExtent"
                                 :selected-versions="selectedVersions"
                                 :timezone="applet.timezoneStr"
                                 :responses="item.responses"

@@ -224,7 +224,7 @@
                   color="primary"
                   @click.stop="downloadTemplate"
                 >
-                  Download Template(.csv)
+                  {{ !eventCount ? 'Download Template' : 'Export Schedule' }}(.csv)
                 </v-btn>
                 <div>
                   <form enctype="multipart/form-data">
@@ -559,7 +559,6 @@ export default {
         { text: 'Notification Time', value: 'notificationTime' },
         { text: 'Repeats', value: 'repeats' },
         { text: 'Frequency', value: 'frequency' },
-        { text: 'Secret User ID', value: 'secretId' }
       ],
       items: [
         {
@@ -570,7 +569,6 @@ export default {
           notificationTime: '1400',
           repeats: 'Yes',
           frequency: 'Daily',
-          secretId: ''
         }, {
           name: 'Screener',
           date: '11/03/2022',
@@ -579,7 +577,6 @@ export default {
           notificationTime: '1230',
           repeats: 'Yes',
           frequency: 'Weekly',
-          secretId: 'MRN1, MRN2',
         }, {
           name: 'EMA',
           date: '04/22/2022',
@@ -588,7 +585,6 @@ export default {
           notificationTime: '1030',
           repeats: 'Yes',
           frequency: 'Week Day',
-          secretId: 'MRN1',
         }, {
           name: 'TokenLogger',
           date: '12/07/2022',
@@ -597,7 +593,6 @@ export default {
           notificationTime: '2245',
           repeats: 'Yes',
           frequency: 'Monthly',
-          secretId: '',
         }, {
           name: 'Cognitive Battery',
           date: '05/19/2022',
@@ -606,16 +601,18 @@ export default {
           notificationTime: '1750',
           repeats: 'No',
           frequency: '',
-          secretId: '',
         },
       ],
       referencedUsersCSV: [],
       isImported: false,
-
+      eventCount: 0,
     }
   },
 
   computed: {
+    ownerType() {
+      return Object.keys(this.$store.state.currentUsers).length ? 'individual' : 'Group';
+    },
     title() {
       return this.details.title;
     },
@@ -746,7 +743,7 @@ export default {
       ) {
         return false;
       }
-      
+
       // If 'Allow timeout' is checked & every value is 0, form is invalid
       return true;
     },
@@ -758,9 +755,18 @@ export default {
         this.calenderEvent
       );
 
+      if (this.details.useNotifications && (!this.details.notifications || this.details.notifications.length === 0)) {
+        return false;
+      }
       if (this.details.notifications && this.details.useNotifications) {
         for (const notification of this.details.notifications) {
+          if (this.details.useNotifications && (!notification.allow && !notification.random)) {
+            return false;
+          }
           if (notification.allow && (!notification.start || !notification.start.match(/\d{2}:\d{2}/))) {
+            return false;
+          }
+          if (notification.random && (!notification.end || !notification.end.match(/\d{2}:\d{2}/))) {
             return false;
           }
         }
@@ -839,6 +845,84 @@ export default {
         }
       }
     },
+  },
+
+  created () {
+    let state = this.calendar.toInput(true);
+
+    if (this.ownerType === 'Group') {
+      this.headers.push({ text: 'Secret User ID', value: 'secretId' })
+      this.items = this.items.map((item, i) => ({...item, secretId: i === 1 ? 'MRN1' : i % 2 === 0 ? '' : 'MRN1, MRN2'}));
+    } 
+
+    if (state.events.length && this.importOnly) {
+      this.eventCount = state.events.length;
+      this.items = [];
+
+      this.getUserList().then(users => {
+        const userIdToMrn = {};
+        for (let i = 0; i < users.length; i++) {
+          userIdToMrn[users[i]._id] = users[i].MRN || users[i].email || '';
+        }
+
+        const padZero = (number, length=2) => {
+          return number.toString().padStart(length, '0');
+        };
+
+        const getDateForSchedule = (schedule, pattern) => {
+          let day = new Date();
+
+          if (pattern == 'weekly' || pattern == 'weekday') {
+            day.setDate(day.getDate() - day.getDay() + schedule.dayOfWeek[0]);
+          }
+
+          if (pattern == 'monthly') {
+            day.setDate(schedule.dayOfMonth[0])
+          }
+
+          return `${padZero(day.getMonth() + 1)}/${padZero(day.getDate())}/${day.getFullYear()}`;
+        }
+
+        for (const event of state.events) {
+          const pattern = Pattern.findMatch(event.schedule)
+          const types = { daily: 'Daily', weekly: 'Weekly', weekday: 'Week Day', monthly: 'Monthly' }
+          const eventUsers = event.data.users || [];
+          let date = '';
+
+          if (event.schedule.year && event.schedule.month && event.schedule.dayOfMonth) {
+            date = `${padZero(event.schedule.month[0] + 1)}/${padZero(event.schedule.dayOfMonth[0])}/${event.schedule.year[0]}`;
+          } else {
+            date = getDateForSchedule(event.schedule, pattern.name);
+          }
+
+          const [startHour, startMinute] = event.schedule.times ? event.schedule.times[0].split(':') : [0, 0];
+          let endHour = startHour, endMinute = startMinute;
+
+          if (event.data.timeout) {
+            endHour = Number(startHour || 0) + Number(event.data.timeout.hour);
+            endMinute = Number(startMinute || 0) + Number(event.data.timeout.minute);
+
+            endHour += Math.floor(endMinute / 60);
+            endMinute %= 60;
+
+            if (endHour >= 24) endHour = 23;
+          }
+          const obj = {
+            name: event.data.title,
+            date,
+            startTime: `${padZero(startHour || 0)}${padZero(startMinute || 0)}`,
+            endTime: `${padZero(endHour || 0)}${padZero(endMinute || 0)}`,
+            notificationTime: event.data.useNotifications ? event.data.notifications[0].start.replace(':', '') : '',
+            repeats: types[pattern.name] ? 'Yes' : 'No',
+            frequency: types[pattern.name] || '',
+          };
+          if (this.ownerType === "Group") {
+            obj.secretId = eventUsers.map(userId => userIdToMrn[userId] || '').join(', ');
+          }
+          this.items.push(obj)
+        }
+      })
+    }
   },
 
   methods: {
@@ -974,6 +1058,15 @@ export default {
       }
       this.createInput(files[0]);
     },
+
+    getUserList () {
+      return api.getAppletUsers({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        appletId: this.currentApplet.id,
+      }).then(resp => resp.data.active)
+    },
+
     createInput(file) {
       const reader = new FileReader();
       const vm = this;
@@ -1018,6 +1111,18 @@ export default {
           activityNames.push(activityName);
         }
 
+        const validateTime = (time) => {
+          if (!time) return true;
+          if (isNaN(time) || time < 0) return false;
+          if (time.length > 4 || time.length < 3) return false;
+
+          const hour = Number(time.slice(0, -2)), minutes = Number(time.slice(-2));
+
+          if (hour >= 24) return false;
+          if (minutes >= 60) return false;
+
+          return true;
+        }
         for (let i = 0; i < importedItems.length; i += 1) {
           const { startTime, endTime, name, repeats, frequency, date, notificationTime } = importedItems[i];
 
@@ -1027,8 +1132,13 @@ export default {
             break;
           }
 
-          if (startTime && isNaN(startTime) || endTime && isNaN(endTime)) {
+          if (!validateTime(startTime) || !validateTime(endTime)) {
             this.validationMsg = 'You have invalid start time or end time in csv. Please fix and reupload.'
+            break;
+          }
+
+          if (!validateTime(notificationTime)) {
+            this.validationMsg = 'You have invalid notification time. Please fix and reupload.'
             break;
           }
 
@@ -1073,12 +1183,7 @@ export default {
           }
         }
 
-        api.getAppletUsers({
-          apiHost: this.$store.state.backend,
-          token: this.$store.state.auth.authToken.token,
-          appletId: this.currentApplet.id,
-        }).then(resp => {
-          const allUsers = resp.data.active;
+        this.getUserList().then(allUsers => {
           const mrnToUserId = {};
 
           this.referencedUsersCSV = [];
@@ -1087,20 +1192,19 @@ export default {
           }
 
           for (let i = 0; i < importedItems.length; i++) {
-            const secretIds = importedItems[i].secretId.split(', ').map(secretId => secretId.trim()).filter(secretId => secretId);
+            const secretIds = (importedItems[i].secretId || '').split(', ').map(secretId => secretId.trim()).filter(secretId => secretId);
             const users = [];
-
-            for (const secretId of secretIds) {
-              if (!mrnToUserId[secretId]) {
-                this.validationMsg = 'You have invalid secret id in csv.';
-                break;
+            if (this.ownerType === "Group") {
+              for (const secretId of secretIds) {
+                if (!mrnToUserId[secretId]) {
+                  this.validationMsg = 'You have invalid secret id in csv.';
+                  break;
+                }
+                users.push(mrnToUserId[secretId]);
               }
-
-              users.push(mrnToUserId[secretId]);
+              importedItems[i].users = users.sort();
+              this.referencedUsersCSV.push(importedItems[i].users.join(','));
             }
-
-            importedItems[i].users = users.sort();
-            this.referencedUsersCSV.push(importedItems[i].users.join(','));
           }
 
           if (this.validationMsg) {
@@ -1223,7 +1327,7 @@ export default {
           useNotifications: notificationTime ? true : false
         }
 
-        if (row.users.length) {
+        if (row.users && row.users.length) {
           data.users = row.users;
         }
 
