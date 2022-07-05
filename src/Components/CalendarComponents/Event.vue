@@ -582,6 +582,9 @@ export default {
   },
 
   computed: {
+    ownerType() {
+      return Object.keys(this.$store.state.currentUsers).length ? 'individual' : 'Group';
+    },
     title() {
       return this.details.title;
     },
@@ -802,6 +805,11 @@ export default {
   created () {
     let state = this.calendar.toInput(true);
 
+    if (this.ownerType === 'Group') {
+      this.headers.push({ text: 'Secret User ID', value: 'secretId' })
+      this.items = this.items.map((item, i) => ({...item, secretId: i === 1 ? 'MRN1' : i % 2 === 0 ? '' : 'MRN1, MRN2'}));
+    } 
+
     if (state.events.length && this.importOnly) {
       this.eventCount = state.events.length;
       this.items = [];
@@ -854,8 +862,7 @@ export default {
 
             if (endHour >= 24) endHour = 23;
           }
-
-          this.items.push({
+          const obj = {
             name: event.data.title,
             date,
             startTime: `${padZero(startHour || 0)}${padZero(startMinute || 0)}`,
@@ -863,8 +870,11 @@ export default {
             notificationTime: event.data.useNotifications ? event.data.notifications[0].start.replace(':', '') : '',
             repeats: types[pattern.name] ? 'Yes' : 'No',
             frequency: types[pattern.name] || '',
-            secretId: eventUsers.map(userId => userIdToMrn[userId] || '').filter(userId => userId).join(', '),
-          })
+          };
+          if (this.ownerType === "Group") {
+            obj.secretId = eventUsers.map(userId => userIdToMrn[userId] || '').join(', ');
+          }
+          this.items.push(obj)
         }
       })
     }
@@ -1127,7 +1137,19 @@ export default {
           }
 
           for (let i = 0; i < importedItems.length; i++) {
-            importedItems[i].users && this.referencedUsersCSV.push(importedItems[i].users.join(','));
+            const secretIds = (importedItems[i].secretId || '').split(', ').map(secretId => secretId.trim()).filter(secretId => secretId);
+            const users = [];
+            if (this.ownerType === "Group") {
+              for (const secretId of secretIds) {
+                if (!mrnToUserId[secretId]) {
+                  this.validationMsg = 'You have invalid secret id in csv.';
+                  break;
+                }
+                users.push(mrnToUserId[secretId]);
+              }
+              importedItems[i].users = users.sort();
+              this.referencedUsersCSV.push(importedItems[i].users.join(','));
+            }
           }
 
           if (this.validationMsg) {
