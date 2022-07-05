@@ -1,10 +1,22 @@
 <template>
   <div>
     <v-card
+      class="d-flex align-center"
       dark
       :color="color"
     >
-      <v-card-text class="name pa-2">{{ activity.name }}</v-card-text>
+      <img 
+        v-if="activity.isActivityFlow"
+        class="ml-2"
+        width="18"
+        height="15"
+        :src="require('@/assets/activity-flow-bg.svg')" 
+      />
+      <v-card-text 
+        class="name pa-2"
+      >
+        {{ activity.name }}
+      </v-card-text>
     </v-card>
   </div>
 </template>
