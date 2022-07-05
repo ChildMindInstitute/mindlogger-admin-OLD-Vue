@@ -101,13 +101,20 @@
                 >
                   <ActivitySidebar :activity="act" />
                 </div>
+                <div
+                  v-for="actFlow in activityFlows"
+                  :key="actFlow.name"
+                  class="mt-3 mb-3"
+                >
+                  <ActivitySidebar :activity="actFlow" />
+                </div>
                 <v-btn
                   color="primary"
                   class="ma-2 white--text v-btn--import"
                   @click="importSchedule"
                   outlined
                 >
-                  Import Schedule
+                  {{ $t('importSchedule') }}
                 </v-btn>
               </div>
             </div>
@@ -271,6 +278,7 @@
 <script>
 import { Sorts, Calendar, Op } from "dayspan";
 
+import { colorMap, addActivityColor } from "@/Components/CalendarComponents/activityColorPalette.js";
 import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
 import EventDialog from "./EventDialog";
 import ActivitySidebar from "./ActivitySidebar";
@@ -392,6 +400,25 @@ export default {
 
     appletName() {
       return this.$store.state.currentAppletMeta.name;
+    },
+
+    activityFlows() {
+      const appletData = this.$store.state.currentAppletData;
+      const order = _.get(appletData.applet, ['reprolib:terms/activityFlowOrder', 0, '@list']).map(item => item['@id']);
+
+      return order.map(item => {
+        const activityFlowObj = appletData.activityFlows[item];
+        const index = Object.values(colorMap).length;
+        const color = this.$dayspan.colors[index % this.$dayspan.colors.length].text;
+
+        addActivityColor(activityFlowObj._id, color);
+        
+        return {
+          name: activityFlowObj['schema:name'][0]['@value'],
+          isActivityFlow: true,
+          color
+        };
+      })
     },
 
     userCode() {
