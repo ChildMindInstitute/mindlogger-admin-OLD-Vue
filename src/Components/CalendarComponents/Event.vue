@@ -817,7 +817,7 @@ export default {
       this.getUserList().then(users => {
         const userIdToMrn = {};
         for (let i = 0; i < users.length; i++) {
-          userIdToMrn[users[i]._id] = users[i].MRN || users[i].email;
+          userIdToMrn[users[i]._id] = users[i].MRN || users[i].email || '';
         }
 
         const padZero = (number, length=2) => {
@@ -859,6 +859,8 @@ export default {
 
             endHour += Math.floor(endMinute / 60);
             endMinute %= 60;
+
+            if (endHour >= 24) endHour = 23;
           }
           const obj = {
             name: event.data.title,
