@@ -15,6 +15,7 @@
       :basketApplets="basketApplets"
       :themes="themes"
       :viewMode="!canEditApplet"
+      :pdf-server-token="token"
       @removeTemplate="onRemoveTemplate"
       @updateTemplates="onAddTemplate"
       @uploadProtocol="onUploadProtocol"

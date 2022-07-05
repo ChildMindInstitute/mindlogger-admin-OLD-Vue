@@ -825,9 +825,31 @@ export const AppletMixin = {
 
       return formatted;
     },
-    getMediaResponseObject(value, response, item) {
+
+    downloadReportPDFFromS3 (response) {
+      const credentials = {
+        accessKeyId: process.env.VUE_APP_ACCESS_KEY_ID,
+        secretAccessKey: process.env.VUE_APP_SECRET_ACCES_KEY,
+        httpOptions: {
+          timeout: 320000
+        },
+      };
+
+      const { bucket, key } = this.parseS3URL(response.uri);
+
+      const client = new S3(credentials);
+      client.getObject({
+        Bucket: bucket,
+        Key: key
+      }).promise().then(data => {
+        const blob = new Blob([data.Body], { type: 'application/pdf' });
+        saveAs(blob, response.name);
+      })
+    },
+
+    parseS3URL (value) {
       const identifier = 's3://';
-      if (!value.includes(identifier)) return;
+      if (!value.includes(identifier)) return {};
 
       value = value.replace(identifier, '');
       const separator = value.indexOf('/');
@@ -836,6 +858,15 @@ export const AppletMixin = {
       const key = value.slice(separator + 1, value.length);
 
       const extension = value.slice(value.lastIndexOf('.'), value.length);
+
+      return { bucket, key, extension };
+    },
+
+    getMediaResponseObject(value, response, item) {
+      const { bucket, key, extension } = this.parseS3URL(value);
+
+      if (!bucket) return ;
+
       const name = `${response._id}-${response.userId}-${item.id}${extension}`;
 
       this.mediaResponseObjects.push({ bucket, name, key });
