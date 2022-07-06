@@ -136,7 +136,7 @@
                   <div class="ds-event-body ds-event-area">
                     <v-switch
                       v-if="activityFlowNames.includes(details.title)"
-                      v-model="activityFlowVis[details.title]"
+                      v-model="activityFlowHidden[details.title]"
                       class="ml-6 mb-1"
                       :label="$t('hidden')"
                       :readonly="isReadOnly"
@@ -538,7 +538,7 @@ export default {
       scheduledExtendedTime: {},
       scheduledTimeout: {},
       timedActivity: {},
-      activityFlowVis: {},
+      activityFlowHidden: {},
       scheduledIdleTime: {},
       scheduleDialog: false,
       cancelDialog: false,
@@ -685,7 +685,7 @@ export default {
           return flowName === name;
         });
 
-        this.activityFlowVis[name] = activityFlow['reprolib:terms/isVis'][0]['@value'];
+        this.activityFlowHidden[name] = !activityFlow['reprolib:terms/isVis'][0]['@value'];
         return name;
       })
     },
@@ -1044,7 +1044,7 @@ export default {
     },
 
     validSchedule(name) {
-      return !this.activityFlowNames.includes(name) || !this.activityFlowVis[name];
+      return !this.activityFlowNames.includes(name) || !this.activityFlowHidden[name];
     },
 
     handleImportBtn() {
@@ -1413,7 +1413,7 @@ export default {
       if(this.activityFlowNames.includes(this.details.title)) {
         await this.updateActivityFlowVis(this.details.title)
 
-        if (!this.activityFlowVis[this.details.title]) {
+        if (this.activityFlowHidden[this.details.title]) {
           this.cancel();
           return;
         }
@@ -1504,14 +1504,14 @@ export default {
           token: this.$store.state.auth.authToken.token,
           body: {
             id: appletData.applet._id,
-            status: this.activityFlowVis[name],
+            status: !this.activityFlowHidden[name],
             activityFlowId,
           },
         });
 
         appletData.applet['reprolib:terms/activityFlowProperties'].forEach(p => {
           if (p['reprolib:terms/variableName'][0]['@value'].replace(/_/g, ' ') === name) {
-            p['reprolib:terms/isVis'][0]['@value'] = this.activityFlowVis[name]
+            p['reprolib:terms/isVis'][0]['@value'] = !this.activityFlowHidden[name]
           }
         });
         this.$store.commit("updateAppletData", appletData);
