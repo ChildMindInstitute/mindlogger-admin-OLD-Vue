@@ -613,6 +613,9 @@ export default {
     ownerType() {
       return Object.keys(this.$store.state.currentUsers).length ? 'individual' : 'Group';
     },
+    userCode() {
+      return Object.values(this.$store.state.currentUsers).map(user => user.MRN || user.email).join(', ');
+    },
     title() {
       return this.details.title;
     },
@@ -1202,9 +1205,11 @@ export default {
                 }
                 users.push(mrnToUserId[secretId]);
               }
-              importedItems[i].users = users.sort();
-              this.referencedUsersCSV.push(importedItems[i].users.join(','));
+            } else {
+              users.push(mrnToUserId[this.userCode]);
             }
+            importedItems[i].users = users.sort();
+            this.referencedUsersCSV.push(importedItems[i].users.join(','));
           }
 
           if (this.validationMsg) {
@@ -1327,9 +1332,7 @@ export default {
           useNotifications: notificationTime ? true : false
         }
 
-        if (row.users && row.users.length) {
-          data.users = row.users;
-        }
+        data.users = row.users || [this.userCode];
 
         const times = [];
         let eventSchedule = {};
