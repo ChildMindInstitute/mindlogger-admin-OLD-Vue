@@ -32,12 +32,12 @@
         >
           <template v-slot:item="{ item }">
             <div class="d-flex align-center">
-              <img 
+              <img
                 v-if="activityFlowNames.includes(item)"
                 class="mr-2"
                 width="18"
                 height="20"
-                :src="require('@/assets/activity-flow.png')" 
+                :src="require('@/assets/activity-flow.png')"
               />
               {{ item }}
             </div>
@@ -144,8 +144,8 @@
                       flat
                     />
                     <slot
-                      v-if="validSchedule(details.title)" 
-                      name="schedule" 
+                      v-if="validSchedule(details.title)"
+                      name="schedule"
                       v-bind="slotData"
                     >
                       <!-- absolute scheduling options below -->
@@ -856,7 +856,7 @@ export default {
     if (this.ownerType === 'Group') {
       this.headers.push({ text: 'Secret User ID', value: 'secretId' })
       this.items = this.items.map((item, i) => ({...item, secretId: i === 1 ? 'MRN1' : i % 2 === 0 ? '' : 'MRN1, MRN2'}));
-    } 
+    }
 
     if (state.events.length && this.importOnly) {
       this.eventCount = state.events.length;
@@ -1044,7 +1044,7 @@ export default {
     },
 
     validSchedule(name) {
-      return !this.activityFlowNames.includes(name) || this.activityFlowVis[name];
+      return !this.activityFlowNames.includes(name) || !this.activityFlowVis[name];
     },
 
     handleImportBtn() {
@@ -1488,7 +1488,7 @@ export default {
       const appletData = this.$store.state.currentAppletData;
 
       for (let activityFlowKey in appletData.activityFlows) {
-        const { 
+        const {
           '@id': activityFlowName ,
           _id: id,
         } = appletData.activityFlows[activityFlowKey];
@@ -1508,7 +1508,7 @@ export default {
             activityFlowId,
           },
         });
-        
+
         appletData.applet['reprolib:terms/activityFlowProperties'].forEach(p => {
           if (p['reprolib:terms/variableName'][0]['@value'].replace(/_/g, ' ') === name) {
             p['reprolib:terms/isVis'][0]['@value'] = this.activityFlowVis[name]
