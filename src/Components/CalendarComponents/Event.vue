@@ -1277,7 +1277,9 @@ export default {
           useNotifications: notificationTime ? true : false
         }
 
-        data.users = row.users || [this.userCode];
+        if (row.users && row.users.length) {
+          data.users = row.users;
+        }
 
         const times = [];
         let eventSchedule = {};
