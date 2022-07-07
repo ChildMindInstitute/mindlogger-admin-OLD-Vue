@@ -32,12 +32,12 @@
         >
           <template v-slot:item="{ item }">
             <div class="d-flex align-center">
-              <img 
+              <img
                 v-if="activityFlowNames.includes(item)"
                 class="mr-2"
                 width="18"
                 height="20"
-                :src="require('@/assets/activity-flow.png')" 
+                :src="require('@/assets/activity-flow.png')"
               />
               {{ item }}
             </div>
@@ -136,7 +136,7 @@
                   <div class="ds-event-body ds-event-area">
                     <v-switch
                       v-if="activityFlowNames.includes(details.title)"
-                      v-model="activityFlowVis[details.title]"
+                      v-model="activityFlowHidden[details.title]"
                       class="ml-6 mb-1"
                       :label="$t('hidden')"
                       :readonly="isReadOnly"
@@ -144,8 +144,8 @@
                       flat
                     />
                     <slot
-                      v-if="validSchedule(details.title)" 
-                      name="schedule" 
+                      v-if="validSchedule(details.title)"
+                      name="schedule"
                       v-bind="slotData"
                     >
                       <!-- absolute scheduling options below -->
@@ -538,7 +538,7 @@ export default {
       scheduledExtendedTime: {},
       scheduledTimeout: {},
       timedActivity: {},
-      activityFlowVis: {},
+      activityFlowHidden: {},
       scheduledIdleTime: {},
       scheduleDialog: false,
       cancelDialog: false,
@@ -685,7 +685,7 @@ export default {
           return flowName === name;
         });
 
-        this.activityFlowVis[name] = activityFlow['reprolib:terms/isVis'][0]['@value'];
+        this.activityFlowHidden[name] = !activityFlow['reprolib:terms/isVis'][0]['@value'];
         return name;
       })
     },
@@ -856,7 +856,7 @@ export default {
     if (this.ownerType === 'Group') {
       this.headers.push({ text: 'Secret User ID', value: 'secretId' })
       this.items = this.items.map((item, i) => ({...item, secretId: i === 1 ? 'MRN1' : i % 2 === 0 ? '' : 'MRN1, MRN2'}));
-    } 
+    }
 
     if (state.events.length && this.importOnly) {
       this.eventCount = state.events.length;
@@ -1044,7 +1044,7 @@ export default {
     },
 
     validSchedule(name) {
-      return !this.activityFlowNames.includes(name) || this.activityFlowVis[name];
+      return !this.activityFlowNames.includes(name) || !this.activityFlowHidden[name];
     },
 
     handleImportBtn() {
@@ -1413,7 +1413,7 @@ export default {
       if(this.activityFlowNames.includes(this.details.title)) {
         await this.updateActivityFlowVis(this.details.title)
 
-        if (!this.activityFlowVis[this.details.title]) {
+        if (this.activityFlowHidden[this.details.title]) {
           this.cancel();
           return;
         }
@@ -1488,7 +1488,7 @@ export default {
       const appletData = this.$store.state.currentAppletData;
 
       for (let activityFlowKey in appletData.activityFlows) {
-        const { 
+        const {
           '@id': activityFlowName ,
           _id: id,
         } = appletData.activityFlows[activityFlowKey];
@@ -1504,14 +1504,14 @@ export default {
           token: this.$store.state.auth.authToken.token,
           body: {
             id: appletData.applet._id,
-            status: this.activityFlowVis[name],
+            status: !this.activityFlowHidden[name],
             activityFlowId,
           },
         });
-        
+
         appletData.applet['reprolib:terms/activityFlowProperties'].forEach(p => {
           if (p['reprolib:terms/variableName'][0]['@value'].replace(/_/g, ' ') === name) {
-            p['reprolib:terms/isVis'][0]['@value'] = this.activityFlowVis[name]
+            p['reprolib:terms/isVis'][0]['@value'] = !this.activityFlowHidden[name]
           }
         });
         this.$store.commit("updateAppletData", appletData);
