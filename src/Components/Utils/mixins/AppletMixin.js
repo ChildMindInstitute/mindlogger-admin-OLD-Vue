@@ -683,11 +683,14 @@ export const AppletMixin = {
         }
       }
 
+      let lastTrialIndex = -1;
+
       for (let i = 0; i < responses.length; i++) {
         const blockClock = responses[0].start_timestamp;
 
-        if (responses[i].tag == 'fixation') {
+        if (lastTrialIndex !== responses[i].trial_index) {
           trialStartTimestamp = responses[i].start_timestamp;
+          lastTrialIndex = responses[i].trial_index;
         }
 
         const response = {
