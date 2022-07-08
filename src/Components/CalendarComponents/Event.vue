@@ -1131,7 +1131,7 @@ export default {
 
           const month = Number(date.split('/').shift());
           if (isNaN(new Date(date)) || isNaN(month) || month < 0 || month > 12 ) {
-            this.validationMsg = 'You have invalid date in csv. Please fix and reupload.';
+            this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
             break;
           }
 
