@@ -1410,14 +1410,17 @@ export default {
       var ev = this.getEvent("save");
       this.$emit("save", ev);
 
+       let isActivityFlow = false;
       if(this.activityFlowNames.includes(this.details.title)) {
         await this.updateActivityFlowVis(this.details.title)
+        isActivityFlow = true;
 
         if (this.activityFlowHidden[this.details.title]) {
           this.cancel();
           return;
         }
       }
+      ev.details.isActivityFlow = isActivityFlow;
 
       if (!ev.handled) {
         if (ev.target && ev.schedule) {
