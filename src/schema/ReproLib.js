@@ -28,5 +28,6 @@ export default {
   doNotKnow: 'reprolib:terms/dont_know_answer',
   refusedToAnswer: 'reprolib:terms/refused_to_answer',
   compute: 'reprolib:terms/compute',
+  reports: 'reprolib:terms/reports',
   messages: 'reprolib:terms/messages'
 };

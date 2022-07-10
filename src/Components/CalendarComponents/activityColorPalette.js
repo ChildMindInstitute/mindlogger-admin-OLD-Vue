@@ -1,4 +1,4 @@
-const colorMap = {}
+export const colorMap = {}
 
 //This will be used by calendar components for knowing the color of events
 // from their activity types

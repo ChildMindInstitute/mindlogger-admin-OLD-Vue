@@ -224,6 +224,8 @@ export default {
         const schedule = this.addEventType(this.currentAppletData.applet.schedule);
         const removedEvents = this.$store.state.removedEvents;
 
+        console.log('schedule: ', schedule);
+
         scheduleForm.set("schedule", JSON.stringify(schedule || {}));
         scheduleForm.set("deleted", JSON.stringify(removedEvents || {}));
         api

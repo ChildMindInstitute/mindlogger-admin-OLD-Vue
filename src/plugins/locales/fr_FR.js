@@ -78,6 +78,7 @@ export default {
   monthly: 'Mensuel',
   accessBefore: "Accès avant l'horaire prévu",
   timeout: 'Expiration',
+  hidden: 'Caché',
   timedActivity: 'Activité chronométrée',
   oneTimeCompletion: 'Exécution ponctuelle',
   extendedPastDue: 'Échéance prolongée',
