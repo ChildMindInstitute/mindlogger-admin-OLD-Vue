@@ -334,6 +334,16 @@
         </v-flex>
       </v-layout>
     </v-card-text>
+    <v-dialog width="400" v-model="loadingCSV">
+      <v-card class="pt-5 pb-6">
+        <v-progress-circular
+          class="d-block mx-auto mt-2"
+          color="primary"
+          indeterminate
+        />
+      </v-card>
+    </v-dialog>
+
     <ConfirmationDialog
       v-model="scheduleDialog"
       :dialogText="$t('submitScheduleConfirmation')"
@@ -606,6 +616,7 @@ export default {
       referencedUsersCSV: [],
       isImported: false,
       eventCount: 0,
+      loadingCSV: false,
     }
   },
 
@@ -676,7 +687,7 @@ export default {
     },
     activityFlowNames() {
       const appletData = this.$store.state.currentAppletData;
-      const order = _.get(appletData.applet, ['reprolib:terms/activityFlowOrder', 0, '@list']).map(item => item['@id']);
+      const order = _.get(appletData.applet, ['reprolib:terms/activityFlowOrder', 0, '@list'], []).map(item => item['@id']);
       return order.map(item => {
         const activityFlowObj = appletData.activityFlows[item];
         const name = activityFlowObj['schema:name'][0]['@value'];
@@ -1171,7 +1182,7 @@ export default {
           }
 
           if (repeats.replace(/\s/g, '') === 'Yes' && frequency.replace(/\s/g, '') === '') {
-            this.validationMsg = 'You are missing a frequency to repeat *Activity name*. Please fix and reupload.';
+            this.validationMsg = `You are missing a frequency to repeat ${name}. Please fix and reupload.`;
             break;
           }
 
@@ -1228,165 +1239,175 @@ export default {
       this.scheduleDialog = true;
     },
     saveSchedule() {
-      let ev = this.getEvent("save");
+      this.scheduleDialog = false;
+      this.loadingCSV = true;
 
-      let state = this.calendar.toInput(true);
+      const updateSchedule = () => {
+        let ev = this.getEvent("save");
 
-      for (const event of state.events) {
-        if (this.referencedUsersCSV.includes((event.data.users || []).sort().join(','))) {
-          this.calendar.removeEvent(this.calendar.findEvent(event.id));
-          this.$store.commit('addRemovedEventId', event.id);
+        let state = this.calendar.toInput(true);
+
+        for (const event of state.events) {
+          if (this.referencedUsersCSV.includes((event.data.users || []).sort().join(','))) {
+            this.calendar.removeEvent(this.calendar.findEvent(event.id));
+            this.$store.commit('addRemovedEventId', event.id);
+          }
         }
+
+        this.scheduleImport = true;
+        this.isOverlap = false;
+
+        this.items.forEach(row => {
+          let { notificationTime, name, startTime, endTime, date, repeats, frequency } = row;
+          const res = _.filter(this.activities, (a) => a.name === name);
+          let timeout = {
+            access: false,
+            allow: true,
+            day: 0,
+          };
+
+          if (!startTime) startTime = '0000';
+          if (!endTime) endTime = '2359';
+
+          if (startTime.length < 4) startTime = '0' + startTime;
+          if (endTime.length < 4) endTime = '0' + endTime;
+          if (notificationTime && notificationTime.length < 4) notificationTime = '0' + notificationTime;
+
+          const eventTimes = [{
+            hour: startTime.slice(0, 2),
+            minute: startTime.slice(2),
+            second: 0,
+            millisecond: 0,
+          }, {
+            hour: endTime.slice(0, 2),
+            minute: endTime.slice(2),
+            second: 0,
+            millisecond: 0,
+          }]
+
+          timeout.minute = eventTimes[1].minute - eventTimes[0].minute;
+          timeout.hour = eventTimes[1].hour - eventTimes[0].hour;
+
+          if (timeout.minute < 0) {
+            timeout.minute += 60;
+            timeout.hour -= 1;
+          }
+
+          if (res.length) {
+            const activityColor = getEventColor(res[0].id);
+
+            this.details.URI = res[0].URI;
+            if(activityColor)
+            {
+              this.details.color = this.getHexColor(activityColor)
+            }
+          }
+
+          const data = {
+            URI: this.details.URI,
+            availability: false,
+            busy: false,
+            calendar: "",
+            completion: false,
+            description: "",
+            extendedTime: {
+              allow: false,
+              minute: 1
+            },
+            forecolor: "#ffffff",
+            color: this.details.color,
+            icon: "",
+            idleTime: {
+              allow: false,
+              minute: 1
+            },
+            location: "",
+            notifications: [
+              {
+                allow: notificationTime ? true : false,
+                end: null,
+                random: false,
+                start: notificationTime ? [notificationTime.slice(0, 2), ":", notificationTime.slice(2)].join('') : ''
+              }
+            ],
+            onlyScheduledDay: false,
+            reminder: {
+              days: 0,
+              time: "",
+              valid: false
+            },
+            timedActivity: {
+              allow: false,
+              hour: 0,
+              minute: 59,
+              second: 59
+            },
+            timeout,
+            title: row.name,
+            useNotifications: notificationTime ? true : false
+          }
+
+          if (row.users && row.users.length) {
+            data.users = row.users;
+          }
+
+          const times = [];
+          let eventSchedule = {};
+          const dateValues = date.split('/');
+          times.push(new Time(Number(eventTimes[0].hour), Number(eventTimes[0].minute), eventTimes[0].second, eventTimes[0].millisecond));
+
+          let pattern = null;
+          if (repeats) {
+            switch (frequency) {
+              case "Daily":
+                pattern = Pattern.withName('daily');
+                break;
+              case "Weekly":
+                pattern = Pattern.withName('weekly')
+                break;
+              case "Week Day":
+                pattern = Pattern.withName('weekday')
+                break;
+              case "Monthly":
+                pattern = Pattern.withName('monthly');
+                break;
+            }
+          }
+
+          if (pattern) {
+            eventSchedule = new Schedule({
+              times
+            })
+            pattern.apply(eventSchedule, new Day(moment(date)))
+          } else {
+            eventSchedule = new Schedule({
+              on: Day.build(dateValues[2], dateValues[0] - 1, dateValues[1]),
+              times
+            })
+          }
+
+          ev.created = {
+            data,
+            id: null,
+            schedule: eventSchedule
+          };
+
+          this.calendar.addEvent(ev.created)
+        });
+        this.calendar.refreshEvents();
+        this.$emit("saved", ev);
+        this.isImported = false;
+        this.cancel();
+
+        state = this.calendar.toInput(true);
+        this.$store.commit("setSchedule", state);
+        this.$store.commit("setCachedEvents", state.events);
       }
 
-      this.scheduleImport = true;
-      this.isOverlap = false;
-
-      this.items.forEach(row => {
-        let { notificationTime, name, startTime, endTime, date, repeats, frequency } = row;
-        const res = _.filter(this.activities, (a) => a.name === name);
-        let timeout = {
-          access: false,
-          allow: true,
-          day: 0,
-        };
-
-        if (!startTime) startTime = '0000';
-        if (!endTime) endTime = '2359';
-
-        if (startTime.length < 4) startTime = '0' + startTime;
-        if (endTime.length < 4) endTime = '0' + endTime;
-        if (notificationTime && notificationTime.length < 4) notificationTime = '0' + notificationTime;
-
-        const eventTimes = [{
-          hour: startTime.slice(0, 2),
-          minute: startTime.slice(2),
-          second: 0,
-          millisecond: 0,
-        }, {
-          hour: endTime.slice(0, 2),
-          minute: endTime.slice(2),
-          second: 0,
-          millisecond: 0,
-        }]
-
-        timeout.minute = eventTimes[1].minute - eventTimes[0].minute;
-        timeout.hour = eventTimes[1].hour - eventTimes[0].hour;
-
-        if (timeout.minute < 0) {
-          timeout.minute += 60;
-          timeout.hour -= 1;
-        }
-
-        if (res.length) {
-          const activityColor = getEventColor(res[0].id);
-
-          this.details.URI = res[0].URI;
-          if(activityColor)
-          {
-            this.details.color = this.getHexColor(activityColor)
-          }
-        }
-
-        const data = {
-          URI: this.details.URI,
-          availability: false,
-          busy: false,
-          calendar: "",
-          completion: false,
-          description: "",
-          extendedTime: {
-            allow: false,
-            minute: 1
-          },
-          forecolor: "#ffffff",
-          color: this.details.color,
-          icon: "",
-          idleTime: {
-            allow: false,
-            minute: 1
-          },
-          location: "",
-          notifications: [
-            {
-              allow: notificationTime ? true : false,
-              end: null,
-              random: false,
-              start: notificationTime ? [notificationTime.slice(0, 2), ":", notificationTime.slice(2)].join('') : ''
-            }
-          ],
-          onlyScheduledDay: false,
-          reminder: {
-            days: 0,
-            time: "",
-            valid: false
-          },
-          timedActivity: {
-            allow: false,
-            hour: 0,
-            minute: 59,
-            second: 59
-          },
-          timeout,
-          title: row.name,
-          useNotifications: notificationTime ? true : false
-        }
-
-        if (row.users && row.users.length) {
-          data.users = row.users;
-        }
-
-        const times = [];
-        let eventSchedule = {};
-        const dateValues = date.split('/');
-        times.push(new Time(Number(eventTimes[0].hour), Number(eventTimes[0].minute), eventTimes[0].second, eventTimes[0].millisecond));
-
-        let pattern = null;
-        if (repeats) {
-          switch (frequency) {
-            case "Daily":
-              pattern = Pattern.withName('daily');
-              break;
-            case "Weekly":
-              pattern = Pattern.withName('weekly')
-              break;
-            case "Week Day":
-              pattern = Pattern.withName('weekday')
-              break;
-            case "Monthly":
-              pattern = Pattern.withName('monthly');
-              break;
-          }
-        }
-
-        if (pattern) {
-          eventSchedule = new Schedule({
-            times
-          })
-          pattern.apply(eventSchedule, new Day(moment(date)))
-        } else {
-          eventSchedule = new Schedule({
-            on: Day.build(dateValues[2], dateValues[0] - 1, dateValues[1]),
-            times
-          })
-        }
-
-        ev.created = {
-          data,
-          id: null,
-          schedule: eventSchedule
-        };
-
-        this.calendar.addEvent(ev.created)
-      });
-      this.calendar.refreshEvents();
-      this.$emit("saved", ev);
-      this.isImported = false;
-      this.cancel();
-
-      state = this.calendar.toInput(true);
-      this.$store.commit("setSchedule", state);
-      this.$store.commit("setCachedEvents", state.events);
+      setTimeout(() => {
+        updateSchedule()
+        this.loadingCSV = false;
+      }, this.items.length > 15 ? 350 : 0);
     },
 
     downloadTemplate () {

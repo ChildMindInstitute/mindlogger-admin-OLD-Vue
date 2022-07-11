@@ -404,7 +404,7 @@ export default {
 
     activityFlows() {
       const appletData = this.$store.state.currentAppletData;
-      const order = _.get(appletData.applet, ['reprolib:terms/activityFlowOrder', 0, '@list']).map(item => item['@id']);
+      const order = _.get(appletData.applet, ['reprolib:terms/activityFlowOrder', 0, '@list'], []).map(item => item['@id']);
 
       return order.map(item => {
         const activityFlowObj = appletData.activityFlows[item];
@@ -412,7 +412,7 @@ export default {
         const color = this.$dayspan.colors[index % this.$dayspan.colors.length].text;
 
         addActivityColor(activityFlowObj._id, color);
-        
+
         return {
           name: activityFlowObj['schema:name'][0]['@value'],
           isActivityFlow: true,
