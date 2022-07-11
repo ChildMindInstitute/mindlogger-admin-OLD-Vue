@@ -404,21 +404,31 @@ export default {
 
     activityFlows() {
       const appletData = this.$store.state.currentAppletData;
-      const order = _.get(appletData.applet, ['reprolib:terms/activityFlowOrder', 0, '@list'], []).map(item => item['@id']);
 
-      return order.map(item => {
-        const activityFlowObj = appletData.activityFlows[item];
-        const index = Object.values(colorMap).length;
-        const color = this.$dayspan.colors[index % this.$dayspan.colors.length].text;
+      if (appletData){
+        const getOrder = _.get(appletData.applet, ['reprolib:terms/activityFlowOrder', 0, '@list'])
 
-        addActivityColor(activityFlowObj._id, color);
+        if (getOrder){
 
-        return {
-          name: activityFlowObj['schema:name'][0]['@value'],
-          isActivityFlow: true,
-          color
-        };
-      })
+          const order = getOrder.map(item => item['@id']);
+
+          return order.map(item => {
+            const activityFlowObj = appletData.activityFlows[item];
+            const index = Object.values(colorMap).length;
+            const color = this.$dayspan.colors[index % this.$dayspan.colors.length].text;
+
+            addActivityColor(activityFlowObj._id, color);
+
+            return {
+              name: activityFlowObj['schema:name'][0]['@value'],
+              isActivityFlow: true,
+              color
+            };
+          })
+
+        }//getOrder check end
+
+      }//appletData check end
     },
 
     userCode() {
