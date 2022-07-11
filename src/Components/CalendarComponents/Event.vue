@@ -1171,7 +1171,7 @@ export default {
           }
 
           if (repeats.replace(/\s/g, '') === 'Yes' && frequency.replace(/\s/g, '') === '') {
-            this.validationMsg = 'You are missing a frequency to repeat *Activity name*. Please fix and reupload.';
+            this.validationMsg = `You are missing a frequency to repeat ${name}. Please fix and reupload.`;
             break;
           }
 
