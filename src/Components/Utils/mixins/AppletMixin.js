@@ -633,7 +633,7 @@ export const AppletMixin = {
 
         let responseValue = '.', responseAccuracy = '.', responseTouchTimestamp = '.', responseTime = '.';
 
-        let videoDisplayRequestTimestamp = response.offset ? response.start_time + response.offset : response.start_timestamp, eventStartTimestamp = response.start_timestamp;
+        let videoDisplayRequestTimestamp = response.start_time + response.offset, eventStartTimestamp = response.start_timestamp;
         let eventOffset = eventStartTimestamp - trialStartTimestamp;
 
         if (tag == 'response') {
