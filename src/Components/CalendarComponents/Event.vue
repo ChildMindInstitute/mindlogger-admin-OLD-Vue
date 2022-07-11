@@ -1139,14 +1139,14 @@ export default {
         }
         for (let i = 0; i < importedItems.length; i += 1) {
           const { startTime, endTime, name, repeats, frequency, date, notificationTime } = importedItems[i];
-
           const month = Number(date.split('/').shift());
+          
           if (isNaN(new Date(date)) || isNaN(month) || month < 0 || month > 12 ) {
             this.validationMsg = 'You have invalid date in csv. Please fix and reupload.';
             break;
           }
 
-          if (!validateTime(startTime) || !validateTime(endTime)) {
+          if (!validateTime(startTime) || !validateTime(endTime) || Number(startTime) >= Number(endTime)) {
             this.validationMsg = 'You have invalid start time or end time in csv. Please fix and reupload.'
             break;
           }
