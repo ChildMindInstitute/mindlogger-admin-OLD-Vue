@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.17.15] - 2022-07-11
 - Fix width in csv data table
+- Fix save button in event modal
 
 ## [0.17.14] - 2022-07-10
 - Fix start and end times in csv schedules

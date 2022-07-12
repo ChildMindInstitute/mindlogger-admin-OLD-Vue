@@ -57,7 +57,7 @@
             class="ds-button-tall"
             depressed
             color="primary"
-            :disabled="!canSave || importOnly"
+            :disabled="!canSave || importOnly || isSaving"
             @click.stop="save"
           >
             <span v-html="labels.save" />
@@ -616,6 +616,7 @@ export default {
       ],
       referencedUsersCSV: [],
       isImported: false,
+      isSaving: false,
       eventCount: 0,
       loadingCSV: false,
     }
@@ -1433,6 +1434,7 @@ export default {
     async save() {
       var ev = this.getEvent("save");
       this.$emit("save", ev);
+      this.isSaving = true;
 
        let isActivityFlow = false;
       if(this.activityFlowNames.includes(this.details.title)) {
@@ -1475,7 +1477,7 @@ export default {
           this.$emit("event-create", ev.created);
         }
       }
-
+      this.isSaving = true;
       this.$emit("saved", ev);
     },
 
@@ -1484,6 +1486,7 @@ export default {
     },
 
     cancel() {
+      this.isSaving = true;
       if (this.isImported) {
         this.cancelDialog = true;
       } else {
