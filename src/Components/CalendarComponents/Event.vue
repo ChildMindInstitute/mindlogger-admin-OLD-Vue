@@ -215,7 +215,7 @@
                   :headers="headers"
                   :items="items"
                   :items-per-page="5"
-                  class="elevation-1"
+                  class="csv-data-table"
                 ></v-data-table>
               </v-card>
               <div class="d-flex justify-space-between mt-4">
@@ -562,8 +562,9 @@ export default {
           align: 'start',
           sortable: true,
           value: 'name',
+          width: '25%'
         },
-        { text: 'Date', value: 'date' },
+        { text: 'Date', value: 'date', width: '15%' },
         { text: 'Activity Start Time', value: 'startTime' },
         { text: 'Activity End Time', value: 'endTime' },
         { text: 'Notification Time', value: 'notificationTime' },
@@ -1671,6 +1672,9 @@ export default {
 <style lang="scss">
 .csv-import-checkbox {
   display: none;
+}
+.csv-data-table table {
+  table-layout: fixed;
 }
 .import-file {
   display: none;
