@@ -19,6 +19,14 @@
 									:style="{color: details.forecolor}">
 								{{ details.icon }}
 							</v-icon>
+              <img
+                  v-else-if="details.isActivityFlow"
+                  class="ml-2, mr-3, pt-1"
+                  width="16"
+                  height="13"
+                  :src="require('@/assets/activity-flow-bg.svg')"
+              />
+              <div v-else></div>
 							<span v-if="hasPrefix">
 								{{ getPrefix }}
 							</span>
