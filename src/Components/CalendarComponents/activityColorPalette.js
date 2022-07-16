@@ -1,9 +1,11 @@
 export const colorMap = {}
+export let colorMapCopy = {}
 
 //This will be used by calendar components for knowing the color of events
 // from their activity types
 export const addActivityColor = function(id, color) {
   colorMap[id] = color;
+  colorMapCopy = Object.assign(colorMap);
 }
 
 export const getEventColor = function(activity_id) {
