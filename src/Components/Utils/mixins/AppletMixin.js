@@ -91,6 +91,10 @@ export const AppletMixin = {
 
           const currentItems = {};
           const currentActivities = {};
+          const activityFlows = Object.values(appletData.activityFlows || {}).map(flow => ({
+            name: _.get(flow, ['schema:name', 0, '@value']),
+            id: flow._id.split('/').pop(),
+          }));
           for (let itemUrl in appletData.items) {
             currentItems[itemUrl] = new Item(appletData.items[itemUrl]);
             currentItems[itemUrl].schemas.push(itemUrl);
@@ -133,6 +137,7 @@ export const AppletMixin = {
             'userId',
             'activity_id',
             'activity_name',
+            'activity_flow',
             'item',
             'response',
             'prompt',
@@ -379,6 +384,7 @@ export const AppletMixin = {
                 .split('250)');
 
               const { options, scores } = parseItemOptions(item);
+              const flow = activityFlows.find(flow => flow.id == response.activityFlow);
 
               const csvObj = {
                 id: response._id,
@@ -399,6 +405,7 @@ export const AppletMixin = {
                 version: response.version,
                 rawScore: scores.reduce((accumulated, current) => current + accumulated, 0),
                 reviewing_id: response.reviewing || '',
+                activity_flow: flow ? flow.name : '',
                 ... (!isSubScaleExported ? response.subScales : {}),
                 ... (!isSubScaleExported ? outputTexts : {})
               }
@@ -441,6 +448,7 @@ export const AppletMixin = {
             }
 
             if (response.events !== null && activity) {
+              const flow = activityFlows.find(flow => flow.id == response.activityFlow);
               const responseEvents = data.eventSources[response.events].data || [];
 
               for (const event of responseEvents) {
@@ -498,6 +506,7 @@ export const AppletMixin = {
                   prompt: replaceItemVariableWithName(question && question[question.length - 1] || '', currentItems, response.data),
                   response: eventResponse,
                   options: replaceItemVariableWithName(options.join(', '), currentItems, response.data),
+                  activity_flow: flow ? flow.name : '',
                   version: response.version,
                 })
               }
@@ -551,7 +560,7 @@ export const AppletMixin = {
               keys: [
                 'id', 'activity_scheduled_time', 'activity_start_time', 'activity_end_time',
                 'press_next_time', 'press_back_time', 'press_undo_time', 'press_skip_time', 'press_done_time', 'response_option_selection_time',
-                'secret_user_id', 'user_id', 'activity_id', 'activity_name', 'item',
+                'secret_user_id', 'user_id', 'activity_id', 'activity_flow', 'activity_name', 'item',
                 'prompt', 'response', 'options', 'version'
               ].map(value => ({ key: value, as: value })),
               data: events
