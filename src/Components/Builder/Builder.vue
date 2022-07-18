@@ -241,9 +241,10 @@ export default {
     },
 
     onAppletPassword (appletPassword) {
+      const accountId = this.$store.state.currentAccount.accountId;
       const encryptionInfo = encryption.getAppletEncryptionInfo({
         appletPassword,
-        accountId: this.$store.state.currentAccount.accountId,
+        accountId,
         prime: this.currentAppletMeta.encryption.appletPrime,
         baseNumber: this.currentAppletMeta.encryption.base,
       });
@@ -260,8 +261,10 @@ export default {
         api.setPDFPassword(
           configs.serverIp,
           this.$store.state.auth.authToken.token,
-          encryption.publicEncrypt(JSON.stringify({ password: appletPassword }), configs.publicKey),
-          configs.serverAppletId
+          encryption.publicEncrypt(JSON.stringify({ password: appletPassword, privateKey: encryptionInfo.getPrivateKey().toString() }), configs.publicKey),
+          configs.serverAppletId,
+          accountId,
+          this.currentAppletMeta.id
         ).then(() => callback(true)).catch(() => callback(false))
       } else {
         this.$refs.pdfPasswordDialog.defaultErrorMsg = this.$t('incorrectAppletPassword');
@@ -330,12 +333,13 @@ export default {
       this.$router.push("/dashboard").catch(err => {});
     },
     addNewApplet(appletPassword) {
+      const accountId = this.$store.state.currentAccount.accountId;
       const form = new FormData();
       form.set("protocol", JSON.stringify(this.newApplet || {}));
 
       const encryptionInfo = encryption.getAppletEncryptionInfo({
         appletPassword: appletPassword,
-        accountId: this.$store.state.currentAccount.accountId,
+        accountId
       });
       const token = this.$store.state.auth.authToken.token;
       const configs = this.newApplet.protocol.data.reportConfigs;
@@ -348,8 +352,9 @@ export default {
         api.setPDFPassword(
           serverIp['schema:value'],
           token,
-          encryption.publicEncrypt(JSON.stringify({ password: appletPassword }), publicKey['schema:value']),
-          serverAppletId['schema:value']
+          encryption.publicEncrypt(JSON.stringify({ password: appletPassword, privateKey: encryptionInfo.getPrivateKey().toString() }), publicKey['schema:value']),
+          serverAppletId['schema:value'],
+          accountId,
         );
       }
 

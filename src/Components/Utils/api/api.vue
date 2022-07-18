@@ -949,13 +949,15 @@ const attachURL = (origin, resource) => {
   return origin + '/' + resource;
 }
 
-const setPDFPassword = (url, token, password, serverAppletId) => axios({
+const setPDFPassword = (url, token, password, serverAppletId, accountId, appletId) => axios({
   method: 'POST',
   url: attachURL(url, 'set-password'),
   headers: { token },
   data: {
     password,
-    serverAppletId
+    serverAppletId,
+    accountId,
+    appletId
   }
 })
 
