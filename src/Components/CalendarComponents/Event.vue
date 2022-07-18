@@ -782,7 +782,7 @@ export default {
       }
       if (this.details.notifications && this.details.useNotifications) {
         for (const notification of this.details.notifications) {
-          if (!notification.allow ||!notification.start || !notification.start.match(/\d{2}:\d{2}/)) {
+          if (notification.allow && (!notification.start || !notification.start.match(/\d{2}:\d{2}/))) {
             return false;
           }
         }
