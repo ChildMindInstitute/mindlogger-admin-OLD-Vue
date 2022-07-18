@@ -776,13 +776,7 @@ export default {
       }
       if (this.details.notifications && this.details.useNotifications) {
         for (const notification of this.details.notifications) {
-          if (this.details.useNotifications && (!notification.allow && !notification.random)) {
-            return false;
-          }
-          if (notification.allow && (!notification.start || !notification.start.match(/\d{2}:\d{2}/))) {
-            return false;
-          }
-          if (notification.random && (!notification.end || !notification.end.match(/\d{2}:\d{2}/))) {
+          if (!notification.allow ||!notification.start || !notification.start.match(/\d{2}:\d{2}/)) {
             return false;
           }
         }
