@@ -1194,7 +1194,7 @@ export default {
           }
 
           if (!this.activityNames.includes(name)) {
-            this.validationMsg = '*Activity Name* is not valid. Please fix and reupload.';
+            this.validationMsg = `${name} is not valid activity. Please fix and reupload.`;
             break;
           }
         }
