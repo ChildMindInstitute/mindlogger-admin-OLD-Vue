@@ -278,7 +278,7 @@
 <script>
 import { Sorts, Calendar, Op } from "dayspan";
 
-import { colorMap, addActivityColor } from "@/Components/CalendarComponents/activityColorPalette.js";
+import { colorMap, addActivityColor, colorMapCopy } from "@/Components/CalendarComponents/activityColorPalette.js";
 import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
 import EventDialog from "./EventDialog";
 import ActivitySidebar from "./ActivitySidebar";
@@ -412,10 +412,11 @@ export default {
 
           const order = getOrder.map(item => item['@id']);
 
-          return order.map(item => {
+          const orderFlow = order.map(item => {
             const activityFlowObj = appletData.activityFlows[item];
             const index = Object.values(colorMap).length;
-            const color = this.$dayspan.colors[index % this.$dayspan.colors.length].text;
+
+            const color = colorMap[activityFlowObj._id] || this.$dayspan.colors[index % this.$dayspan.colors.length].text;
 
             addActivityColor(activityFlowObj._id, color);
 
@@ -425,7 +426,7 @@ export default {
               color
             };
           })
-
+          return orderFlow;
         }//getOrder check end
 
       }//appletData check end

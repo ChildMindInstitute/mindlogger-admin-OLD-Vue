@@ -407,7 +407,7 @@ import { AppletMixin } from '@/Components/Utils/mixins/AppletMixin';
 import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
 import ObjectToCSV from 'object-to-csv';
 import { VueCsvImport } from 'vue-csv-import';
-import {addActivityColor, getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
+import { getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
 export default {
   name: "dsEvent",
 
