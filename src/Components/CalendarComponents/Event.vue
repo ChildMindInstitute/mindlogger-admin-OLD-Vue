@@ -687,11 +687,17 @@ export default {
         }
       );
     },
-    activityFlowNames() {
+    activityFlows () {
       const appletData = this.$store.state.currentAppletData;
       const order = _.get(appletData.applet, ['reprolib:terms/activityFlowOrder', 0, '@list'], []).map(item => item['@id']);
-      return order.map(item => {
-        const activityFlowObj = appletData.activityFlows[item];
+
+      return order.map(item => appletData.activityFlows[item]);
+    },
+
+    activityFlowNames() {
+      const appletData = this.$store.state.currentAppletData;
+
+      return this.activityFlows.map(activityFlowObj => {
         const name = activityFlowObj['schema:name'][0]['@value'];
         const activityFlow = appletData.applet['reprolib:terms/activityFlowProperties'].find(p => {
           const flowName = p['reprolib:terms/variableName'][0]['@value'].replace(/_/g, ' ');
@@ -1142,7 +1148,7 @@ export default {
         for (let i = 0; i < importedItems.length; i += 1) {
           const { startTime, endTime, name, repeats, frequency, date, notificationTime } = importedItems[i];
           const month = Number(date.split('/').shift());
-          
+
           if (isNaN(new Date(date)) || isNaN(month) || month < 0 || month > 12 ) {
             this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
             break;
@@ -1193,7 +1199,7 @@ export default {
             break;
           }
 
-          if (!activityNames.includes(name)) {
+          if (!this.activityNames.includes(name)) {
             this.validationMsg = '*Activity Name* is not valid. Please fix and reupload.';
             break;
           }
@@ -1244,6 +1250,17 @@ export default {
       this.scheduleDialog = false;
       this.loadingCSV = true;
 
+      let updatedFlows = [];
+
+      for (const item of this.items) {
+        const name = item.name;
+
+        if (this.activityFlowNames.includes(name) && this.activityFlowHidden[name]) {
+          this.activityFlowHidden[name] = false;
+          updatedFlows.push(name);
+        }
+      }
+
       const updateSchedule = () => {
         let ev = this.getEvent("save");
 
@@ -1261,7 +1278,6 @@ export default {
 
         this.items.forEach(row => {
           let { notificationTime, name, startTime, endTime, date, repeats, frequency } = row;
-          const res = _.filter(this.activities, (a) => a.name === name);
           let timeout = {
             access: false,
             allow: true,
@@ -1295,7 +1311,16 @@ export default {
             timeout.hour -= 1;
           }
 
-          if (res.length) {
+          if (this.activityFlowNames.includes(name)) {
+            const flow = this.activityFlows.find(flow => flow['schema:name'][0]['@value'] === name);
+            const color = getEventColor(flow._id);
+
+            this.details.URI = flow._id.split('/').pop();
+            if (color) {
+              this.details.color = this.getHexColor(color)
+            }
+          } else {
+            const res = _.filter(this.activities, (a) => a.name === name);
             const activityColor = getEventColor(res[0].id);
 
             this.details.URI = res[0].URI;
@@ -1312,6 +1337,7 @@ export default {
             calendar: "",
             completion: false,
             description: "",
+            isActivityFlow: this.activityFlowNames.includes(name),
             extendedTime: {
               allow: false,
               minute: 1
@@ -1406,10 +1432,12 @@ export default {
         this.$store.commit("setCachedEvents", state.events);
       }
 
-      setTimeout(() => {
-        updateSchedule()
-        this.loadingCSV = false;
-      }, this.items.length > 15 ? 350 : 0);
+      this.updateActivityFlowVis(updatedFlows).then(() => {
+        setTimeout(() => {
+          updateSchedule()
+          this.loadingCSV = false;
+        }, this.items.length > 15 ? 350 : 0);
+      });
     },
 
     downloadTemplate () {
@@ -1438,7 +1466,7 @@ export default {
 
        let isActivityFlow = false;
       if(this.activityFlowNames.includes(this.details.title)) {
-        await this.updateActivityFlowVis(this.details.title)
+        await this.updateActivityFlowVis([this.details.title])
         isActivityFlow = true;
       }
       ev.details.isActivityFlow = isActivityFlow;
@@ -1508,9 +1536,11 @@ export default {
       this.$forceUpdate();
     },
 
-    async updateActivityFlowVis(name) {
-      let activityFlowId;
+    async updateActivityFlowVis(names) {
+      let activityFlowIds = [];
       const appletData = this.$store.state.currentAppletData;
+
+      if (!names.length) return ;
 
       for (let activityFlowKey in appletData.activityFlows) {
         const {
@@ -1518,8 +1548,8 @@ export default {
           _id: id,
         } = appletData.activityFlows[activityFlowKey];
 
-        if (name === activityFlowName.replace(/_/g, ' ')) {
-          activityFlowId = id.split('/')[1];
+        if (names.includes(activityFlowName.replace(/_/g, ' '))) {
+          activityFlowIds.push(id.split('/')[1]);
         }
       }
 
@@ -1530,12 +1560,13 @@ export default {
           body: {
             id: appletData.applet._id,
             status: !this.activityFlowHidden[name],
-            activityFlowId,
+            activityFlowIds,
           },
         });
 
         appletData.applet['reprolib:terms/activityFlowProperties'].forEach(p => {
-          if (p['reprolib:terms/variableName'][0]['@value'].replace(/_/g, ' ') === name) {
+          const name = p['reprolib:terms/variableName'][0]['@value'].replace(/_/g, ' ');
+          if (names.includes(name)) {
             p['reprolib:terms/isVis'][0]['@value'] = !this.activityFlowHidden[name]
           }
         });
