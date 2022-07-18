@@ -850,14 +850,24 @@ export default {
       immediate: true,
     },
     title() {
-      const res = _.filter(this.activities, (a) => a.name === this.title);
-      if (res.length)
-      {
-        this.details.URI = res[0].URI;
-        const activityColor = getEventColor(res[0].id)
-        if(activityColor)
-        {
-          this.details.color = this.getHexColor(activityColor)
+      if (this.activityFlowNames.includes(this.title)) {
+        const flow = this.activityFlows.find(flow => flow['schema:name'][0]['@value'] === this.title);
+        const color = getEventColor(flow._id);
+
+        this.details.URI = flow._id.split('/').pop();
+        if (color) {
+          this.details.color = this.getHexColor(color)
+        }
+      } else {
+        const res = _.filter(this.activities, (a) => a.name === this.title);
+        if (res.length) {
+          this.details.URI = res[0].URI;
+
+          const activityColor = getEventColor(res[0].id)
+          if(activityColor)
+          {
+            this.details.color = this.getHexColor(activityColor)
+          }
         }
       }
     },
