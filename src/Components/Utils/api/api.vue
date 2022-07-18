@@ -281,7 +281,7 @@ const updateActivityFlowVis = ({ apiHost, token, body }) =>
     },
     params: {
       status: body.status,
-      activityFlowId: body.activityFlowId
+      activityFlowIds: JSON.stringify(body.activityFlowIds)
     },
   });
 
