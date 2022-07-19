@@ -1153,7 +1153,7 @@ export default {
           const { startTime, endTime, name, repeats, frequency, date, notificationTime } = importedItems[i];
           const month = Number(date.split('/').shift());
 
-          if (isNaN(new Date(date)) || isNaN(month) || month < 0 || month > 12 ) {
+          if (isNaN(new Date(date)) || isNaN(month) || month < 0 || month > 12 || date.trim().length != 10) {
             this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
             break;
           }
