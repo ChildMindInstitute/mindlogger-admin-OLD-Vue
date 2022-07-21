@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
+## [0.18.0] - 2022-07-20
+New Features:
+
+- Configurable Flanker: Admin users can now create customized Simple & Choice Reaction Time Activities by updating button text, button images, changing stimulus and fixation screens, and more
+- Creating Bulk Schedules: By uploading a CSV file, admin users can create schedules more easily across general and individual schedules 
+- CST Tilt: The ability to administer a CST and have the user's input be collected by tilting the phone left and right is available for iOS versions.
+- Configurable Reports: Admin users have the ability to configure encrypted PDF reports that can be automatically emailed to different users or exported from the admin panel. 
+- Activity Flow: This feature replaces the cumulative score item type and allows for a more configurable and easier-to-use tool to link activities together within an applet so the user 
+  
 ## [0.17.18] - 2022-07-17
 - Enabled save button for notifications
 
