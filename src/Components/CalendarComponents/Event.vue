@@ -135,12 +135,11 @@
                 <v-card-text>
                   <div class="ds-event-body ds-event-area">
                     <v-switch
-                      v-if="activityFlowNames.includes(details.title)"
-                      v-model="activityFlowHidden[details.title]"
+                      v-model="activityHidden[details.title]"
                       class="ml-6 mb-1"
                       :label="$t('hidden')"
                       :readonly="isReadOnly"
-                      @change="changeActivityFlowVis"
+                      @change="changeActivityVis"
                       flat
                     />
                     <slot
@@ -548,7 +547,7 @@ export default {
       scheduledExtendedTime: {},
       scheduledTimeout: {},
       timedActivity: {},
-      activityFlowHidden: {},
+      activityHidden: {},
       scheduledIdleTime: {},
       scheduleDialog: false,
       cancelDialog: false,
@@ -699,12 +698,6 @@ export default {
 
       return this.activityFlows.map(activityFlowObj => {
         const name = activityFlowObj['schema:name'][0]['@value'];
-        const activityFlow = appletData.applet['reprolib:terms/activityFlowProperties'].find(p => {
-          const flowName = p['reprolib:terms/variableName'][0]['@value'].replace(/_/g, ' ');
-          return flowName === name;
-        });
-
-        this.activityFlowHidden[name] = !activityFlow['reprolib:terms/isVis'][0]['@value'];
         return name;
       })
     },
@@ -951,6 +944,24 @@ export default {
     }
   },
 
+  beforeMount () {
+    const appletData = this.$store.state.currentAppletData;
+
+    this.activities.forEach((activity, index) => {
+      this.activityHidden[activity.name] = appletData.activities[activity.URI]['reprolib:terms/isVis'][0]['@value'];
+    })
+
+    this.activityFlows.forEach(activityFlowObj => {
+      const name = activityFlowObj['schema:name'][0]['@value'];
+      const activityFlow = appletData.applet['reprolib:terms/activityFlowProperties'].find(p => {
+        const flowName = p['reprolib:terms/variableName'][0]['@value'].replace(/_/g, ' ');
+        return flowName === name;
+      });
+
+      this.activityHidden[name] = !activityFlow['reprolib:terms/isVis'][0]['@value'];
+    })
+  },
+
   methods: {
     getHexColor(colorName) {
       return _.filter(this.$dayspan.colors, c => c.text === colorName)[0].value;
@@ -1067,7 +1078,7 @@ export default {
     },
 
     validSchedule(name) {
-      return !this.activityFlowNames.includes(name) || !this.activityFlowHidden[name];
+      return !this.activityHidden[name];
     },
 
     handleImportBtn() {
@@ -1254,14 +1265,14 @@ export default {
       this.scheduleDialog = false;
       this.loadingCSV = true;
 
-      let updatedFlows = [];
+      let updatedActivities = [];
 
       for (const item of this.items) {
         const name = item.name;
 
-        if (this.activityFlowNames.includes(name) && this.activityFlowHidden[name]) {
-          this.activityFlowHidden[name] = false;
-          updatedFlows.push(name);
+        if (this.activityHidden[name]) {
+          this.activityHidden[name] = false;
+          updatedActivities.push(name);
         }
       }
 
@@ -1436,7 +1447,7 @@ export default {
         this.$store.commit("setCachedEvents", state.events);
       }
 
-      this.updateActivityFlowVis(updatedFlows).then(() => {
+      this.updateActivityVis(updatedActivities).then(() => {
         setTimeout(() => {
           updateSchedule()
           this.loadingCSV = false;
@@ -1468,11 +1479,13 @@ export default {
       this.$emit("save", ev);
       this.isSaving = true;
 
-       let isActivityFlow = false;
+      let isActivityFlow = false;
       if(this.activityFlowNames.includes(this.details.title)) {
-        await this.updateActivityFlowVis([this.details.title])
         isActivityFlow = true;
       }
+
+      await this.updateActivityVis([this.details.title])
+
       ev.details.isActivityFlow = isActivityFlow;
 
       if (!ev.handled) {
@@ -1536,12 +1549,13 @@ export default {
       this.tab = "details";
     },
 
-    changeActivityFlowVis() {
+    changeActivityVis() {
       this.$forceUpdate();
     },
 
-    async updateActivityFlowVis(names) {
+    async updateActivityVis(names) {
       let activityFlowIds = [];
+      let activityIds = [];
       const appletData = this.$store.state.currentAppletData;
 
       if (!names.length) return ;
@@ -1557,23 +1571,35 @@ export default {
         }
       }
 
+      for (let activity of this.activities) {
+        if (names.includes(activity.name)) {
+          activityIds.push(activity.id.split('/').pop());
+        }
+      }
+
       try {
-        await api.updateActivityFlowVis({
+        await api.updateActivityVis({
           apiHost: this.$store.state.backend,
           token: this.$store.state.auth.authToken.token,
           body: {
             id: appletData.applet._id,
-            status: !this.activityFlowHidden[name],
+            status: !this.activityHidden[names[0]],
             activityFlowIds,
+            activityIds
           },
         });
 
         appletData.applet['reprolib:terms/activityFlowProperties'].forEach(p => {
           const name = p['reprolib:terms/variableName'][0]['@value'].replace(/_/g, ' ');
           if (names.includes(name)) {
-            p['reprolib:terms/isVis'][0]['@value'] = !this.activityFlowHidden[name]
+            p['reprolib:terms/isVis'][0]['@value'] = !this.activityHidden[name]
           }
         });
+
+        this.activities.forEach(activity => {
+          appletData.activities[activity.URI]['reprolib:terms/isVis'][0]['@value'] = this.activityHidden[activity.name];
+        });
+
         this.$store.commit("updateAppletData", appletData);
       } catch (err) {
         console.log(err);
