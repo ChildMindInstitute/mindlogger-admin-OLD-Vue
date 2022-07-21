@@ -69,7 +69,11 @@ export default {
       type: Boolean,
       required: false,
       default: false
-    }
+    },
+    focusExtent: {
+      type: Array,
+      required: true
+    },
   },
   data: function() {
     return {
@@ -100,7 +104,11 @@ export default {
         response =>
           this.selectedVersions.includes(response.version) &&
           (!this.applySecretIdSelector || this.secretIds.includes(response.secretId))
-      );
+      ).filter(
+        response =>
+          response.date >= this.focusExtent[0]
+          && response.date <= this.focusExtent[1]
+      )
 
       return itemResponses.map(response => {
         return {

@@ -72,7 +72,19 @@ export default class Item {
     return inputs.reduce((acc, current) => {
       const name = _.get(current, ['schema:name', 0, '@value'])
       const value = _.get(current, ['schema:value', 0, '@value'])
+      const itemList = _.get(current, ['schema:itemListElement']);
 
+      if (itemList) {
+        return {
+          ...acc,
+          [name]: itemList.map(item => ({
+            id: _.get(item, ['@id']),
+            image: _.get(item, ['schema:image']),
+            name: _.get(item, ['schema:name', 0, '@value']),
+            value: _.get(item, ['schema:value', 0, '@value'])
+          }))
+        }
+      }
       return {
         ...acc,
         [name]: value
@@ -204,7 +216,8 @@ export default class Item {
           value: response.value[0],
           version: response.version,
           responseId: response.responseId,
-          secretId: (secretIDs[response.responseId] || null)
+          secretId: (secretIDs[response.responseId] || null),
+          utcTimestamp: response.utcTimestamp,
         };
       }
 
@@ -213,6 +226,7 @@ export default class Item {
           date: new Date(response.date),
           version: response.version,
           responseId: response.responseId,
+          utcTimestamp: response.utcTimestamp,
         }
 
         for (const option in response.value[0]) {
@@ -239,6 +253,7 @@ export default class Item {
           };
         },
         {
+          utcTimestamp: response.utcTimestamp,
           date: new Date(response.date),
           version: response.version,
           responseId: response.responseId,

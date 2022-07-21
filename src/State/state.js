@@ -48,7 +48,9 @@ const mutations = {
     Object.assign(state, getDefaultState());
   },
   addRemovedEventId(state, eventId) {
-    state.removedEvents.push(eventId);
+    if (!state.removedEvents.includes(eventId)) {
+      state.removedEvents.push(eventId);
+    }
   },
   addUpdatedEventId(state, eventId) {
     state.updatedEvents.push(eventId);
