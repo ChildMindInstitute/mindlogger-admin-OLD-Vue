@@ -10,18 +10,26 @@
 					 :style="style"
 					 @click.stop="openEventDialog">
 
-						<span v-if="showName">
+						<span class="d-flex align-center" v-if="showName">
 							<slot name="eventTitle" v-bind="{calendarEvent, hasPrefix, getPrefix, details}">
 
 							<v-icon class="ds-ev-icon"
-									v-if="hasIcon"
-									size="14"
-									:style="{color: details.forecolor}">
+								v-if="hasIcon"
+								size="14"
+								:style="{color: details.forecolor}">
 								{{ details.icon }}
 							</v-icon>
+              <div v-else></div>
 							<span v-if="hasPrefix">
 								{{ getPrefix }}
 							</span>
+							<img
+								v-if="details.isActivityFlow"
+								class="mx-1"
+								width="14"
+								height="14"
+								:src="require('@/assets/activity-flow-bg.svg')"
+              />
 							<strong class="ds-ev-title">{{ details.title }}</strong>
 							<span class="ds-ev-description">{{ details.description }}</span>
 

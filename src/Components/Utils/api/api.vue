@@ -272,6 +272,20 @@ const getAppletUsers = ({ apiHost, token, appletId }) =>
     },
   });
 
+const updateActivityVis = ({ apiHost, token, body }) =>
+  axios({
+    method: "put",
+    url: `${apiHost}/${body.id}/activities/visibility`,
+    headers: {
+      "Girder-Token": token,
+    },
+    params: {
+      status: body.status,
+      activityFlowIds: JSON.stringify(body.activityFlowIds),
+      activityIds: JSON.stringify(body.activityIds),
+    },
+  });
+
 const getUserList = ({ apiHost, token, appletId, reviewerId }) =>
   axios({
     method: "GET",
@@ -943,6 +957,25 @@ const getThemes = (apiHost, token) => {
   });
 };
 
+const attachURL = (origin, resource) => {
+  if (origin.endsWith('/')) {
+    return origin + resource;
+  }
+  return origin + '/' + resource;
+}
+
+const setPDFPassword = (url, token, password, serverAppletId, accountId, appletId) => axios({
+  method: 'POST',
+  url: attachURL(url, 'set-password'),
+  headers: { token },
+  data: {
+    password,
+    serverAppletId,
+    accountId,
+    appletId
+  }
+})
+
 const setWelcomeAppletStatus = ({ apiHost, token, appletId, status }) => {
   return axios({
     method: 'put',
@@ -987,6 +1020,7 @@ export default {
   getAppletInvitation,
   getItemTemplates,
   updateItemTemplates,
+  updateActivityVis,
   getUsersData,
   getAppletsForUser,
   duplicateApplet,
@@ -1029,5 +1063,6 @@ export default {
   updateProfile,
   downloadGCPFile,
   setWelcomeAppletStatus,
+  setPDFPassword,
 };
 </script>

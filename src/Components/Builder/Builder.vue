@@ -15,6 +15,8 @@
       :basketApplets="basketApplets"
       :themes="themes"
       :viewMode="!canEditApplet"
+      :updatePDFPassword="onSetPDFPassword"
+      :pdf-server-token="token"
       @removeTemplate="onRemoveTemplate"
       @updateTemplates="onAddTemplate"
       @uploadProtocol="onUploadProtocol"
@@ -33,6 +35,14 @@
     <AppletPassword
       v-model="appletPasswordDialog"
       @set-password="onClickSubmitPassword"
+    />
+
+    <AppletPassword
+      ref="pdfPasswordDialog"
+      v-model="pdfPasswordDialog.visible"
+      :hasConfirmPassword="false"
+      @set-password="onAppletPassword"
+      @input="pdfPasswordDialog.callback(false)"
     />
 
     <v-dialog
@@ -146,6 +156,11 @@ export default {
       ],
       cacheData: null,
       nodeEnv: process.env.VUE_APP_NODE_ENV,
+      pdfPasswordDialog: {
+        visible: false,
+        callback: null,
+        configs: ''
+      }
     };
   },
   computed: {
@@ -215,6 +230,47 @@ export default {
   methods: {
     ...mapMutations(["cacheAppletBuilderData"]),
 
+    onSetPDFPassword (callback, configs) {
+      if (this.isEditing) {
+        this.pdfPasswordDialog.visible = true;
+        this.pdfPasswordDialog.callback = callback;
+        this.pdfPasswordDialog.configs = configs;
+      } else {
+        callback(false);
+      }
+    },
+
+    onAppletPassword (appletPassword) {
+      const accountId = this.$store.state.currentAccount.accountId;
+      const encryptionInfo = encryption.getAppletEncryptionInfo({
+        appletPassword,
+        accountId,
+        prime: this.currentAppletMeta.encryption.appletPrime,
+        baseNumber: this.currentAppletMeta.encryption.base,
+      });
+
+      const { callback, configs } = this.pdfPasswordDialog;
+
+      if (
+        encryptionInfo
+          .getPublicKey()
+          .equals(Buffer.from(this.currentAppletMeta.encryption.appletPublicKey))
+      ) {
+        this.pdfPasswordDialog.visible = false;
+
+        api.setPDFPassword(
+          configs.serverIp,
+          this.$store.state.auth.authToken.token,
+          encryption.publicEncrypt(JSON.stringify({ password: appletPassword, privateKey: encryptionInfo.getPrivateKey().toString() }), configs.publicKey),
+          configs.serverAppletId,
+          accountId,
+          this.currentAppletMeta.id
+        ).then(() => callback(true)).catch(() => callback(false))
+      } else {
+        this.$refs.pdfPasswordDialog.defaultErrorMsg = this.$t('incorrectAppletPassword');
+      }
+    },
+
     onClickSubmitPassword(appletPassword) {
       this.appletPasswordDialog = false;
       this.addNewApplet(appletPassword);
@@ -277,13 +333,31 @@ export default {
       this.$router.push("/dashboard").catch(err => {});
     },
     addNewApplet(appletPassword) {
+      const accountId = this.$store.state.currentAccount.accountId;
       const form = new FormData();
       form.set("protocol", JSON.stringify(this.newApplet || {}));
 
       const encryptionInfo = encryption.getAppletEncryptionInfo({
         appletPassword: appletPassword,
-        accountId: this.$store.state.currentAccount.accountId,
+        accountId
       });
+      const token = this.$store.state.auth.authToken.token;
+      const configs = this.newApplet.protocol.data.reportConfigs;
+
+      const serverIp = configs.find(config => config['schema:name'] == 'serverIp');
+      const publicKey = configs.find(config => config['schema:name'] == 'publicEncryptionKey');
+      const serverAppletId = configs.find(config => config['schema:name'] == 'serverAppletId');
+
+      if (serverAppletId && serverAppletId['schema:value']) {
+        api.setPDFPassword(
+          serverIp['schema:value'],
+          token,
+          encryption.publicEncrypt(JSON.stringify({ password: appletPassword, privateKey: encryptionInfo.getPrivateKey().toString() }), publicKey['schema:value']),
+          serverAppletId['schema:value'],
+          accountId,
+        );
+      }
+
       form.set(
         "encryption",
         JSON.stringify({
@@ -297,7 +371,7 @@ export default {
         .createApplet({
           data: form,
           email: this.$store.state.userEmail,
-          token: this.$store.state.auth.authToken.token,
+          token,
           apiHost: this.$store.state.backend,
           themeId: this.themeId
         })
@@ -381,23 +455,6 @@ export default {
             this.versions = resp.data;
             this.componentKey = this.componentKey + 1;
           });
-
-          // if (data.applet.publicLink) {
-          //   const inputTypes = ["radio", "checkbox", "slider", "text", "ageSelector", "dropdownList", "duration"]
-          //   const items = Object.values(data.items);
-          //   for (const item of items) {
-          //     const inputType = _.get(item, ['reprolib:terms/inputType', 0, '@value']);
-          //     if (!inputTypes.includes(inputType)) {
-          //       api.appletPublicLink({
-          //         method: "DELETE",
-          //         apiHost: apiHost,
-          //         token: token,
-          //         appletId
-          //       });
-          //       break;
-          //     }
-          //   }
-          // }
 
           this.$store.commit("setBasketApplets", {});
           this.$store.commit("cacheAppletBuilderData", null);

@@ -5,6 +5,70 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
+## [0.18.0] - 2022-07-20
+New Features:
+
+- Configurable Flanker: Admin users can now create customized Simple & Choice Reaction Time Activities by updating button text, button images, changing stimulus and fixation screens, and more
+- Creating Bulk Schedules: By uploading a CSV file, admin users can create schedules more easily across general and individual schedules 
+- CST Tilt: The ability to administer a CST and have the user's input be collected by tilting the phone left and right is available for iOS versions.
+- Configurable Reports: Admin users have the ability to configure encrypted PDF reports that can be automatically emailed to different users or exported from the admin panel. 
+- Activity Flow: This feature replaces the cumulative score item type and allows for a more configurable and easier-to-use tool to link activities together within an applet so the user 
+  
+## [0.17.18] - 2022-07-17
+- Enabled save button for notifications
+
+## [0.17.16] - 2022-07-17
+- Fix save button for notifications
+
+## [0.17.15] - 2022-07-11
+- Fix width in csv data table
+- Fix save button in event modal
+
+## [0.17.14] - 2022-07-10
+- Fix start and end times in csv schedules
+
+## [0.17.13] - 2022-07-08
+- Fix activity flow icon in event calendar
+
+## [0.17.12] - 2022-07-04
+- Fix activity flow in general scheduling
+
+## [0.17.11] - 2022-06-27
+- Fix timeout in event modal
+
+## [0.17.10] - 2022-06-27
+- Fixed minutes value in the end time
+
+## [0.17.9] - 2022-06-27
+- Fixed option image width
+- Build activity flow scheduling
+
+## [0.17.8] - 2022-06-25
+- Fix start and end times in scheduling
+
+## [0.17.7] - 2022-06-22
+- Fix individual scheduling with csv import
+- Fix overlap issues in event modal
+- Fix activity end time
+
+## [0.17.6] - 2022-06-21
+- Added acceptable files for CSV import
+
+## [0.17.5] - 2022-06-19
+- Fix issues on import template
+
+## [0.17.4] - 2022-06-16
+- Fix activity names in scheduling import
+- 
+## [0.17.3] - 2022-06-15
+- Fixed import schedule modal
+
+## [0.17.2] - 2022-06-07
+- Built csv validation messages
+
+## [0.17.1] - 2022-05-30
+- Implement csv import for scheduling
+
 ## [0.17.0] - 2022-06-06
 New Features:
 - Welcome Applet: All accounts will now always have a Welcome applet shown on their device that contains almost all of the features MindLogger offers 

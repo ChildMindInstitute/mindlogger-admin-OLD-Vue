@@ -1,7 +1,8 @@
 <template>
   <v-card class="elevation-12 ds-event no-scroll" :class="classes">
     <v-toolbar color="primary" dark flat>
-      <div v-if="hasCancel" class="ds-event-cancel">
+      <div v-if="importOnly" style="flex: 1" />
+      <div v-if="hasCancel" :class="importOnly ? '' : 'ds-event-cancel'">
         <!-- Cancel -->
         <slot name="scheduleCancel" v-bind="{ cancel, labels }">
           <v-tooltip bottom color="secondary">
@@ -12,10 +13,12 @@
             </template>
             <span v-html="labels.cancel" />
           </v-tooltip>
+          <span v-if="importOnly" class="ml-3">{{ $t('importSchedule') }}</span>
         </slot>
       </div>
 
       <slot
+        v-if="!importOnly"
         name="scheduleTitle"
         v-bind="{ schedule, schedule, calendarEvent, details }"
       >
@@ -23,12 +26,30 @@
           v-model="details.title"
           :items="activityNames"
           :placeholder="$t('selectActivity')"
+          :disabled="importOnly"
           dense
           outlined
-        />
+        >
+          <template v-slot:item="{ item }">
+            <div class="d-flex align-center">
+              <img
+                v-if="activityFlowNames.includes(item)"
+                class="mr-2"
+                width="18"
+                height="20"
+                :src="require('@/assets/activity-flow.png')"
+              />
+              {{ item }}
+            </div>
+          </template>
+        </v-select>
       </slot>
 
-      <div class="ds-event-actions" style="display: flex">
+      <div
+        v-if="!importOnly"
+        class="ds-event-actions"
+        style="display: flex"
+      >
         <!-- Save -->
         <slot name="scheduleSave" v-bind="{ hasSave, save, labels, readOnly }">
           <v-btn
@@ -36,7 +57,7 @@
             class="ds-button-tall"
             depressed
             color="primary"
-            :disabled="!canSave"
+            :disabled="!canSave || importOnly || isSaving"
             @click.stop="save"
           >
             <span v-html="labels.save" />
@@ -72,18 +93,22 @@
     </v-toolbar>
 
     <v-card-text class="ds-event-details">
-      
+
 
       <!-- Tabs -->
       <v-layout v-if="hasTabs">
-        <v-flex xs12 >
+        <v-flex xs12 :class="importOnly ? 'hide-tabs' : ''">
           <v-tabs v-model="tab" class="text--primary">
-            <v-tab v-if="hasDetails" href="#details">
+            <v-tab v-if="hasDetails && !importOnly" href="#details">
               {{ $t('activityAccessOptions') }}
             </v-tab>
 
-            <v-tab href="#notifications">
+            <v-tab v-if="!importOnly" href="#notifications">
               {{ $t('notifications') }}
+            </v-tab>
+
+            <v-tab v-if="importOnly" href="#import">
+              {{ $t('importSchedule') }}
             </v-tab>
 
             <v-tab v-if="showForecast" href="#forecast">
@@ -109,7 +134,19 @@
               <v-card text>
                 <v-card-text>
                   <div class="ds-event-body ds-event-area">
-                    <slot name="schedule" v-bind="slotData">
+                    <v-switch
+                      v-model="activityHidden[details.title]"
+                      class="ml-6 mb-1"
+                      :label="$t('hidden')"
+                      :readonly="isReadOnly"
+                      @change="changeActivityVis"
+                      flat
+                    />
+                    <slot
+                      v-if="validSchedule(details.title)"
+                      name="schedule"
+                      v-bind="slotData"
+                    >
                       <!-- absolute scheduling options below -->
                       <my-schedule
                         @onTimeout="handleTimeout"
@@ -167,6 +204,68 @@
                   />
                 </v-card-text>
               </v-card>
+            </v-tab-item>
+
+            <!-- Import Schedule -->
+            <v-tab-item value="import">
+              <p class="mx-2"> Please upload a schedule table (.csv file format as below) </p>
+              <v-card text>
+                <v-data-table
+                  :headers="headers"
+                  :items="items"
+                  :items-per-page="5"
+                  class="csv-data-table"
+                ></v-data-table>
+              </v-card>
+              <div class="d-flex justify-space-between mt-4">
+                <v-btn
+                  outlined
+                  color="primary"
+                  @click.stop="downloadTemplate"
+                >
+                  {{ !eventCount ? 'Download Template' : 'Export Schedule' }}(.csv)
+                </v-btn>
+                <div>
+                  <form enctype="multipart/form-data">
+                      <input
+                        class="import-file ds-display-none"
+                        accept=".csv"
+                        type="file"
+                        @change="onFileChange"
+                        :key="csvFileKey"
+                      />
+                  </form>
+
+                  <v-tooltip top>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        v-bind="attrs"
+                        v-on="on"
+                        color="blue-grey"
+                        class="white--text mx-2"
+                        @click="handleImportBtn"
+                      >
+                        Import
+                        <v-icon
+                          right
+                          dark
+                        >
+                          mdi-cloud-upload
+                        </v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Please make sure to use correct csv editor to build/edit csv file</span>
+                  </v-tooltip>
+
+                  <v-btn
+                    color="info"
+                    @click="openScheduledDlg"
+                    :disabled="!isImported"
+                  >
+                    Submit
+                  </v-btn>
+                </div>
+              </div>
             </v-tab-item>
 
             <!-- Forecast -->
@@ -234,25 +333,80 @@
         </v-flex>
       </v-layout>
     </v-card-text>
+    <v-dialog width="400" v-model="loadingCSV">
+      <v-card class="pt-5 pb-6">
+        <v-progress-circular
+          class="d-block mx-auto mt-2"
+          color="primary"
+          indeterminate
+        />
+      </v-card>
+    </v-dialog>
+
+    <ConfirmationDialog
+      v-model="scheduleDialog"
+      :dialogText="$t('submitScheduleConfirmation')"
+      :title="$t('importSchedule')"
+      @onOK="saveSchedule"
+    />
+    <ConfirmationDialog
+      v-model="cancelDialog"
+      :dialogText="$t('cancelImportedCsv')"
+      :title="$t('closeImport')"
+      @onOK="cancelImport"
+    />
+    <v-dialog
+      v-model="validationDialog"
+      max-width="600"
+    >
+      <v-card>
+        <v-card-title class="text-h5">
+          {{ $t('csvValidationTitle') }}
+        </v-card-title>
+
+        <v-card-text>
+          {{ validationMsg }}
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="validationDialog = false"
+          >
+            Ok
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
 <script>
 import {
   Day,
+  Time,
+  Weekday,
   Calendar,
   CalendarEvent,
   Schedule,
+  Pattern,
   Functions as fn,
 } from "dayspan";
 import _ from "lodash";
-
+import moment from "moment";
 import Notification from "./Notification";
 import ScheduleModifier from "./ScheduleModifier";
 import ScheduleForecast from "./ScheduleForecast";
 import ScheduleActions from "./ScheduleActions";
 import mySchedule from "./Schedule";
-import {addActivityColor, getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
+import api from "@/Components/Utils/api/api.vue";
+import { AppletMixin } from '@/Components/Utils/mixins/AppletMixin';
+import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
+import ObjectToCSV from 'object-to-csv';
+import { VueCsvImport } from 'vue-csv-import';
+import { getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
 export default {
   name: "dsEvent",
 
@@ -262,12 +416,18 @@ export default {
     ScheduleForecast,
     ScheduleModifier,
     ScheduleActions,
+    ConfirmationDialog,
+    VueCsvImport
   },
 
   props: {
     activities: {
       type: Array,
       required: true,
+    },
+    importOnly: {
+      type: Boolean,
+      default: false,
     },
     targetSchedule: {
       required: true,
@@ -378,20 +538,96 @@ export default {
 
   data: (vm) => {
     return {
-    tab: "details",
-    schedule: new Schedule(),
-    details: vm.$dayspan.getDefaultEventDetails(),
-    oneTimeCompletion: false,
-    eventAvailability: null,
-    onlyScheduledDay: false,
-    scheduledExtendedTime: {},
-    scheduledTimeout: {},
-    timedActivity: {},
-    scheduledIdleTime: {},
+      tab: "details",
+      schedule: new Schedule(),
+      details: vm.$dayspan.getDefaultEventDetails(),
+      oneTimeCompletion: false,
+      eventAvailability: null,
+      onlyScheduledDay: false,
+      scheduledExtendedTime: {},
+      scheduledTimeout: {},
+      timedActivity: {},
+      activityHidden: {},
+      scheduledIdleTime: {},
+      scheduleDialog: false,
+      cancelDialog: false,
+      scheduleImport: false,
+      validationDialog: false,
+      validationMsg: "",
+      csvFileKey: 0,
+      headers: [
+        {
+          text: 'Activity Name',
+          align: 'start',
+          sortable: true,
+          value: 'name',
+          width: '25%'
+        },
+        { text: 'Date', value: 'date', width: '15%' },
+        { text: 'Activity Start Time', value: 'startTime' },
+        { text: 'Activity End Time', value: 'endTime' },
+        { text: 'Notification Time', value: 'notificationTime' },
+        { text: 'Repeats', value: 'repeats' },
+        { text: 'Frequency', value: 'frequency' },
+      ],
+      items: [
+        {
+          name: 'Flanker',
+          date: '01/13/2022',
+          startTime: '0800',
+          endTime: '1640',
+          notificationTime: '1400',
+          repeats: 'Yes',
+          frequency: 'Daily',
+        }, {
+          name: 'Screener',
+          date: '11/03/2022',
+          startTime: '0435',
+          endTime: '2240',
+          notificationTime: '1230',
+          repeats: 'Yes',
+          frequency: 'Weekly',
+        }, {
+          name: 'EMA',
+          date: '04/22/2022',
+          startTime: '1030',
+          endTime: '1130',
+          notificationTime: '1030',
+          repeats: 'Yes',
+          frequency: 'Week Day',
+        }, {
+          name: 'TokenLogger',
+          date: '12/07/2022',
+          startTime: '2230',
+          endTime: '2300',
+          notificationTime: '2245',
+          repeats: 'Yes',
+          frequency: 'Monthly',
+        }, {
+          name: 'Cognitive Battery',
+          date: '05/19/2022',
+          startTime: '1750',
+          endTime: '1846',
+          notificationTime: '1750',
+          repeats: 'No',
+          frequency: '',
+        },
+      ],
+      referencedUsersCSV: [],
+      isImported: false,
+      isSaving: false,
+      eventCount: 0,
+      loadingCSV: false,
     }
   },
 
   computed: {
+    ownerType() {
+      return Object.keys(this.$store.state.currentUsers).length ? 'individual' : 'Group';
+    },
+    userCode() {
+      return Object.values(this.$store.state.currentUsers).map(user => user.MRN || user.email).join(', ');
+    },
     title() {
       return this.details.title;
     },
@@ -450,11 +686,28 @@ export default {
         }
       );
     },
+    activityFlows () {
+      const appletData = this.$store.state.currentAppletData;
+      const order = _.get(appletData.applet, ['reprolib:terms/activityFlowOrder', 0, '@list'], []).map(item => item['@id']);
+
+      return order.map(item => appletData.activityFlows[item]);
+    },
+
+    activityFlowNames() {
+      const appletData = this.$store.state.currentAppletData;
+
+      return this.activityFlows.map(activityFlowObj => {
+        const name = activityFlowObj['schema:name'][0]['@value'];
+        return name;
+      })
+    },
     currentApplet() {
       return this.$store.state.currentAppletMeta;
     },
     activityNames() {
-      return _.map(this.activities, (a) => a.name);
+      const activities = _.map(this.activities, (activity) => activity.name);
+
+      return [...activities, ...this.activityFlowNames];
     },
     slotData() {
       return {
@@ -489,17 +742,25 @@ export default {
       if (!this.details.timeout.allow) {
         return true;
       }
-      if (this.details.timeout.day > 0) {
-        return true;
+
+      if (this.details.timeout.day < 0) {
+        return false;
       }
-      if (this.details.timeout.hour > 0) {
-        return true;
+
+      if (this.details.timeout.day === 0 && this.details.timeout.hour < 0) {
+        return false;
       }
-      if (this.details.timeout.minute > 0) {
-        return true;
+
+      if (
+        this.details.timeout.day == 0 &&
+        this.details.timeout.hour == 0 &&
+        this.details.timeout.minute <= 0
+      ) {
+        return false;
       }
+
       // If 'Allow timeout' is checked & every value is 0, form is invalid
-      return false;
+      return true;
     },
 
     canSave() {
@@ -508,6 +769,17 @@ export default {
         this.schedule,
         this.calenderEvent
       );
+
+      if (this.details.useNotifications && (!this.details.notifications || this.details.notifications.length === 0)) {
+        return false;
+      }
+      if (this.details.notifications && this.details.useNotifications) {
+        for (const notification of this.details.notifications) {
+          if (notification.allow && (!notification.start || !notification.start.match(/\d{2}:\d{2}/))) {
+            return false;
+          }
+        }
+      }
 
       const isTimeoutValid = this.isTimeoutValid;
 
@@ -571,22 +843,134 @@ export default {
       immediate: true,
     },
     title() {
-      const res = _.filter(this.activities, (a) => a.name === this.title);
-      if (res.length)
-      {
-        this.details.URI = res[0].URI;
-        const activityColor = getEventColor(res[0].id)
-        if(activityColor)
-        {
-          this.details.color = this.getHexColor(activityColor)
+      if (this.activityFlowNames.includes(this.title)) {
+        const flow = this.activityFlows.find(flow => flow['schema:name'][0]['@value'] === this.title);
+        const color = getEventColor(flow._id);
+
+        this.details.URI = flow._id.split('/').pop();
+        if (color) {
+          this.details.color = this.getHexColor(color)
+        }
+      } else {
+        const res = _.filter(this.activities, (a) => a.name === this.title);
+        if (res.length) {
+          this.details.URI = res[0].URI;
+
+          const activityColor = getEventColor(res[0].id)
+          if(activityColor)
+          {
+            this.details.color = this.getHexColor(activityColor)
+          }
         }
       }
     },
   },
 
+  created () {
+    let state = this.calendar.toInput(true);
+
+    if (this.ownerType === 'Group') {
+      this.headers.push({ text: 'Secret User ID', value: 'secretId' })
+      this.items = this.items.map((item, i) => ({...item, secretId: i === 1 ? 'MRN1' : i % 2 === 0 ? '' : 'MRN1, MRN2'}));
+    }
+
+    if (state.events.length && this.importOnly) {
+      this.eventCount = state.events.length;
+      this.items = [];
+
+      this.getUserList().then(users => {
+        const userIdToMrn = {};
+        for (let i = 0; i < users.length; i++) {
+          userIdToMrn[users[i]._id] = users[i].MRN || users[i].email || '';
+        }
+
+        const padZero = (number, length=2) => {
+          return number.toString().padStart(length, '0');
+        };
+
+        const getDateForSchedule = (schedule, pattern) => {
+          let day = new Date();
+
+          if (pattern == 'weekly' || pattern == 'weekday') {
+            day.setDate(day.getDate() - day.getDay() + schedule.dayOfWeek[0]);
+          }
+
+          if (pattern == 'monthly') {
+            day.setDate(schedule.dayOfMonth[0])
+          }
+
+          return `${padZero(day.getMonth() + 1)}/${padZero(day.getDate())}/${day.getFullYear()}`;
+        }
+
+        for (const event of state.events) {
+          const pattern = Pattern.findMatch(event.schedule)
+          const types = { daily: 'Daily', weekly: 'Weekly', weekday: 'Week Day', monthly: 'Monthly' }
+          const eventUsers = event.data.users || [];
+          let date = '';
+
+          if (event.schedule.year && event.schedule.month && event.schedule.dayOfMonth) {
+            date = `${padZero(event.schedule.month[0] + 1)}/${padZero(event.schedule.dayOfMonth[0])}/${event.schedule.year[0]}`;
+          } else {
+            date = getDateForSchedule(event.schedule, pattern.name);
+          }
+
+          const [startHour, startMinute] = event.schedule.times ? event.schedule.times[0].split(':') : [0, 0];
+          let endHour = startHour, endMinute = startMinute;
+
+          if (event.data.timeout) {
+            endHour = Number(startHour || 0) + Number(event.data.timeout.hour);
+            endMinute = Number(startMinute || 0) + Number(event.data.timeout.minute);
+
+            endHour += Math.floor(endMinute / 60);
+            endMinute %= 60;
+
+            if (endHour >= 24) endHour = 23;
+          }
+          const obj = {
+            name: event.data.title,
+            date,
+            startTime: `${padZero(startHour || 0)}${padZero(startMinute || 0)}`,
+            endTime: `${padZero(endHour || 0)}${padZero(endMinute || 0)}`,
+            notificationTime: event.data.useNotifications ? event.data.notifications[0].start.replace(':', '') : '',
+            repeats: types[pattern.name] ? 'Yes' : 'No',
+            frequency: types[pattern.name] || '',
+          };
+          if (this.ownerType === "Group") {
+            obj.secretId = eventUsers.map(userId => userIdToMrn[userId] || '').join(', ');
+          }
+          this.items.push(obj)
+        }
+      })
+    }
+  },
+
+  beforeMount () {
+    const appletData = this.$store.state.currentAppletData;
+
+    this.activities.forEach((activity, index) => {
+      this.activityHidden[activity.name] = appletData.activities[activity.URI]['reprolib:terms/isVis'][0]['@value'];
+    })
+
+    this.activityFlows.forEach(activityFlowObj => {
+      const name = activityFlowObj['schema:name'][0]['@value'];
+      const activityFlow = appletData.applet['reprolib:terms/activityFlowProperties'].find(p => {
+        const flowName = p['reprolib:terms/variableName'][0]['@value'].replace(/_/g, ' ');
+        return flowName === name;
+      });
+
+      this.activityHidden[name] = !activityFlow['reprolib:terms/isVis'][0]['@value'];
+    })
+  },
+
   methods: {
     getHexColor(colorName) {
       return _.filter(this.$dayspan.colors, c => c.text === colorName)[0].value;
+    },
+    displaySelectItem (item) {
+      if (this.activityFlowNames.includes(item)) {
+
+      }
+      return '##';
     },
     async remove(eventId) {
       const res = await this.$dialog.warning({
@@ -693,9 +1077,416 @@ export default {
       this.eventAvailability = availability;
     },
 
-    save() {
+    validSchedule(name) {
+      return !this.activityHidden[name];
+    },
+
+    handleImportBtn() {
+      this.csvFileKey++;
+      setTimeout(() => {
+        this.$el.querySelector("input.import-file").click();
+      })
+    },
+
+    onFileChange(e) {
+      const files = e.target.files || e.dataTransfer.files;
+      if (!files.length) {
+        return;
+      }
+      this.createInput(files[0]);
+    },
+
+    getUserList () {
+      return api.getAppletUsers({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        appletId: this.currentApplet.id,
+      }).then(resp => resp.data.active)
+    },
+
+    createInput(file) {
+      const reader = new FileReader();
+      const vm = this;
+      this.validationMsg = '';
+
+      reader.onload = (e) => {
+        const lines = reader.result.split('\n')
+        const headers = lines[0].split(',').map(header => {
+          const value = header.replace(/\"/g, '').replace(/\r/g, '');
+          const headerItem = this.headers.find(h => h.text === value);
+
+          if (headerItem) {
+            return headerItem.value;
+          }
+          return value;
+        })
+
+        const importedItems = lines.slice(1).map(line => {
+          let fields = [];
+          if (line.match(/^\s*"/)) {
+            fields = line.split(/"\s*,\s*"/).map(field => field.replace(/[\"\r\n]/g, ''));
+          } else {
+            fields = line.split(',').map(field => field.replace(/[\"\r\n]/g, ''))
+          }
+
+          return Object.fromEntries(headers.map((h, i) => [h, fields[i]]))
+        }).filter(line => {
+          if (line.name === '' || line.name === undefined) {
+            return false;
+          }
+          return true;
+        })
+
+        if (!importedItems.length) {
+          this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
+        }
+
+        const activityNames = [];
+        for (const actId in this.$store.state.currentAppletData.activities) {
+          const prefLabel = "http://www.w3.org/2004/02/skos/core#prefLabel";
+          const activityName = _.get(this.$store.state.currentAppletData.activities[actId], [prefLabel, 0, '@value']);
+          activityNames.push(activityName);
+        }
+
+        const validateTime = (time) => {
+          if (!time) return true;
+          if (isNaN(time) || time < 0) return false;
+          if (time.length > 4 || time.length < 3) return false;
+
+          const hour = Number(time.slice(0, -2)), minutes = Number(time.slice(-2));
+
+          if (hour >= 24) return false;
+          if (minutes >= 60) return false;
+
+          return true;
+        }
+        for (let i = 0; i < importedItems.length; i += 1) {
+          const { startTime, endTime, name, repeats, frequency, date, notificationTime } = importedItems[i];
+          const month = Number(date.split('/').shift());
+
+          if (isNaN(new Date(date)) || isNaN(month) || month < 0 || month > 12 || date.trim().length != 10) {
+            this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
+            break;
+          }
+
+          if (!validateTime(startTime) || !validateTime(endTime) || Number(startTime) >= Number(endTime)) {
+            this.validationMsg = 'You have invalid start time or end time in csv. Please fix and reupload.'
+            break;
+          }
+
+          if (!validateTime(notificationTime)) {
+            this.validationMsg = 'You have invalid notification time. Please fix and reupload.'
+            break;
+          }
+
+          if (notificationTime && isNaN(notificationTime)) {
+            this.validationMsg = 'You have invalid notification time in csv. Please fix and reupload.';
+            break;
+          }
+
+          if (Number(startTime) > Number(endTime)) {
+            this.validationMsg = 'We are unable to upload this schedule. You have an end time that is before a start time. Please fix and reupload.';
+            break;
+          }
+
+          if (frequency === undefined || repeats === undefined) {
+            this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
+            break;
+          }
+
+          if (!['daily', 'weekly', 'weekday', 'monthly', ''].includes(frequency.toLowerCase().replace(/\s/g, ''))) {
+            this.validationMsg = 'You have invalid frequency value in csv. Please fix and reupload.';
+            break;
+          }
+
+          if (!['yes', 'no'].includes(repeats.toLowerCase().replace(/\s/g, ''))) {
+            this.validationMsg = 'You have invalid repeat value in csv. Please fix and reupload.';
+            break;
+          }
+
+          if (repeats.replace(/\s/g, '') === 'Yes' && frequency.replace(/\s/g, '') === '') {
+            this.validationMsg = `You are missing a frequency to repeat ${name}. Please fix and reupload.`;
+            break;
+          }
+
+          if (repeats.replace(/\s/g, '') !== 'Yes' && frequency.replace(/\s/g, '') !== '') {
+            this.validationMsg = 'You have a frequency set but have entered no repeating. Please fix and reupload.';
+            break;
+          }
+
+          if (!this.activityNames.includes(name)) {
+            this.validationMsg = `${name} is not valid activity. Please fix and reupload.`;
+            break;
+          }
+        }
+
+        this.getUserList().then(allUsers => {
+          const mrnToUserId = {};
+
+          this.referencedUsersCSV = [];
+          for (let i = 0; i < allUsers.length; i++) {
+            mrnToUserId[allUsers[i].MRN || allUsers[i].email] = allUsers[i]._id;
+          }
+
+          for (let i = 0; i < importedItems.length; i++) {
+            const secretIds = (importedItems[i].secretId || '').split(', ').map(secretId => secretId.trim()).filter(secretId => secretId);
+            const users = [];
+            if (this.ownerType === "Group") {
+              for (const secretId of secretIds) {
+                if (!mrnToUserId[secretId]) {
+                  this.validationMsg = 'You have invalid secret id in csv.';
+                  break;
+                }
+                users.push(mrnToUserId[secretId]);
+              }
+            } else {
+              users.push(mrnToUserId[this.userCode]);
+            }
+            importedItems[i].users = users.sort();
+            this.referencedUsersCSV.push(importedItems[i].users.join(','));
+          }
+
+          if (this.validationMsg) {
+            this.validationDialog = true;
+          } else {
+            vm.items = importedItems;
+            this.validationDialog = false;
+            this.isImported = true;
+          }
+        });
+      }
+      reader.readAsText(file);
+    },
+
+    openScheduledDlg() {
+      this.scheduleDialog = true;
+    },
+    saveSchedule() {
+      this.scheduleDialog = false;
+      this.loadingCSV = true;
+
+      let updatedActivities = [];
+
+      for (const item of this.items) {
+        const name = item.name;
+
+        if (this.activityHidden[name]) {
+          this.activityHidden[name] = false;
+          updatedActivities.push(name);
+        }
+      }
+
+      const updateSchedule = () => {
+        let ev = this.getEvent("save");
+
+        let state = this.calendar.toInput(true);
+
+        for (const event of state.events) {
+          if (this.referencedUsersCSV.includes((event.data.users || []).sort().join(','))) {
+            this.calendar.removeEvent(this.calendar.findEvent(event.id));
+            this.$store.commit('addRemovedEventId', event.id);
+          }
+        }
+
+        this.scheduleImport = true;
+        this.isOverlap = false;
+
+        this.items.forEach(row => {
+          let { notificationTime, name, startTime, endTime, date, repeats, frequency } = row;
+          let timeout = {
+            access: false,
+            allow: true,
+            day: 0,
+          };
+
+          if (!startTime) startTime = '0000';
+          if (!endTime) endTime = '2359';
+
+          if (startTime.length < 4) startTime = '0' + startTime;
+          if (endTime.length < 4) endTime = '0' + endTime;
+          if (notificationTime && notificationTime.length < 4) notificationTime = '0' + notificationTime;
+
+          const eventTimes = [{
+            hour: startTime.slice(0, 2),
+            minute: startTime.slice(2),
+            second: 0,
+            millisecond: 0,
+          }, {
+            hour: endTime.slice(0, 2),
+            minute: endTime.slice(2),
+            second: 0,
+            millisecond: 0,
+          }]
+
+          timeout.minute = eventTimes[1].minute - eventTimes[0].minute;
+          timeout.hour = eventTimes[1].hour - eventTimes[0].hour;
+
+          if (timeout.minute < 0) {
+            timeout.minute += 60;
+            timeout.hour -= 1;
+          }
+
+          if (this.activityFlowNames.includes(name)) {
+            const flow = this.activityFlows.find(flow => flow['schema:name'][0]['@value'] === name);
+            const color = getEventColor(flow._id);
+
+            this.details.URI = flow._id.split('/').pop();
+            if (color) {
+              this.details.color = this.getHexColor(color)
+            }
+          } else {
+            const res = _.filter(this.activities, (a) => a.name === name);
+            const activityColor = getEventColor(res[0].id);
+
+            this.details.URI = res[0].URI;
+            if(activityColor)
+            {
+              this.details.color = this.getHexColor(activityColor)
+            }
+          }
+
+          const data = {
+            URI: this.details.URI,
+            availability: false,
+            busy: false,
+            calendar: "",
+            completion: false,
+            description: "",
+            isActivityFlow: this.activityFlowNames.includes(name),
+            extendedTime: {
+              allow: false,
+              minute: 1
+            },
+            forecolor: "#ffffff",
+            color: this.details.color,
+            icon: "",
+            idleTime: {
+              allow: false,
+              minute: 1
+            },
+            location: "",
+            notifications: [
+              {
+                allow: notificationTime ? true : false,
+                end: null,
+                random: false,
+                start: notificationTime ? [notificationTime.slice(0, 2), ":", notificationTime.slice(2)].join('') : ''
+              }
+            ],
+            onlyScheduledDay: false,
+            reminder: {
+              days: 0,
+              time: "",
+              valid: false
+            },
+            timedActivity: {
+              allow: false,
+              hour: 0,
+              minute: 59,
+              second: 59
+            },
+            timeout,
+            title: row.name,
+            useNotifications: notificationTime ? true : false
+          }
+
+          if (row.users && row.users.length) {
+            data.users = row.users;
+          }
+
+          const times = [];
+          let eventSchedule = {};
+          const dateValues = date.split('/');
+          times.push(new Time(Number(eventTimes[0].hour), Number(eventTimes[0].minute), eventTimes[0].second, eventTimes[0].millisecond));
+
+          let pattern = null;
+          if (repeats) {
+            switch (frequency) {
+              case "Daily":
+                pattern = Pattern.withName('daily');
+                break;
+              case "Weekly":
+                pattern = Pattern.withName('weekly')
+                break;
+              case "Week Day":
+                pattern = Pattern.withName('weekday')
+                break;
+              case "Monthly":
+                pattern = Pattern.withName('monthly');
+                break;
+            }
+          }
+
+          if (pattern) {
+            eventSchedule = new Schedule({
+              times
+            })
+            pattern.apply(eventSchedule, new Day(moment(date)))
+          } else {
+            eventSchedule = new Schedule({
+              on: Day.build(dateValues[2], dateValues[0] - 1, dateValues[1]),
+              times
+            })
+          }
+
+          ev.created = {
+            data,
+            id: null,
+            schedule: eventSchedule
+          };
+
+          this.calendar.addEvent(ev.created)
+        });
+        this.calendar.refreshEvents();
+        this.$emit("saved", ev);
+        this.isImported = false;
+        this.cancel();
+
+        state = this.calendar.toInput(true);
+        this.$store.commit("setSchedule", state);
+        this.$store.commit("setCachedEvents", state.events);
+      }
+
+      this.updateActivityVis(updatedActivities).then(() => {
+        setTimeout(() => {
+          updateSchedule()
+          this.loadingCSV = false;
+        }, this.items.length > 15 ? 350 : 0);
+      });
+    },
+
+    downloadTemplate () {
+      this.downloadFile({
+        name: 'template.csv',
+        content: new ObjectToCSV({
+          data: this.items,
+          keys: this.headers.map(header => ({ key: header.value, as: header.text }))
+        }).getCSV(),
+        type: 'text/csv;charset=utf-8'
+      });
+    },
+
+    downloadFile({ name, content, type }) {
+      const file = new Blob([content], { type })
+      return new Promise(resolve => {
+        saveAs(file, name)
+        resolve(true)
+      })
+    },
+
+    async save() {
       var ev = this.getEvent("save");
       this.$emit("save", ev);
+      this.isSaving = true;
+
+      let isActivityFlow = false;
+      if(this.activityFlowNames.includes(this.details.title)) {
+        isActivityFlow = true;
+      }
+
+      await this.updateActivityVis([this.details.title])
+
+      ev.details.isActivityFlow = isActivityFlow;
 
       if (!ev.handled) {
         if (ev.target && ev.schedule) {
@@ -719,7 +1510,6 @@ export default {
             ev.calendar.addEvent(ev.created);
             ev.added = true;
           }
-
           this.$emit("create", ev);
         }
 
@@ -728,12 +1518,11 @@ export default {
         }
 
         ev.handled = true;
-
         if (ev.created) {
           this.$emit("event-create", ev.created);
         }
       }
-
+      this.isSaving = true;
       this.$emit("saved", ev);
     },
 
@@ -742,12 +1531,79 @@ export default {
     },
 
     cancel() {
-      this.$emit("cancel", this.getEvent("cancel"));
+      this.isSaving = true;
+      if (this.isImported) {
+        this.cancelDialog = true;
+      } else {
+        this.$emit("cancel", this.getEvent("cancel"));
+      }
+    },
+
+    cancelImport() {
+      this.isImported = false;
+      this.cancel();
     },
 
     updateSchedule(schedule) {
       this.schedule = schedule.clone();
       this.tab = "details";
+    },
+
+    changeActivityVis() {
+      this.$forceUpdate();
+    },
+
+    async updateActivityVis(names) {
+      let activityFlowIds = [];
+      let activityIds = [];
+      const appletData = this.$store.state.currentAppletData;
+
+      if (!names.length) return ;
+
+      for (let activityFlowKey in appletData.activityFlows) {
+        const {
+          '@id': activityFlowName ,
+          _id: id,
+        } = appletData.activityFlows[activityFlowKey];
+
+        if (names.includes(activityFlowName.replace(/_/g, ' '))) {
+          activityFlowIds.push(id.split('/')[1]);
+        }
+      }
+
+      for (let activity of this.activities) {
+        if (names.includes(activity.name)) {
+          activityIds.push(activity.id.split('/').pop());
+        }
+      }
+
+      try {
+        await api.updateActivityVis({
+          apiHost: this.$store.state.backend,
+          token: this.$store.state.auth.authToken.token,
+          body: {
+            id: appletData.applet._id,
+            status: !this.activityHidden[names[0]],
+            activityFlowIds,
+            activityIds
+          },
+        });
+
+        appletData.applet['reprolib:terms/activityFlowProperties'].forEach(p => {
+          const name = p['reprolib:terms/variableName'][0]['@value'].replace(/_/g, ' ');
+          if (names.includes(name)) {
+            p['reprolib:terms/isVis'][0]['@value'] = !this.activityHidden[name]
+          }
+        });
+
+        this.activities.forEach(activity => {
+          appletData.activities[activity.URI]['reprolib:terms/isVis'][0]['@value'] = this.activityHidden[activity.name];
+        });
+
+        this.$store.commit("updateAppletData", appletData);
+      } catch (err) {
+        console.log(err);
+      }
     },
 
     updateDetails(details) {
@@ -868,6 +1724,27 @@ export default {
 };
 </script>
 
+<style scoped lang="css">
+  .hide-tabs >>> .v-tabs-bar {
+    display: none !important;
+  }
+</style>
+
+<style lang="scss">
+.csv-import-checkbox {
+  display: none;
+}
+.csv-data-table table {
+  table-layout: fixed;
+}
+.import-file {
+  display: none;
+}
+.v-toolbar__content {
+  display: -webkit-box;
+}
+</style>
+
 <style scoped lang="scss">
 .ds-calendar-event-title {
   font-size: 18px;
@@ -879,6 +1756,10 @@ export default {
   width: 100%;
   color: white;
   padding: 4px;
+}
+
+.ds-display-none {
+  display: none;
 }
 
 .ds-button-tall {
@@ -910,7 +1791,7 @@ export default {
   }
 
   .ds-event-details {
-    max-height: 500px;
+    max-height: 600px;
     overflow-y: auto;
   }
 

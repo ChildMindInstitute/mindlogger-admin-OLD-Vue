@@ -91,6 +91,10 @@ export const AppletMixin = {
 
           const currentItems = {};
           const currentActivities = {};
+          const activityFlows = Object.values(appletData.activityFlows || {}).map(flow => ({
+            name: _.get(flow, ['schema:name', 0, '@value']),
+            id: flow._id.split('/').pop(),
+          }));
           for (let itemUrl in appletData.items) {
             currentItems[itemUrl] = new Item(appletData.items[itemUrl]);
             currentItems[itemUrl].schemas.push(itemUrl);
@@ -133,6 +137,7 @@ export const AppletMixin = {
             'userId',
             'activity_id',
             'activity_name',
+            'activity_flow',
             'item',
             'response',
             'prompt',
@@ -379,6 +384,7 @@ export const AppletMixin = {
                 .split('250)');
 
               const { options, scores } = parseItemOptions(item);
+              const flow = activityFlows.find(flow => flow.id == response.activityFlow);
 
               const csvObj = {
                 id: response._id,
@@ -400,6 +406,7 @@ export const AppletMixin = {
                 version: response.version,
                 rawScore: scores.reduce((accumulated, current) => current + accumulated, 0),
                 reviewing_id: response.reviewing || '',
+                activity_flow: flow ? flow.name : '',
                 ... (!isSubScaleExported ? response.subScales : {}),
                 ... (!isSubScaleExported ? outputTexts : {})
               }
@@ -442,6 +449,7 @@ export const AppletMixin = {
             }
 
             if (response.events !== null && activity) {
+              const flow = activityFlows.find(flow => flow.id == response.activityFlow);
               const responseEvents = data.eventSources[response.events].data || [];
 
               for (const event of responseEvents) {
@@ -452,7 +460,7 @@ export const AppletMixin = {
                 const { options } = item ? parseItemOptions(item) : { options: [] };
                 let eventResponse = '';
 
-                if (event.response) {
+                if (event.response && item) {
                   if (item.inputType == 'text') {
                     eventResponse = event.response;
                   } else {
@@ -499,6 +507,7 @@ export const AppletMixin = {
                   prompt: replaceItemVariableWithName(question && question[question.length - 1] || '', currentItems, response.data),
                   response: eventResponse,
                   options: replaceItemVariableWithName(options.join(', '), currentItems, response.data),
+                  activity_flow: flow ? flow.name : '',
                   version: response.version,
                 })
               }
@@ -552,7 +561,7 @@ export const AppletMixin = {
               keys: [
                 'id', 'activity_scheduled_time', 'activity_start_time', 'activity_end_time',
                 'press_next_time', 'press_back_time', 'press_undo_time', 'press_skip_time', 'press_done_time', 'response_option_selection_time',
-                'secret_user_id', 'user_id', 'activity_id', 'activity_name', 'item',
+                'secret_user_id', 'user_id', 'activity_id', 'activity_flow', 'activity_name', 'item',
                 'prompt', 'response', 'options', 'version'
               ].map(value => ({ key: value, as: value })),
               data: events
@@ -587,14 +596,20 @@ export const AppletMixin = {
 
     getFlankerAsCSV(responses, item, experimentClock) {
       const result = [];
-      const types = {
-        '>>>>>': { trialType: 4, ext: 'right-con', expected: '>', },
-        '<<><<': { trialType: 6, ext: 'right-inc', expected: '>' },
-        '-->--': { trialType: 2, ext: 'right-neut', expected: '>' },
-        '<<<<<': { trialType: 3, ext: 'left-con', expected: '<' },
-        '>><>>': { trialType: 5, ext: 'left-inc', expected: '<' },
-        '--<--': { trialType: 1, ext: 'left-neut', expected: '<' }
+
+      const getImage = (image, alt) => {
+        if (image) {
+          return `<img src="${image}" alt="${alt}">`
+        }
+
+        return alt;
       }
+
+      const types = item.inputs.trials.reduce((prev, trial) => ({
+        ...prev,
+        [getImage(trial.image, trial.name)]: trial.name,
+        [trial.image]: trial.name
+      }), {});
 
       const getResponseObj = (response, tag, config, trialStartTimestamp) => {
         const trialNumber = response.trial_index, blockNumber = config.blockIndex;
@@ -620,23 +635,23 @@ export const AppletMixin = {
           trialType = tag == 'feedback' ? 0 : -1;
 
           if (tag == 'response') {
-            trialType = types[response.question].trialType;
+            trialType = types[response.question] || response.question;
           }
         } else {
-          trialType = types[response.question].trialType;
+          trialType = types[response.question] || response.question;
         }
 
         let responseValue = '.', responseAccuracy = '.', responseTouchTimestamp = '.', responseTime = '.';
 
-        let videoDisplayRequestTimestamp = response.offset ? response.start_time + response.offset : response.start_timestamp, eventStartTimestamp = response.start_timestamp;
+        let videoDisplayRequestTimestamp = response.start_time + response.offset, eventStartTimestamp = response.start_timestamp;
         let eventOffset = eventStartTimestamp - trialStartTimestamp;
 
         if (tag == 'response') {
           eventOffset = eventStartTimestamp = '.';
-          responseValue = response.button_pressed === null ? '.' : response.button_pressed === '0' ? 'L' : 'R';
+          responseValue = (response.button_pressed === null || response.button_pressed === undefined) ? '.' : response.button_pressed === '0' ? 'L' : 'R';
           responseAccuracy = response.correct ? '1' : '0';
 
-          responseTouchTimestamp = videoDisplayRequestTimestamp + response.duration;
+          responseTouchTimestamp = response.response_touch_timestamp || '.';
           responseTime = response.duration;
           videoDisplayRequestTimestamp = '.';
         }
@@ -678,11 +693,14 @@ export const AppletMixin = {
         }
       }
 
+      let lastTrialIndex = -1;
+
       for (let i = 0; i < responses.length; i++) {
         const blockClock = responses[0].start_timestamp;
 
-        if (responses[i].tag == 'fixation') {
+        if (lastTrialIndex !== responses[i].trial_index) {
           trialStartTimestamp = responses[i].start_timestamp;
+          lastTrialIndex = responses[i].trial_index;
         }
 
         const response = {
@@ -821,21 +839,48 @@ export const AppletMixin = {
 
       return formatted;
     },
-    getMediaResponseObject(value, response, item) {
-      const identifiers = ['s3://', 'gs://', 'https://'];
-      if (!value.includes(identifiers[0]) && !value.includes(identifiers[1]) && !value.includes(identifiers[2])) return;
-      const isGCP = value.includes(identifiers[1]);
-      const isAzure = value.includes(identifiers[2]);
+    
+    downloadReportPDFFromS3 (response) {
+      const credentials = {
+        accessKeyId: process.env.VUE_APP_ACCESS_KEY_ID,
+        secretAccessKey: process.env.VUE_APP_SECRET_ACCES_KEY,
+        httpOptions: {
+          timeout: 320000
+        },
+      };
 
-      value = value.replace(identifiers[0], '');
-      value = value.replace(identifiers[1], '');
-      value = value.replace(identifiers[2], '');
+      const { bucket, key } = this.parseS3URL(response.uri);
+
+      const client = new S3(credentials);
+      client.getObject({
+        Bucket: bucket,
+        Key: key
+      }).promise().then(data => {
+        const blob = new Blob([data.Body], { type: 'application/pdf' });
+        saveAs(blob, response.name);
+      })
+    },
+
+    parseS3URL (value) {
+      const identifier = 's3://';
+      if (!value.includes(identifier)) return {};
+
+      value = value.replace(identifier, '');
       const separator = value.indexOf('/');
 
       const bucket = value.slice(0, separator);
       const key = value.slice(separator + 1, value.length);
 
       const extension = value.slice(value.lastIndexOf('.'), value.length);
+
+      return { bucket, key, extension };
+    },
+
+    getMediaResponseObject(value, response, item) {
+      const { bucket, key, extension } = this.parseS3URL(value);
+
+      if (!bucket) return ;
+
       const name = `${response._id}-${response.userId}-${item.id}${extension}`;
 
       this.mediaResponseObjects.push({ bucket, name, key, isGCP, isAzure });

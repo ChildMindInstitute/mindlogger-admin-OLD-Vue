@@ -50,10 +50,11 @@ export default class Applet {
     this.minimumDate = new Date();
 
     this.reviewerActivity = null;
-    this.hasCumulativeActivity = false;
+    this.hasReports = false;
     this.secretIDs = {};
 
     this.selectedActivites = [];
+    this.reports = [];
 
     // Load items.
     this.items = Object
@@ -94,8 +95,8 @@ export default class Applet {
         this.reviewerActivity = activity;
       }
 
-      if (activity.isCumulativeActivity) {
-        this.hasCumulativeActivity = true;
+      if (activity.hasReports) {
+        this.hasReports = true;
       }
 
       if (activity.hasTokenItem) {
@@ -188,6 +189,7 @@ export default class Applet {
     if (this.encryption) {
       Applet.replaceItemValues(Applet.decryptResponses(data, this.encryption));
 
+      this.reports = data.reports;
       this.token.cumulative = data.token.cumulative;
 
       for (const token of data.token.tokens) {
@@ -338,6 +340,7 @@ export default class Applet {
           this.timezoneStr = resp.date.substr(-6);
         }
 
+        resp.utcTimestamp = new Date(resp.date).getTime();
         resp.date = resp.date.slice(0, -6);
       });
 
@@ -402,7 +405,8 @@ export default class Applet {
           date: response.date,
           version: response.version,
           responseId: response.responseId,
-          secretId: response.secretId
+          secretId: response.secretId,
+          utcTimestamp: response.utcTimestamp,
         })));
       }
 
@@ -425,8 +429,8 @@ export default class Applet {
         }
 
         for (const response of activity.responses) {
-          if (!activity.lastResponseDate || activity.lastResponseDate < response.date) {
-              activity.lastResponseDate = response.date;
+          if (!activity.lastResponseDate || activity.lastResponseDate.getTime() < response.utcTimestamp) {
+              activity.lastResponseDate = new Date(response.utcTimestamp);
           }
         }
       }
@@ -441,6 +445,7 @@ export default class Applet {
         const responses = this.subScales[activityId][subScaleName];
 
         for (const response of responses) {
+          response.utcTimestamp = new Date(response.date).getTime();
           response.date = response.date.slice(0, -6);
           response.value.secretId = secretIDs[response.value.responseId];
         }
