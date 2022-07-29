@@ -883,7 +883,7 @@ export const AppletMixin = {
 
       const name = `${response._id}-${response.userId}-${item.id}${extension}`;
 
-      this.mediaResponseObjects.push({ bucket, name, key, isGCP, isAzure });
+      this.mediaResponseObjects.push({ bucket, name, key });
 
       return name;
     },
