@@ -134,7 +134,7 @@ export default {
       tokenTemplate: [
         {
           "@context": [
-            "https://raw.githubusercontent.com/jj105/reproschema-context/master/context.json",
+            "https://raw.githubusercontent.com/ChildMindInstitute/reproschema-context/master/context.json",
           ],
           name: "token",
           "@id": "token",
@@ -298,7 +298,7 @@ export default {
       const form = new FormData();
       const { apiHost, token, tokenTemplate } = this;
       const contextURL =
-        "https://raw.githubusercontent.com/jj105/reproschema-context/master/context.json";
+        "https://raw.githubusercontent.com/ChildMindInstitute/reproschema-context/master/context.json";
       const optionData = {
         contexts: {},
         templates: tokenTemplate,
