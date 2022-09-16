@@ -159,6 +159,12 @@ export default {
 				if (!userIds.length && !calendarEvent.event.data.users) {
 					return true;
 				}
+				
+				if(userIds.length 
+					&& calendarEvent.event.data.users.length 
+					&& userIds.sort().join(',') !== calendarEvent.event.data.users.sort().join(',')) {
+					return false
+				}
 
 				if (!calendarEvent.event.data.users || calendarEvent.event.data.users.some(user => !userIds.includes(user))) {
 					return false
