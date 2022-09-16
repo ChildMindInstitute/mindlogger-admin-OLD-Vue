@@ -21,7 +21,6 @@
 		</div>
 
 		<template v-for="(event, i) in visibleEvents">
-
 			<ds-calendar-event
 					v-bind="{$scopedSlots}"
 					v-on="$listeners"
@@ -30,7 +29,6 @@
 					:calendar="calendar"
 					:index="i"
 			></ds-calendar-event>
-
 		</template>
 
 		<div v-if="hasPlaceholder">
@@ -55,6 +53,7 @@
 import { Day, Calendar, CalendarEvent, Functions as fn } from 'dayspan'
 import DsCalendarEvent from './CalendarEvent'
 import DsCalendarEventPlaceholder from './CalendarEventPlaceholder'
+import { isEqual, cloneDeep } from 'lodash'
 
 export default {
 
@@ -154,21 +153,23 @@ export default {
 					return false
 				}
 
-				const userIds = Object.keys(this.$store.state.currentUsers);
-
+				const userIds = Object.keys(this.$store.state.currentUsers) || [];
+			
 				if (!userIds.length && !calendarEvent.event.data.users) {
 					return true;
 				}
 				
-				if(userIds.length 
-					&& calendarEvent.event.data.users.length 
-					&& userIds.sort().join(',') !== calendarEvent.event.data.users.sort().join(',')) {
+				if(userIds.length > 1 
+					&& calendarEvent.event.data.users
+					&& !isEqual(cloneDeep(userIds).sort(), cloneDeep(calendarEvent.event.data.users).sort())
+				) {
 					return false
 				}
-
+				
 				if (!calendarEvent.event.data.users || calendarEvent.event.data.users.some(user => !userIds.includes(user))) {
 					return false
 				}
+
 				return true
 			},
 
