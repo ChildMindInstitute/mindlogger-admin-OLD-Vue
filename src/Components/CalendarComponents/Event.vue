@@ -387,7 +387,6 @@
 import {
   Day,
   Time,
-  Weekday,
   Calendar,
   CalendarEvent,
   Schedule,
@@ -402,11 +401,11 @@ import ScheduleForecast from "./ScheduleForecast";
 import ScheduleActions from "./ScheduleActions";
 import mySchedule from "./Schedule";
 import api from "@/Components/Utils/api/api.vue";
-import { AppletMixin } from '@/Components/Utils/mixins/AppletMixin';
 import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
 import ObjectToCSV from 'object-to-csv';
 import { VueCsvImport } from 'vue-csv-import';
 import { getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
+
 export default {
   name: "dsEvent",
 
@@ -623,7 +622,8 @@ export default {
 
   computed: {
     ownerType() {
-      return Object.keys(this.$store.state.currentUsers).length ? 'individual' : 'Group';
+      const usersCount = Object.keys(this.$store.state.currentUsers).length
+      return usersCount ? (usersCount === 1 ? 'individual' : 'group') : 'general';
     },
     userCode() {
       return Object.values(this.$store.state.currentUsers).map(user => user.MRN || user.email).join(', ');
@@ -869,7 +869,7 @@ export default {
   created () {
     let state = this.calendar.toInput(true);
 
-    if (this.ownerType === 'Group') {
+    if (this.ownerType === 'general') {
       this.headers.push({ text: 'Secret User ID', value: 'secretId' })
       this.items = this.items.map((item, i) => ({...item, secretId: i === 1 ? 'MRN1' : i % 2 === 0 ? '' : 'MRN1, MRN2'}));
     }
@@ -935,7 +935,7 @@ export default {
             repeats: types[pattern.name] ? 'Yes' : 'No',
             frequency: types[pattern.name] || '',
           };
-          if (this.ownerType === "Group") {
+          if (this.ownerType === "general") {
             obj.secretId = eventUsers.map(userId => userIdToMrn[userId] || '').join(', ');
           }
           this.items.push(obj)
@@ -1219,7 +1219,7 @@ export default {
             break;
           }
         }
-
+ 
         this.getUserList().then(allUsers => {
           const mrnToUserId = {};
 
@@ -1227,20 +1227,26 @@ export default {
           for (let i = 0; i < allUsers.length; i++) {
             mrnToUserId[allUsers[i].MRN || allUsers[i].email] = allUsers[i]._id;
           }
-
+          
           for (let i = 0; i < importedItems.length; i++) {
             const secretIds = (importedItems[i].secretId || '').split(', ').map(secretId => secretId.trim()).filter(secretId => secretId);
             const users = [];
-            if (this.ownerType === "Group") {
-              for (const secretId of secretIds) {
-                if (!mrnToUserId[secretId]) {
-                  this.validationMsg = 'You have invalid secret id in csv.';
-                  break;
+
+            switch(this.ownerType) {
+              case 'individual':
+                users.push(mrnToUserId[this.userCode]);
+                break;
+              case 'group':
+                users = Object.keys(this.$store.state.currentUsers)
+                break;
+              default: 
+                for (const secretId of secretIds) {
+                  if (!mrnToUserId[secretId]) {
+                    this.validationMsg = 'You have invalid secret id in csv.';
+                    break;
+                  }
+                  users.push(mrnToUserId[secretId]);
                 }
-                users.push(mrnToUserId[secretId]);
-              }
-            } else {
-              users.push(mrnToUserId[this.userCode]);
             }
             importedItems[i].users = users.sort();
             this.referencedUsersCSV.push(importedItems[i].users.join(','));
