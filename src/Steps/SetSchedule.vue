@@ -106,6 +106,8 @@ import Calendar from "../Components/CalendarComponents/CalendarMain";
 import api from "../Components/Utils/api/api.vue";
 import { AppletMixin } from '@/Components/Utils/mixins/AppletMixin';
 import { addActivityColor } from "@/Components/CalendarComponents/activityColorPalette.js";
+import { mapGetters } from 'vuex';
+
 export default {
   name: "Schedule",
   components: {
@@ -124,6 +126,7 @@ export default {
 
   }),
   computed: {
+    ...mapGetters(['calendarEvents']),
     /**
      * format the activities in a way that's needed to render the calendar
      */
@@ -301,19 +304,17 @@ export default {
     },
     addEventType(schedule) {
       const appletSchedule = schedule;
-      appletSchedule.events.forEach((event, index) => {
-        for (const activityId in this.$store.state.currentAppletData.activities) {
-          const activity = this.$store.state.currentAppletData.activities[
-            activityId
-          ];
+
+      appletSchedule.events.forEach((event, index) => {        
+        for (const eventId in this.calendarEvents) {
+          const calendarEvent = this.calendarEvents[eventId];
           if (
-            event.data.URI === activity["@id"] ||
-            event.data.URI === activity["url"] ||
-            event.data.URI === activity["_id"].split("/")[1]
+            event.data.URI === calendarEvent["@id"] ||
+            event.data.URI === calendarEvent["url"] ||
+            event.data.URI === calendarEvent["_id"].split("/")[1]
           ) {
-            appletSchedule.events[index].data.activity_id = activity[
-              "_id"
-            ].split("/")[1];
+            const calendarEventId = calendarEvent["_id"].split("/")
+            appletSchedule.events[index].data[calendarEventId[0] + '_id'] = calendarEventId[1];
           }
         }
         if (Object.keys(event.schedule).includes("dayOfWeek")) {

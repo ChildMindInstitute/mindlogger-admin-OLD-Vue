@@ -221,6 +221,10 @@ const getters = {
   isLoggedIn (state) {
     return !_.isEmpty(state.auth)
   },
+  calendarEvents(state) {
+    const { currentAppletData } = state
+    return _.merge(_.cloneDeep(currentAppletData.activities), currentAppletData.activityFlows)
+  }
 };
 
 const stateCopy = (({
