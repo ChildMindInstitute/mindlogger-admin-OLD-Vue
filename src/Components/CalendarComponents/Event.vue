@@ -193,6 +193,7 @@
                     :details="details"
                     @updatedNotification="
                       (n) => {
+                        reactiveProp++;
                         details.notifications = n;
                       }
                     "
@@ -617,6 +618,7 @@ export default {
       isSaving: false,
       eventCount: 0,
       loadingCSV: false,
+      reactiveProp: 0,
     }
   },
 
@@ -764,6 +766,8 @@ export default {
     },
 
     canSave() {
+      this.reactiveProp; // Subscribing to state changes so the property can be recomputed
+
       const isValidDayspanEvent = this.$dayspan.isValidEvent(
         this.details,
         this.schedule,
@@ -775,7 +779,7 @@ export default {
       }
       if (this.details.notifications && this.details.useNotifications) {
         for (const notification of this.details.notifications) {
-          if (notification.allow && (!notification.start || !notification.start.match(/\d{2}:\d{2}/))) {
+          if (!notification.allow || notification.allow && (!notification.start || !notification.start.match(/\d{2}:\d{2}/))) {
             return false;
           }
         }
