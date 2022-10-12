@@ -22,7 +22,7 @@
     "@sentry/browser": "^5.19.0",
     "@sentry/integrations": "^5.19.0",
     "@uiw/react-md-editor": "^3.0.7",
-    "applet-schema-builder": "^0.18.3",
+    "applet-schema-builder": "^0.18.61-alpha",
     "aws-s3": "^2.0.5",
     "aws-sdk": "^2.889.0",
     "axios": "^0.21.1",
@@ -71,7 +71,8 @@
     "vuetify": "^2.2.31",
     "vuetify-dialog": "^2.0.2",
     "vuex": "^3.1.2",
-    "vuex-persistedstate": "^2.7.1"
+    "vuex-persistedstate": "^2.7.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@babel/plugin-proposal-object-rest-spread": "^7.8.3",

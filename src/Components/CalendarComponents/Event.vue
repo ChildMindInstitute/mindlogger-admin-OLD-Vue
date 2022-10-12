@@ -209,7 +209,7 @@
 
             <!-- Import Schedule -->
             <v-tab-item value="import">
-              <p class="mx-2"> Please upload a schedule table (.csv file format as below) </p>
+              <p class="mx-2"> Please upload a schedule table (.csv, .xlsx, .xls, .ods file format as below) </p>
               <v-card text>
                 <v-data-table
                   :headers="headers"
@@ -222,41 +222,41 @@
                 <v-btn
                   outlined
                   color="primary"
-                  @click.stop="downloadTemplate"
+                  @click.stop="downloadCSV"
                 >
                   {{ !eventCount ? 'Download Template' : 'Export Schedule' }}(.csv)
+                </v-btn>
+                <v-btn
+                  outlined
+                  color="primary"
+                  @click.stop="downloadXLSX"
+                >
+                  {{ !eventCount ? 'Download Template' : 'Export Schedule' }}(.xlsx)
                 </v-btn>
                 <div>
                   <form enctype="multipart/form-data">
                       <input
                         class="import-file ds-display-none"
-                        accept=".csv"
+                        accept=".csv, .xlsx, .xls, .ods"
                         type="file"
                         @change="onFileChange"
                         :key="csvFileKey"
                       />
                   </form>
 
-                  <v-tooltip top>
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                        v-bind="attrs"
-                        v-on="on"
-                        color="blue-grey"
-                        class="white--text mx-2"
-                        @click="handleImportBtn"
-                      >
-                        Import
-                        <v-icon
-                          right
-                          dark
-                        >
-                          mdi-cloud-upload
-                        </v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Please make sure to use correct csv editor to build/edit csv file</span>
-                  </v-tooltip>
+                  <v-btn
+                    color="blue-grey"
+                    class="white--text mx-2"
+                    @click="handleImportBtn"
+                  >
+                    Import
+                    <v-icon
+                      right
+                      dark
+                    >
+                      mdi-cloud-upload
+                    </v-icon>
+                  </v-btn>
 
                   <v-btn
                     color="info"
@@ -406,6 +406,7 @@ import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
 import ObjectToCSV from 'object-to-csv';
 import { VueCsvImport } from 'vue-csv-import';
 import { getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
+import * as XLSX from 'xlsx';
 
 export default {
   name: "dsEvent",
@@ -561,14 +562,15 @@ export default {
           align: 'start',
           sortable: true,
           value: 'name',
-          width: '25%'
+          width: '25%',
+          exportWidth: 13,
         },
-        { text: 'Date', value: 'date', width: '15%' },
-        { text: 'Activity Start Time', value: 'startTime' },
-        { text: 'Activity End Time', value: 'endTime' },
-        { text: 'Notification Time', value: 'notificationTime' },
-        { text: 'Repeats', value: 'repeats' },
-        { text: 'Frequency', value: 'frequency' },
+        { text: 'Date', value: 'date', width: '15%', exportWidth: 10, },
+        { text: 'Activity Start Time', value: 'startTime', exportWidth: 15.3 },
+        { text: 'Activity End Time', value: 'endTime', exportWidth: 14.5 },
+        { text: 'Notification Time', value: 'notificationTime', exportWidth: 14.6 },
+        { text: 'Repeats', value: 'repeats', exportWidth: 7.5 },
+        { text: 'Frequency', value: 'frequency', exportWidth: 10.6 },
       ],
       items: [
         {
@@ -834,6 +836,10 @@ export default {
     isReadOnly() {
       return this.readOnly || this.$dayspan.readOnly;
     },
+
+    exportFilename() {
+      return this.eventCount ? 'schedule' : 'template' 
+    }
   },
 
   watch: {
@@ -874,7 +880,7 @@ export default {
     let state = this.calendar.toInput(true);
 
     if (this.ownerType === 'general') {
-      this.headers.push({ text: 'Secret User ID', value: 'secretId' })
+      this.headers.push({ text: 'Secret User ID', value: 'secretId', exportWidth: 16 })
       this.items = this.items.map((item, i) => ({...item, secretId: i === 1 ? 'MRN1' : i % 2 === 0 ? '' : 'MRN1, MRN2'}));
     }
 
@@ -1097,7 +1103,8 @@ export default {
       if (!files.length) {
         return;
       }
-      this.createInput(files[0]);
+
+      files[0].type === 'text/csv' ? this.importCSV(files[0]) : this.importTable(files[0])
     },
 
     getUserList () {
@@ -1108,10 +1115,28 @@ export default {
       }).then(resp => resp.data.active)
     },
 
-    createInput(file) {
+    async importTable(file) {
+      const fileBuffer = await file.arrayBuffer();
+      const workbook = XLSX.read(fileBuffer);
+      const worksheet = Object.values(workbook.Sheets)[0]
+      const data = XLSX.utils.sheet_to_json(worksheet)
+      
+      data.forEach(row => {
+        Object.keys(row).forEach(columnName => {
+          const matchingHeader = this.headers.find(header => header.text === columnName)
+          if(!matchingHeader) return
+
+          const key = matchingHeader.value
+          delete Object.assign(row, {[key]: row[columnName] })[columnName];
+        })
+        row.frequency === undefined && (row.frequency = '')
+      })
+      
+      this.validateImportedItems(data)
+    },
+
+    importCSV(file) {
       const reader = new FileReader();
-      const vm = this;
-      this.validationMsg = '';
 
       reader.onload = (e) => {
         const lines = reader.result.split('\n')
@@ -1141,7 +1166,16 @@ export default {
           return true;
         })
 
-        if (!importedItems.length) {
+        this.validateImportedItems(importedItems)
+      }
+      reader.readAsText(file);
+    },
+
+    validateImportedItems(importedItems) {
+      const vm = this;
+      this.validationMsg = '';
+
+      if (!importedItems.length) {
           this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
         }
 
@@ -1264,13 +1298,12 @@ export default {
             this.isImported = true;
           }
         });
-      }
-      reader.readAsText(file);
     },
 
     openScheduledDlg() {
       this.scheduleDialog = true;
     },
+
     saveSchedule() {
       this.scheduleDialog = false;
       this.loadingCSV = true;
@@ -1465,15 +1498,25 @@ export default {
       });
     },
 
-    downloadTemplate () {
+    downloadCSV() {
       this.downloadFile({
-        name: 'template.csv',
+        name: `${this.exportFilename}.csv`,
         content: new ObjectToCSV({
           data: this.items,
           keys: this.headers.map(header => ({ key: header.value, as: header.text }))
         }).getCSV(),
         type: 'text/csv;charset=utf-8'
       });
+    },
+
+    downloadXLSX() {
+      const worksheet = XLSX.utils.json_to_sheet(this.items);
+      XLSX.utils.sheet_add_aoa(worksheet, [this.headers.map(header => header.text)], { origin: "A1" });
+      worksheet["!cols"] = this.headers.map(header => ({ wch: header.exportWidth }))
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, this.exportFilename);
+      XLSX.writeFile(workbook, `${this.exportFilename}.xlsx`, { compression: true });
     },
 
     downloadFile({ name, content, type }) {
