@@ -319,7 +319,7 @@ export const AppletMixin = {
                         const name = this.getMediaResponseObject(value.uri, response, item);
 
                         if (name) {
-                          responseData += `filename: ${name}`;
+                          responseData = name;
                         } else {
                           const responseIndex = _.findIndex(previousResponse, o => (o.activity_id === response.activity['@id']) && (o.item === item.id));
 
@@ -339,8 +339,8 @@ export const AppletMixin = {
                           nameStr = `filename: ${src}-${item.id}.csv`
                         }
 
-                        const nameRegex = nameStr.match(/filename: ([^.]*)/i)
-                        responseData += `filename: ${nameRegex[1]}`
+                        const nameRegex = nameStr.match(/([^.]*)/i)
+                        responseData = nameStr
 
                         if (item.inputType == 'drawing') {
                           drawingCSVs.push({
