@@ -47,8 +47,9 @@ const decryptData = ({ text, key }) => {
   try {
     return decrypted.toString() + decipher.final('utf8');
   } catch(error) {
+    console.error('Decrypt data failed. Text:', text, 'key:', key, 'error:', error)
     return JSON.stringify([{type: "", time: "", screen: ""}])
-  }
+  } 
 }
 
 /** encrypt */
