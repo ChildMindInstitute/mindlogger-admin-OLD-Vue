@@ -22,7 +22,7 @@
     "@sentry/browser": "^5.19.0",
     "@sentry/integrations": "^5.19.0",
     "@uiw/react-md-editor": "^3.0.7",
-    "applet-schema-builder": "^0.18.4",
+    "applet-schema-builder": "^0.18.5",
     "aws-s3": "^2.0.5",
     "aws-sdk": "^2.889.0",
     "axios": "^0.21.1",
