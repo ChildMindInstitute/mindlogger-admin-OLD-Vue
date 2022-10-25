@@ -841,7 +841,7 @@ export const AppletMixin = {
     },
     
     downloadReportPDFFromS3 (response) {
-      if(!response.name.includes('.pdf')) {
+      if(!response.name.endsWith('.pdf')) {
         response.name += '.pdf'
       }
 
