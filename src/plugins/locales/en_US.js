@@ -241,7 +241,7 @@ export default {
   savingSchedule: 'Saving Schedule',
   clearActivities: 'Clear all scheduled activities',
   saveActivities: 'Save all scheduled activities',
-  csvValidationTitle: 'Invalid CSV File',
+  csvValidationTitle: 'Invalid File',
   thisTool:
     'This tool is used to design and save ReproNim activity sets. Saved activity sets can be uploaded to MindLogger through the Admin Panel.',
   moreInformation:
