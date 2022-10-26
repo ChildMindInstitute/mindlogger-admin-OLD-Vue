@@ -286,7 +286,7 @@ export const AppletMixin = {
                       name: `${response._id}_${item.id}.csv`,
                       data: this.getFlankerAsCSV(responseDataObj, item, new Date(response.responseStarted).getTime())
                     });
-                    responseData = `filename: ${response._id}_${item.id}.csv`;
+                    responseData = `${response._id}_${item.id}.csv`;
                   } else {
                     responseDataObj.forEach((value, index) => {
                       if (value instanceof Object && !Array.isArray(value)) {
@@ -336,7 +336,7 @@ export const AppletMixin = {
                           nameStr = previousResponse[responseIndex].response;
                           previousResponse.splice(responseIndex, 1);
                         } else {
-                          nameStr = `filename: ${src}-${item.id}.csv`
+                          nameStr = `${src}-${item.id}.csv`
                         }
 
                         const nameRegex = nameStr.match(/([^.]*)/i)
@@ -363,7 +363,7 @@ export const AppletMixin = {
                           data: this.getStabilityCSV(value)
                         })
 
-                        responseData += `filename: ${response._id}_${item.id}.csv`;
+                        responseData += `${response._id}_${item.id}.csv`;
                       }
                     } else {
                       responseData += parseResponseValue(key, value, item.inputType, item);
