@@ -1176,128 +1176,130 @@ export default {
       this.validationMsg = '';
 
       if (!importedItems.length) {
+        this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
+      }
+
+      const activityNames = [];
+      for (const actId in this.$store.state.currentAppletData.activities) {
+        const prefLabel = "http://www.w3.org/2004/02/skos/core#prefLabel";
+        const activityName = _.get(this.$store.state.currentAppletData.activities[actId], [prefLabel, 0, '@value']);
+        activityNames.push(activityName);
+      }
+      
+      const validateTime = (time) => {        
+        if (!time) return true;
+
+        time = time.toString()
+        if (isNaN(time) || time < 0) return false;
+        if (time.length > 4 || time.length < 3) return false;
+
+        const hour = Number(time.slice(0, -2)), minutes = Number(time.slice(-2));
+
+        if (hour >= 24) return false;
+        if (minutes >= 60) return false;
+
+        return true;
+      }
+      for (let i = 0; i < importedItems.length; i += 1) {
+        const { startTime, endTime, name, repeats, frequency, date, notificationTime } = importedItems[i];
+        const month = Number(date.split('/').shift());
+
+        if (isNaN(new Date(date)) || isNaN(month) || month < 0 || month > 12 || date.trim().length != 10) {
           this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
+          break;
         }
 
-        const activityNames = [];
-        for (const actId in this.$store.state.currentAppletData.activities) {
-          const prefLabel = "http://www.w3.org/2004/02/skos/core#prefLabel";
-          const activityName = _.get(this.$store.state.currentAppletData.activities[actId], [prefLabel, 0, '@value']);
-          activityNames.push(activityName);
+        if (!validateTime(startTime) || !validateTime(endTime) || Number(startTime) >= Number(endTime)) {
+          this.validationMsg = 'You have invalid start time or end time in csv. Please fix and reupload.'
+          break;
         }
 
-        const validateTime = (time) => {
-          if (!time) return true;
-          if (isNaN(time) || time < 0) return false;
-          if (time.length > 4 || time.length < 3) return false;
-
-          const hour = Number(time.slice(0, -2)), minutes = Number(time.slice(-2));
-
-          if (hour >= 24) return false;
-          if (minutes >= 60) return false;
-
-          return true;
+        if (!validateTime(notificationTime)) {
+          this.validationMsg = 'You have invalid notification time. Please fix and reupload.'
+          break;
         }
-        for (let i = 0; i < importedItems.length; i += 1) {
-          const { startTime, endTime, name, repeats, frequency, date, notificationTime } = importedItems[i];
-          const month = Number(date.split('/').shift());
 
-          if (isNaN(new Date(date)) || isNaN(month) || month < 0 || month > 12 || date.trim().length != 10) {
-            this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
-            break;
-          }
-
-          if (!validateTime(startTime) || !validateTime(endTime) || Number(startTime) >= Number(endTime)) {
-            this.validationMsg = 'You have invalid start time or end time in csv. Please fix and reupload.'
-            break;
-          }
-
-          if (!validateTime(notificationTime)) {
-            this.validationMsg = 'You have invalid notification time. Please fix and reupload.'
-            break;
-          }
-
-          if (notificationTime && isNaN(notificationTime)) {
-            this.validationMsg = 'You have invalid notification time in csv. Please fix and reupload.';
-            break;
-          }
-
-          if (Number(startTime) > Number(endTime)) {
-            this.validationMsg = 'We are unable to upload this schedule. You have an end time that is before a start time. Please fix and reupload.';
-            break;
-          }
-
-          if (frequency === undefined || repeats === undefined) {
-            this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
-            break;
-          }
-
-          if (!['daily', 'weekly', 'weekday', 'monthly', ''].includes(frequency.toLowerCase().replace(/\s/g, ''))) {
-            this.validationMsg = 'You have invalid frequency value in csv. Please fix and reupload.';
-            break;
-          }
-
-          if (!['yes', 'no'].includes(repeats.toLowerCase().replace(/\s/g, ''))) {
-            this.validationMsg = 'You have invalid repeat value in csv. Please fix and reupload.';
-            break;
-          }
-
-          if (repeats.replace(/\s/g, '') === 'Yes' && frequency.replace(/\s/g, '') === '') {
-            this.validationMsg = `You are missing a frequency to repeat ${name}. Please fix and reupload.`;
-            break;
-          }
-
-          if (repeats.replace(/\s/g, '') !== 'Yes' && frequency.replace(/\s/g, '') !== '') {
-            this.validationMsg = 'You have a frequency set but have entered no repeating. Please fix and reupload.';
-            break;
-          }
-
-          if (!this.activityNames.includes(name)) {
-            this.validationMsg = `${name} is not valid activity. Please fix and reupload.`;
-            break;
-          }
+        if (notificationTime && isNaN(notificationTime)) {
+          this.validationMsg = 'You have invalid notification time in csv. Please fix and reupload.';
+          break;
         }
- 
-        this.getUserList().then(allUsers => {
-          const mrnToUserId = {};
 
-          this.referencedUsersCSV = [];
-          for (let i = 0; i < allUsers.length; i++) {
-            mrnToUserId[allUsers[i].MRN || allUsers[i].email] = allUsers[i]._id;
-          }
-          
-          for (let i = 0; i < importedItems.length; i++) {
-            const secretIds = (importedItems[i].secretId || '').split(', ').map(secretId => secretId.trim()).filter(secretId => secretId);
-            const users = [];
+        if (Number(startTime) > Number(endTime)) {
+          this.validationMsg = 'We are unable to upload this schedule. You have an end time that is before a start time. Please fix and reupload.';
+          break;
+        }
 
-            switch(this.ownerType) {
-              case 'individual':
-                users.push(mrnToUserId[this.userCode]);
-                break;
-              case 'group':
-                users = Object.keys(this.$store.state.currentUsers)
-                break;
-              default: 
-                for (const secretId of secretIds) {
-                  if (!mrnToUserId[secretId]) {
-                    this.validationMsg = 'You have invalid secret id in csv.';
-                    break;
-                  }
-                  users.push(mrnToUserId[secretId]);
+        if (frequency === undefined || repeats === undefined) {
+          this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
+          break;
+        }
+
+        if (!['daily', 'weekly', 'weekday', 'monthly', ''].includes(frequency.toLowerCase().replace(/\s/g, ''))) {
+          this.validationMsg = 'You have invalid frequency value in csv. Please fix and reupload.';
+          break;
+        }
+
+        if (!['yes', 'no'].includes(repeats.toLowerCase().replace(/\s/g, ''))) {
+          this.validationMsg = 'You have invalid repeat value in csv. Please fix and reupload.';
+          break;
+        }
+
+        if (repeats.replace(/\s/g, '') === 'Yes' && frequency.replace(/\s/g, '') === '') {
+          this.validationMsg = `You are missing a frequency to repeat ${name}. Please fix and reupload.`;
+          break;
+        }
+
+        if (repeats.replace(/\s/g, '') !== 'Yes' && frequency.replace(/\s/g, '') !== '') {
+          this.validationMsg = 'You have a frequency set but have entered no repeating. Please fix and reupload.';
+          break;
+        }
+
+        if (!this.activityNames.includes(name)) {
+          this.validationMsg = `${name} is not valid activity. Please fix and reupload.`;
+          break;
+        }
+      }
+
+      this.getUserList().then(allUsers => {
+        const mrnToUserId = {};
+
+        this.referencedUsersCSV = [];
+        for (let i = 0; i < allUsers.length; i++) {
+          mrnToUserId[allUsers[i].MRN || allUsers[i].email] = allUsers[i]._id;
+        }
+        
+        for (let i = 0; i < importedItems.length; i++) {
+          const secretIds = (importedItems[i].secretId || '').split(', ').map(secretId => secretId.trim()).filter(secretId => secretId);
+          const users = [];
+
+          switch(this.ownerType) {
+            case 'individual':
+              users.push(mrnToUserId[this.userCode]);
+              break;
+            case 'group':
+              users = Object.keys(this.$store.state.currentUsers)
+              break;
+            default: 
+              for (const secretId of secretIds) {
+                if (!mrnToUserId[secretId]) {
+                  this.validationMsg = 'You have invalid secret id in csv.';
+                  break;
                 }
-            }
-            importedItems[i].users = users.sort();
-            this.referencedUsersCSV.push(importedItems[i].users.join(','));
+                users.push(mrnToUserId[secretId]);
+              }
           }
+          importedItems[i].users = users.sort();
+          this.referencedUsersCSV.push(importedItems[i].users.join(','));
+        }
 
-          if (this.validationMsg) {
-            this.validationDialog = true;
-          } else {
-            vm.items = importedItems;
-            this.validationDialog = false;
-            this.isImported = true;
-          }
-        });
+        if (this.validationMsg) {
+          this.validationDialog = true;
+        } else {
+          vm.items = importedItems;
+          this.validationDialog = false;
+          this.isImported = true;
+        }
+      });
     },
 
     openScheduledDlg() {
