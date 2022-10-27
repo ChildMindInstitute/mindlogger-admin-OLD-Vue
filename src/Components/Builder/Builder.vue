@@ -332,6 +332,28 @@ export default {
       this.infinityDialog = false;
       this.$router.push("/dashboard").catch(err => {});
     },
+
+    async subscribe(request_guid) {
+      let response = await api.checkState({
+        apiHost: this.$store.state.backend,
+        token: this.$store.state.auth.authToken.token,
+        request_guid
+      });
+
+      if (response.status == 502) {
+        await this.subscribe(request_guid);
+      } else if (response.status != 200) {
+        console.log(response.status);
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await this.subscribe();
+      } else {
+        console.log('200', response);
+
+        await this.subscribe();
+      }
+    },
+
     addNewApplet(appletPassword) {
       const accountId = this.$store.state.currentAccount.accountId;
       const form = new FormData();
@@ -379,6 +401,7 @@ export default {
           this.$store.commit("setBasketApplets", {});
 
           this.onUploadSucess(resp.data.message);
+          this.subscribe(resp.data.request_guid)
         })
         .catch((e) => {
           console.log(e);
