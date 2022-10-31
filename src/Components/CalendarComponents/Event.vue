@@ -1116,8 +1116,10 @@ export default {
     },
 
     async importTable(file) {
-      const fileBuffer = await file.arrayBuffer();
-      const workbook = XLSX.read(fileBuffer);
+      const fileBuffer = await new Response(file).arrayBuffer();
+      const workbook = XLSX.read(fileBuffer, {
+        cellDates: true,
+      })
       const worksheet = Object.values(workbook.Sheets)[0]
       const data = XLSX.utils.sheet_to_json(worksheet)
       
@@ -1130,6 +1132,11 @@ export default {
           delete Object.assign(row, {[key]: row[columnName] })[columnName];
         })
         row.frequency === undefined && (row.frequency = '')
+        row.repeats === undefined && (row.repeats = '')
+
+        if(row.date instanceof Date) {
+          row.date = moment(row.date).format('MM/DD/YYYY')
+        }
       })
       
       this.validateImportedItems(data)
@@ -1174,9 +1181,10 @@ export default {
     validateImportedItems(importedItems) {
       const vm = this;
       this.validationMsg = '';
+      const generalError = 'The table failed to upload. Please ensure you have followed the format exactly and try again.'
 
       if (!importedItems.length) {
-        this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
+        this.validationMsg = generalError;
       }
 
       const activityNames = [];
@@ -1190,8 +1198,7 @@ export default {
         if (!time) return true;
 
         time = time.toString()
-        if (isNaN(time) || time < 0) return false;
-        if (time.length > 4 || time.length < 3) return false;
+        if (isNaN(time) || time < 0 || time.length !== 4) return false;
 
         const hour = Number(time.slice(0, -2)), minutes = Number(time.slice(-2));
 
@@ -1202,15 +1209,26 @@ export default {
       }
       for (let i = 0; i < importedItems.length; i += 1) {
         const { startTime, endTime, name, repeats, frequency, date, notificationTime } = importedItems[i];
+        
+        if(!name || !date) {
+          this.validationMsg = generalError;
+          break;
+        }
+
         const month = Number(date.split('/').shift());
 
         if (isNaN(new Date(date)) || isNaN(month) || month < 0 || month > 12 || date.trim().length != 10) {
-          this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
+          this.validationMsg = generalError;
+          break;
+        }
+
+        if (!moment(date, "MM-DD-YYYY").isValid()) {
+          this.validationMsg = 'You have invalid date in file. Please fix and reupload.'
           break;
         }
 
         if (!validateTime(startTime) || !validateTime(endTime) || Number(startTime) >= Number(endTime)) {
-          this.validationMsg = 'You have invalid start time or end time in csv. Please fix and reupload.'
+          this.validationMsg = 'You have invalid start time or end time in file. Please fix and reupload.'
           break;
         }
 
@@ -1220,7 +1238,7 @@ export default {
         }
 
         if (notificationTime && isNaN(notificationTime)) {
-          this.validationMsg = 'You have invalid notification time in csv. Please fix and reupload.';
+          this.validationMsg = 'You have invalid notification time in file. Please fix and reupload.';
           break;
         }
 
@@ -1229,18 +1247,13 @@ export default {
           break;
         }
 
-        if (frequency === undefined || repeats === undefined) {
-          this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
-          break;
-        }
-
         if (!['daily', 'weekly', 'weekday', 'monthly', ''].includes(frequency.toLowerCase().replace(/\s/g, ''))) {
-          this.validationMsg = 'You have invalid frequency value in csv. Please fix and reupload.';
+          this.validationMsg = 'You have invalid frequency value in file. Please fix and reupload.';
           break;
         }
 
         if (!['yes', 'no'].includes(repeats.toLowerCase().replace(/\s/g, ''))) {
-          this.validationMsg = 'You have invalid repeat value in csv. Please fix and reupload.';
+          this.validationMsg = 'You have invalid repeat value in file. Please fix and reupload.';
           break;
         }
 
@@ -1282,7 +1295,7 @@ export default {
             default: 
               for (const secretId of secretIds) {
                 if (!mrnToUserId[secretId]) {
-                  this.validationMsg = 'You have invalid secret id in csv.';
+                  this.validationMsg = 'You have invalid secret id in file.';
                   break;
                 }
                 users.push(mrnToUserId[secretId]);
