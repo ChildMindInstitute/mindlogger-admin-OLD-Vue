@@ -841,6 +841,10 @@ export const AppletMixin = {
     },
     
     downloadReportPDFFromS3 (response) {
+      if(!response.name.endsWith('.pdf')) {
+        response.name += '.pdf'
+      }
+
       const credentials = {
         accessKeyId: process.env.VUE_APP_ACCESS_KEY_ID,
         secretAccessKey: process.env.VUE_APP_SECRET_ACCES_KEY,
