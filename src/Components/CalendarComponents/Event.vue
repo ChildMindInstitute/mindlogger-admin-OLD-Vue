@@ -1135,6 +1135,9 @@ export default {
         row.repeats === undefined && (row.repeats = '')
 
         if(row.date instanceof Date) {
+          const date = moment(row.date).valueOf() - row.date.getTimezoneOffset() * 60000
+          row.date = moment(date).format('MM/DD/YYYY')
+        } else if (typeof row.date === 'string') {
           row.date = moment(row.date).format('MM/DD/YYYY')
         }
       })
@@ -1209,9 +1212,14 @@ export default {
       }
       for (let i = 0; i < importedItems.length; i += 1) {
         const { startTime, endTime, name, repeats, frequency, date, notificationTime } = importedItems[i];
-        
+
         if(!name || !date) {
           this.validationMsg = generalError;
+          break;
+        }
+
+        if (!moment(date, "MM-DD-YYYY").isValid()) {
+          this.validationMsg = 'You have invalid date in file. Please fix and reupload.'
           break;
         }
 
@@ -1219,11 +1227,6 @@ export default {
 
         if (isNaN(new Date(date)) || isNaN(month) || month < 0 || month > 12 || date.trim().length != 10) {
           this.validationMsg = generalError;
-          break;
-        }
-
-        if (!moment(date, "MM-DD-YYYY").isValid()) {
-          this.validationMsg = 'You have invalid date in file. Please fix and reupload.'
           break;
         }
 
@@ -1357,12 +1360,8 @@ export default {
             day: 0,
           };
 
-          if (!startTime) startTime = '0000';
-          if (!endTime) endTime = '2359';
-
-          if (startTime.length < 4) startTime = '0' + startTime;
-          if (endTime.length < 4) endTime = '0' + endTime;
-          if (notificationTime && notificationTime.length < 4) notificationTime = '0' + notificationTime;
+          startTime = !startTime ? '0000' : startTime.toString()
+          endTime = !endTime ? '2359' : endTime.toString()
 
           const eventTimes = [{
             hour: startTime.slice(0, 2),
@@ -1428,7 +1427,7 @@ export default {
                 allow: notificationTime ? true : false,
                 end: null,
                 random: false,
-                start: notificationTime ? [notificationTime.slice(0, 2), ":", notificationTime.slice(2)].join('') : ''
+                start: notificationTime ? [String(notificationTime).slice(0, 2), ":", String(notificationTime).slice(2)].join('') : ''
               }
             ],
             onlyScheduledDay: false,
