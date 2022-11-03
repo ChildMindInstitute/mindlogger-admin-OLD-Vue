@@ -209,7 +209,7 @@
 
             <!-- Import Schedule -->
             <v-tab-item value="import">
-              <p class="mx-2"> Please upload a schedule table (.csv file format as below) </p>
+              <p class="mx-2"> Please upload a schedule table (.csv, .xlsx, .xls, .ods file format as below) </p>
               <v-card text>
                 <v-data-table
                   :headers="headers"
@@ -222,41 +222,41 @@
                 <v-btn
                   outlined
                   color="primary"
-                  @click.stop="downloadTemplate"
+                  @click.stop="downloadCSV"
                 >
                   {{ !eventCount ? 'Download Template' : 'Export Schedule' }}(.csv)
+                </v-btn>
+                <v-btn
+                  outlined
+                  color="primary"
+                  @click.stop="downloadXLSX"
+                >
+                  {{ !eventCount ? 'Download Template' : 'Export Schedule' }}(.xlsx)
                 </v-btn>
                 <div>
                   <form enctype="multipart/form-data">
                       <input
                         class="import-file ds-display-none"
-                        accept=".csv"
+                        accept=".csv, .xlsx, .xls, .ods"
                         type="file"
                         @change="onFileChange"
                         :key="csvFileKey"
                       />
                   </form>
 
-                  <v-tooltip top>
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                        v-bind="attrs"
-                        v-on="on"
-                        color="blue-grey"
-                        class="white--text mx-2"
-                        @click="handleImportBtn"
-                      >
-                        Import
-                        <v-icon
-                          right
-                          dark
-                        >
-                          mdi-cloud-upload
-                        </v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Please make sure to use correct csv editor to build/edit csv file</span>
-                  </v-tooltip>
+                  <v-btn
+                    color="blue-grey"
+                    class="white--text mx-2"
+                    @click="handleImportBtn"
+                  >
+                    Import
+                    <v-icon
+                      right
+                      dark
+                    >
+                      mdi-cloud-upload
+                    </v-icon>
+                  </v-btn>
 
                   <v-btn
                     color="info"
@@ -406,6 +406,7 @@ import ConfirmationDialog from "../Utils/dialogs/ConfirmationDialog";
 import ObjectToCSV from 'object-to-csv';
 import { VueCsvImport } from 'vue-csv-import';
 import { getEventColor} from "@/Components/CalendarComponents/activityColorPalette.js";
+import * as XLSX from 'xlsx';
 
 export default {
   name: "dsEvent",
@@ -561,14 +562,15 @@ export default {
           align: 'start',
           sortable: true,
           value: 'name',
-          width: '25%'
+          width: '25%',
+          exportWidth: 13,
         },
-        { text: 'Date', value: 'date', width: '15%' },
-        { text: 'Activity Start Time', value: 'startTime' },
-        { text: 'Activity End Time', value: 'endTime' },
-        { text: 'Notification Time', value: 'notificationTime' },
-        { text: 'Repeats', value: 'repeats' },
-        { text: 'Frequency', value: 'frequency' },
+        { text: 'Date', value: 'date', width: '15%', exportWidth: 10, },
+        { text: 'Activity Start Time', value: 'startTime', exportWidth: 15.3 },
+        { text: 'Activity End Time', value: 'endTime', exportWidth: 14.5 },
+        { text: 'Notification Time', value: 'notificationTime', exportWidth: 14.6 },
+        { text: 'Repeats', value: 'repeats', exportWidth: 7.5 },
+        { text: 'Frequency', value: 'frequency', exportWidth: 10.6 },
       ],
       items: [
         {
@@ -834,6 +836,10 @@ export default {
     isReadOnly() {
       return this.readOnly || this.$dayspan.readOnly;
     },
+
+    exportFilename() {
+      return this.eventCount ? 'schedule' : 'template' 
+    }
   },
 
   watch: {
@@ -874,7 +880,7 @@ export default {
     let state = this.calendar.toInput(true);
 
     if (this.ownerType === 'general') {
-      this.headers.push({ text: 'Secret User ID', value: 'secretId' })
+      this.headers.push({ text: 'Secret User ID', value: 'secretId', exportWidth: 16 })
       this.items = this.items.map((item, i) => ({...item, secretId: i === 1 ? 'MRN1' : i % 2 === 0 ? '' : 'MRN1, MRN2'}));
     }
 
@@ -1097,7 +1103,8 @@ export default {
       if (!files.length) {
         return;
       }
-      this.createInput(files[0]);
+
+      files[0].type === 'text/csv' ? this.importCSV(files[0]) : this.importTable(files[0])
     },
 
     getUserList () {
@@ -1108,10 +1115,38 @@ export default {
       }).then(resp => resp.data.active)
     },
 
-    createInput(file) {
+    async importTable(file) {
+      const fileBuffer = await new Response(file).arrayBuffer();
+      const workbook = XLSX.read(fileBuffer, {
+        cellDates: true,
+      })
+      const worksheet = Object.values(workbook.Sheets)[0]
+      const data = XLSX.utils.sheet_to_json(worksheet)
+      
+      data.forEach(row => {
+        Object.keys(row).forEach(columnName => {
+          const matchingHeader = this.headers.find(header => header.text === columnName)
+          if(!matchingHeader) return
+
+          const key = matchingHeader.value
+          delete Object.assign(row, {[key]: row[columnName] })[columnName];
+        })
+        row.frequency === undefined && (row.frequency = '')
+        row.repeats === undefined && (row.repeats = '')
+
+        if(row.date instanceof Date) {
+          const date = moment(row.date).valueOf() - row.date.getTimezoneOffset() * 60000
+          row.date = moment(date).format('MM/DD/YYYY')
+        } else if (typeof row.date === 'string') {
+          row.date = moment(row.date).format('MM/DD/YYYY')
+        }
+      })
+      
+      this.validateImportedItems(data)
+    },
+
+    importCSV(file) {
       const reader = new FileReader();
-      const vm = this;
-      this.validationMsg = '';
 
       reader.onload = (e) => {
         const lines = reader.result.split('\n')
@@ -1141,136 +1176,152 @@ export default {
           return true;
         })
 
-        if (!importedItems.length) {
-          this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
-        }
-
-        const activityNames = [];
-        for (const actId in this.$store.state.currentAppletData.activities) {
-          const prefLabel = "http://www.w3.org/2004/02/skos/core#prefLabel";
-          const activityName = _.get(this.$store.state.currentAppletData.activities[actId], [prefLabel, 0, '@value']);
-          activityNames.push(activityName);
-        }
-
-        const validateTime = (time) => {
-          if (!time) return true;
-          if (isNaN(time) || time < 0) return false;
-          if (time.length > 4 || time.length < 3) return false;
-
-          const hour = Number(time.slice(0, -2)), minutes = Number(time.slice(-2));
-
-          if (hour >= 24) return false;
-          if (minutes >= 60) return false;
-
-          return true;
-        }
-        for (let i = 0; i < importedItems.length; i += 1) {
-          const { startTime, endTime, name, repeats, frequency, date, notificationTime } = importedItems[i];
-          const month = Number(date.split('/').shift());
-
-          if (isNaN(new Date(date)) || isNaN(month) || month < 0 || month > 12 || date.trim().length != 10) {
-            this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
-            break;
-          }
-
-          if (!validateTime(startTime) || !validateTime(endTime) || Number(startTime) >= Number(endTime)) {
-            this.validationMsg = 'You have invalid start time or end time in csv. Please fix and reupload.'
-            break;
-          }
-
-          if (!validateTime(notificationTime)) {
-            this.validationMsg = 'You have invalid notification time. Please fix and reupload.'
-            break;
-          }
-
-          if (notificationTime && isNaN(notificationTime)) {
-            this.validationMsg = 'You have invalid notification time in csv. Please fix and reupload.';
-            break;
-          }
-
-          if (Number(startTime) > Number(endTime)) {
-            this.validationMsg = 'We are unable to upload this schedule. You have an end time that is before a start time. Please fix and reupload.';
-            break;
-          }
-
-          if (frequency === undefined || repeats === undefined) {
-            this.validationMsg = 'The table failed to upload. Please ensure you have followed the format exactly and try again.';
-            break;
-          }
-
-          if (!['daily', 'weekly', 'weekday', 'monthly', ''].includes(frequency.toLowerCase().replace(/\s/g, ''))) {
-            this.validationMsg = 'You have invalid frequency value in csv. Please fix and reupload.';
-            break;
-          }
-
-          if (!['yes', 'no'].includes(repeats.toLowerCase().replace(/\s/g, ''))) {
-            this.validationMsg = 'You have invalid repeat value in csv. Please fix and reupload.';
-            break;
-          }
-
-          if (repeats.replace(/\s/g, '') === 'Yes' && frequency.replace(/\s/g, '') === '') {
-            this.validationMsg = `You are missing a frequency to repeat ${name}. Please fix and reupload.`;
-            break;
-          }
-
-          if (repeats.replace(/\s/g, '') !== 'Yes' && frequency.replace(/\s/g, '') !== '') {
-            this.validationMsg = 'You have a frequency set but have entered no repeating. Please fix and reupload.';
-            break;
-          }
-
-          if (!this.activityNames.includes(name)) {
-            this.validationMsg = `${name} is not valid activity. Please fix and reupload.`;
-            break;
-          }
-        }
- 
-        this.getUserList().then(allUsers => {
-          const mrnToUserId = {};
-
-          this.referencedUsersCSV = [];
-          for (let i = 0; i < allUsers.length; i++) {
-            mrnToUserId[allUsers[i].MRN || allUsers[i].email] = allUsers[i]._id;
-          }
-          
-          for (let i = 0; i < importedItems.length; i++) {
-            const secretIds = (importedItems[i].secretId || '').split(', ').map(secretId => secretId.trim()).filter(secretId => secretId);
-            const users = [];
-
-            switch(this.ownerType) {
-              case 'individual':
-                users.push(mrnToUserId[this.userCode]);
-                break;
-              case 'group':
-                users = Object.keys(this.$store.state.currentUsers)
-                break;
-              default: 
-                for (const secretId of secretIds) {
-                  if (!mrnToUserId[secretId]) {
-                    this.validationMsg = 'You have invalid secret id in csv.';
-                    break;
-                  }
-                  users.push(mrnToUserId[secretId]);
-                }
-            }
-            importedItems[i].users = users.sort();
-            this.referencedUsersCSV.push(importedItems[i].users.join(','));
-          }
-
-          if (this.validationMsg) {
-            this.validationDialog = true;
-          } else {
-            vm.items = importedItems;
-            this.validationDialog = false;
-            this.isImported = true;
-          }
-        });
+        this.validateImportedItems(importedItems)
       }
       reader.readAsText(file);
+    },
+
+    validateImportedItems(importedItems) {
+      const vm = this;
+      this.validationMsg = '';
+      const generalError = 'The table failed to upload. Please ensure you have followed the format exactly and try again.'
+
+      if (!importedItems.length) {
+        this.validationMsg = generalError;
+      }
+
+      const activityNames = [];
+      for (const actId in this.$store.state.currentAppletData.activities) {
+        const prefLabel = "http://www.w3.org/2004/02/skos/core#prefLabel";
+        const activityName = _.get(this.$store.state.currentAppletData.activities[actId], [prefLabel, 0, '@value']);
+        activityNames.push(activityName);
+      }
+      
+      const validateTime = (time) => {        
+        if (!time) return true;
+
+        time = time.toString()
+        if (isNaN(time) || time < 0 || time.length !== 4) return false;
+
+        const hour = Number(time.slice(0, -2)), minutes = Number(time.slice(-2));
+
+        if (hour >= 24) return false;
+        if (minutes >= 60) return false;
+
+        return true;
+      }
+      for (let i = 0; i < importedItems.length; i += 1) {
+        const { startTime, endTime, name, repeats, frequency, date, notificationTime } = importedItems[i];
+
+        if(!name || !date) {
+          this.validationMsg = generalError;
+          break;
+        }
+
+        if (!moment(date, "MM-DD-YYYY").isValid()) {
+          this.validationMsg = 'You have invalid date in file. Please fix and reupload.'
+          break;
+        }
+
+        const month = Number(date.split('/').shift());
+
+        if (isNaN(new Date(date)) || isNaN(month) || month < 0 || month > 12 || date.trim().length != 10) {
+          this.validationMsg = generalError;
+          break;
+        }
+
+        if (!validateTime(startTime) || !validateTime(endTime) || Number(startTime) >= Number(endTime)) {
+          this.validationMsg = 'You have invalid start time or end time in file. Please fix and reupload.'
+          break;
+        }
+
+        if (!validateTime(notificationTime)) {
+          this.validationMsg = 'You have invalid notification time. Please fix and reupload.'
+          break;
+        }
+
+        if (notificationTime && isNaN(notificationTime)) {
+          this.validationMsg = 'You have invalid notification time in file. Please fix and reupload.';
+          break;
+        }
+
+        if (Number(startTime) > Number(endTime)) {
+          this.validationMsg = 'We are unable to upload this schedule. You have an end time that is before a start time. Please fix and reupload.';
+          break;
+        }
+
+        if (!['daily', 'weekly', 'weekday', 'monthly', ''].includes(frequency.toLowerCase().replace(/\s/g, ''))) {
+          this.validationMsg = 'You have invalid frequency value in file. Please fix and reupload.';
+          break;
+        }
+
+        if (!['yes', 'no'].includes(repeats.toLowerCase().replace(/\s/g, ''))) {
+          this.validationMsg = 'You have invalid repeat value in file. Please fix and reupload.';
+          break;
+        }
+
+        if (repeats.replace(/\s/g, '') === 'Yes' && frequency.replace(/\s/g, '') === '') {
+          this.validationMsg = `You are missing a frequency to repeat ${name}. Please fix and reupload.`;
+          break;
+        }
+
+        if (repeats.replace(/\s/g, '') !== 'Yes' && frequency.replace(/\s/g, '') !== '') {
+          this.validationMsg = 'You have a frequency set but have entered no repeating. Please fix and reupload.';
+          break;
+        }
+
+        if (!this.activityNames.includes(name)) {
+          this.validationMsg = `${name} is not valid activity. Please fix and reupload.`;
+          break;
+        }
+      }
+
+      this.getUserList().then(allUsers => {
+        const mrnToUserId = {};
+
+        this.referencedUsersCSV = [];
+        for (let i = 0; i < allUsers.length; i++) {
+          mrnToUserId[allUsers[i].MRN || allUsers[i].email] = allUsers[i]._id;
+        }
+        
+        for (let i = 0; i < importedItems.length; i++) {
+          const secretIds = (importedItems[i].secretId || '').split(', ').map(secretId => secretId.trim()).filter(secretId => secretId);
+          const users = [];
+
+          switch(this.ownerType) {
+            case 'individual':
+              users.push(mrnToUserId[this.userCode]);
+              break;
+            case 'group':
+              users = Object.keys(this.$store.state.currentUsers)
+              break;
+            default: 
+              for (const secretId of secretIds) {
+                if (!mrnToUserId[secretId]) {
+                  this.validationMsg = 'You have invalid secret id in file.';
+                  break;
+                }
+                users.push(mrnToUserId[secretId]);
+              }
+          }
+          importedItems[i].users = users.sort();
+          this.referencedUsersCSV.push(importedItems[i].users.join(','));
+        }
+
+        if (this.validationMsg) {
+          this.validationDialog = true;
+        } else {
+          vm.items = importedItems;
+          this.validationDialog = false;
+          this.isImported = true;
+        }
+      });
     },
 
     openScheduledDlg() {
       this.scheduleDialog = true;
     },
+
     saveSchedule() {
       this.scheduleDialog = false;
       this.loadingCSV = true;
@@ -1309,12 +1360,8 @@ export default {
             day: 0,
           };
 
-          if (!startTime) startTime = '0000';
-          if (!endTime) endTime = '2359';
-
-          if (startTime.length < 4) startTime = '0' + startTime;
-          if (endTime.length < 4) endTime = '0' + endTime;
-          if (notificationTime && notificationTime.length < 4) notificationTime = '0' + notificationTime;
+          startTime = !startTime ? '0000' : startTime.toString()
+          endTime = !endTime ? '2359' : endTime.toString()
 
           const eventTimes = [{
             hour: startTime.slice(0, 2),
@@ -1380,7 +1427,7 @@ export default {
                 allow: notificationTime ? true : false,
                 end: null,
                 random: false,
-                start: notificationTime ? [notificationTime.slice(0, 2), ":", notificationTime.slice(2)].join('') : ''
+                start: notificationTime ? [String(notificationTime).slice(0, 2), ":", String(notificationTime).slice(2)].join('') : ''
               }
             ],
             onlyScheduledDay: false,
@@ -1465,15 +1512,25 @@ export default {
       });
     },
 
-    downloadTemplate () {
+    downloadCSV() {
       this.downloadFile({
-        name: 'template.csv',
+        name: `${this.exportFilename}.csv`,
         content: new ObjectToCSV({
           data: this.items,
           keys: this.headers.map(header => ({ key: header.value, as: header.text }))
         }).getCSV(),
         type: 'text/csv;charset=utf-8'
       });
+    },
+
+    downloadXLSX() {
+      const worksheet = XLSX.utils.json_to_sheet(this.items);
+      XLSX.utils.sheet_add_aoa(worksheet, [this.headers.map(header => header.text)], { origin: "A1" });
+      worksheet["!cols"] = this.headers.map(header => ({ wch: header.exportWidth }))
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, this.exportFilename);
+      XLSX.writeFile(workbook, `${this.exportFilename}.xlsx`, { compression: true });
     },
 
     downloadFile({ name, content, type }) {

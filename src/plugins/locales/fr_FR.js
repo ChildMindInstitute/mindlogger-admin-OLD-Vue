@@ -234,7 +234,7 @@ export default {
   closeImport: 'Fermer l\'importation',
   importSchedule: 'Calendrier d\'importation',
   submitScheduleConfirmation: 'Êtes-vous sûr d\'être prêt à définir votre horaire? Vous devez encore enregistrer le programme sur la page suivante',
-  csvValidationTitle: 'Fichier CSV non valide',
+  csvValidationTitle: 'Fichier non valide',
   replaceScheduleConfirmation: 'L\'importation d\'un nouveau programme remplacera le programme actuel. Es-tu sur de vouloir continuer?',
   thisTool:
     "Cet outil est utilisé pour concevoir et sauvegarder des ensembles d'activités ReproNim. Les ensembles d'activités sauvegardés peuvent être téléchargés dans MindLogger via le panneau d'administration.",
