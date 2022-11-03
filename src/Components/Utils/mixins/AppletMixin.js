@@ -286,7 +286,7 @@ export const AppletMixin = {
                       name: `${response._id}_${item.id}.csv`,
                       data: this.getFlankerAsCSV(responseDataObj, item, new Date(response.responseStarted).getTime())
                     });
-                    responseData = `filename: ${response._id}_${item.id}.csv`;
+                    responseData = `${response._id}_${item.id}.csv`;
                   } else {
                     responseDataObj.forEach((value, index) => {
                       if (value instanceof Object && !Array.isArray(value)) {
@@ -319,7 +319,7 @@ export const AppletMixin = {
                         const name = this.getMediaResponseObject(value.uri, response, item);
 
                         if (name) {
-                          responseData += `filename: ${name}`;
+                          responseData = name;
                         } else {
                           const responseIndex = _.findIndex(previousResponse, o => (o.activity_id === response.activity['@id']) && (o.item === item.id));
 
@@ -336,11 +336,11 @@ export const AppletMixin = {
                           nameStr = previousResponse[responseIndex].response;
                           previousResponse.splice(responseIndex, 1);
                         } else {
-                          nameStr = `filename: ${src}-${item.id}.csv`
+                          nameStr = `${src}-${item.id}.csv`
                         }
 
-                        const nameRegex = nameStr.match(/filename: ([^.]*)/i)
-                        responseData += `filename: ${nameRegex[1]}`
+                        const nameRegex = nameStr.match(/([^.]*)/i)
+                        responseData = nameStr
 
                         if (item.inputType == 'drawing') {
                           drawingCSVs.push({
@@ -363,7 +363,7 @@ export const AppletMixin = {
                           data: this.getStabilityCSV(value)
                         })
 
-                        responseData += `filename: ${response._id}_${item.id}.csv`;
+                        responseData += `${response._id}_${item.id}.csv`;
                       }
                     } else {
                       responseData += parseResponseValue(key, value, item.inputType, item);
@@ -841,6 +841,10 @@ export const AppletMixin = {
     },
     
     downloadReportPDFFromS3 (response) {
+      if(!response.name.endsWith('.pdf')) {
+        response.name += '.pdf'
+      }
+
       const credentials = {
         accessKeyId: process.env.VUE_APP_ACCESS_KEY_ID,
         secretAccessKey: process.env.VUE_APP_SECRET_ACCES_KEY,
