@@ -341,8 +341,8 @@ export default {
     },
     async subscribe(request_guid) {
       const response = await api.checkState({
-        apiHost: this.$store.state.backend,
-        token: this.$store.state.auth.authToken.token,
+        apiHost: this.apiHost,
+        token: this.token,
         request_guid
       });
 
