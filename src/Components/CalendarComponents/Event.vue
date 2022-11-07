@@ -57,7 +57,7 @@
             class="ds-button-tall"
             depressed
             color="primary"
-            :disabled="!canSave || importOnly || isSaving"
+            :disabled="!canSave || activityHidden[details.title] || importOnly || isSaving"
             @click.stop="save"
           >
             <span v-html="labels.save" />
@@ -83,6 +83,7 @@
               color="primary"
               @click.stop="remove(calendarEvent.event.id)"
               depressed
+              :disabled="activityHidden[details.title]"
               >{{ $t('remove') }}</v-btn
             >
           </schedule-actions>
@@ -97,7 +98,7 @@
 
       <!-- Tabs -->
       <v-layout v-if="hasTabs">
-        <v-flex xs12 :class="importOnly ? 'hide-tabs' : ''">
+        <v-flex xs12 :class="importOnly || activityHidden[details.title] ? 'hide-tabs' : ''">
           <v-tabs v-model="tab" class="text--primary">
             <v-tab v-if="hasDetails && !importOnly" href="#details">
               {{ $t('activityAccessOptions') }}
@@ -134,14 +135,18 @@
               <v-card text>
                 <v-card-text>
                   <div class="ds-event-body ds-event-area">
-                    <v-switch
+                    <!-- ! Currently decided to hide possibility to hide items from calendar to avoid disruptions -->
+                    <!-- <v-switch
                       v-model="activityHidden[details.title]"
                       class="ml-6 mb-1"
                       :label="$t('hidden')"
                       :readonly="isReadOnly"
                       @change="changeActivityVis"
                       flat
-                    />
+                    /> -->
+
+                    <span v-if="activityHidden[details.title]">Activity or flow is hidden. Please, unhide it in the builder</span>
+                    
                     <slot
                       v-if="validSchedule(details.title)"
                       name="schedule"
