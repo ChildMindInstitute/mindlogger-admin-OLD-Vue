@@ -188,8 +188,8 @@ export default {
     const { apiHost, token } = this;
     this.versions = [];
     if (!this.$route.params.isLibrary) {
-      this.$store.commit("setBasketApplets", {});
-      this.$store.commit("cacheAppletBuilderData", null);
+      this.setBasketApplets({});
+      this.cacheAppletBuilderData(null);
     }
 
     if (this.$route.query.accountId) {
@@ -235,7 +235,12 @@ export default {
     this.initializing = false;
   },
   methods: {
-    ...mapMutations(["cacheAppletBuilderData", "setCurrentApplet", "updateAppletData"]),
+    ...mapMutations([
+      "cacheAppletBuilderData", 
+      "setCurrentApplet", 
+      "updateAppletData",
+      "setBasketApplets",
+    ]),
 
     onSetPDFPassword (callback, configs) {
       if (this.isEditing) {
@@ -391,6 +396,7 @@ export default {
       })
 
       // Setting applet protocol data
+      this.cacheAppletBuilderData(null);
       this.updateAppletData(appletResponse.data)
       this.appletCreated = true
     },
@@ -439,7 +445,7 @@ export default {
           themeId: this.themeId
         })
         .then((resp) => {
-          this.$store.commit("setBasketApplets", {});
+          this.setBasketApplets({});
           return resp.data.request_guid
         })
         .then((request_guid) => {
@@ -524,8 +530,8 @@ export default {
             this.componentKey = this.componentKey + 1;
           });
 
-          this.$store.commit("setBasketApplets", {});
-          this.$store.commit("cacheAppletBuilderData", null);
+          this.setBasketApplets({});
+          this.cacheAppletBuilderData(null);
 
           this.onUploadSucess();
         })
