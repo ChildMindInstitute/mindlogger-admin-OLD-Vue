@@ -21,6 +21,7 @@
         type="time"
         :readonly="isReadOnly"
         v-model="time"
+        @keydown.delete.prevent
       />
     </div>
     <div class="ds-time-cell d-flex align-baseline">
@@ -44,6 +45,7 @@
         type="time"
         :readonly="isReadOnly"
         v-model="endTime"
+        @keydown.delete.prevent
       />
     </div>
   </div>
@@ -168,6 +170,11 @@ export default {
       return this.readOnly || this.$dayspan.readOnly;
     },
   },
+
+  mounted() {
+    this.endTime = this.endTime // Trigger setter to calculate timeout
+  },
+
   methods: {
     addTime() {
       this.$emit("add", this.getEvent("add"));

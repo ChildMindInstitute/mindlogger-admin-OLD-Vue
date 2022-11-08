@@ -196,6 +196,7 @@
                 <v-card-text>
                   <Notification
                     :details="details"
+                    :startTime="schedule.times[0]"
                     @updatedNotification="
                       (n) => {
                         reactiveProp++;

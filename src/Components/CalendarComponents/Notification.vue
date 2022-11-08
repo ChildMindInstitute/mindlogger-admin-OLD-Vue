@@ -24,25 +24,16 @@
                 class="mx-2"
               />
               <vue-timepicker
-                v-if="$browserDetect.isSafari"
                 class="ds-reminder-time"
                 :disabled="!notification.allow"
                 v-model="notification.start"
-                @change="otherChangeHandler($event, index, 'start')"
                 close-on-complete
+                :hour-range="hourRange"
+                :minute-range="details.timeout.allow ? getMinuteRange(notification.start) : [[0,59]]"
+                @change="otherChangeHandler($event, index, 'start')"
+                @error="timepickerErrorHandler($event, index, 'start', notification.start)"
               >
               </vue-timepicker>
-
-              <v-text-field
-                v-else
-                class="ds-reminder-time"
-                v-model="notification.start"
-                :disabled="!notification.allow"
-                single-line
-                hide-details
-                text
-                type="time"
-              />
             </div>
 
             <div class="d-flex align-center ds-notif-ele">
@@ -54,25 +45,16 @@
               />
 
               <vue-timepicker
-                v-if="$browserDetect.isSafari"
                 class="ds-reminder-time"
                 :disabled="!notification.random"
                 v-model="notification.end"
-                @change="otherChangeHandler($event, index, 'end')"
                 close-on-complete
+                :hour-range="hourRange"
+                :minute-range="details.timeout.allow ? getMinuteRange(notification.end) : [[0,59]]"
+                @change="otherChangeHandler($event, index, 'end')"
+                @error="timepickerErrorHandler($event, index, 'end', notification.end)"
               >
               </vue-timepicker>
-
-              <v-text-field
-                v-else
-                class="ds-reminder-time"
-                v-model="notification.end"
-                :disabled="!notification.random"
-                single-line
-                hide-details
-                text
-                type="time"
-              />
             </div>
           </div>
         </v-col>
@@ -113,24 +95,16 @@
 
         <div class="ds-reminder-flex">
           <vue-timepicker
-            v-if="$browserDetect.isSafari"
             class="ds-reminder-time"
             v-model="reminder.time"
             :drop-direction='"up"'
-            @change="timeChangeHandler($event, 'time')"
             close-on-complete
+            :hour-range="hourRange"
+            :minute-range="details.timeout.allow ? getMinuteRange(reminder.time) : [[0,59]]"
+            @change="timeChangeHandler($event, 'time')"
+            @error="timepickerErrorHandler($event, 0, 'reminder', reminder.time)"
           >
           </vue-timepicker>
-
-          <v-text-field
-            v-else
-            type="time"
-            class="ds-reminder-time"
-            v-model="reminder.time"
-            single-line
-            hide-details
-            text
-          />
         </div>
       </div>
     </div>
@@ -152,15 +126,23 @@
 </template>
 
 <script>
+import { Time } from "dayspan";
 import _ from "lodash";
 import VueTimepicker from "vue2-timepicker";
 import "vue2-timepicker/dist/VueTimepicker.css";
+import moment from "moment";
 
 export default {
   name: "Notification",
   components: { VueTimepicker },
   props: {
     details: {
+      type: Object,
+      default: function () {
+        return {};
+      },
+    },
+    startTime: {
       type: Object,
       default: function () {
         return {};
@@ -227,7 +209,40 @@ export default {
       }
     }
   },
+
+  computed: {
+    endTime() {
+      if(!Time.parse(this.startTime)) return { hour: 23, minute: 59 }
+
+      const endTimeDuration = moment.duration(this.startTime.format('HH:mm'))
+        .add(this.details.timeout.hour, 'h')
+        .add(this.details.timeout.minute, 'm')
+
+      return {
+        hour: endTimeDuration.hours(),
+        minute: endTimeDuration.minutes()
+      }
+    },
+    hourRange() {
+      return this.details.timeout.allow ? [[this.startTime.hour, this.endTime.hour]] : [[0,23]]
+    },
+  },
   methods: {
+    timepickerErrorHandler(errors, index, type, chosenTime) {
+      if(!errors.length) return
+
+      const { startTime, endTime } = this
+      const time = Time.parse(chosenTime)
+      const earlierThanActivityAvailable = time.hour < startTime.hour || time.hour === startTime.hour && time.minute < startTime.minute
+      const formatTime = (timeToFormat) => Time.parse(timeToFormat).format('HH:mm')
+      
+      if(type !== 'reminder') {
+        this.notificationTimes[index][type] = formatTime(earlierThanActivityAvailable ? startTime : endTime)
+        return
+      }
+
+      this.reminder.time = formatTime(earlierThanActivityAvailable ? startTime : endTime)
+    },
     add(index) {
       const n = _.clone(this.notificationTimes);
       n.splice(index + 1, 0, _.clone(this.notificationItem));
@@ -249,6 +264,23 @@ export default {
       this.reminder[type] = `${eventData.data.HH}:${eventData.data.mm}`;
       this.$emit("updatedReminder", this.reminder);
     },
+    getMinuteRange(time) {
+      if(!Time.parse(time)) return []
+
+      const { startTime, endTime } = this
+      const chosenHour = Time.parse(time).hour
+      let minuteRange = [[0, 59]]
+
+      if(chosenHour === startTime.hour) {
+        minuteRange[0][0] = startTime.minute
+      }
+
+      if(chosenHour === endTime.hour) {
+        minuteRange[0][1] = endTime.minute
+      }
+
+      return minuteRange
+    }
   },
 };
 </script>
