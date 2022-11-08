@@ -367,6 +367,15 @@ const createApplet = ({ apiHost, token, email, data, themeId }) =>
     data,
   });
 
+const checkState = ({ apiHost, token, request_guid }) => 
+  axios({
+    method: "GET",
+    url: `${apiHost}/applet/check_state/${request_guid}`,
+    headers: {
+      "Girder-Token": token,
+    },
+  });
+
 const updateApplet = ({ apiHost, token, data, appletId, themeId }) =>
   axios({
     method: "PUT",
@@ -1064,5 +1073,6 @@ export default {
   downloadGCPFile,
   setWelcomeAppletStatus,
   setPDFPassword,
+  checkState,
 };
 </script>

@@ -1,6 +1,10 @@
 <template>
   <div>
-    <About v-if="loading && !infinityDialog" />
+    <About 
+      v-if="loading && !infinityDialog" 
+      :text="loadingText"
+      :error="appletCreationFailed"
+    />
     <AppletSchemaBuilder
       v-if="!initializing"
       v-show="!loading"
@@ -17,6 +21,7 @@
       :viewMode="!canEditApplet"
       :updatePDFPassword="onSetPDFPassword"
       :pdf-server-token="token"
+      :appletCreated="appletCreated"
       @removeTemplate="onRemoveTemplate"
       @updateTemplates="onAddTemplate"
       @uploadProtocol="onUploadProtocol"
@@ -160,7 +165,10 @@ export default {
         visible: false,
         callback: null,
         configs: ''
-      }
+      },
+      loadingText: '',
+      appletCreationFailed: false,
+      appletCreated: null,
     };
   },
   computed: {
@@ -173,15 +181,15 @@ export default {
       );
     },
     canEditApplet() {
-			return !this.isEditing || (!this.currentAppletMeta.welcomeApplet || this.hasRoles(this.currentAppletMeta, 'owner'));
+			return !this.isEditing || (this.currentAppletMeta && (!this.currentAppletMeta.welcomeApplet || this.hasRoles(this.currentAppletMeta, 'owner')));
 		},
   },
   async beforeMount() {
     const { apiHost, token } = this;
     this.versions = [];
     if (!this.$route.params.isLibrary) {
-      this.$store.commit("setBasketApplets", {});
-      this.$store.commit("cacheAppletBuilderData", null);
+      this.setBasketApplets({});
+      this.cacheAppletBuilderData(null);
     }
 
     if (this.$route.query.accountId) {
@@ -190,8 +198,7 @@ export default {
 
     if (this.$route.query.appletId) {
       if (this.accountApplets && Array.isArray(this.accountApplets)) {
-        this.$store.commit(
-          "setCurrentApplet",
+        this.setCurrentApplet(
           this.accountApplets.find(
             (applet) => applet && applet.id === this.$route.query.appletId
           )
@@ -228,7 +235,12 @@ export default {
     this.initializing = false;
   },
   methods: {
-    ...mapMutations(["cacheAppletBuilderData"]),
+    ...mapMutations([
+      "cacheAppletBuilderData", 
+      "setCurrentApplet", 
+      "updateAppletData",
+      "setBasketApplets",
+    ]),
 
     onSetPDFPassword (callback, configs) {
       if (this.isEditing) {
@@ -332,6 +344,63 @@ export default {
       this.infinityDialog = false;
       this.$router.push("/dashboard").catch(err => {});
     },
+    async subscribe(request_guid) {
+      const response = await api.checkState({
+        apiHost: this.apiHost,
+        token: this.token,
+        request_guid
+      });
+
+      if(!Object.keys(response.data).length) {
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        this.subscribe(request_guid);
+        return
+      }
+
+      if(!response.data.is_success) {
+        this.appletCreationFailed = true
+        this.loadingText = 'Applet creation failed, returning to builder...'
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        
+        this.loading = false
+        this.loadingText = ''
+        this.appletCreationFailed = false
+        return
+      }
+
+      this.loadingText = 'Applet created successfully, loading data...'
+      this.isEditing = true;
+
+      // Getting applets with roles
+      const accountResponse = await api.switchAccount({
+        apiHost: this.apiHost,
+        token: this.token,
+        accountId: this.$store.state.currentAccount.accountId
+      });
+
+      const accountApplet = accountResponse.data.account.applets.find(
+        (applet) => applet && applet.id === response.data.applet_id
+      )
+
+      // Setting meta+data without protocol
+      this.setCurrentApplet(accountApplet);
+      this.$store.state.currentAccount.applets.splice(0, 0, accountApplet)
+
+      // Getting applet with protocol
+      const appletResponse = await api.getApplet({
+        apiHost: this.apiHost,
+        token: this.token,
+        allEvent: accountApplet.roles.includes('coordinator') || appletMeta.roles.includes('manager'),
+        retrieveSchedule: true,
+        id: accountApplet.id
+      })
+
+      // Setting applet protocol data
+      this.cacheAppletBuilderData(null);
+      this.updateAppletData(appletResponse.data)
+      this.appletCreated = true
+    },
+
     addNewApplet(appletPassword) {
       const accountId = this.$store.state.currentAccount.accountId;
       const form = new FormData();
@@ -376,9 +445,14 @@ export default {
           themeId: this.themeId
         })
         .then((resp) => {
-          this.$store.commit("setBasketApplets", {});
+          this.setBasketApplets({});
+          return resp.data.request_guid
+        })
+        .then((request_guid) => {
+          this.loadingText = 'Your applet is creating, please wait...'
+          this.loading = true
 
-          this.onUploadSucess(resp.data.message);
+          this.subscribe(request_guid)
         })
         .catch((e) => {
           console.log(e);
@@ -446,7 +520,7 @@ export default {
         })
         .then((resp) => this.loadApplet(appletId))
         .then((data) => {
-          this.$store.commit("updateAppletData", {
+          this.updateAppletData({
             ...data,
             roles: this.currentAppletMeta.roles,
           });
@@ -456,8 +530,8 @@ export default {
             this.componentKey = this.componentKey + 1;
           });
 
-          this.$store.commit("setBasketApplets", {});
-          this.$store.commit("cacheAppletBuilderData", null);
+          this.setBasketApplets({});
+          this.cacheAppletBuilderData(null);
 
           this.onUploadSucess();
         })
@@ -493,6 +567,7 @@ export default {
         .then((resp) => {
           this.versions = resp.data;
           this.componentKey = this.componentKey + 1;
+          this.loadingText = ''
         });
     },
     onUploadSucess(msg) {
