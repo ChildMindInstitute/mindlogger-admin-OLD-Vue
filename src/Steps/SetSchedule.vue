@@ -300,6 +300,7 @@ export default {
         this.$store.commit("setCachedEvents", schedule.events);
 
         this.$refs.calendar.$refs.app.clearEvents();
+        this.$refs.calendar.loadState();
       }
     },
     addEventType(schedule) {
