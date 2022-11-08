@@ -191,7 +191,7 @@
             </v-tab-item>
 
             <!-- Notifications -->
-            <v-tab-item v-if="hasDetails" value="notifications">
+            <v-tab-item v-if="hasDetails" eager value="notifications">
               <v-card text>
                 <v-card-text>
                   <Notification
