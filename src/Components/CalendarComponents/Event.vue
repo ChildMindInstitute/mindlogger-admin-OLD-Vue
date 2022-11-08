@@ -204,6 +204,7 @@
                     "
                     @updatedReminder="
                       (r) => {
+                        reactiveProp++;
                         details.reminder = r;
                       }
                     "
@@ -781,15 +782,24 @@ export default {
         this.calenderEvent
       );
 
+      const matchesTime = (string) => string.match(/\d{2}:\d{2}/)
+
       if (this.details.useNotifications && (!this.details.notifications || this.details.notifications.length === 0)) {
         return false;
       }
       if (this.details.notifications && this.details.useNotifications) {
         for (const notification of this.details.notifications) {
-          if (!notification.allow || notification.allow && (!notification.start || !notification.start.match(/\d{2}:\d{2}/))) {
+          if (!notification.allow || notification.allow && (!notification.start || !matchesTime(notification.start))) {
+            return false;
+          }
+          if (notification.random && (!notification.end || !matchesTime(notification.end))) {
             return false;
           }
         }
+      }
+
+      if(this.reminder.valid && !matchesTime(this.reminder.time)) {
+        return false
       }
 
       const isTimeoutValid = this.isTimeoutValid;
