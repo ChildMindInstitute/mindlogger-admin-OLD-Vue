@@ -360,4 +360,8 @@ export default {
 .no-padding {
   padding: 0 20px;
 }
+
+.vue__time-picker::v-deep .dropdown ul li:not([disabled]).active {
+  background: #1976d2;
+}
 </style>
