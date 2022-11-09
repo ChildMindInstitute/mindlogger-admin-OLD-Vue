@@ -194,7 +194,10 @@
             <v-tab-item v-if="hasDetails" eager value="notifications">
               <v-card text>
                 <v-card-text>
+                  <span v-if="activityHidden[details.title]">Activity or flow is hidden. Please, unhide it in the builder</span>
+
                   <Notification
+                    v-if="validSchedule(details.title)"
                     :details="details"
                     :startTime="schedule.times[0]"
                     @updatedNotification="
