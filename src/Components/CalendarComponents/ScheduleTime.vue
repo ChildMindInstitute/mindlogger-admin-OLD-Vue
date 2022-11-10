@@ -4,49 +4,25 @@
       {{ $t("startTime") }}
 
       <vue-timepicker
-        v-if="$browserDetect.isSafari"
         :disabled="isReadOnly"
         v-model="time"
         close-on-complete
         class="ml-2 mr-1"
+        hide-clear-button
       >
       </vue-timepicker>
-
-      <v-text-field
-        v-else
-        single-line
-        hide-details
-        solo
-        flat
-        type="time"
-        :readonly="isReadOnly"
-        v-model="time"
-        @keydown.delete.prevent
-      />
     </div>
     <div class="ds-time-cell d-flex align-baseline">
       {{ $t("endTime") }}
 
       <vue-timepicker
-        v-if="$browserDetect.isSafari"
         :disabled="isReadOnly"
         v-model="endTime"
         close-on-complete
         class="ml-2"
+        hide-clear-button
       >
       </vue-timepicker>
-
-      <v-text-field
-        v-else
-        single-line
-        hide-details
-        solo
-        flat
-        type="time"
-        :readonly="isReadOnly"
-        v-model="endTime"
-        @keydown.delete.prevent
-      />
     </div>
   </div>
 </template>
@@ -223,5 +199,9 @@ export default {
       margin-right: -8px;
     }
   }
+}
+  
+.vue__time-picker::v-deep .dropdown ul li:not([disabled]).active {
+  background: #1976d2;
 }
 </style>

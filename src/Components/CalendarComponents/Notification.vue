@@ -31,7 +31,6 @@
                 :hour-range="hourRange"
                 :minute-range="details.timeout.allow ? getMinuteRange(notification.start) : [[0,59]]"
                 @change="otherChangeHandler($event, index, 'start')"
-                @error="timepickerErrorHandler($event, index, 'start', notification.start)"
               >
               </vue-timepicker>
             </div>
@@ -52,7 +51,6 @@
                 :hour-range="hourRange"
                 :minute-range="details.timeout.allow ? getMinuteRange(notification.end) : [[0,59]]"
                 @change="otherChangeHandler($event, index, 'end')"
-                @error="timepickerErrorHandler($event, index, 'end', notification.end)"
               >
               </vue-timepicker>
             </div>
@@ -102,7 +100,6 @@
             :hour-range="hourRange"
             :minute-range="details.timeout.allow ? getMinuteRange(reminder.time) : [[0,59]]"
             @change="timeChangeHandler($event, 'time')"
-            @error="timepickerErrorHandler($event, 0, 'reminder', reminder.time)"
           >
           </vue-timepicker>
         </div>
@@ -130,7 +127,6 @@ import { Time } from "dayspan";
 import _ from "lodash";
 import VueTimepicker from "vue2-timepicker";
 import "vue2-timepicker/dist/VueTimepicker.css";
-import moment from "moment";
 
 export default {
   name: "Notification",
@@ -148,6 +144,17 @@ export default {
         return {};
       },
     },
+    endTime: {
+      type: Object,
+      default: function () {
+        return {};
+      },
+    },
+    availability: {
+      type: Boolean,
+      required: false,
+      default: true
+    }
   },
   data() {
     return {
@@ -211,38 +218,11 @@ export default {
   },
 
   computed: {
-    endTime() {
-      if(!Time.parse(this.startTime)) return { hour: 23, minute: 59 }
-
-      const endTimeDuration = moment.duration(this.startTime.format('HH:mm'))
-        .add(this.details.timeout.hour, 'h')
-        .add(this.details.timeout.minute, 'm')
-
-      return {
-        hour: endTimeDuration.hours(),
-        minute: endTimeDuration.minutes()
-      }
-    },
     hourRange() {
-      return this.details.timeout.allow ? [[this.startTime.hour, this.endTime.hour]] : [[0,23]]
+      return !this.availability && this.details.timeout.allow ? [[this.startTime.hour, this.endTime.hour]] : [[0,23]]
     },
   },
   methods: {
-    timepickerErrorHandler(errors, index, type, chosenTime) {
-      if(!errors.length) return
-
-      const { startTime, endTime } = this
-      const time = Time.parse(chosenTime)
-      const earlierThanActivityAvailable = time.hour < startTime.hour || time.hour === startTime.hour && time.minute < startTime.minute
-      const formatTime = (timeToFormat) => Time.parse(timeToFormat).format('HH:mm')
-      
-      if(type !== 'reminder') {
-        this.notificationTimes[index][type] = formatTime(earlierThanActivityAvailable ? startTime : endTime)
-        return
-      }
-
-      this.reminder.time = formatTime(earlierThanActivityAvailable ? startTime : endTime)
-    },
     add(index) {
       const n = _.clone(this.notificationTimes);
       n.splice(index + 1, 0, _.clone(this.notificationItem));

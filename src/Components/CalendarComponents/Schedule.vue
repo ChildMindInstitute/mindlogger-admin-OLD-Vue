@@ -217,9 +217,10 @@
           </div>
         </div>
       </div>
-      <div v-if="isTimeoutValid === false" class="error white--text pa-2">
-        The end time should be bigger than the start time
-      </div>
+    </div>
+    <div v-if="!isModalValid" class="error white--text pa-2">
+      <span v-if="!isTimeoutValid">The end time should be bigger than the start time.</span>
+      <span v-if="!areNotificationsValid">You have invalid time in notifications tab.</span>
     </div>
   </div>
 </template>
@@ -294,6 +295,11 @@ export default {
       required: true,
       default: true,
     },
+    areNotificationsValid: {
+      type: Boolean,
+      required: true,
+      default: true,
+    },
   },
   // eslint-disable-next-line
   data() {
@@ -321,6 +327,9 @@ export default {
     },
     isReadOnly() {
       return this.readOnly || this.$dayspan.readOnly;
+    },
+    isModalValid() {
+      return this.areNotificationsValid && this.isTimeoutValid
     },
   },
   watch: {
@@ -510,5 +519,12 @@ export default {
   .col {
     padding: 0 !important;
   }
+}
+</style>
+
+<style scoped>
+.v-application .error  {
+  display: flex;
+  flex-direction: column;
 }
 </style>
