@@ -676,6 +676,8 @@ export default {
       );
     },
     reminder() {
+      this.reactiveProp;
+
       return (
         this.details.reminder || {
           valid: false,
