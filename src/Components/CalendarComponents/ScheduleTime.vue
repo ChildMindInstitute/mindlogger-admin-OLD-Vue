@@ -4,47 +4,25 @@
       {{ $t("startTime") }}
 
       <vue-timepicker
-        v-if="$browserDetect.isSafari"
         :disabled="isReadOnly"
         v-model="time"
         close-on-complete
         class="ml-2 mr-1"
+        hide-clear-button
       >
       </vue-timepicker>
-
-      <v-text-field
-        v-else
-        single-line
-        hide-details
-        solo
-        flat
-        type="time"
-        :readonly="isReadOnly"
-        v-model="time"
-      />
     </div>
     <div class="ds-time-cell d-flex align-baseline">
       {{ $t("endTime") }}
 
       <vue-timepicker
-        v-if="$browserDetect.isSafari"
         :disabled="isReadOnly"
         v-model="endTime"
         close-on-complete
         class="ml-2"
+        hide-clear-button
       >
       </vue-timepicker>
-
-      <v-text-field
-        v-else
-        single-line
-        hide-details
-        solo
-        flat
-        type="time"
-        :readonly="isReadOnly"
-        v-model="endTime"
-      />
     </div>
   </div>
 </template>
@@ -168,6 +146,11 @@ export default {
       return this.readOnly || this.$dayspan.readOnly;
     },
   },
+
+  mounted() {
+    this.endTime = this.endTime // Trigger setter to calculate timeout
+  },
+
   methods: {
     addTime() {
       this.$emit("add", this.getEvent("add"));
@@ -216,5 +199,9 @@ export default {
       margin-right: -8px;
     }
   }
+}
+  
+.vue__time-picker::v-deep .dropdown ul li:not([disabled]).active {
+  background: #1976d2;
 }
 </style>

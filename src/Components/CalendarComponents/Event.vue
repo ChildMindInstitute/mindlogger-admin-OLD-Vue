@@ -172,6 +172,7 @@
                         :read-only="readOnly"
                         :extended-time="extendedTime"
                         :is-timeout-valid="isTimeoutValid"
+                        :are-notifications-valid="areNotificationsValid"
                       />
                     </slot>
                   </div>
@@ -191,11 +192,17 @@
             </v-tab-item>
 
             <!-- Notifications -->
-            <v-tab-item v-if="hasDetails" value="notifications">
+            <v-tab-item v-if="hasDetails" eager value="notifications">
               <v-card text>
                 <v-card-text>
+                  <span v-if="activityHidden[details.title]">Activity or flow is hidden. Please, unhide it in the builder</span>
+
                   <Notification
+                    v-if="validSchedule(details.title)"
                     :details="details"
+                    :startTime="schedule.times[0]"
+                    :endTime="endTime"
+                    :availability="eventAvailability"
                     @updatedNotification="
                       (n) => {
                         reactiveProp++;
@@ -204,6 +211,7 @@
                     "
                     @updatedReminder="
                       (r) => {
+                        reactiveProp++;
                         details.reminder = r;
                       }
                     "
@@ -626,6 +634,7 @@ export default {
       eventCount: 0,
       loadingCSV: false,
       reactiveProp: 0,
+      areNotificationsValid: true,
     }
   },
 
@@ -659,6 +668,18 @@ export default {
         }
       );
     },
+    endTime() {
+      if(!Time.parse(this.schedule.times[0])) return { hour: 23, minute: 59 }
+
+      const endTimeDuration = moment.duration(this.schedule.times[0].format('HH:mm'))
+        .add(this.timeout.hour, 'h')
+        .add(this.timeout.minute, 'm')
+
+      return {
+        hour: endTimeDuration.hours(),
+        minute: endTimeDuration.minutes()
+      }
+    },
     timeout() {
       return (
         this.details.timeout || {
@@ -671,6 +692,8 @@ export default {
       );
     },
     reminder() {
+      this.reactiveProp;
+
       return (
         this.details.reminder || {
           valid: false,
@@ -774,6 +797,7 @@ export default {
 
     canSave() {
       this.reactiveProp; // Subscribing to state changes so the property can be recomputed
+      this.areNotificationsValid = true
 
       const isValidDayspanEvent = this.$dayspan.isValidEvent(
         this.details,
@@ -781,15 +805,34 @@ export default {
         this.calenderEvent
       );
 
+      const matchesTime = (string) => string.match(/\d{2}:\d{2}/)
+      const matchesRange = (string) => {
+        if(this.eventAvailability || !this.schedule.times.length) return true
+
+        const time = Time.parse(string).toMilliseconds()
+        return time >= this.schedule.times[0].toMilliseconds() && time <= Time.parse(this.endTime).toMilliseconds()
+      }
+
       if (this.details.useNotifications && (!this.details.notifications || this.details.notifications.length === 0)) {
         return false;
       }
       if (this.details.notifications && this.details.useNotifications) {
         for (const notification of this.details.notifications) {
-          if (!notification.allow || notification.allow && (!notification.start || !notification.start.match(/\d{2}:\d{2}/))) {
-            return false;
+          if (!notification.allow) return false
+          
+          const startTimeIsInvalid = notification.allow && (!notification.start || !matchesTime(notification.start) || !matchesRange(notification.start))
+          const endTimeIsInvalid = notification.random && (!notification.end || !matchesTime(notification.end) || !matchesRange(notification.end))
+
+          if (startTimeIsInvalid || endTimeIsInvalid) {
+            this.areNotificationsValid = false
+            return false
           }
         }
+      }
+
+      if(this.reminder.valid && (!matchesTime(this.reminder.time) || !matchesRange(this.reminder.time))) {
+        this.areNotificationsValid = false
+        return false
       }
 
       const isTimeoutValid = this.isTimeoutValid;
@@ -1089,6 +1132,7 @@ export default {
     },
 
     handleAvailability(availability) {
+      this.reactiveProp++;
       this.eventAvailability = availability;
     },
 
