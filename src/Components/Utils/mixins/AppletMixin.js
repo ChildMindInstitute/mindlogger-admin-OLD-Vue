@@ -650,8 +650,7 @@ export const AppletMixin = {
           eventOffset = eventStartTimestamp = '.';
           responseValue = (response.button_pressed === null || response.button_pressed === undefined) ? '.' : response.button_pressed === '0' ? 'L' : 'R';
           responseAccuracy = response.correct ? '1' : '0';
-
-          responseTouchTimestamp = response.response_touch_timestamp || '.';
+          responseTouchTimestamp = 'response_touch_timestamp' in response ? response.response_touch_timestamp || '.' : videoDisplayRequestTimestamp + response.duration;
           responseTime = response.duration;
           videoDisplayRequestTimestamp = '.';
         }
