@@ -220,7 +220,7 @@
     </div>
     <div v-if="!isModalValid" class="error white--text pa-2">
       <span v-if="!isTimeoutValid">The end time should be bigger than the start time.</span>
-      <span v-if="!areNotificationsValid">You have invalid time in notifications tab.</span>
+      <span v-if="!areNotificationsValid">You have an invalid time in the notifications tab.</span>
     </div>
   </div>
 </template>
