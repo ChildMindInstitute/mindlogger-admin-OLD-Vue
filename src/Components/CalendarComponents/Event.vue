@@ -1268,7 +1268,7 @@ export default {
         }
 
         if (!moment(date, "MM-DD-YYYY").isValid()) {
-          this.validationMsg = 'You have invalid date in file. Please fix and reupload.'
+          this.validationMsg = 'You have an invalid date in file. Please fix and reupload.'
           break;
         }
 
@@ -1280,17 +1280,17 @@ export default {
         }
 
         if (!validateTime(startTime) || !validateTime(endTime) || Number(startTime) >= Number(endTime)) {
-          this.validationMsg = 'You have invalid start time or end time in file. Please fix and reupload.'
+          this.validationMsg = 'You have an invalid start time or end time in the file. Please fix and reupload.'
           break;
         }
 
         if (!validateTime(notificationTime)) {
-          this.validationMsg = 'You have invalid notification time. Please fix and reupload.'
+          this.validationMsg = 'You have an invalid notification time. Please fix and reupload.'
           break;
         }
 
         if (notificationTime && isNaN(notificationTime)) {
-          this.validationMsg = 'You have invalid notification time in file. Please fix and reupload.';
+          this.validationMsg = 'You have an invalid notification time in the file. Please fix and reupload.';
           break;
         }
 
@@ -1300,12 +1300,12 @@ export default {
         }
 
         if (!['daily', 'weekly', 'weekday', 'monthly', ''].includes(frequency.toLowerCase().replace(/\s/g, ''))) {
-          this.validationMsg = 'You have invalid frequency value in file. Please fix and reupload.';
+          this.validationMsg = 'You have an invalid frequency value in the file. Please fix and reupload.';
           break;
         }
 
         if (!['yes', 'no'].includes(repeats.toLowerCase().replace(/\s/g, ''))) {
-          this.validationMsg = 'You have invalid repeat value in file. Please fix and reupload.';
+          this.validationMsg = 'You have an invalid repeat value in the file. Please fix and reupload.';
           break;
         }
 
@@ -1347,7 +1347,7 @@ export default {
             default: 
               for (const secretId of secretIds) {
                 if (!mrnToUserId[secretId]) {
-                  this.validationMsg = 'You have invalid secret id in file.';
+                  this.validationMsg = 'You have an invalid secret id in the file.';
                   break;
                 }
                 users.push(mrnToUserId[secretId]);
