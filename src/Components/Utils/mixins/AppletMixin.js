@@ -183,7 +183,7 @@ export const AppletMixin = {
             if (inputType === 'text')
               return value;
 
-            if (inputType == 'stackedRadio' || inputType == 'stackedSlider') {
+            if ((inputType == 'stackedRadio' || inputType == 'stackedSlider') && item.responseOptions.hasOwnProperty(key)) {
               const label = item.responseOptions[key].name.en;
               const response = Array.isArray(value) ? value : [value];
               const str = response.map(option => option !== null ? option.toString().replace(/:\d*$/, '') : '').join(', ');
