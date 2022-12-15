@@ -96,7 +96,11 @@ export const AppletMixin = {
             id: flow._id.split('/').pop(),
           }));
           for (let itemUrl in appletData.items) {
-            currentItems[itemUrl] = new Item(appletData.items[itemUrl]);
+            const item = new Item(appletData.items[itemUrl]);
+            currentItems[itemUrl] = item;
+            if (!!item.url) {
+              currentItems[item.url] = item;
+            }
             currentItems[itemUrl].schemas.push(itemUrl);
           }
           for (let activityUrl in appletData.activities) {
