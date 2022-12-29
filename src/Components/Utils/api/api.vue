@@ -52,6 +52,7 @@ const setSchedule = ({ apiHost, token, id, data }) =>
     url: `${apiHost}/applet/${id}/setSchedule`,
     headers: {
       "Girder-Token": token,
+      "Timezone": Intl.DateTimeFormat().resolvedOptions().timeZone,
     },
     data,
   });
