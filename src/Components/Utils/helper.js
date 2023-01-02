@@ -1,4 +1,5 @@
 import _ from "lodash";
+import moment from "moment";
 
 export const getTextBetweenBrackets = (str) => {
   const reBrackets = /\[\[(.*?)\]]/g;
@@ -76,3 +77,15 @@ export const replaceItemVariableWithName = (markdown, items, answers) => {
 
   return markdown;
 }
+ 
+ export function buildExactDateFromUTC(date) {
+   const utcMoment = moment.utc(date);
+ 
+   const year = utcMoment.year();
+   const month = utcMoment.month();
+   const day = utcMoment.date();
+   const hours = utcMoment.hours();
+   const minutes = utcMoment.minutes();
+ 
+   return new Date(year, month, day, hours, minutes);
+ }
