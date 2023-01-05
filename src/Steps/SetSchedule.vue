@@ -107,6 +107,7 @@ import api from "../Components/Utils/api/api.vue";
 import { AppletMixin } from '@/Components/Utils/mixins/AppletMixin';
 import { addActivityColor } from "@/Components/CalendarComponents/activityColorPalette.js";
 import { mapGetters } from 'vuex';
+import { buildExactDateFromUTC } from '../Components/Utils/helper'
 
 export default {
   name: "Schedule",
@@ -201,7 +202,9 @@ export default {
     }
 
     process.then(schedule => {
-      this.updateCachedSchedule(schedule);
+      this.updateCachedSchedule(
+        preprocessEvents(schedule)
+      );
       this.loading = false;
 
       this.$refs.calendar.loadState();
@@ -239,7 +242,9 @@ export default {
             data: scheduleForm,
           })
           .then((response) => {
-            this.updateCachedSchedule(response.data);
+            this.updateCachedSchedule(
+              preprocessEvents(response.data)
+            );
           })
           .catch((e) => {
             this.errorMessage = `Save Unsuccessful. ${e}`;
@@ -350,4 +355,23 @@ export default {
     }
   },
 };
+
+const transformScheduleDatesFromUTC = (schedule) => {
+  return {
+    ...schedule,
+    start: schedule.start ? buildExactDateFromUTC(schedule.start).valueOf() : undefined,
+    end: schedule.end ? buildExactDateFromUTC(schedule.end).valueOf() : undefined,
+  };
+}
+
+const preprocessEvents = (data) => {
+  return {
+    ...data,
+    events: data.events.map(event => ({
+      ...event,
+      schedule: transformScheduleDatesFromUTC(event.schedule)
+    }))
+  }
+}
+
 </script>
