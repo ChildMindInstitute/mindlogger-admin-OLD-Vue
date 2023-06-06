@@ -427,7 +427,7 @@ export const AppletMixin = {
               if (_.find(csvObj, (val, key) => val === null || val === "null") !== undefined || csvObj['response'] === '') continue;
 
               try {
-                if (typeof csvObj.response == 'string' && csvObj.response.includes('.csv')) {
+                if (typeof csvObj.response == 'string' && csvObj.response.includes('.csv') && data.dataSources[response._id] && data.dataSources[response._id].data[0]) {
                   const { lines } = data.dataSources[response._id].data[0].value;
                   let strArr = [];
                   for (let index = 0; index < lines.length; index++) {
@@ -452,7 +452,7 @@ export const AppletMixin = {
               isSubScaleExported = true;
             }
 
-            if (response.events !== null && activity) {
+            if (response.events !== null && data.eventSources[response.events] && activity) {
               const flow = activityFlows.find(flow => flow.id == response.activityFlow);
               const responseEvents = data.eventSources[response.events].data || [];
 
