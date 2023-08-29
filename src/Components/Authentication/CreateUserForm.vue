@@ -65,12 +65,18 @@
 
           <div class="d-flex align-center">
             <v-checkbox
+              id="terms_id"
               v-model="terms"
               :disabled="disabled"
-              id="terms_id"
             />
 
-            <label for="terms_id" class="mx-2 mb-1">I agree to the <a href="https://mindlogger.org/terms" target="_blacnk">Terms of Service</a></label>
+            <label
+              for="terms_id"
+              class="mx-2 mb-1"
+            >I agree to the <a
+              href="https://mindlogger.org/terms"
+              target="_blacnk"
+            >Terms of Service</a></label>
           </div>
 
           <v-btn
@@ -82,8 +88,8 @@
           </v-btn>
           <v-btn
             color="primary"
-            @click="createAccount"
             :disabled="!terms"
+            @click="createAccount"
           >
             {{ $t("createAccount") }}
           </v-btn>
@@ -164,6 +170,9 @@ export default {
           this.$store.commit("setAuth", { auth, email: this.email });
           this.setAccounts();
           this.setUserDetails();
+
+          this.analytics.track('Account Creation complete');
+          this.analytics.login(resp.data._id);
         })
         .catch((e) => {
           this.error = e.response.data.message;

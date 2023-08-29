@@ -169,6 +169,9 @@ export default {
       }
       return {};
     },
+    ownerType() {
+      return Object.keys(this.$store.state.currentUsers).length ? 'individual' : 'general';
+    },
   },
   watch: {
     $route(to, from) {
@@ -245,6 +248,9 @@ export default {
             this.updateCachedSchedule(
               preprocessEvents(response.data)
             );
+            const analyticsPrefix = this.ownerType === 'general' ? 'GC' : 'IC'
+
+            this.analytics.track(`${analyticsPrefix} Schedule successful`);
           })
           .catch((e) => {
             this.errorMessage = `Save Unsuccessful. ${e}`;
