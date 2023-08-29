@@ -8,6 +8,7 @@ import { Vue as VueIntegration } from "@sentry/integrations";
 import router from "./router";
 import App from "./App.vue";
 import vuetify from "./plugins/vuetify";
+import VueMixpanel from './plugins/VueMixpanel';
 import i18n from "./plugins/language";
 import AppletSchemaBuilder from 'applet-schema-builder';
 import mavonEditor from 'mavon-editor';
@@ -62,7 +63,9 @@ Vue.use(VuetifyDialog, {
 });
 
 Vue.use(browserDetect);
-Vue.use(VueHtml2pdf)
+Vue.use(VueHtml2pdf);
+
+Vue.use(VueMixpanel, { persistence: 'localStorage' });
 
 new Vue({
   el: "#app",

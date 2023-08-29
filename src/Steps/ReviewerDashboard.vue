@@ -1,7 +1,10 @@
 <template>
   <div class="container">
     <v-card class="dashboard">
-      <div v-if="loading" class="status-message">
+      <div
+        v-if="loading"
+        class="status-message"
+      >
         {{ status }}
       </div>
 
@@ -24,10 +27,8 @@
         </div>
 
         <div class="content">
-
           <!-- header -->
-          <template
-          >
+          <template>
             <div
               v-if="this.tabs[selectedTab] == 'responses'"
               class="content-header"
@@ -50,8 +51,8 @@
                         :locale="$i18n.locale.slice(0, 2)"
                         no-title
                         :allowedDates="isAllowedStartDate"
-                        @change="setStartDate"
                         class="date-picker"
+                        @change="setStartDate"
                       />
                     </v-menu>
                     <v-dialog
@@ -69,14 +70,14 @@
                           readonly
                           v-bind="attrs"
                           v-on="on"
-                        ></v-text-field>
+                        />
                       </template>
                       <v-time-picker
                         v-if="startTimeDialog"
                         v-model="startTime"
                         full-width
                       >
-                        <v-spacer></v-spacer>
+                        <v-spacer />
                         <v-btn
                           text
                           color="primary"
@@ -94,7 +95,9 @@
                       </v-time-picker>
                     </v-dialog>
                   </div>
-                  <div class="mx-4">{{ $t("to") }}</div>
+                  <div class="mx-4">
+                    {{ $t("to") }}
+                  </div>
                   <div class="end-time-range">
                     <v-menu>
                       <template v-slot:activator="{ on }">
@@ -111,8 +114,8 @@
                         :locale="$i18n.locale.slice(0, 2)"
                         no-title
                         :allowedDates="isAllowedEndDate"
-                        @change="setEndDate"
                         class="date-picker"
+                        @change="setEndDate"
                       />
                     </v-menu>
                     <v-dialog
@@ -130,14 +133,14 @@
                           readonly
                           v-bind="attrs"
                           v-on="on"
-                        ></v-text-field>
+                        />
                       </template>
                       <v-time-picker
                         v-if="endTimeDialog"
                         v-model="endTime"
                         full-width
                       >
-                        <v-spacer></v-spacer>
+                        <v-spacer />
                         <v-btn
                           text
                           color="primary"
@@ -157,10 +160,15 @@
                   </div>
                 </div>
 
-                <div class="utc-time-alert mb-2 text-center"> Time is shown in UTC </div>
+                <div class="utc-time-alert mb-2 text-center">
+                  Time is shown in UTC
+                </div>
               </div>
 
-              <div id="versions" class="version ml-6 mt-2">
+              <div
+                id="versions"
+                class="version ml-6 mt-2"
+              >
                 <v-select
                   v-model="selectedVersions"
                   attach="#versions"
@@ -184,13 +192,13 @@
 
                 <v-select
                   v-model="selectedSecretIds"
-                  @input="onChangeSecretId"
                   :items="secretIDs"
                   class="secret-id-list"
                   :menu-props="{ maxHeight: 232 }"
                   :label="$t('secretId')"
                   multiple
                   :disabled="!applySecretIdSelector"
+                  @input="onChangeSecretId"
                 />
               </div>
 
@@ -222,8 +230,8 @@
                   :locale="$i18n.locale.slice(0, 2)"
                   no-title
                   :allowedDates="responseExists"
-                  @change="setReviewDate"
                   class="date-picker"
+                  @change="setReviewDate"
                 />
               </v-menu>
 
@@ -253,34 +261,58 @@
 
               <v-radio-group
                 v-if="frequency.chartType == 'frequency'"
-                class="view-type"
                 v-model="frequency.viewType"
+                class="view-type"
               >
                 <div class="view-type-list mx-6">
-                  <v-radio class="mx-4" value="matrix">
+                  <v-radio
+                    class="mx-4"
+                    value="matrix"
+                  >
                     <template v-slot:label>
-                      <img height="24" alt='' v-bind:src="require(`@/assets/matrix-view.png`)"/>
+                      <img
+                        height="24"
+                        alt=""
+                        :src="require(`@/assets/matrix-view.png`)"
+                      >
                       Matrix View
                     </template>
                   </v-radio>
 
-                  <v-radio class="mx-4" value="area">
+                  <v-radio
+                    class="mx-4"
+                    value="area"
+                  >
                     <template v-slot:label>
-                      <img height="24" alt='' v-bind:src="require(`@/assets/area-view.png`)"/>
+                      <img
+                        height="24"
+                        alt=""
+                        :src="require(`@/assets/area-view.png`)"
+                      >
                       Area View
                     </template>
                   </v-radio>
 
-                  <v-radio class="mx-4" value="bar">
+                  <v-radio
+                    class="mx-4"
+                    value="bar"
+                  >
                     <template v-slot:label>
-                      <img height="24" alt='' v-bind:src="require(`@/assets/bar-view.png`)"/>
+                      <img
+                        height="24"
+                        alt=""
+                        :src="require(`@/assets/bar-view.png`)"
+                      >
                       Bar View
                     </template>
                   </v-radio>
                 </div>
               </v-radio-group>
 
-              <div class="utc-time-alert" :class="frequency.chartType == 'frequency' ? '' : 'ml-4'">
+              <div
+                class="utc-time-alert"
+                :class="frequency.chartType == 'frequency' ? '' : 'ml-4'"
+              >
                 Time is shown in UTC
               </div>
 
@@ -389,7 +421,7 @@
                         <v-expansion-panel-content
                           v-if="
                             activity.responses &&
-                            activity.responses.length
+                              activity.responses.length
                           "
                         >
                           <CumulativeScore
@@ -402,7 +434,7 @@
                           <div
                             v-if="
                               activity.finalSubScale &&
-                              activity.finalSubScale.current.outputText
+                                activity.finalSubScale.current.outputText
                             "
                             class="additional-note mt-4"
                           >
@@ -414,8 +446,7 @@
                                 :value="activity.finalSubScale.current.outputText"
                                 :language="'en'"
                                 :toolbarsFlag="false"
-                              >
-                              </mavon-editor>
+                              />
                             </div>
                           </div>
 
@@ -487,8 +518,8 @@
                             <div
                               v-if="
                                 item.allowEdit &&
-                                !item.partOfSubScale &&
-                                (item.inputType !== 'text' || !item.correctAnswer && !item.isResponseIdentifier)
+                                  !item.partOfSubScale &&
+                                  (item.inputType !== 'text' || !item.correctAnswer && !item.isResponseIdentifier)
                               "
                               :key="item['id']"
                               class="chart-card"
@@ -496,19 +527,22 @@
                               <header>
                                 <h3 v-if="item.inputType !== 'markdownMessage'">
                                   <div class="item-question">
-                                    <p v-if="Boolean(item.getQuestionImage())"><img :src="item.getQuestionImage()"></p>
+                                    <p v-if="Boolean(item.getQuestionImage())">
+                                      <img :src="item.getQuestionImage()">
+                                    </p>
                                     <div class="markdown">
                                       <mavon-editor
                                         :value="item.getQuizWithoutImage()"
                                         :language="'en'"
                                         :toolbarsFlag="false"
-                                      >
-                                      </mavon-editor>
+                                      />
                                     </div>
                                   </div>
                                 </h3>
 
-                                <h3 v-else>- <markdown :source="item.label.en"></markdown></h3>
+                                <h3 v-else>
+                                  - <markdown :source="item.label.en" />
+                                </h3>
                               </header>
                               <div v-if="item.inputType == 'markdownMessage'">
                                 <div class="markdown">
@@ -516,8 +550,7 @@
                                     :value="item.question.en"
                                     :language="'en'"
                                     :toolbarsFlag="false"
-                                  >
-                                  </mavon-editor>
+                                  />
                                 </div>
                               </div>
 
@@ -541,7 +574,7 @@
                               <RadioSlider
                                 v-else-if="
                                   item.responseOptions &&
-                                  applet.selectedActivites.includes(index)
+                                    applet.selectedActivites.includes(index)
                                 "
                                 :plot-id="`RadioSlider-${activity.slug}-${item.slug}`"
                                 :item="item"
@@ -599,10 +632,10 @@
                     <v-card class="reviewing-item">
                       <v-tabs
                         v-model="selectedReviewTab"
-                        @change="onChangeReviewingTab"
                         hide-slider
                         light
                         left
+                        @change="onChangeReviewingTab"
                       >
                         <template v-for="reviewingTab in reviewingTabs">
                           <v-tab :key="reviewingTab">
@@ -1038,8 +1071,6 @@ import * as moment from "moment-timezone";
 
 export default {
   name: "ReviewerDashboard",
-
-  mixins: [AppletMixin],
   /**
    * Components that this component depends on.
    */
@@ -1062,6 +1093,8 @@ export default {
     CumulativeScore,
     ChartExportDialog,
   },
+
+  mixins: [AppletMixin],
 
   /**
    * Component state.
@@ -1190,6 +1223,8 @@ export default {
   async mounted() {
     const { appletId } = this.$route.params;
     const { users } = this.$route.query;
+
+    this.analytics.trackPageView('Data Viz')
 
     try {
       this.status = this.$i18n.t("loadingAppletData");

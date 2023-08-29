@@ -172,6 +172,8 @@ export default {
         .then((resp) => {
           this.setAuth({ auth: resp.data, email: this.email });
           this.onLoginSuccess();
+          this.analytics.track('Login Successful');
+          this.analytics.login(resp.data.user._id);
         })
         .catch((e) => {
           this.error = e.response.data.message;

@@ -63,7 +63,7 @@
           <span class="px-2">This account doesn't have enough rights/access to edit the applet.</span>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn
             color="blue darken-1"
             text
@@ -371,6 +371,8 @@ export default {
       this.loadingText = 'Applet created successfully, loading data...'
       this.isEditing = true;
 
+      this.analytics.track('Applet Created Successfully');
+
       // Getting applets with roles
       const accountResponse = await api.switchAccount({
         apiHost: this.apiHost,
@@ -534,6 +536,8 @@ export default {
           this.cacheAppletBuilderData(null);
 
           this.onUploadSucess();
+
+          this.analytics.track('Applet edit successful');
         })
         .catch((e) => {
           this.onUploadError();

@@ -69,7 +69,7 @@
               :key="invitationFormKey"
               @createInvitation="createInvitation"
             />
-            <public-link></public-link>
+            <public-link />
             <div style="height: 58px;" />
           </v-card>
           <v-card
@@ -411,6 +411,7 @@ export default {
         .then(() => {
           this.status = 'ready';
           this.invitationFormKey++;
+          this.analytics.track('Invitation sent successfully');
         })
         .catch((e) => {
           this.error = e.response.data.message;
