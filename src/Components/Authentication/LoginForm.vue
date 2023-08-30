@@ -180,6 +180,7 @@ export default {
         });
     },
     onCreateAccount() {
+      this.analytics.track('Create account button on login screen click');
       this.$emit("createAccount", null);
     },
     onSetBackend() {
