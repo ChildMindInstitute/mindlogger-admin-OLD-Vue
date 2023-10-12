@@ -389,5 +389,8 @@ export default {
   termsText: `Je comprends que les informations fournies par ce questionnaire ne sont pas destinées à remplacer les conseils, le diagnostic ou le traitement offerts par un professionnel de la santé médicale ou mentale, et que mes réponses anonymes peuvent être utilisées et partagées pour des recherches sur la santé mentale des enfants.`,
   pdfFooterText: `CHILD MIND INSTITUTE, INC. ET CHILD MIND MEDICAL PRACTICE, PLLC (ENSEMBLE, "CMI") NE PRATIQUENT PAS DIRECTEMENT OU INDIRECTEMENT LA MÉDECINE ET NE DISPENSENT PAS DE CONSEILS MÉDICAUX DANS LE CADRE DE CE QUESTIONNAIRE. CMI DÉCLINE TOUTE RESPONSABILITÉ EN CE QUI CONCERNE LE DIAGNOSTIC, LE TRAITEMENT, LES DÉCISIONS OU LES ACTIONS PRISES SUR LA BASE DES INFORMATIONS FOURNIES PAR LE PRÉSENT QUESTIONNAIRE ET DÉCLINE TOUTE RESPONSABILITÉ QUANT À L'UTILISATION DE CE QUESTIONNAIRE.`,
   childScore: `Le score de votre enfant`,
+  bannerTextBold: 'Vous utilisez une ancienne version de MindLogger.',
+  bannerText: 'Si nécessaire, vous pouvez afficher ou télécharger des données.',
+  bannerLink: 'Visitez le nouveau MindLogger',
   childScoreOnSubScale: 'Le score de votre enfant pour la sous-échelle {name} est de'
 };
