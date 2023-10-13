@@ -2,7 +2,7 @@
   <v-app>
     <Header />
     <LegacyBanner />
-    <v-content :style="{padding: 0}">
+    <v-content>
       <v-container fluid>
         <router-view />
       </v-container>
