@@ -30,7 +30,7 @@ export default {
   concealAppletSuccess: 'Your applet is concealed successfully',
   viewApplet: 'View Applet',
   refresh: 'Refresh',
-  repeatOptions:'Repeat Options',
+  repeatOptions: 'Repeat Options',
   delete: 'Delete',
   select: 'Select ',
   viewUsers: 'View Users',
@@ -410,5 +410,8 @@ export default {
   termsText: 'I understand that the information provided by this questionnaire is not intended to replace the advice, diagnosis, or treatment offered by a medical or mental health professional, and that my anonymous responses may be used and shared for general research on children’s mental health.',
   pdfFooterText: 'CHILD MIND INSTITUTE, INC. AND CHILD MIND MEDICAL PRACTICE, PLLC (TOGETHER, “CMI”) DOES NOT DIRECTLY OR INDIRECTLY PRACTICE MEDICINE OR DISPENSE MEDICAL ADVICE AS PART OF THIS QUESTIONNAIRE. CMI ASSUMES NO LIABILITY FOR ANY DIAGNOSIS, TREATMENT, DECISION MADE, OR ACTION TAKEN IN RELIANCE UPON INFORMATION PROVIDED BY THIS QUESTIONNAIRE, AND ASSUMES NO RESPONSIBILITY FOR YOUR USE OF THIS QUESTIONNAIRE.',
   childScore: 'Your Child\'s Score',
+  bannerTextBold: 'You are using a legacy version of MindLogger.',
+  bannerText: 'If needed, you can view or download data.',
+  bannerLink: 'Visit the new MindLogger',
   childScoreOnSubScale: 'Your child’s score on the {name} subscale was'
 };

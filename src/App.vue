@@ -1,6 +1,7 @@
 <template>
   <v-app>
     <Header />
+    <LegacyBanner />
     <v-content>
       <v-container fluid>
         <router-view />
@@ -16,11 +17,13 @@ import api from './Components/Utils/api/api.vue';
 import Header from './Components/Utils/header/header.vue';
 import Footer from './Components/Utils/footer/footer.vue';
 import _ from 'lodash';
+import LegacyBanner from "./Components/Utils/LegacyBanner/LegacyBanner.vue";
 
 export default {
   name: 'App',
   store,
   components: {
+    LegacyBanner,
     Header,
     Footer,
   },
