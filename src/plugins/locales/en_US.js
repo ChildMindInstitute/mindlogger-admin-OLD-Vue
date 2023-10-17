@@ -411,7 +411,13 @@ export default {
   pdfFooterText: 'CHILD MIND INSTITUTE, INC. AND CHILD MIND MEDICAL PRACTICE, PLLC (TOGETHER, “CMI”) DOES NOT DIRECTLY OR INDIRECTLY PRACTICE MEDICINE OR DISPENSE MEDICAL ADVICE AS PART OF THIS QUESTIONNAIRE. CMI ASSUMES NO LIABILITY FOR ANY DIAGNOSIS, TREATMENT, DECISION MADE, OR ACTION TAKEN IN RELIANCE UPON INFORMATION PROVIDED BY THIS QUESTIONNAIRE, AND ASSUMES NO RESPONSIBILITY FOR YOUR USE OF THIS QUESTIONNAIRE.',
   childScore: 'Your Child\'s Score',
   bannerTextBold: 'You are using a legacy version of MindLogger.',
-  bannerText: 'If needed, you can view or download data.',
-  bannerLink: 'Visit the new MindLogger',
+  bannerText: {
+    preLaunch: 'A new version of MindLogger is coming soon.',
+    postLaunch: 'If needed, you can view or download data.'
+  },
+  bannerLink: {
+    preLaunch: 'Learn more about how to prepare for the transition.',
+    postLaunch: 'Visit the new MindLogger.'
+  },
   childScoreOnSubScale: 'Your child’s score on the {name} subscale was'
 };

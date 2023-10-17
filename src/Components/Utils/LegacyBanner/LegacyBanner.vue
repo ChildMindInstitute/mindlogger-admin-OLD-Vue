@@ -12,17 +12,23 @@
         class="legacy-banner-img"
       >
       <p>
-        <span class="bold">{{ $t('bannerTextBold') }}</span>
-        <span>{{ $t('bannerText') }}</span>
+        <span
+          v-if="!isPreLaunch"
+          class="bold"
+        >
+          {{ $t('bannerTextBold') }}
+        </span>
+        <span>{{ $t(`bannerText.${isPreLaunch ? 'preLaunch' : 'postLaunch'}`) }}</span>
         <a
-          href="https://admin.mindlogger.org/"
+          :href="isPreLaunch ? preLaunchLink : postLaunchLink"
           target="_blank"
           rel="noopener noreferrer"
         >
-          {{ $t('bannerLink') }}
+          {{ $t(`bannerLink.${isPreLaunch ? 'preLaunch' : 'postLaunch'}`) }}
         </a>
       </p>
       <v-btn
+        v-if="showCloseIcon"
         class="close-icon"
         icon
         @click="closeBanner"
@@ -39,12 +45,24 @@
 <script>
 export default {
   name: "LegacyBanner",
+  props: {
+    showCloseIcon: {
+      type: Boolean,
+      default: false
+    },
+    isPreLaunch: {
+      type: Boolean,
+      default: true
+    },
+  },
   data() {
     const {bar, top} = this.$vuetify.application;
     const headerHeight = top + bar;
 
     return {
       showBanner: true,
+      preLaunchLink: "https://mindlogger.atlassian.net/servicedesk/customer/kb/view/338264121",
+      postLaunchLink: "https://admin.mindlogger.org/",
       styles: {
         margin: `${headerHeight}px 0 -${headerHeight}px`,
       }
