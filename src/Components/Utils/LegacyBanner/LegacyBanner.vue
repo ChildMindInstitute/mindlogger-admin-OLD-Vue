@@ -23,9 +23,7 @@
           :href="isPreLaunch ? preLaunchLink : postLaunchLink"
           target="_blank"
           rel="noopener noreferrer"
-        >
-          {{ $t(`bannerLink.${isPreLaunch ? 'preLaunch' : 'postLaunch'}`) }}
-        </a>
+        >{{ $t(`bannerLink.${isPreLaunch ? 'preLaunch' : 'postLaunch'}`) }}</a>
       </p>
       <v-btn
         v-if="showCloseIcon"
