@@ -75,13 +75,13 @@ export default {
 </script>
 
 <style scoped>
-.legacy-banner {
+.v-application .legacy-banner {
   position: relative;
   z-index: 1;
   background-color: #fff;
 }
 
-.legacy-banner-inner {
+.v-application .legacy-banner .legacy-banner-inner {
   position: relative;
   display: flex;
   align-items: center;
@@ -96,32 +96,32 @@ export default {
   background-color: rgba(223, 172, 3, 0.30);
 }
 
-.bold {
+.v-application .legacy-banner .bold {
   font-weight: 700;
 }
 
-.legacy-banner-img {
+.v-application .legacy-banner .legacy-banner-img {
   margin-right: 12px;
 }
 
-p {
+.v-application .legacy-banner p {
   margin-bottom: 0;
 }
 
-span {
+.v-application .legacy-banner span {
   margin-right: 6px;
 }
 
-a {
+.v-application .legacy-banner a {
   color: #00639a;
   transition: opacity 0.3s;
 }
 
-a:hover {
+.v-application .legacy-banner a:hover {
   opacity: 0.8;
 }
 
-.close-icon {
+.v-application .legacy-banner .close-icon {
   position: absolute;
   right: 24px;
   top: 50%;
@@ -129,7 +129,7 @@ a:hover {
 }
 
 @media only screen and (max-width: 640px) {
-  .legacy-banner {
+  .v-application .legacy-banner-inner {
     font-size: 14px;
   }
 }
