@@ -86,7 +86,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
   min-height: 72px;
   padding: 12px 72px;
   color: #1a1c1e;
