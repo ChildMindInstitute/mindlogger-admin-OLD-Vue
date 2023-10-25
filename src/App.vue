@@ -2,7 +2,7 @@
   <v-app>
     <Header />
     <!--To show the Legacy Banner for the post-launch, change the is-pre-launch property to false-->
-    <LegacyBanner :is-pre-launch="true" />
+    <LegacyBanner :is-pre-launch="false" />
     <v-content>
       <v-container fluid>
         <router-view />
